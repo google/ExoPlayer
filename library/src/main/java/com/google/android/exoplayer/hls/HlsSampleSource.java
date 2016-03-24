@@ -73,7 +73,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private boolean prepared;
+  private int state;
   private boolean loadControlRegistered;
   private int enabledTrackCount;
 
@@ -84,6 +84,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private TrackGroupArray trackGroups;
   private int primaryTrackGroupIndex;
   private int[] primarySelectedTracks;
+  private boolean primarySelectedTracksChanged;
   // Indexed by group.
   private boolean[] groupEnabledStates;
   private boolean[] pendingResets;
@@ -132,14 +133,19 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
+  public int getState() {
+    return state;
+  }
+
+  @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (prepared) {
-      return true;
-    } else if (!chunkSource.prepare()) {
+    Assertions.checkState(state == STATE_UNPREPARED);
+    if (!chunkSource.prepare()) {
       return false;
-    } else if (chunkSource.getTrackCount() == 0) {
+    }
+    if (chunkSource.getTrackCount() == 0) {
       trackGroups = new TrackGroupArray();
-      prepared = true;
+      state = STATE_SELECTING_TRACKS;
       return true;
     }
     if (!extractors.isEmpty()) {
@@ -148,7 +154,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         HlsExtractorWrapper extractor = extractors.getFirst();
         if (extractor.isPrepared()) {
           buildTracks(extractor);
-          prepared = true;
+          state = STATE_SELECTING_TRACKS;
           maybeStartLoading(); // Update the load control.
           return true;
         } else if (extractors.size() > 1) {
@@ -183,74 +189,82 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    Assertions.checkState(prepared);
     return trackGroups;
   }
 
+
   @Override
-  public TrackStream enable(TrackSelection selection, long positionUs) {
-    Assertions.checkState(prepared);
+  public void startTrackSelection() {
+    Assertions.checkState(state == STATE_READING);
+    state = STATE_SELECTING_TRACKS;
+    primarySelectedTracksChanged = false;
+  }
+
+  @Override
+  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
     int group = selection.group;
     int[] tracks = selection.getTracks();
     setTrackGroupEnabledState(group, true);
     downstreamSampleFormats[group] = null;
     pendingResets[group] = false;
-    downstreamFormat = null;
-    boolean wasLoadControlRegistered = loadControlRegistered;
-    if (!loadControlRegistered) {
-      loadControl.register(this, bufferSizeContribution);
-      loadControlRegistered = true;
-    }
-    // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
     if (group == primaryTrackGroupIndex && !Arrays.equals(tracks, primarySelectedTracks)) {
-      // This is a primary track whose corresponding chunk source track is different to the one
-      // currently selected. We need to change the selection and restart. Since other exposed tracks
-      // may be enabled too, we need to implement the restart as a seek so that all downstream
-      // renderers receive a discontinuity event.
-      chunkSource.selectTracks(tracks);
       primarySelectedTracks = tracks;
-      seekToInternal(positionUs);
-    } else if (enabledTrackCount == 1) {
-      lastSeekPositionUs = positionUs;
-      if (wasLoadControlRegistered && downstreamPositionUs == positionUs) {
-        // TODO: Address [Internal: b/21743989] to remove the need for this kind of hack.
-        // This is the first track to be enabled after preparation and the position is the same as
-        // was passed to prepare. In this case we can avoid restarting, which would reload the same
-        // chunks as were loaded during preparation.
-        maybeStartLoading();
-      } else {
-        downstreamPositionUs = positionUs;
-        restartFrom(positionUs);
-      }
+      primarySelectedTracksChanged = true;
     }
     return new TrackStreamImpl(group);
   }
 
   @Override
-  public void disable(TrackStream trackStream) {
-    Assertions.checkState(prepared);
-    int group = ((TrackStreamImpl) trackStream).group;
+  public void unselectTrack(TrackStream stream) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    int group = ((TrackStreamImpl) stream).group;
     setTrackGroupEnabledState(group, false);
+  }
+
+  @Override
+  public void endTrackSelection(long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    state = STATE_READING;
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
-      if (loadControlRegistered) {
-        loadControl.unregister(this);
-        loadControlRegistered = false;
+      downstreamFormat = null;
+      if (loader != null) {
+        if (loadControlRegistered) {
+          loadControl.unregister(this);
+          loadControlRegistered = false;
+        }
+        if (loader.isLoading()) {
+          loader.cancelLoading();
+        } else {
+          clearState();
+          loadControl.trimAllocator();
+        }
       }
-      if (loader.isLoading()) {
-        loader.cancelLoading();
+    } else {
+      if (!loadControlRegistered) {
+        loadControl.register(this, bufferSizeContribution);
+        loadControlRegistered = true;
+      }
+      // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
+      positionUs = chunkSource.isLive() ? 0 : positionUs;
+      if (primarySelectedTracksChanged) {
+        // If the primary tracks change then this will affect other exposed tracks that are enabled
+        // as well. Hence we implement the restart as a seek so that all downstream renderers
+        // receive a discontinuity event.
+        chunkSource.selectTracks(primarySelectedTracks);
+        seekToInternal(positionUs);
       } else {
-        clearState();
-        loadControl.trimAllocator();
+        lastSeekPositionUs = positionUs;
+        downstreamPositionUs = positionUs;
+        restartFrom(positionUs);
       }
     }
   }
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return;
     }
@@ -290,8 +304,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   /* package */ int readData(int group, FormatHolder formatHolder, SampleHolder sampleHolder) {
-    Assertions.checkState(prepared);
-
     if (pendingResets[group] || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
@@ -355,7 +367,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void seekToUs(long positionUs) {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return;
     }
@@ -364,7 +375,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public long getBufferedPositionUs() {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return C.END_OF_SOURCE_US;
     } else if (isPendingReset()) {
@@ -391,6 +401,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void release() {
+    state = STATE_RELEASED;
+    enabledTrackCount = 0;
     if (loader != null) {
       if (loadControlRegistered) {
         loadControl.unregister(this);
@@ -399,7 +411,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       loader.release();
       loader = null;
     }
-    prepared = false;
   }
 
   // Loader.Callback implementation.
@@ -680,7 +691,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    if (loader.isLoading() || !nextLoader || (prepared && enabledTrackCount == 0)) {
+    if (loader.isLoading() || !nextLoader
+        || (state != STATE_UNPREPARED && enabledTrackCount == 0)) {
       return;
     }
 
@@ -730,7 +742,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished || (prepared && enabledTrackCount == 0) ? -1
+      return loadingFinished || (state != STATE_UNPREPARED && enabledTrackCount == 0) ? -1
           : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
     }
   }

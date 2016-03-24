@@ -17,6 +17,7 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.TrackSelector.InvalidationListener;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
@@ -31,7 +32,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -68,12 +68,12 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final StandaloneMediaClock standaloneMediaClock;
   private final long minBufferUs;
   private final long minRebufferUs;
-  private final TrackSelection[] trackSelections;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
   private final AtomicInteger pendingSeekCount;
 
+  private TrackSelectionArray trackSelections;
   private TrackRenderer rendererMediaClockSource;
   private MediaClock rendererMediaClock;
   private SampleSource source;
@@ -104,7 +104,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.bufferedPositionUs = C.UNKNOWN_TIME_US;
     standaloneMediaClock = new StandaloneMediaClock();
     pendingSeekCount = new AtomicInteger();
-    trackSelections = new TrackSelection[renderers.length];
     enabledRenderers = new TrackRenderer[0];
 
     trackSelector.init(this);
@@ -281,7 +280,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     durationUs = source.getDurationUs();
     bufferedPositionUs = source.getBufferedPositionUs();
-    selectTracksInternal();
+    selectTracksInternal(true);
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
@@ -478,27 +477,28 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler.removeMessages(MSG_DO_SOME_WORK);
     handler.removeMessages(MSG_INCREMENTAL_PREPARE);
     rebuffering = false;
+    trackSelections = null;
     standaloneMediaClock.stop();
-    if (renderers == null) {
-      return;
-    }
-    for (TrackRenderer renderer : renderers) {
-      resetRendererInternal(renderer);
-    }
+    rendererMediaClock = null;
+    rendererMediaClockSource = null;
     enabledRenderers = new TrackRenderer[0];
-    Arrays.fill(trackSelections, null);
-    source = null;
-  }
-
-  private void resetRendererInternal(TrackRenderer renderer) {
-    try {
-      ensureDisabled(renderer);
-    } catch (ExoPlaybackException e) {
-      // There's nothing we can do.
-      Log.e(TAG, "Stop failed.", e);
-    } catch (RuntimeException e) {
-      // Ditto.
-      Log.e(TAG, "Stop failed.", e);
+    for (TrackRenderer renderer : renderers) {
+      try {
+        ensureStopped(renderer);
+        if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
+          renderer.disable();
+        }
+      } catch (ExoPlaybackException e) {
+        // There's nothing we can do.
+        Log.e(TAG, "Stop failed.", e);
+      } catch (RuntimeException e) {
+        // Ditto.
+        Log.e(TAG, "Stop failed.", e);
+      }
+    }
+    if (source != null) {
+      source.release();
+      source = null;
     }
   }
 
@@ -520,10 +520,24 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private void selectTracksInternal() throws ExoPlaybackException {
+  private void selectTracksInternal(boolean initialSelection) throws ExoPlaybackException {
     TrackGroupArray groups = source.getTrackGroups();
+
     Pair<TrackSelectionArray, Object> result = trackSelector.selectTracks(renderers, groups);
-    TrackSelectionArray newTrackSelections = result.first;
+    TrackSelectionArray newSelections = result.first;
+
+    if (newSelections.equals(trackSelections)) {
+      trackSelector.onSelectionActivated(result.second);
+      // No changes to the track selections.
+      return;
+    }
+
+    if (initialSelection) {
+      Assertions.checkState(source.getState() == SampleSource.STATE_SELECTING_TRACKS);
+    } else {
+      Assertions.checkState(source.getState() == SampleSource.STATE_READING);
+      source.startTrackSelection();
+    }
 
     // We disable all renderers whose track selections have changed, then enable renderers with new
     // track selections during a second pass. Doing all disables before any enables is necessary
@@ -536,37 +550,45 @@ import java.util.concurrent.atomic.AtomicInteger;
     int enabledRendererCount = 0;
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
-      TrackSelection previousTrackSelection = trackSelections[i];
-      trackSelections[i] = newTrackSelections.get(i);
-      if (trackSelections[i] != null) {
+      TrackSelection oldSelection = trackSelections == null ? null : trackSelections.get(i);
+      TrackSelection newSelection = newSelections.get(i);
+      if (newSelection != null) {
         enabledRendererCount++;
       }
       rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
-      if (!Util.areEqual(previousTrackSelection, trackSelections[i])) {
+      if (!Util.areEqual(oldSelection, newSelection)) {
         // The track selection has changed for this renderer.
         if (rendererWasEnabledFlags[i]) {
           // We need to disable the renderer so that we can enable it with its new selection.
-          if (trackSelections[i] == null && renderer == rendererMediaClockSource) {
-            // We've been using rendererMediaClockSource to advance the current position, but it's
-            // being disabled and won't be re-enabled. Sync standaloneMediaClock so that it can take
-            // over timing responsibilities.
-            standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+          if (renderer == rendererMediaClockSource) {
+            // The renderer is providing the media clock.
+            if (newSelection == null) {
+              // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
+              // over timing responsibilities.
+              standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+            }
+            rendererMediaClock = null;
+            rendererMediaClockSource = null;
           }
-          ensureDisabled(renderer);
+          ensureStopped(renderer);
+          if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
+            TrackStream trackStream = renderer.disable();
+            source.unselectTrack(trackStream);
+          }
         }
       }
     }
 
-    // The new selections are being activated.
     trackSelector.onSelectionActivated(result.second);
+    trackSelections = newSelections;
     enabledRenderers = new TrackRenderer[enabledRendererCount];
     enabledRendererCount = 0;
 
     // Enable renderers with their new track selections.
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
-      TrackSelection trackSelection = trackSelections[i];
-      if (trackSelection != null) {
+      TrackSelection newSelection = trackSelections.get(i);
+      if (newSelection != null) {
         enabledRenderers[enabledRendererCount++] = renderer;
         if (renderer.getState() == TrackRenderer.STATE_DISABLED) {
           // The renderer needs enabling with its new track selection.
@@ -574,11 +596,11 @@ import java.util.concurrent.atomic.AtomicInteger;
           // Consider as joining only if the renderer was previously disabled.
           boolean joining = !rendererWasEnabledFlags[i] && playing;
           // Enable the source and obtain the stream for the renderer to consume.
-          TrackStream trackStream = source.enable(trackSelection, positionUs);
+          TrackStream trackStream = source.selectTrack(newSelection, positionUs);
           // Build an array of formats contained by the new selection.
-          Format[] formats = new Format[trackSelection.length];
+          Format[] formats = new Format[newSelection.length];
           for (int j = 0; j < formats.length; j++) {
-            formats[j] = groups.get(trackSelections[i].group).getFormat(trackSelection.getTrack(j));
+            formats[j] = groups.get(newSelection.group).getFormat(newSelection.getTrack(j));
           }
           // Enable the renderer.
           renderer.enable(formats, trackStream, positionUs, joining);
@@ -598,6 +620,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
     }
+
+    source.endTrackSelection(positionUs);
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {
@@ -605,20 +629,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       // We don't have tracks yet, so we don't care.
       return;
     }
-    selectTracksInternal();
+    selectTracksInternal(false);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-  }
-
-  private void ensureDisabled(TrackRenderer renderer) throws ExoPlaybackException {
-    ensureStopped(renderer);
-    if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-      TrackStream trackStream = renderer.disable();
-      source.disable(trackStream);
-      if (renderer == rendererMediaClockSource) {
-        rendererMediaClock = null;
-        rendererMediaClockSource = null;
-      }
-    }
   }
 
   private void ensureStopped(TrackRenderer renderer) throws ExoPlaybackException {

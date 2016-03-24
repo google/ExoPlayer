@@ -71,7 +71,7 @@ public final class FrameworkSampleSource implements SampleSource {
   private final long fileDescriptorOffset;
   private final long fileDescriptorLength;
 
-  private boolean prepared;
+  private int state;
   private long durationUs;
   private MediaExtractor extractor;
   private TrackGroupArray tracks;
@@ -97,6 +97,7 @@ public final class FrameworkSampleSource implements SampleSource {
     fileDescriptor = null;
     fileDescriptorOffset = 0;
     fileDescriptorLength = 0;
+    state = STATE_UNPREPARED;
   }
 
   /**
@@ -116,13 +117,17 @@ public final class FrameworkSampleSource implements SampleSource {
     context = null;
     uri = null;
     headers = null;
+    state = STATE_UNPREPARED;
+  }
+
+  @Override
+  public int getState() {
+    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (prepared) {
-      return true;
-    }
+    Assertions.checkState(state == STATE_UNPREPARED);
     extractor = new MediaExtractor();
     if (context != null) {
       extractor.setDataSource(context, uri, headers);
@@ -132,16 +137,16 @@ public final class FrameworkSampleSource implements SampleSource {
     durationUs = C.UNKNOWN_TIME_US;
     trackStates = new int[extractor.getTrackCount()];
     pendingResets = new boolean[trackStates.length];
-    TrackGroup[] tracks = new TrackGroup[trackStates.length];
+    TrackGroup[] trackArray = new TrackGroup[trackStates.length];
     for (int i = 0; i < trackStates.length; i++) {
       MediaFormat format = extractor.getTrackFormat(i);
       if (format.containsKey(MediaFormat.KEY_DURATION)) {
         durationUs = Math.max(durationUs, format.getLong(MediaFormat.KEY_DURATION));
       }
-      tracks[i] = new TrackGroup(createFormat(i, format));
+      trackArray[i] = new TrackGroup(createFormat(i, format));
     }
-    this.tracks = new TrackGroupArray(tracks);
-    prepared = true;
+    tracks = new TrackGroupArray(trackArray);
+    state = STATE_SELECTING_TRACKS;
     return true;
   }
 
@@ -161,8 +166,14 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public TrackStream enable(TrackSelection selection, long positionUs) {
-    Assertions.checkState(prepared);
+  public void startTrackSelection() {
+    Assertions.checkState(state == STATE_READING);
+    state = STATE_SELECTING_TRACKS;
+  }
+
+  @Override
+  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
     Assertions.checkState(selection.length == 1);
     Assertions.checkState(selection.getTrack(0) == 0);
     int track = selection.group;
@@ -170,8 +181,27 @@ public final class FrameworkSampleSource implements SampleSource {
     enabledTrackCount++;
     trackStates[track] = TRACK_STATE_ENABLED;
     extractor.selectTrack(track);
-    seekToUsInternal(positionUs, positionUs != 0);
     return new TrackStreamImpl(track);
+  }
+
+  @Override
+  public void unselectTrack(TrackStream stream) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    int track = ((TrackStreamImpl) stream).track;
+    Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
+    enabledTrackCount--;
+    trackStates[track] = TRACK_STATE_DISABLED;
+    extractor.unselectTrack(track);
+    pendingResets[track] = false;
+  }
+
+  @Override
+  public void endTrackSelection(long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    state = STATE_READING;
+    if (enabledTrackCount > 0) {
+      seekToUsInternal(positionUs, positionUs != 0);
+    }
   }
 
   /* package */ long readReset(int track) {
@@ -183,7 +213,6 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, SampleHolder sampleHolder) {
-    Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
     if (pendingResets[track]) {
       return TrackStream.NOTHING_READ;
@@ -224,19 +253,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void disable(TrackStream trackStream) {
-    Assertions.checkState(prepared);
-    int track = ((TrackStreamImpl) trackStream).track;
-    Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
-    extractor.unselectTrack(track);
-    trackStates[track] = TRACK_STATE_DISABLED;
-    pendingResets[track] = false;
-    enabledTrackCount--;
-  }
-
-  @Override
   public void seekToUs(long positionUs) {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return;
     }
@@ -245,7 +262,6 @@ public final class FrameworkSampleSource implements SampleSource {
 
   @Override
   public long getBufferedPositionUs() {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return C.END_OF_SOURCE_US;
     }
@@ -261,11 +277,11 @@ public final class FrameworkSampleSource implements SampleSource {
 
   @Override
   public void release() {
+    state = STATE_RELEASED;
     if (extractor != null) {
       extractor.release();
       extractor = null;
     }
-    prepared = false;
   }
 
   @TargetApi(18)

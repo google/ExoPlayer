@@ -59,9 +59,9 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
    */
   private static final int INITIAL_SAMPLE_SIZE = 1;
 
-  private static final int STATE_SEND_FORMAT = 0;
-  private static final int STATE_SEND_SAMPLE = 1;
-  private static final int STATE_END_OF_STREAM = 2;
+  private static final int STREAM_STATE_SEND_FORMAT = 0;
+  private static final int STREAM_STATE_SEND_SAMPLE = 1;
+  private static final int STREAM_STATE_END_OF_STREAM = 2;
 
   private final Uri uri;
   private final DataSource dataSource;
@@ -74,15 +74,16 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private final int eventSourceId;
 
   private int state;
-  private byte[] sampleData;
-  private int sampleSize;
-
   private long pendingResetPositionUs;
   private boolean loadingFinished;
   private Loader loader;
   private IOException currentLoadableException;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
+
+  private int streamState;
+  private byte[] sampleData;
+  private int sampleSize;
 
   public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs) {
     this(uri, dataSource, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
@@ -106,6 +107,12 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     this.eventSourceId = eventSourceId;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
+    state = STATE_UNPREPARED;
+  }
+
+  @Override
+  public int getState() {
+    return state;
   }
 
   @Override
@@ -117,9 +124,9 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public boolean prepare(long positionUs) {
-    if (loader == null) {
-      loader = new Loader("Loader:" + format.sampleMimeType);
-    }
+    Assertions.checkState(state == STATE_UNPREPARED);
+    state = STATE_SELECTING_TRACKS;
+    loader = new Loader("Loader:" + format.sampleMimeType);
     return true;
   }
 
@@ -134,12 +141,31 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public TrackStream enable(TrackSelection selection, long positionUs) {
-    state = STATE_SEND_FORMAT;
+  public void startTrackSelection() {
+    Assertions.checkState(state == STATE_READING);
+    state = STATE_SELECTING_TRACKS;
+  }
+
+  @Override
+  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    streamState = STREAM_STATE_SEND_FORMAT;
     pendingResetPositionUs = NO_RESET;
     clearCurrentLoadableException();
     maybeStartLoading();
     return this;
+  }
+
+  @Override
+  public void unselectTrack(TrackStream stream) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    streamState = STREAM_STATE_END_OF_STREAM;
+  }
+
+  @Override
+  public void endTrackSelection(long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    state = STATE_READING;
   }
 
   @Override
@@ -161,16 +187,16 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
-    if (state == STATE_END_OF_STREAM) {
+    if (streamState == STREAM_STATE_END_OF_STREAM) {
       sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
       return END_OF_STREAM;
-    } else if (state == STATE_SEND_FORMAT) {
+    } else if (streamState == STREAM_STATE_SEND_FORMAT) {
       formatHolder.format = format;
-      state = STATE_SEND_SAMPLE;
+      streamState = STREAM_STATE_SEND_SAMPLE;
       return FORMAT_READ;
     }
 
-    Assertions.checkState(state == STATE_SEND_SAMPLE);
+    Assertions.checkState(streamState == STREAM_STATE_SEND_SAMPLE);
     if (!loadingFinished) {
       return NOTHING_READ;
     } else {
@@ -179,31 +205,28 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
       sampleHolder.addFlag(C.SAMPLE_FLAG_SYNC);
       sampleHolder.ensureSpaceForWrite(sampleHolder.size);
       sampleHolder.data.put(sampleData, 0, sampleSize);
-      state = STATE_END_OF_STREAM;
+      streamState = STREAM_STATE_END_OF_STREAM;
       return SAMPLE_READ;
     }
   }
 
   @Override
   public void seekToUs(long positionUs) {
-    if (state == STATE_END_OF_STREAM) {
+    if (streamState == STREAM_STATE_END_OF_STREAM) {
       pendingResetPositionUs = positionUs;
-      state = STATE_SEND_SAMPLE;
+      streamState = STREAM_STATE_SEND_SAMPLE;
     }
   }
 
   @Override
   public long getBufferedPositionUs() {
-    return state == STATE_END_OF_STREAM || loadingFinished ? C.END_OF_SOURCE_US : 0;
-  }
-
-  @Override
-  public void disable(TrackStream trackStream) {
-    state = STATE_END_OF_STREAM;
+    return streamState == STREAM_STATE_END_OF_STREAM || loadingFinished ? C.END_OF_SOURCE_US : 0;
   }
 
   @Override
   public void release() {
+    state = STATE_RELEASED;
+    streamState = STREAM_STATE_END_OF_STREAM;
     if (loader != null) {
       loader.release();
       loader = null;
@@ -213,7 +236,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   // Private methods.
 
   private void maybeStartLoading() {
-    if (loadingFinished || state == STATE_END_OF_STREAM || loader.isLoading()) {
+    if (loadingFinished || streamState == STREAM_STATE_END_OF_STREAM || loader.isLoading()) {
       return;
     }
     if (currentLoadableException != null) {

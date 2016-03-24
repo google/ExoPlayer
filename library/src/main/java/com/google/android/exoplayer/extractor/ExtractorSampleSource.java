@@ -208,13 +208,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private volatile SeekMap seekMap;
   private volatile DrmInitData drmInitData;
 
-  private boolean prepared;
+  private int state;
   private int enabledTrackCount;
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingResets;
   private boolean[] trackEnabledStates;
+  private boolean isFirstTrackSelection;
+  private boolean newTracksSelected;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -325,35 +327,39 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     extractorHolder = new ExtractorHolder(extractors, this);
     sampleQueues = new SparseArray<>();
     pendingResetPositionUs = NO_RESET_PENDING;
+    state = STATE_UNPREPARED;
+  }
+
+  @Override
+  public int getState() {
+    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) {
-    if (prepared) {
-      return true;
-    }
+    Assertions.checkState(state == STATE_UNPREPARED);
     if (loader == null) {
       loader = new Loader("Loader:ExtractorSampleSource");
     }
 
     maybeStartLoading();
-
-    if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
-      int trackCount = sampleQueues.size();
-      TrackGroup[] tracks = new TrackGroup[trackCount];
-      trackEnabledStates = new boolean[trackCount];
-      pendingResets = new boolean[trackCount];
-      pendingMediaFormat = new boolean[trackCount];
-      durationUs = seekMap.getDurationUs();
-      for (int i = 0; i < trackCount; i++) {
-        tracks[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
-      }
-      this.tracks = new TrackGroupArray(tracks);
-      prepared = true;
-      return true;
+    if (seekMap == null || !tracksBuilt || !haveFormatsForAllTracks()) {
+      return false;
     }
 
-    return false;
+    int trackCount = sampleQueues.size();
+    TrackGroup[] trackArray = new TrackGroup[trackCount];
+    trackEnabledStates = new boolean[trackCount];
+    pendingResets = new boolean[trackCount];
+    pendingMediaFormat = new boolean[trackCount];
+    durationUs = seekMap.getDurationUs();
+    for (int i = 0; i < trackCount; i++) {
+      trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
+    }
+    tracks = new TrackGroupArray(trackArray);
+    isFirstTrackSelection = true;
+    state = STATE_SELECTING_TRACKS;
+    return true;
   }
 
   @Override
@@ -367,8 +373,16 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public TrackStream enable(TrackSelection selection, long positionUs) {
-    Assertions.checkState(prepared);
+  public void startTrackSelection() {
+    Assertions.checkState(state == STATE_READING);
+    state = STATE_SELECTING_TRACKS;
+    newTracksSelected = false;
+    isFirstTrackSelection = false;
+  }
+
+  @Override
+  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
     Assertions.checkState(selection.length == 1);
     Assertions.checkState(selection.getTrack(0) == 0);
     int track = selection.group;
@@ -377,23 +391,23 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     trackEnabledStates[track] = true;
     pendingMediaFormat[track] = true;
     pendingResets[track] = false;
-    if (enabledTrackCount == 1) {
-      // Treat all enables in non-seekable media as being from t=0.
-      positionUs = !seekMap.isSeekable() ? 0 : positionUs;
-      downstreamPositionUs = positionUs;
-      lastSeekPositionUs = positionUs;
-      restartFrom(positionUs);
-    }
+    newTracksSelected = true;
     return new TrackStreamImpl(track);
   }
 
   @Override
-  public void disable(TrackStream trackStream) {
-    Assertions.checkState(prepared);
-    int track = ((TrackStreamImpl) trackStream).track;
+  public void unselectTrack(TrackStream stream) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    int track = ((TrackStreamImpl) stream).track;
     Assertions.checkState(trackEnabledStates[track]);
     enabledTrackCount--;
     trackEnabledStates[track] = false;
+  }
+
+  @Override
+  public void endTrackSelection(long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    state = STATE_READING;
     if (enabledTrackCount == 0) {
       downstreamPositionUs = Long.MIN_VALUE;
       if (loader.isLoading()) {
@@ -402,12 +416,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         clearState();
         allocator.trim(0);
       }
+    } else if (!isFirstTrackSelection && newTracksSelected) {
+      seekToInternal(positionUs);
     }
   }
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return;
     }
@@ -420,7 +435,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   /* package */ boolean isReady(int track) {
-    Assertions.checkState(prepared);
     Assertions.checkState(trackEnabledStates[track]);
     return !sampleQueues.valueAt(track).isEmpty();
 
@@ -490,13 +504,18 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void seekToUs(long positionUs) {
-    Assertions.checkState(prepared);
     if (enabledTrackCount == 0) {
       return;
     }
+    seekToInternal(positionUs);
+  }
+
+  private void seekToInternal(long positionUs) {
     // Treat all seeks into non-seekable media as being to t=0.
-    downstreamPositionUs = !seekMap.isSeekable() ? 0 : positionUs;
-    lastSeekPositionUs = downstreamPositionUs;
+    positionUs = !seekMap.isSeekable() ? 0 : positionUs;
+    lastSeekPositionUs = positionUs;
+    downstreamPositionUs = positionUs;
+    Arrays.fill(pendingResets, true);
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < sampleQueues.size(); i++) {
@@ -506,9 +525,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     if (!seekInsideBuffer) {
       restartFrom(positionUs);
     }
-
-    // Either way, we need to send discontinuities to the downstream components.
-    Arrays.fill(pendingResets, true);
   }
 
   @Override
@@ -530,11 +546,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void release() {
+    state = STATE_RELEASED;
+    enabledTrackCount = 0;
     if (loader != null) {
       loader.release();
       loader = null;
     }
-    prepared = false;
   }
 
   // Loader.Callback implementation.
@@ -617,7 +634,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
       if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
         currentLoadableException = null;
-        if (!prepared) {
+        if (state == STATE_UNPREPARED) {
           // We don't know whether we're playing an on-demand or a live stream. For a live stream
           // we need to load from the start, as outlined below. Since we might be playing a live
           // stream, play it safe and load from the start.
@@ -654,7 +671,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     sampleTimeOffsetUs = 0;
     havePendingNextSampleUs = false;
 
-    if (!prepared) {
+    if (state == STATE_UNPREPARED) {
       loadable = createLoadableFromStart();
     } else {
       Assertions.checkState(isPendingReset());
@@ -836,6 +853,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
             allocator.blockWhileTotalBytesAllocatedExceeds(requestedBufferSize);
             result = extractor.read(input, positionHolder);
             // TODO: Implement throttling to stop us from buffering data too often.
+            // TODO: Block buffering between the point at which we have sufficient data for
+            // preparation to complete and the first call to endTrackSelection.
           }
         } finally {
           if (result == Extractor.RESULT_SEEK) {

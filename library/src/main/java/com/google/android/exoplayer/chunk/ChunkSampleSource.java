@@ -54,10 +54,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final int STATE_IDLE = 0;
-  private static final int STATE_PREPARED = 1;
-  private static final int STATE_ENABLED = 2;
-
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private final int eventSourceId;
@@ -83,8 +79,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private long durationUs;
   private Loader loader;
   private boolean loadingFinished;
+  private boolean trackEnabled;
   private IOException currentLoadableException;
-  private int enabledTrackCount;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
@@ -143,27 +139,30 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
-    state = STATE_IDLE;
     pendingResetPositionUs = NO_RESET_PENDING;
+    state = STATE_UNPREPARED;
+  }
+
+  @Override
+  public int getState() {
+    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (state != STATE_IDLE) {
-      return true;
-    }
+    Assertions.checkState(state == STATE_UNPREPARED);
     if (!chunkSource.prepare()) {
       return false;
     }
     durationUs = chunkSource.getDurationUs();
-    TrackGroup trackGroup = chunkSource.getTracks();
-    if (trackGroup != null) {
-      loader = new Loader("Loader:" + trackGroup.getFormat(0).containerMimeType);
-      trackGroups = new TrackGroupArray(trackGroup);
+    TrackGroup tracks = chunkSource.getTracks();
+    if (tracks != null) {
+      loader = new Loader("Loader:" + tracks.getFormat(0).containerMimeType);
+      trackGroups = new TrackGroupArray(tracks);
     } else {
       trackGroups = new TrackGroupArray();
     }
-    state = STATE_PREPARED;
+    state = STATE_SELECTING_TRACKS;
     return true;
   }
 
@@ -174,15 +173,20 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    Assertions.checkState(state != STATE_IDLE);
     return trackGroups;
   }
 
   @Override
-  public TrackStream enable(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_PREPARED);
-    Assertions.checkState(enabledTrackCount++ == 0);
-    state = STATE_ENABLED;
+  public void startTrackSelection() {
+    Assertions.checkState(state == STATE_READING);
+    state = STATE_SELECTING_TRACKS;
+  }
+
+  @Override
+  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    Assertions.checkState(!trackEnabled);
+    trackEnabled = true;
     chunkSource.enable(selection.getTracks());
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
@@ -195,10 +199,10 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public void disable(TrackStream trackStream) {
-    Assertions.checkState(state == STATE_ENABLED);
-    Assertions.checkState(--enabledTrackCount == 0);
-    state = STATE_PREPARED;
+  public void unselectTrack(TrackStream stream) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    Assertions.checkState(trackEnabled);
+    trackEnabled = false;
     try {
       chunkSource.disable();
     } finally {
@@ -215,11 +219,13 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
+  public void endTrackSelection(long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    state = STATE_READING;
+  }
+
+  @Override
   public void continueBuffering(long positionUs) {
-    Assertions.checkState(state != STATE_IDLE);
-    if (state == STATE_PREPARED) {
-      return;
-    }
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
@@ -227,7 +233,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public boolean isReady() {
-    Assertions.checkState(state == STATE_ENABLED);
     return loadingFinished || !sampleQueue.isEmpty();
   }
 
@@ -242,7 +247,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
-    Assertions.checkState(state == STATE_ENABLED);
     if (pendingReset || isPendingReset()) {
       return NOTHING_READ;
     }
@@ -292,10 +296,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public void seekToUs(long positionUs) {
-    Assertions.checkState(state != STATE_IDLE);
-    if (state == STATE_PREPARED) {
-      return;
-    }
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
@@ -326,8 +326,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public long getBufferedPositionUs() {
-    Assertions.checkState(state != STATE_IDLE);
-    if (state != STATE_ENABLED || loadingFinished) {
+    if (!trackEnabled || loadingFinished) {
       return C.END_OF_SOURCE_US;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
@@ -340,12 +339,12 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public void release() {
-    Assertions.checkState(state != STATE_ENABLED);
+    state = STATE_RELEASED;
+    trackEnabled = false;
     if (loader != null) {
       loader.release();
       loader = null;
     }
-    state = STATE_IDLE;
   }
 
   @Override
@@ -371,7 +370,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     Chunk currentLoadable = currentLoadableHolder.chunk;
     notifyLoadCanceled(currentLoadable.bytesLoaded());
     clearCurrentLoadable();
-    if (state == STATE_ENABLED) {
+    if (trackEnabled) {
       restartFrom(pendingResetPositionUs);
     } else {
       sampleQueue.clear();

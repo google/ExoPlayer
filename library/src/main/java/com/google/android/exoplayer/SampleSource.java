@@ -23,10 +23,38 @@ import java.io.IOException;
 public interface SampleSource {
 
   /**
+   * The source has not yet been prepared.
+   */
+  int STATE_UNPREPARED = 0;
+  /**
+   * The source is prepared and in the track selection state.
+   */
+  int STATE_SELECTING_TRACKS = 1;
+  /**
+   * The source is prepared and in the reading state.
+   */
+  int STATE_READING = 2;
+  /**
+   * The source has been released.
+   */
+  int STATE_RELEASED = 3;
+
+  /**
+   * Returns the state of the source.
+   *
+   * @return The state of the source. One of {@link #STATE_UNPREPARED},
+   *     {@link #STATE_SELECTING_TRACKS}, {@link #STATE_READING} and {@link #STATE_RELEASED}.
+   */
+  int getState();
+
+  /**
    * Prepares the source.
    * <p>
    * If preparation cannot complete immediately then the call will return {@code false} rather than
-   * block. The method can be called repeatedly until the return value indicates success.
+   * block and the state will remain unchanged. If true is returned the state will have changed
+   * to {@link #STATE_SELECTING_TRACKS} for the initial track selection to take place.
+   * <p>
+   * This method should only be called when the state is {@link #STATE_UNPREPARED}.
    *
    * @param positionUs The player's current playback position.
    * @return True if the source was prepared, false otherwise.
@@ -37,7 +65,8 @@ public interface SampleSource {
   /**
    * Returns the duration of the source.
    * <p>
-   * This method should only be called after the source has been prepared.
+   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS} or
+   * {@link #STATE_READING}.
    *
    * @return The duration of the source in microseconds, or {@link C#UNKNOWN_TIME_US} if the
    *     duration is not known.
@@ -47,16 +76,63 @@ public interface SampleSource {
   /**
    * Returns the {@link TrackGroup}s exposed by the source.
    * <p>
-   * This method should only be called after the source has been prepared.
+   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS} or
+   * {@link #STATE_READING}.
    *
    * @return The {@link TrackGroup}s.
    */
   TrackGroupArray getTrackGroups();
 
   /**
+   * Enters the track selection state.
+   * <p>
+   * The selected tracks are initially unchanged, but may be modified by calls to
+   * {@link #unselectTrack(TrackStream)} and {@link #selectTrack(TrackSelection, long)}, followed by
+   * a call to {@link #endTrackSelection(long)}.
+   * <p>
+   * This method should only be called when the state is {@link #STATE_READING}.
+   */
+  void startTrackSelection();
+
+  /**
+   * Selects a track defined by a {@link TrackSelection}. A {@link TrackStream} is returned through
+   * which the track's data can be read.
+   * <p>
+   * The {@link TrackSelection} must have a {@link TrackSelection#group} index distinct from those
+   * of other enabled tracks, and a {@code TrackSelection#length} of 1 unless
+   * {@link TrackGroup#adaptive} is true for the selected group.
+   * <p>
+   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS}.
+   *
+   * @param selection Defines the track.
+   * @param positionUs The current playback position in microseconds.
+   * @return A {@link TrackStream} from which the enabled track's data can be read.
+   */
+  TrackStream selectTrack(TrackSelection selection, long positionUs);
+
+  /**
+   * Unselects a track previously selected by calling {@link #selectTrack(TrackSelection, long)}.
+   * <p>
+   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS}.
+   *
+   * @param stream The {@link TrackStream} obtained from the corresponding call to
+   *     {@link #selectTrack(TrackSelection, long)}.
+   */
+  void unselectTrack(TrackStream stream);
+
+  /**
+   * Exits the track selection state.
+   * <p>
+   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS}.
+   *
+   * @param positionUs The current playback position in microseconds.
+   */
+  void endTrackSelection(long positionUs);
+
+  /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.
    * <p>
-   * This method should only be called after the source has been prepared.
+   * This method should only be called when the state is {@link #STATE_READING}.
    *
    * @param positionUs The current playback position.
    */
@@ -65,7 +141,7 @@ public interface SampleSource {
   /**
    * Returns an estimate of the position up to which data is buffered for the enabled tracks.
    * <p>
-   * This method should only be called after the source has been prepared.
+   * This method should only be called when the state is {@link #STATE_READING}.
    *
    * @return An estimate of the absolute position in microseconds up to which data is buffered,
    *     or {@link C#END_OF_SOURCE_US} if the track is fully buffered, or {@link C#UNKNOWN_TIME_US}
@@ -77,38 +153,17 @@ public interface SampleSource {
   /**
    * Seeks to the specified time in microseconds.
    * <p>
-   * This method should only be called after the source has been prepared.
+   * This method should only be called when the state is {@link #STATE_READING}.
    *
    * @param positionUs The seek position in microseconds.
    */
   void seekToUs(long positionUs);
 
   /**
-   * Enables the source to read a track defined by a {@link TrackSelection}. A {@link TrackStream}
-   * is returned through which the track's data can be read.
-   * <p>
-   * This method should only be called after the source has been prepared, and when there are no
-   * other enabled tracks with the same {@link TrackSelection#group} index. Note that
-   * {@code TrackSelection#tracks} must be of length 1 unless {@link TrackGroup#adaptive} is true
-   * for the group.
-   *
-   * @param selection Defines the track.
-   * @param positionUs The current playback position in microseconds.
-   * @return A {@link TrackStream} from which the enabled track's data can be read.
-   */
-  TrackStream enable(TrackSelection selection, long positionUs);
-
-  /**
-   * Disables a {@link TrackStream} previously obtained from {@link #enable(TrackSelection, long)}.
-   *
-   * @param trackStream The {@link TrackStream} to disable.
-   */
-  void disable(TrackStream trackStream);
-
-  /**
    * Releases the source.
    * <p>
-   * This method should be called when the source is no longer required.
+   * This method should be called when the source is no longer required. It may be called in any
+   * state.
    */
   void release();
 

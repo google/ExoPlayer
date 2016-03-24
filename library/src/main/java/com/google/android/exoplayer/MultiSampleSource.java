@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+
 import android.util.Pair;
 
 import java.io.IOException;
@@ -28,45 +30,54 @@ public final class MultiSampleSource implements SampleSource {
   private final SampleSource[] sources;
   private final IdentityHashMap<TrackStream, Integer> trackStreamSourceIndices;
 
-  private boolean prepared;
+  private int state;
   private long durationUs;
   private TrackGroupArray trackGroups;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
     trackStreamSourceIndices = new IdentityHashMap<>();
+    state = STATE_UNPREPARED;
+  }
+
+  @Override
+  public int getState() {
+    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (prepared) {
-      return true;
-    }
+    Assertions.checkState(state == SampleSource.STATE_UNPREPARED);
     boolean sourcesPrepared = true;
     for (SampleSource source : sources) {
-      sourcesPrepared &= source.prepare(positionUs);
-    }
-    if (sourcesPrepared) {
-      prepared = true;
-      durationUs = C.UNKNOWN_TIME_US;
-      int totalTrackGroupCount = 0;
-      for (SampleSource source : sources) {
-        totalTrackGroupCount += source.getTrackGroups().length;
-        if (source.getDurationUs() > durationUs) {
-          durationUs = source.getDurationUs();
-        }
+      if (source.getState() == SampleSource.STATE_UNPREPARED) {
+        sourcesPrepared &= source.prepare(positionUs);
       }
-      TrackGroup[] trackGroups = new TrackGroup[totalTrackGroupCount];
-      int trackGroupIndex = 0;
-      for (SampleSource source : sources) {
-        int sourceTrackGroupCount = source.getTrackGroups().length;
-        for (int j = 0; j < sourceTrackGroupCount; j++) {
-          trackGroups[trackGroupIndex++] = source.getTrackGroups().get(j);
-        }
-      }
-      this.trackGroups = new TrackGroupArray(trackGroups);
     }
-    return prepared;
+    if (!sourcesPrepared) {
+      return false;
+    }
+    durationUs = 0;
+    int totalTrackGroupCount = 0;
+    for (SampleSource source : sources) {
+      totalTrackGroupCount += source.getTrackGroups().length;
+      if (durationUs != C.UNKNOWN_TIME_US) {
+        long sourceDurationUs = source.getDurationUs();
+        durationUs = sourceDurationUs == C.UNKNOWN_TIME_US
+            ? C.UNKNOWN_TIME_US : Math.max(durationUs, sourceDurationUs);
+      }
+    }
+    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
+    int trackGroupIndex = 0;
+    for (SampleSource source : sources) {
+      int sourceTrackGroupCount = source.getTrackGroups().length;
+      for (int j = 0; j < sourceTrackGroupCount; j++) {
+        trackGroupArray[trackGroupIndex++] = source.getTrackGroups().get(j);
+      }
+    }
+    trackGroups = new TrackGroupArray(trackGroupArray);
+    state = STATE_SELECTING_TRACKS;
+    return true;
   }
 
   @Override
@@ -75,18 +86,38 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public TrackStream enable(TrackSelection selection, long positionUs) {
+  public void startTrackSelection() {
+    Assertions.checkState(state == STATE_READING);
+    state = STATE_SELECTING_TRACKS;
+    for (SampleSource source : sources) {
+      source.startTrackSelection();
+    }
+  }
+
+  @Override
+  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
     Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(selection.group);
-    TrackStream trackStream = sources[sourceAndGroup.first].enable(
+    TrackStream trackStream = sources[sourceAndGroup.first].selectTrack(
         new TrackSelection(sourceAndGroup.second, selection.getTracks()), positionUs);
     trackStreamSourceIndices.put(trackStream, sourceAndGroup.first);
     return trackStream;
   }
 
   @Override
-  public void disable(TrackStream trackStream) {
+  public void unselectTrack(TrackStream trackStream) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
     int sourceIndex = trackStreamSourceIndices.remove(trackStream);
-    sources[sourceIndex].disable(trackStream);
+    sources[sourceIndex].unselectTrack(trackStream);
+  }
+
+  @Override
+  public void endTrackSelection(long positionUs) {
+    Assertions.checkState(state == STATE_SELECTING_TRACKS);
+    state = STATE_READING;
+    for (SampleSource source : sources) {
+      source.endTrackSelection(positionUs);
+    }
   }
 
   @Override
@@ -129,7 +160,7 @@ public final class MultiSampleSource implements SampleSource {
     for (SampleSource source : sources) {
       source.release();
     }
-    prepared = false;
+    state = STATE_RELEASED;
   }
 
   private Pair<Integer, Integer> getSourceAndTrackGroupIndices(int group) {
