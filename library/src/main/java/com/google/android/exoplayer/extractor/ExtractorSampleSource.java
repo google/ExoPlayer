@@ -416,7 +416,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         clearState();
         allocator.trim(0);
       }
-    } else if (!isFirstTrackSelection && newTracksSelected) {
+    } else if (isFirstTrackSelection ? positionUs != 0 : newTracksSelected) {
       seekToInternal(positionUs);
     }
   }
