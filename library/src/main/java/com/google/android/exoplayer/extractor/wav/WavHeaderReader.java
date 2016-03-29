@@ -72,6 +72,7 @@ import java.io.IOException;
       throw new ParserException(
           "Second chunk in RIFF WAV should be format; got: " + formatChunkHeader.id);
     }
+    Assertions.checkState(formatChunkHeader.size >= 16);
 
     input.peekFully(scratch.data, 0, 16);
     scratch.setPosition(0);
@@ -95,17 +96,13 @@ import java.io.IOException;
       return null;
     }
 
-    if (type == TYPE_PCM) {
-      Assertions.checkState(formatChunkHeader.size == 16);
-      // No more data to read.
-    } else if (type == TYPE_WAVE_FORMAT_EXTENSIBLE) {
-      Assertions.checkState(formatChunkHeader.size == 40);
-      // Skip extensionSize, validBitsPerSample, channelMask, subFormatGuid.
-      input.advancePeekPosition(2 + 2 + 4 + 16);
-    } else {
+    if (type != TYPE_PCM && type != TYPE_WAVE_FORMAT_EXTENSIBLE) {
       Log.e(TAG, "Unsupported WAV format type: " + type);
       return null;
     }
+
+    // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
+    input.advancePeekPosition((int) formatChunkHeader.size - 16);
 
     return new WavHeader(
         numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample);
@@ -118,7 +115,7 @@ import java.io.IOException;
    * If an exception is thrown, the input position will be left pointing to a chunk header.
    *
    * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to
-   *     a valid chunk header that is not the RIFF chunk.
+   *     a valid chunk header.
    * @param wavHeader WAV header to populate with data bounds.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from input.
@@ -135,6 +132,10 @@ import java.io.IOException;
     while (chunkHeader.id != Util.getIntegerCodeForString("data")) {
       Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
+      // Override size of RIFF chunk, since it describes its size as the entire file.
+      if (chunkHeader.id == Util.getIntegerCodeForString("RIFF")) {
+        bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
+      }
       if (bytesToSkip > Integer.MAX_VALUE) {
         throw new ParserException("Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
       }

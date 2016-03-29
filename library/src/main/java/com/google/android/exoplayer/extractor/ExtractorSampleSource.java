@@ -877,8 +877,9 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
           }
         } catch (EOFException e) {
           // Do nothing.
+        } finally {
+          input.resetPeekPosition();
         }
-        input.resetPeekPosition();
       }
       if (extractor == null) {
         throw new UnrecognizedInputFormatException(extractors);

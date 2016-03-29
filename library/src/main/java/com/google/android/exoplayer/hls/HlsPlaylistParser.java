@@ -239,8 +239,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
     double segmentDurationSecs = 0.0;
     int discontinuitySequenceNumber = 0;
     long segmentStartTimeUs = 0;
-    int segmentByterangeOffset = 0;
-    int segmentByterangeLength = C.LENGTH_UNBOUNDED;
+    long segmentByterangeOffset = 0;
+    long segmentByterangeLength = C.LENGTH_UNBOUNDED;
     int segmentMediaSequence = 0;
 
     boolean isEncrypted = false;
@@ -274,9 +274,9 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       } else if (line.startsWith(BYTERANGE_TAG)) {
         String byteRange = HlsParserUtil.parseStringAttr(line, BYTERANGE_REGEX, BYTERANGE_TAG);
         String[] splitByteRange = byteRange.split("@");
-        segmentByterangeLength = Integer.parseInt(splitByteRange[0]);
+        segmentByterangeLength = Long.parseLong(splitByteRange[0]);
         if (splitByteRange.length > 1) {
-          segmentByterangeOffset = Integer.parseInt(splitByteRange[1]);
+          segmentByterangeOffset = Long.parseLong(splitByteRange[1]);
         }
       } else if (line.startsWith(DISCONTINUITY_SEQUENCE_TAG)) {
         discontinuitySequenceNumber = Integer.parseInt(line.substring(line.indexOf(':') + 1));

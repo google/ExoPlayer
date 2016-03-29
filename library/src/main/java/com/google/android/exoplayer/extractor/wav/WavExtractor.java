@@ -37,6 +37,8 @@ public final class WavExtractor implements Extractor, SeekMap {
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
   private WavHeader wavHeader;
+  private int bytesPerFrame;
+  private int pendingBytes;
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
@@ -53,7 +55,7 @@ public final class WavExtractor implements Extractor, SeekMap {
 
   @Override
   public void seek() {
-    // Do nothing.
+    pendingBytes = 0;
   }
 
   @Override
@@ -66,6 +68,7 @@ public final class WavExtractor implements Extractor, SeekMap {
         // Someone tried to read a non-WAV or unsupported WAV without sniffing first.
         throw new ParserException("Error initializing WavHeader. Did you sniff first?");
       }
+      bytesPerFrame = wavHeader.getBytesPerFrame();
     }
 
     // If we haven't read in the data start and size, read and store them.
@@ -86,14 +89,28 @@ public final class WavExtractor implements Extractor, SeekMap {
       extractorOutput.seekMap(this);
     }
 
-    long inputPosition = input.getPosition();
+    int bytesAppended = trackOutput.sampleData(input, MAX_INPUT_SIZE - pendingBytes, true);
 
-    int bytesRead = trackOutput.sampleData(input, MAX_INPUT_SIZE, true);
-    if (bytesRead == RESULT_END_OF_INPUT) {
+    if (bytesAppended != RESULT_END_OF_INPUT) {
+      pendingBytes += bytesAppended;
+    }
+
+    // Round down the pending number of bytes to the nearest frame.
+    int frameBytes = pendingBytes / bytesPerFrame * bytesPerFrame;
+    if (frameBytes > 0) {
+      long sampleStartPosition = input.getPosition() - pendingBytes;
+      pendingBytes -= frameBytes;
+      trackOutput.sampleMetadata(
+          wavHeader.getTimeUs(sampleStartPosition),
+          C.SAMPLE_FLAG_SYNC,
+          frameBytes,
+          pendingBytes,
+          null);
+    }
+
+    if (bytesAppended == RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;
     }
-    trackOutput.sampleMetadata(
-        wavHeader.getTimeUs(inputPosition), C.SAMPLE_FLAG_SYNC, bytesRead, 0, null);
 
     return RESULT_CONTINUE;
   }
