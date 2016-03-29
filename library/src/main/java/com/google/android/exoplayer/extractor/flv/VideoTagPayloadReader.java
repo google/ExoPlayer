@@ -20,7 +20,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -165,7 +164,7 @@ import java.util.List;
       ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
       // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
       spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
-      CodecSpecificDataUtil.SpsData sps = CodecSpecificDataUtil.parseSpsNalUnit(spsDataBitArray);
+      NalUnitUtil.SpsData sps = NalUnitUtil.parseSpsNalUnit(spsDataBitArray);
       width = sps.width;
       height = sps.height;
       pixelWidthAspectRatio = sps.pixelWidthAspectRatio;
