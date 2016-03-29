@@ -73,6 +73,15 @@ public abstract class Buffer {
   }
 
   /**
+   * Removes the {@code flag} from this buffer's flags, if it is set.
+   *
+   * @param flag The flag to remove.
+   */
+  public final void clearFlag(int flag) {
+    flags &= ~flag;
+  }
+
+  /**
    * Returns whether the specified flag has been set on this buffer.
    *
    * @param flag The flag to check.

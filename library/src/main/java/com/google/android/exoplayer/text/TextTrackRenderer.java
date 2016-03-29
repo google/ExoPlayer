@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.text;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
@@ -53,6 +54,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   private final FormatHolder formatHolder;
 
   private boolean inputStreamEnded;
+  private boolean outputStreamEnded;
   private SubtitleParser parser;
   private SubtitleInputBuffer nextInputBuffer;
   private SubtitleOutputBuffer subtitle;
@@ -107,6 +109,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   @Override
   protected void reset(long positionUs) {
     inputStreamEnded = false;
+    outputStreamEnded = false;
     if (subtitle != null) {
       subtitle.release();
       subtitle = null;
@@ -125,6 +128,10 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   @Override
   protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
+    if (outputStreamEnded) {
+      return;
+    }
+
     if (nextSubtitle == null) {
       try {
         nextSubtitle = parser.dequeueOutputBuffer();
@@ -157,6 +164,12 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       }
       subtitle = nextSubtitle;
       nextSubtitle = null;
+      if (subtitle.isEndOfStream()) {
+        outputStreamEnded = true;
+        subtitle.release();
+        subtitle = null;
+        return;
+      }
       nextSubtitleEventIndex = subtitle.getNextEventTimeIndex(positionUs);
       textRendererNeedsUpdate = true;
     }
@@ -177,13 +190,15 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
         // Try and read the next subtitle from the source.
         int result = readSource(formatHolder, nextInputBuffer);
         if (result == TrackStream.BUFFER_READ) {
+          // Clear BUFFER_FLAG_DECODE_ONLY (see [Internal: b/27893809]) and queue the buffer.
+          nextInputBuffer.clearFlag(C.BUFFER_FLAG_DECODE_ONLY);
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;
-            // TODO: Queue the end of stream buffer.
           } else {
             nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
-            parser.queueInputBuffer(nextInputBuffer);
           }
+          parser.queueInputBuffer(nextInputBuffer);
+          nextInputBuffer = null;
         }
       }
     } catch (ParserException e) {
@@ -212,7 +227,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
 
   @Override
   protected boolean isEnded() {
-    return inputStreamEnded && (subtitle == null || getNextEventTime() == Long.MAX_VALUE);
+    return outputStreamEnded;
   }
 
   @Override
