@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.util.extensions;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.util.LinkedList;
@@ -219,16 +220,23 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
       flushDecodedOutputBuffer = false;
     }
 
-    exception = decode(inputBuffer, outputBuffer);
-    if (exception != null) {
-      // Memory barrier to ensure that the decoder exception is visible from the playback thread.
-      synchronized (lock) {}
-      return false;
+    outputBuffer.reset();
+    if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
+      outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
+    } else {
+      if (inputBuffer.getFlag(C.SAMPLE_FLAG_DECODE_ONLY)) {
+        outputBuffer.setFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+      }
+      exception = decode(inputBuffer, outputBuffer);
+      if (exception != null) {
+        // Memory barrier to ensure that the decoder exception is visible from the playback thread.
+        synchronized (lock) {}
+        return false;
+      }
     }
 
-    boolean decodeOnly = outputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY);
     synchronized (lock) {
-      if (flushDecodedOutputBuffer || decodeOnly) {
+      if (flushDecodedOutputBuffer || outputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
         // If a flush occurred while decoding or the buffer was only for decoding (not presentation)
         // then make the output buffer available again rather than queueing it to be consumed.
         availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
@@ -261,10 +269,11 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
    * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.
    *
    * @param inputBuffer The buffer to decode.
-   * @param outputBuffer The output buffer to store decoded data. If the flag
-   *     {@link Buffer#FLAG_DECODE_ONLY} is set after this method returns, any output should not be
-   *     presented.
-   * @return A decode exception if an error occurred, or null if the decode was successful.
+   * @param outputBuffer The output buffer to store decoded data. The flag
+   *     {@link Buffer#FLAG_DECODE_ONLY} will be set if the same flag is set on {@code inputBuffer},
+   *     but the decoder may set/unset the flag if required. If the flag is set after this method
+   *     returns, any output should not be presented.
+   * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
   protected abstract E decode(I inputBuffer, O outputBuffer);
 

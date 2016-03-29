@@ -178,12 +178,12 @@ public final class ParsableBitArray {
   }
 
   /**
-   * Peeks the length of an Exp-Golomb-coded integer (signed or unsigned) starting from the current
-   * offset, returning the length or -1 if the limit is reached.
+   * Returns whether it is possible to read an Exp-Golomb-coded integer starting from the current
+   * offset. The offset is not modified.
    *
-   * @return The length of the Exp-Golob-coded integer, or -1.
+   * @return Whether it is possible to read an Exp-Golomb-coded integer.
    */
-  public int peekExpGolombCodedNumLength() {
+  public boolean canReadExpGolombCodedNum() {
     int initialByteOffset = byteOffset;
     int initialBitOffset = bitOffset;
     int leadingZeros = 0;
@@ -193,7 +193,7 @@ public final class ParsableBitArray {
     boolean hitLimit = byteOffset == byteLimit;
     byteOffset = initialByteOffset;
     bitOffset = initialBitOffset;
-    return hitLimit ? -1 : leadingZeros * 2 + 1;
+    return !hitLimit && bitsLeft() >= leadingZeros * 2 + 1;
   }
 
   /**

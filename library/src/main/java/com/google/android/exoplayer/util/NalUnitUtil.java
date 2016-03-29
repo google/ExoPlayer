@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.util;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -22,6 +24,59 @@ import java.util.Arrays;
  * Utility methods for handling H.264/AVC and H.265/HEVC NAL units.
  */
 public final class NalUnitUtil {
+
+  private static final String TAG = "NalUnitUtil";
+
+  /**
+   * Holds data parsed from a sequence parameter set NAL unit.
+   */
+  public static final class SpsData {
+
+    public final int seqParameterSetId;
+    public final int width;
+    public final int height;
+    public final float pixelWidthAspectRatio;
+    public final boolean separateColorPlaneFlag;
+    public final boolean frameMbsOnlyFlag;
+    public final int frameNumLength;
+    public final int picOrderCountType;
+    public final int picOrderCntLsbLength;
+    public final boolean deltaPicOrderAlwaysZeroFlag;
+
+    public SpsData(int seqParameterSetId, int width, int height, float pixelWidthAspectRatio,
+        boolean separateColorPlaneFlag, boolean frameMbsOnlyFlag, int frameNumLength,
+        int picOrderCountType, int picOrderCntLsbLength, boolean deltaPicOrderAlwaysZeroFlag) {
+      this.seqParameterSetId = seqParameterSetId;
+      this.width = width;
+      this.height = height;
+      this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+      this.separateColorPlaneFlag = separateColorPlaneFlag;
+      this.frameMbsOnlyFlag = frameMbsOnlyFlag;
+      this.frameNumLength = frameNumLength;
+      this.picOrderCountType = picOrderCountType;
+      this.picOrderCntLsbLength = picOrderCntLsbLength;
+      this.deltaPicOrderAlwaysZeroFlag = deltaPicOrderAlwaysZeroFlag;
+    }
+
+  }
+
+  /**
+   * Holds data parsed from a picture parameter set NAL unit.
+   */
+  public static final class PpsData {
+
+    public final int picParameterSetId;
+    public final int seqParameterSetId;
+    public final boolean bottomFieldPicOrderInFramePresentFlag;
+
+    public PpsData(int picParameterSetId, int seqParameterSetId,
+        boolean bottomFieldPicOrderInFramePresentFlag) {
+      this.picParameterSetId = picParameterSetId;
+      this.seqParameterSetId = seqParameterSetId;
+      this.bottomFieldPicOrderInFramePresentFlag = bottomFieldPicOrderInFramePresentFlag;
+    }
+
+  }
 
   /** Four initial bytes that must prefix NAL units for decoding. */
   public static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
@@ -178,6 +233,134 @@ public final class NalUnitUtil {
   }
 
   /**
+   * Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+   * 7.3.2.1.1.
+   *
+   * @param data A {@link ParsableBitArray} containing the SPS data. The position must to set to the
+   *     start of the data (i.e. the first bit of the profile_idc field).
+   * @return A parsed representation of the SPS data.
+   */
+  public static SpsData parseSpsNalUnit(ParsableBitArray data) {
+    int profileIdc = data.readBits(8);
+    data.skipBits(16); // constraint bits (6), reserved (2) and level_idc (8)
+    int seqParameterSetId = data.readUnsignedExpGolombCodedInt();
+
+    int chromaFormatIdc = 1; // Default is 4:2:0
+    boolean separateColorPlaneFlag = false;
+    if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244
+        || profileIdc == 44 || profileIdc == 83 || profileIdc == 86 || profileIdc == 118
+        || profileIdc == 128 || profileIdc == 138) {
+      chromaFormatIdc = data.readUnsignedExpGolombCodedInt();
+      if (chromaFormatIdc == 3) {
+        separateColorPlaneFlag = data.readBit();
+      }
+      data.readUnsignedExpGolombCodedInt(); // bit_depth_luma_minus8
+      data.readUnsignedExpGolombCodedInt(); // bit_depth_chroma_minus8
+      data.skipBits(1); // qpprime_y_zero_transform_bypass_flag
+      boolean seqScalingMatrixPresentFlag = data.readBit();
+      if (seqScalingMatrixPresentFlag) {
+        int limit = (chromaFormatIdc != 3) ? 8 : 12;
+        for (int i = 0; i < limit; i++) {
+          boolean seqScalingListPresentFlag = data.readBit();
+          if (seqScalingListPresentFlag) {
+            skipScalingList(data, i < 6 ? 16 : 64);
+          }
+        }
+      }
+    }
+
+    int frameNumLength = data.readUnsignedExpGolombCodedInt() + 4; // log2_max_frame_num_minus4 + 4
+    int picOrderCntType = data.readUnsignedExpGolombCodedInt();
+    int picOrderCntLsbLength = 0;
+    boolean deltaPicOrderAlwaysZeroFlag = false;
+    if (picOrderCntType == 0) {
+      // log2_max_pic_order_cnt_lsb_minus4 + 4
+      picOrderCntLsbLength = data.readUnsignedExpGolombCodedInt() + 4;
+    } else if (picOrderCntType == 1) {
+      deltaPicOrderAlwaysZeroFlag = data.readBit(); // delta_pic_order_always_zero_flag
+      data.readSignedExpGolombCodedInt(); // offset_for_non_ref_pic
+      data.readSignedExpGolombCodedInt(); // offset_for_top_to_bottom_field
+      long numRefFramesInPicOrderCntCycle = data.readUnsignedExpGolombCodedInt();
+      for (int i = 0; i < numRefFramesInPicOrderCntCycle; i++) {
+        data.readUnsignedExpGolombCodedInt(); // offset_for_ref_frame[i]
+      }
+    }
+    data.readUnsignedExpGolombCodedInt(); // max_num_ref_frames
+    data.skipBits(1); // gaps_in_frame_num_value_allowed_flag
+
+    int picWidthInMbs = data.readUnsignedExpGolombCodedInt() + 1;
+    int picHeightInMapUnits = data.readUnsignedExpGolombCodedInt() + 1;
+    boolean frameMbsOnlyFlag = data.readBit();
+    int frameHeightInMbs = (2 - (frameMbsOnlyFlag ? 1 : 0)) * picHeightInMapUnits;
+    if (!frameMbsOnlyFlag) {
+      data.skipBits(1); // mb_adaptive_frame_field_flag
+    }
+
+    data.skipBits(1); // direct_8x8_inference_flag
+    int frameWidth = picWidthInMbs * 16;
+    int frameHeight = frameHeightInMbs * 16;
+    boolean frameCroppingFlag = data.readBit();
+    if (frameCroppingFlag) {
+      int frameCropLeftOffset = data.readUnsignedExpGolombCodedInt();
+      int frameCropRightOffset = data.readUnsignedExpGolombCodedInt();
+      int frameCropTopOffset = data.readUnsignedExpGolombCodedInt();
+      int frameCropBottomOffset = data.readUnsignedExpGolombCodedInt();
+      int cropUnitX, cropUnitY;
+      if (chromaFormatIdc == 0) {
+        cropUnitX = 1;
+        cropUnitY = 2 - (frameMbsOnlyFlag ? 1 : 0);
+      } else {
+        int subWidthC = (chromaFormatIdc == 3) ? 1 : 2;
+        int subHeightC = (chromaFormatIdc == 1) ? 2 : 1;
+        cropUnitX = subWidthC;
+        cropUnitY = subHeightC * (2 - (frameMbsOnlyFlag ? 1 : 0));
+      }
+      frameWidth -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX;
+      frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
+    }
+
+    float pixelWidthHeightRatio = 1;
+    boolean vuiParametersPresentFlag = data.readBit();
+    if (vuiParametersPresentFlag) {
+      boolean aspectRatioInfoPresentFlag = data.readBit();
+      if (aspectRatioInfoPresentFlag) {
+        int aspectRatioIdc = data.readBits(8);
+        if (aspectRatioIdc == NalUnitUtil.EXTENDED_SAR) {
+          int sarWidth = data.readBits(16);
+          int sarHeight = data.readBits(16);
+          if (sarWidth != 0 && sarHeight != 0) {
+            pixelWidthHeightRatio = (float) sarWidth / sarHeight;
+          }
+        } else if (aspectRatioIdc < NalUnitUtil.ASPECT_RATIO_IDC_VALUES.length) {
+          pixelWidthHeightRatio = NalUnitUtil.ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
+        } else {
+          Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
+        }
+      }
+    }
+
+    return new SpsData(seqParameterSetId, frameWidth, frameHeight, pixelWidthHeightRatio,
+        separateColorPlaneFlag, frameMbsOnlyFlag, frameNumLength, picOrderCntType,
+        picOrderCntLsbLength, deltaPicOrderAlwaysZeroFlag);
+  }
+
+  /**
+   * Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+   * 7.3.2.2.
+   *
+   * @param data A {@link ParsableBitArray} containing the PPS data. The position must to set to the
+   *     start of the data (i.e. the first bit of the pic_parameter_set_id field).
+   * @return A parsed representation of the PPS data.
+   */
+  public static PpsData parsePpsNalUnit(ParsableBitArray data) {
+    int picParameterSetId = data.readUnsignedExpGolombCodedInt();
+    int seqParameterSetId = data.readUnsignedExpGolombCodedInt();
+    data.skipBits(1); // entropy_coding_mode_flag
+    boolean bottomFieldPicOrderInFramePresentFlag = data.readBit();
+    return new PpsData(picParameterSetId, seqParameterSetId, bottomFieldPicOrderInFramePresentFlag);
+  }
+
+  /**
    * Finds the first NAL unit in {@code data}.
    * <p>
    * If {@code prefixFlags} is null then the first three bytes of a NAL unit must be entirely
@@ -274,6 +457,18 @@ public final class NalUnitUtil {
       }
     }
     return limit;
+  }
+
+  private static void skipScalingList(ParsableBitArray bitArray, int size) {
+    int lastScale = 8;
+    int nextScale = 8;
+    for (int i = 0; i < size; i++) {
+      if (nextScale != 0) {
+        int deltaScale = bitArray.readSignedExpGolombCodedInt();
+        nextScale = (lastScale + deltaScale + 256) % 256;
+      }
+      lastScale = (nextScale == 0) ? lastScale : nextScale;
+    }
   }
 
   private NalUnitUtil() {

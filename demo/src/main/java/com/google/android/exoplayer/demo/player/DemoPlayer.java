@@ -24,6 +24,7 @@ import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.SingleSampleSource;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
@@ -59,10 +60,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     HlsSampleSource.EventListener, ExtractorSampleSource.EventListener,
-    DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
-    MediaCodecAudioTrackRenderer.EventListener, StreamingDrmSessionManager.EventListener,
-    DashChunkSource.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,
-    DebugTextViewHelper.Provider {
+    SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
+    MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
+    StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
+    MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider {
 
   /**
    * Builds renderers for the player.

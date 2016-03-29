@@ -269,11 +269,11 @@ public final class VorbisBitArrayTest extends TestCase {
     assertEquals(10, bitArray.bitsLeft());
     assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
 
-    bitArray.readBit();
+    bitArray.skipBits(1);
     assertEquals(9, bitArray.bitsLeft());
     assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
 
-    bitArray.readBits(1);
+    bitArray.skipBits(1);
     assertEquals(8, bitArray.bitsLeft());
     assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
 
