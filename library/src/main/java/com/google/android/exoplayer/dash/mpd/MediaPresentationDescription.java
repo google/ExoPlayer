@@ -17,6 +17,8 @@ package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.util.ManifestFetcher.RedirectingManifest;
 
+import android.net.Uri;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -39,13 +41,13 @@ public class MediaPresentationDescription implements RedirectingManifest {
 
   public final UtcTimingElement utcTiming;
 
-  public final String location;
+  public final Uri location;
 
   private final List<Period> periods;
 
   public MediaPresentationDescription(long availabilityStartTime, long duration, long minBufferTime,
       boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, UtcTimingElement utcTiming,
-      String location, List<Period> periods) {
+      Uri location, List<Period> periods) {
     this.availabilityStartTime = availabilityStartTime;
     this.duration = duration;
     this.minBufferTime = minBufferTime;
@@ -58,7 +60,7 @@ public class MediaPresentationDescription implements RedirectingManifest {
   }
 
   @Override
-  public final String getNextManifestUri() {
+  public final Uri getNextManifestUri() {
     return location;
   }
 

@@ -22,7 +22,7 @@ import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
+import com.google.android.exoplayer.upstream.DefaultDataSource;
 
 import android.content.Context;
 import android.net.Uri;
@@ -48,8 +48,7 @@ public class ExtractorSourceBuilder implements SourceBuilder {
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
-    DataSource dataSource = new DefaultUriDataSource(context, player.getBandwidthMeter(),
-        userAgent);
+    DataSource dataSource = new DefaultDataSource(context, player.getBandwidthMeter(), userAgent);
     return new ExtractorSampleSource(uri, dataSource, allocator,
         BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE, player.getMainHandler(), player, 0);
   }

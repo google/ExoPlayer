@@ -17,6 +17,8 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
 
+import android.net.Uri;
+
 import java.io.IOException;
 
 /**
@@ -48,6 +50,11 @@ public final class PriorityDataSource implements DataSource {
   public int read(byte[] buffer, int offset, int max) throws IOException {
     NetworkLock.instance.proceedOrThrow(priority);
     return upstream.read(buffer, offset, max);
+  }
+
+  @Override
+  public Uri getUri() {
+    return upstream.getUri();
   }
 
   @Override

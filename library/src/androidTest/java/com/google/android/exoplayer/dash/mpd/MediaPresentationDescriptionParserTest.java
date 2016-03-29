@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import android.net.Uri;
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class MediaPresentationDescriptionParserTest extends InstrumentationTestC
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(SAMPLE_MPD_1);
     // Simple test to ensure that the sample manifest parses without throwing any exceptions.
-    parser.parse("https://example.com/test.mpd", inputStream);
+    parser.parse(Uri.parse("https://example.com/test.mpd"), inputStream);
   }
 
   public void testParseMediaPresentationDescriptionWithUnknownMimeType() throws IOException {
@@ -43,7 +44,7 @@ public class MediaPresentationDescriptionParserTest extends InstrumentationTestC
         .open(SAMPLE_MPD_2_UNKNOWN_MIME_TYPE);
     // Simple test to ensure that the sample manifest with an unknown mime type parses without
     // throwing any exceptions.
-    parser.parse("https://example.com/test.mpd", inputStream);
+    parser.parse(Uri.parse("https://example.com/test.mpd"), inputStream);
   }
 
 }

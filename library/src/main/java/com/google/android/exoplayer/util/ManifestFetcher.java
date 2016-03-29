@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
-import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.upstream.UriLoadable;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -62,19 +62,19 @@ public class ManifestFetcher<T> implements Loader.Callback {
   public interface RedirectingManifest {
 
     /**
-     * Returns the URI from which subsequent manifests should be requested, or null to continue
-     * using the current URI.
+     * Returns the {@link Uri} from which subsequent manifests should be requested, or null to
+     * continue using the current {@link Uri}.
      */
-    public String getNextManifestUri();
+    public Uri getNextManifestUri();
 
   }
 
   private final UriLoadable.Parser<T> parser;
-  private final UriDataSource uriDataSource;
+  private final DataSource dataSource;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  /* package */ volatile String manifestUri;
+  private volatile Uri manifestUri;
 
   private int enabledCount;
   private Loader loader;
@@ -90,38 +90,37 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private volatile long manifestLoadCompleteTimestamp;
 
   /**
-   * @param manifestUri The manifest location.
-   * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
+   * @param manifestUri The manifest {@link Uri}.
+   * @param dataSource The {@link DataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    */
-  public ManifestFetcher(String manifestUri, UriDataSource uriDataSource,
-      UriLoadable.Parser<T> parser) {
-    this(manifestUri, uriDataSource, parser, null, null);
+  public ManifestFetcher(Uri manifestUri, DataSource dataSource, UriLoadable.Parser<T> parser) {
+    this(manifestUri, dataSource, parser, null, null);
   }
 
   /**
-   * @param manifestUri The manifest location.
-   * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
+   * @param manifestUri The manifest {@link Uri}.
+   * @param dataSource The {@link DataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ManifestFetcher(String manifestUri, UriDataSource uriDataSource,
-      UriLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
+  public ManifestFetcher(Uri manifestUri, DataSource dataSource, UriLoadable.Parser<T> parser,
+      Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
     this.manifestUri = manifestUri;
-    this.uriDataSource = uriDataSource;
+    this.dataSource = dataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
   }
 
   /**
-   * Updates the manifest location.
+   * Updates the manifest {@link Uri}.
    *
-   * @param manifestUri The manifest location.
+   * @param manifestUri The manifest {@link Uri}.
    */
-  public void updateManifestUri(String manifestUri) {
+  public void updateManifestUri(Uri manifestUri) {
     this.manifestUri = manifestUri;
   }
 
@@ -205,7 +204,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new UriLoadable<>(manifestUri, uriDataSource, parser);
+      currentLoadable = new UriLoadable<>(manifestUri, dataSource, parser);
       currentLoadStartTimestamp = SystemClock.elapsedRealtime();
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
@@ -227,9 +226,9 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     if (manifest instanceof RedirectingManifest) {
       RedirectingManifest redirectingManifest = (RedirectingManifest) manifest;
-      String nextLocation = redirectingManifest.getNextManifestUri();
-      if (!TextUtils.isEmpty(nextLocation)) {
-        manifestUri = nextLocation;
+      Uri nextUri = redirectingManifest.getNextManifestUri();
+      if (nextUri != null) {
+        manifestUri = nextUri;
       }
     }
 
@@ -253,12 +252,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
     loadException = new ManifestIOException(exception);
 
     notifyManifestError(loadException);
-  }
-
-  /* package */ void onSingleFetchCompleted(T result, long loadStartTimestamp) {
-    manifest = result;
-    manifestLoadStartTimestamp = loadStartTimestamp;
-    manifestLoadCompleteTimestamp = SystemClock.elapsedRealtime();
   }
 
   private long getRetryDelayMillis(long errorCount) {

@@ -20,6 +20,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
 import com.google.android.exoplayer.util.Util;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -149,8 +150,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   @Override
-  public String getUri() {
-    return connection == null ? null : connection.getURL().toString();
+  public Uri getUri() {
+    return connection == null ? null : Uri.parse(connection.getURL().toString());
   }
 
   @Override

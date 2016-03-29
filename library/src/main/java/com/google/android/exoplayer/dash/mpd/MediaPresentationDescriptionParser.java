@@ -30,6 +30,7 @@ import com.google.android.exoplayer.util.ParserUtil;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -88,7 +89,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   // MPD parsing.
 
   @Override
-  public MediaPresentationDescription parse(String connectionUrl, InputStream inputStream)
+  public MediaPresentationDescription parse(Uri uri, InputStream inputStream)
       throws IOException, ParserException {
     try {
       XmlPullParser xpp = xmlParserFactory.newPullParser();
@@ -98,7 +99,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         throw new ParserException(
             "inputStream does not contain a valid media presentation description");
       }
-      return parseMediaPresentationDescription(xpp, connectionUrl);
+      return parseMediaPresentationDescription(xpp, uri.toString());
     } catch (XmlPullParserException e) {
       throw new ParserException(e);
     } catch (ParseException e) {
@@ -116,7 +117,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long minUpdateTimeMs = (dynamic) ? parseDuration(xpp, "minimumUpdatePeriod", -1) : -1;
     long timeShiftBufferDepthMs = (dynamic) ? parseDuration(xpp, "timeShiftBufferDepth", -1) : -1;
     UtcTimingElement utcTiming = null;
-    String location = null;
+    Uri location = null;
 
     List<Period> periods = new ArrayList<>();
     long nextPeriodStartMs = dynamic ? -1 : 0;
@@ -132,7 +133,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (ParserUtil.isStartTag(xpp, "UTCTiming")) {
         utcTiming = parseUtcTiming(xpp);
       } else if (ParserUtil.isStartTag(xpp, "Location")) {
-        location = xpp.nextText();
+        location = Uri.parse(xpp.nextText());
       } else if (ParserUtil.isStartTag(xpp, "Period") && !seenEarlyAccessPeriod) {
         Pair<Period, Long> periodWithDurationMs = parsePeriod(xpp, baseUrl, nextPeriodStartMs);
         Period period = periodWithDurationMs.first;
@@ -172,7 +173,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected MediaPresentationDescription buildMediaPresentationDescription(
       long availabilityStartTime, long durationMs, long minBufferTimeMs, boolean dynamic,
       long minUpdateTimeMs, long timeShiftBufferDepthMs, UtcTimingElement utcTiming,
-      String location, List<Period> periods) {
+      Uri location, List<Period> periods) {
     return new MediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }

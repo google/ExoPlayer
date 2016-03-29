@@ -22,6 +22,8 @@ import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
 
+import android.net.Uri;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,8 +109,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   //     HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
 
   @Override
-  public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
-      throws IOException, ParserException {
+  public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException, ParserException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     Queue<String> extraLines = new LinkedList<>();
     String line;
@@ -119,7 +120,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           // Do nothing.
         } else if (line.startsWith(STREAM_INF_TAG)) {
           extraLines.add(line);
-          return parseMasterPlaylist(new LineIterator(extraLines, reader), connectionUrl);
+          return parseMasterPlaylist(new LineIterator(extraLines, reader), uri.toString());
         } else if (line.startsWith(TARGET_DURATION_TAG)
             || line.startsWith(MEDIA_SEQUENCE_TAG)
             || line.startsWith(MEDIA_DURATION_TAG)
@@ -129,7 +130,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
             || line.equals(DISCONTINUITY_SEQUENCE_TAG)
             || line.equals(ENDLIST_TAG)) {
           extraLines.add(line);
-          return parseMediaPlaylist(new LineIterator(extraLines, reader), connectionUrl);
+          return parseMediaPlaylist(new LineIterator(extraLines, reader), uri.toString());
         } else {
           extraLines.add(line);
         }

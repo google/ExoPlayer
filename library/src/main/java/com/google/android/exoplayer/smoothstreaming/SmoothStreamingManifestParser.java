@@ -26,6 +26,7 @@ import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -61,13 +62,13 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
   }
 
   @Override
-  public SmoothStreamingManifest parse(String connectionUrl, InputStream inputStream)
+  public SmoothStreamingManifest parse(Uri uri, InputStream inputStream)
       throws IOException, ParserException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, null);
       SmoothStreamMediaParser smoothStreamMediaParser =
-          new SmoothStreamMediaParser(null, connectionUrl);
+          new SmoothStreamMediaParser(null, uri.toString());
       return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);

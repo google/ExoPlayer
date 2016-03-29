@@ -29,10 +29,11 @@ import com.google.android.exoplayer.hls.PtsTimestampAdjusterProvider;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
+import com.google.android.exoplayer.upstream.DefaultDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 
 /**
@@ -59,8 +60,8 @@ public class HlsSourceBuilder implements SourceBuilder {
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
-    DefaultUriDataSource manifestDataSource = new DefaultUriDataSource(context, userAgent);
-    ManifestFetcher<HlsPlaylist> manifestFetcher = new ManifestFetcher<>(url,
+    DefaultDataSource manifestDataSource = new DefaultDataSource(context, userAgent);
+    ManifestFetcher<HlsPlaylist> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
         manifestDataSource, parser);
 
     Handler mainHandler = player.getMainHandler();
@@ -68,20 +69,20 @@ public class HlsSourceBuilder implements SourceBuilder {
     LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
     PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
-    DataSource defaultDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    DataSource defaultDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher,
         HlsChunkSource.TYPE_DEFAULT, defaultDataSource, timestampAdjusterProvider,
         new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
     HlsSampleSource defaultSampleSource = new HlsSampleSource(defaultChunkSource, loadControl,
         MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
 
-    DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    DataSource audioDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
     HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, HlsChunkSource.TYPE_AUDIO,
         audioDataSource, timestampAdjusterProvider, null);
     HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
 
-    DataSource subtitleDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    DataSource subtitleDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
     HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher,
         HlsChunkSource.TYPE_SUBTITLE, subtitleDataSource, timestampAdjusterProvider, null);
     HlsSampleSource subtitleSampleSource = new HlsSampleSource(subtitleChunkSource, loadControl,

@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An HTTP specific extension to {@link UriDataSource}.
+ * An HTTP specific extension to {@link DataSource}.
  */
-public interface HttpDataSource extends UriDataSource {
+public interface HttpDataSource extends DataSource {
 
   /**
    * A {@link Predicate} that rejects content types often used for pay-walls.

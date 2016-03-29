@@ -20,6 +20,8 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -44,6 +46,7 @@ public final class FakeDataSource implements DataSource {
   private final boolean simulateUnknownLength;
   private final long totalLength;
 
+  private Uri uri;
   private boolean opened;
   private int currentSegmentIndex;
   private long bytesRemaining;
@@ -63,6 +66,7 @@ public final class FakeDataSource implements DataSource {
     Assertions.checkState(!opened);
     // DataSpec requires a matching close call even if open fails.
     opened = true;
+    uri = dataSpec.uri;
     // If the source knows that the request is unsatisfiable then fail.
     if (dataSpec.position >= totalLength) {
       throw new IOException("Unsatisfiable position");
@@ -95,18 +99,6 @@ public final class FakeDataSource implements DataSource {
   }
 
   @Override
-  public void close() throws IOException {
-    Assertions.checkState(opened);
-    opened = false;
-    if (currentSegmentIndex < segments.size()) {
-      Segment current = segments.get(currentSegmentIndex);
-      if (current.isErrorSegment() && current.exceptionThrown) {
-        current.exceptionCleared = true;
-      }
-    }
-  }
-
-  @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
     Assertions.checkState(opened);
     while (true) {
@@ -134,6 +126,24 @@ public final class FakeDataSource implements DataSource {
           currentSegmentIndex++;
         }
         return readLength;
+      }
+    }
+  }
+
+  @Override
+  public Uri getUri() {
+    return uri;
+  }
+
+  @Override
+  public void close() throws IOException {
+    Assertions.checkState(opened);
+    opened = false;
+    uri = null;
+    if (currentSegmentIndex < segments.size()) {
+      Segment current = segments.get(currentSegmentIndex);
+      if (current.isErrorSegment() && current.exceptionThrown) {
+        current.exceptionCleared = true;
       }
     }
   }

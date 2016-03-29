@@ -167,7 +167,13 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
+  public Uri getUri() {
+    return currentDataSource == upstreamDataSource ? currentDataSource.getUri() : uri;
+  }
+
+  @Override
   public void close() throws IOException {
+    uri = null;
     notifyBytesRead();
     try {
       closeCurrentSource();

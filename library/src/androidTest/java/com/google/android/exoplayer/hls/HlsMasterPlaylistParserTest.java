@@ -17,6 +17,8 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 
+import android.net.Uri;
+
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +32,7 @@ import java.util.List;
 public class HlsMasterPlaylistParserTest extends TestCase {
 
   public void testParseMasterPlaylist() {
-    String playlistUrl = "https://example.com/test.m3u8";
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString = "#EXTM3U\n"
         + "\n"
         + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
@@ -50,7 +52,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
     ByteArrayInputStream inputStream = new ByteArrayInputStream(
         playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
     try {
-      HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUrl, inputStream);
+      HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
       assertNotNull(playlist);
       assertEquals(HlsPlaylist.TYPE_MASTER, playlist.type);
 

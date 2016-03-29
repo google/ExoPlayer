@@ -38,32 +38,32 @@ public final class UriLoadable<T> implements Loadable {
     /**
      * Parses an object from a response.
      *
-     * @param connectionUrl The source of the response, after any redirection.
+     * @param uri The source of the response, after any redirection.
      * @param inputStream An {@link InputStream} from which the response data can be read.
      * @return The parsed object.
      * @throws ParserException If an error occurs parsing the data.
      * @throws IOException If an error occurs reading data from the stream.
      */
-    T parse(String connectionUrl, InputStream inputStream) throws ParserException, IOException;
+    T parse(Uri uri, InputStream inputStream) throws ParserException, IOException;
 
   }
 
   private final DataSpec dataSpec;
-  private final UriDataSource uriDataSource;
+  private final DataSource dataSource;
   private final Parser<T> parser;
 
   private volatile T result;
   private volatile boolean isCanceled;
 
   /**
-   * @param url The url from which the object should be loaded.
-   * @param uriDataSource A {@link UriDataSource} to use when loading the data.
+   * @param uri The {@link Uri} from which the object should be loaded.
+   * @param dataSource A {@link DataSource} to use when loading the data.
    * @param parser Parses the object from the response.
    */
-  public UriLoadable(String url, UriDataSource uriDataSource, Parser<T> parser) {
-    this.uriDataSource = uriDataSource;
+  public UriLoadable(Uri uri, DataSource dataSource, Parser<T> parser) {
+    this.dataSource = dataSource;
     this.parser = parser;
-    dataSpec = new DataSpec(Uri.parse(url), DataSpec.FLAG_ALLOW_GZIP);
+    dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
   }
 
   /**
@@ -87,10 +87,10 @@ public final class UriLoadable<T> implements Loadable {
 
   @Override
   public final void load() throws IOException, InterruptedException {
-    DataSourceInputStream inputStream = new DataSourceInputStream(uriDataSource, dataSpec);
+    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     try {
       inputStream.open();
-      result = parser.parse(uriDataSource.getUri(), inputStream);
+      result = parser.parse(dataSource.getUri(), inputStream);
     } finally {
       inputStream.close();
     }

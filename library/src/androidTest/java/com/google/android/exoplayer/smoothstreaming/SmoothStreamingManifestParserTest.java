@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import android.net.Uri;
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -34,11 +35,11 @@ public class SmoothStreamingManifestParserTest extends InstrumentationTestCase {
         // SystemID UUID in the manifest is not wrapped in braces.
         InputStream inputStream1 =
                 getInstrumentation().getContext().getResources().getAssets().open(SAMPLE_ISMC_1);
-        parser.parse("https://example.com/test.ismc", inputStream1);
+        parser.parse(Uri.parse("https://example.com/test.ismc"), inputStream1);
         // Simple test to ensure that the sample manifest parses without throwing any exceptions.
         // SystemID UUID in the manifest is wrapped in braces.
         InputStream inputStream2 =
                 getInstrumentation().getContext().getResources().getAssets().open(SAMPLE_ISMC_2);
-        parser.parse("https://example.com/test.ismc", inputStream2);
+        parser.parse(Uri.parse("https://example.com/test.ismc"), inputStream2);
     }
 }

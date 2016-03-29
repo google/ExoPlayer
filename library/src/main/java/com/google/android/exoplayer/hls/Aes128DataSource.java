@@ -21,6 +21,8 @@ import com.google.android.exoplayer.upstream.DataSourceInputStream;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -103,6 +105,11 @@ import javax.crypto.spec.SecretKeySpec;
       return -1;
     }
     return bytesRead;
+  }
+
+  @Override
+  public Uri getUri() {
+    return upstream.getUri();
   }
 
 }

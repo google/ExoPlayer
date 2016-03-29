@@ -17,14 +17,16 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
 
+import android.net.Uri;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * A local file {@link UriDataSource}.
+ * A local file {@link DataSource}.
  */
-public final class FileDataSource implements UriDataSource {
+public final class FileDataSource implements DataSource {
 
   /**
    * Thrown when IOException is encountered during local file read operation.
@@ -40,7 +42,7 @@ public final class FileDataSource implements UriDataSource {
   private final TransferListener listener;
 
   private RandomAccessFile file;
-  private String uriString;
+  private Uri uri;
   private long bytesRemaining;
   private boolean opened;
 
@@ -63,7 +65,7 @@ public final class FileDataSource implements UriDataSource {
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
-      uriString = dataSpec.uri.toString();
+      uri = dataSpec.uri;
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
@@ -107,13 +109,13 @@ public final class FileDataSource implements UriDataSource {
   }
 
   @Override
-  public String getUri() {
-    return uriString;
+  public Uri getUri() {
+    return uri;
   }
 
   @Override
   public void close() throws FileDataSourceException {
-    uriString = null;
+    uri = null;
     if (file != null) {
       try {
         file.close();

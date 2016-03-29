@@ -16,13 +16,14 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
-import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.net.Uri;
 import android.os.SystemClock;
 
 import java.io.BufferedReader;
@@ -64,7 +65,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
     void onTimestampError(UtcTimingElement utcTiming, IOException e);
   }
 
-  private final UriDataSource uriDataSource;
+  private final DataSource dataSource;
   private final UtcTimingElement timingElement;
   private final long timingElementElapsedRealtime;
   private final UtcTimingCallback callback;
@@ -75,23 +76,22 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   /**
    * Resolves a {@link UtcTimingElement}.
    *
-   * @param uriDataSource A source to use should loading from a URI be necessary.
+   * @param dataSource A {@link DataSource} to use should loading from a {@link Uri} be necessary.
    * @param timingElement The element to resolve.
    * @param timingElementElapsedRealtime The {@link SystemClock#elapsedRealtime()} timestamp at
    *     which the element was obtained. Used if the element contains a timestamp directly.
    * @param callback The callback to invoke on resolution or failure.
    */
-  public static void resolveTimingElement(UriDataSource uriDataSource,
-      UtcTimingElement timingElement, long timingElementElapsedRealtime,
-      UtcTimingCallback callback) {
-    UtcTimingElementResolver resolver = new UtcTimingElementResolver(uriDataSource, timingElement,
+  public static void resolveTimingElement(DataSource dataSource, UtcTimingElement timingElement,
+      long timingElementElapsedRealtime, UtcTimingCallback callback) {
+    UtcTimingElementResolver resolver = new UtcTimingElementResolver(dataSource, timingElement,
         timingElementElapsedRealtime, callback);
     resolver.resolve();
   }
 
-  private UtcTimingElementResolver(UriDataSource uriDataSource, UtcTimingElement timingElement,
+  private UtcTimingElementResolver(DataSource dataSource, UtcTimingElement timingElement,
       long timingElementElapsedRealtime, UtcTimingCallback callback) {
-    this.uriDataSource = uriDataSource;
+    this.dataSource = dataSource;
     this.timingElement = Assertions.checkNotNull(timingElement);
     this.timingElementElapsedRealtime = timingElementElapsedRealtime;
     this.callback = Assertions.checkNotNull(callback);
@@ -124,7 +124,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
 
   private void resolveHttp(UriLoadable.Parser<Long> parser) {
     singleUseLoader = new Loader("utctiming");
-    singleUseLoadable = new UriLoadable<>(timingElement.value, uriDataSource, parser);
+    singleUseLoadable = new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser);
     singleUseLoader.startLoading(singleUseLoadable, this);
   }
 
@@ -153,8 +153,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   private static class XsDateTimeParser implements UriLoadable.Parser<Long> {
 
     @Override
-    public Long parse(String connectionUrl, InputStream inputStream) throws ParserException,
-        IOException {
+    public Long parse(Uri uri, InputStream inputStream) throws ParserException, IOException {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       try {
         return Util.parseXsDateTime(firstLine);
@@ -168,8 +167,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   private static class Iso8601Parser implements UriLoadable.Parser<Long> {
 
     @Override
-    public Long parse(String connectionUrl, InputStream inputStream) throws ParserException,
-        IOException {
+    public Long parse(Uri uri, InputStream inputStream) throws ParserException, IOException {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       try {
         // TODO: It may be necessary to handle timestamp offsets from UTC.

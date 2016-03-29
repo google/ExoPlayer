@@ -656,7 +656,7 @@ public class HlsChunkSource {
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
         DataSpec.FLAG_ALLOW_GZIP);
     return new MediaPlaylistChunk(dataSource, dataSpec, variants[variantIndex].format, scratchSpace,
-        playlistParser, variantIndex, mediaPlaylistUri.toString());
+        playlistParser, variantIndex, mediaPlaylistUri);
   }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex) {
@@ -735,23 +735,23 @@ public class HlsChunkSource {
     public final int variantIndex;
 
     private final HlsPlaylistParser playlistParser;
-    private final String playlistUrl;
+    private final Uri playlistUri;
 
     private HlsMediaPlaylist result;
 
     public MediaPlaylistChunk(DataSource dataSource, DataSpec dataSpec, Format format,
         byte[] scratchSpace, HlsPlaylistParser playlistParser, int variantIndex,
-        String playlistUrl) {
+        Uri playlistUri) {
       super(dataSource, dataSpec, Chunk.TYPE_MANIFEST, Chunk.TRIGGER_UNSPECIFIED, format,
           Chunk.NO_PARENT_ID, scratchSpace);
       this.variantIndex = variantIndex;
       this.playlistParser = playlistParser;
-      this.playlistUrl = playlistUrl;
+      this.playlistUri = playlistUri;
     }
 
     @Override
     protected void consume(byte[] data, int limit) throws IOException {
-      result = (HlsMediaPlaylist) playlistParser.parse(playlistUrl,
+      result = (HlsMediaPlaylist) playlistParser.parse(playlistUri,
           new ByteArrayInputStream(data, 0, limit));
     }
 

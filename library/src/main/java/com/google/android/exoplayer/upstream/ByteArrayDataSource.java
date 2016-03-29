@@ -18,6 +18,8 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
+import android.net.Uri;
+
 import java.io.IOException;
 
 /**
@@ -26,6 +28,8 @@ import java.io.IOException;
 public final class ByteArrayDataSource implements DataSource {
 
   private final byte[] data;
+
+  private Uri uri;
   private int readPosition;
   private int remainingBytes;
 
@@ -40,6 +44,7 @@ public final class ByteArrayDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
+    uri = dataSpec.uri;
     readPosition = (int) dataSpec.position;
     remainingBytes = (int) ((dataSpec.length == C.LENGTH_UNBOUNDED)
         ? (data.length - dataSpec.position) : dataSpec.length);
@@ -48,11 +53,6 @@ public final class ByteArrayDataSource implements DataSource {
           + "], length: " + data.length);
     }
     return remainingBytes;
-  }
-
-  @Override
-  public void close() throws IOException {
-    // Do nothing.
   }
 
   @Override
@@ -66,5 +66,16 @@ public final class ByteArrayDataSource implements DataSource {
     remainingBytes -= length;
     return length;
   }
+
+  @Override
+  public Uri getUri() {
+    return uri;
+  }
+
+  @Override
+  public void close() throws IOException {
+    uri = null;
+  }
+
 }
 

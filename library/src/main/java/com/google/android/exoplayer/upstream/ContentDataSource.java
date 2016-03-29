@@ -20,6 +20,7 @@ import com.google.android.exoplayer.C;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.net.Uri;
 
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -27,9 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A content URI {@link UriDataSource}.
+ * A content URI {@link DataSource}.
  */
-public final class ContentDataSource implements UriDataSource {
+public final class ContentDataSource implements DataSource {
 
   /**
    * Thrown when an {@link IOException} is encountered reading from a content URI.
@@ -45,8 +46,8 @@ public final class ContentDataSource implements UriDataSource {
   private final ContentResolver resolver;
   private final TransferListener listener;
 
+  private Uri uri;
   private InputStream inputStream;
-  private String uriString;
   private long bytesRemaining;
   private boolean opened;
 
@@ -70,8 +71,8 @@ public final class ContentDataSource implements UriDataSource {
   @Override
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
-      uriString = dataSpec.uri.toString();
-      AssetFileDescriptor assetFd = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
+      uri = dataSpec.uri;
+      AssetFileDescriptor assetFd = resolver.openAssetFileDescriptor(uri, "r");
       inputStream = new FileInputStream(assetFd.getFileDescriptor());
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
@@ -130,13 +131,13 @@ public final class ContentDataSource implements UriDataSource {
   }
 
   @Override
-  public String getUri() {
-    return uriString;
+  public Uri getUri() {
+    return uri;
   }
 
   @Override
   public void close() throws ContentDataSourceException {
-    uriString = null;
+    uri = null;
     if (inputStream != null) {
       try {
         inputStream.close();

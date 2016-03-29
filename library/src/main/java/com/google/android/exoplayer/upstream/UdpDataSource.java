@@ -17,6 +17,8 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,7 +29,7 @@ import java.net.MulticastSocket;
 /**
  * A UDP {@link DataSource}.
  */
-public final class UdpDataSource implements UriDataSource {
+public final class UdpDataSource implements DataSource {
 
   /**
    * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.
@@ -52,7 +54,7 @@ public final class UdpDataSource implements UriDataSource {
   private final TransferListener listener;
   private final DatagramPacket packet;
 
-  private DataSpec dataSpec;
+  private Uri uri;
   private DatagramSocket socket;
   private MulticastSocket multicastSocket;
   private InetAddress address;
@@ -81,9 +83,9 @@ public final class UdpDataSource implements UriDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
-    this.dataSpec = dataSpec;
-    String host = dataSpec.uri.getHost();
-    int port = dataSpec.uri.getPort();
+    uri = dataSpec.uri;
+    String host = uri.getHost();
+    int port = uri.getPort();
 
     try {
       address = InetAddress.getByName(host);
@@ -130,7 +132,13 @@ public final class UdpDataSource implements UriDataSource {
   }
 
   @Override
+  public Uri getUri() {
+    return uri;
+  }
+
+  @Override
   public void close() {
+    uri = null;
     if (multicastSocket != null) {
       try {
         multicastSocket.leaveGroup(address);
@@ -152,11 +160,6 @@ public final class UdpDataSource implements UriDataSource {
         listener.onTransferEnd();
       }
     }
-  }
-
-  @Override
-  public String getUri() {
-    return dataSpec == null ? null : dataSpec.uri.toString();
   }
 
 }

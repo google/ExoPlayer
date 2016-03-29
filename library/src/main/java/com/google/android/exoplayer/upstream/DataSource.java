@@ -17,6 +17,8 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
 
+import android.net.Uri;
+
 import java.io.IOException;
 
 /**
@@ -44,16 +46,6 @@ public interface DataSource {
   long open(DataSpec dataSpec) throws IOException;
 
   /**
-   * Closes the {@link DataSource}.
-   * <p>
-   * Note: This method will be called even if the corresponding call to {@link #open(DataSpec)}
-   * threw an {@link IOException}. See {@link #open(DataSpec)} for more details.
-   *
-   * @throws IOException If an error occurs closing the source.
-   */
-  void close() throws IOException;
-
-  /**
    * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
    * index {@code offset}.
    * <p>
@@ -68,5 +60,26 @@ public interface DataSource {
    * @throws IOException If an error occurs reading from the source.
    */
   int read(byte[] buffer, int offset, int readLength) throws IOException;
+
+  /**
+   * When the source is open, returns the {@link Uri} from which data is being read.
+   * <p>
+   * The returned {@link Uri} will be identical to the one passed {@link #open(DataSpec)} in the
+   * {@link DataSpec} unless redirection has occurred. If redirection has occurred, the {@link Uri}
+   * after redirection is returned.
+   *
+   * @return When the source is open, the {@link Uri} from which data is being read. Null otherwise.
+   */
+  Uri getUri();
+
+  /**
+   * Closes the {@link DataSource}.
+   * <p>
+   * Note: This method will be called even if the corresponding call to {@link #open(DataSpec)}
+   * threw an {@link IOException}. See {@link #open(DataSpec)} for more details.
+   *
+   * @throws IOException If an error occurs closing the source.
+   */
+  void close() throws IOException;
 
 }

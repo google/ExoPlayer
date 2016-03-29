@@ -18,6 +18,8 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
+import android.net.Uri;
+
 import java.io.IOException;
 
 /**
@@ -57,6 +59,11 @@ public final class TeeDataSource implements DataSource {
       dataSink.write(buffer, offset, num);
     }
     return num;
+  }
+
+  @Override
+  public Uri getUri() {
+    return upstream.getUri();
   }
 
   @Override

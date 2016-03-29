@@ -31,10 +31,11 @@ import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
+import com.google.android.exoplayer.upstream.DefaultDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 
 /**
@@ -68,16 +69,16 @@ public class DashSourceBuilder implements SourceBuilder {
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    DefaultUriDataSource manifestDataSource = new DefaultUriDataSource(context, userAgent);
-    ManifestFetcher<MediaPresentationDescription> manifestFetcher = new ManifestFetcher<>(url,
-        manifestDataSource, parser);
+    DefaultDataSource manifestDataSource = new DefaultDataSource(context, userAgent);
+    ManifestFetcher<MediaPresentationDescription> manifestFetcher = new ManifestFetcher<>(
+        Uri.parse(url), manifestDataSource, parser);
 
     Handler mainHandler = player.getMainHandler();
     BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
     LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
 
     // Build the video renderer.
-    DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    DataSource videoDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
     ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, AdaptationSet.TYPE_VIDEO,
         videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS,
         0, mainHandler, player, DemoPlayer.TYPE_VIDEO);
@@ -85,7 +86,7 @@ public class DashSourceBuilder implements SourceBuilder {
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
 
     // Build the audio renderer.
-    DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    DataSource audioDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
     ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, AdaptationSet.TYPE_AUDIO,
         audioDataSource, null, LIVE_EDGE_LATENCY_MS, 0, mainHandler, player, DemoPlayer.TYPE_AUDIO);
     ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
@@ -93,7 +94,7 @@ public class DashSourceBuilder implements SourceBuilder {
         DemoPlayer.TYPE_AUDIO);
 
     // Build the text renderer.
-    DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    DataSource textDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
     ChunkSource textChunkSource = new DashChunkSource(manifestFetcher, AdaptationSet.TYPE_TEXT,
         textDataSource, null, LIVE_EDGE_LATENCY_MS, 0, mainHandler, player, DemoPlayer.TYPE_TEXT);
     ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,

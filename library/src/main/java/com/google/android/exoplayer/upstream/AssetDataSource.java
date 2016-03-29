@@ -19,15 +19,16 @@ import com.google.android.exoplayer.C;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.net.Uri;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A local asset {@link UriDataSource}.
+ * A local asset {@link DataSource}.
  */
-public final class AssetDataSource implements UriDataSource {
+public final class AssetDataSource implements DataSource {
 
   /**
    * Thrown when an {@link IOException} is encountered reading a local asset.
@@ -43,7 +44,7 @@ public final class AssetDataSource implements UriDataSource {
   private final AssetManager assetManager;
   private final TransferListener listener;
 
-  private String uriString;
+  private Uri uri;
   private InputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
@@ -68,14 +69,13 @@ public final class AssetDataSource implements UriDataSource {
   @Override
   public long open(DataSpec dataSpec) throws AssetDataSourceException {
     try {
-      uriString = dataSpec.uri.toString();
-      String path = dataSpec.uri.getPath();
+      uri = dataSpec.uri;
+      String path = uri.getPath();
       if (path.startsWith("/android_asset/")) {
         path = path.substring(15);
       } else if (path.startsWith("/")) {
         path = path.substring(1);
       }
-      uriString = dataSpec.uri.toString();
       inputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
@@ -133,13 +133,13 @@ public final class AssetDataSource implements UriDataSource {
   }
 
   @Override
-  public String getUri() {
-    return uriString;
+  public Uri getUri() {
+    return uri;
   }
 
   @Override
   public void close() throws AssetDataSourceException {
-    uriString = null;
+    uri = null;
     if (inputStream != null) {
       try {
         inputStream.close();
