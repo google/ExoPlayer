@@ -37,6 +37,8 @@ public final class WavExtractor implements Extractor, SeekMap {
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
   private WavHeader wavHeader;
+  private int bytesPerFrame;
+  private int pendingBytes;
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
@@ -53,7 +55,7 @@ public final class WavExtractor implements Extractor, SeekMap {
 
   @Override
   public void seek() {
-    // Do nothing.
+    pendingBytes = 0;
   }
 
   @Override
@@ -69,6 +71,7 @@ public final class WavExtractor implements Extractor, SeekMap {
           wavHeader.getBitrate(), MAX_INPUT_SIZE, wavHeader.getNumChannels(),
           wavHeader.getSampleRateHz(), null, null);
       trackOutput.format(format);
+      bytesPerFrame = wavHeader.getBytesPerFrame();
     }
 
     if (!wavHeader.hasDataBounds()) {
@@ -76,15 +79,21 @@ public final class WavExtractor implements Extractor, SeekMap {
       extractorOutput.seekMap(this);
     }
 
-    long inputPosition = input.getPosition();
-    int bytesRead = trackOutput.sampleData(input, MAX_INPUT_SIZE, true);
-    if (bytesRead == RESULT_END_OF_INPUT) {
-      return RESULT_END_OF_INPUT;
+    int bytesAppended = trackOutput.sampleData(input, MAX_INPUT_SIZE - pendingBytes, true);
+    if (bytesAppended != RESULT_END_OF_INPUT) {
+      pendingBytes += bytesAppended;
     }
 
-    trackOutput.sampleMetadata(
-        wavHeader.getTimeUs(inputPosition), C.BUFFER_FLAG_KEY_FRAME, bytesRead, 0, null);
-    return RESULT_CONTINUE;
+    // Samples must consist of a whole number of frames.
+    int pendingFrames = pendingBytes / bytesPerFrame;
+    if (pendingFrames > 0) {
+      long timeUs = wavHeader.getTimeUs(input.getPosition() - pendingBytes);
+      int size = pendingFrames * bytesPerFrame;
+      pendingBytes -= size;
+      trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, size, pendingBytes, null);
+    }
+
+    return bytesAppended == RESULT_END_OF_INPUT ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
 
   // SeekMap implementation.

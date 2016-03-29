@@ -68,6 +68,11 @@ import com.google.android.exoplayer.C;
     return blockAlignment / numChannels;
   }
 
+  /** Returns the bytes per frame of this WAV. */
+  public int getBytesPerFrame() {
+    return blockAlignment;
+  }
+
   /** Returns the bitrate of this WAV. */
   public int getBitrate() {
     return sampleRateHz * bitsPerSample * numChannels;
