@@ -68,12 +68,13 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private final EventListener eventListener;
   private final int minLoadableRetryCount;
 
-  private int state;
+  private boolean prepared;
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
   private long lastPerformedBufferOperation;
   private boolean pendingReset;
+  private boolean loadControlRegistered;
 
   private TrackGroupArray trackGroups;
   private long durationUs;
@@ -140,17 +141,13 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
     pendingResetPositionUs = NO_RESET_PENDING;
-    state = STATE_UNPREPARED;
-  }
-
-  @Override
-  public int getState() {
-    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    Assertions.checkState(state == STATE_UNPREPARED);
+    if (prepared) {
+      return true;
+    }
     if (!chunkSource.prepare()) {
       return false;
     }
@@ -162,7 +159,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     } else {
       trackGroups = new TrackGroupArray();
     }
-    state = STATE_SELECTING_TRACKS;
+    prepared = true;
     return true;
   }
 
@@ -177,36 +174,31 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public void startTrackSelection() {
-    Assertions.checkState(state == STATE_READING);
-    state = STATE_SELECTING_TRACKS;
-  }
-
-  @Override
-  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    Assertions.checkState(!trackEnabled);
-    trackEnabled = true;
-    chunkSource.enable(selection.getTracks());
-    loadControl.register(this, bufferSizeContribution);
-    downstreamFormat = null;
-    downstreamSampleFormat = null;
-    downstreamPositionUs = positionUs;
-    lastSeekPositionUs = positionUs;
-    pendingReset = false;
-    restartFrom(positionUs);
-    return this;
-  }
-
-  @Override
-  public void unselectTrack(TrackStream stream) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    Assertions.checkState(trackEnabled);
-    trackEnabled = false;
-    try {
+  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+      List<TrackSelection> newSelections, long positionUs) {
+    Assertions.checkState(prepared);
+    Assertions.checkState(oldStreams.size() <= 1);
+    Assertions.checkState(newSelections.size() <= 1);
+    // Unselect old tracks.
+    if (!oldStreams.isEmpty()) {
+      Assertions.checkState(trackEnabled);
+      trackEnabled = false;
       chunkSource.disable();
-    } finally {
-      loadControl.unregister(this);
+    }
+    // Select new tracks.
+    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    if (!newSelections.isEmpty()) {
+      Assertions.checkState(!trackEnabled);
+      trackEnabled = true;
+      chunkSource.enable(newSelections.get(0).getTracks());
+      newStreams[0] = this;
+    }
+    // Cancel or start requests as necessary.
+    if (!trackEnabled && loader != null) {
+      if (loadControlRegistered) {
+        loadControl.unregister(this);
+        loadControlRegistered = false;
+      }
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
@@ -215,13 +207,19 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         clearCurrentLoadable();
         loadControl.trimAllocator();
       }
+    } else if (trackEnabled) {
+      if (!loadControlRegistered) {
+        loadControl.register(this, bufferSizeContribution);
+        loadControlRegistered = true;
+      }
+      downstreamFormat = null;
+      downstreamSampleFormat = null;
+      downstreamPositionUs = positionUs;
+      lastSeekPositionUs = positionUs;
+      pendingReset = false;
+      restartFrom(positionUs);
     }
-  }
-
-  @Override
-  public void endTrackSelection(long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    state = STATE_READING;
+    return newStreams;
   }
 
   @Override
@@ -339,7 +337,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public void release() {
-    state = STATE_RELEASED;
+    prepared = false;
     trackEnabled = false;
     if (loader != null) {
       loader.release();

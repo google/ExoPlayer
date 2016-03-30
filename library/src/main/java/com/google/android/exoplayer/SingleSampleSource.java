@@ -27,6 +27,7 @@ import android.os.SystemClock;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A {@link SampleSource} that loads the data at a given {@link Uri} as a single sample.
@@ -73,7 +74,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private final EventListener eventListener;
   private final int eventSourceId;
 
-  private int state;
+  private boolean prepared;
   private long pendingResetPositionUs;
   private boolean loadingFinished;
   private Loader loader;
@@ -107,12 +108,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     this.eventSourceId = eventSourceId;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
-    state = STATE_UNPREPARED;
-  }
-
-  @Override
-  public int getState() {
-    return state;
   }
 
   @Override
@@ -124,9 +119,11 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public boolean prepare(long positionUs) {
-    Assertions.checkState(state == STATE_UNPREPARED);
-    state = STATE_SELECTING_TRACKS;
+    if (prepared) {
+      return true;
+    }
     loader = new Loader("Loader:" + format.sampleMimeType);
+    prepared = true;
     return true;
   }
 
@@ -141,31 +138,25 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public void startTrackSelection() {
-    Assertions.checkState(state == STATE_READING);
-    state = STATE_SELECTING_TRACKS;
-  }
-
-  @Override
-  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    streamState = STREAM_STATE_SEND_FORMAT;
-    pendingResetPositionUs = NO_RESET;
-    clearCurrentLoadableException();
-    maybeStartLoading();
-    return this;
-  }
-
-  @Override
-  public void unselectTrack(TrackStream stream) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    streamState = STREAM_STATE_END_OF_STREAM;
-  }
-
-  @Override
-  public void endTrackSelection(long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    state = STATE_READING;
+  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+      List<TrackSelection> newSelections, long positionUs) {
+    Assertions.checkState(prepared);
+    Assertions.checkState(oldStreams.size() <= 1);
+    Assertions.checkState(newSelections.size() <= 1);
+    // Unselect old tracks.
+    if (!oldStreams.isEmpty()) {
+      streamState = STREAM_STATE_END_OF_STREAM;
+    }
+    // Select new tracks.
+    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    if (!newSelections.isEmpty()) {
+      newStreams[0] = this;
+      streamState = STREAM_STATE_SEND_FORMAT;
+      pendingResetPositionUs = NO_RESET;
+      clearCurrentLoadableException();
+      maybeStartLoading();
+    }
+    return newStreams;
   }
 
   @Override
@@ -225,7 +216,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public void release() {
-    state = STATE_RELEASED;
     streamState = STREAM_STATE_END_OF_STREAM;
     if (loader != null) {
       loader.release();

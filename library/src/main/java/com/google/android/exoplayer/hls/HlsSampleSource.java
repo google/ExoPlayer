@@ -39,6 +39,7 @@ import android.os.SystemClock;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A {@link SampleSource} for HLS streams.
@@ -73,7 +74,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private int state;
+  private boolean prepared;
+  private boolean seenFirstTrackSelection;
   private boolean loadControlRegistered;
   private int enabledTrackCount;
 
@@ -83,9 +85,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   // Indexed by track (as exposed by this source).
   private TrackGroupArray trackGroups;
   private int primaryTrackGroupIndex;
-  private boolean isFirstTrackSelection;
-  private boolean newTracksSelected;
-  private boolean primaryTracksDeselected;
   // Indexed by group.
   private boolean[] groupEnabledStates;
   private boolean[] pendingResets;
@@ -134,20 +133,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public int getState() {
-    return state;
-  }
-
-  @Override
   public boolean prepare(long positionUs) throws IOException {
-    Assertions.checkState(state == STATE_UNPREPARED);
+    if (prepared) {
+      return true;
+    }
     if (!chunkSource.prepare()) {
       return false;
     }
     if (chunkSource.getTrackCount() == 0) {
       trackGroups = new TrackGroupArray();
-      state = STATE_SELECTING_TRACKS;
-      isFirstTrackSelection = true;
+      prepared = true;
       return true;
     }
     if (!extractors.isEmpty()) {
@@ -156,9 +151,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         HlsExtractorWrapper extractor = extractors.getFirst();
         if (extractor.isPrepared()) {
           buildTracks(extractor);
-          state = STATE_SELECTING_TRACKS;
-          isFirstTrackSelection = true;
           maybeStartLoading(); // Update the load control.
+          prepared = true;
           return true;
         } else if (extractors.size() > 1) {
           extractors.removeFirst().clear();
@@ -195,42 +189,31 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return trackGroups;
   }
 
-
   @Override
-  public void startTrackSelection() {
-    Assertions.checkState(state == STATE_READING);
-    state = STATE_SELECTING_TRACKS;
-    isFirstTrackSelection = false;
-    newTracksSelected = false;
-    primaryTracksDeselected = false;
-  }
-
-  @Override
-  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    int group = selection.group;
-    int[] tracks = selection.getTracks();
-    setTrackGroupEnabledState(group, true);
-    downstreamSampleFormats[group] = null;
-    pendingResets[group] = false;
-    newTracksSelected = true;
-    if (group == primaryTrackGroupIndex) {
-      primaryTracksDeselected |= chunkSource.selectTracks(tracks);
+  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+      List<TrackSelection> newSelections, long positionUs) {
+    Assertions.checkState(prepared);
+    // Unselect old tracks.
+    for (int i = 0; i < oldStreams.size(); i++) {
+      int group = ((TrackStreamImpl) oldStreams.get(i)).group;
+      setTrackGroupEnabledState(group, false);
     }
-    return new TrackStreamImpl(group);
-  }
-
-  @Override
-  public void unselectTrack(TrackStream stream) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    int group = ((TrackStreamImpl) stream).group;
-    setTrackGroupEnabledState(group, false);
-  }
-
-  @Override
-  public void endTrackSelection(long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    state = STATE_READING;
+    // Select new tracks.
+    boolean primaryTracksDeselected = false;
+    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    for (int i = 0; i < newStreams.length; i++) {
+      TrackSelection selection = newSelections.get(i);
+      int group = selection.group;
+      int[] tracks = selection.getTracks();
+      setTrackGroupEnabledState(group, true);
+      downstreamSampleFormats[group] = null;
+      pendingResets[group] = false;
+      if (group == primaryTrackGroupIndex) {
+        primaryTracksDeselected |= chunkSource.selectTracks(tracks);
+      }
+      newStreams[i] = new TrackStreamImpl(group);
+    }
+    // Cancel or start requests as necessary.
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
@@ -247,13 +230,15 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
           loadControl.trimAllocator();
         }
       }
-    } else if (primaryTracksDeselected || (!isFirstTrackSelection && newTracksSelected)) {
+    } else if (primaryTracksDeselected || (seenFirstTrackSelection && newStreams.length > 0)) {
       if (!loadControlRegistered) {
         loadControl.register(this, bufferSizeContribution);
         loadControlRegistered = true;
       }
       seekToInternal(positionUs);
     }
+    seenFirstTrackSelection = true;
+    return newStreams;
   }
 
   @Override
@@ -386,7 +371,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void release() {
-    state = STATE_RELEASED;
     enabledTrackCount = 0;
     if (loader != null) {
       if (loadControlRegistered) {
@@ -678,8 +662,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    if (loader.isLoading() || !nextLoader
-        || (state != STATE_UNPREPARED && enabledTrackCount == 0)) {
+    if (loader.isLoading() || !nextLoader || (prepared && enabledTrackCount == 0)) {
       return;
     }
 
@@ -729,7 +712,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished || (state != STATE_UNPREPARED && enabledTrackCount == 0) ? -1
+      return loadingFinished || (prepared && enabledTrackCount == 0) ? -1
           : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
     }
   }

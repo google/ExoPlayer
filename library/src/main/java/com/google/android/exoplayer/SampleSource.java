@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A source of media.
@@ -23,41 +24,14 @@ import java.io.IOException;
 public interface SampleSource {
 
   /**
-   * The source has not yet been prepared.
-   */
-  int STATE_UNPREPARED = 0;
-  /**
-   * The source is prepared and in the track selection state.
-   */
-  int STATE_SELECTING_TRACKS = 1;
-  /**
-   * The source is prepared and in the reading state.
-   */
-  int STATE_READING = 2;
-  /**
-   * The source has been released.
-   */
-  int STATE_RELEASED = 3;
-
-  /**
-   * Returns the state of the source.
-   *
-   * @return The state of the source. One of {@link #STATE_UNPREPARED},
-   *     {@link #STATE_SELECTING_TRACKS}, {@link #STATE_READING} and {@link #STATE_RELEASED}.
-   */
-  int getState();
-
-  /**
-   * Prepares the source.
+   * Prepares the source, or does nothing if the source is already prepared.
    * <p>
-   * If preparation cannot complete immediately then the call will return {@code false} rather than
-   * block and the state will remain unchanged. If true is returned the state will have changed
-   * to {@link #STATE_SELECTING_TRACKS} for the initial track selection to take place.
-   * <p>
-   * This method should only be called when the state is {@link #STATE_UNPREPARED}.
+   * {@link #selectTracks(List, List, long)} <b>must</b> be called after the source is prepared to
+   * make an initial track selection. This is true even if the caller does not wish to select any
+   * tracks.
    *
    * @param positionUs The player's current playback position.
-   * @return True if the source was prepared, false otherwise.
+   * @return True if the source is prepared, false otherwise.
    * @throws IOException If there's an error preparing the source.
    */
   boolean prepare(long positionUs) throws IOException;
@@ -65,8 +39,7 @@ public interface SampleSource {
   /**
    * Returns the duration of the source.
    * <p>
-   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS} or
-   * {@link #STATE_READING}.
+   * This method should only be called after the source has been prepared.
    *
    * @return The duration of the source in microseconds, or {@link C#UNKNOWN_TIME_US} if the
    *     duration is not known.
@@ -76,64 +49,36 @@ public interface SampleSource {
   /**
    * Returns the {@link TrackGroup}s exposed by the source.
    * <p>
-   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS} or
-   * {@link #STATE_READING}.
+   * This method should only be called after the source has been prepared.
    *
    * @return The {@link TrackGroup}s.
    */
   TrackGroupArray getTrackGroups();
 
   /**
-   * Enters the track selection state.
+   * Modifies the selected tracks.
    * <p>
-   * The selected tracks are initially unchanged, but may be modified by calls to
-   * {@link #unselectTrack(TrackStream)} and {@link #selectTrack(TrackSelection, long)}, followed by
-   * a call to {@link #endTrackSelection(long)}.
+   * {@link TrackStream}s corresponding to tracks being unselected are passed in {@code oldStreams}.
+   * Tracks being selected are specified in {@code newSelections}. Each new {@link TrackSelection}
+   * must have a {@link TrackSelection#group} index distinct from those of currently enabled tracks,
+   * except for those being unselected.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING}.
-   */
-  void startTrackSelection();
-
-  /**
-   * Selects a track defined by a {@link TrackSelection}. A {@link TrackStream} is returned through
-   * which the track's data can be read.
-   * <p>
-   * The {@link TrackSelection} must have a {@link TrackSelection#group} index distinct from those
-   * of other enabled tracks, and a {@code TrackSelection#length} of 1 unless
-   * {@link TrackGroup#adaptive} is true for the selected group.
-   * <p>
-   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS}.
+   * This method should only be called after the source has been prepared.
    *
-   * @param selection Defines the track.
+   * @param oldStreams {@link TrackStream}s corresponding to tracks being unselected. May be empty
+   *     but must not be null.
+   * @param newSelections {@link TrackSelection}s that define tracks being selected. May be empty
+   *     but must not be null.
    * @param positionUs The current playback position in microseconds.
-   * @return A {@link TrackStream} from which the enabled track's data can be read.
+   * @return The {@link TrackStream}s corresponding to each of the newly selected tracks.
    */
-  TrackStream selectTrack(TrackSelection selection, long positionUs);
-
-  /**
-   * Unselects a track previously selected by calling {@link #selectTrack(TrackSelection, long)}.
-   * <p>
-   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS}.
-   *
-   * @param stream The {@link TrackStream} obtained from the corresponding call to
-   *     {@link #selectTrack(TrackSelection, long)}.
-   */
-  void unselectTrack(TrackStream stream);
-
-  /**
-   * Exits the track selection state.
-   * <p>
-   * This method should only be called when the state is {@link #STATE_SELECTING_TRACKS}.
-   *
-   * @param positionUs The current playback position in microseconds.
-   */
-  void endTrackSelection(long positionUs);
+  TrackStream[] selectTracks(List<TrackStream> oldStreams, List<TrackSelection> newSelections,
+      long positionUs);
 
   /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING} and at least one
-   * track is selected.
+   * This method should only be called when at least one track is selected.
    *
    * @param positionUs The current playback position.
    */
@@ -142,8 +87,7 @@ public interface SampleSource {
   /**
    * Returns an estimate of the position up to which data is buffered for the enabled tracks.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING} and at least one
-   * track is selected.
+   * This method should only be called when at least one track is selected.
    *
    * @return An estimate of the absolute position in microseconds up to which data is buffered,
    *     or {@link C#END_OF_SOURCE_US} if the track is fully buffered, or {@link C#UNKNOWN_TIME_US}
@@ -154,8 +98,7 @@ public interface SampleSource {
   /**
    * Seeks to the specified time in microseconds.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING} and at least one
-   * track is selected.
+   * This method should only be called when at least one track is selected.
    *
    * @param positionUs The seek position in microseconds.
    */

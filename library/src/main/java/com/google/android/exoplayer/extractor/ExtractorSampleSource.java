@@ -208,15 +208,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private volatile SeekMap seekMap;
   private volatile DrmInitData drmInitData;
 
-  private int state;
+  private boolean prepared;
+  private boolean seenFirstTrackSelection;
   private int enabledTrackCount;
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingResets;
   private boolean[] trackEnabledStates;
-  private boolean isFirstTrackSelection;
-  private boolean newTracksSelected;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -327,26 +326,20 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     extractorHolder = new ExtractorHolder(extractors, this);
     sampleQueues = new SparseArray<>();
     pendingResetPositionUs = NO_RESET_PENDING;
-    state = STATE_UNPREPARED;
-  }
-
-  @Override
-  public int getState() {
-    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) {
-    Assertions.checkState(state == STATE_UNPREPARED);
+    if (prepared) {
+      return true;
+    }
     if (loader == null) {
       loader = new Loader("Loader:ExtractorSampleSource");
     }
-
     maybeStartLoading();
     if (seekMap == null || !tracksBuilt || !haveFormatsForAllTracks()) {
       return false;
     }
-
     int trackCount = sampleQueues.size();
     TrackGroup[] trackArray = new TrackGroup[trackCount];
     trackEnabledStates = new boolean[trackCount];
@@ -357,8 +350,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
     }
     tracks = new TrackGroupArray(trackArray);
-    isFirstTrackSelection = true;
-    state = STATE_SELECTING_TRACKS;
+    prepared = true;
     return true;
   }
 
@@ -373,41 +365,31 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public void startTrackSelection() {
-    Assertions.checkState(state == STATE_READING);
-    state = STATE_SELECTING_TRACKS;
-    newTracksSelected = false;
-    isFirstTrackSelection = false;
-  }
-
-  @Override
-  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    Assertions.checkState(selection.length == 1);
-    Assertions.checkState(selection.getTrack(0) == 0);
-    int track = selection.group;
-    Assertions.checkState(!trackEnabledStates[track]);
-    enabledTrackCount++;
-    trackEnabledStates[track] = true;
-    pendingMediaFormat[track] = true;
-    pendingResets[track] = false;
-    newTracksSelected = true;
-    return new TrackStreamImpl(track);
-  }
-
-  @Override
-  public void unselectTrack(TrackStream stream) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    int track = ((TrackStreamImpl) stream).track;
-    Assertions.checkState(trackEnabledStates[track]);
-    enabledTrackCount--;
-    trackEnabledStates[track] = false;
-  }
-
-  @Override
-  public void endTrackSelection(long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    state = STATE_READING;
+  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+      List<TrackSelection> newSelections, long positionUs) {
+    Assertions.checkState(prepared);
+    // Unselect old tracks.
+    for (int i = 0; i < oldStreams.size(); i++) {
+      int track = ((TrackStreamImpl) oldStreams.get(i)).track;
+      Assertions.checkState(trackEnabledStates[track]);
+      enabledTrackCount--;
+      trackEnabledStates[track] = false;
+    }
+    // Select new tracks.
+    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    for (int i = 0; i < newStreams.length; i++) {
+      TrackSelection selection = newSelections.get(i);
+      Assertions.checkState(selection.length == 1);
+      Assertions.checkState(selection.getTrack(0) == 0);
+      int track = selection.group;
+      Assertions.checkState(!trackEnabledStates[track]);
+      enabledTrackCount++;
+      trackEnabledStates[track] = true;
+      pendingMediaFormat[track] = true;
+      pendingResets[track] = false;
+      newStreams[i] = new TrackStreamImpl(track);
+    }
+    // Cancel or start requests as necessary.
     if (enabledTrackCount == 0) {
       downstreamPositionUs = Long.MIN_VALUE;
       if (loader.isLoading()) {
@@ -416,9 +398,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         clearState();
         allocator.trim(0);
       }
-    } else if (isFirstTrackSelection ? positionUs != 0 : newTracksSelected) {
+    } else if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
       seekToInternal(positionUs);
     }
+    seenFirstTrackSelection = true;
+    return newStreams;
   }
 
   @Override
@@ -540,7 +524,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void release() {
-    state = STATE_RELEASED;
     enabledTrackCount = 0;
     if (loader != null) {
       loader.release();
@@ -628,7 +611,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
       if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
         currentLoadableException = null;
-        if (state == STATE_UNPREPARED) {
+        if (!prepared) {
           // We don't know whether we're playing an on-demand or a live stream. For a live stream
           // we need to load from the start, as outlined below. Since we might be playing a live
           // stream, play it safe and load from the start.
@@ -665,7 +648,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     sampleTimeOffsetUs = 0;
     havePendingNextSampleUs = false;
 
-    if (state == STATE_UNPREPARED) {
+    if (!prepared) {
       loadable = createLoadableFromStart();
     } else {
       Assertions.checkState(isPendingReset());

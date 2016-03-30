@@ -17,7 +17,6 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.TrackSelector.InvalidationListener;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
@@ -32,6 +31,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -281,7 +281,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     durationUs = source.getDurationUs();
-    selectTracksInternal(true);
+    selectTracksInternal();
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
@@ -531,38 +531,28 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private void selectTracksInternal(boolean initialSelection) throws ExoPlaybackException {
+  private void selectTracksInternal() throws ExoPlaybackException {
     TrackGroupArray groups = source.getTrackGroups();
 
     Pair<TrackSelectionArray, Object> result = trackSelector.selectTracks(renderers, groups);
-    TrackSelectionArray newSelections = result.first;
+    TrackSelectionArray newTrackSelections = result.first;
 
-    if (newSelections.equals(trackSelections)) {
+    if (newTrackSelections.equals(trackSelections)) {
       trackSelector.onSelectionActivated(result.second);
-      // No changes to the track selections.
       return;
     }
 
-    if (initialSelection) {
-      Assertions.checkState(source.getState() == SampleSource.STATE_SELECTING_TRACKS);
-    } else {
-      Assertions.checkState(source.getState() == SampleSource.STATE_READING);
-      source.startTrackSelection();
-    }
-
-    // We disable all renderers whose track selections have changed, then enable renderers with new
-    // track selections during a second pass. Doing all disables before any enables is necessary
-    // because the new track selection for some renderer X may have the same track group as the old
-    // selection for some other renderer Y. Trying to enable X before disabling Y would fail, since
-    // sources do not support being enabled more than once per track group at a time.
-
-    // Disable renderers whose track selections have changed.
+    // Disable any renderers whose selections have changed, adding the corresponding TrackStream
+    // instances to oldStreams. Where we need to obtain a new TrackStream instance for a renderer,
+    // we add the corresponding TrackSelection to newSelections.
+    ArrayList<TrackStream> oldStreams = new ArrayList<>();
+    ArrayList<TrackSelection> newSelections = new ArrayList<>();
     boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
     int enabledRendererCount = 0;
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
       TrackSelection oldSelection = trackSelections == null ? null : trackSelections.get(i);
-      TrackSelection newSelection = newSelections.get(i);
+      TrackSelection newSelection = newTrackSelections.get(i);
       if (newSelection != null) {
         enabledRendererCount++;
       }
@@ -584,18 +574,23 @@ import java.util.concurrent.atomic.AtomicInteger;
           ensureStopped(renderer);
           if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
             TrackStream trackStream = renderer.disable();
-            source.unselectTrack(trackStream);
+            oldStreams.add(trackStream);
           }
+        }
+        if (newSelection != null) {
+          newSelections.add(newSelection);
         }
       }
     }
 
+    // Update the source selection.
+    TrackStream[] newStreams = source.selectTracks(oldStreams, newSelections, positionUs);
     trackSelector.onSelectionActivated(result.second);
-    trackSelections = newSelections;
+    trackSelections = newTrackSelections;
+
+    // Enable renderers with their new selections.
     enabledRenderers = new TrackRenderer[enabledRendererCount];
     enabledRendererCount = 0;
-
-    // Enable renderers with their new track selections.
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
       TrackSelection newSelection = trackSelections.get(i);
@@ -606,15 +601,14 @@ import java.util.concurrent.atomic.AtomicInteger;
           boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
           // Consider as joining only if the renderer was previously disabled.
           boolean joining = !rendererWasEnabledFlags[i] && playing;
-          // Enable the source and obtain the stream for the renderer to consume.
-          TrackStream trackStream = source.selectTrack(newSelection, positionUs);
           // Build an array of formats contained by the new selection.
           Format[] formats = new Format[newSelection.length];
           for (int j = 0; j < formats.length; j++) {
             formats[j] = groups.get(newSelection.group).getFormat(newSelection.getTrack(j));
           }
           // Enable the renderer.
-          renderer.enable(formats, trackStream, positionUs, joining);
+          int newStreamIndex = newSelections.indexOf(newSelection);
+          renderer.enable(formats, newStreams[newStreamIndex], positionUs, joining);
           MediaClock mediaClock = renderer.getMediaClock();
           if (mediaClock != null) {
             if (rendererMediaClock != null) {
@@ -632,7 +626,6 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
     }
 
-    source.endTrackSelection(positionUs);
     updateBufferedPositionUs();
   }
 
@@ -641,7 +634,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       // We don't have tracks yet, so we don't care.
       return;
     }
-    selectTracksInternal(false);
+    selectTracksInternal();
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 

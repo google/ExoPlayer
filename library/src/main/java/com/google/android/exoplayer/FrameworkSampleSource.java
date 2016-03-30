@@ -34,6 +34,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -71,7 +72,7 @@ public final class FrameworkSampleSource implements SampleSource {
   private final long fileDescriptorOffset;
   private final long fileDescriptorLength;
 
-  private int state;
+  private boolean prepared;
   private long durationUs;
   private MediaExtractor extractor;
   private TrackGroupArray tracks;
@@ -97,7 +98,6 @@ public final class FrameworkSampleSource implements SampleSource {
     fileDescriptor = null;
     fileDescriptorOffset = 0;
     fileDescriptorLength = 0;
-    state = STATE_UNPREPARED;
   }
 
   /**
@@ -117,17 +117,13 @@ public final class FrameworkSampleSource implements SampleSource {
     context = null;
     uri = null;
     headers = null;
-    state = STATE_UNPREPARED;
-  }
-
-  @Override
-  public int getState() {
-    return state;
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    Assertions.checkState(state == STATE_UNPREPARED);
+    if (prepared) {
+      return true;
+    }
     extractor = new MediaExtractor();
     if (context != null) {
       extractor.setDataSource(context, uri, headers);
@@ -146,7 +142,7 @@ public final class FrameworkSampleSource implements SampleSource {
       trackArray[i] = new TrackGroup(createFormat(i, format));
     }
     tracks = new TrackGroupArray(trackArray);
-    state = STATE_SELECTING_TRACKS;
+    prepared = true;
     return true;
   }
 
@@ -166,42 +162,36 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void startTrackSelection() {
-    Assertions.checkState(state == STATE_READING);
-    state = STATE_SELECTING_TRACKS;
-  }
-
-  @Override
-  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    Assertions.checkState(selection.length == 1);
-    Assertions.checkState(selection.getTrack(0) == 0);
-    int track = selection.group;
-    Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
-    enabledTrackCount++;
-    trackStates[track] = TRACK_STATE_ENABLED;
-    extractor.selectTrack(track);
-    return new TrackStreamImpl(track);
-  }
-
-  @Override
-  public void unselectTrack(TrackStream stream) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    int track = ((TrackStreamImpl) stream).track;
-    Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
-    enabledTrackCount--;
-    trackStates[track] = TRACK_STATE_DISABLED;
-    extractor.unselectTrack(track);
-    pendingResets[track] = false;
-  }
-
-  @Override
-  public void endTrackSelection(long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    state = STATE_READING;
+  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+      List<TrackSelection> newSelections, long positionUs) {
+    Assertions.checkState(prepared);
+    // Unselect old tracks.
+    for (int i = 0; i < oldStreams.size(); i++) {
+      int track = ((TrackStreamImpl) oldStreams.get(i)).track;
+      Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
+      enabledTrackCount--;
+      trackStates[track] = TRACK_STATE_DISABLED;
+      extractor.unselectTrack(track);
+      pendingResets[track] = false;
+    }
+    // Select new tracks.
+    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    for (int i = 0; i < newStreams.length; i++) {
+      TrackSelection selection = newSelections.get(i);
+      Assertions.checkState(selection.length == 1);
+      Assertions.checkState(selection.getTrack(0) == 0);
+      int track = selection.group;
+      Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
+      enabledTrackCount++;
+      trackStates[track] = TRACK_STATE_ENABLED;
+      extractor.selectTrack(track);
+      newStreams[i] = new TrackStreamImpl(track);
+    }
+    // Seek if necessary.
     if (enabledTrackCount > 0) {
       seekToUsInternal(positionUs, positionUs != 0);
     }
+    return newStreams;
   }
 
   /* package */ long readReset(int track) {
@@ -277,7 +267,6 @@ public final class FrameworkSampleSource implements SampleSource {
 
   @Override
   public void release() {
-    state = STATE_RELEASED;
     if (extractor != null) {
       extractor.release();
       extractor = null;

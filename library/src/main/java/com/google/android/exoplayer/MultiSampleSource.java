@@ -20,8 +20,9 @@ import com.google.android.exoplayer.util.Assertions;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 
 /**
  * Combines multiple {@link SampleSource} instances.
@@ -29,34 +30,29 @@ import java.util.IdentityHashMap;
 public final class MultiSampleSource implements SampleSource {
 
   private final SampleSource[] sources;
-  private final int[] sourceEnabledTrackCounts;
-  private final IdentityHashMap<TrackStream, Integer> trackStreamSourceIndices;
+  private final IdentityHashMap<TrackStream, SampleSource> trackStreamSources;
+  private final int[] selectedTrackCounts;
 
-  private int state;
+  private boolean prepared;
+  private boolean seenFirstTrackSelection;
   private long durationUs;
   private TrackGroupArray trackGroups;
   private SampleSource[] enabledSources;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
-    sourceEnabledTrackCounts = new int[sources.length];
-    trackStreamSourceIndices = new IdentityHashMap<>();
-    state = STATE_UNPREPARED;
-  }
-
-  @Override
-  public int getState() {
-    return state;
+    trackStreamSources = new IdentityHashMap<>();
+    selectedTrackCounts = new int[sources.length];
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    Assertions.checkState(state == SampleSource.STATE_UNPREPARED);
+    if (prepared) {
+      return true;
+    }
     boolean sourcesPrepared = true;
     for (SampleSource source : sources) {
-      if (source.getState() == SampleSource.STATE_UNPREPARED) {
-        sourcesPrepared &= source.prepare(positionUs);
-      }
+      sourcesPrepared &= source.prepare(positionUs);
     }
     if (!sourcesPrepared) {
       return false;
@@ -80,7 +76,7 @@ public final class MultiSampleSource implements SampleSource {
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
-    state = STATE_SELECTING_TRACKS;
+    prepared = true;
     return true;
   }
 
@@ -90,47 +86,29 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public void startTrackSelection() {
-    Assertions.checkState(state == STATE_READING);
-    state = STATE_SELECTING_TRACKS;
-    for (SampleSource source : sources) {
-      source.startTrackSelection();
-    }
-  }
-
-  @Override
-  public TrackStream selectTrack(TrackSelection selection, long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(selection.group);
-    TrackStream trackStream = sources[sourceAndGroup.first].selectTrack(
-        new TrackSelection(sourceAndGroup.second, selection.getTracks()), positionUs);
-    int sourceIndex = sourceAndGroup.first;
-    sourceEnabledTrackCounts[sourceIndex]++;
-    trackStreamSourceIndices.put(trackStream, sourceIndex);
-    return trackStream;
-  }
-
-  @Override
-  public void unselectTrack(TrackStream trackStream) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    int sourceIndex = trackStreamSourceIndices.remove(trackStream);
-    sources[sourceIndex].unselectTrack(trackStream);
-    sourceEnabledTrackCounts[sourceIndex]--;
-  }
-
-  @Override
-  public void endTrackSelection(long positionUs) {
-    Assertions.checkState(state == STATE_SELECTING_TRACKS);
-    state = STATE_READING;
-    int newEnabledSourceCount = 0;
-    SampleSource[] newEnabledSources = new SampleSource[sources.length];
+  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+      List<TrackSelection> newSelections, long positionUs) {
+    Assertions.checkState(prepared);
+    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    // Select tracks for each source.
+    int enabledSourceCount = 0;
     for (int i = 0; i < sources.length; i++) {
-      sources[i].endTrackSelection(positionUs);
-      if (sourceEnabledTrackCounts[i] > 0) {
-        newEnabledSources[newEnabledSourceCount++] = sources[i];
+      selectedTrackCounts[i] += selectTracks(sources[i], oldStreams, newSelections, positionUs,
+          newStreams);
+      if (selectedTrackCounts[i] > 0) {
+        enabledSourceCount++;
       }
     }
-    enabledSources = Arrays.copyOf(newEnabledSources, newEnabledSourceCount);
+    // Update the enabled sources.
+    enabledSources = new SampleSource[enabledSourceCount];
+    enabledSourceCount = 0;
+    for (int i = 0; i < sources.length; i++) {
+      if (selectedTrackCounts[i] > 0) {
+        enabledSources[enabledSourceCount++] = sources[i];
+      }
+    }
+    seenFirstTrackSelection = true;
+    return newStreams;
   }
 
   @Override
@@ -173,15 +151,49 @@ public final class MultiSampleSource implements SampleSource {
     for (SampleSource source : sources) {
       source.release();
     }
-    state = STATE_RELEASED;
   }
 
-  private Pair<Integer, Integer> getSourceAndTrackGroupIndices(int group) {
+  private int selectTracks(SampleSource source, List<TrackStream> allOldStreams,
+      List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams) {
+    // Get the subset of the old streams for the source.
+    ArrayList<TrackStream> oldStreams = new ArrayList<>();
+    for (int i = 0; i < allOldStreams.size(); i++) {
+      TrackStream stream = allOldStreams.get(i);
+      if (trackStreamSources.get(stream) == source) {
+        trackStreamSources.remove(stream);
+        oldStreams.add(stream);
+      }
+    }
+    // Get the subset of the new selections for the source.
+    ArrayList<TrackSelection> newSelections = new ArrayList<>();
+    int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
+    for (int i = 0; i < allNewSelections.size(); i++) {
+      TrackSelection selection = allNewSelections.get(i);
+      Pair<SampleSource, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
+      if (sourceAndGroup.first == source) {
+        newSelectionOriginalIndices[newSelections.size()] = i;
+        newSelections.add(new TrackSelection(sourceAndGroup.second, selection.getTracks()));
+      }
+    }
+    // Do nothing if nothing has changed, except during the first selection.
+    if (seenFirstTrackSelection && oldStreams.isEmpty() && newSelections.isEmpty()) {
+      return 0;
+    }
+    // Perform the selection.
+    TrackStream[] newStreams = source.selectTracks(oldStreams, newSelections, positionUs);
+    for (int j = 0; j < newStreams.length; j++) {
+      allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
+      trackStreamSources.put(newStreams[j], source);
+    }
+    return newSelections.size() - oldStreams.size();
+  }
+
+  private Pair<SampleSource, Integer> getSourceAndGroup(int group) {
     int totalTrackGroupCount = 0;
     for (int i = 0; i < sources.length; i++) {
       int sourceTrackGroupCount = sources[i].getTrackGroups().length;
       if (group < totalTrackGroupCount + sourceTrackGroupCount) {
-        return Pair.create(i, group - totalTrackGroupCount);
+        return Pair.create(sources[i], group - totalTrackGroupCount);
       }
       totalTrackGroupCount += sourceTrackGroupCount;
     }
