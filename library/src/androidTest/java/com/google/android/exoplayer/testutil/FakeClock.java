@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.util;
+package com.google.android.exoplayer.testutil;
+
+import com.google.android.exoplayer.util.Clock;
 
 /**
  * A {@link Clock} that returns a fixed value specified in the constructor.

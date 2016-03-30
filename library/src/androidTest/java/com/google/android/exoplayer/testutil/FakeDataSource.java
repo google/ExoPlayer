@@ -42,6 +42,7 @@ import java.util.ArrayList;
 public final class FakeDataSource implements DataSource {
 
   private final ArrayList<Segment> segments;
+  private final ArrayList<DataSpec> openedDataSpecs;
 
   private final boolean simulateUnknownLength;
   private final long totalLength;
@@ -59,6 +60,7 @@ public final class FakeDataSource implements DataSource {
       totalLength += segment.length;
     }
     this.totalLength = totalLength;
+    openedDataSpecs = new ArrayList<DataSpec>();
   }
 
   @Override
@@ -67,11 +69,12 @@ public final class FakeDataSource implements DataSource {
     // DataSpec requires a matching close call even if open fails.
     opened = true;
     uri = dataSpec.uri;
+    openedDataSpecs.add(dataSpec);
     // If the source knows that the request is unsatisfiable then fail.
     if (dataSpec.position >= totalLength) {
       throw new IOException("Unsatisfiable position");
     } else if (dataSpec.length != C.LENGTH_UNBOUNDED
-        && dataSpec.position + dataSpec.length >= totalLength) {
+        && dataSpec.position + dataSpec.length > totalLength) {
       throw new IOException("Unsatisfiable range");
     }
     // Scan through the segments, configuring them for the current read.
@@ -146,6 +149,17 @@ public final class FakeDataSource implements DataSource {
         current.exceptionCleared = true;
       }
     }
+  }
+
+  /**
+   * @return The {@link DataSpec} instances passed to {@link #open(DataSpec)} since the last call
+   *     to this method.
+   */
+  public DataSpec[] getAndClearOpenedDataSpecs() {
+    DataSpec[] dataSpecs = new DataSpec[openedDataSpecs.size()];
+    openedDataSpecs.toArray(dataSpecs);
+    openedDataSpecs.clear();
+    return dataSpecs;
   }
 
   private static class Segment {
