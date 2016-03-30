@@ -282,27 +282,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     durationUs = source.getDurationUs();
     selectTracksInternal();
-
-    boolean allRenderersEnded = true;
-    boolean allRenderersReadyOrEnded = true;
-    for (TrackRenderer renderer : renderers) {
-      allRenderersEnded = allRenderersEnded && renderer.isEnded();
-      allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
-    }
-
-    if (allRenderersEnded && (durationUs == C.UNKNOWN_TIME_US || durationUs <= positionUs)) {
-      // We don't expect this case, but handle it anyway.
-      setState(ExoPlayer.STATE_ENDED);
-    } else {
-      setState(allRenderersReadyOrEnded && haveSufficientBuffer() ? ExoPlayer.STATE_READY
-          : ExoPlayer.STATE_BUFFERING);
-    }
-
-    // Start the renderers if required, and schedule the first piece of work.
-    if (playWhenReady && state == ExoPlayer.STATE_READY) {
-      startRenderers();
-    }
-    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    resumeInternal();
   }
 
   private boolean isReadyOrEnded(TrackRenderer renderer) {
@@ -464,10 +444,33 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
 
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+      resumeInternal();
     } finally {
       pendingSeekCount.decrementAndGet();
     }
+  }
+
+  private void resumeInternal() throws ExoPlaybackException {
+    boolean allRenderersEnded = true;
+    boolean allRenderersReadyOrEnded = true;
+    for (TrackRenderer renderer : renderers) {
+      allRenderersEnded = allRenderersEnded && renderer.isEnded();
+      allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
+    }
+
+    updateBufferedPositionUs();
+    if (allRenderersEnded && (durationUs == C.UNKNOWN_TIME_US || durationUs <= positionUs)) {
+      setState(ExoPlayer.STATE_ENDED);
+    } else {
+      setState(allRenderersReadyOrEnded && haveSufficientBuffer() ? ExoPlayer.STATE_READY
+          : ExoPlayer.STATE_BUFFERING);
+    }
+
+    // Start the renderers if ready, and schedule the first piece of work.
+    if (playWhenReady && state == ExoPlayer.STATE_READY) {
+      startRenderers();
+    }
+    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
   private void stopInternal() {
@@ -625,8 +628,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
     }
-
-    updateBufferedPositionUs();
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {
@@ -635,6 +636,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       return;
     }
     selectTracksInternal();
+    updateBufferedPositionUs();
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
