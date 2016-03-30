@@ -417,18 +417,21 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadError(Loadable loadable, IOException e) {
-    if (chunkSource.onChunkLoadError(currentLoadable, e)) {
-      // Error handled by source.
+    long bytesLoaded = currentLoadable.bytesLoaded();
+    boolean cancelable = !isTsChunk(currentLoadable) || bytesLoaded == 0;
+    if (chunkSource.onChunkLoadError(currentLoadable, cancelable, e)) {
       if (previousTsLoadable == null && !isPendingReset()) {
         pendingResetPositionUs = lastSeekPositionUs;
       }
       clearCurrentLoadable();
+      notifyLoadError(e);
+      notifyLoadCanceled(bytesLoaded);
     } else {
       currentLoadableException = e;
       currentLoadableExceptionCount++;
       currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+      notifyLoadError(e);
     }
-    notifyLoadError(e);
     maybeStartLoading();
   }
 

@@ -226,7 +226,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   public void continueBuffering(long positionUs) {
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
-    updateLoadControl();
+    maybeStartLoading();
   }
 
   @Override
@@ -360,7 +360,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     clearCurrentLoadable();
-    updateLoadControl();
+    maybeStartLoading();
   }
 
   @Override
@@ -380,12 +380,29 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public void onLoadError(Loadable loadable, IOException e) {
-    currentLoadableException = e;
-    currentLoadableExceptionCount++;
-    currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
-    notifyLoadError(e);
-    chunkSource.onChunkLoadError(currentLoadableHolder.chunk, e);
-    updateLoadControl();
+    Chunk currentLoadable = currentLoadableHolder.chunk;
+    long bytesLoaded = currentLoadable.bytesLoaded();
+    boolean isMediaChunk = isMediaChunk(currentLoadable);
+    boolean cancelable = !isMediaChunk || bytesLoaded == 0 || mediaChunks.size() > 1;
+    if (chunkSource.onChunkLoadError(currentLoadable, cancelable, e)) {
+      if (isMediaChunk) {
+        BaseMediaChunk removed = mediaChunks.removeLast();
+        Assertions.checkState(removed == currentLoadable);
+        sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
+        if (mediaChunks.isEmpty()) {
+          pendingResetPositionUs = lastSeekPositionUs;
+        }
+      }
+      clearCurrentLoadable();
+      notifyLoadError(e);
+      notifyLoadCanceled(bytesLoaded);
+    } else {
+      currentLoadableException = e;
+      currentLoadableExceptionCount++;
+      currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+      notifyLoadError(e);
+    }
+    maybeStartLoading();
   }
 
   /**
@@ -408,7 +425,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       sampleQueue.clear();
       mediaChunks.clear();
       clearCurrentLoadable();
-      updateLoadControl();
+      maybeStartLoading();
     }
   }
 
@@ -422,7 +439,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     currentLoadableExceptionCount = 0;
   }
 
-  private void updateLoadControl() {
+  private void maybeStartLoading() {
     long now = SystemClock.elapsedRealtime();
     long nextLoadPositionUs = getNextLoadPositionUs();
     boolean isBackedOff = currentLoadableException != null;
@@ -433,9 +450,14 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (!loadingOrBackedOff && ((currentLoadableHolder.chunk == null && nextLoadPositionUs != -1)
         || (now - lastPerformedBufferOperation > 2000))) {
       // Perform the evaluation.
-      lastPerformedBufferOperation = now;
-      doChunkOperation();
+      currentLoadableHolder.endOfStream = false;
+      currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
+      long playbackPositionUs = pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs
+          : downstreamPositionUs;
+      chunkSource.getChunkOperation(readOnlyMediaChunks, playbackPositionUs, currentLoadableHolder);
+      loadingFinished = currentLoadableHolder.endOfStream;
       boolean chunksDiscarded = discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
+      lastPerformedBufferOperation = now;
       // Update the next load position as appropriate.
       if (currentLoadableHolder.chunk == null) {
         // Set loadPosition to -1 to indicate that we don't have anything to load.
@@ -453,13 +475,33 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (isBackedOff) {
       long elapsedMillis = now - currentLoadableExceptionTimestamp;
       if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
-        resumeFromBackOff();
+        currentLoadableException = null;
+        loader.startLoading(currentLoadableHolder.chunk, this);
       }
       return;
     }
 
     if (!loader.isLoading() && nextLoader) {
-      maybeStartLoading();
+      Chunk currentLoadable = currentLoadableHolder.chunk;
+      if (currentLoadable == null) {
+        // Nothing to load.
+        return;
+      }
+      currentLoadStartTimeMs = SystemClock.elapsedRealtime();
+      if (isMediaChunk(currentLoadable)) {
+        BaseMediaChunk mediaChunk = (BaseMediaChunk) currentLoadable;
+        mediaChunk.init(sampleQueue);
+        mediaChunks.add(mediaChunk);
+        if (isPendingReset()) {
+          pendingResetPositionUs = NO_RESET_PENDING;
+        }
+        notifyLoadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
+            mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
+      } else {
+        notifyLoadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
+            currentLoadable.trigger, currentLoadable.format, -1, -1);
+      }
+      loader.startLoading(currentLoadable, this);
     }
   }
 
@@ -473,97 +515,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     } else {
       return loadingFinished ? -1 : mediaChunks.getLast().endTimeUs;
     }
-  }
-
-  /**
-   * Resumes loading.
-   * <p>
-   * If the {@link ChunkSource} returns a chunk equivalent to the backed off chunk B, then the
-   * loading of B will be resumed. In all other cases B will be discarded and the new chunk will
-   * be loaded.
-   */
-  private void resumeFromBackOff() {
-    currentLoadableException = null;
-
-    Chunk backedOffChunk = currentLoadableHolder.chunk;
-    if (!isMediaChunk(backedOffChunk)) {
-      doChunkOperation();
-      discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
-      if (currentLoadableHolder.chunk == backedOffChunk) {
-        // Chunk was unchanged. Resume loading.
-        loader.startLoading(backedOffChunk, this);
-      } else {
-        // Chunk was changed. Notify that the existing load was canceled.
-        notifyLoadCanceled(backedOffChunk.bytesLoaded());
-        // Start loading the replacement.
-        maybeStartLoading();
-      }
-      return;
-    }
-
-    if (backedOffChunk == mediaChunks.getFirst()) {
-      // We're not able to clear the first media chunk, so we have no choice but to continue
-      // loading it.
-      loader.startLoading(backedOffChunk, this);
-      return;
-    }
-
-    // The current loadable is the last media chunk. Remove it before we invoke the chunk source,
-    // and add it back again afterwards.
-    BaseMediaChunk removedChunk = mediaChunks.removeLast();
-    Assertions.checkState(backedOffChunk == removedChunk);
-    doChunkOperation();
-    mediaChunks.add(removedChunk);
-
-    if (currentLoadableHolder.chunk == backedOffChunk) {
-      // Chunk was unchanged. Resume loading.
-      loader.startLoading(backedOffChunk, this);
-    } else {
-      // Chunk was changed. Notify that the existing load was canceled.
-      notifyLoadCanceled(backedOffChunk.bytesLoaded());
-      // This call will remove and release at least one chunk from the end of mediaChunks. Since
-      // the current loadable is the last media chunk, it is guaranteed to be removed.
-      discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
-      clearCurrentLoadableException();
-      maybeStartLoading();
-    }
-  }
-
-  private void maybeStartLoading() {
-    Chunk currentLoadable = currentLoadableHolder.chunk;
-    if (currentLoadable == null) {
-      // Nothing to load.
-      return;
-    }
-    currentLoadStartTimeMs = SystemClock.elapsedRealtime();
-    if (isMediaChunk(currentLoadable)) {
-      BaseMediaChunk mediaChunk = (BaseMediaChunk) currentLoadable;
-      mediaChunk.init(sampleQueue);
-      mediaChunks.add(mediaChunk);
-      if (isPendingReset()) {
-        pendingResetPositionUs = NO_RESET_PENDING;
-      }
-      notifyLoadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
-          mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
-    } else {
-      notifyLoadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
-          currentLoadable.trigger, currentLoadable.format, -1, -1);
-    }
-    loader.startLoading(currentLoadable, this);
-  }
-
-  /**
-   * Sets up the {@link #currentLoadableHolder}, passes it to the chunk source to cause it to be
-   * updated with the next operation, and updates {@link #loadingFinished} if the end of the stream
-   * is reached.
-   */
-  private void doChunkOperation() {
-    currentLoadableHolder.endOfStream = false;
-    currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
-    chunkSource.getChunkOperation(readOnlyMediaChunks,
-        pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
-        currentLoadableHolder);
-    loadingFinished = currentLoadableHolder.endOfStream;
   }
 
   /**

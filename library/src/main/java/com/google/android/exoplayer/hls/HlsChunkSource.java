@@ -511,14 +511,12 @@ public class HlsChunkSource {
    * this source.
    *
    * @param chunk The chunk whose load encountered the error.
+   * @param cancelable Whether the load can be canceled.
    * @param e The error.
-   * @return True if the error was handled by the source. False otherwise.
+   * @return True if the load should be canceled. False otherwise.
    */
-  public boolean onChunkLoadError(Chunk chunk, IOException e) {
-    if (chunk.bytesLoaded() == 0
-        && (chunk instanceof TsChunk || chunk instanceof MediaPlaylistChunk
-            || chunk instanceof EncryptionKeyChunk)
-        && (e instanceof InvalidResponseCodeException)) {
+  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException e) {
+    if (cancelable && e instanceof InvalidResponseCodeException) {
       InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
       int responseCode = responseCodeException.responseCode;
       if (responseCode == 404 || responseCode == 410) {

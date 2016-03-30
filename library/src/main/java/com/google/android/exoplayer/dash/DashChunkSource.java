@@ -480,8 +480,9 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public void onChunkLoadError(Chunk chunk, Exception e) {
-    // Do nothing.
+  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
+    // TODO: Consider implementing representation blacklisting.
+    return false;
   }
 
   @Override

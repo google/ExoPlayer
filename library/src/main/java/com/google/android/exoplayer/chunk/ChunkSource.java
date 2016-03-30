@@ -127,9 +127,11 @@ public interface ChunkSource {
    * This method should only be called when the source is enabled.
    *
    * @param chunk The chunk whose load encountered the error.
+   * @param cancelable Whether the load can be canceled.
    * @param e The error.
+   * @return True if the load should be canceled. False otherwise.
    */
-  void onChunkLoadError(Chunk chunk, Exception e);
+  boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e);
 
   /**
    * Disables the source.
