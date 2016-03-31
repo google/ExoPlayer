@@ -40,47 +40,12 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_ASSET = "asset";
   private static final String SCHEME_CONTENT = "content";
 
-  private final DataSource httpDataSource;
+  private final DataSource defaultDataSource;
   private final DataSource fileDataSource;
   private final DataSource assetDataSource;
   private final DataSource contentDataSource;
 
-  /**
-   * {@code null} if no data source is open. Otherwise, equal to {@link #fileDataSource} if the open
-   * data source is a file, or {@link #httpDataSource} otherwise.
-   */
   private DataSource dataSource;
-
-  /**
-   * Constructs a new instance.
-   * <p>
-   * The constructed instance will not follow cross-protocol redirects (i.e. redirects from HTTP to
-   * HTTPS or vice versa) when fetching remote data. Cross-protocol redirects can be enabled by
-   * using {@link #DefaultDataSource(Context, TransferListener, String, boolean)} and passing
-   * {@code true} as the final argument.
-   *
-   * @param context A context.
-   * @param userAgent The User-Agent string that should be used when requesting remote data.
-   */
-  public DefaultDataSource(Context context, String userAgent) {
-    this(context, null, userAgent, false);
-  }
-
-  /**
-   * Constructs a new instance.
-   * <p>
-   * The constructed instance will not follow cross-protocol redirects (i.e. redirects from HTTP to
-   * HTTPS or vice versa) when fetching remote data. Cross-protocol redirects can be enabled by
-   * using {@link #DefaultDataSource(Context, TransferListener, String, boolean)} and passing
-   * {@code true} as the final argument.
-   *
-   * @param context A context.
-   * @param listener An optional {@link TransferListener}.
-   * @param userAgent The User-Agent string that should be used when requesting remote data.
-   */
-  public DefaultDataSource(Context context, TransferListener listener, String userAgent) {
-    this(context, listener, userAgent, false);
-  }
 
   /**
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
@@ -100,15 +65,16 @@ public final class DefaultDataSource implements DataSource {
   }
 
   /**
-   * Constructs a new instance, using a provided {@link HttpDataSource} for fetching remote data.
+   * Constructs a new instance, using a provided {@link DataSource} for fetching remote data.
    *
    * @param context A context.
    * @param listener An optional {@link TransferListener}.
-   * @param httpDataSource {@link DataSource} to use for non-file URIs.
+   * @param defaultDataSource A {@link DataSource} to use for all URIs other than file, asset and
+   *     content URIs. This {@link DataSource} should normally handle at least http(s) URIs.
    */
   public DefaultDataSource(Context context, TransferListener listener,
-      DataSource httpDataSource) {
-    this.httpDataSource = Assertions.checkNotNull(httpDataSource);
+      DataSource defaultDataSource) {
+    this.defaultDataSource = Assertions.checkNotNull(defaultDataSource);
     this.fileDataSource = new FileDataSource(listener);
     this.assetDataSource = new AssetDataSource(context, listener);
     this.contentDataSource = new ContentDataSource(context, listener);
@@ -130,7 +96,7 @@ public final class DefaultDataSource implements DataSource {
     } else if (SCHEME_CONTENT.equals(scheme)) {
       dataSource = contentDataSource;
     } else {
-      dataSource = httpDataSource;
+      dataSource = defaultDataSource;
     }
     // Open the source and return.
     return dataSource.open(dataSpec);

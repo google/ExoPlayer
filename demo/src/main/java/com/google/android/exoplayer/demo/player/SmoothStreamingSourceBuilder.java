@@ -29,13 +29,10 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultDataSource;
-import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
-import com.google.android.exoplayer.util.Util;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
@@ -51,30 +48,29 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
   private static final int TEXT_BUFFER_SEGMENTS = 2;
   private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
-  private final Context context;
-  private final String userAgent;
+  private final DataSourceFactory dataSourceFactory;
   private final String url;
   private final MediaDrmCallback drmCallback;
 
-  public SmoothStreamingSourceBuilder(Context context, String userAgent, String url,
+  public SmoothStreamingSourceBuilder(DataSourceFactory dataSourceFactory, String url,
       MediaDrmCallback drmCallback) {
-    this.context = context;
-    this.userAgent = userAgent;
-    this.url = Util.toLowerInvariant(url).endsWith("/manifest") ? url : url + "/Manifest";
+    this.dataSourceFactory = dataSourceFactory;
+    this.url = url;
     this.drmCallback = drmCallback;
   }
 
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    DataSource manifestDataSource = dataSourceFactory.createDataSource();
     ManifestFetcher<SmoothStreamingManifest> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
-        new DefaultHttpDataSource(userAgent, null), parser);
+        manifestDataSource, parser);
     Handler mainHandler = player.getMainHandler();
     BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
     LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
 
     // Build the video renderer.
-    DataSource videoDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
+    DataSource videoDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         SmoothStreamingManifest.StreamElement.TYPE_VIDEO,
         videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
@@ -83,7 +79,7 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
         DemoPlayer.TYPE_VIDEO);
 
     // Build the audio renderer.
-    DataSource audioDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
+    DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         SmoothStreamingManifest.StreamElement.TYPE_AUDIO, audioDataSource, null,
         LIVE_EDGE_LATENCY_MS);
@@ -91,7 +87,7 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
 
     // Build the text renderer.
-    DataSource textDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
+    DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         SmoothStreamingManifest.StreamElement.TYPE_TEXT, textDataSource, null,
         LIVE_EDGE_LATENCY_MS);

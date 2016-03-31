@@ -28,11 +28,10 @@ import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.hls.PtsTimestampAdjusterProvider;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
@@ -47,20 +46,18 @@ public class HlsSourceBuilder implements SourceBuilder {
   private static final int AUDIO_BUFFER_SEGMENTS = 54;
   private static final int TEXT_BUFFER_SEGMENTS = 2;
 
-  private final Context context;
-  private final String userAgent;
+  private final DataSourceFactory dataSourceFactory;
   private final String url;
 
-  public HlsSourceBuilder(Context context, String userAgent, String url) {
-    this.context = context;
-    this.userAgent = userAgent;
+  public HlsSourceBuilder(DataSourceFactory dataSourceFactory, String url) {
+    this.dataSourceFactory = dataSourceFactory;
     this.url = url;
   }
 
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
-    DefaultDataSource manifestDataSource = new DefaultDataSource(context, userAgent);
+    DataSource manifestDataSource = dataSourceFactory.createDataSource();
     ManifestFetcher<HlsPlaylist> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
         manifestDataSource, parser);
 
@@ -69,20 +66,20 @@ public class HlsSourceBuilder implements SourceBuilder {
     LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
     PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
-    DataSource defaultDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
+    DataSource defaultDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher,
         HlsChunkSource.TYPE_DEFAULT, defaultDataSource, timestampAdjusterProvider,
         new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
     HlsSampleSource defaultSampleSource = new HlsSampleSource(defaultChunkSource, loadControl,
         MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
 
-    DataSource audioDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
+    DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, HlsChunkSource.TYPE_AUDIO,
         audioDataSource, timestampAdjusterProvider, null);
     HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
 
-    DataSource subtitleDataSource = new DefaultDataSource(context, bandwidthMeter, userAgent);
+    DataSource subtitleDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher,
         HlsChunkSource.TYPE_SUBTITLE, subtitleDataSource, timestampAdjusterProvider, null);
     HlsSampleSource subtitleSampleSource = new HlsSampleSource(subtitleChunkSource, loadControl,

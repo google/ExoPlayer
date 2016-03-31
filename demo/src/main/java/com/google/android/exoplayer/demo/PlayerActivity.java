@@ -37,6 +37,8 @@ import com.google.android.exoplayer.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
+import com.google.android.exoplayer.upstream.DataSourceFactory;
+import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.Util;
 
@@ -105,6 +107,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private Button textButton;
   private Button retryButton;
 
+  private DataSourceFactory dataSourceFactory;
   private DemoPlayer player;
   private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
@@ -123,6 +126,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+    dataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
 
     setContentView(R.layout.player_activity);
     View root = findViewById(R.id.root);
@@ -285,15 +290,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
       case Util.TYPE_SS:
-        return new SmoothStreamingSourceBuilder(this, userAgent, contentUri.toString(),
+        return new SmoothStreamingSourceBuilder(dataSourceFactory, contentUri.toString(),
             new SmoothStreamingTestMediaDrmCallback());
       case Util.TYPE_DASH:
-        return new DashSourceBuilder(this, userAgent, contentUri.toString(),
+        return new DashSourceBuilder(dataSourceFactory, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId, provider));
       case Util.TYPE_HLS:
-        return new HlsSourceBuilder(this, userAgent, contentUri.toString());
+        return new HlsSourceBuilder(dataSourceFactory, contentUri.toString());
       case Util.TYPE_OTHER:
-        return new ExtractorSourceBuilder(this, userAgent, contentUri);
+        return new ExtractorSourceBuilder(dataSourceFactory, contentUri);
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
     }

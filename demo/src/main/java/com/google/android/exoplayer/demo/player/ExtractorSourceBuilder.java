@@ -21,10 +21,9 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultDataSource;
 
-import android.content.Context;
 import android.net.Uri;
 
 /**
@@ -35,20 +34,18 @@ public class ExtractorSourceBuilder implements SourceBuilder {
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int BUFFER_SEGMENT_COUNT = 256;
 
-  private final Context context;
-  private final String userAgent;
+  private final DataSourceFactory dataSourceFactory;
   private final Uri uri;
 
-  public ExtractorSourceBuilder(Context context, String userAgent, Uri uri) {
-    this.context = context;
-    this.userAgent = userAgent;
+  public ExtractorSourceBuilder(DataSourceFactory dataSourceFactory, Uri uri) {
+    this.dataSourceFactory = dataSourceFactory;
     this.uri = uri;
   }
 
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
-    DataSource dataSource = new DefaultDataSource(context, player.getBandwidthMeter(), userAgent);
+    DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
     return new ExtractorSampleSource(uri, dataSource, allocator,
         BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE, player.getMainHandler(), player, 0);
   }
