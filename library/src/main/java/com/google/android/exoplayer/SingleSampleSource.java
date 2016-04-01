@@ -65,18 +65,16 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   private final Uri uri;
   private final DataSource dataSource;
+  private final Loader loader;
   private final Format format;
   private final long durationUs;
-  private final int minLoadableRetryCount;
   private final TrackGroupArray tracks;
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final int eventSourceId;
 
-  private boolean prepared;
   private long pendingResetPositionUs;
   private boolean loadingFinished;
-  private Loader loader;
 
   private int streamState;
   private byte[] sampleData;
@@ -98,10 +96,10 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     this.dataSource = dataSource;
     this.format = format;
     this.durationUs = durationUs;
-    this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
+    loader = new Loader("Loader:SingleSampleSource", minLoadableRetryCount);
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
@@ -113,11 +111,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public boolean prepare(long positionUs) {
-    if (prepared) {
-      return true;
-    }
-    loader = new Loader("Loader:" + format.sampleMimeType, minLoadableRetryCount);
-    prepared = true;
     return true;
   }
 
@@ -134,7 +127,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(prepared);
     Assertions.checkState(oldStreams.size() <= 1);
     Assertions.checkState(newSelections.size() <= 1);
     // Unselect old tracks.
@@ -213,10 +205,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public void release() {
     streamState = STREAM_STATE_END_OF_STREAM;
-    if (loader != null) {
-      loader.release();
-      loader = null;
-    }
+    loader.release();
   }
 
   // Loader.Callback implementation.

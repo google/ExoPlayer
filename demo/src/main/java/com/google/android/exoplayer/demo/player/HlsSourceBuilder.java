@@ -58,6 +58,7 @@ public class HlsSourceBuilder implements SourceBuilder {
   public SampleSource buildRenderers(DemoPlayer player) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
+    // TODO[REFACTOR]: This needs releasing.
     ManifestFetcher<HlsPlaylist> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
         manifestDataSource, parser);
 

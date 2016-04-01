@@ -192,6 +192,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
   }
 
+  private final Loader loader;
   private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
@@ -224,7 +225,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private long pendingNextSampleUs;
   private long sampleTimeOffsetUs;
 
-  private Loader loader;
   private ExtractingLoadable loadable;
   private IOException fatalException;
   private boolean currentLoadExtractedSamples;
@@ -308,6 +308,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     this.allocator = allocator;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    // Assume on-demand until we know otherwise.
+    int initialMinRetryCount = minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
+        ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND : minLoadableRetryCount;
+    loader = new Loader("Loader:ExtractorSampleSource", initialMinRetryCount);
     if (extractors == null || extractors.length == 0) {
       extractors = new Extractor[DEFAULT_EXTRACTOR_CLASSES.size()];
       for (int i = 0; i < extractors.length; i++) {
@@ -329,12 +333,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
-    }
-    if (loader == null) {
-      // Assume on-demand until we know otherwise.
-      int initialMinLoadableRetryCount = minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
-          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND : minLoadableRetryCount;
-      loader = new Loader("Loader:ExtractorSampleSource", initialMinLoadableRetryCount);
     }
     maybeStartLoading();
     if (seekMap == null || !tracksBuilt || !haveFormatsForAllTracks()) {
@@ -517,10 +515,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public void release() {
     enabledTrackCount = 0;
-    if (loader != null) {
-      loader.release();
-      loader = null;
-    }
+    loader.release();
   }
 
   // Loader.Callback implementation.

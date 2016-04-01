@@ -62,6 +62,7 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
   @Override
   public SampleSource buildRenderers(DemoPlayer player) {
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    // TODO[REFACTOR]: This needs releasing.
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     ManifestFetcher<SmoothStreamingManifest> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
         manifestDataSource, parser);

@@ -56,6 +56,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
+  private final Loader loader;
   private final int eventSourceId;
   private final LoadControl loadControl;
   private final ChunkSource chunkSource;
@@ -66,7 +67,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private final int bufferSizeContribution;
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final int minLoadableRetryCount;
 
   private boolean prepared;
   private long downstreamPositionUs;
@@ -78,7 +78,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   private TrackGroupArray trackGroups;
   private long durationUs;
-  private Loader loader;
   private boolean loadingFinished;
   private boolean trackEnabled;
   private long currentLoadStartTimeMs;
@@ -132,7 +131,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    loader = new Loader("Loader:ChunkSampleSource", minLoadableRetryCount);
     currentLoadableHolder = new ChunkOperationHolder();
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
@@ -151,7 +150,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     durationUs = chunkSource.getDurationUs();
     TrackGroup tracks = chunkSource.getTracks();
     if (tracks != null) {
-      loader = new Loader("Loader:" + tracks.getFormat(0).containerMimeType, minLoadableRetryCount);
       trackGroups = new TrackGroupArray(tracks);
     } else {
       trackGroups = new TrackGroupArray();
@@ -191,7 +189,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       newStreams[0] = this;
     }
     // Cancel or start requests as necessary.
-    if (!trackEnabled && loader != null) {
+    if (!trackEnabled) {
       if (loadControlRegistered) {
         loadControl.unregister(this);
         loadControlRegistered = false;
@@ -335,10 +333,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   public void release() {
     prepared = false;
     trackEnabled = false;
-    if (loader != null) {
-      loader.release();
-      loader = null;
-    }
+    loader.release();
   }
 
   // Loadable.Callback implementation.

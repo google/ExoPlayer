@@ -63,9 +63,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private static final int PRIMARY_TYPE_AUDIO = 2;
   private static final int PRIMARY_TYPE_VIDEO = 3;
 
+  private final Loader loader;
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
-  private final int minLoadableRetryCount;
   private final int bufferSizeContribution;
   private final ChunkOperationHolder chunkOperationHolder;
 
@@ -99,7 +99,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private TsChunk currentTsLoadable;
   private TsChunk previousTsLoadable;
 
-  private Loader loader;
   private long currentLoadStartTimeMs;
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
@@ -120,11 +119,11 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
+    loader = new Loader("Loader:HLS", minLoadableRetryCount);
     extractors = new LinkedList<>();
     chunkOperationHolder = new ChunkOperationHolder();
   }
@@ -159,8 +158,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       }
     }
     // We're not prepared and we haven't loaded what we need.
-    if (loader == null) {
-      loader = new Loader("Loader:HLS", minLoadableRetryCount);
+    if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
@@ -368,14 +366,11 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   @Override
   public void release() {
     enabledTrackCount = 0;
-    if (loader != null) {
-      if (loadControlRegistered) {
-        loadControl.unregister(this);
-        loadControlRegistered = false;
-      }
-      loader.release();
-      loader = null;
+    if (loadControlRegistered) {
+      loadControl.unregister(this);
+      loadControlRegistered = false;
     }
+    loader.release();
   }
 
   // Loader.Callback implementation.

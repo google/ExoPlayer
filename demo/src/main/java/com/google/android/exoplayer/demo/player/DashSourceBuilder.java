@@ -67,6 +67,7 @@ public class DashSourceBuilder implements SourceBuilder {
   public SampleSource buildRenderers(DemoPlayer player) {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
+    // TODO[REFACTOR]: This needs releasing.
     ManifestFetcher<MediaPresentationDescription> manifestFetcher = new ManifestFetcher<>(
         Uri.parse(url), manifestDataSource, parser);
 

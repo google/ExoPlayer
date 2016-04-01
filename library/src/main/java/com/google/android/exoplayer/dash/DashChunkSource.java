@@ -114,7 +114,6 @@ public class DashChunkSource implements ChunkSource {
   private final long[] availableRangeValues;
   private final int eventSourceId;
 
-  private boolean manifestFetcherEnabled;
   private boolean live;
   private long durationUs;
   private MediaPresentationDescription currentManifest;
@@ -229,11 +228,6 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public boolean prepare() throws IOException {
-    if (!manifestFetcherEnabled) {
-      // TODO[REFACTOR]: We need to disable this at some point.
-      manifestFetcher.enable();
-      manifestFetcherEnabled = true;
-    }
     if (currentManifest == null) {
       currentManifest = manifestFetcher.getManifest();
       if (currentManifest == null) {

@@ -69,6 +69,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   }
 
+  private final Loader loader;
   private final UriLoadable.Parser<T> parser;
   private final DataSource dataSource;
   private final Handler eventHandler;
@@ -76,8 +77,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private volatile Uri manifestUri;
 
-  private int enabledCount;
-  private Loader loader;
   private UriLoadable<T> currentLoadable;
   private long currentLoadStartTimestamp;
 
@@ -109,6 +108,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     this.dataSource = dataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    loader = new Loader("Loader:ManifestFetcher", 1);
   }
 
   /**
@@ -168,31 +168,9 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   /**
-   * Enables refresh functionality.
-   */
-  public void enable() {
-    enabledCount++;
-  }
-
-  /**
-   * Disables refresh functionality.
-   */
-  public void disable() {
-    if (--enabledCount == 0) {
-      if (loader != null) {
-        loader.release();
-        loader = null;
-      }
-    }
-  }
-
-  /**
    * Should be invoked repeatedly by callers who require an updated manifest.
    */
   public void requestRefresh() {
-    if (loader == null) {
-      loader = new Loader("manifestLoader", 1);
-    }
     if (loader.isLoading()) {
       return;
     }
@@ -202,17 +180,22 @@ public class ManifestFetcher<T> implements Loader.Callback {
     notifyManifestRefreshStarted();
   }
 
+  /**
+   * Releases the fetcher.
+   * <p>
+   * This method should be called when the fetcher is no longer required.
+   */
+  public void release() {
+    loader.release();
+  }
+
+  // Loadable.Callback implementation.
+
   @Override
   public void onLoadCompleted(Loadable loadable) {
-    if (currentLoadable != loadable) {
-      // Stale event.
-      return;
-    }
-
     manifest = currentLoadable.getResult();
     manifestLoadStartTimestamp = currentLoadStartTimestamp;
     manifestLoadCompleteTimestamp = SystemClock.elapsedRealtime();
-
     if (manifest instanceof RedirectingManifest) {
       RedirectingManifest redirectingManifest = (RedirectingManifest) manifest;
       Uri nextUri = redirectingManifest.getNextManifestUri();
@@ -220,7 +203,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
         manifestUri = nextUri;
       }
     }
-
     notifyManifestRefreshed();
   }
 
@@ -231,14 +213,11 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   @Override
   public int onLoadError(Loadable loadable, IOException exception) {
-    if (currentLoadable != loadable) {
-      // Stale event.
-      return Loader.DONT_RETRY;
-    }
-
     notifyManifestError(new ManifestIOException(exception));
     return Loader.RETRY;
   }
+
+  // Private methods.
 
   private void notifyManifestRefreshStarted() {
     if (eventHandler != null && eventListener != null) {

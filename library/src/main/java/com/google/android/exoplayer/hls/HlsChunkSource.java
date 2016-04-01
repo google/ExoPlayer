@@ -85,7 +85,6 @@ public class HlsChunkSource {
   private final HlsPlaylistParser playlistParser;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
 
-  private boolean manifestFetcherEnabled;
   private byte[] scratchSpace;
   private boolean live;
   private long durationUs;
@@ -157,11 +156,6 @@ public class HlsChunkSource {
    * @return True if the source was prepared, false otherwise.
    */
   public boolean prepare() throws IOException {
-    if (!manifestFetcherEnabled) {
-      // TODO[REFACTOR]: We need to disable this at some point.
-      manifestFetcher.enable();
-      manifestFetcherEnabled = true;
-    }
     if (masterPlaylist == null) {
       HlsPlaylist playlist = manifestFetcher.getManifest();
       if (playlist == null) {

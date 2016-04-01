@@ -65,7 +65,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
-  private boolean manifestFetcherEnabled;
   private boolean live;
   private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
@@ -122,11 +121,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   @Override
   public boolean prepare() throws IOException {
-    if (!manifestFetcherEnabled) {
-      // TODO[REFACTOR]: We need to disable this at some point.
-      manifestFetcher.enable();
-      manifestFetcherEnabled = true;
-    }
     if (currentManifest == null) {
       currentManifest = manifestFetcher.getManifest();
       if (currentManifest == null) {
