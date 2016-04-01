@@ -120,6 +120,11 @@ public final class PsExtractor implements Extractor {
   }
 
   @Override
+  public void release() {
+    // Do nothing
+  }
+
+  @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     // First peek and check what type of start code is next.

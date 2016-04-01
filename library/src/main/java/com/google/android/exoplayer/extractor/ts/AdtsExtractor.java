@@ -121,6 +121,11 @@ public final class AdtsExtractor implements Extractor {
   }
 
   @Override
+  public void release() {
+    // Do nothing
+  }
+
+  @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
