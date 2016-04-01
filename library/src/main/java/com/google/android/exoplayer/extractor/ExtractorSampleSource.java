@@ -329,6 +329,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     pendingResetPositionUs = NO_RESET_PENDING;
   }
 
+  // SampleSource implementation.
+
   @Override
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
@@ -418,10 +420,47 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     maybeStartLoading();
   }
 
+  @Override
+  public long getBufferedPositionUs() {
+    if (loadingFinished) {
+      return C.END_OF_SOURCE_US;
+    } else if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else {
+      long largestParsedTimestampUs = Long.MIN_VALUE;
+      for (int i = 0; i < sampleQueues.size(); i++) {
+        largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
+            sampleQueues.valueAt(i).getLargestParsedTimestampUs());
+      }
+      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
+          : largestParsedTimestampUs;
+    }
+  }
+
+  @Override
+  public void seekToUs(long positionUs) {
+    seekToInternal(positionUs);
+  }
+
+  @Override
+  public void release() {
+    enabledTrackCount = 0;
+    loader.release();
+  }
+
+  // TrackStream methods.
+
   /* package */ boolean isReady(int track) {
     Assertions.checkState(trackEnabledStates[track]);
     return !sampleQueues.valueAt(track).isEmpty();
 
+  }
+
+  /* package */ void maybeThrowError() throws IOException {
+    if (fatalException != null) {
+      throw fatalException;
+    }
+    loader.maybeThrowError();
   }
 
   /* package */ long readReset(int track) {
@@ -464,58 +503,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
 
     return TrackStream.NOTHING_READ;
-  }
-
-  /* package */ void maybeThrowError() throws IOException {
-    if (fatalException != null) {
-      throw fatalException;
-    }
-    loader.maybeThrowError();
-  }
-
-  @Override
-  public void seekToUs(long positionUs) {
-    seekToInternal(positionUs);
-  }
-
-  private void seekToInternal(long positionUs) {
-    // Treat all seeks into non-seekable media as being to t=0.
-    positionUs = !seekMap.isSeekable() ? 0 : positionUs;
-    lastSeekPositionUs = positionUs;
-    downstreamPositionUs = positionUs;
-    Arrays.fill(pendingResets, true);
-    // If we're not pending a reset, see if we can seek within the sample queues.
-    boolean seekInsideBuffer = !isPendingReset();
-    for (int i = 0; seekInsideBuffer && i < sampleQueues.size(); i++) {
-      seekInsideBuffer &= sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
-    }
-    // If we failed to seek within the sample queues, we need to restart.
-    if (!seekInsideBuffer) {
-      restartFrom(positionUs);
-    }
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
-    } else if (isPendingReset()) {
-      return pendingResetPositionUs;
-    } else {
-      long largestParsedTimestampUs = Long.MIN_VALUE;
-      for (int i = 0; i < sampleQueues.size(); i++) {
-        largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
-            sampleQueues.valueAt(i).getLargestParsedTimestampUs());
-      }
-      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
-          : largestParsedTimestampUs;
-    }
-  }
-
-  @Override
-  public void release() {
-    enabledTrackCount = 0;
-    loader.release();
   }
 
   // Loader.Callback implementation.
@@ -575,7 +562,24 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     this.drmInitData = drmInitData;
   }
 
-  // Internal stuff.
+  // Internal methods.
+
+  private void seekToInternal(long positionUs) {
+    // Treat all seeks into non-seekable media as being to t=0.
+    positionUs = !seekMap.isSeekable() ? 0 : positionUs;
+    lastSeekPositionUs = positionUs;
+    downstreamPositionUs = positionUs;
+    Arrays.fill(pendingResets, true);
+    // If we're not pending a reset, see if we can seek within the sample queues.
+    boolean seekInsideBuffer = !isPendingReset();
+    for (int i = 0; seekInsideBuffer && i < sampleQueues.size(); i++) {
+      seekInsideBuffer &= sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
+    }
+    // If we failed to seek within the sample queues, we need to restart.
+    if (!seekInsideBuffer) {
+      restartFrom(positionUs);
+    }
+  }
 
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;

@@ -32,6 +32,7 @@ import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -127,6 +128,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     extractors = new LinkedList<>();
     chunkOperationHolder = new ChunkOperationHolder();
   }
+
+  // SampleSource implementation.
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
@@ -245,6 +248,47 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     maybeStartLoading();
   }
 
+  @Override
+  public long getBufferedPositionUs() {
+    if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else if (loadingFinished) {
+      return C.END_OF_SOURCE_US;
+    } else {
+      long bufferedPositionUs = extractors.getLast().getLargestParsedTimestampUs();
+      if (extractors.size() > 1) {
+        // When adapting from one format to the next, the penultimate extractor may have the largest
+        // parsed timestamp (e.g. if the last extractor hasn't parsed any timestamps yet).
+        bufferedPositionUs = Math.max(bufferedPositionUs,
+            extractors.get(extractors.size() - 2).getLargestParsedTimestampUs());
+      }
+      if (previousTsLoadable != null) {
+        // Buffered position should be at least as large as the end time of the previously loaded
+        // chunk.
+        bufferedPositionUs = Math.max(previousTsLoadable.endTimeUs, bufferedPositionUs);
+      }
+      return bufferedPositionUs == Long.MIN_VALUE ? downstreamPositionUs
+          : bufferedPositionUs;
+    }
+  }
+
+  @Override
+  public void seekToUs(long positionUs) {
+    seekToInternal(positionUs);
+  }
+
+  @Override
+  public void release() {
+    enabledTrackCount = 0;
+    if (loadControlRegistered) {
+      loadControl.unregister(this);
+      loadControlRegistered = false;
+    }
+    loader.release();
+  }
+
+  // TrackStream methods.
+
   /* package */ boolean isReady(int group) {
     Assertions.checkState(groupEnabledStates[group]);
     if (loadingFinished) {
@@ -263,6 +307,13 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       }
     }
     return false;
+  }
+
+  /* package */ void maybeThrowError() throws IOException {
+    loader.maybeThrowError();
+    if (currentLoadable == null) {
+      chunkSource.maybeThrowError();
+    }
   }
 
   /* package */ long readReset(int group) {
@@ -327,52 +378,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return TrackStream.NOTHING_READ;
   }
 
-  /* package */ void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
-    if (currentLoadable == null) {
-      chunkSource.maybeThrowError();
-    }
-  }
-
-  @Override
-  public void seekToUs(long positionUs) {
-    seekToInternal(positionUs);
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    if (isPendingReset()) {
-      return pendingResetPositionUs;
-    } else if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
-    } else {
-      long bufferedPositionUs = extractors.getLast().getLargestParsedTimestampUs();
-      if (extractors.size() > 1) {
-        // When adapting from one format to the next, the penultimate extractor may have the largest
-        // parsed timestamp (e.g. if the last extractor hasn't parsed any timestamps yet).
-        bufferedPositionUs = Math.max(bufferedPositionUs,
-            extractors.get(extractors.size() - 2).getLargestParsedTimestampUs());
-      }
-      if (previousTsLoadable != null) {
-        // Buffered position should be at least as large as the end time of the previously loaded
-        // chunk.
-        bufferedPositionUs = Math.max(previousTsLoadable.endTimeUs, bufferedPositionUs);
-      }
-      return bufferedPositionUs == Long.MIN_VALUE ? downstreamPositionUs
-          : bufferedPositionUs;
-    }
-  }
-
-  @Override
-  public void release() {
-    enabledTrackCount = 0;
-    if (loadControlRegistered) {
-      loadControl.unregister(this);
-      loadControlRegistered = false;
-    }
-    loader.release();
-  }
-
   // Loader.Callback implementation.
 
   @Override
@@ -425,7 +430,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  // Internal stuff.
+  // Internal methods.
 
   /**
    * Builds tracks that are exposed by this {@link HlsSampleSource} instance, as well as internal
@@ -707,10 +712,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return pendingResetPositionUs != NO_RESET_PENDING;
   }
 
-  /* package */ long usToMs(long timeUs) {
-    return timeUs / 1000;
-  }
-
   private void notifyLoadStarted(final long length, final int type, final int trigger,
       final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs) {
     if (eventHandler != null && eventListener != null) {
@@ -718,7 +719,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         @Override
         public void run() {
           eventListener.onLoadStarted(eventSourceId, length, type, trigger, format,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs));
+              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs));
         }
       });
     }
@@ -732,7 +733,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         @Override
         public void run() {
           eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs);
+              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs), elapsedRealtimeMs,
+              loadDurationMs);
         }
       });
     }
@@ -767,7 +769,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         @Override
         public void run() {
           eventListener.onDownstreamFormatChanged(eventSourceId, format, trigger,
-              usToMs(positionUs));
+              Util.usToMs(positionUs));
         }
       });
     }

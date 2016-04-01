@@ -81,6 +81,11 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
+  public long getDurationUs() {
+    return durationUs;
+  }
+
+  @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
   }
@@ -119,18 +124,6 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public void seekToUs(long positionUs) {
-    for (SampleSource source : enabledSources) {
-      source.seekToUs(positionUs);
-    }
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs;
-  }
-
-  @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = durationUs != C.UNKNOWN_TIME_US ? durationUs : Long.MAX_VALUE;
     for (SampleSource source : enabledSources) {
@@ -147,11 +140,20 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
+  public void seekToUs(long positionUs) {
+    for (SampleSource source : enabledSources) {
+      source.seekToUs(positionUs);
+    }
+  }
+
+  @Override
   public void release() {
     for (SampleSource source : sources) {
       source.release();
     }
   }
+
+  // Internal methods.
 
   private int selectTracks(SampleSource source, List<TrackStream> allOldStreams,
       List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams) {

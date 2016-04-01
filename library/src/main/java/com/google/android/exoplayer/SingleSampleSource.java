@@ -104,10 +104,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
 
-  @Override
-  public void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
-  }
+  // SampleSource implementation.
 
   @Override
   public boolean prepare(long positionUs) {
@@ -153,8 +150,34 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
+  public long getBufferedPositionUs() {
+    return loadingFinished ? C.END_OF_SOURCE_US : 0;
+  }
+
+  @Override
+  public void seekToUs(long positionUs) {
+    if (streamState == STREAM_STATE_END_OF_STREAM) {
+      pendingResetPositionUs = positionUs;
+      streamState = STREAM_STATE_SEND_SAMPLE;
+    }
+  }
+
+  @Override
+  public void release() {
+    streamState = STREAM_STATE_END_OF_STREAM;
+    loader.release();
+  }
+
+  // TrackStream implementation.
+
+  @Override
   public boolean isReady() {
     return loadingFinished;
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    loader.maybeThrowError();
   }
 
   @Override
@@ -187,25 +210,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
       streamState = STREAM_STATE_END_OF_STREAM;
       return BUFFER_READ;
     }
-  }
-
-  @Override
-  public void seekToUs(long positionUs) {
-    if (streamState == STREAM_STATE_END_OF_STREAM) {
-      pendingResetPositionUs = positionUs;
-      streamState = STREAM_STATE_SEND_SAMPLE;
-    }
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    return loadingFinished ? C.END_OF_SOURCE_US : 0;
-  }
-
-  @Override
-  public void release() {
-    streamState = STREAM_STATE_END_OF_STREAM;
-    loader.release();
   }
 
   // Loader.Callback implementation.
@@ -259,7 +263,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     }
   }
 
-  // Private methods.
+  // Internal methods.
 
   private void maybeStartLoading() {
     if (loadingFinished || streamState == STREAM_STATE_END_OF_STREAM || loader.isLoading()) {

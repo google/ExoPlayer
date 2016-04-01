@@ -119,6 +119,8 @@ public final class FrameworkSampleSource implements SampleSource {
     headers = null;
   }
 
+  // SampleSource implementation.
+
   @Override
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
@@ -157,11 +159,6 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void continueBuffering(long positionUs) {
-     // MediaExtractor takes care of buffering. Do nothing.
-  }
-
-  @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
@@ -193,6 +190,44 @@ public final class FrameworkSampleSource implements SampleSource {
     }
     return newStreams;
   }
+
+  @Override
+  public void continueBuffering(long positionUs) {
+     // MediaExtractor takes care of buffering. Do nothing.
+  }
+
+  @Override
+  public void seekToUs(long positionUs) {
+    if (enabledTrackCount == 0) {
+      return;
+    }
+    seekToUsInternal(positionUs, false);
+  }
+
+  @Override
+  public long getBufferedPositionUs() {
+    if (enabledTrackCount == 0) {
+      return C.END_OF_SOURCE_US;
+    }
+
+    long bufferedDurationUs = extractor.getCachedDuration();
+    if (bufferedDurationUs == -1) {
+      return C.UNKNOWN_TIME_US;
+    }
+
+    long sampleTime = extractor.getSampleTime();
+    return sampleTime == -1 ? C.END_OF_SOURCE_US : sampleTime + bufferedDurationUs;
+  }
+
+  @Override
+  public void release() {
+    if (extractor != null) {
+      extractor.release();
+      extractor = null;
+    }
+  }
+
+  // TrackStream methods.
 
   /* package */ long readReset(int track) {
     if (pendingResets[track]) {
@@ -242,36 +277,7 @@ public final class FrameworkSampleSource implements SampleSource {
     }
   }
 
-  @Override
-  public void seekToUs(long positionUs) {
-    if (enabledTrackCount == 0) {
-      return;
-    }
-    seekToUsInternal(positionUs, false);
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    if (enabledTrackCount == 0) {
-      return C.END_OF_SOURCE_US;
-    }
-
-    long bufferedDurationUs = extractor.getCachedDuration();
-    if (bufferedDurationUs == -1) {
-      return C.UNKNOWN_TIME_US;
-    }
-
-    long sampleTime = extractor.getSampleTime();
-    return sampleTime == -1 ? C.END_OF_SOURCE_US : sampleTime + bufferedDurationUs;
-  }
-
-  @Override
-  public void release() {
-    if (extractor != null) {
-      extractor.release();
-      extractor = null;
-    }
-  }
+  // Internal methods.
 
   @TargetApi(18)
   private DrmInitData getDrmInitDataV18() {

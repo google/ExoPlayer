@@ -29,6 +29,7 @@ import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -139,6 +140,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     pendingResetPositionUs = NO_RESET_PENDING;
   }
 
+  // SampleSource implementation.
+
   @Override
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
@@ -225,8 +228,59 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
+  public long getBufferedPositionUs() {
+    if (loadingFinished) {
+      return C.END_OF_SOURCE_US;
+    } else if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else {
+      long largestParsedTimestampUs = sampleQueue.getLargestParsedTimestampUs();
+      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
+          : largestParsedTimestampUs;
+    }
+  }
+
+  @Override
+  public void seekToUs(long positionUs) {
+    downstreamPositionUs = positionUs;
+    lastSeekPositionUs = positionUs;
+    // If we're not pending a reset, see if we can seek within the sample queue.
+    boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
+    if (seekInsideBuffer) {
+      // We succeeded. All we need to do is discard any chunks that we've moved past.
+      boolean haveSamples = !sampleQueue.isEmpty();
+      while (haveSamples && mediaChunks.size() > 1
+          && mediaChunks.get(1).getFirstSampleIndex() <= sampleQueue.getReadIndex()) {
+        mediaChunks.removeFirst();
+      }
+    } else {
+      // We failed, and need to restart.
+      restartFrom(positionUs);
+    }
+    // Either way, we need to send a discontinuity to the downstream components.
+    pendingReset = true;
+  }
+
+  @Override
+  public void release() {
+    prepared = false;
+    trackEnabled = false;
+    loader.release();
+  }
+
+  // TrackStream implementation.
+
+  @Override
   public boolean isReady() {
     return loadingFinished || !sampleQueue.isEmpty();
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    loader.maybeThrowError();
+    if (currentLoadableHolder.chunk == null) {
+      chunkSource.maybeThrowError();
+    }
   }
 
   @Override
@@ -285,55 +339,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     }
 
     return NOTHING_READ;
-  }
-
-  @Override
-  public void seekToUs(long positionUs) {
-    downstreamPositionUs = positionUs;
-    lastSeekPositionUs = positionUs;
-    // If we're not pending a reset, see if we can seek within the sample queue.
-    boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
-    if (seekInsideBuffer) {
-      // We succeeded. All we need to do is discard any chunks that we've moved past.
-      boolean haveSamples = !sampleQueue.isEmpty();
-      while (haveSamples && mediaChunks.size() > 1
-          && mediaChunks.get(1).getFirstSampleIndex() <= sampleQueue.getReadIndex()) {
-        mediaChunks.removeFirst();
-      }
-    } else {
-      // We failed, and need to restart.
-      restartFrom(positionUs);
-    }
-    // Either way, we need to send a discontinuity to the downstream components.
-    pendingReset = true;
-  }
-
-  @Override
-  public void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
-    if (currentLoadableHolder.chunk == null) {
-      chunkSource.maybeThrowError();
-    }
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
-    } else if (isPendingReset()) {
-      return pendingResetPositionUs;
-    } else {
-      long largestParsedTimestampUs = sampleQueue.getLargestParsedTimestampUs();
-      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
-          : largestParsedTimestampUs;
-    }
-  }
-
-  @Override
-  public void release() {
-    prepared = false;
-    trackEnabled = false;
-    loader.release();
   }
 
   // Loadable.Callback implementation.
@@ -395,6 +400,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       return Loader.RETRY;
     }
   }
+
+  // Internal methods.
 
   /**
    * Called when a sample has been read. Can be used to perform any modifications necessary before
@@ -530,10 +537,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     return pendingResetPositionUs != NO_RESET_PENDING;
   }
 
-  protected final long usToMs(long timeUs) {
-    return timeUs / 1000;
-  }
-
   private void notifyLoadStarted(final long length, final int type, final int trigger,
       final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs) {
     if (eventHandler != null && eventListener != null) {
@@ -541,7 +544,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         @Override
         public void run() {
           eventListener.onLoadStarted(eventSourceId, length, type, trigger, format,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs));
+              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs));
         }
       });
     }
@@ -555,7 +558,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         @Override
         public void run() {
           eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs);
+              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs), elapsedRealtimeMs,
+              loadDurationMs);
         }
       });
     }
@@ -588,8 +592,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onUpstreamDiscarded(eventSourceId, usToMs(mediaStartTimeUs),
-              usToMs(mediaEndTimeUs));
+          eventListener.onUpstreamDiscarded(eventSourceId, Util.usToMs(mediaStartTimeUs),
+              Util.usToMs(mediaEndTimeUs));
         }
       });
     }
@@ -602,7 +606,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         @Override
         public void run() {
           eventListener.onDownstreamFormatChanged(eventSourceId, format, trigger,
-              usToMs(positionUs));
+              Util.usToMs(positionUs));
         }
       });
     }
