@@ -77,73 +77,69 @@ public final class Loader {
   public interface Callback {
 
     /**
-     * Invoked when loading has been canceled.
+     * Invoked when a load has been canceled.
      *
      * @param loadable The loadable whose load has been canceled.
      */
     void onLoadCanceled(Loadable loadable);
 
     /**
-     * Invoked when the data source has been fully loaded.
+     * Invoked when a load has completed.
      *
      * @param loadable The loadable whose load has completed.
      */
     void onLoadCompleted(Loadable loadable);
 
     /**
-     * Invoked when the data source is stopped due to an error.
+     * Invoked when a load encounters an error.
      *
-     * @param loadable The loadable whose load has failed.
+     * @param loadable The loadable whose load has encountered an error.
+     * @param exception The error.
+     * @return The desired retry action. One of {@link Loader#DONT_RETRY}, {@link Loader#RETRY} and
+     *     {@link Loader#RETRY_RESET_ERROR_COUNT}.
      */
-    void onLoadError(Loadable loadable, IOException exception);
+    int onLoadError(Loadable loadable, IOException exception);
 
   }
 
-  private static final int MSG_END_OF_SOURCE = 0;
-  private static final int MSG_IO_EXCEPTION = 1;
-  private static final int MSG_FATAL_ERROR = 2;
+  public static final int DONT_RETRY = 0;
+  public static final int RETRY = 1;
+  public static final int RETRY_RESET_ERROR_COUNT = 2;
+
+  private static final int MSG_START = 0;
+  private static final int MSG_CANCEL = 1;
+  private static final int MSG_END_OF_SOURCE = 2;
+  private static final int MSG_IO_EXCEPTION = 3;
+  private static final int MSG_FATAL_ERROR = 4;
 
   private final ExecutorService downloadExecutorService;
 
+  private int minRetryCount;
   private LoadTask currentTask;
-  private boolean loading;
 
   /**
    * @param threadName A name for the loader's thread.
+   * @param minRetryCount The minimum retry count.
    */
-  public Loader(String threadName) {
+  public Loader(String threadName, int minRetryCount) {
     this.downloadExecutorService = Util.newSingleThreadExecutor(threadName);
+    this.minRetryCount = minRetryCount;
   }
 
   /**
-   * Invokes {@link #startLoading(Looper, Loadable, Callback)}, using the {@link Looper}
-   * associated with the calling thread.
+   * Start loading a {@link Loadable}.
+   * <p>
+   * The calling thread must be a {@link Looper} thread, which is the thread on which the
+   * {@link Callback} will be invoked.
    *
    * @param loadable The {@link Loadable} to load.
    * @param callback A callback to invoke when the load ends.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
    */
   public void startLoading(Loadable loadable, Callback callback) {
-    Looper myLooper = Looper.myLooper();
-    Assertions.checkState(myLooper != null);
-    startLoading(myLooper, loadable, callback);
-  }
-
-  /**
-   * Start loading a {@link Loadable}.
-   * <p>
-   * A {@link Loader} instance can only load one {@link Loadable} at a time, and so this method
-   * must not be called when another load is in progress.
-   *
-   * @param looper The looper of the thread on which the callback should be invoked.
-   * @param loadable The {@link Loadable} to load.
-   * @param callback A callback to invoke when the load ends.
-   */
-  public void startLoading(Looper looper, Loadable loadable, Callback callback) {
-    Assertions.checkState(!loading);
-    loading = true;
-    currentTask = new LoadTask(looper, loadable, callback);
-    downloadExecutorService.submit(currentTask);
+    Looper looper = Looper.myLooper();
+    Assertions.checkState(looper != null);
+    new LoadTask(looper, loadable, callback).start(0);
   }
 
   /**
@@ -152,7 +148,29 @@ public final class Loader {
    * @return Whether the {@link Loader} is currently loading a {@link Loadable}.
    */
   public boolean isLoading() {
-    return loading;
+    return currentTask != null;
+  }
+
+  /**
+   * Sets the minimum retry count.
+   *
+   * @param minRetryCount The minimum retry count.
+   */
+  public void setMinRetryCount(int minRetryCount) {
+    this.minRetryCount = minRetryCount;
+  }
+
+  /**
+   * If the current {@link Loadable} has incurred a number of errors greater than the minimum
+   * number of retries and if the load is currently backed off, then the most recent error is
+   * thrown. Else does nothing.
+   *
+   * @throws IOException The most recent error encountered by the current {@link Loadable}.
+   */
+  public void maybeThrowError() throws IOException {
+    if (currentTask != null) {
+      currentTask.maybeThrowError(minRetryCount);
+    }
   }
 
   /**
@@ -161,8 +179,7 @@ public final class Loader {
    * This method should only be called when a load is in progress.
    */
   public void cancelLoading() {
-    Assertions.checkState(loading);
-    currentTask.quit();
+    currentTask.cancel();
   }
 
   /**
@@ -171,7 +188,7 @@ public final class Loader {
    * This method should be called when the {@link Loader} is no longer required.
    */
   public void release() {
-    if (loading) {
+    if (currentTask != null) {
       cancelLoading();
     }
     downloadExecutorService.shutdown();
@@ -185,6 +202,9 @@ public final class Loader {
     private final Loadable loadable;
     private final Loader.Callback callback;
 
+    private IOException currentError;
+    private int errorCount;
+
     private volatile Thread executorThread;
 
     public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback) {
@@ -193,10 +213,32 @@ public final class Loader {
       this.callback = callback;
     }
 
-    public void quit() {
-      loadable.cancelLoad();
-      if (executorThread != null) {
-        executorThread.interrupt();
+    public void maybeThrowError(int minRetryCount) throws IOException {
+      if (currentError != null && errorCount > minRetryCount) {
+        throw currentError;
+      }
+    }
+
+    public void start(long delayMillis) {
+      Assertions.checkState(currentTask == null);
+      currentTask = this;
+      if (delayMillis > 0) {
+        sendEmptyMessageDelayed(MSG_START, delayMillis);
+      } else {
+        submitToExecutor();
+      }
+    }
+
+    public void cancel() {
+      currentError = null;
+      if (hasMessages(MSG_START)) {
+        removeMessages(MSG_START);
+        sendEmptyMessage(MSG_CANCEL);
+      } else {
+        loadable.cancelLoad();
+        if (executorThread != null) {
+          executorThread.interrupt();
+        }
       }
     }
 
@@ -235,27 +277,47 @@ public final class Loader {
 
     @Override
     public void handleMessage(Message msg) {
+      if (msg.what == MSG_START) {
+        submitToExecutor();
+        return;
+      }
       if (msg.what == MSG_FATAL_ERROR) {
         throw (Error) msg.obj;
       }
-      onFinished();
+      finish();
       if (loadable.isLoadCanceled()) {
         callback.onLoadCanceled(loadable);
         return;
       }
       switch (msg.what) {
+        case MSG_CANCEL:
+          callback.onLoadCanceled(loadable);
+          break;
         case MSG_END_OF_SOURCE:
           callback.onLoadCompleted(loadable);
           break;
         case MSG_IO_EXCEPTION:
-          callback.onLoadError(loadable, (IOException) msg.obj);
+          currentError = (IOException) msg.obj;
+          int retryAction = callback.onLoadError(loadable, currentError);
+          if (retryAction != DONT_RETRY) {
+            errorCount = retryAction == RETRY_RESET_ERROR_COUNT ? 1 : errorCount + 1;
+            start(getRetryDelayMillis());
+          }
           break;
       }
     }
 
-    private void onFinished() {
-      loading = false;
+    private void submitToExecutor() {
+      currentError = null;
+      downloadExecutorService.submit(currentTask);
+    }
+
+    private void finish() {
       currentTask = null;
+    }
+
+    private long getRetryDelayMillis() {
+      return Math.min((errorCount - 1) * 1000, 5000);
     }
 
   }

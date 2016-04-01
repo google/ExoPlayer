@@ -123,7 +123,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   }
 
   private void resolveHttp(UriLoadable.Parser<Long> parser) {
-    singleUseLoader = new Loader("utctiming");
+    singleUseLoader = new Loader("utctiming", 0);
     singleUseLoadable = new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser);
     singleUseLoader.startLoading(singleUseLoadable, this);
   }
@@ -141,9 +141,10 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   }
 
   @Override
-  public void onLoadError(Loadable loadable, IOException exception) {
+  public int onLoadError(Loadable loadable, IOException exception) {
     releaseLoader();
     callback.onTimestampError(timingElement, exception);
+    return Loader.DONT_RETRY;
   }
 
   private void releaseLoader() {

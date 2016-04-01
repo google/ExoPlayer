@@ -100,9 +100,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private TsChunk previousTsLoadable;
 
   private Loader loader;
-  private IOException currentLoadableException;
-  private int currentLoadableExceptionCount;
-  private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
@@ -163,7 +160,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     // We're not prepared and we haven't loaded what we need.
     if (loader == null) {
-      loader = new Loader("Loader:HLS");
+      loader = new Loader("Loader:HLS", minLoadableRetryCount);
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
@@ -333,9 +330,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
-      throw currentLoadableException;
-    } else if (currentLoadable == null) {
+    loader.maybeThrowError();
+    if (currentLoadable == null) {
       chunkSource.maybeThrowError();
     }
   }
@@ -416,7 +412,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public void onLoadError(Loadable loadable, IOException e) {
+  public int onLoadError(Loadable loadable, IOException e) {
     long bytesLoaded = currentLoadable.bytesLoaded();
     boolean cancelable = !isTsChunk(currentLoadable) || bytesLoaded == 0;
     if (chunkSource.onChunkLoadError(currentLoadable, cancelable, e)) {
@@ -426,13 +422,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       clearCurrentLoadable();
       notifyLoadError(e);
       notifyLoadCanceled(bytesLoaded);
+      maybeStartLoading();
+      return Loader.DONT_RETRY;
     } else {
-      currentLoadableException = e;
-      currentLoadableExceptionCount++;
-      currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
       notifyLoadError(e);
+      return Loader.RETRY;
     }
-    maybeStartLoading();
   }
 
   // Internal stuff.
@@ -642,30 +637,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private void clearCurrentLoadable() {
     currentTsLoadable = null;
     currentLoadable = null;
-    currentLoadableException = null;
-    currentLoadableExceptionCount = 0;
   }
 
   private void maybeStartLoading() {
-    long now = SystemClock.elapsedRealtime();
-    long nextLoadPositionUs = getNextLoadPositionUs();
-    boolean isBackedOff = currentLoadableException != null;
-    boolean loadingOrBackedOff = loader.isLoading() || isBackedOff;
-
-    // Update the control with our current state, and determine whether we're the next loader.
-    boolean nextLoader = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs,
-        loadingOrBackedOff);
-
-    if (isBackedOff) {
-      long elapsedMillis = now - currentLoadableExceptionTimestamp;
-      if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
-        currentLoadableException = null;
-        loader.startLoading(currentLoadable, this);
-      }
+    if (loader.isLoading()) {
       return;
     }
 
-    if (loader.isLoading() || !nextLoader || (prepared && enabledTrackCount == 0)) {
+    long nextLoadPositionUs = getNextLoadPositionUs();
+    boolean isNext = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs, false);
+    if (!isNext || (prepared && enabledTrackCount == 0)) {
       return;
     }
 
@@ -681,11 +662,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       loadControl.update(this, downstreamPositionUs, -1, false);
       return;
     }
+
     if (nextLoadable == null) {
       return;
     }
 
-    currentLoadStartTimeMs = now;
+    currentLoadStartTimeMs = SystemClock.elapsedRealtime();
     currentLoadable = nextLoadable;
     if (isTsChunk(currentLoadable)) {
       TsChunk tsChunk = (TsChunk) currentLoadable;
@@ -705,6 +687,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
           currentLoadable.trigger, currentLoadable.format, -1, -1);
     }
     loader.startLoading(currentLoadable, this);
+    // Update the load control again to indicate that we're now loading.
+    loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
   }
 
   /**
@@ -726,10 +710,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != NO_RESET_PENDING;
-  }
-
-  private long getRetryDelayMillis(long errorCount) {
-    return Math.min((errorCount - 1) * 1000, 5000);
   }
 
   /* package */ long usToMs(long timeUs) {

@@ -81,10 +81,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private UriLoadable<T> currentLoadable;
   private long currentLoadStartTimestamp;
 
-  private int loadExceptionCount;
-  private long loadExceptionTimestamp;
-  private ManifestIOException loadException;
-
   private volatile T manifest;
   private volatile long manifestLoadStartTimestamp;
   private volatile long manifestLoadCompleteTimestamp;
@@ -162,21 +158,20 @@ public class ManifestFetcher<T> implements Loader.Callback {
    *     manifest.
    */
   public void maybeThrowError() throws ManifestIOException {
-    // Don't throw an exception until at least 1 retry attempt has been made.
-    if (loadException == null || loadExceptionCount <= 1) {
-      return;
+    if (loader != null) {
+      try {
+        loader.maybeThrowError();
+      } catch (IOException e) {
+        throw new ManifestIOException(e);
+      }
     }
-    throw loadException;
   }
 
   /**
    * Enables refresh functionality.
    */
   public void enable() {
-    if (enabledCount++ == 0) {
-      loadExceptionCount = 0;
-      loadException = null;
-    }
+    enabledCount++;
   }
 
   /**
@@ -195,20 +190,16 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * Should be invoked repeatedly by callers who require an updated manifest.
    */
   public void requestRefresh() {
-    if (loadException != null && SystemClock.elapsedRealtime()
-        < (loadExceptionTimestamp + getRetryDelayMillis(loadExceptionCount))) {
-      // The previous load failed, and it's too soon to try again.
+    if (loader == null) {
+      loader = new Loader("manifestLoader", 1);
+    }
+    if (loader.isLoading()) {
       return;
     }
-    if (loader == null) {
-      loader = new Loader("manifestLoader");
-    }
-    if (!loader.isLoading()) {
-      currentLoadable = new UriLoadable<>(manifestUri, dataSource, parser);
-      currentLoadStartTimestamp = SystemClock.elapsedRealtime();
-      loader.startLoading(currentLoadable, this);
-      notifyManifestRefreshStarted();
-    }
+    currentLoadable = new UriLoadable<>(manifestUri, dataSource, parser);
+    currentLoadStartTimestamp = SystemClock.elapsedRealtime();
+    loader.startLoading(currentLoadable, this);
+    notifyManifestRefreshStarted();
   }
 
   @Override
@@ -221,8 +212,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
     manifest = currentLoadable.getResult();
     manifestLoadStartTimestamp = currentLoadStartTimestamp;
     manifestLoadCompleteTimestamp = SystemClock.elapsedRealtime();
-    loadExceptionCount = 0;
-    loadException = null;
 
     if (manifest instanceof RedirectingManifest) {
       RedirectingManifest redirectingManifest = (RedirectingManifest) manifest;
@@ -241,21 +230,14 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   @Override
-  public void onLoadError(Loadable loadable, IOException exception) {
+  public int onLoadError(Loadable loadable, IOException exception) {
     if (currentLoadable != loadable) {
       // Stale event.
-      return;
+      return Loader.DONT_RETRY;
     }
 
-    loadExceptionCount++;
-    loadExceptionTimestamp = SystemClock.elapsedRealtime();
-    loadException = new ManifestIOException(exception);
-
-    notifyManifestError(loadException);
-  }
-
-  private long getRetryDelayMillis(long errorCount) {
-    return Math.min((errorCount - 1) * 1000, 5000);
+    notifyManifestError(new ManifestIOException(exception));
+    return Loader.RETRY;
   }
 
   private void notifyManifestRefreshStarted() {

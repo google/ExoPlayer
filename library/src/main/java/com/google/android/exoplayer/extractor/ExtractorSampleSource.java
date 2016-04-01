@@ -35,7 +35,6 @@ import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.SparseArray;
 
 import java.io.EOFException;
@@ -227,10 +226,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private Loader loader;
   private ExtractingLoadable loadable;
-  private IOException currentLoadableException;
-  private int currentLoadableExceptionCount;
-  private long currentLoadableExceptionTimestamp;
-  private boolean currentLoadableExtractedSamples;
+  private IOException fatalException;
+  private boolean currentLoadExtractedSamples;
   private boolean loadingFinished;
 
   /**
@@ -329,15 +326,19 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public boolean prepare(long positionUs) {
+  public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
     }
     if (loader == null) {
-      loader = new Loader("Loader:ExtractorSampleSource");
+      // Assume on-demand until we know otherwise.
+      int initialMinLoadableRetryCount = minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
+          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND : minLoadableRetryCount;
+      loader = new Loader("Loader:ExtractorSampleSource", initialMinLoadableRetryCount);
     }
     maybeStartLoading();
     if (seekMap == null || !tracksBuilt || !haveFormatsForAllTracks()) {
+      maybeThrowError();
       return false;
     }
     int trackCount = sampleQueues.size();
@@ -350,6 +351,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
     }
     tracks = new TrackGroupArray(trackArray);
+    if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
+        && durationUs == C.UNKNOWN_TIME_US) {
+      loader.setMinRetryCount(DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE);
+    }
     prepared = true;
     return true;
   }
@@ -464,23 +469,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    if (currentLoadableException == null) {
-      return;
+    if (fatalException != null) {
+      throw fatalException;
     }
-    if (isCurrentLoadableExceptionFatal()) {
-      throw currentLoadableException;
-    }
-    int minLoadableRetryCountForMedia;
-    if (minLoadableRetryCount != MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
-      minLoadableRetryCountForMedia = minLoadableRetryCount;
-    } else {
-      minLoadableRetryCountForMedia = seekMap != null && !seekMap.isSeekable()
-          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE
-          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND;
-    }
-    if (currentLoadableExceptionCount > minLoadableRetryCountForMedia) {
-      throw currentLoadableException;
-    }
+    loader.maybeThrowError();
   }
 
   @Override
@@ -549,13 +541,16 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public void onLoadError(Loadable ignored, IOException e) {
-    currentLoadableException = e;
-    currentLoadableExceptionCount = currentLoadableExtractedSamples ? 1
-        : currentLoadableExceptionCount + 1;
-    currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+  public int onLoadError(Loadable ignored, IOException e) {
     notifyLoadError(e);
-    maybeStartLoading();
+    if (isLoadableExceptionFatal(e)) {
+      fatalException = e;
+      return Loader.DONT_RETRY;
+    }
+    configureRetry();
+    int retryAction = currentLoadExtractedSamples ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
+    currentLoadExtractedSamples = false;
+    return retryAction;
   }
 
   // ExtractorOutput implementation.
@@ -599,79 +594,55 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   private void maybeStartLoading() {
-    if (loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading() || fatalException != null) {
       return;
     }
 
-    if (currentLoadableException != null) {
-      if (isCurrentLoadableExceptionFatal()) {
-        return;
-      }
-      Assertions.checkState(loadable != null);
-      long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
-      if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
-        currentLoadableException = null;
-        if (!prepared) {
-          // We don't know whether we're playing an on-demand or a live stream. For a live stream
-          // we need to load from the start, as outlined below. Since we might be playing a live
-          // stream, play it safe and load from the start.
-          for (int i = 0; i < sampleQueues.size(); i++) {
-            sampleQueues.valueAt(i).clear();
-          }
-          loadable = createLoadableFromStart();
-        } else if (!seekMap.isSeekable() && durationUs == C.UNKNOWN_TIME_US) {
-          // We're playing a non-seekable stream with unknown duration. Assume it's live, and
-          // therefore that the data at the uri is a continuously shifting window of the latest
-          // available media. For this case there's no way to continue loading from where a previous
-          // load finished, so it's necessary to load from the start whenever commencing a new load.
-          for (int i = 0; i < sampleQueues.size(); i++) {
-            sampleQueues.valueAt(i).clear();
-          }
-          loadable = createLoadableFromStart();
-          // To avoid introducing a discontinuity, we shift the sample timestamps so that they will
-          // continue from the current downstream position.
-          pendingNextSampleUs = downstreamPositionUs;
-          havePendingNextSampleUs = true;
-        } else {
-          // We're playing a seekable on-demand stream. Resume the current loadable, which will
-          // request data starting from the point it left off.
-        }
-        currentLoadableExtractedSamples = false;
-        loader.startLoading(loadable, this);
-      }
-      return;
-    }
-
-    // We're not retrying, so we're either starting a playback or responding to an explicit seek.
-    // In both cases sampleTimeOffsetUs should be reset to zero, and any pending adjustment to
-    // sample timestamps should be discarded.
     sampleTimeOffsetUs = 0;
     havePendingNextSampleUs = false;
-
-    if (!prepared) {
-      loadable = createLoadableFromStart();
-    } else {
+    loadable = new ExtractingLoadable(uri, dataSource, extractorHolder, allocator,
+        requestedBufferSize);
+    if (prepared) {
       Assertions.checkState(isPendingReset());
       if (durationUs != C.UNKNOWN_TIME_US && pendingResetPositionUs >= durationUs) {
         loadingFinished = true;
         pendingResetPositionUs = NO_RESET_PENDING;
         return;
       }
-      loadable = createLoadableFromPositionUs(pendingResetPositionUs);
+      loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs));
       pendingResetPositionUs = NO_RESET_PENDING;
     }
-    currentLoadableExtractedSamples = false;
+    currentLoadExtractedSamples = false;
     loader.startLoading(loadable, this);
   }
 
-  private ExtractingLoadable createLoadableFromStart() {
-    return new ExtractingLoadable(uri, dataSource, extractorHolder, allocator, requestedBufferSize,
-        0);
-  }
-
-  private ExtractingLoadable createLoadableFromPositionUs(long positionUs) {
-    return new ExtractingLoadable(uri, dataSource, extractorHolder, allocator, requestedBufferSize,
-        seekMap.getPosition(positionUs));
+  private void configureRetry() {
+    Assertions.checkState(loadable != null);
+    if (!prepared) {
+      // We don't know whether we're playing an on-demand or a live stream. For a live stream we
+      // need to load from the start, as outlined below. Since we might be playing a live stream,
+      // play it safe and load from the start.
+      for (int i = 0; i < sampleQueues.size(); i++) {
+        sampleQueues.valueAt(i).clear();
+      }
+      loadable.setLoadPosition(0);
+    } else if (!seekMap.isSeekable() && durationUs == C.UNKNOWN_TIME_US) {
+      // We're playing a non-seekable stream with unknown duration. Assume it's live, and
+      // therefore that the data at the uri is a continuously shifting window of the latest
+      // available media. For this case there's no way to continue loading from where a previous
+      // load finished, so it's necessary to load from the start whenever commencing a new load.
+      for (int i = 0; i < sampleQueues.size(); i++) {
+        sampleQueues.valueAt(i).clear();
+      }
+      loadable.setLoadPosition(0);
+      // To avoid introducing a discontinuity, we shift the sample timestamps so that they will
+      // continue from the current downstream position.
+      pendingNextSampleUs = downstreamPositionUs;
+      havePendingNextSampleUs = true;
+    } else {
+      // We're playing a seekable on-demand stream. Resume the current loadable, which will
+      // request data starting from the point it left off.
+    }
   }
 
   private boolean haveFormatsForAllTracks() {
@@ -696,20 +667,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       sampleQueues.valueAt(i).clear();
     }
     loadable = null;
-    currentLoadableException = null;
-    currentLoadableExceptionCount = 0;
+    fatalException = null;
   }
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != NO_RESET_PENDING;
   }
 
-  private boolean isCurrentLoadableExceptionFatal() {
-    return currentLoadableException instanceof UnrecognizedInputFormatException;
-  }
-
-  private long getRetryDelayMillis(long errorCount) {
-    return Math.min((errorCount - 1) * 1000, 5000);
+  private boolean isLoadableExceptionFatal(IOException e) {
+    return e instanceof UnrecognizedInputFormatException;
   }
 
   private void notifyLoadError(final IOException e) {
@@ -766,7 +732,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     @Override
     public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
       super.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
-      currentLoadableExtractedSamples = true;
+      currentLoadExtractedSamples = true;
     }
 
   }
@@ -788,13 +754,17 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     private boolean pendingExtractorSeek;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
-        Allocator allocator, int requestedBufferSize, long position) {
+        Allocator allocator, int requestedBufferSize) {
       this.uri = Assertions.checkNotNull(uri);
       this.dataSource = Assertions.checkNotNull(dataSource);
       this.extractorHolder = Assertions.checkNotNull(extractorHolder);
       this.allocator = Assertions.checkNotNull(allocator);
       this.requestedBufferSize = requestedBufferSize;
       positionHolder = new PositionHolder();
+      pendingExtractorSeek = true;
+    }
+
+    public void setLoadPosition(long position) {
       positionHolder.position = position;
       pendingExtractorSeek = true;
     }

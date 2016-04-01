@@ -23,7 +23,6 @@ import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.os.SystemClock;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -78,9 +77,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private long pendingResetPositionUs;
   private boolean loadingFinished;
   private Loader loader;
-  private IOException currentLoadableException;
-  private int currentLoadableExceptionCount;
-  private long currentLoadableExceptionTimestamp;
 
   private int streamState;
   private byte[] sampleData;
@@ -112,9 +108,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public void maybeThrowError() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
-      throw currentLoadableException;
-    }
+    loader.maybeThrowError();
   }
 
   @Override
@@ -122,7 +116,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     if (prepared) {
       return true;
     }
-    loader = new Loader("Loader:" + format.sampleMimeType);
+    loader = new Loader("Loader:" + format.sampleMimeType, minLoadableRetryCount);
     prepared = true;
     return true;
   }
@@ -146,6 +140,9 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     // Unselect old tracks.
     if (!oldStreams.isEmpty()) {
       streamState = STREAM_STATE_END_OF_STREAM;
+      if (loader.isLoading()) {
+        loader.cancelLoading();
+      }
     }
     // Select new tracks.
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
@@ -153,7 +150,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
       newStreams[0] = this;
       streamState = STREAM_STATE_SEND_FORMAT;
       pendingResetPositionUs = NO_RESET;
-      clearCurrentLoadableException();
       maybeStartLoading();
     }
     return newStreams;
@@ -161,7 +157,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public void continueBuffering(long positionUs) {
-    maybeStartLoading();
+    // Do nothing.
   }
 
   @Override
@@ -223,51 +219,22 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     }
   }
 
-  // Private methods.
-
-  private void maybeStartLoading() {
-    if (loadingFinished || streamState == STREAM_STATE_END_OF_STREAM || loader.isLoading()) {
-      return;
-    }
-    if (currentLoadableException != null) {
-      long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
-      if (elapsedMillis < getRetryDelayMillis(currentLoadableExceptionCount)) {
-        return;
-      }
-      currentLoadableException = null;
-    }
-    loader.startLoading(this, this);
-  }
-
-  private void clearCurrentLoadableException() {
-    currentLoadableException = null;
-    currentLoadableExceptionCount = 0;
-  }
-
-  private long getRetryDelayMillis(long errorCount) {
-    return Math.min((errorCount - 1) * 1000, 5000);
-  }
-
   // Loader.Callback implementation.
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
     loadingFinished = true;
-    clearCurrentLoadableException();
   }
 
   @Override
   public void onLoadCanceled(Loadable loadable) {
-    // Never happens.
+    maybeStartLoading();
   }
 
   @Override
-  public void onLoadError(Loadable loadable, IOException e) {
-    currentLoadableException = e;
-    currentLoadableExceptionCount++;
-    currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+  public int onLoadError(Loadable loadable, IOException e) {
     notifyLoadError(e);
-    maybeStartLoading();
+    return Loader.RETRY;
   }
 
   // Loadable implementation.
@@ -301,6 +268,15 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     } finally {
       dataSource.close();
     }
+  }
+
+  // Private methods.
+
+  private void maybeStartLoading() {
+    if (loadingFinished || streamState == STREAM_STATE_END_OF_STREAM || loader.isLoading()) {
+      return;
+    }
+    loader.startLoading(this, this);
   }
 
   private void notifyLoadError(final IOException e) {
