@@ -97,4 +97,9 @@ public interface Extractor {
    */
   void seek();
 
+  /**
+   * Releases all kept resources.
+   */
+  void release();
+
 }

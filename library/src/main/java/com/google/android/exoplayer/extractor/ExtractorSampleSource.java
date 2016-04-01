@@ -546,9 +546,15 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   @Override
   public void release() {
     Assertions.checkState(remainingReleaseCount > 0);
-    if (--remainingReleaseCount == 0 && loader != null) {
-      loader.release();
-      loader = null;
+    if (--remainingReleaseCount == 0) {
+      if (loader != null) {
+        loader.release();
+        loader = null;
+      }
+      if (extractorHolder.extractor != null) {
+        extractorHolder.extractor.release();
+        extractorHolder.extractor = null;
+      }
     }
   }
 

@@ -85,6 +85,11 @@ import java.util.regex.Pattern;
   }
 
   @Override
+  public void release() {
+    // Do nothing
+  }
+
+  @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     int currentFileSize = (int) input.getLength();
