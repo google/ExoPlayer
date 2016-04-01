@@ -20,8 +20,8 @@ import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
-import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.ParsableNalUnitBitArray;
 
 import android.util.Log;
 
@@ -210,9 +210,8 @@ import java.util.Collections;
     System.arraycopy(sps.nalData, 0, csd, vps.nalLength, sps.nalLength);
     System.arraycopy(pps.nalData, 0, csd, vps.nalLength + sps.nalLength, pps.nalLength);
 
-    // Unescape and then parse the SPS NAL unit, as per H.265/HEVC (2014) 7.3.2.2.1.
-    NalUnitUtil.unescapeStream(sps.nalData, sps.nalLength);
-    ParsableBitArray bitArray = new ParsableBitArray(sps.nalData);
+    // Parse the SPS NAL unit, as per H.265/HEVC (2014) 7.3.2.2.1.
+    ParsableNalUnitBitArray bitArray = new ParsableNalUnitBitArray(sps.nalData, 0, sps.nalLength);
     bitArray.skipBits(40 + 4); // NAL header, sps_video_parameter_set_id
     int maxSubLayersMinus1 = bitArray.readBits(3);
     bitArray.skipBits(1); // sps_temporal_id_nesting_flag
@@ -316,7 +315,7 @@ import java.util.Collections;
   /**
    * Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4.
    */
-  private static void skipScalingList(ParsableBitArray bitArray) {
+  private static void skipScalingList(ParsableNalUnitBitArray bitArray) {
     for (int sizeId = 0; sizeId < 4; sizeId++) {
       for (int matrixId = 0; matrixId < 6; matrixId += sizeId == 3 ? 3 : 1) {
         if (!bitArray.readBit()) { // scaling_list_pred_mode_flag[sizeId][matrixId]
@@ -340,7 +339,7 @@ import java.util.Collections;
    * Reads the number of short term reference picture sets in a SPS as ue(v), then skips all of
    * them. See H.265/HEVC (2014) 7.3.7.
    */
-  private static void skipShortTermRefPicSets(ParsableBitArray bitArray) {
+  private static void skipShortTermRefPicSets(ParsableNalUnitBitArray bitArray) {
     int numShortTermRefPicSets = bitArray.readUnsignedExpGolombCodedInt();
     boolean interRefPicSetPredictionFlag = false;
     int numNegativePics = 0;

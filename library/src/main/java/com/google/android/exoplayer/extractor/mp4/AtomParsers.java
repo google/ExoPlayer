@@ -24,7 +24,6 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
-import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -666,10 +665,9 @@ import java.util.List;
 
     if (numSequenceParameterSets > 0) {
       // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
-      ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
-      // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
-      spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
-      pixelWidthAspectRatio = NalUnitUtil.parseSpsNalUnit(spsDataBitArray).pixelWidthAspectRatio;
+      byte[] sps = initializationData.get(0);
+      pixelWidthAspectRatio = NalUnitUtil
+          .parseSpsNalUnit(sps, nalUnitLengthFieldLength, sps.length).pixelWidthAspectRatio;
     }
 
     return new AvcCData(initializationData, nalUnitLengthFieldLength, pixelWidthAspectRatio);

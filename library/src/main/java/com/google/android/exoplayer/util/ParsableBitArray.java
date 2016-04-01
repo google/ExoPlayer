@@ -177,52 +177,6 @@ public final class ParsableBitArray {
     return returnValue;
   }
 
-  /**
-   * Returns whether it is possible to read an Exp-Golomb-coded integer starting from the current
-   * offset. The offset is not modified.
-   *
-   * @return Whether it is possible to read an Exp-Golomb-coded integer.
-   */
-  public boolean canReadExpGolombCodedNum() {
-    int initialByteOffset = byteOffset;
-    int initialBitOffset = bitOffset;
-    int leadingZeros = 0;
-    while (byteOffset < byteLimit && !readBit()) {
-      leadingZeros++;
-    }
-    boolean hitLimit = byteOffset == byteLimit;
-    byteOffset = initialByteOffset;
-    bitOffset = initialBitOffset;
-    return !hitLimit && bitsLeft() >= leadingZeros * 2 + 1;
-  }
-
-  /**
-   * Reads an unsigned Exp-Golomb-coded format integer.
-   *
-   * @return The value of the parsed Exp-Golomb-coded integer.
-   */
-  public int readUnsignedExpGolombCodedInt() {
-    return readExpGolombCodeNum();
-  }
-
-  /**
-   * Reads an signed Exp-Golomb-coded format integer.
-   *
-   * @return The value of the parsed Exp-Golomb-coded integer.
-   */
-  public int readSignedExpGolombCodedInt() {
-    int codeNum = readExpGolombCodeNum();
-    return ((codeNum % 2) == 0 ? -1 : 1) * ((codeNum + 1) / 2);
-  }
-
-  private int readExpGolombCodeNum() {
-    int leadingZeros = 0;
-    while (!readBit()) {
-      leadingZeros++;
-    }
-    return (1 << leadingZeros) - 1 + (leadingZeros > 0 ? readBits(leadingZeros) : 0);
-  }
-
   private void assertValidOffset() {
     // It is fine for position to be at the end of the array, but no further.
     Assertions.checkState(byteOffset >= 0

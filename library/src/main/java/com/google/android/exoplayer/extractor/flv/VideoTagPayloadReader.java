@@ -22,7 +22,6 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
-import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.util.ArrayList;
@@ -160,14 +159,12 @@ import java.util.List;
     int width = Format.NO_VALUE;
     int height = Format.NO_VALUE;
     if (numSequenceParameterSets > 0) {
-      // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
-      ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
-      // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
-      spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
-      NalUnitUtil.SpsData sps = NalUnitUtil.parseSpsNalUnit(spsDataBitArray);
-      width = sps.width;
-      height = sps.height;
-      pixelWidthAspectRatio = sps.pixelWidthAspectRatio;
+      byte[] sps = initializationData.get(0);
+      NalUnitUtil.SpsData spsData =
+          NalUnitUtil.parseSpsNalUnit(sps, nalUnitLengthFieldLength, sps.length);
+      width = spsData.width;
+      height = spsData.height;
+      pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
     }
 
     return new AvcSequenceHeaderData(initializationData, nalUnitLengthFieldLength,

@@ -236,11 +236,14 @@ public final class NalUnitUtil {
    * Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
    * 7.3.2.1.1.
    *
-   * @param data A {@link ParsableBitArray} containing the SPS data. The position must to set to the
-   *     start of the data (i.e. the first bit of the profile_idc field).
+   * @param nalData A buffer containing escaped SPS data.
+   * @param nalOffset The offset of the NAL unit header in {@code nalData}.
+   * @param nalLimit The limit of the NAL unit in {@code nalData}.
    * @return A parsed representation of the SPS data.
    */
-  public static SpsData parseSpsNalUnit(ParsableBitArray data) {
+  public static SpsData parseSpsNalUnit(byte[] nalData, int nalOffset, int nalLimit) {
+    ParsableNalUnitBitArray data = new ParsableNalUnitBitArray(nalData, nalOffset, nalLimit);
+    data.skipBits(8); // nal_unit
     int profileIdc = data.readBits(8);
     data.skipBits(16); // constraint bits (6), reserved (2) and level_idc (8)
     int seqParameterSetId = data.readUnsignedExpGolombCodedInt();
@@ -348,11 +351,14 @@ public final class NalUnitUtil {
    * Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
    * 7.3.2.2.
    *
-   * @param data A {@link ParsableBitArray} containing the PPS data. The position must to set to the
-   *     start of the data (i.e. the first bit of the pic_parameter_set_id field).
+   * @param nalData A buffer containing escaped PPS data.
+   * @param nalOffset The offset of the NAL unit header in {@code nalData}.
+   * @param nalLimit The limit of the NAL unit in {@code nalData}.
    * @return A parsed representation of the PPS data.
    */
-  public static PpsData parsePpsNalUnit(ParsableBitArray data) {
+  public static PpsData parsePpsNalUnit(byte[] nalData, int nalOffset, int nalLimit) {
+    ParsableNalUnitBitArray data = new ParsableNalUnitBitArray(nalData, nalOffset, nalLimit);
+    data.skipBits(8); // nal_unit
     int picParameterSetId = data.readUnsignedExpGolombCodedInt();
     int seqParameterSetId = data.readUnsignedExpGolombCodedInt();
     data.skipBits(1); // entropy_coding_mode_flag
@@ -459,7 +465,7 @@ public final class NalUnitUtil {
     return limit;
   }
 
-  private static void skipScalingList(ParsableBitArray bitArray, int size) {
+  private static void skipScalingList(ParsableNalUnitBitArray bitArray, int size) {
     int lastScale = 8;
     int nextScale = 8;
     for (int i = 0; i < size; i++) {

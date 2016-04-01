@@ -21,8 +21,8 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.NalUnitUtil.SpsData;
-import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.ParsableNalUnitBitArray;
 
 import android.util.SparseArray;
 
@@ -169,8 +169,8 @@ import java.util.List;
           List<byte[]> initializationData = new ArrayList<>();
           initializationData.add(Arrays.copyOf(sps.nalData, sps.nalLength));
           initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
-          NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(unescape(sps));
-          NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(unescape(pps));
+          NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
+          NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
           output.format(Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, Format.NO_VALUE,
               Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE, initializationData,
               Format.NO_VALUE, spsData.pixelWidthAspectRatio));
@@ -181,11 +181,11 @@ import java.util.List;
           pps.reset();
         }
       } else if (sps.isCompleted()) {
-        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(unescape(sps));
+        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
         sampleReader.putSps(spsData);
         sps.reset();
       } else if (pps.isCompleted()) {
-        NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(unescape(pps));
+        NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
         sampleReader.putPps(ppsData);
         pps.reset();
       }
@@ -197,13 +197,6 @@ import java.util.List;
       seiReader.consume(pesTimeUs, seiWrapper);
     }
     sampleReader.endNalUnit(position, offset);
-  }
-
-  private static ParsableBitArray unescape(NalUnitTargetBuffer buffer) {
-    int length = NalUnitUtil.unescapeStream(buffer.nalData, buffer.nalLength);
-    ParsableBitArray bitArray = new ParsableBitArray(buffer.nalData, length);
-    bitArray.skipBits(32); // NAL header
-    return bitArray;
   }
 
   /**
@@ -221,9 +214,9 @@ import java.util.List;
     private final TrackOutput output;
     private final boolean allowNonIdrKeyframes;
     private final boolean detectAccessUnits;
-    private final ParsableBitArray scratch;
     private final SparseArray<NalUnitUtil.SpsData> sps;
     private final SparseArray<NalUnitUtil.PpsData> pps;
+    private final ParsableNalUnitBitArray bitArray;
 
     private byte[] buffer;
     private int bufferLength;
@@ -251,8 +244,8 @@ import java.util.List;
       pps = new SparseArray<>();
       previousSliceHeader = new SliceHeaderData();
       sliceHeader = new SliceHeaderData();
-      scratch = new ParsableBitArray();
       buffer = new byte[DEFAULT_BUFFER_SIZE];
+      bitArray = new ParsableNalUnitBitArray(buffer, 0, 0);
       reset();
     }
 
@@ -310,34 +303,34 @@ import java.util.List;
       System.arraycopy(data, offset, buffer, bufferLength, readLength);
       bufferLength += readLength;
 
-      scratch.reset(buffer, bufferLength);
-      if (scratch.bitsLeft() < 8) {
+      bitArray.reset(buffer, 0, bufferLength);
+      if (!bitArray.canReadBits(8)) {
         return;
       }
-      scratch.skipBits(1); // forbidden_zero_bit
-      int nalRefIdc = scratch.readBits(2);
-      scratch.skipBits(5); // nal_unit_type
+      bitArray.skipBits(1); // forbidden_zero_bit
+      int nalRefIdc = bitArray.readBits(2);
+      bitArray.skipBits(5); // nal_unit_type
 
       // Read the slice header using the syntax defined in ITU-T Recommendation H.264 (2013)
       // subsection 7.3.3.
-      if (!scratch.canReadExpGolombCodedNum()) {
+      if (!bitArray.canReadExpGolombCodedNum()) {
         return;
       }
-      scratch.readUnsignedExpGolombCodedInt(); // first_mb_in_slice
-      if (!scratch.canReadExpGolombCodedNum()) {
+      bitArray.readUnsignedExpGolombCodedInt(); // first_mb_in_slice
+      if (!bitArray.canReadExpGolombCodedNum()) {
         return;
       }
-      int sliceType = scratch.readUnsignedExpGolombCodedInt();
+      int sliceType = bitArray.readUnsignedExpGolombCodedInt();
       if (!detectAccessUnits) {
         // There are AUDs in the stream so the rest of the header can be ignored.
         isFilling = false;
         sliceHeader.setSliceType(sliceType);
         return;
       }
-      if (!scratch.canReadExpGolombCodedNum()) {
+      if (!bitArray.canReadExpGolombCodedNum()) {
         return;
       }
-      int picParameterSetId = scratch.readUnsignedExpGolombCodedInt();
+      int picParameterSetId = bitArray.readUnsignedExpGolombCodedInt();
       if (pps.indexOfKey(picParameterSetId) < 0) {
         // We have not seen the PPS yet, so don't try to parse the slice header.
         isFilling = false;
@@ -346,65 +339,65 @@ import java.util.List;
       NalUnitUtil.PpsData ppsData = pps.get(picParameterSetId);
       NalUnitUtil.SpsData spsData = sps.get(ppsData.seqParameterSetId);
       if (spsData.separateColorPlaneFlag) {
-        if (scratch.bitsLeft() < 2) {
+        if (!bitArray.canReadBits(2)) {
           return;
         }
-        scratch.skipBits(2); // colour_plane_id
+        bitArray.skipBits(2); // colour_plane_id
       }
-      if (scratch.bitsLeft() < spsData.frameNumLength) {
+      if (!bitArray.canReadBits(spsData.frameNumLength)) {
         return;
       }
       boolean fieldPicFlag = false;
       boolean bottomFieldFlagPresent = false;
       boolean bottomFieldFlag = false;
-      int frameNum = scratch.readBits(spsData.frameNumLength);
+      int frameNum = bitArray.readBits(spsData.frameNumLength);
       if (!spsData.frameMbsOnlyFlag) {
-        if (scratch.bitsLeft() < 1) {
+        if (!bitArray.canReadBits(1)) {
           return;
         }
-        fieldPicFlag = scratch.readBit();
+        fieldPicFlag = bitArray.readBit();
         if (fieldPicFlag) {
-          if (scratch.bitsLeft() < 1) {
+          if (!bitArray.canReadBits(1)) {
             return;
           }
-          bottomFieldFlag = scratch.readBit();
+          bottomFieldFlag = bitArray.readBit();
           bottomFieldFlagPresent = true;
         }
       }
       boolean idrPicFlag = nalUnitType == NAL_UNIT_TYPE_IDR;
       int idrPicId = 0;
       if (idrPicFlag) {
-        if (!scratch.canReadExpGolombCodedNum()) {
+        if (!bitArray.canReadExpGolombCodedNum()) {
           return;
         }
-        idrPicId = scratch.readUnsignedExpGolombCodedInt();
+        idrPicId = bitArray.readUnsignedExpGolombCodedInt();
       }
       int picOrderCntLsb = 0;
       int deltaPicOrderCntBottom = 0;
       int deltaPicOrderCnt0 = 0;
       int deltaPicOrderCnt1 = 0;
       if (spsData.picOrderCountType == 0) {
-        if (scratch.bitsLeft() < spsData.picOrderCntLsbLength) {
+        if (!bitArray.canReadBits(spsData.picOrderCntLsbLength)) {
           return;
         }
-        picOrderCntLsb = scratch.readBits(spsData.picOrderCntLsbLength);
+        picOrderCntLsb = bitArray.readBits(spsData.picOrderCntLsbLength);
         if (ppsData.bottomFieldPicOrderInFramePresentFlag && !fieldPicFlag) {
-          if (!scratch.canReadExpGolombCodedNum()) {
+          if (!bitArray.canReadExpGolombCodedNum()) {
             return;
           }
-          deltaPicOrderCntBottom = scratch.readSignedExpGolombCodedInt();
+          deltaPicOrderCntBottom = bitArray.readSignedExpGolombCodedInt();
         }
       } else if (spsData.picOrderCountType == 1
           && !spsData.deltaPicOrderAlwaysZeroFlag) {
-        if (!scratch.canReadExpGolombCodedNum()) {
+        if (!bitArray.canReadExpGolombCodedNum()) {
           return;
         }
-        deltaPicOrderCnt0 = scratch.readSignedExpGolombCodedInt();
+        deltaPicOrderCnt0 = bitArray.readSignedExpGolombCodedInt();
         if (ppsData.bottomFieldPicOrderInFramePresentFlag && !fieldPicFlag) {
-          if (!scratch.canReadExpGolombCodedNum()) {
+          if (!bitArray.canReadExpGolombCodedNum()) {
             return;
           }
-          deltaPicOrderCnt1 = scratch.readSignedExpGolombCodedInt();
+          deltaPicOrderCnt1 = bitArray.readSignedExpGolombCodedInt();
         }
       }
       sliceHeader.setAll(spsData, nalRefIdc, sliceType, frameNum, picParameterSetId, fieldPicFlag,

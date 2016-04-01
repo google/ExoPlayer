@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.util;
 
+import static com.google.android.exoplayer.testutil.TestUtil.createByteArray;
+
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
@@ -27,6 +29,10 @@ public class NalUnitUtilTest extends TestCase {
 
   private static final int TEST_PARTIAL_NAL_POSITION = 4;
   private static final int TEST_NAL_POSITION = 10;
+  private static final byte[] SPS_TEST_DATA = createByteArray(0x00, 0x00, 0x01, 0x67, 0x4D, 0x40,
+      0x16, 0xEC, 0xA0, 0x50, 0x17, 0xFC, 0xB8, 0x08, 0x80, 0x00, 0x00, 0x03, 0x00, 0x80, 0x00,
+      0x00, 0x0F, 0x47, 0x8B, 0x16, 0xCB);
+  private static final int SPS_TEST_DATA_OFFSET = 3;
 
   public void testFindNalUnit() {
     byte[] data = buildTestData();
@@ -109,6 +115,21 @@ public class NalUnitUtilTest extends TestCase {
     result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
     assertEquals(4, result);
     assertPrefixFlagsCleared(prefixFlags);
+  }
+
+  public void testParseSpsNalUnit() {
+    NalUnitUtil.SpsData data = NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET,
+        SPS_TEST_DATA.length);
+    assertEquals(640, data.width);
+    assertEquals(360, data.height);
+    assertFalse(data.deltaPicOrderAlwaysZeroFlag);
+    assertTrue(data.frameMbsOnlyFlag);
+    assertEquals(4, data.frameNumLength);
+    assertEquals(6, data.picOrderCntLsbLength);
+    assertEquals(0, data.seqParameterSetId);
+    assertEquals(1.0f, data.pixelWidthAspectRatio);
+    assertEquals(0, data.picOrderCountType);
+    assertFalse(data.separateColorPlaneFlag);
   }
 
   public void testUnescapeDoesNotModifyBuffersWithoutStartCodes() {
