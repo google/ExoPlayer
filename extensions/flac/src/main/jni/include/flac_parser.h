@@ -28,10 +28,10 @@ typedef int status_t;
 
 class FLACParser {
  public:
-  FLACParser();
+  FLACParser(DataSource *source);
   ~FLACParser();
 
-  bool init(const void *buffer, size_t size);
+  bool init();
 
   // stream properties
   unsigned getMaxBlockSize() const { return mStreamInfo.max_blocksize; }
@@ -39,13 +39,15 @@ class FLACParser {
   unsigned getChannels() const { return mStreamInfo.channels; }
   unsigned getBitsPerSample() const { return mStreamInfo.bits_per_sample; }
   FLAC__uint64 getTotalSamples() const { return mStreamInfo.total_samples; }
-  unsigned getMaxOutputBufferSize() const {
-    return getMaxBlockSize() * getChannels() * sizeof(int16_t);
+  const FLAC__StreamMetadata_StreamInfo &getStreamInfo() const {
+    return mStreamInfo;
   }
-  unsigned getMaxFrameSize() const { return mStreamInfo.max_framesize; }
 
-  size_t readBuffer(const void *buffer, size_t size, int16_t *output,
-                    size_t output_size);
+  int64_t getLastTimestamp() const {
+    return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
+  }
+
+  size_t readBuffer(void *output, size_t output_size);
 
  private:
   DataSource *mDataSource;

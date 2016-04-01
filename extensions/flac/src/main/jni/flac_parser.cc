@@ -266,8 +266,8 @@ static void copyTrespass(int16_t * /* dst */, const int *const * /* src */,
 
 // FLACParser
 
-FLACParser::FLACParser()
-    : mDataSource(new DataSource),
+FLACParser::FLACParser(DataSource *source)
+    : mDataSource(source),
       mCopy(copyTrespass),
       mDecoder(NULL),
       mCurrentPos(0LL),
@@ -288,12 +288,9 @@ FLACParser::~FLACParser() {
     FLAC__stream_decoder_delete(mDecoder);
     mDecoder = NULL;
   }
-  delete mDataSource;
 }
 
-bool FLACParser::init(const void *buffer, size_t size) {
-  mDataSource->setBuffer(buffer, size);
-
+bool FLACParser::init() {
   // setup libFLAC parser
   mDecoder = FLAC__stream_decoder_new();
   if (mDecoder == NULL) {
@@ -386,11 +383,9 @@ bool FLACParser::init(const void *buffer, size_t size) {
   return true;
 }
 
-size_t FLACParser::readBuffer(const void *buffer, size_t size, int16_t *output,
-                              size_t output_size) {
+size_t FLACParser::readBuffer(void *output, size_t output_size) {
   mWriteRequested = true;
   mWriteCompleted = false;
-  mDataSource->setBuffer(buffer, size);
 
   if (!FLAC__stream_decoder_process_single(mDecoder)) {
     ALOGE("FLACParser::readBuffer process_single failed");
@@ -429,7 +424,8 @@ size_t FLACParser::readBuffer(const void *buffer, size_t size, int16_t *output,
   }
 
   // copy PCM from FLAC write buffer to our media buffer, with interleaving.
-  (*mCopy)(output, mWriteBuffer, blocksize, getChannels());
+  (*mCopy)(reinterpret_cast<int16_t *>(output), mWriteBuffer, blocksize,
+           getChannels());
 
   // fill in buffer metadata
   CHECK(mWriteHeader.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);

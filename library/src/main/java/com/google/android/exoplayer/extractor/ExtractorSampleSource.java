@@ -59,6 +59,8 @@ import java.util.List;
  * <li>MPEG PS ({@link com.google.android.exoplayer.extractor.ts.PsExtractor})</li>
  * <li>FLV ({@link com.google.android.exoplayer.extractor.flv.FlvExtractor})</li>
  * <li>WAV ({@link com.google.android.exoplayer.extractor.wav.WavExtractor})</li>
+ * <li>FLAC ({@link com.google.android.exoplayer.ext.flac.FlacExtractor}) (only available if the
+ * flac extension is built and included)</li>
  * </ul>
  *
  * <p>Seeking in AAC, MPEG TS and FLV streams is not supported.
@@ -186,6 +188,13 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
           Class.forName("com.google.android.exoplayer.extractor.wav.WavExtractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.ext.flac.FlacExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.

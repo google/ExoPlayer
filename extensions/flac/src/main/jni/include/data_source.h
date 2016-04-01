@@ -17,20 +17,15 @@
 #ifndef INCLUDE_DATA_SOURCE_H_
 #define INCLUDE_DATA_SOURCE_H_
 
+#include <jni.h>
 #include <sys/types.h>
 
 class DataSource {
  public:
-  void setBuffer(const void *data, const size_t size);
-
   // Returns the number of bytes read, or -1 on failure. It's not an error if
   // this returns zero; it just means the given offset is equal to, or
   // beyond, the end of the source.
-  ssize_t readAt(off64_t /*offset*/, void *const data, size_t size);
-
- private:
-  const void *data;
-  size_t size;
+  virtual ssize_t readAt(off64_t offset, void* const data, size_t size) = 0;
 };
 
 #endif  // INCLUDE_DATA_SOURCE_H_
