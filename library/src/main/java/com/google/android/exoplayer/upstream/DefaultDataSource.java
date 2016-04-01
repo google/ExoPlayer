@@ -65,12 +65,13 @@ public final class DefaultDataSource implements DataSource {
   }
 
   /**
-   * Constructs a new instance, using a provided {@link DataSource} for fetching remote data.
+   * Constructs a new instance that delegates to a provided {@link DataSource} for URI schemes other
+   * than file, asset and content.
    *
    * @param context A context.
    * @param listener An optional {@link TransferListener}.
-   * @param defaultDataSource A {@link DataSource} to use for all URIs other than file, asset and
-   *     content URIs. This {@link DataSource} should normally handle at least http(s) URIs.
+   * @param defaultDataSource A {@link DataSource} to use for URI schemes other than file, asset and
+   *     content. This {@link DataSource} should normally support at least http(s).
    */
   public DefaultDataSource(Context context, TransferListener listener,
       DataSource defaultDataSource) {
