@@ -25,14 +25,14 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
-import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
+import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
+import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -46,11 +46,6 @@ import java.util.List;
  * A {@link SampleSource} for HLS streams.
  */
 public final class HlsSampleSource implements SampleSource, Loader.Callback {
-
-  /**
-   * Interface definition for a callback to be notified of {@link HlsSampleSource} events.
-   */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {}
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -69,11 +64,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private final LinkedList<HlsExtractorWrapper> extractors;
   private final int bufferSizeContribution;
   private final ChunkOperationHolder chunkOperationHolder;
-
-  private final int eventSourceId;
+  private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
-  private final Handler eventHandler;
-  private final EventListener eventListener;
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
@@ -108,23 +100,21 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
-      int eventSourceId) {
+      int bufferSizeContribution, Handler eventHandler,
+      ChunkSampleSourceEventListener eventListener, int eventSourceId) {
     this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
         eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
-      int eventSourceId, int minLoadableRetryCount) {
+      int bufferSizeContribution, Handler eventHandler,
+      ChunkSampleSourceEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
-    this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
     loader = new Loader("Loader:HLS", minLoadableRetryCount);
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     extractors = new LinkedList<>();
     chunkOperationHolder = new ChunkOperationHolder();
   }
@@ -336,7 +326,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     if (downstreamFormat == null || !downstreamFormat.equals(extractor.format)) {
       // Notify a change in the downstream format.
-      notifyDownstreamFormatChanged(extractor.format, extractor.trigger, extractor.startTimeUs);
+      eventDispatcher.downstreamFormatChanged(extractor.format, extractor.trigger,
+          extractor.startTimeUs);
       downstreamFormat = extractor.format;
     }
 
@@ -389,11 +380,11 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isTsChunk(currentLoadable)) {
       Assertions.checkState(currentLoadable == currentTsLoadable);
       previousTsLoadable = currentTsLoadable;
-      notifyLoadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
+      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
           currentTsLoadable.trigger, currentTsLoadable.format, currentTsLoadable.startTimeUs,
           currentTsLoadable.endTimeUs, now, loadDurationMs);
     } else {
-      notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
+      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     clearCurrentLoadable();
@@ -402,7 +393,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadCanceled(Loadable loadable) {
-    notifyLoadCanceled(currentLoadable.bytesLoaded());
+    eventDispatcher.loadCanceled(currentLoadable.bytesLoaded());
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     } else {
@@ -416,16 +407,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     long bytesLoaded = currentLoadable.bytesLoaded();
     boolean cancelable = !isTsChunk(currentLoadable) || bytesLoaded == 0;
     if (chunkSource.onChunkLoadError(currentLoadable, cancelable, e)) {
+      eventDispatcher.loadError(e);
+      eventDispatcher.loadCanceled(bytesLoaded);
+      clearCurrentLoadable();
       if (previousTsLoadable == null && !isPendingReset()) {
         pendingResetPositionUs = lastSeekPositionUs;
       }
-      clearCurrentLoadable();
-      notifyLoadError(e);
-      notifyLoadCanceled(bytesLoaded);
       maybeStartLoading();
       return Loader.DONT_RETRY;
     } else {
-      notifyLoadError(e);
+      eventDispatcher.loadError(e);
       return Loader.RETRY;
     }
   }
@@ -679,11 +670,11 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         extractorWrapper.init(loadControl.getAllocator());
         extractors.addLast(extractorWrapper);
       }
-      notifyLoadStarted(tsChunk.dataSpec.length, tsChunk.type, tsChunk.trigger, tsChunk.format,
-          tsChunk.startTimeUs, tsChunk.endTimeUs);
+      eventDispatcher.loadStarted(tsChunk.dataSpec.length, tsChunk.type, tsChunk.trigger,
+          tsChunk.format, tsChunk.startTimeUs, tsChunk.endTimeUs);
       currentTsLoadable = tsChunk;
     } else {
-      notifyLoadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
+      eventDispatcher.loadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1);
     }
     loader.startLoading(currentLoadable, this);
@@ -710,69 +701,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != NO_RESET_PENDING;
-  }
-
-  private void notifyLoadStarted(final long length, final int type, final int trigger,
-      final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadStarted(eventSourceId, length, type, trigger, format,
-              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs));
-        }
-      });
-    }
-  }
-
-  private void notifyLoadCompleted(final long bytesLoaded, final int type, final int trigger,
-      final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs,
-      final long elapsedRealtimeMs, final long loadDurationMs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
-              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs), elapsedRealtimeMs,
-              loadDurationMs);
-        }
-      });
-    }
-  }
-
-  private void notifyLoadCanceled(final long bytesLoaded) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadCanceled(eventSourceId, bytesLoaded);
-        }
-      });
-    }
-  }
-
-  private void notifyLoadError(final IOException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadError(eventSourceId, e);
-        }
-      });
-    }
-  }
-
-  private void notifyDownstreamFormatChanged(final Format format, final int trigger,
-      final long positionUs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDownstreamFormatChanged(eventSourceId, format, trigger,
-              Util.usToMs(positionUs));
-        }
-      });
-    }
   }
 
   private final class TrackStreamImpl implements TrackStream {

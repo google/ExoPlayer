@@ -19,13 +19,16 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackStream;
+import com.google.android.exoplayer.util.Util;
+
+import android.os.Handler;
 
 import java.io.IOException;
 
 /**
  * Interface for callbacks to be notified of chunk based {@link SampleSource} events.
  */
-public interface BaseChunkSampleSourceEventListener {
+public interface ChunkSampleSourceEventListener {
 
   /**
    * Invoked when an upstream load is started.
@@ -101,5 +104,97 @@ public interface BaseChunkSampleSourceEventListener {
    * @param mediaTimeMs The media time at which the change occurred.
    */
   void onDownstreamFormatChanged(int sourceId, Format format, int trigger, long mediaTimeMs);
+
+  /**
+   * Dispatches events to a {@link ChunkSampleSourceEventListener}.
+   */
+  final class EventDispatcher {
+
+    private final Handler handler;
+    private final ChunkSampleSourceEventListener listener;
+    private final int sourceId;
+
+    public EventDispatcher(Handler handler, ChunkSampleSourceEventListener listener, int sourceId) {
+      this.handler = listener != null ? handler : null;
+      this.listener = listener;
+      this.sourceId = sourceId;
+    }
+
+    public void loadStarted(final long length, final int type, final int trigger,
+        final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onLoadStarted(sourceId, length, type, trigger, format,
+                Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs));
+          }
+        });
+      }
+    }
+
+    public void loadCompleted(final long bytesLoaded, final int type, final int trigger,
+        final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs,
+        final long elapsedRealtimeMs, final long loadDurationMs) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onLoadCompleted(sourceId, bytesLoaded, type, trigger, format,
+                Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs), elapsedRealtimeMs,
+                loadDurationMs);
+          }
+        });
+      }
+    }
+
+    public void loadCanceled(final long bytesLoaded) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onLoadCanceled(sourceId, bytesLoaded);
+          }
+        });
+      }
+    }
+
+    public void loadError(final IOException e) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onLoadError(sourceId, e);
+          }
+        });
+      }
+    }
+
+    public void upstreamDiscarded(final long mediaStartTimeUs, final long mediaEndTimeUs) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onUpstreamDiscarded(sourceId, Util.usToMs(mediaStartTimeUs),
+                Util.usToMs(mediaEndTimeUs));
+          }
+        });
+      }
+    }
+
+    public void downstreamFormatChanged(final Format format, final int trigger,
+        final long positionUs) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onDownstreamFormatChanged(sourceId, format, trigger,
+                Util.usToMs(positionUs));
+          }
+        });
+      }
+    }
+
+  }
 
 }

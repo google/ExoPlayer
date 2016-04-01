@@ -18,7 +18,6 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
@@ -56,11 +55,6 @@ import java.util.Locale;
  * A temporary test source of HLS chunks.
  */
 public class HlsChunkSource {
-
-  /**
-   * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
-   */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {}
 
   public static final int TYPE_DEFAULT = 0;
   public static final int TYPE_AUDIO = 1;

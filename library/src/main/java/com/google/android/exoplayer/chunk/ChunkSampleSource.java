@@ -25,11 +25,11 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
+import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -46,11 +46,6 @@ import java.util.List;
 public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Callback {
 
   /**
-   * Interface definition for a callback to be notified of {@link ChunkSampleSource} events.
-   */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {}
-
-  /**
    * The default minimum number of times to retry loading data prior to failing.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
@@ -58,7 +53,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private final Loader loader;
-  private final int eventSourceId;
   private final LoadControl loadControl;
   private final ChunkSource chunkSource;
   private final ChunkOperationHolder currentLoadableHolder;
@@ -66,8 +60,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private final List<BaseMediaChunk> readOnlyMediaChunks;
   private final DefaultTrackOutput sampleQueue;
   private final int bufferSizeContribution;
-  private final Handler eventHandler;
-  private final EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
 
   private boolean prepared;
   private long downstreamPositionUs;
@@ -106,8 +99,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
-      int eventSourceId) {
+      int bufferSizeContribution, Handler eventHandler,
+      ChunkSampleSourceEventListener eventListener, int eventSourceId) {
     this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
         eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
@@ -124,15 +117,13 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
    *     before propagating an error.
    */
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
-      int eventSourceId, int minLoadableRetryCount) {
+      int bufferSizeContribution, Handler eventHandler,
+      ChunkSampleSourceEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
-    this.eventSourceId = eventSourceId;
     loader = new Loader("Loader:ChunkSampleSource", minLoadableRetryCount);
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     currentLoadableHolder = new ChunkOperationHolder();
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
@@ -200,9 +191,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
-        sampleQueue.clear();
-        mediaChunks.clear();
-        clearCurrentLoadable();
+        clearState();
         loadControl.trimAllocator();
       }
     } else if (trackEnabled) {
@@ -307,7 +296,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     }
 
     if (downstreamFormat == null || !downstreamFormat.equals(currentChunk.format)) {
-      notifyDownstreamFormatChanged(currentChunk.format, currentChunk.trigger,
+      eventDispatcher.downstreamFormatChanged(currentChunk.format, currentChunk.trigger,
           currentChunk.startTimeUs);
       downstreamFormat = currentChunk.format;
     }
@@ -351,10 +340,11 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     chunkSource.onChunkLoadCompleted(currentLoadable);
     if (isMediaChunk(currentLoadable)) {
       BaseMediaChunk mediaChunk = (BaseMediaChunk) currentLoadable;
-      notifyLoadCompleted(currentLoadable.bytesLoaded(), mediaChunk.type, mediaChunk.trigger,
-          mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs, now, loadDurationMs);
+      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), mediaChunk.type,
+          mediaChunk.trigger, mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs, now,
+          loadDurationMs);
     } else {
-      notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
+      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     clearCurrentLoadable();
@@ -364,13 +354,11 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   @Override
   public void onLoadCanceled(Loadable loadable) {
     Chunk currentLoadable = currentLoadableHolder.chunk;
-    notifyLoadCanceled(currentLoadable.bytesLoaded());
-    clearCurrentLoadable();
+    eventDispatcher.loadCanceled(currentLoadable.bytesLoaded());
     if (trackEnabled) {
       restartFrom(pendingResetPositionUs);
     } else {
-      sampleQueue.clear();
-      mediaChunks.clear();
+      clearState();
       loadControl.trimAllocator();
     }
   }
@@ -391,12 +379,12 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         }
       }
       clearCurrentLoadable();
-      notifyLoadError(e);
-      notifyLoadCanceled(bytesLoaded);
+      eventDispatcher.loadError(e);
+      eventDispatcher.loadCanceled(bytesLoaded);
       maybeStartLoading();
       return Loader.DONT_RETRY;
     } else {
-      notifyLoadError(e);
+      eventDispatcher.loadError(e);
       return Loader.RETRY;
     }
   }
@@ -420,11 +408,15 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
-      sampleQueue.clear();
-      mediaChunks.clear();
-      clearCurrentLoadable();
+      clearState();
       maybeStartLoading();
     }
+  }
+
+  private void clearState() {
+    sampleQueue.clear();
+    mediaChunks.clear();
+    clearCurrentLoadable();
   }
 
   private void clearCurrentLoadable() {
@@ -482,10 +474,10 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       if (isPendingReset()) {
         pendingResetPositionUs = NO_RESET_PENDING;
       }
-      notifyLoadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
+      eventDispatcher.loadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
           mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
     } else {
-      notifyLoadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
+      eventDispatcher.loadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1);
     }
     loader.startLoading(currentLoadable, this);
@@ -524,8 +516,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       startTimeUs = removed.startTimeUs;
     }
     sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
-
-    notifyUpstreamDiscarded(startTimeUs, endTimeUs);
+    eventDispatcher.upstreamDiscarded(startTimeUs, endTimeUs);
     return true;
   }
 
@@ -535,81 +526,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != NO_RESET_PENDING;
-  }
-
-  private void notifyLoadStarted(final long length, final int type, final int trigger,
-      final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadStarted(eventSourceId, length, type, trigger, format,
-              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs));
-        }
-      });
-    }
-  }
-
-  private void notifyLoadCompleted(final long bytesLoaded, final int type, final int trigger,
-      final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs,
-      final long elapsedRealtimeMs, final long loadDurationMs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
-              Util.usToMs(mediaStartTimeUs), Util.usToMs(mediaEndTimeUs), elapsedRealtimeMs,
-              loadDurationMs);
-        }
-      });
-    }
-  }
-
-  private void notifyLoadCanceled(final long bytesLoaded) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadCanceled(eventSourceId, bytesLoaded);
-        }
-      });
-    }
-  }
-
-  private void notifyLoadError(final IOException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadError(eventSourceId, e);
-        }
-      });
-    }
-  }
-
-  private void notifyUpstreamDiscarded(final long mediaStartTimeUs, final long mediaEndTimeUs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onUpstreamDiscarded(eventSourceId, Util.usToMs(mediaStartTimeUs),
-              Util.usToMs(mediaEndTimeUs));
-        }
-      });
-    }
-  }
-
-  private void notifyDownstreamFormatChanged(final Format format, final int trigger,
-      final long positionUs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDownstreamFormatChanged(eventSourceId, format, trigger,
-              Util.usToMs(positionUs));
-        }
-      });
-    }
   }
 
 }
