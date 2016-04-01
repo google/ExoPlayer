@@ -81,6 +81,8 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_DTS_EXPRESS = "A_DTS/EXPRESS";
   private static final String CODEC_ID_DTS_LOSSLESS = "A_DTS/LOSSLESS";
   private static final String CODEC_ID_FLAC = "A_FLAC";
+  private static final String CODEC_ID_ACM = "A_MS/ACM";
+  private static final String CODEC_ID_PCM_INT_LIT = "A_PCM/INT/LIT";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
   private static final String CODEC_ID_PGS = "S_HDMV/PGS";
@@ -129,6 +131,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_DISPLAY_UNIT = 0x54B2;
   private static final int ID_AUDIO = 0xE1;
   private static final int ID_CHANNELS = 0x9F;
+  private static final int ID_AUDIOBITDEPTH = 0x6264;
   private static final int ID_SAMPLING_FREQUENCY = 0xB5;
   private static final int ID_CONTENT_ENCODINGS = 0x6D80;
   private static final int ID_CONTENT_ENCODING = 0x6240;
@@ -153,6 +156,12 @@ public final class WebmExtractor implements Extractor {
   private static final int LACING_XIPH = 1;
   private static final int LACING_FIXED_SIZE = 2;
   private static final int LACING_EBML = 3;
+
+  private static final byte[] A_MS_ACM_GUID_PCM = {   (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                                      (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x00,
+                                                      (byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0xAA,
+                                                      (byte) 0x00, (byte) 0x38, (byte) 0x9B, (byte) 0x71 };
+  private static final byte ACM_FORMATTAG_A_PCM_INT_LIT = 0x0001;
 
   /**
    * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
@@ -331,6 +340,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
+      case ID_AUDIOBITDEPTH:
       case ID_CONTENT_ENCODING_ORDER:
       case ID_CONTENT_ENCODING_SCOPE:
       case ID_CONTENT_COMPRESSION_ALGORITHM:
@@ -546,6 +556,8 @@ public final class WebmExtractor implements Extractor {
       case ID_CHANNELS:
         currentTrack.channelCount = (int) value;
         return;
+      case ID_AUDIOBITDEPTH:
+        currentTrack.audioBitDepth = (int) value;
       case ID_REFERENCE_BLOCK:
         sampleSeenReferenceBlock = true;
         return;
@@ -1070,6 +1082,8 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
         || CODEC_ID_DTS_LOSSLESS.equals(codecId)
         || CODEC_ID_FLAC.equals(codecId)
+        || CODEC_ID_ACM.equals(codecId)
+        || CODEC_ID_PCM_INT_LIT.equals(codecId)
         || CODEC_ID_SUBRIP.equals(codecId)
         || CODEC_ID_VOBSUB.equals(codecId)
         || CODEC_ID_PGS.equals(codecId);
@@ -1162,6 +1176,7 @@ public final class WebmExtractor implements Extractor {
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
+    public int audioBitDepth = -1;
     public int sampleRate = 8000;
     public long codecDelayNs = 0;
     public long seekPreRollNs = 0;
@@ -1255,7 +1270,25 @@ public final class WebmExtractor implements Extractor {
           mimeType = MimeTypes.AUDIO_FLAC;
           initializationData = Collections.singletonList(codecPrivate);
           break;
-        case CODEC_ID_SUBRIP:
+        case CODEC_ID_ACM:
+
+          WAVEFORMATEX struct = parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate));
+          if (struct.wFormatTag == ACM_FORMATTAG_A_PCM_INT_LIT ||
+                  (struct.wFormatTag == WAVEFORMATEXTENSIBLE.WAVE_FORMAT_EXTENSIBLE
+                  && (struct instanceof WAVEFORMATEXTENSIBLE) && Arrays.equals(((WAVEFORMATEXTENSIBLE)struct).SubFormat, A_MS_ACM_GUID_PCM))) {
+
+              mimeType = MimeTypes.AUDIO_RAW;
+              if (audioBitDepth != 16)
+                  throw new ParserException("ExoPlayer is only capable of handling 16-bit audio.");
+          } else
+              throw new ParserException("Unrecognized codec identifier for A_MS_ACM.");
+          break;
+        case CODEC_ID_PCM_INT_LIT:
+          mimeType = MimeTypes.AUDIO_RAW;
+          if (audioBitDepth != 16)
+              throw new ParserException("ExoPlayer is only capable of handling 16-bit audio.");
+          break;
+          case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
           break;
         case CODEC_ID_VOBSUB:
@@ -1435,6 +1468,96 @@ public final class WebmExtractor implements Extractor {
       } catch (ArrayIndexOutOfBoundsException e) {
         throw new ParserException("Error parsing vorbis codec private");
       }
+    }
+
+    private static class WAVEFORMATEX {
+
+        public static final int SIZE = 18;
+
+        public final int  wFormatTag; // 2 byte unsigned
+        public final int  nChannels; // 2 byte unsigned
+        public final long nSamplesPerSec; // 4 byte unsigned
+        public final long nAvgBytesPerSec; // 4 byte unsigned
+        public final int  nBlockAlign; // 2 byte unsigned
+        public final int  wBitsPerSample; // 2 byte unsigned
+        public final int  cbSize; // 2 byte unsigned
+
+        public WAVEFORMATEX(ParsableByteArray buffer)
+            throws ParserException {
+
+            if (buffer.bytesLeft() < WAVEFORMATEX.SIZE)
+                throw new ParserException("Error Parsing WAVEFORMATEXTENSIBLE");
+
+            wFormatTag = buffer.readLittleEndianUnsignedShort();
+            nChannels = buffer.readLittleEndianUnsignedShort();
+            nSamplesPerSec = buffer.readLittleEndianUnsignedInt();
+            nAvgBytesPerSec = buffer.readLittleEndianUnsignedInt();
+            nBlockAlign = buffer.readLittleEndianUnsignedShort();
+            wBitsPerSample = buffer.readLittleEndianUnsignedShort();
+            cbSize = buffer.readLittleEndianUnsignedShort();
+        }
+    }
+
+    private static class WAVEFORMATEXTENSIBLE extends WAVEFORMATEX {
+
+        public static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
+        public static final int SIZE = 22;
+        public static final int GUID_SIZE = 16;
+
+        public static final int SPEAKER_FRONT_LEFT             = 0x1;
+        public static final int SPEAKER_FRONT_RIGHT            = 0x2;
+        public static final int SPEAKER_FRONT_CENTER           = 0x4;
+        public static final int SPEAKER_LOW_FREQUENCY          = 0x8;
+        public static final int SPEAKER_BACK_LEFT              = 0x10;
+        public static final int SPEAKER_BACK_RIGHT             = 0x20;
+        public static final int SPEAKER_FRONT_LEFT_OF_CENTER   = 0x40;
+        public static final int SPEAKER_FRONT_RIGHT_OF_CENTER  = 0x80;
+        public static final int SPEAKER_BACK_CENTER            = 0x100;
+        public static final int SPEAKER_SIDE_LEFT              = 0x200;
+        public static final int SPEAKER_SIDE_RIGHT             = 0x400;
+        public static final int SPEAKER_TOP_CENTER             = 0x800;
+        public static final int SPEAKER_TOP_FRONT_LEFT         = 0x1000;
+        public static final int SPEAKER_TOP_FRONT_CENTER       = 0x2000;
+        public static final int SPEAKER_TOP_FRONT_RIGHT        = 0x4000;
+        public static final int SPEAKER_TOP_BACK_LEFT          = 0x8000;
+        public static final int SPEAKER_TOP_BACK_CENTER        = 0x10000;
+        public static final int SPEAKER_TOP_BACK_RIGHT         = 0x20000;
+        public static final int SPEAKER_RESERVED               = 0x80000000;
+
+        private final int unionSamples; // 2 byte unsigned
+        public final long dwChannelMask; // 4 byte unsigned
+        public final byte[] SubFormat;
+
+        public int ValidBitsPerSample() { return unionSamples; }
+        public int SamplesPerBlock() { return unionSamples; }
+        public int Reserved() { return unionSamples; }
+
+        public WAVEFORMATEXTENSIBLE(ParsableByteArray buffer)
+            throws ParserException {
+
+            super(buffer);
+
+            if (wFormatTag != WAVE_FORMAT_EXTENSIBLE ||
+                cbSize != WAVEFORMATEXTENSIBLE.SIZE ||
+                buffer.bytesLeft() != WAVEFORMATEXTENSIBLE.SIZE)
+                throw new ParserException("Error Parsing WAVEFORMATEXTENSIBLE");
+
+            unionSamples = buffer.readLittleEndianUnsignedShort();
+            dwChannelMask = buffer.readLittleEndianUnsignedInt();
+            SubFormat = new byte[GUID_SIZE];
+            buffer.readBytes(SubFormat, 0, GUID_SIZE);
+        }
+    }
+
+    public static WAVEFORMATEX parseMsAcmCodecPrivate(ParsableByteArray buffer)
+            throws ParserException {
+
+        final int bytesLeft = buffer.bytesLeft();
+        if (bytesLeft == WAVEFORMATEXTENSIBLE.SIZE + WAVEFORMATEX.SIZE)
+            return new WAVEFORMATEXTENSIBLE(buffer);
+        else if (bytesLeft == WAVEFORMATEX.SIZE)
+            return new WAVEFORMATEX(buffer);
+        throw new ParserException("Unsupported WAVEFORMATEX");
     }
 
   }
