@@ -23,29 +23,13 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * JNI wrapper for the libflac Flac decoder.
+ * Flac decoder.
  */
 /* package */ final class FlacDecoder extends
     SimpleDecoder<InputBuffer, FlacOutputBuffer, FlacDecoderException> {
 
-  /**
-   * Whether the underlying libflac library is available.
-   */
-  public static final boolean IS_AVAILABLE;
-  static {
-    boolean isAvailable;
-    try {
-      System.loadLibrary("flacJNI");
-      isAvailable = true;
-    } catch (UnsatisfiedLinkError exception) {
-      isAvailable = false;
-    }
-    IS_AVAILABLE = isAvailable;
-  }
-
   private final int maxOutputBufferSize;
-  private final long nativeDecoderContext;
-
+  private final NativeFlacDecoder decoder;
   /**
    * Creates a Flac decoder.
    *
@@ -61,19 +45,17 @@ import java.util.List;
       throw new FlacDecoderException("Wrong number of initialization data");
     }
 
-    nativeDecoderContext = flacInit();
-    if (nativeDecoderContext == 0) {
-      throw new FlacDecoderException("Failed to initialize decoder");
-    }
+    decoder = new NativeFlacDecoder();
 
-    byte[] data = initializationData.get(0);
-    boolean decoded = flacDecodeMetadata(nativeDecoderContext, data);
-    if (!decoded) {
+    ByteBuffer metadata = ByteBuffer.wrap(initializationData.get(0));
+    decoder.setData(metadata);
+    FlacStreamInfo streamInfo = decoder.decodeMetadata();
+    if (streamInfo == null) {
       throw new FlacDecoderException("Metadata decoding failed");
     }
 
-    setInitialInputBufferSize(flacGetMaxFrameSize(nativeDecoderContext));
-    maxOutputBufferSize = flacGetMaxOutputBufferSize(nativeDecoderContext);
+    setInitialInputBufferSize(streamInfo.maxFrameSize);
+    maxOutputBufferSize = streamInfo.maxDecodedFrameSize();
   }
 
   @Override
@@ -95,10 +77,11 @@ import java.util.List;
   public FlacDecoderException decode(InputBuffer inputBuffer, FlacOutputBuffer outputBuffer) {
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
+    sampleHolder.data.limit(sampleHolder.data.position());
     sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
     outputBuffer.init(maxOutputBufferSize);
-    int result = flacDecode(nativeDecoderContext, sampleHolder.data, sampleHolder.size,
-        outputBuffer.data, outputBuffer.data.capacity());
+    decoder.setData(sampleHolder.data);
+    int result = decoder.decodeSample(outputBuffer.data);
     if (result < 0) {
       return new FlacDecoderException("Frame decoding failed");
     }
@@ -110,20 +93,8 @@ import java.util.List;
   @Override
   public void release() {
     super.release();
-    flacClose(nativeDecoderContext);
+    decoder.release();
   }
 
-  private native long flacInit();
-
-  private native boolean flacDecodeMetadata(long context, byte[] input);
-
-  private native int flacDecode(long context, ByteBuffer inputBuffer, int inputSize,
-      ByteBuffer outputBuffer, int outputSize);
-
-  private native void flacClose(long context);
-
-  private native int flacGetMaxOutputBufferSize(long context);
-
-  private native int flacGetMaxFrameSize(long context);
 }
 

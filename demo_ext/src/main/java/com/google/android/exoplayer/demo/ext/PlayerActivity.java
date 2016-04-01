@@ -18,7 +18,10 @@ package com.google.android.exoplayer.demo.ext;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.ext.flac.FlacExtractor;
 import com.google.android.exoplayer.ext.flac.LibflacAudioTrackRenderer;
 import com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer;
@@ -130,7 +133,7 @@ public class PlayerActivity extends Activity implements
   }
 
   private void startBasicPlayback() {
-    player = ExoPlayer.Factory.newInstance(3);
+    player = ExoPlayer.Factory.newInstance(4);
     player.addListener(this);
     mediaController.setMediaPlayer(new PlayerControl(player));
     mediaController.setEnabled(true);
@@ -138,7 +141,7 @@ public class PlayerActivity extends Activity implements
         contentUri,
         new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
         new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
-        new WebmExtractor());
+        new WebmExtractor(), new FlacExtractor());
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {
@@ -153,8 +156,11 @@ public class PlayerActivity extends Activity implements
     }
     TrackRenderer opusAudioTrackRenderer = new LibopusAudioTrackRenderer(sampleSource);
     TrackRenderer flacAudioTrackRenderer = new LibflacAudioTrackRenderer(sampleSource);
+    TrackRenderer mediaCodecAudioTrackRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
+        MediaCodecSelector.DEFAULT);
 
-    player.prepare(videoRenderer, opusAudioTrackRenderer, flacAudioTrackRenderer);
+    player.prepare(videoRenderer, opusAudioTrackRenderer, flacAudioTrackRenderer,
+        mediaCodecAudioTrackRenderer);
     player.setPlayWhenReady(true);
   }
 

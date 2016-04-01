@@ -15,7 +15,6 @@
 #
 
 FLAC_SOURCES = \
-  data_source.cc                                 \
   flac_jni.cc                                    \
   flac_parser.cc                                 \
   flac/src/libFLAC/bitmath.c                     \

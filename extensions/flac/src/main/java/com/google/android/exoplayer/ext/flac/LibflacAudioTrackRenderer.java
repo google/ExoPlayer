@@ -123,7 +123,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
    * Returns whether the underlying libflac library is available.
    */
   public static boolean isLibflacAvailable() {
-    return FlacDecoder.IS_AVAILABLE;
+    return NativeFlacDecoder.IS_AVAILABLE;
   }
 
   @Override
