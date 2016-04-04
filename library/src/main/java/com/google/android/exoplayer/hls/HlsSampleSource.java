@@ -26,7 +26,7 @@ import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.Chunk;
-import com.google.android.exoplayer.chunk.ChunkOperationHolder;
+import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.upstream.Loader;
@@ -63,7 +63,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
   private final int bufferSizeContribution;
-  private final ChunkOperationHolder chunkOperationHolder;
+  private final ChunkHolder nextChunkHolder;
   private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
 
@@ -116,7 +116,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     loader = new Loader("Loader:HLS", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     extractors = new LinkedList<>();
-    chunkOperationHolder = new ChunkOperationHolder();
+    nextChunkHolder = new ChunkHolder();
   }
 
   // SampleSource implementation.
@@ -301,9 +301,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   /* package */ void maybeThrowError() throws IOException {
     loader.maybeThrowError();
-    if (currentLoadable == null) {
-      chunkSource.maybeThrowError();
-    }
+    chunkSource.maybeThrowError();
   }
 
   /* package */ long readReset(int group) {
@@ -641,12 +639,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    chunkSource.getChunkOperation(previousTsLoadable,
+    chunkSource.getNextChunk(previousTsLoadable,
         pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
-        chunkOperationHolder);
-    boolean endOfStream = chunkOperationHolder.endOfStream;
-    Chunk nextLoadable = chunkOperationHolder.chunk;
-    chunkOperationHolder.clear();
+        nextChunkHolder);
+    boolean endOfStream = nextChunkHolder.endOfStream;
+    Chunk nextLoadable = nextChunkHolder.chunk;
+    nextChunkHolder.clear();
 
     if (endOfStream) {
       loadingFinished = true;

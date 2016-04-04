@@ -19,7 +19,7 @@ import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.Chunk;
-import com.google.android.exoplayer.chunk.ChunkOperationHolder;
+import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
@@ -317,21 +317,22 @@ public class HlsChunkSource {
   }
 
   /**
-   * Updates the provided {@link ChunkOperationHolder} to contain the next operation that should
-   * be performed by the calling {@link HlsSampleSource}.
+   * Gets the next chunk to load.
+   * <p>
+   * If a chunk is available then {@link ChunkHolder#chunk} is set. If the end of the stream has
+   * been reached then {@link ChunkHolder#endOfStream} is set. If a chunk is not available but the
+   * end of the stream has not been reached, the {@link ChunkHolder} is not modified.
    *
-   * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
-   * @param playbackPositionUs The current playback position. If previousTsChunk is null then this
+   * @param previous The most recently loaded media chunk.
+   * @param playbackPositionUs The current playback position. If {@code previous} is null then this
    *     parameter is the position from which playback is expected to start (or restart) and hence
    *     should be interpreted as a seek position.
-   * @param out The holder to populate with the result. {@link ChunkOperationHolder#queueSize} is
-   *     unused.
+   * @param out A holder to populate.
    */
-  public void getChunkOperation(TsChunk previousTsChunk, long playbackPositionUs,
-      ChunkOperationHolder out) {
-    int variantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
-    boolean switchingVariant = previousTsChunk != null
-        && variants[variantIndex].format != previousTsChunk.format;
+  public void getNextChunk(TsChunk previous, long playbackPositionUs, ChunkHolder out) {
+    int variantIndex = getNextVariantIndex(previous, playbackPositionUs);
+    boolean switchingVariant = previous != null
+        && variants[variantIndex].format != previous.format;
 
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
     if (mediaPlaylist == null) {
@@ -342,11 +343,10 @@ public class HlsChunkSource {
 
     int chunkMediaSequence = 0;
     if (live) {
-      if (previousTsChunk == null) {
+      if (previous == null) {
         chunkMediaSequence = getLiveStartChunkMediaSequence(variantIndex);
       } else {
-        chunkMediaSequence = switchingVariant ? previousTsChunk.chunkIndex
-            : previousTsChunk.chunkIndex + 1;
+        chunkMediaSequence = switchingVariant ? previous.chunkIndex : previous.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
           fatalError = new BehindLiveWindowException();
           return;
@@ -354,12 +354,11 @@ public class HlsChunkSource {
       }
     } else {
       // Not live.
-      if (previousTsChunk == null) {
+      if (previous == null) {
         chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
             true, true) + mediaPlaylist.mediaSequence;
       } else {
-        chunkMediaSequence = switchingVariant ? previousTsChunk.chunkIndex
-            : previousTsChunk.chunkIndex + 1;
+        chunkMediaSequence = switchingVariant ? previous.chunkIndex : previous.chunkIndex + 1;
       }
     }
 
@@ -398,12 +397,12 @@ public class HlsChunkSource {
     // Compute start and end times, and the sequence number of the next chunk.
     long startTimeUs;
     if (live) {
-      if (previousTsChunk == null) {
+      if (previous == null) {
         startTimeUs = 0;
       } else if (switchingVariant) {
-        startTimeUs = previousTsChunk.startTimeUs;
+        startTimeUs = previous.startTimeUs;
       } else {
-        startTimeUs = previousTsChunk.endTimeUs;
+        startTimeUs = previous.endTimeUs;
       }
     } else /* Not live */ {
       startTimeUs = segment.startTimeUs;
@@ -439,9 +438,9 @@ public class HlsChunkSource {
       Extractor extractor = new WebvttExtractor(format.language, timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariant);
-    } else if (previousTsChunk == null
-        || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
-        || format != previousTsChunk.format) {
+    } else if (previous == null
+        || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
+        || format != previous.format) {
       // MPEG-2 TS segments, but we need a new extractor.
       PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
           segment.discontinuitySequenceNumber, startTimeUs);
@@ -467,7 +466,7 @@ public class HlsChunkSource {
           switchingVariant);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
-      extractorWrapper = previousTsChunk.extractorWrapper;
+      extractorWrapper = previous.extractorWrapper;
     }
 
     out.chunk = new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
@@ -596,20 +595,19 @@ public class HlsChunkSource {
     return false;
   }
 
-  private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
+  private int getNextVariantIndex(TsChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
-    long switchingOverlapUs;
-    List<TsChunk> queue;
-    if (previousTsChunk != null) {
-      switchingOverlapUs = previousTsChunk.endTimeUs - previousTsChunk.startTimeUs;
-      queue = Collections.singletonList(previousTsChunk);
+    long bufferedDurationUs;
+    if (previous != null) {
+      // Use start time of the previous chunk rather than its end time because switching format will
+      // require downloading overlapping segments.
+      bufferedDurationUs = Math.max(0, previous.startTimeUs - playbackPositionUs);
     } else {
-      switchingOverlapUs = 0;
-      queue = Collections.<TsChunk>emptyList();
+      bufferedDurationUs = 0;
     }
     if (enabledVariants.length > 1) {
-      adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, switchingOverlapUs,
-          enabledVariantBlacklistFlags, evaluation);
+      adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, enabledVariantBlacklistFlags,
+          evaluation);
     } else {
       evaluation.format = enabledVariants[0].format;
       evaluation.trigger = Chunk.TRIGGER_MANUAL;

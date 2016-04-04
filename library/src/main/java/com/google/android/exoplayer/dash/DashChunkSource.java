@@ -25,7 +25,7 @@ import com.google.android.exoplayer.TimeRange.StaticTimeRange;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
-import com.google.android.exoplayer.chunk.ChunkOperationHolder;
+import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
@@ -297,17 +297,24 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public final void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
-      ChunkOperationHolder out) {
+  public int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
+    if (fatalError != null || enabledFormats.length < 2) {
+      return queue.size();
+    }
+    return adaptiveFormatEvaluator.evaluateQueueSize(playbackPositionUs, queue,
+        adaptiveFormatBlacklistFlags);
+  }
+
+  @Override
+  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
     if (fatalError != null) {
-      out.chunk = null;
       return;
     }
 
-    evaluation.queueSize = queue.size();
     if (evaluation.format == null || !lastChunkWasInitialization) {
       if (enabledFormats.length > 1) {
-        adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, 0, adaptiveFormatBlacklistFlags,
+        long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
+        adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, adaptiveFormatBlacklistFlags,
             evaluation);
       } else {
         evaluation.format = enabledFormats[0];
@@ -316,26 +323,15 @@ public class DashChunkSource implements ChunkSource {
     }
 
     Format selectedFormat = evaluation.format;
-    out.queueSize = evaluation.queueSize;
-
     if (selectedFormat == null) {
-      out.chunk = null;
-      return;
-    } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format == selectedFormat) {
-      // We already have a chunk, and the evaluation hasn't changed either the format or the size
-      // of the queue. Leave unchanged.
       return;
     }
-
-    // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
-    out.chunk = null;
 
     boolean startingNewPeriod;
     PeriodHolder periodHolder;
 
     availableRange.getCurrentBoundsUs(availableRangeValues);
-    if (queue.isEmpty()) {
+    if (previous == null) {
       if (live) {
         if (startAtLiveEdge) {
           // We want live streams to start at the live edge instead of the beginning of the
@@ -358,7 +354,6 @@ public class DashChunkSource implements ChunkSource {
         startAtLiveEdge = false;
       }
 
-      MediaChunk previous = queue.get(out.queueSize - 1);
       long nextSegmentStartTimeUs = previous.endTimeUs;
       if (live && nextSegmentStartTimeUs < availableRangeValues[0]) {
         // This is before the first chunk in the current manifest.
@@ -433,9 +428,9 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
-    int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(playbackPositionUs)
+    int segmentNum = previous == null ? representationHolder.getSegmentNum(playbackPositionUs)
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
-          : queue.get(out.queueSize - 1).getNextChunkIndex();
+          : previous.getNextChunkIndex();
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
         selectedFormat, sampleFormat, segmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;

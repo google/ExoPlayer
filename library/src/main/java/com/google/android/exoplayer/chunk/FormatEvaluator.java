@@ -42,26 +42,30 @@ public interface FormatEvaluator {
    * Update the supplied evaluation.
    * <p>
    * When invoked, {@code evaluation} must contain the currently selected format (null for an
-   * initial evaluation), the most recent trigger (@link Chunk#TRIGGER_INITIAL} for an initial
-   * evaluation) and the size of {@code queue}. The invocation will update the format and trigger,
-   * and may also reduce {@link Evaluation#queueSize} to indicate that chunks should be discarded
-   * from the end of the queue to allow re-buffering in a different format. The evaluation will
-   * always retain the first chunk in the queue, if there is one.
+   * initial evaluation) and the most recent trigger {@link Chunk#TRIGGER_INITIAL} for an initial
+   * evaluation).
    *
-   * @param queue A read only representation of currently buffered chunks. Must not be empty unless
-   *     the evaluation is at the start of playback or immediately follows a seek. All but the first
-   *     chunk may be discarded. A caller may pass a singleton list containing only the most
-   *     recently buffered chunk in the case that it does not support discarding of chunks.
-   * @param playbackPositionUs The current playback position in microseconds.
-   * @param switchingOverlapUs If switching format requires downloading overlapping media then this
-   *     is the duration of the required overlap in microseconds. 0 otherwise.
+   * @param bufferedDurationUs The duration of media currently buffered in microseconds.
    * @param blacklistFlags An array whose length is equal to the number of available formats. A
    *     {@code true} element indicates that a format is currently blacklisted and should not be
    *     selected by the evaluation. At least one element must be {@code false}.
    * @param evaluation The evaluation to be updated.
    */
-  void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
-      long switchingOverlapUs, boolean[] blacklistFlags, Evaluation evaluation);
+  void evaluateFormat(long bufferedDurationUs, boolean[] blacklistFlags,
+      Evaluation evaluation);
+
+  /**
+   * Evaluates whether to discard {@link MediaChunk}s from the queue.
+   *
+   * @param playbackPositionUs The current playback position in microseconds.
+   * @param queue The queue of buffered {@link MediaChunk}s.
+   * @param blacklistFlags An array whose length is equal to the number of available formats. A
+   *     {@code true} element indicates that a format is currently blacklisted and should not be
+   *     selected by the evaluation. At least one element must be {@code false}.
+   * @return The preferred queue size.
+   */
+  int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue,
+      boolean[] blacklistFlags);
 
   /**
    * A format evaluation.
@@ -77,11 +81,6 @@ public interface FormatEvaluator {
      * The sticky reason for the format selection.
      */
     public int trigger;
-
-    /**
-     * The desired size of the queue.
-     */
-    public int queueSize;
 
     public Evaluation() {
       trigger = Chunk.TRIGGER_INITIAL;
@@ -128,8 +127,8 @@ public interface FormatEvaluator {
     }
 
     @Override
-    public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
-        long switchingOverlapUs, boolean[] blacklistFlags, Evaluation evaluation) {
+    public void evaluateFormat(long bufferedDurationUs, boolean[] blacklistFlags,
+        Evaluation evaluation) {
       // Count the number of non-blacklisted formats.
       int nonBlacklistedFormatCount = 0;
       for (int i = 0; i < blacklistFlags.length; i++) {
@@ -154,6 +153,12 @@ public interface FormatEvaluator {
         evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;
+    }
+
+    @Override
+    public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue,
+        boolean[] blacklistFlags) {
+      return queue.size();
     }
 
   }
@@ -235,43 +240,18 @@ public interface FormatEvaluator {
     }
 
     @Override
-    public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
-        long switchingOverlapUs, boolean[] blacklistFlags, Evaluation evaluation) {
-      long bufferedDurationUs = queue.isEmpty() ? 0
-          : queue.get(queue.size() - 1).endTimeUs - playbackPositionUs;
-      if (switchingOverlapUs > 0) {
-        bufferedDurationUs = Math.max(0, bufferedDurationUs - switchingOverlapUs);
-      }
+    public void evaluateFormat(long bufferedDurationUs, boolean[] blacklistFlags,
+        Evaluation evaluation) {
       Format current = evaluation.format;
       Format ideal = determineIdealFormat(formats, blacklistFlags,
           bandwidthMeter.getBitrateEstimate());
-      boolean isHigher = ideal != null && current != null && ideal.bitrate > current.bitrate;
-      boolean isLower = ideal != null && current != null && ideal.bitrate < current.bitrate;
-      if (isHigher) {
-        if (bufferedDurationUs < minDurationForQualityIncreaseUs) {
-          // The ideal format is a higher quality, but we have insufficient buffer to
-          // safely switch up. Defer switching up for now.
-          ideal = current;
-        } else if (bufferedDurationUs >= minDurationToRetainAfterDiscardUs) {
-          // We're switching from an SD stream to a stream of higher resolution. Consider
-          // discarding already buffered media chunks. Specifically, discard media chunks starting
-          // from the first one that is of lower bandwidth, lower resolution and that is not HD.
-          for (int i = 1; i < queue.size(); i++) {
-            MediaChunk thisChunk = queue.get(i);
-            long durationBeforeThisSegmentUs = thisChunk.startTimeUs - playbackPositionUs;
-            if (durationBeforeThisSegmentUs >= minDurationToRetainAfterDiscardUs
-                && thisChunk.format.bitrate < ideal.bitrate
-                && thisChunk.format.height < ideal.height
-                && thisChunk.format.height < 720
-                && thisChunk.format.width < 1280) {
-              // Discard chunks from this one onwards.
-              evaluation.queueSize = i;
-              break;
-            }
-          }
-        }
-      } else if (isLower && current != null
-        && bufferedDurationUs >= maxDurationForQualityDecreaseUs) {
+      boolean isHigher = current != null && ideal.bitrate > current.bitrate;
+      boolean isLower = current != null && ideal.bitrate < current.bitrate;
+      if (isHigher && bufferedDurationUs < minDurationForQualityIncreaseUs) {
+        // The ideal format is a higher quality, but we have insufficient buffer to safely switch
+        // up. Defer switching up for now.
+        ideal = current;
+      } else if (isLower && bufferedDurationUs >= maxDurationForQualityDecreaseUs) {
         // The ideal format is a lower quality, but we have sufficient buffer to defer switching
         // down for now.
         ideal = current;
@@ -280,6 +260,40 @@ public interface FormatEvaluator {
         evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = ideal;
+    }
+
+    @Override
+    public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue,
+        boolean[] blacklistFlags) {
+      if (queue.isEmpty()) {
+        return 0;
+      }
+      int queueSize = queue.size();
+      long bufferedDurationUs = queue.get(queueSize - 1).endTimeUs - playbackPositionUs;
+      if (bufferedDurationUs < minDurationToRetainAfterDiscardUs) {
+        return queueSize;
+      }
+      Format current = queue.get(queueSize - 1).format;
+      Format ideal = determineIdealFormat(formats, blacklistFlags,
+          bandwidthMeter.getBitrateEstimate());
+      if (ideal.bitrate <= current.bitrate) {
+        return queueSize;
+      }
+      // Discard from the first SD chunk beyond minDurationToRetainAfterDiscardUs whose resolution
+      // and bitrate are both lower than the ideal format.
+      for (int i = 0; i < queueSize; i++) {
+        MediaChunk thisChunk = queue.get(i);
+        long durationBeforeThisSegmentUs = thisChunk.startTimeUs - playbackPositionUs;
+        if (durationBeforeThisSegmentUs >= minDurationToRetainAfterDiscardUs
+            && thisChunk.format.bitrate < ideal.bitrate
+            && thisChunk.format.height < ideal.height
+            && thisChunk.format.height < 720
+            && thisChunk.format.width < 1280) {
+          // Discard chunks from this one onwards.
+          return i;
+        }
+      }
+      return queueSize;
     }
 
     /**

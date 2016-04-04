@@ -16,20 +16,9 @@
 package com.google.android.exoplayer.chunk;
 
 /**
- * Holds a chunk operation, which consists of a either:
- * <ul>
- * <li>The number of {@link MediaChunk}s that should be retained on the queue ({@link #queueSize})
- * together with the next {@link Chunk} to load ({@link #chunk}). {@link #chunk} may be null if the
- * next chunk cannot be provided yet.</li>
- * <li>A flag indicating that the end of the stream has been reached ({@link #endOfStream}).</li>
- * </ul>
+ * Holds a chunk or an indication that the end of the stream has been reached.
  */
-public final class ChunkOperationHolder {
-
-  /**
-   * The number of {@link MediaChunk}s to retain in a queue.
-   */
-  public int queueSize;
+public final class ChunkHolder {
 
   /**
    * The chunk.
@@ -45,7 +34,6 @@ public final class ChunkOperationHolder {
    * Clears the holder.
    */
   public void clear() {
-    queueSize = 0;
     chunk = null;
     endOfStream = false;
   }
