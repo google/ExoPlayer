@@ -581,6 +581,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     while (mediaChunks.size() > queueLength) {
       removed = mediaChunks.removeLast();
       startTimeUs = removed.startTimeUs;
+      loadingFinished = false;
     }
     sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
 
