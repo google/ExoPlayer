@@ -66,7 +66,6 @@ public final class UdpDataSource implements UriDataSource {
   private InetSocketAddress socketAddress;
   private boolean opened;
 
-
   private byte[] packetBuffer;
   private int packetRemaining;
 
@@ -88,13 +87,14 @@ public final class UdpDataSource implements UriDataSource {
   /**
    * @param listener An optional listener.
    * @param maxPacketSize The maximum datagram packet size, in bytes.
-   * @param socketTimeout the timeout in milliseconds or 0 for no timeout
+   * @param socketTimeoutMillis The socket timeout in milliseconds. A timeout of zero is interpreted
+   *     as an infinite timeout.
    */
-  public UdpDataSource(TransferListener listener, int maxPacketSize, int socketTimeout) {
+  public UdpDataSource(TransferListener listener, int maxPacketSize, int socketTimeoutMillis) {
     this.listener = listener;
+    this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
-    this.socketTimeoutMillis = socketTimeout;
   }
 
   @Override
