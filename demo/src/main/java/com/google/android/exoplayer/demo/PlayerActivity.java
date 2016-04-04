@@ -287,7 +287,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // Internal methods
 
   private SourceBuilder getSourceBuilder() {
-    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
       case Util.TYPE_SS:
         return new SmoothStreamingSourceBuilder(dataSourceFactory, contentUri.toString(),
