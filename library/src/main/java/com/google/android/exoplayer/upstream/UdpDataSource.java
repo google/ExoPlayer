@@ -23,6 +23,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 
 /**
  * A UDP {@link DataSource}.
@@ -49,8 +50,14 @@ public final class UdpDataSource implements UriDataSource {
    */
   public static final int DEFAULT_MAX_PACKET_SIZE = 2000;
 
+  /**
+   * The default socket timeout, in milliseconds.
+   */
+  public static final int DEAFULT_SOCKET_TIMEOUT_MILLIS = 8 * 1000;
+
   private final TransferListener listener;
   private final DatagramPacket packet;
+  private final int socketTimeoutMillis;
 
   private DataSpec dataSpec;
   private DatagramSocket socket;
@@ -58,6 +65,7 @@ public final class UdpDataSource implements UriDataSource {
   private InetAddress address;
   private InetSocketAddress socketAddress;
   private boolean opened;
+
 
   private byte[] packetBuffer;
   private int packetRemaining;
@@ -74,9 +82,19 @@ public final class UdpDataSource implements UriDataSource {
    * @param maxPacketSize The maximum datagram packet size, in bytes.
    */
   public UdpDataSource(TransferListener listener, int maxPacketSize) {
+    this(listener, maxPacketSize, DEAFULT_SOCKET_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * @param listener An optional listener.
+   * @param maxPacketSize The maximum datagram packet size, in bytes.
+   * @param socketTimeout the timeout in milliseconds or 0 for no timeout
+   */
+  public UdpDataSource(TransferListener listener, int maxPacketSize, int socketTimeout) {
     this.listener = listener;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
+    this.socketTimeoutMillis = socketTimeout;
   }
 
   @Override
@@ -96,6 +114,12 @@ public final class UdpDataSource implements UriDataSource {
         socket = new DatagramSocket(socketAddress);
       }
     } catch (IOException e) {
+      throw new UdpDataSourceException(e);
+    }
+
+    try {
+      socket.setSoTimeout(socketTimeoutMillis);
+    } catch (SocketException e) {
       throw new UdpDataSourceException(e);
     }
 
