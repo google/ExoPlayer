@@ -42,26 +42,34 @@ public final class FlacExtractor implements Extractor {
 
   private TrackOutput output;
 
-  private NativeFlacDecoder decoder;
+  private FlacJni decoder;
 
-  private boolean metadataNotParsed;
+  private boolean metadataParsed;
 
   private ParsableByteArray outputBuffer;
   private ByteBuffer outputByteBuffer;
 
-  public FlacExtractor() {
-    metadataNotParsed = true;
-  }
+  private boolean isSeekable;
 
   @Override
   public void init(ExtractorOutput output) {
     this.output = output.track(0);
     output.endTracks();
-    //TODO implement seekable
-    output.seekMap(SeekMap.UNSEEKABLE);
+
+    output.seekMap(new SeekMap() {
+      @Override
+      public boolean isSeekable() {
+        return isSeekable;
+      }
+
+      @Override
+      public long getPosition(long timeUs) {
+        return isSeekable ? decoder.getSeekPosition(timeUs) : 0;
+      }
+    });
 
     try {
-      decoder = new NativeFlacDecoder();
+      decoder = new FlacJni();
     } catch (FlacDecoderException e) {
       throw new RuntimeException(e);
     }
@@ -79,12 +87,13 @@ public final class FlacExtractor implements Extractor {
       throws IOException, InterruptedException {
     decoder.setData(input);
 
-    if (metadataNotParsed) {
+    if (!metadataParsed) {
       FlacStreamInfo streamInfo = decoder.decodeMetadata();
       if (streamInfo == null) {
         throw new IOException("Metadata decoding failed");
       }
-      metadataNotParsed = false;
+      metadataParsed = true;
+      isSeekable = decoder.getSeekPosition(0) != -1;
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_RAW,
               MediaFormat.NO_VALUE, streamInfo.bitRate(), streamInfo.durationUs(),
@@ -109,15 +118,7 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public void seek() {
-    if (!metadataNotParsed) {
-      decoder.release();
-      try {
-        decoder = new NativeFlacDecoder();
-      } catch (FlacDecoderException e) {
-        throw new RuntimeException(e);
-      }
-      metadataNotParsed = true;
-    }
+    decoder.flush();
   }
 
   @Override

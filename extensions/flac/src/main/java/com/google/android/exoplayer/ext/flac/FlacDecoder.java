@@ -29,7 +29,7 @@ import java.util.List;
     SimpleDecoder<InputBuffer, FlacOutputBuffer, FlacDecoderException> {
 
   private final int maxOutputBufferSize;
-  private final NativeFlacDecoder decoder;
+  private final FlacJni decoder;
   /**
    * Creates a Flac decoder.
    *
@@ -45,7 +45,7 @@ import java.util.List;
       throw new FlacDecoderException("Wrong number of initialization data");
     }
 
-    decoder = new NativeFlacDecoder();
+    decoder = new FlacJni();
 
     ByteBuffer metadata = ByteBuffer.wrap(initializationData.get(0));
     decoder.setData(metadata);
