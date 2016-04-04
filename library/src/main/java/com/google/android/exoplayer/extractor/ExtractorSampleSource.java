@@ -59,8 +59,7 @@ import java.util.List;
  * <li>MPEG PS ({@link com.google.android.exoplayer.extractor.ts.PsExtractor})</li>
  * <li>FLV ({@link com.google.android.exoplayer.extractor.flv.FlvExtractor})</li>
  * <li>WAV ({@link com.google.android.exoplayer.extractor.wav.WavExtractor})</li>
- * <li>FLAC ({@link com.google.android.exoplayer.ext.flac.FlacExtractor}) (only available if the
- * flac extension is built and included)</li>
+ * <li>FLAC (only available if the FLAC extension is built and included)</li>
  * </ul>
  *
  * <p>Seeking in AAC, MPEG TS and FLV streams is not supported.
