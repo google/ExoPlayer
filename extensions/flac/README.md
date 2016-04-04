@@ -1,6 +1,6 @@
-# ExoPlayer Flac Extension
+# ExoPlayer Flac Extension #
 
-## Description
+## Description ##
 
 The Flac Extension is a [TrackRenderer][] implementation that helps you bundle
 libFLAC (the Flac decoding library) into your app and use it along with
@@ -8,19 +8,15 @@ ExoPlayer to play Flac audio on Android devices.
 
 [TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
 
-## Build Instructions (Android Studio and Eclipse)
+## Build Instructions ##
 
-Building the Flac Extension involves building libFLAC and JNI bindings using the
-Android NDK and linking it into your app. The following steps will tell you how
-to do that using Android Studio or Eclipse.
-
-*   Checkout ExoPlayer along with Extensions
+* Checkout ExoPlayer along with Extensions:
 
 ```
 git clone https://github.com/google/ExoPlayer.git
 ```
 
-*   Set the following environment variables:
+* Set the following environment variables:
 
 ```
 cd "<path to exoplayer checkout>"
@@ -28,8 +24,7 @@ EXOPLAYER_ROOT="$(pwd)"
 FLAC_EXT_PATH="${EXOPLAYER_ROOT}/extensions/flac/src/main"
 ```
 
-*   Download the [Android NDK][] and set its location in an environment
-    variable:
+* Download the [Android NDK][] and set its location in an environment variable:
 
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 
@@ -37,27 +32,22 @@ FLAC_EXT_PATH="${EXOPLAYER_ROOT}/extensions/flac/src/main"
 NDK_PATH="<path to Android NDK>"
 ```
 
-*   Download and extract flac-1.3.1 as "${FLAC_EXT_PATH}/jni/flac" folder
+* Download and extract flac-1.3.1 as "${FLAC_EXT_PATH}/jni/flac" folder:
 
 ```
 curl http://downloads.xiph.org/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
 mv flac-1.3.1 flac
 ```
 
-### Android Studio
-
-For Android Studio, we build the native libraries from the command line and then
-Gradle will pick it up when building your app using Android Studio.
-
-*   Build the JNI native libraries
+* Build the JNI native libraries from the command line:
 
 ```
 cd "${FLAC_EXT_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI=all -j4
 ```
 
-*   In your project, you can add a dependency to the Flac Extension by using a
-    rule like this:
+* In your project, you can add a dependency to the Flac Extension by using a
+  rule like this:
 
 ```
 // in settings.gradle
@@ -71,21 +61,5 @@ dependencies {
 }
 ```
 
-*   Now, when you build your app, the Flac extension will be built and the
-    native libraries will be packaged along with the APK.
-
-### Eclipse
-
-To be completed...
-
-## Building for various Architectures
-
-### Android Studio
-
-The manual invocation of `ndk-build` will build the library for all
-architectures and the correct one will be picked up from the APK based on the
-device its running on.
-
-### Eclipse
-
-To be completed...
+* Now, when you build your app, the Flac extension will be built and the native
+  libraries will be packaged along with the APK.
