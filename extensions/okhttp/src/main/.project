@@ -30,4 +30,16 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>libs/okhttp-3.2.0.jar</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/third_party/okhttp3/okhttp-3.2.0.jar</locationURI>
+		</link>
+		<link>
+			<name>libs/okio-1.6.0.jar</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/third_party/okio/okio-1.6.0.jar</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
