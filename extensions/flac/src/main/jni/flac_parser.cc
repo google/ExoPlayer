@@ -165,11 +165,8 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
         ALOGE("FLACParser::metadataCallback unexpected STREAMINFO");
       }
       break;
-    case FLAC__METADATA_TYPE_VORBIS_COMMENT:
-      // do nothing
-      break;
-    case FLAC__METADATA_TYPE_PICTURE:
-      // do nothing
+    case FLAC__METADATA_TYPE_SEEKTABLE:
+      mSeekTable = &metadata->data.seek_table;
       break;
     default:
       ALOGE("FLACParser::metadataCallback unexpected type %u", metadata->type);
@@ -305,9 +302,7 @@ bool FLACParser::init() {
   FLAC__stream_decoder_set_metadata_respond(mDecoder,
                                             FLAC__METADATA_TYPE_STREAMINFO);
   FLAC__stream_decoder_set_metadata_respond(mDecoder,
-                                            FLAC__METADATA_TYPE_PICTURE);
-  FLAC__stream_decoder_set_metadata_respond(mDecoder,
-                                            FLAC__METADATA_TYPE_VORBIS_COMMENT);
+                                            FLAC__METADATA_TYPE_SEEKTABLE);
   FLAC__StreamDecoderInitStatus initStatus;
   initStatus = FLAC__stream_decoder_init_stream(
       mDecoder, read_callback, seek_callback, tell_callback, length_callback,
@@ -324,6 +319,9 @@ bool FLACParser::init() {
     ALOGE("end_of_metadata failed");
     return false;
   }
+  // store first frame offset
+  FLAC__stream_decoder_get_decode_position(mDecoder, &firstFrameOffset);
+
   if (mStreamInfoValid) {
     // check channel count
     if (getChannels() == 0 || getChannels() > 8) {
@@ -388,11 +386,16 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
   mWriteCompleted = false;
 
   if (!FLAC__stream_decoder_process_single(mDecoder)) {
-    ALOGE("FLACParser::readBuffer process_single failed");
+    ALOGE("FLACParser::readBuffer process_single failed. Status: %s",
+            FLAC__stream_decoder_get_resolved_state_string(mDecoder));
     return -1;
   }
   if (!mWriteCompleted) {
-    ALOGE("FLACParser::readBuffer write did not complete");
+    if (FLAC__stream_decoder_get_state(mDecoder) !=
+        FLAC__STREAM_DECODER_END_OF_STREAM) {
+      ALOGE("FLACParser::readBuffer write did not complete. Status: %s",
+            FLAC__stream_decoder_get_resolved_state_string(mDecoder));
+    }
     return -1;
   }
 
@@ -431,4 +434,23 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
   CHECK(mWriteHeader.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);
 
   return bufferSize;
+}
+
+int64_t FLACParser::getSeekPosition(int64_t timeUs) {
+  if (!mSeekTable) {
+    return -1;
+  }
+
+  int64_t sample = (timeUs * getSampleRate()) / 1000000LL;
+  if (sample >= getTotalSamples()) {
+      sample = getTotalSamples();
+  }
+
+  FLAC__StreamMetadata_SeekPoint* points = mSeekTable->points;
+  for (unsigned i = mSeekTable->num_points - 1; i >= 0; i--) {
+    if (points[i].sample_number <= sample) {
+      return firstFrameOffset + points[i].stream_offset;
+    }
+  }
+  return firstFrameOffset;
 }

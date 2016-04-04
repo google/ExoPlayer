@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 /**
  * JNI wrapper for the libflac Flac decoder.
  */
-/* package */ final class NativeFlacDecoder {
+/* package */ final class FlacJni {
 
   /**
    * Whether the underlying libflac library is available.
@@ -41,7 +41,7 @@ import java.nio.ByteBuffer;
     IS_AVAILABLE = isAvailable;
   }
 
-  private static final int TEMP_BUFFER_SIZE = 8192;
+  private static final int TEMP_BUFFER_SIZE = 8192; // The same buffer size which libflac has
 
   private final long nativeDecoderContext;
 
@@ -51,7 +51,7 @@ import java.nio.ByteBuffer;
   private boolean endOfExtractorInput;
   private byte[] tempBuffer;
 
-  public NativeFlacDecoder() throws FlacDecoderException {
+  public FlacJni() throws FlacDecoderException {
     nativeDecoderContext = flacInit();
     if (nativeDecoderContext == 0) {
       throw new FlacDecoderException("Failed to initialize decoder");
@@ -138,6 +138,22 @@ import java.nio.ByteBuffer;
     return flacGetLastTimestamp(nativeDecoderContext);
   }
 
+  /**
+   * Maps a seek position in microseconds to a corresponding position (byte offset) in the flac
+   * stream.
+   *
+   * @param timeUs A seek position in microseconds.
+   * @return The corresponding position (byte offset) in the flac stream or -1 if the stream doesn't
+   * have a seek table.
+   */
+  public long getSeekPosition(long timeUs) {
+    return flacGetSeekPosition(nativeDecoderContext, timeUs);
+  }
+
+  public void flush() {
+    flacFlush(nativeDecoderContext);
+  }
+
   public void release() {
     flacRelease(nativeDecoderContext);
   }
@@ -151,6 +167,10 @@ import java.nio.ByteBuffer;
   private native int flacDecodeToArray(long context, byte[] outputArray);
 
   private native long flacGetLastTimestamp(long context);
+
+  private native long flacGetSeekPosition(long context, long timeUs);
+
+  private native void flacFlush(long context);
 
   private native void flacRelease(long context);
 

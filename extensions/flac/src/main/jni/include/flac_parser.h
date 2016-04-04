@@ -39,7 +39,8 @@ class FLACParser {
   unsigned getChannels() const { return mStreamInfo.channels; }
   unsigned getBitsPerSample() const { return mStreamInfo.bits_per_sample; }
   FLAC__uint64 getTotalSamples() const { return mStreamInfo.total_samples; }
-  const FLAC__StreamMetadata_StreamInfo &getStreamInfo() const {
+
+  const FLAC__StreamMetadata_StreamInfo& getStreamInfo() const {
     return mStreamInfo;
   }
 
@@ -48,6 +49,14 @@ class FLACParser {
   }
 
   size_t readBuffer(void *output, size_t output_size);
+
+  int64_t getSeekPosition(int64_t timeUs);
+
+  void flush() {
+    if (mDecoder != NULL) {
+      FLAC__stream_decoder_flush(mDecoder);
+    }
+  }
 
  private:
   DataSource *mDataSource;
@@ -65,6 +74,9 @@ class FLACParser {
   // cached when the STREAMINFO metadata is parsed by libFLAC
   FLAC__StreamMetadata_StreamInfo mStreamInfo;
   bool mStreamInfoValid;
+
+  const FLAC__StreamMetadata_SeekTable *mSeekTable;
+  uint64_t firstFrameOffset;
 
   // cached when a decoded PCM block is "written" by libFLAC parser
   bool mWriteRequested;

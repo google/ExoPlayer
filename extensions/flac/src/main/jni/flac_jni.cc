@@ -22,7 +22,7 @@
 
 #include "include/flac_parser.h"
 
-#define LOG_TAG "NativeFlacDecoderJNI"
+#define LOG_TAG "FlacJniJNI"
 #define ALOGE(...) \
   ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 #define ALOGV(...) \
@@ -31,20 +31,20 @@
 #define FUNC(RETURN_TYPE, NAME, ...)                                       \
   extern "C" {                                                             \
   JNIEXPORT RETURN_TYPE                                                    \
-      Java_com_google_android_exoplayer_ext_flac_NativeFlacDecoder_##NAME( \
+      Java_com_google_android_exoplayer_ext_flac_FlacJni_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__);                       \
   }                                                                        \
   JNIEXPORT RETURN_TYPE                                                    \
-      Java_com_google_android_exoplayer_ext_flac_NativeFlacDecoder_##NAME( \
+      Java_com_google_android_exoplayer_ext_flac_FlacJni_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
 class JavaDataSource : public DataSource {
  public:
-  void setNativeFlacDecoder(JNIEnv *env, jobject nativeFlacDecoder) {
+  void setFlacJni(JNIEnv *env, jobject flacJni) {
     this->env = env;
-    this->nativeFlacDecoder = nativeFlacDecoder;
+    this->flacJni = flacJni;
     if (mid == NULL) {
-      jclass cls = env->GetObjectClass(nativeFlacDecoder);
+      jclass cls = env->GetObjectClass(flacJni);
       mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;)I");
       env->DeleteLocalRef(cls);
     }
@@ -52,7 +52,7 @@ class JavaDataSource : public DataSource {
 
   ssize_t readAt(off64_t offset, void *const data, size_t size) {
     jobject byteBuffer = env->NewDirectByteBuffer(data, size);
-    int result = env->CallIntMethod(nativeFlacDecoder, mid, byteBuffer);
+    int result = env->CallIntMethod(flacJni, mid, byteBuffer);
     if (env->ExceptionOccurred()) {
       result = -1;
     }
@@ -62,7 +62,7 @@ class JavaDataSource : public DataSource {
 
  private:
   JNIEnv *env;
-  jobject nativeFlacDecoder;
+  jobject flacJni;
   jmethodID mid;
 };
 
@@ -80,7 +80,7 @@ FUNC(jlong, flacInit) {
 
 FUNC(jobject, flacDecodeMetadata, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  context->source->setNativeFlacDecoder(env, thiz);
+  context->source->setFlacJni(env, thiz);
   if (!context->parser->init()) {
     return NULL;
   }
@@ -102,7 +102,7 @@ FUNC(jobject, flacDecodeMetadata, jlong jContext) {
 
 FUNC(jint, flacDecodeToBuffer, jlong jContext, jobject jOutputBuffer) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  context->source->setNativeFlacDecoder(env, thiz);
+  context->source->setFlacJni(env, thiz);
   void *outputBuffer = env->GetDirectBufferAddress(jOutputBuffer);
   jint outputSize = env->GetDirectBufferCapacity(jOutputBuffer);
   return context->parser->readBuffer(outputBuffer, outputSize);
@@ -110,7 +110,7 @@ FUNC(jint, flacDecodeToBuffer, jlong jContext, jobject jOutputBuffer) {
 
 FUNC(jint, flacDecodeToArray, jlong jContext, jbyteArray jOutputArray) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  context->source->setNativeFlacDecoder(env, thiz);
+  context->source->setFlacJni(env, thiz);
   jbyte *outputBuffer = env->GetByteArrayElements(jOutputArray, NULL);
   jint outputSize = env->GetArrayLength(jOutputArray);
   int count = context->parser->readBuffer(outputBuffer, outputSize);
@@ -121,6 +121,16 @@ FUNC(jint, flacDecodeToArray, jlong jContext, jbyteArray jOutputArray) {
 FUNC(jlong, flacGetLastTimestamp, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
   return context->parser->getLastTimestamp();
+}
+
+FUNC(jlong, flacGetSeekPosition, jlong jContext, jlong timeUs) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  return context->parser->getSeekPosition(timeUs);
+}
+
+FUNC(void, flacFlush, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  context->parser->flush();
 }
 
 FUNC(void, flacRelease, jlong jContext) {
