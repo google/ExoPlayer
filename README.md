@@ -81,15 +81,3 @@ and copy `library.jar` to the libs folder of your new project.
 
 To develop ExoPlayer using Android Studio, simply open the ExoPlayer project in
 the root directory of the repository.
-
-#### Using Eclipse ####
-
-To develop ExoPlayer using Eclipse:
-
-  1. Install Eclipse and setup the [Android SDK][].
-  1. Open Eclipse and navigate to File->Import->General->Existing Projects into
-     Workspace.
-  1. Select the root directory of the repository.
-  1. Import the projects.
-
-[Android SDK]: http://developer.android.com/sdk/index.html
