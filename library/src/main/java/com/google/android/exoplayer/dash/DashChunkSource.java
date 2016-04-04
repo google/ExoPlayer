@@ -394,7 +394,7 @@ public class DashChunkSource implements ChunkSource {
         // The previous chunk was from a period that's no longer on the manifest, therefore the
         // next chunk must be the first one in the first period that's still on the manifest
         // (note that we can't actually update the segmentNum yet because the new period might
-        // have a different sequence and it's segmentIndex might not have been loaded yet).
+        // have a different sequence and its segmentIndex might not have been loaded yet).
         periodHolder = periodHolders.valueAt(0);
         startingNewPeriod = true;
       } else if (!periodHolder.isIndexUnbounded()) {
