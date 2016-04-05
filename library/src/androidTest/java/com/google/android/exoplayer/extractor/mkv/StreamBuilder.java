@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.extractor.webm;
+package com.google.android.exoplayer.extractor.mkv;
 
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.Assertions;
@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Provides byte arrays containing WebM data for {@link WebmExtractorTest}.
+ * Provides byte arrays containing Matroska data for {@link MatroskaExtractorTest}.
  */
 /* package */ final class StreamBuilder {
 
@@ -441,7 +441,7 @@ import java.util.List;
     return new EbmlElement();
   }
 
-  /** Represents a WebM EBML element that can be serialized as a byte array. */
+  /** Represents an EBML element that can be serialized as a byte array. */
   private static final class EbmlElement {
 
     /** Returns a byte[] containing the concatenation of the data from all {@code elements}. */

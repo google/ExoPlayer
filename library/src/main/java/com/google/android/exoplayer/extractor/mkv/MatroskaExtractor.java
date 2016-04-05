@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.extractor.webm;
+package com.google.android.exoplayer.extractor.mkv;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
@@ -46,22 +46,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * An extractor to facilitate data retrieval from the WebM container format.
- * <p>
- * WebM is a subset of the EBML elements defined for Matroska. More information about EBML and
- * Matroska is available <a href="http://www.matroska.org/technical/specs/index.html">here</a>.
- * More info about WebM is <a href="http://www.webmproject.org/code/specs/container/">here</a>.
- * RFC on encrypted WebM can be found
- * <a href="http://wiki.webmproject.org/encryption/webm-encryption-rfc">here</a>.
+ * Extracts data from a Matroska or WebM file.
  */
-public final class WebmExtractor implements Extractor {
+public final class MatroskaExtractor implements Extractor {
 
   private static final int BLOCK_STATE_START = 0;
   private static final int BLOCK_STATE_HEADER = 1;
   private static final int BLOCK_STATE_DATA = 2;
 
-  private static final String DOC_TYPE_WEBM = "webm";
   private static final String DOC_TYPE_MATROSKA = "matroska";
+  private static final String DOC_TYPE_WEBM = "webm";
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
   private static final String CODEC_ID_MPEG2 = "V_MPEG2";
@@ -241,11 +235,11 @@ public final class WebmExtractor implements Extractor {
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
 
-  public WebmExtractor() {
+  public MatroskaExtractor() {
     this(new DefaultEbmlReader());
   }
 
-  /* package */ WebmExtractor(EbmlReader reader) {
+  /* package */ MatroskaExtractor(EbmlReader reader) {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
     varintReader = new VarintReader();
@@ -911,8 +905,8 @@ public final class WebmExtractor implements Extractor {
     if (CODEC_ID_VORBIS.equals(track.codecId)) {
       // Vorbis decoder in android MediaCodec [1] expects the last 4 bytes of the sample to be the
       // number of samples in the current page. This definition holds good only for Ogg and
-      // irrelevant for WebM. So we always set this to -1 (the decoder will ignore this value if we
-      // set it to -1). The android platform media extractor [2] does the same.
+      // irrelevant for Matroska. So we always set this to -1 (the decoder will ignore this value if
+      // we set it to -1). The android platform media extractor [2] does the same.
       // [1] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
       // [2] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
       vorbisNumPageSamples.setPosition(0);
@@ -1091,50 +1085,50 @@ public final class WebmExtractor implements Extractor {
   }
 
   /**
-   * Passes events through to the outer {@link WebmExtractor}.
+   * Passes events through to the outer {@link MatroskaExtractor}.
    */
   private final class InnerEbmlReaderOutput implements EbmlReaderOutput {
 
     @Override
     public int getElementType(int id) {
-      return WebmExtractor.this.getElementType(id);
+      return MatroskaExtractor.this.getElementType(id);
     }
 
     @Override
     public boolean isLevel1Element(int id) {
-      return WebmExtractor.this.isLevel1Element(id);
+      return MatroskaExtractor.this.isLevel1Element(id);
     }
 
     @Override
     public void startMasterElement(int id, long contentPosition, long contentSize)
         throws ParserException {
-      WebmExtractor.this.startMasterElement(id, contentPosition, contentSize);
+      MatroskaExtractor.this.startMasterElement(id, contentPosition, contentSize);
     }
 
     @Override
     public void endMasterElement(int id) throws ParserException {
-      WebmExtractor.this.endMasterElement(id);
+      MatroskaExtractor.this.endMasterElement(id);
     }
 
     @Override
     public void integerElement(int id, long value) throws ParserException {
-      WebmExtractor.this.integerElement(id, value);
+      MatroskaExtractor.this.integerElement(id, value);
     }
 
     @Override
     public void floatElement(int id, double value) throws ParserException {
-      WebmExtractor.this.floatElement(id, value);
+      MatroskaExtractor.this.floatElement(id, value);
     }
 
     @Override
     public void stringElement(int id, String value) throws ParserException {
-      WebmExtractor.this.stringElement(id, value);
+      MatroskaExtractor.this.stringElement(id, value);
     }
 
     @Override
     public void binaryElement(int id, int contentsSize, ExtractorInput input)
         throws IOException, InterruptedException {
-      WebmExtractor.this.binaryElement(id, contentsSize, input);
+      MatroskaExtractor.this.binaryElement(id, contentsSize, input);
     }
 
   }

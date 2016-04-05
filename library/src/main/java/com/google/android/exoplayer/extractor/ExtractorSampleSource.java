@@ -52,7 +52,7 @@ import java.util.List;
  * <ul>
  * <li>MP4, including M4A ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
  * <li>fMP4 ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
- * <li>Matroska and WebM ({@link com.google.android.exoplayer.extractor.webm.WebmExtractor})</li>
+ * <li>Matroska and WebM ({@link com.google.android.exoplayer.extractor.mkv.MatroskaExtractor})</li>
  * <li>Ogg Vorbis ({@link com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor}</li>
  * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
  * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
@@ -122,7 +122,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // can detect the use of reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.webm.WebmExtractor")
+          Class.forName("com.google.android.exoplayer.extractor.mkv.MatroskaExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.

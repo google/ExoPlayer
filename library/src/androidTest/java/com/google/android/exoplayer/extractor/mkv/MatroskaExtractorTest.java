@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.extractor.webm;
+package com.google.android.exoplayer.extractor.mkv;
 
-import static com.google.android.exoplayer.extractor.webm.StreamBuilder.TEST_ENCRYPTION_KEY_ID;
+import static com.google.android.exoplayer.extractor.mkv.StreamBuilder.TEST_ENCRYPTION_KEY_ID;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
@@ -23,7 +23,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
-import com.google.android.exoplayer.extractor.webm.StreamBuilder.ContentEncodingSettings;
+import com.google.android.exoplayer.extractor.mkv.StreamBuilder.ContentEncodingSettings;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer.testutil.FakeTrackOutput;
 import com.google.android.exoplayer.testutil.TestUtil;
@@ -39,9 +39,9 @@ import java.util.Arrays;
 import java.util.UUID;
 
 /**
- * Tests for {@link WebmExtractor}.
+ * Tests for {@link MatroskaExtractor}.
  */
-public final class WebmExtractorTest extends InstrumentationTestCase {
+public final class MatroskaExtractorTest extends InstrumentationTestCase {
 
   private static final int DEFAULT_TIMECODE_SCALE = 1000000;
   private static final long TEST_DURATION_TIMECODE = 9920L;
@@ -68,15 +68,15 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
   private static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
   private static final UUID ZERO_UUID = new UUID(0, 0);
-  private static final String WEBM_DOC_TYPE = "webm";
   private static final String MATROSKA_DOC_TYPE = "matroska";
+  private static final String WEBM_DOC_TYPE = "webm";
 
-  private WebmExtractor extractor;
+  private MatroskaExtractor extractor;
   private FakeExtractorOutput extractorOutput;
 
   @Override
   public void setUp() {
-    extractor = new WebmExtractor();
+    extractor = new MatroskaExtractor();
     extractorOutput = new FakeExtractorOutput();
     extractor.init(extractorOutput);
   }

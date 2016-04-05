@@ -41,8 +41,8 @@ import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
+import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Clock;
@@ -695,7 +695,8 @@ public class DashChunkSource implements ChunkSource {
       this.representation = representation;
       String containerMimeType = representation.format.containerMimeType;
       extractorWrapper = mimeTypeIsRawText(containerMimeType) ? null : new ChunkExtractorWrapper(
-          mimeTypeIsWebm(containerMimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
+          mimeTypeIsWebm(containerMimeType) ? new MatroskaExtractor()
+              : new FragmentedMp4Extractor());
       segmentIndex = representation.getIndex();
     }
 
