@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * An extractor to facilitate data retrieval from the WebM container format.
@@ -182,6 +183,13 @@ public final class WebmExtractor implements Extractor {
    * The length in bytes of a timecode in a subrip prefix.
    */
   private static final int SUBRIP_TIMECODE_LENGTH = 12;
+
+  private static final int WAVEFORMAT_SIZE = 18;
+  private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
+  private static final int WAVEFORMATEX_SIZE = 22 + WAVEFORMAT_SIZE;
+
+  private static final byte ACM_FORMATTAG_A_PCM_INT_LIT = 0x0001;
+  private static final UUID A_MS_ACM_GUID_PCM = new UUID(0x0100000000001000L, 0x800000AA00389B71L);
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
@@ -1265,21 +1273,17 @@ public final class WebmExtractor implements Extractor {
           initializationData = Collections.singletonList(codecPrivate);
           break;
         case CODEC_ID_ACM:
-
-          int wFormatTag = parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate));
-          if (wFormatTag == ACM_FORMATTAG_A_PCM_INT_LIT) {
-              mimeType = MimeTypes.AUDIO_RAW;
-              if (audioBitDepth != 16)
-                  throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
-          } else
-              throw new ParserException("Unrecognized codec identifier for A_MS_ACM.");
+          parseMsAcmPcmCodecPrivate(new ParsableByteArray(codecPrivate));
+          mimeType = MimeTypes.AUDIO_RAW;
+          if (audioBitDepth != 16)
+            throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
           if (audioBitDepth != 16)
-              throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
+            throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
           break;
-          case CODEC_ID_SUBRIP:
+        case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
           break;
         case CODEC_ID_VOBSUB:
@@ -1461,31 +1465,26 @@ public final class WebmExtractor implements Extractor {
       }
     }
 
-    public static final int WAVEFORMAT_SIZE = 18;
-    public static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
-    public static final int WAVEFORMATEX_SIZE = 22 + WAVEFORMAT_SIZE;
-    public static final int GUID_SIZE = 16;
-
-    private static final byte ACM_FORMATTAG_A_PCM_INT_LIT = 0x0001;
-    private static final byte[] A_MS_ACM_GUID_PCM = {   (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x00,
-            (byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0xAA,
-            (byte) 0x00, (byte) 0x38, (byte) 0x9B, (byte) 0x71 };
-
-    public static int parseMsAcmCodecPrivate(ParsableByteArray buffer)
+    private static void parseMsAcmPcmCodecPrivate(ParsableByteArray buffer)
             throws ParserException {
-
-        int bytesLeft = buffer.bytesLeft();
+      try {
+        final int bytesLeft = buffer.bytesLeft();
         int wFormatTag = buffer.readLittleEndianUnsignedShort();
         if (wFormatTag == WAVE_FORMAT_EXTENSIBLE && bytesLeft == WAVEFORMATEX_SIZE) {
 
           buffer.setPosition(WAVEFORMAT_SIZE + 6); // skip waveformat(18), unionsamples(2), channelmask(4)
-          byte[] SubFormat = new byte[GUID_SIZE];
-          buffer.readBytes(SubFormat, 0, GUID_SIZE);
-          if (Arrays.equals(SubFormat, A_MS_ACM_GUID_PCM))
-            return ACM_FORMATTAG_A_PCM_INT_LIT;
+          UUID subFormatUuid = new UUID(buffer.readLong(), buffer.readLong());
+          if (subFormatUuid.equals(A_MS_ACM_GUID_PCM)) {
+            wFormatTag = ACM_FORMATTAG_A_PCM_INT_LIT;
+          }
         }
-        return wFormatTag;
+
+        if (wFormatTag != ACM_FORMATTAG_A_PCM_INT_LIT) {
+          throw new ParserException("Unsupported codec identifier for Ms Acm");
+        }
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing Ms Acm codec private");
+      }
     }
 
   }
