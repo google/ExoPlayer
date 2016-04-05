@@ -275,10 +275,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       return;
     }
 
-    boolean isLastChunk = !currentManifest.isLive && chunkIndex == streamElement.chunkCount - 1;
     long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
-    long chunkEndTimeUs = isLastChunk ? -1
-        : chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
+    long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
     int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
     int trackGroupTrackIndex = getTrackGroupTrackIndex(trackGroup, selectedFormat);
@@ -325,7 +323,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           extractorWrappers = new ChunkExtractorWrapper[formats.length];
           for (int j = 0; j < formats.length; j++) {
             int nalUnitLengthFieldLength = streamElementType == StreamElement.TYPE_VIDEO ? 4 : -1;
-            Track track = new Track(j, streamElementType, timescale, C.UNKNOWN_TIME_US, durationUs,
+            int mp4TrackType = getMp4TrackType(streamElementType);
+            Track track = new Track(j, mp4TrackType, timescale, C.UNKNOWN_TIME_US, durationUs,
                 formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
             FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
                 FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
@@ -428,6 +427,19 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     byte temp = data[firstPosition];
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
+  }
+
+  private static int getMp4TrackType(int streamElementType) {
+    switch (streamElementType) {
+      case StreamElement.TYPE_AUDIO:
+        return Track.TYPE_soun;
+      case StreamElement.TYPE_VIDEO:
+        return Track.TYPE_vide;
+      case StreamElement.TYPE_TEXT:
+        return Track.TYPE_text;
+      default:
+        throw new IllegalArgumentException("Invalid stream type: " + streamElementType);
+    }
   }
 
 }

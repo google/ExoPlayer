@@ -32,6 +32,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -55,7 +56,7 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
   public SmoothStreamingSourceBuilder(DataSourceFactory dataSourceFactory, String url,
       MediaDrmCallback drmCallback) {
     this.dataSourceFactory = dataSourceFactory;
-    this.url = url;
+    this.url = Util.toLowerInvariant(url).endsWith("/manifest") ? url : url + "/Manifest";
     this.drmCallback = drmCallback;
   }
 
