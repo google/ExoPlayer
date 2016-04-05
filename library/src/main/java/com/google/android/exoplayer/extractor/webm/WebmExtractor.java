@@ -1216,13 +1216,9 @@ public final class WebmExtractor implements Extractor {
           nalUnitLengthFieldLength = hevcData.second;
           break;
         case CODEC_ID_FOURCC:
-            Pair<List<byte[]>, Long> fourccData = parseFourCCPrivate(
-                new ParsableByteArray(codecPrivate));
-            if (fourccData.second != FOURCC_COMPRESSION_VC1)
-                throw new ParserException("Unrecognized codec identifier for FourCC.");
-            mimeType = MimeTypes.VIDEO_VC1;
-            initializationData = fourccData.first;
-            break;
+          mimeType = MimeTypes.VIDEO_VC1;
+          initializationData = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
+          break;
         case CODEC_ID_VORBIS:
           mimeType = MimeTypes.AUDIO_VORBIS;
           maxInputSize = VORBIS_MAX_INPUT_SIZE;
@@ -1314,33 +1310,30 @@ public final class WebmExtractor implements Extractor {
       this.output.format(format);
     }
 
-    private static Pair<List<byte[]>, Long> parseFourCCPrivate(ParsableByteArray buffer)
+    private static List<byte[]> parseFourCcVc1Private(ParsableByteArray buffer)
             throws ParserException {
-        try {
-            buffer.setPosition(buffer.getPosition()+16); // size, skip width(4), height(4),
-                                                         // planes(2), and bitcount(2)
-            long biCompression = buffer.readLittleEndianUnsignedInt();
-            buffer.setPosition(buffer.getPosition()+20); // skip sizeimage(4), xpel/meter(4),
-                                                       // ypel/meter(4), clrUsed(4), clrImportant(4)
-            List<byte[]> privateData = new ArrayList<>();
-            final int baseBytesLeft = buffer.bytesLeft();
-            byte[] scratchBytes = new byte[baseBytesLeft];
-            buffer.readBytes(scratchBytes, 0, baseBytesLeft);
+      try {
+        buffer.skipBytes(16); // size(4), skip width(4), height(4), planes(2), bitcount(2)
+        long biCompression = buffer.readLittleEndianUnsignedInt();
+        if (biCompression != FOURCC_COMPRESSION_VC1)
+          throw new ParserException("Unrecognized compression for FourCC.");
 
-            int realStartPos;
-            for(realStartPos = 0; realStartPos < (baseBytesLeft - 4); ++realStartPos) {
+        buffer.skipBytes(20); // skip sizeimage(4), xpel/meter(4) ypel/meter(4), clrUsed(4), clrImportant(4)
+        final int baseBytesLeft = buffer.bytesLeft();
+        byte[] scratchBytes = new byte[baseBytesLeft];
+        buffer.readBytes(scratchBytes, 0, baseBytesLeft);
 
-                if (scratchBytes[realStartPos] == 0x00 && scratchBytes[1 + realStartPos] == 0x00 &&
-                        scratchBytes[2 + realStartPos] == 0x01 && scratchBytes[3 + realStartPos] == 0x0f)
-                    break;
-            }
-            byte[] bytes = new byte[baseBytesLeft - realStartPos];
-            System.arraycopy(scratchBytes, realStartPos, bytes, 0, baseBytesLeft - realStartPos);
-            privateData.add(bytes);
-            return Pair.create(privateData, biCompression);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ParserException("Error parsing FourCC codec private");
+        int realStartPos;
+        for (realStartPos = 0; realStartPos < (baseBytesLeft - 4); ++realStartPos) {
+
+          if (scratchBytes[realStartPos] == 0x00 && scratchBytes[1 + realStartPos] == 0x00 &&
+                  scratchBytes[2 + realStartPos] == 0x01 && scratchBytes[3 + realStartPos] == 0x0f)
+            break;
         }
+        return Collections.singletonList(Arrays.copyOfRange(scratchBytes, realStartPos, baseBytesLeft));
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing FourCC VC1 codec private");
+      }
     }
 
     /**
