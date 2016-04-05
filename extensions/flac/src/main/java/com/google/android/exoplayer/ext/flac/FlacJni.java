@@ -95,6 +95,8 @@ import java.nio.ByteBuffer;
    * <p>
    * This method blocks until at least one byte of data can be read, the end of the input is
    * detected or an exception is thrown.
+   * <p>
+   * This method is called from the native code.
    *
    * @param target A target {@link ByteBuffer} into which data should be written.
    * @return Returns the number of bytes read, or -1 on failure. It's not an error if this returns
@@ -112,11 +114,14 @@ import java.nio.ByteBuffer;
       byteBufferData.limit(originalLimit);
     } else if (extractorInput != null) {
       byteCount = Math.min(byteCount, TEMP_BUFFER_SIZE);
-      byteCount = extractorInput.read(tempBuffer, 0, byteCount);
-      if (byteCount == C.RESULT_END_OF_INPUT) {
-        endOfExtractorInput = true;
-        return 0;
+      int read = readFromExtractorInput(0, byteCount);
+      if (read < 4) {
+        // Reading less than 4 bytes, most of the time, happens because of getting the bytes left in
+        // the buffer of the input. Do another read to reduce the number of calls to this method
+        // from the native code.
+        read += readFromExtractorInput(read, byteCount - read);
       }
+      byteCount = read;
       target.put(tempBuffer, 0, byteCount);
     } else {
       return -1;
@@ -156,6 +161,16 @@ import java.nio.ByteBuffer;
 
   public void release() {
     flacRelease(nativeDecoderContext);
+  }
+
+  private int readFromExtractorInput(int offset, int length)
+      throws IOException, InterruptedException {
+    int read = extractorInput.read(tempBuffer, offset, length);
+    if (read == C.RESULT_END_OF_INPUT) {
+      endOfExtractorInput = true;
+      read = 0;
+    }
+    return read;
   }
 
   private native long flacInit();
