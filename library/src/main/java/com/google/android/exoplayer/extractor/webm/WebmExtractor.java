@@ -566,7 +566,7 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_DEFAULT_DURATION:
         currentTrack.defaultSampleDurationNs = (int) value;
-        break;
+        return;
       case ID_CODEC_DELAY:
         currentTrack.codecDelayNs = value;
         return;
@@ -578,6 +578,7 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_AUDIO_BIT_DEPTH:
         currentTrack.audioBitDepth = (int) value;
+        return;
       case ID_REFERENCE_BLOCK:
         sampleSeenReferenceBlock = true;
         return;
