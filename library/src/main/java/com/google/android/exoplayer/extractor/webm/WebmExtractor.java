@@ -133,7 +133,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_DISPLAY_UNIT = 0x54B2;
   private static final int ID_AUDIO = 0xE1;
   private static final int ID_CHANNELS = 0x9F;
-  private static final int ID_AUDIOBITDEPTH = 0x6264;
+  private static final int ID_AUDIO_BIT_DEPTH = 0x6264;
   private static final int ID_SAMPLING_FREQUENCY = 0xB5;
   private static final int ID_CONTENT_ENCODINGS = 0x6D80;
   private static final int ID_CONTENT_ENCODING = 0x6240;
@@ -160,6 +160,7 @@ public final class WebmExtractor implements Extractor {
   private static final int LACING_EBML = 3;
 
   private static final int FOURCC_COMPRESSION_VC1 = 0x31435657;
+
   /**
    * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
    * starting at {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be
@@ -186,12 +187,22 @@ public final class WebmExtractor implements Extractor {
    */
   private static final int SUBRIP_TIMECODE_LENGTH = 12;
 
-  private static final int WAVEFORMAT_SIZE = 18;
+  /**
+   * The length in bytes of a WAVEFORMATEX structure.
+   */
+  private static final int WAVE_FORMAT_SIZE = 18;
+  /**
+   * Format tag indicating a WAVEFORMATEXTENSIBLE structure.
+   */
   private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
-  private static final int WAVEFORMATEX_SIZE = 22 + WAVEFORMAT_SIZE;
-
-  private static final byte ACM_FORMATTAG_A_PCM_INT_LIT = 0x0001;
-  private static final UUID A_MS_ACM_GUID_PCM = new UUID(0x0100000000001000L, 0x800000AA00389B71L);
+  /**
+   * Format tag for PCM.
+   */
+  private static final int WAVE_FORMAT_PCM = 1;
+  /**
+   * Sub format for PCM.
+   */
+  private static final UUID WAVE_SUBFORMAT_PCM = new UUID(0x0100000000001000L, 0x800000AA00389B71L);
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
@@ -349,7 +360,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
-      case ID_AUDIOBITDEPTH:
+      case ID_AUDIO_BIT_DEPTH:
       case ID_CONTENT_ENCODING_ORDER:
       case ID_CONTENT_ENCODING_SCOPE:
       case ID_CONTENT_COMPRESSION_ALGORITHM:
@@ -565,7 +576,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CHANNELS:
         currentTrack.channelCount = (int) value;
         return;
-      case ID_AUDIOBITDEPTH:
+      case ID_AUDIO_BIT_DEPTH:
         currentTrack.audioBitDepth = (int) value;
       case ID_REFERENCE_BLOCK:
         sampleSeenReferenceBlock = true;
@@ -1285,15 +1296,19 @@ public final class WebmExtractor implements Extractor {
           initializationData = Collections.singletonList(codecPrivate);
           break;
         case CODEC_ID_ACM:
-          parseMsAcmPcmCodecPrivate(new ParsableByteArray(codecPrivate));
           mimeType = MimeTypes.AUDIO_RAW;
-          if (audioBitDepth != 16)
-            throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
+          if (!parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
+            throw new ParserException("Non-PCM MS/ACM is unsupported");
+          }
+          if (audioBitDepth != 16) {
+            throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
+          }
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
-          if (audioBitDepth != 16)
-            throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
+          if (audioBitDepth != 16) {
+            throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
+          }
           break;
         case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
@@ -1343,27 +1358,37 @@ public final class WebmExtractor implements Extractor {
       this.output.format(format);
     }
 
+    /**
+     * Builds initialization data for a {@link MediaFormat} from FourCC codec private data.
+     * <p>
+     * VC1 is the only supported compression type.
+     *
+     * @return The initialization data for the {@link MediaFormat}.
+     * @throws ParserException If the initialization data could not be built.
+     */
     private static List<byte[]> parseFourCcVc1Private(ParsableByteArray buffer)
-            throws ParserException {
+        throws ParserException {
       try {
-        buffer.skipBytes(16); // size(4), skip width(4), height(4), planes(2), bitcount(2)
-        long biCompression = buffer.readLittleEndianUnsignedInt();
-        if (biCompression != FOURCC_COMPRESSION_VC1)
-          throw new ParserException("Unrecognized compression for FourCC.");
-
-        buffer.skipBytes(20); // skip sizeimage(4), xpel/meter(4) ypel/meter(4), clrUsed(4), clrImportant(4)
-        final int baseBytesLeft = buffer.bytesLeft();
-        byte[] scratchBytes = new byte[baseBytesLeft];
-        buffer.readBytes(scratchBytes, 0, baseBytesLeft);
-
-        int realStartPos;
-        for (realStartPos = 0; realStartPos < (baseBytesLeft - 4); ++realStartPos) {
-
-          if (scratchBytes[realStartPos] == 0x00 && scratchBytes[1 + realStartPos] == 0x00 &&
-                  scratchBytes[2 + realStartPos] == 0x01 && scratchBytes[3 + realStartPos] == 0x0f)
-            break;
+        buffer.skipBytes(16); // size(4), width(4), height(4), planes(2), bitcount(2).
+        long compression = buffer.readLittleEndianUnsignedInt();
+        if (compression != FOURCC_COMPRESSION_VC1) {
+          throw new ParserException("Unsupported FourCC compression type: " + compression);
         }
-        return Collections.singletonList(Arrays.copyOfRange(scratchBytes, realStartPos, baseBytesLeft));
+
+        // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
+        // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
+        int startOffset = buffer.getPosition() + 20;
+        byte[] bufferData = buffer.data;
+        for (int offset = startOffset; offset < bufferData.length - 4; offset++) {
+          if (bufferData[offset] == 0x00 && bufferData[offset + 1] == 0x00
+              && bufferData[offset + 2] == 0x01 && bufferData[offset + 3] == 0x0F) {
+            // We've found the initialization data.
+            byte[] initializationData = Arrays.copyOfRange(bufferData, offset, bufferData.length);
+            return Collections.singletonList(initializationData);
+          }
+        }
+
+        throw new ParserException("Failed to find FourCC VC1 initialization data");
       } catch (ArrayIndexOutOfBoundsException e) {
         throw new ParserException("Error parsing FourCC VC1 codec private");
       }
@@ -1503,25 +1528,26 @@ public final class WebmExtractor implements Extractor {
       }
     }
 
-    private static void parseMsAcmPcmCodecPrivate(ParsableByteArray buffer)
-            throws ParserException {
+    /**
+     * Parses an MS/ACM codec private, returning whether it indicates PCM audio.
+     *
+     * @return True if the codec private indicates PCM audio. False otherwise.
+     * @throws ParserException If a parsing error occurs.
+     */
+    private static boolean parseMsAcmCodecPrivate(ParsableByteArray buffer) throws ParserException {
       try {
-        final int bytesLeft = buffer.bytesLeft();
-        int wFormatTag = buffer.readLittleEndianUnsignedShort();
-        if (wFormatTag == WAVE_FORMAT_EXTENSIBLE && bytesLeft == WAVEFORMATEX_SIZE) {
-
-          buffer.setPosition(WAVEFORMAT_SIZE + 6); // skip waveformat(18), unionsamples(2), channelmask(4)
-          UUID subFormatUuid = new UUID(buffer.readLong(), buffer.readLong());
-          if (subFormatUuid.equals(A_MS_ACM_GUID_PCM)) {
-            wFormatTag = ACM_FORMATTAG_A_PCM_INT_LIT;
-          }
-        }
-
-        if (wFormatTag != ACM_FORMATTAG_A_PCM_INT_LIT) {
-          throw new ParserException("Unsupported codec identifier for Ms Acm");
+        int formatTag = buffer.readLittleEndianUnsignedShort();
+        if (formatTag == WAVE_FORMAT_PCM) {
+          return true;
+        } else if (formatTag == WAVE_FORMAT_EXTENSIBLE) {
+          buffer.setPosition(WAVE_FORMAT_SIZE + 6); // unionSamples(2), channelMask(4)
+          return buffer.readLong() == WAVE_SUBFORMAT_PCM.getMostSignificantBits()
+              && buffer.readLong() == WAVE_SUBFORMAT_PCM.getLeastSignificantBits();
+        } else {
+          return false;
         }
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing Ms Acm codec private");
+        throw new ParserException("Error parsing MS/ACM codec private");
       }
     }
 
