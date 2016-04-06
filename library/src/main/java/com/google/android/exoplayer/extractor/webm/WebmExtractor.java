@@ -70,6 +70,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_MPEG4_AP = "V_MPEG4/ISO/AP";
   private static final String CODEC_ID_H264 = "V_MPEG4/ISO/AVC";
   private static final String CODEC_ID_H265 = "V_MPEGH/ISO/HEVC";
+  private static final String CODEC_ID_FOURCC = "V_MS/VFW/FOURCC";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
@@ -154,6 +155,7 @@ public final class WebmExtractor implements Extractor {
   private static final int LACING_FIXED_SIZE = 2;
   private static final int LACING_EBML = 3;
 
+  private static final int FOURCC_COMPRESSION_VC1 = 0x31435657;
   /**
    * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
    * starting at {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be
@@ -1064,6 +1066,7 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_MPEG4_AP.equals(codecId)
         || CODEC_ID_H264.equals(codecId)
         || CODEC_ID_H265.equals(codecId)
+        || CODEC_ID_FOURCC.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
@@ -1217,6 +1220,10 @@ public final class WebmExtractor implements Extractor {
           initializationData = hevcData.first;
           nalUnitLengthFieldLength = hevcData.second;
           break;
+        case CODEC_ID_FOURCC:
+          mimeType = MimeTypes.VIDEO_VC1;
+          initializationData = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
+          break;
         case CODEC_ID_VORBIS:
           mimeType = MimeTypes.AUDIO_VORBIS;
           maxInputSize = VORBIS_MAX_INPUT_SIZE;
@@ -1306,6 +1313,32 @@ public final class WebmExtractor implements Extractor {
 
       this.output = output.track(number);
       this.output.format(format);
+    }
+
+    private static List<byte[]> parseFourCcVc1Private(ParsableByteArray buffer)
+            throws ParserException {
+      try {
+        buffer.skipBytes(16); // size(4), skip width(4), height(4), planes(2), bitcount(2)
+        long biCompression = buffer.readLittleEndianUnsignedInt();
+        if (biCompression != FOURCC_COMPRESSION_VC1)
+          throw new ParserException("Unrecognized compression for FourCC.");
+
+        buffer.skipBytes(20); // skip sizeimage(4), xpel/meter(4) ypel/meter(4), clrUsed(4), clrImportant(4)
+        final int baseBytesLeft = buffer.bytesLeft();
+        byte[] scratchBytes = new byte[baseBytesLeft];
+        buffer.readBytes(scratchBytes, 0, baseBytesLeft);
+
+        int realStartPos;
+        for (realStartPos = 0; realStartPos < (baseBytesLeft - 4); ++realStartPos) {
+
+          if (scratchBytes[realStartPos] == 0x00 && scratchBytes[1 + realStartPos] == 0x00 &&
+                  scratchBytes[2 + realStartPos] == 0x01 && scratchBytes[3 + realStartPos] == 0x0f)
+            break;
+        }
+        return Collections.singletonList(Arrays.copyOfRange(scratchBytes, realStartPos, baseBytesLeft));
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing FourCC VC1 codec private");
+      }
     }
 
     /**
