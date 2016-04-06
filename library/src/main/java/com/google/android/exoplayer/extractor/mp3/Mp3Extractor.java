@@ -111,6 +111,11 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
+  public void release() {
+    // Do nothing
+  }
+
+  @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     if (synchronizedHeaderData == 0 && !synchronizeCatchingEndOfInput(input)) {

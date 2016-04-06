@@ -124,6 +124,11 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
+  public void release() {
+    // Do nothing
+  }
+
+  @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
