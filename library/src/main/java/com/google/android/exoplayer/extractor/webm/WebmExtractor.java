@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * An extractor to facilitate data retrieval from the WebM container format.
@@ -82,6 +83,8 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_DTS_EXPRESS = "A_DTS/EXPRESS";
   private static final String CODEC_ID_DTS_LOSSLESS = "A_DTS/LOSSLESS";
   private static final String CODEC_ID_FLAC = "A_FLAC";
+  private static final String CODEC_ID_ACM = "A_MS/ACM";
+  private static final String CODEC_ID_PCM_INT_LIT = "A_PCM/INT/LIT";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
   private static final String CODEC_ID_PGS = "S_HDMV/PGS";
@@ -130,6 +133,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_DISPLAY_UNIT = 0x54B2;
   private static final int ID_AUDIO = 0xE1;
   private static final int ID_CHANNELS = 0x9F;
+  private static final int ID_AUDIOBITDEPTH = 0x6264;
   private static final int ID_SAMPLING_FREQUENCY = 0xB5;
   private static final int ID_CONTENT_ENCODINGS = 0x6D80;
   private static final int ID_CONTENT_ENCODING = 0x6240;
@@ -181,6 +185,13 @@ public final class WebmExtractor implements Extractor {
    * The length in bytes of a timecode in a subrip prefix.
    */
   private static final int SUBRIP_TIMECODE_LENGTH = 12;
+
+  private static final int WAVEFORMAT_SIZE = 18;
+  private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
+  private static final int WAVEFORMATEX_SIZE = 22 + WAVEFORMAT_SIZE;
+
+  private static final byte ACM_FORMATTAG_A_PCM_INT_LIT = 0x0001;
+  private static final UUID A_MS_ACM_GUID_PCM = new UUID(0x0100000000001000L, 0x800000AA00389B71L);
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
@@ -338,6 +349,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
+      case ID_AUDIOBITDEPTH:
       case ID_CONTENT_ENCODING_ORDER:
       case ID_CONTENT_ENCODING_SCOPE:
       case ID_CONTENT_COMPRESSION_ALGORITHM:
@@ -553,6 +565,8 @@ public final class WebmExtractor implements Extractor {
       case ID_CHANNELS:
         currentTrack.channelCount = (int) value;
         return;
+      case ID_AUDIOBITDEPTH:
+        currentTrack.audioBitDepth = (int) value;
       case ID_REFERENCE_BLOCK:
         sampleSeenReferenceBlock = true;
         return;
@@ -1078,6 +1092,8 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
         || CODEC_ID_DTS_LOSSLESS.equals(codecId)
         || CODEC_ID_FLAC.equals(codecId)
+        || CODEC_ID_ACM.equals(codecId)
+        || CODEC_ID_PCM_INT_LIT.equals(codecId)
         || CODEC_ID_SUBRIP.equals(codecId)
         || CODEC_ID_VOBSUB.equals(codecId)
         || CODEC_ID_PGS.equals(codecId);
@@ -1170,6 +1186,7 @@ public final class WebmExtractor implements Extractor {
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
+    public int audioBitDepth = -1;
     public int sampleRate = 8000;
     public long codecDelayNs = 0;
     public long seekPreRollNs = 0;
@@ -1266,6 +1283,17 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_FLAC:
           mimeType = MimeTypes.AUDIO_FLAC;
           initializationData = Collections.singletonList(codecPrivate);
+          break;
+        case CODEC_ID_ACM:
+          parseMsAcmPcmCodecPrivate(new ParsableByteArray(codecPrivate));
+          mimeType = MimeTypes.AUDIO_RAW;
+          if (audioBitDepth != 16)
+            throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
+          break;
+        case CODEC_ID_PCM_INT_LIT:
+          mimeType = MimeTypes.AUDIO_RAW;
+          if (audioBitDepth != 16)
+            throw new ParserException("ExoPlayer is currently only capable of handling 16-bit audio.");
           break;
         case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
@@ -1472,6 +1500,28 @@ public final class WebmExtractor implements Extractor {
         return initializationData;
       } catch (ArrayIndexOutOfBoundsException e) {
         throw new ParserException("Error parsing vorbis codec private");
+      }
+    }
+
+    private static void parseMsAcmPcmCodecPrivate(ParsableByteArray buffer)
+            throws ParserException {
+      try {
+        final int bytesLeft = buffer.bytesLeft();
+        int wFormatTag = buffer.readLittleEndianUnsignedShort();
+        if (wFormatTag == WAVE_FORMAT_EXTENSIBLE && bytesLeft == WAVEFORMATEX_SIZE) {
+
+          buffer.setPosition(WAVEFORMAT_SIZE + 6); // skip waveformat(18), unionsamples(2), channelmask(4)
+          UUID subFormatUuid = new UUID(buffer.readLong(), buffer.readLong());
+          if (subFormatUuid.equals(A_MS_ACM_GUID_PCM)) {
+            wFormatTag = ACM_FORMATTAG_A_PCM_INT_LIT;
+          }
+        }
+
+        if (wFormatTag != ACM_FORMATTAG_A_PCM_INT_LIT) {
+          throw new ParserException("Unsupported codec identifier for Ms Acm");
+        }
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing Ms Acm codec private");
       }
     }
 
