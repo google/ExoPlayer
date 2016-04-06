@@ -31,7 +31,7 @@ public final class ByteArrayDataSource implements DataSource {
 
   private Uri uri;
   private int readPosition;
-  private int remainingBytes;
+  private int bytesRemaining;
 
   /**
    * @param data The data to be read.
@@ -46,24 +46,24 @@ public final class ByteArrayDataSource implements DataSource {
   public long open(DataSpec dataSpec) throws IOException {
     uri = dataSpec.uri;
     readPosition = (int) dataSpec.position;
-    remainingBytes = (int) ((dataSpec.length == C.LENGTH_UNBOUNDED)
+    bytesRemaining = (int) ((dataSpec.length == C.LENGTH_UNBOUNDED)
         ? (data.length - dataSpec.position) : dataSpec.length);
-    if (remainingBytes <= 0 || readPosition + remainingBytes > data.length) {
+    if (bytesRemaining <= 0 || readPosition + bytesRemaining > data.length) {
       throw new IOException("Unsatisfiable range: [" + readPosition + ", " + dataSpec.length
           + "], length: " + data.length);
     }
-    return remainingBytes;
+    return bytesRemaining;
   }
 
   @Override
   public int read(byte[] buffer, int offset, int length) throws IOException {
-    if (remainingBytes == 0) {
-      return -1;
+    if (bytesRemaining == 0) {
+      return C.RESULT_END_OF_INPUT;
     }
-    length = Math.min(length, remainingBytes);
+    length = Math.min(length, bytesRemaining);
     System.arraycopy(data, readPosition, buffer, offset, length);
     readPosition += length;
-    remainingBytes -= length;
+    bytesRemaining -= length;
     return length;
   }
 

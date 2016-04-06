@@ -106,7 +106,7 @@ public final class ContentDataSource implements DataSource {
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws ContentDataSourceException {
     if (bytesRemaining == 0) {
-      return -1;
+      return C.RESULT_END_OF_INPUT;
     } else {
       int bytesRead = 0;
       try {

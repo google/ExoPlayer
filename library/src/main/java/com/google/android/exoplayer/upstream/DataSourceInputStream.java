@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
@@ -74,7 +75,8 @@ public final class DataSourceInputStream extends InputStream {
   public int read(byte[] buffer, int offset, int length) throws IOException {
     Assertions.checkState(!closed);
     checkOpened();
-    return dataSource.read(buffer, offset, length);
+    int bytesRead = dataSource.read(buffer, offset, length);
+    return bytesRead == C.RESULT_END_OF_INPUT ? -1 : bytesRead;
   }
 
   @Override
