@@ -18,7 +18,6 @@ package com.google.android.exoplayer.playbacktests.util;
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -39,6 +38,7 @@ public class DebugMediaCodecVideoTrackRenderer extends MediaCodecVideoTrackRende
 
   private int startIndex;
   private int queueSize;
+  private int bufferCount;
   private boolean enableBufferTimestampAssertions;
 
   public DebugMediaCodecVideoTrackRenderer(Context context, SampleSource source,
@@ -63,8 +63,14 @@ public class DebugMediaCodecVideoTrackRenderer extends MediaCodecVideoTrackRende
 
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    bufferCount++;
     if (enableBufferTimestampAssertions) {
-      Assertions.checkArgument(dequeueTimestamp() == presentationTimeUs);
+      long expectedTimestampUs = dequeueTimestamp();
+      if (expectedTimestampUs != presentationTimeUs) {
+        throw new IllegalStateException("Expected buffer with presentation timestamp: "
+            + expectedTimestampUs + ". Instead got: " + presentationTimeUs + " (Processed buffers: "
+            + bufferCount + ")");
+      }
     }
   }
 
