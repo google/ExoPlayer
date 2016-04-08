@@ -1,5 +1,7 @@
 # Release notes #
 
+### Current dev branch ###
+
 ### r1.5.7 ###
 
 * OGG: Support added for OGG.
@@ -96,6 +98,7 @@
 * TTML: Improved handling of whitespace.
 * DASH: Support Mpd.Location element.
 * Add option to TsExtractor to allow non-IDR keyframes.
+* Added MulticastDataSource for connecting to multicast streams.
 * (WorkInProgress) - First steps to supporting seeking in DASH DVR window.
 * (WorkInProgress) - First steps to supporting styled + positioned subtitles.
 * Misc bug fixes.
