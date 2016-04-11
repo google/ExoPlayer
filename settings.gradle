@@ -13,3 +13,8 @@
 // limitations under the License.
 include ':library'
 include ':demo'
+include ':extension-okhttp'
+include ':extension-flac'
+
+project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
+project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
