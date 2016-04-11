@@ -8,7 +8,9 @@ com.google.android.exoplayer.extractor
 com.google.android.exoplayer.extractor.flv
 com.google.android.exoplayer.extractor.mp3
 com.google.android.exoplayer.extractor.mp4
+com.google.android.exoplayer.extractor.ogg
 com.google.android.exoplayer.extractor.ts
+com.google.android.exoplayer.extractor.wav
 com.google.android.exoplayer.extractor.webm
 com.google.android.exoplayer.hls
 com.google.android.exoplayer.metadata
@@ -23,3 +25,4 @@ com.google.android.exoplayer.text.webvtt
 com.google.android.exoplayer.upstream
 com.google.android.exoplayer.upstream.cache
 com.google.android.exoplayer.util
+com.google.android.exoplayer.util.extensions
