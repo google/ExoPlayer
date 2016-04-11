@@ -60,14 +60,13 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    * @param isSampleFormatFinal True if {@code sampleFormat} and {@code drmInitData} are known to be
    *     correct and final. False if the data may define its own sample format or initialization
    *     data.
-   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
       ChunkExtractorWrapper extractorWrapper, Format sampleFormat, DrmInitData drmInitData,
-      boolean isSampleFormatFinal, int parentId) {
+      boolean isSampleFormatFinal) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
-        isSampleFormatFinal, parentId);
+        isSampleFormatFinal);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.sampleFormat = getAdjustedSampleFormat(sampleFormat, sampleOffsetUs);

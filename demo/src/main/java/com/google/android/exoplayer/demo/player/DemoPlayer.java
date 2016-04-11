@@ -27,12 +27,10 @@ import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializatio
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SingleSampleSource;
-import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
-import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
@@ -67,8 +65,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     ChunkSampleSourceEventListener, ExtractorSampleSource.EventListener,
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
-    StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
-    MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider {
+    StreamingDrmSessionManager.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,
+    DebugTextViewHelper.Provider {
 
   /**
    * Builds a source to play.
@@ -127,7 +125,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
         long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
-    void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
   }
 
   /**
@@ -438,13 +435,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   public void onMetadata(List<Id3Frame> id3Frames) {
     if (id3MetadataListener != null) {
       id3MetadataListener.onId3Metadata(id3Frames);
-    }
-  }
-
-  @Override
-  public void onAvailableRangeChanged(int sourceId, TimeRange availableRange) {
-    if (infoListener != null) {
-      infoListener.onAvailableRangeChanged(sourceId, availableRange);
     }
   }
 

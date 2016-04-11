@@ -253,7 +253,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       }
       chunkIndex = streamElement.getChunkIndex(playbackPositionUs);
     } else {
-      chunkIndex = previous.chunkIndex + 1 - currentManifestChunkOffset;
+      chunkIndex = previous.getNextChunkIndex() - currentManifestChunkOffset;
     }
 
     if (live && chunkIndex < 0) {
@@ -404,7 +404,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     long sampleOffsetUs = chunkStartTimeUs;
     return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, chunkStartTimeUs,
         chunkEndTimeUs, chunkIndex, sampleOffsetUs, extractorWrapper, sampleFormat, drmInitData,
-        true, Chunk.NO_PARENT_ID);
+        true);
   }
 
   private static byte[] getProtectionElementKeyId(byte[] initData) {

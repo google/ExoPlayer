@@ -38,16 +38,6 @@ public abstract class MediaChunk extends Chunk {
    */
   public final int chunkIndex;
 
-  public MediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex) {
-    this(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
-        Chunk.NO_PARENT_ID);
-  }
-
-  public int getNextChunkIndex() {
-    return chunkIndex + 1;
-  }
-
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
@@ -56,15 +46,18 @@ public abstract class MediaChunk extends Chunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public MediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, int parentId) {
-    super(dataSource, dataSpec, Chunk.TYPE_MEDIA, trigger, format, parentId);
+      long startTimeUs, long endTimeUs, int chunkIndex) {
+    super(dataSource, dataSpec, Chunk.TYPE_MEDIA, trigger, format);
     Assertions.checkNotNull(format);
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
     this.chunkIndex = chunkIndex;
+  }
+
+  public final int getNextChunkIndex() {
+    return chunkIndex + 1;
   }
 
 }

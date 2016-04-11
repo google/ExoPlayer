@@ -16,11 +16,10 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Clock;
 import com.google.android.exoplayer.util.SlidingPercentile;
-import com.google.android.exoplayer.util.SystemClock;
 
 import android.os.Handler;
+import android.os.SystemClock;
 
 /**
  * Counts transferred bytes while transfers are open and creates a bandwidth sample and updated
@@ -35,7 +34,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter {
 
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final Clock clock;
   private final SlidingPercentile slidingPercentile;
 
   private int streamCount;
@@ -51,22 +49,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter {
   }
 
   public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener) {
-    this(eventHandler, eventListener, new SystemClock());
-  }
-
-  public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener, Clock clock) {
-    this(eventHandler, eventListener, clock, DEFAULT_MAX_WEIGHT);
+    this(eventHandler, eventListener, DEFAULT_MAX_WEIGHT);
   }
 
   public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener, int maxWeight) {
-    this(eventHandler, eventListener, new SystemClock(), maxWeight);
-  }
-
-  public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener, Clock clock,
-      int maxWeight) {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    this.clock = clock;
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     bitrateEstimate = NO_ESTIMATE;
   }
@@ -79,7 +67,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter {
   @Override
   public synchronized void onTransferStart() {
     if (streamCount == 0) {
-      sampleStartTimeMs = clock.elapsedRealtime();
+      sampleStartTimeMs = SystemClock.elapsedRealtime();
     }
     streamCount++;
   }
@@ -92,7 +80,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter {
   @Override
   public synchronized void onTransferEnd() {
     Assertions.checkState(streamCount > 0);
-    long nowMs = clock.elapsedRealtime();
+    long nowMs = SystemClock.elapsedRealtime();
     int sampleElapsedTimeMs = (int) (nowMs - sampleStartTimeMs);
     totalElapsedTimeMs += sampleElapsedTimeMs;
     totalBytesTransferred += sampleBytesTransferred;

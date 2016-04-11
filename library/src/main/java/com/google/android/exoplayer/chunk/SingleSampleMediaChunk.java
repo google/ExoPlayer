@@ -48,13 +48,11 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param sampleFormat The format of the sample.
    * @param sampleDrmInitData The {@link DrmInitData} for the sample. Null if the sample is not drm
    *     protected.
-   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger,
       Format format, long startTimeUs, long endTimeUs, int chunkIndex, Format sampleFormat,
-      DrmInitData sampleDrmInitData, int parentId) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, true,
-        parentId);
+      DrmInitData sampleDrmInitData) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, true);
     this.sampleFormat = sampleFormat;
     this.sampleDrmInitData = sampleDrmInitData;
   }

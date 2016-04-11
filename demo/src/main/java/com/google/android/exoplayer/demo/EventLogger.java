@@ -19,7 +19,6 @@ import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
-import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
@@ -50,7 +49,6 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   private long sessionStartTimeMs;
-  private long[] availableRangeValuesUs;
 
   public void startSession() {
     sessionStartTimeMs = SystemClock.elapsedRealtime();
@@ -213,13 +211,6 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
       long initializationDurationMs) {
     Log.d(TAG, "decoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
-  }
-
-  @Override
-  public void onAvailableRangeChanged(int sourceId, TimeRange availableRange) {
-    availableRangeValuesUs = availableRange.getCurrentBoundsUs(availableRangeValuesUs);
-    Log.d(TAG, "availableRange [" + availableRange.isStatic() + ", " + availableRangeValuesUs[0]
-        + ", " + availableRangeValuesUs[1] + "]");
   }
 
   private void printInternalError(String type, Exception e) {

@@ -44,12 +44,11 @@ public abstract class DataChunk extends Chunk {
    * @param type See {@link #type}.
    * @param trigger See {@link #trigger}.
    * @param format See {@link #format}.
-   * @param parentId Identifier for a parent from which this chunk originates.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
   public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format,
-      int parentId, byte[] data) {
-    super(dataSource, dataSpec, type, trigger, format, parentId);
+      byte[] data) {
+    super(dataSource, dataSpec, type, trigger, format);
     this.data = data;
   }
 

@@ -50,11 +50,10 @@ public abstract class BaseMediaChunk extends MediaChunk {
    *     be called at any time to obtain the sample format and drm initialization data. False if
    *     these methods are only guaranteed to return correct data after the first sample data has
    *     been output from the chunk.
-   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isSampleFormatFinal, int parentId) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, parentId);
+      long startTimeUs, long endTimeUs, int chunkIndex, boolean isSampleFormatFinal) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
     this.isSampleFormatFinal = isSampleFormatFinal;
   }
 
