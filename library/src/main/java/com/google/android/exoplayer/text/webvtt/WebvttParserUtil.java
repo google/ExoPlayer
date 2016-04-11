@@ -18,6 +18,7 @@ package com.google.android.exoplayer.text.webvtt;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
  */
 public final class WebvttParserUtil {
 
+  private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
   private static final Pattern HEADER = Pattern.compile("^\uFEFF?WEBVTT((\u0020|\u0009).*)?$");
 
   private WebvttParserUtil() {}
@@ -70,6 +72,30 @@ public final class WebvttParserUtil {
       throw new NumberFormatException("Percentages must end with %");
     }
     return Float.parseFloat(s.substring(0, s.length() - 1)) / 100;
+  }
+  
+  /**
+   * Reads lines up to and including the next WebVTT cue header.
+   *
+   * @param input The input from which lines should be read.
+   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
+   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
+   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
+   */
+  public static Matcher findNextCueHeader(ParsableByteArray input) {
+    String line;
+    while ((line = input.readLine()) != null) {
+      if (COMMENT.matcher(line).matches()) {
+        // Skip until the end of the comment block.
+        while ((line = input.readLine()) != null && !line.isEmpty()) {}
+      } else {
+        Matcher cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(line);
+        if (cueHeaderMatcher.matches()) {
+          return cueHeaderMatcher;
+        }
+      }
+    }
+    return null;
   }
 
 }

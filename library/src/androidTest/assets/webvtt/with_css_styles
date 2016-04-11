@@ -1,0 +1,23 @@
+WEBVTT
+
+STYLE
+::cue {
+  background-color: green;
+  color: papayawhip;
+}
+/* Style blocks cannot use blank lines nor "dash dash greater than" */
+
+NOTE comment blocks can be used between style blocks.
+
+STYLE
+::cue(2) {
+  color: peachpuff;
+}
+
+1
+00:00.000 --> 00:01.234
+This is the first subtitle.
+
+2
+00:02.345 --> 00:03.456
+This is the second subtitle.

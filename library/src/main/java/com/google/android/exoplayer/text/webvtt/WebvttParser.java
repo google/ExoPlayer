@@ -22,6 +22,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple WebVTT parser.
@@ -30,32 +31,88 @@ import java.util.ArrayList;
  */
 public final class WebvttParser extends SubtitleParser {
 
+  private static final int NO_EVENT_FOUND = -1;
+  private static final int END_OF_FILE_FOUND = 0;
+  private static final int COMMENT_FOUND = 1;
+  private static final int STYLE_BLOCK_FOUND = 2;
+  private static final int CUE_FOUND = 3;
+  private static final String COMMENT_START = "NOTE";
+  private static final String STYLE_START = "STYLE";
+  
   private final WebvttCueParser cueParser;
   private final ParsableByteArray parsableWebvttData;
   private final WebvttCue.Builder webvttCueBuilder;
+  private final CssParser cssParser;
+  private final HashMap<String, WebvttCssStyle> styleMap;
 
   public WebvttParser() {
     cueParser = new WebvttCueParser();
     parsableWebvttData = new ParsableByteArray();
     webvttCueBuilder = new WebvttCue.Builder();
+    cssParser = new CssParser();
+    styleMap = new HashMap<>();
   }
 
   @Override
-  protected final WebvttSubtitle decode(byte[] bytes, int length) throws ParserException {
+  protected WebvttSubtitle decode(byte[] bytes, int length) throws ParserException {
     parsableWebvttData.reset(bytes, length);
-    webvttCueBuilder.reset(); // In case a previous parse run failed with a ParserException.
+    // Initialization for consistent starting state.
+    webvttCueBuilder.reset(); 
+    styleMap.clear();
 
     // Validate the first line of the header, and skip the remainder.
     WebvttParserUtil.validateWebvttHeaderLine(parsableWebvttData);
     while (!TextUtils.isEmpty(parsableWebvttData.readLine())) {}
-
-    // Extract Cues
+    
+    int eventFound;
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
-    while (cueParser.parseNextValidCue(parsableWebvttData, webvttCueBuilder)) {
-      subtitles.add(webvttCueBuilder.build());
-      webvttCueBuilder.reset();
+    while ((eventFound = getNextEvent(parsableWebvttData)) != END_OF_FILE_FOUND) {
+      if (eventFound == COMMENT_FOUND) {
+        skipComment(parsableWebvttData);
+      } else if (eventFound == STYLE_BLOCK_FOUND) {
+        if (!subtitles.isEmpty()) {
+          throw new ParserException("A style block was found after the first cue.");
+        }
+        parsableWebvttData.readLine(); // Consume the "STYLE" header.
+        cssParser.parseBlock(parsableWebvttData, styleMap);
+      } else if (eventFound == CUE_FOUND) {
+        if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder)) {
+          subtitles.add(webvttCueBuilder.build(styleMap));
+          webvttCueBuilder.reset();
+        }
+      }
     }
     return new WebvttSubtitle(subtitles);
+  }
+  
+  /**
+   * Positions the input right before the next event, and returns the kind of event found. Does not
+   * consume any data from such event, if any.
+   * 
+   * @return The kind of event found.
+   */
+  private static int getNextEvent(ParsableByteArray parsableWebvttData) {
+    int foundEvent = NO_EVENT_FOUND;
+    int currentInputPosition = 0;
+    while (foundEvent == NO_EVENT_FOUND) {
+      currentInputPosition = parsableWebvttData.getPosition();
+      String line = parsableWebvttData.readLine();
+      if (line == null) {
+        foundEvent = END_OF_FILE_FOUND;
+      } else if (STYLE_START.equals(line)) {
+        foundEvent = STYLE_BLOCK_FOUND;
+      } else if (COMMENT_START.startsWith(line)) {
+        foundEvent = COMMENT_FOUND;
+      } else {
+        foundEvent = CUE_FOUND;
+      }
+    }
+    parsableWebvttData.setPosition(currentInputPosition);
+    return foundEvent;
+  }
+  
+  private static void skipComment(ParsableByteArray parsableWebvttData) {
+    while (!TextUtils.isEmpty(parsableWebvttData.readLine())) {}
   }
 
 }

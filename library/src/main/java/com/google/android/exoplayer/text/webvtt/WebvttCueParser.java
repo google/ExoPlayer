@@ -33,12 +33,11 @@ import java.util.regex.Pattern;
 /**
  * Parser for WebVTT cues. (https://w3c.github.io/webvtt/#cues)
  */
-public final class WebvttCueParser {
+/* package */ final class WebvttCueParser {
 
   public static final Pattern CUE_HEADER_PATTERN = Pattern
       .compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
 
-  private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
   private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
 
   private static final char CHAR_LESS_THAN = '<';
@@ -71,7 +70,7 @@ public final class WebvttCueParser {
   public WebvttCueParser() {
     textBuilder = new StringBuilder();
   }
-
+  
   /**
    * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
    *
@@ -79,11 +78,20 @@ public final class WebvttCueParser {
    * @param builder Builder for WebVTT Cues.
    * @return True if a valid Cue was found, false otherwise.
    */
-  /* package */ boolean parseNextValidCue(ParsableByteArray webvttData, WebvttCue.Builder builder) {
-    Matcher cueHeaderMatcher;
-    while ((cueHeaderMatcher = findNextCueHeader(webvttData)) != null) {
-      if (parseCue(cueHeaderMatcher, webvttData, builder, textBuilder)) {
-        return true;
+  /* package */ boolean parseCue(ParsableByteArray webvttData, WebvttCue.Builder builder) {
+    String firstLine = webvttData.readLine();
+    Matcher cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(firstLine);
+    if (cueHeaderMatcher.matches()) {
+      // We have found the timestamps in the first line. No id present.
+      return parseCue(cueHeaderMatcher, webvttData, builder, textBuilder);
+    } else {
+      // The first line is not the timestamps, but could be the cue id.
+      String secondLine = webvttData.readLine();
+      cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(secondLine);
+      if (cueHeaderMatcher.matches()) {
+        // We can do the rest of the parsing, including the id.
+        builder.setId(firstLine.trim());
+        return parseCue(cueHeaderMatcher, webvttData, builder, textBuilder);
       }
     }
     return false;
@@ -118,30 +126,6 @@ public final class WebvttCueParser {
         Log.w(TAG, "Skipping bad cue setting: " + cueSettingMatcher.group());
       }
     }
-  }
-
-  /**
-   * Reads lines up to and including the next WebVTT cue header.
-   *
-   * @param input The input from which lines should be read.
-   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
-   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
-   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
-   */
-  public static Matcher findNextCueHeader(ParsableByteArray input) {
-    String line;
-    while ((line = input.readLine()) != null) {
-      if (COMMENT.matcher(line).matches()) {
-        // Skip until the end of the comment block.
-        while ((line = input.readLine()) != null && !line.isEmpty()) {}
-      } else {
-        Matcher cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(line);
-        if (cueHeaderMatcher.matches()) {
-          return cueHeaderMatcher;
-        }
-      }
-    }
-    return null;
   }
 
   /**

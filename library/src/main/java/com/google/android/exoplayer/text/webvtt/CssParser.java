@@ -54,6 +54,7 @@ import java.util.Map;
    * @param styleMap The map that contains styles accessible by selector.
    */
   public void parseBlock(ParsableByteArray input, Map<String, WebvttCssStyle> styleMap) {
+    stringBuilder.setLength(0);
     int initialInputPosition = input.getPosition();
     skipStyleBlock(input);
     styleInput.reset(input.data, input.getPosition());
@@ -97,8 +98,8 @@ import java.util.Map;
    * ::cue(v[voice="Someone"])
    *
    * @param input From which the selector is obtained.
-   * @return A string containing the target, empty string if targets all cues and null if an error
-   *     was encountered.
+   * @return A string containing the target, {@link WebvttCue#UNIVERSAL_CUE_ID} if targets all cues
+   *     and null if an error was encountered.
    */
   private static String parseSelector(ParsableByteArray input, StringBuilder stringBuilder) {
     skipWhitespaceAndComments(input);
@@ -116,7 +117,7 @@ import java.util.Map;
     }
     if ("{".equals(token)) {
       input.setPosition(position);
-      return "";
+      return WebvttCue.UNIVERSAL_CUE_ID;
     }
     String target = null;
     if ("(".equals(token)) {
