@@ -92,8 +92,10 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   // The highest quality H264 format mandated by the Android CDD.
   private static final String H264_CDD_FIXED = Util.SDK_INT < 23
       ? H264_BASELINE_480P_VIDEO_REPRESENTATION_ID : H264_MAIN_480P_VIDEO_REPRESENTATION_ID;
-  // Multiple H264 formats mandated by the Android CDD.
-  private static final String[] H264_CDD_ADAPTIVE = Util.SDK_INT < 23
+  // Multiple H264 formats mandated by the Android CDD. Note: The CDD actually mandated main profile
+  // support from API level 23, but we opt to test only from 24 due to known issues on API level 23
+  // when switching between baseline and main profiles on certain devices.
+  private static final String[] H264_CDD_ADAPTIVE = Util.SDK_INT < 24
       ? new String[] {
           H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
           H264_BASELINE_480P_VIDEO_REPRESENTATION_ID}
@@ -133,7 +135,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   // Whether adaptive tests should enable video formats beyond those mandated by the Android CDD
   // if the device advertises support for them.
-  private static final boolean ALLOW_ADDITIONAL_VIDEO_FORMATS = Util.SDK_INT >= 23;
+  private static final boolean ALLOW_ADDITIONAL_VIDEO_FORMATS = Util.SDK_INT >= 24;
 
   private static final ActionSchedule SEEKING_SCHEDULE = new ActionSchedule.Builder(TAG)
       .delay(10000).seek(15000)
@@ -232,7 +234,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265Adaptive() throws IOException {
-    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -242,7 +244,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -252,7 +254,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -275,7 +277,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9Adaptive() throws IOException {
-    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -285,7 +287,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -295,7 +297,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
