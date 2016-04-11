@@ -260,14 +260,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     resetInternal();
     this.renderers = renderers;
     Arrays.fill(trackFormats, null);
-    for (int i = 0; i < renderers.length; i++) {
-      MediaClock mediaClock = renderers[i].getMediaClock();
-      if (mediaClock != null) {
-        Assertions.checkState(rendererMediaClock == null);
-        rendererMediaClock = mediaClock;
-        rendererMediaClockSource = renderers[i];
-      }
-    }
     setState(ExoPlayer.STATE_PREPARING);
     incrementalPrepareInternal();
   }
@@ -319,8 +311,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
         int trackIndex = selectedTrackIndices[rendererIndex];
         if (0 <= trackIndex && trackIndex < rendererTrackFormats.length) {
-          renderer.enable(trackIndex, positionUs, false);
-          enabledRenderers.add(renderer);
+          enableRenderer(renderer, trackIndex, false);
           allRenderersEnded = allRenderersEnded && renderer.isEnded();
           allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
         }
@@ -345,6 +336,18 @@ import java.util.concurrent.atomic.AtomicInteger;
       startRenderers();
     }
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+  }
+
+  private void enableRenderer(TrackRenderer renderer, int trackIndex, boolean joining)
+      throws ExoPlaybackException {
+    renderer.enable(trackIndex, positionUs, joining);
+    enabledRenderers.add(renderer);
+    MediaClock mediaClock = renderer.getMediaClock();
+    if (mediaClock != null) {
+      Assertions.checkState(rendererMediaClock == null);
+      rendererMediaClock = mediaClock;
+      rendererMediaClockSource = renderer;
+    }
   }
 
   private boolean rendererReadyOrEnded(TrackRenderer renderer) {
@@ -556,10 +559,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private void stopAndDisable(TrackRenderer renderer) {
     try {
-      ensureStopped(renderer);
-      if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-        renderer.disable();
-      }
+      ensureDisabled(renderer);
     } catch (ExoPlaybackException e) {
       // There's nothing we can do.
       Log.e(TAG, "Stop failed.", e);
@@ -632,9 +632,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         // timing responsibilities.
         standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
       }
-      ensureStopped(renderer);
+      ensureDisabled(renderer);
       enabledRenderers.remove(renderer);
-      renderer.disable();
     }
 
     if (shouldEnable) {
@@ -642,8 +641,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
       // Consider as joining if the renderer was previously disabled, but not when switching tracks.
       boolean joining = !isEnabled && playing;
-      renderer.enable(trackIndex, positionUs, joining);
-      enabledRenderers.add(renderer);
+      enableRenderer(renderer, trackIndex, joining);
       if (playing) {
         renderer.start();
       }
@@ -657,4 +655,14 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
+  private void ensureDisabled(TrackRenderer renderer) throws ExoPlaybackException {
+    ensureStopped(renderer);
+    if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
+      renderer.disable();
+      if (renderer == rendererMediaClockSource) {
+        rendererMediaClock = null;
+        rendererMediaClockSource = null;
+      }
+    }
+  }
 }

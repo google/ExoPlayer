@@ -46,18 +46,18 @@ public class HlsMediaPlaylistParserTest extends TestCase {
         + "\n"
         + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://priv.example.com/key.php?r=2680\",IV=0x1566B\n"
         + "#EXTINF:7.975,\n"
-        + "#EXT-X-BYTERANGE:51501@51370\n"
+        + "#EXT-X-BYTERANGE:51501@2147483648\n"
         + "https://priv.example.com/fileSequence2680.ts\n"
         + "\n"
         + "#EXT-X-KEY:METHOD=NONE\n"
         + "#EXTINF:7.941,\n"
-        + "#EXT-X-BYTERANGE:51501\n" // @102871
+        + "#EXT-X-BYTERANGE:51501\n" // @2147535149
         + "https://priv.example.com/fileSequence2681.ts\n"
         + "\n"
         + "#EXT-X-DISCONTINUITY\n"
         + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://priv.example.com/key.php?r=2682\"\n"
         + "#EXTINF:7.975,\n"
-        + "#EXT-X-BYTERANGE:51740\n" // @154372
+        + "#EXT-X-BYTERANGE:51740\n" // @2147586650
         + "https://priv.example.com/fileSequence2682.ts\n"
         + "\n"
         + "#EXTINF:7.975,\n"
@@ -95,7 +95,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals("https://priv.example.com/key.php?r=2680", segments.get(1).encryptionKeyUri);
       assertEquals("0x1566B", segments.get(1).encryptionIV);
       assertEquals(51501, segments.get(1).byterangeLength);
-      assertEquals(51370, segments.get(1).byterangeOffset);
+      assertEquals(2147483648L, segments.get(1).byterangeOffset);
       assertEquals("https://priv.example.com/fileSequence2680.ts", segments.get(1).url);
 
       assertEquals(4, segments.get(2).discontinuitySequenceNumber);
@@ -104,7 +104,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals(null, segments.get(2).encryptionKeyUri);
       assertEquals(null, segments.get(2).encryptionIV);
       assertEquals(51501, segments.get(2).byterangeLength);
-      assertEquals(102871, segments.get(2).byterangeOffset);
+      assertEquals(2147535149L, segments.get(2).byterangeOffset);
       assertEquals("https://priv.example.com/fileSequence2681.ts", segments.get(2).url);
 
       assertEquals(5, segments.get(3).discontinuitySequenceNumber);
@@ -115,7 +115,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertNotNull(segments.get(3).encryptionIV);
       assertEquals("A7A", segments.get(3).encryptionIV.toUpperCase(Locale.getDefault()));
       assertEquals(51740, segments.get(3).byterangeLength);
-      assertEquals(154372, segments.get(3).byterangeOffset);
+      assertEquals(2147586650L, segments.get(3).byterangeOffset);
       assertEquals("https://priv.example.com/fileSequence2682.ts", segments.get(3).url);
 
       assertEquals(5, segments.get(4).discontinuitySequenceNumber);

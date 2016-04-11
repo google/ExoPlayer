@@ -24,6 +24,8 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Handler;
 
+import java.nio.ByteBuffer;
+
 /**
  * Decodes and renders video using {@link MediaCodecVideoTrackRenderer}. Provides buffer timestamp
  * assertions.
@@ -51,7 +53,8 @@ public class DebugMediaCodecVideoTrackRenderer extends MediaCodecVideoTrackRende
   }
 
   @Override
-  protected void onQueuedInputBuffer(long presentationTimeUs) {
+  protected void onQueuedInputBuffer(
+      long presentationTimeUs, ByteBuffer buffer, int bufferSize, boolean sampleEncrypted) {
     if (enableBufferTimestampAssertions) {
       insertTimestamp(presentationTimeUs);
       maybeShiftTimestampsList();

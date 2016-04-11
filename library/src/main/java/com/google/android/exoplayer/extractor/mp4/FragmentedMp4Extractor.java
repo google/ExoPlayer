@@ -28,12 +28,15 @@ import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.extractor.mp4.Atom.LeafAtom;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import android.util.Log;
+import android.util.Pair;
+import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,8 +46,6 @@ import java.util.UUID;
 
 /**
  * Facilitates the extraction of data from the fragmented mp4 container format.
- * <p>
- * This implementation only supports de-muxed (i.e. single track) streams.
  */
 public final class FragmentedMp4Extractor implements Extractor {
 
@@ -57,35 +58,45 @@ public final class FragmentedMp4Extractor implements Extractor {
    * <p>
    * This flag does nothing if the stream is not a video stream.
    */
-  public static final int WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
+  public static final int FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
 
   /**
    * Flag to ignore any tfdt boxes in the stream.
    */
-  public static final int WORKAROUND_IGNORE_TFDT_BOX = 2;
+  public static final int FLAG_WORKAROUND_IGNORE_TFDT_BOX = 2;
+
+  /**
+   * Flag to indicate that the {@link Track} was sideloaded, instead of being declared by the MP4
+   * container.
+   */
+  private static final int FLAG_SIDELOADED = 4;
 
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
 
-  // Parser states
+  // Parser states.
   private static final int STATE_READING_ATOM_HEADER = 0;
   private static final int STATE_READING_ATOM_PAYLOAD = 1;
   private static final int STATE_READING_ENCRYPTION_DATA = 2;
   private static final int STATE_READING_SAMPLE_START = 3;
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
-  private final int workaroundFlags;
+  // Workarounds.
+  private final int flags;
+  private final Track sideloadedTrack;
+
+  // Track-linked data bundle, accessible as a whole through trackID.
+  private final SparseArray<TrackBundle> trackBundles;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
   private final ParsableByteArray nalLength;
   private final ParsableByteArray encryptionSignalByte;
 
-  // Parser state
+  // Parser state.
   private final ParsableByteArray atomHeader;
   private final byte[] extendedTypeScratch;
   private final Stack<ContainerAtom> containerAtoms;
-  private final TrackFragment fragmentRun;
 
   private int parserState;
   private int atomType;
@@ -94,18 +105,13 @@ public final class FragmentedMp4Extractor implements Extractor {
   private ParsableByteArray atomData;
   private long endOfMdatPosition;
 
-  private int sampleIndex;
+  private TrackBundle currentTrackBundle;
   private int sampleSize;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
 
-  // Data parsed from moov atom.
-  private Track track;
-  private DefaultSampleValues extendsDefaults;
-
-  // Extractor outputs.
+  // Extractor output.
   private ExtractorOutput extractorOutput;
-  private TrackOutput trackOutput;
 
   // Whether extractorOutput.seekMap has been invoked.
   private boolean haveOutputSeekMap;
@@ -115,18 +121,27 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   /**
-   * @param workaroundFlags Flags to allow parsing of faulty streams.
-   *     {@link #WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME} is currently the only flag defined.
+   * @param flags Flags to allow parsing of faulty streams.
    */
-  public FragmentedMp4Extractor(int workaroundFlags) {
-    this.workaroundFlags = workaroundFlags;
+  public FragmentedMp4Extractor(int flags) {
+    this(flags, null);
+  }
+
+  /**
+   * @param flags Flags to allow parsing of faulty streams.
+   * @param sideloadedTrack Sideloaded track information, in the case that the extractor
+   *     will not receive a moov box in the input data.
+   */
+  public FragmentedMp4Extractor(int flags, Track sideloadedTrack) {
+    this.sideloadedTrack = sideloadedTrack;
+    this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
-    fragmentRun = new TrackFragment();
+    trackBundles = new SparseArray<>();
     enterReadingAtomHeaderState();
   }
 
@@ -135,31 +150,26 @@ public final class FragmentedMp4Extractor implements Extractor {
     return Sniffer.sniffFragmented(input);
   }
 
-  /**
-   * Sideloads track information into the extractor.
-   * <p>
-   * Should be called before {@link #read(ExtractorInput, PositionHolder)} in the case that the
-   * extractor will not receive a moov atom in the input data, from which track information would
-   * normally be parsed.
-   *
-   * @param track The track to sideload.
-   */
-  public void setTrack(Track track) {
-    this.extendsDefaults = new DefaultSampleValues(0, 0, 0, 0);
-    this.track = track;
-  }
-
   @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
-    trackOutput = output.track(0);
-    extractorOutput.endTracks();
+    if (sideloadedTrack != null) {
+      TrackBundle bundle = new TrackBundle(output.track(0));
+      bundle.init(sideloadedTrack, new DefaultSampleValues(0, 0, 0, 0));
+      trackBundles.put(0, bundle);
+      extractorOutput.endTracks();
+    }
   }
 
   @Override
   public void seek() {
     containerAtoms.clear();
     enterReadingAtomHeaderState();
+  }
+
+  @Override
+  public void release() {
+    // Do nothing
   }
 
   @Override
@@ -214,28 +224,34 @@ public final class FragmentedMp4Extractor implements Extractor {
     long atomPosition = input.getPosition() - atomHeaderBytesRead;
     if (atomType == Atom.TYPE_moof) {
       // The data positions may be updated when parsing the tfhd/trun.
-      fragmentRun.auxiliaryDataPosition = atomPosition;
-      fragmentRun.dataPosition = atomPosition;
+      int trackCount = trackBundles.size();
+      for (int i = 0; i < trackCount; i++) {
+        TrackFragment fragment = trackBundles.valueAt(i).fragment;
+        fragment.auxiliaryDataPosition = atomPosition;
+        fragment.dataPosition = atomPosition;
+      }
     }
 
     if (atomType == Atom.TYPE_mdat) {
+      currentTrackBundle = null;
       endOfMdatPosition = atomPosition + atomSize;
       if (!haveOutputSeekMap) {
         extractorOutput.seekMap(SeekMap.UNSEEKABLE);
         haveOutputSeekMap = true;
       }
-      if (fragmentRun.sampleEncryptionDataNeedsFill) {
-        parserState = STATE_READING_ENCRYPTION_DATA;
-      } else {
-        parserState = STATE_READING_SAMPLE_START;
-      }
+      parserState = STATE_READING_ENCRYPTION_DATA;
       return true;
     }
 
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
       containerAtoms.add(new ContainerAtom(atomType, endPosition));
-      enterReadingAtomHeaderState();
+      if (atomSize == atomHeaderBytesRead) {
+        processAtomEnded(endPosition);
+      } else {
+        // Start reading the first child atom.
+        enterReadingAtomHeaderState();
+      }
     } else if (shouldParseLeafAtom(atomType)) {
       if (atomHeaderBytesRead != Atom.HEADER_SIZE) {
         throw new ParserException("Leaf atom defines extended atom size (unsupported).");
@@ -265,8 +281,11 @@ public final class FragmentedMp4Extractor implements Extractor {
     } else {
       input.skipFully(atomPayloadSize);
     }
-    long currentPosition = input.getPosition();
-    while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == currentPosition) {
+    processAtomEnded(input.getPosition());
+  }
+
+  private void processAtomEnded(long atomEndPosition) throws ParserException {
+    while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == atomEndPosition) {
       onContainerAtomRead(containerAtoms.pop());
     }
     enterReadingAtomHeaderState();
@@ -292,13 +311,14 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
   }
 
-  private void onMoovContainerAtomRead(ContainerAtom moov) throws ParserException {
-    List<Atom.LeafAtom> moovChildren = moov.leafChildren;
-    int moovChildrenSize = moovChildren.size();
+  private void onMoovContainerAtomRead(ContainerAtom moov) {
+    Assertions.checkState(sideloadedTrack == null, "Unexpected moov box.");
+    List<Atom.LeafAtom> moovLeafChildren = moov.leafChildren;
+    int moovLeafChildrenSize = moovLeafChildren.size();
 
     DrmInitData.Mapped drmInitData = null;
-    for (int i = 0; i < moovChildrenSize; i++) {
-      LeafAtom child = moovChildren.get(i);
+    for (int i = 0; i < moovLeafChildrenSize; i++) {
+      LeafAtom child = moovLeafChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
         if (drmInitData == null) {
           drmInitData = new DrmInitData.Mapped();
@@ -317,90 +337,130 @@ public final class FragmentedMp4Extractor implements Extractor {
       extractorOutput.drmInitData(drmInitData);
     }
 
+    // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
-    extendsDefaults = parseTrex(mvex.getLeafAtomOfType(Atom.TYPE_trex).data);
-    track = AtomParsers.parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak),
-        moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
-    if (track == null) {
-      throw new ParserException("Track type not supported.");
+    SparseArray<DefaultSampleValues> defaultSampleValuesArray = new SparseArray<>();
+    int mvexChildrenSize = mvex.leafChildren.size();
+    for (int i = 0; i < mvexChildrenSize; i++) {
+      Atom.LeafAtom atom = mvex.leafChildren.get(i);
+      if (atom.type == Atom.TYPE_trex) {
+        Pair<Integer, DefaultSampleValues> trexData = parseTrex(atom.data);
+        defaultSampleValuesArray.put(trexData.first, trexData.second);
+      }
     }
-    trackOutput.format(track.mediaFormat);
+
+    // Construction of tracks.
+    SparseArray<Track> tracks = new SparseArray<>();
+    int moovContainerChildrenSize = moov.containerChildren.size();
+    for (int i = 0; i < moovContainerChildrenSize; i++) {
+      Atom.ContainerAtom atom = moov.containerChildren.get(i);
+      if (atom.type == Atom.TYPE_trak) {
+        Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
+        if (track != null) {
+          tracks.put(track.id, track);
+        }
+      }
+    }
+    int trackCount = tracks.size();
+
+    if (trackBundles.size() == 0) {
+      // We need to create the track bundles.
+      for (int i = 0; i < trackCount; i++) {
+        trackBundles.put(tracks.valueAt(i).id, new TrackBundle(extractorOutput.track(i)));
+      }
+      extractorOutput.endTracks();
+    } else {
+      Assertions.checkState(trackBundles.size() == trackCount);
+    }
+
+    // Initialization of tracks and default sample values.
+    for (int i = 0; i < trackCount; i++) {
+      Track track = tracks.valueAt(i);
+      trackBundles.get(track.id).init(track, defaultSampleValuesArray.get(track.id));
+    }
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
-    fragmentRun.reset();
-    parseMoof(track, extendsDefaults, moof, fragmentRun, workaroundFlags, extendedTypeScratch);
-    sampleIndex = 0;
+    parseMoof(moof, trackBundles, flags, extendedTypeScratch);
   }
 
   /**
    * Parses a trex atom (defined in 14496-12).
    */
-  private static DefaultSampleValues parseTrex(ParsableByteArray trex) {
-    trex.setPosition(Atom.FULL_HEADER_SIZE + 4);
+  private static Pair<Integer, DefaultSampleValues> parseTrex(ParsableByteArray trex) {
+    trex.setPosition(Atom.FULL_HEADER_SIZE);
+    int trackId = trex.readInt();
     int defaultSampleDescriptionIndex = trex.readUnsignedIntToInt() - 1;
     int defaultSampleDuration = trex.readUnsignedIntToInt();
     int defaultSampleSize = trex.readUnsignedIntToInt();
     int defaultSampleFlags = trex.readInt();
-    return new DefaultSampleValues(defaultSampleDescriptionIndex, defaultSampleDuration,
-        defaultSampleSize, defaultSampleFlags);
+
+    return Pair.create(trackId, new DefaultSampleValues(defaultSampleDescriptionIndex,
+        defaultSampleDuration, defaultSampleSize, defaultSampleFlags));
   }
 
-  private static void parseMoof(Track track, DefaultSampleValues extendsDefaults,
-      ContainerAtom moof, TrackFragment out, int workaroundFlags, byte[] extendedTypeScratch)
-      throws ParserException {
-    if (moof.getChildAtomOfTypeCount(Atom.TYPE_traf) != 1) {
-      throw new ParserException("Traf count in moof != 1 (unsupported).");
+  private static void parseMoof(ContainerAtom moof, SparseArray<TrackBundle> trackBundleArray,
+      int flags, byte[] extendedTypeScratch) throws ParserException {
+    int moofContainerChildrenSize = moof.containerChildren.size();
+    for (int i = 0; i < moofContainerChildrenSize; i++) {
+      Atom.ContainerAtom child = moof.containerChildren.get(i);
+      if (child.type == Atom.TYPE_traf) {
+        parseTraf(child, trackBundleArray, flags, extendedTypeScratch);
+      }
     }
-    parseTraf(track, extendsDefaults, moof.getContainerAtomOfType(Atom.TYPE_traf),
-        out, workaroundFlags, extendedTypeScratch);
   }
 
   /**
    * Parses a traf atom (defined in 14496-12).
    */
-  private static void parseTraf(Track track, DefaultSampleValues extendsDefaults,
-      ContainerAtom traf, TrackFragment out, int workaroundFlags, byte[] extendedTypeScratch)
-      throws ParserException {
+  private static void parseTraf(ContainerAtom traf, SparseArray<TrackBundle> trackBundleArray,
+      int flags, byte[] extendedTypeScratch) throws ParserException {
     if (traf.getChildAtomOfTypeCount(Atom.TYPE_trun) != 1) {
       throw new ParserException("Trun count in traf != 1 (unsupported).");
     }
+
+    LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
+    TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray, flags);
+    if (trackBundle == null) {
+      return;
+    }
+    TrackFragment fragment = trackBundle.fragment;
+    trackBundle.currentSampleIndex = 0;
+    fragment.reset();
+
     LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
     long decodeTime;
-    if (tfdtAtom == null || (workaroundFlags & WORKAROUND_IGNORE_TFDT_BOX) != 0) {
+    if (tfdtAtom == null || (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) != 0) {
       decodeTime = 0;
     } else {
       decodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
     }
 
-    LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
-    parseTfhd(extendsDefaults, tfhd.data, out);
-
     LeafAtom trun = traf.getLeafAtomOfType(Atom.TYPE_trun);
-    parseTrun(track, out.header, decodeTime, workaroundFlags, trun.data, out);
+    parseTrun(trackBundle, decodeTime, flags, trun.data);
 
     LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
     if (saiz != null) {
-      TrackEncryptionBox trackEncryptionBox =
-          track.sampleDescriptionEncryptionBoxes[out.header.sampleDescriptionIndex];
-      parseSaiz(trackEncryptionBox, saiz.data, out);
+      TrackEncryptionBox trackEncryptionBox = trackBundle.track
+          .sampleDescriptionEncryptionBoxes[fragment.header.sampleDescriptionIndex];
+      parseSaiz(trackEncryptionBox, saiz.data, fragment);
     }
 
     LeafAtom saio = traf.getLeafAtomOfType(Atom.TYPE_saio);
     if (saio != null) {
-      parseSaio(saio.data, out);
+      parseSaio(saio.data, fragment);
     }
 
     LeafAtom senc = traf.getLeafAtomOfType(Atom.TYPE_senc);
     if (senc != null) {
-      parseSenc(senc.data, out);
+      parseSenc(senc.data, fragment);
     }
 
     int childrenSize = traf.leafChildren.size();
     for (int i = 0; i < childrenSize; i++) {
       LeafAtom atom = traf.leafChildren.get(i);
       if (atom.type == Atom.TYPE_uuid) {
-        parseUuid(atom.data, out, extendedTypeScratch);
+        parseUuid(atom.data, fragment, extendedTypeScratch);
       }
     }
   }
@@ -441,7 +501,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    * Parses a saio atom (defined in 14496-12).
    *
    * @param saio The saio atom to parse.
-   * @param out The track fragment to populate with data from the saio atom.
+   * @param out The {@link TrackFragment} to populate with data from the saio atom.
    */
   private static void parseSaio(ParsableByteArray saio, TrackFragment out) throws ParserException {
     saio.setPosition(Atom.HEADER_SIZE);
@@ -463,36 +523,44 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   /**
-   * Parses a tfhd atom (defined in 14496-12).
+   * Parses a tfhd atom (defined in 14496-12), updates the corresponding {@link TrackFragment} and
+   * returns the {@link TrackBundle} of the corresponding {@link Track}. If the tfhd does not refer
+   * to any {@link TrackBundle}, {@code null} is returned and no changes are made.
    *
-   * @param extendsDefaults Default sample values from the trex atom.
    * @param tfhd The tfhd atom to parse.
-   * @param out The track fragment to populate with data from the tfhd atom.
+   * @param trackBundles The track bundles, one of which corresponds to the tfhd atom being parsed.
+   * @return The {@link TrackBundle} to which the {@link TrackFragment} belongs, or null if the tfhd
+   *     does not refer to any {@link TrackBundle}.
    */
-  private static void parseTfhd(DefaultSampleValues extendsDefaults, ParsableByteArray tfhd,
-      TrackFragment out) {
+  private static TrackBundle parseTfhd(ParsableByteArray tfhd,
+      SparseArray<TrackBundle> trackBundles, int flags) {
     tfhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = tfhd.readInt();
-    int flags = Atom.parseFullAtomFlags(fullAtom);
-
-    tfhd.skipBytes(4); // trackId
-    if ((flags & 0x01 /* base_data_offset_present */) != 0) {
+    int atomFlags = Atom.parseFullAtomFlags(fullAtom);
+    int trackId = tfhd.readInt();
+    TrackBundle trackBundle = trackBundles.get((flags & FLAG_SIDELOADED) == 0 ? trackId : 0);
+    if (trackBundle == null) {
+      return null;
+    }
+    if ((atomFlags & 0x01 /* base_data_offset_present */) != 0) {
       long baseDataPosition = tfhd.readUnsignedLongToLong();
-      out.dataPosition = baseDataPosition;
-      out.auxiliaryDataPosition = baseDataPosition;
+      trackBundle.fragment.dataPosition = baseDataPosition;
+      trackBundle.fragment.auxiliaryDataPosition = baseDataPosition;
     }
 
+    DefaultSampleValues defaultSampleValues = trackBundle.defaultSampleValues;
     int defaultSampleDescriptionIndex =
-        ((flags & 0x02 /* default_sample_description_index_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() - 1 : extendsDefaults.sampleDescriptionIndex;
-    int defaultSampleDuration = ((flags & 0x08 /* default_sample_duration_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() : extendsDefaults.duration;
-    int defaultSampleSize = ((flags & 0x10 /* default_sample_size_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() : extendsDefaults.size;
-    int defaultSampleFlags = ((flags & 0x20 /* default_sample_flags_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() : extendsDefaults.flags;
-    out.header = new DefaultSampleValues(defaultSampleDescriptionIndex, defaultSampleDuration,
-        defaultSampleSize, defaultSampleFlags);
+        ((atomFlags & 0x02 /* default_sample_description_index_present */) != 0)
+        ? tfhd.readUnsignedIntToInt() - 1 : defaultSampleValues.sampleDescriptionIndex;
+    int defaultSampleDuration = ((atomFlags & 0x08 /* default_sample_duration_present */) != 0)
+        ? tfhd.readUnsignedIntToInt() : defaultSampleValues.duration;
+    int defaultSampleSize = ((atomFlags & 0x10 /* default_sample_size_present */) != 0)
+        ? tfhd.readUnsignedIntToInt() : defaultSampleValues.size;
+    int defaultSampleFlags = ((atomFlags & 0x20 /* default_sample_flags_present */) != 0)
+        ? tfhd.readUnsignedIntToInt() : defaultSampleValues.flags;
+    trackBundle.fragment.header = new DefaultSampleValues(defaultSampleDescriptionIndex,
+        defaultSampleDuration, defaultSampleSize, defaultSampleFlags);
+    return trackBundle;
   }
 
   /**
@@ -511,34 +579,38 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a trun atom (defined in 14496-12).
    *
-   * @param track The corresponding track.
-   * @param defaultSampleValues Default sample values.
-   * @param decodeTime The decode time.
+   * @param trackBundle The {@link TrackBundle} that contains the {@link TrackFragment} into
+   *     which parsed data should be placed.
+   * @param decodeTime The decode time of the first sample in the fragment run.
+   * @param flags Flags to allow any required workaround to be executed.
    * @param trun The trun atom to parse.
-   * @param out The {@TrackFragment} into which parsed data should be placed.
    */
-  private static void parseTrun(Track track, DefaultSampleValues defaultSampleValues,
-      long decodeTime, int workaroundFlags, ParsableByteArray trun, TrackFragment out) {
+  private static void parseTrun(TrackBundle trackBundle, long decodeTime, int flags,
+      ParsableByteArray trun) {
     trun.setPosition(Atom.HEADER_SIZE);
     int fullAtom = trun.readInt();
-    int flags = Atom.parseFullAtomFlags(fullAtom);
+    int atomFlags = Atom.parseFullAtomFlags(fullAtom);
+
+    Track track = trackBundle.track;
+    TrackFragment fragment = trackBundle.fragment;
+    DefaultSampleValues defaultSampleValues = fragment.header;
 
     int sampleCount = trun.readUnsignedIntToInt();
-    if ((flags & 0x01 /* data_offset_present */) != 0) {
-      out.dataPosition += trun.readInt();
+    if ((atomFlags & 0x01 /* data_offset_present */) != 0) {
+      fragment.dataPosition += trun.readInt();
     }
 
-    boolean firstSampleFlagsPresent = (flags & 0x04 /* first_sample_flags_present */) != 0;
+    boolean firstSampleFlagsPresent = (atomFlags & 0x04 /* first_sample_flags_present */) != 0;
     int firstSampleFlags = defaultSampleValues.flags;
     if (firstSampleFlagsPresent) {
       firstSampleFlags = trun.readUnsignedIntToInt();
     }
 
-    boolean sampleDurationsPresent = (flags & 0x100 /* sample_duration_present */) != 0;
-    boolean sampleSizesPresent = (flags & 0x200 /* sample_size_present */) != 0;
-    boolean sampleFlagsPresent = (flags & 0x400 /* sample_flags_present */) != 0;
+    boolean sampleDurationsPresent = (atomFlags & 0x100 /* sample_duration_present */) != 0;
+    boolean sampleSizesPresent = (atomFlags & 0x200 /* sample_size_present */) != 0;
+    boolean sampleFlagsPresent = (atomFlags & 0x400 /* sample_flags_present */) != 0;
     boolean sampleCompositionTimeOffsetsPresent =
-        (flags & 0x800 /* sample_composition_time_offsets_present */) != 0;
+        (atomFlags & 0x800 /* sample_composition_time_offsets_present */) != 0;
 
     // Offset to the entire video timeline. In the presence of B-frames this is usually used to
     // ensure that the first frame's presentation timestamp is zero.
@@ -551,16 +623,16 @@ public final class FragmentedMp4Extractor implements Extractor {
       edtsOffset = Util.scaleLargeTimestamp(track.editListMediaTimes[0], 1000, track.timescale);
     }
 
-    out.initTables(sampleCount);
-    int[] sampleSizeTable = out.sampleSizeTable;
-    int[] sampleCompositionTimeOffsetTable = out.sampleCompositionTimeOffsetTable;
-    long[] sampleDecodingTimeTable = out.sampleDecodingTimeTable;
-    boolean[] sampleIsSyncFrameTable = out.sampleIsSyncFrameTable;
+    fragment.initTables(sampleCount);
+    int[] sampleSizeTable = fragment.sampleSizeTable;
+    int[] sampleCompositionTimeOffsetTable = fragment.sampleCompositionTimeOffsetTable;
+    long[] sampleDecodingTimeTable = fragment.sampleDecodingTimeTable;
+    boolean[] sampleIsSyncFrameTable = fragment.sampleIsSyncFrameTable;
 
     long timescale = track.timescale;
     long cumulativeTime = decodeTime;
     boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_vide
-        && (workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME) != 0;
+        && (flags & FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME) != 0;
     for (int i = 0; i < sampleCount; i++) {
       // Use trun values if present, otherwise tfhd, otherwise trex.
       int sampleDuration = sampleDurationsPresent ? trun.readUnsignedIntToInt()
@@ -688,13 +760,27 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private void readEncryptionData(ExtractorInput input) throws IOException, InterruptedException {
-    int bytesToSkip = (int) (fragmentRun.auxiliaryDataPosition - input.getPosition());
+    TrackBundle nextTrackBundle = null;
+    long nextDataOffset = Long.MAX_VALUE;
+    int trackBundlesSize = trackBundles.size();
+    for (int i = 0; i < trackBundlesSize; i++) {
+      TrackFragment trackFragment = trackBundles.valueAt(i).fragment;
+      if (trackFragment.sampleEncryptionDataNeedsFill
+          && trackFragment.auxiliaryDataPosition < nextDataOffset) {
+        nextDataOffset = trackFragment.auxiliaryDataPosition;
+        nextTrackBundle = trackBundles.valueAt(i);
+      }
+    }
+    if (nextTrackBundle == null) {
+      parserState = STATE_READING_SAMPLE_START;
+      return;
+    }
+    int bytesToSkip = (int) (nextDataOffset - input.getPosition());
     if (bytesToSkip < 0) {
       throw new ParserException("Offset to encryption data was negative.");
     }
     input.skipFully(bytesToSkip);
-    fragmentRun.fillEncryptionData(input);
-    parserState = STATE_READING_SAMPLE_START;
+    nextTrackBundle.fragment.fillEncryptionData(input);
   }
 
   /**
@@ -713,36 +799,44 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
     if (parserState == STATE_READING_SAMPLE_START) {
-      if (sampleIndex == fragmentRun.length) {
-        // We've run out of samples in the current mdat. Discard any trailing data and prepare to
-        // read the header of the next atom.
-        int bytesToSkip = (int) (endOfMdatPosition - input.getPosition());
-        if (bytesToSkip < 0) {
-          throw new ParserException("Offset to end of mdat was negative.");
+      if (currentTrackBundle == null) {
+        currentTrackBundle = getNextFragmentRun(trackBundles);
+        if (currentTrackBundle == null) {
+          // We've run out of samples in the current mdat. Discard any trailing data and prepare to
+          // read the header of the next atom.
+          int bytesToSkip = (int) (endOfMdatPosition - input.getPosition());
+          if (bytesToSkip < 0) {
+            throw new ParserException("Offset to end of mdat was negative.");
+          }
+          input.skipFully(bytesToSkip);
+          enterReadingAtomHeaderState();
+          return false;
         }
-        input.skipFully(bytesToSkip);
-        enterReadingAtomHeaderState();
-        return false;
-      }
-      if (sampleIndex == 0) {
-        // We're reading the first sample in the current mdat. Discard any preceding data.
-        int bytesToSkip = (int) (fragmentRun.dataPosition - input.getPosition());
+
+        long nextDataPosition = currentTrackBundle.fragment.dataPosition;
+        // We skip bytes preceding the next sample to read.
+        int bytesToSkip = (int) (nextDataPosition - input.getPosition());
         if (bytesToSkip < 0) {
           throw new ParserException("Offset to sample data was negative.");
         }
         input.skipFully(bytesToSkip);
       }
-      sampleSize = fragmentRun.sampleSizeTable[sampleIndex];
-      if (fragmentRun.definesEncryptionData) {
-        sampleBytesWritten = appendSampleEncryptionData(fragmentRun.sampleEncryptionData);
+      sampleSize = currentTrackBundle.fragment
+          .sampleSizeTable[currentTrackBundle.currentSampleIndex];
+      if (currentTrackBundle.fragment.definesEncryptionData) {
+        sampleBytesWritten = appendSampleEncryptionData(currentTrackBundle);
         sampleSize += sampleBytesWritten;
       } else {
         sampleBytesWritten = 0;
       }
-      sampleCurrentNalBytesRemaining = 0;
       parserState = STATE_READING_SAMPLE_CONTINUE;
+      sampleCurrentNalBytesRemaining = 0;
     }
 
+    TrackFragment fragment = currentTrackBundle.fragment;
+    Track track = currentTrackBundle.track;
+    TrackOutput output = currentTrackBundle.output;
+    int sampleIndex = currentTrackBundle.currentSampleIndex;
     if (track.nalUnitLengthFieldLength != -1) {
       // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
       // they're only 1 or 2 bytes long.
@@ -763,49 +857,88 @@ public final class FragmentedMp4Extractor implements Extractor {
           sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
-          trackOutput.sampleData(nalStartCode, 4);
+          output.sampleData(nalStartCode, 4);
           sampleBytesWritten += 4;
           sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
           // Write the payload of the NAL unit.
-          int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining, false);
+          int writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }
       }
     } else {
       while (sampleBytesWritten < sampleSize) {
-        int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
+        int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
       }
     }
 
-    long sampleTimeUs = fragmentRun.getSamplePresentationTime(sampleIndex) * 1000L;
-    int sampleFlags = (fragmentRun.definesEncryptionData ? C.SAMPLE_FLAG_ENCRYPTED : 0)
-        | (fragmentRun.sampleIsSyncFrameTable[sampleIndex] ? C.SAMPLE_FLAG_SYNC : 0);
-    int sampleDescriptionIndex = fragmentRun.header.sampleDescriptionIndex;
-    byte[] encryptionKey = fragmentRun.definesEncryptionData
+    long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
+    int sampleFlags = (fragment.definesEncryptionData ? C.SAMPLE_FLAG_ENCRYPTED : 0)
+        | (fragment.sampleIsSyncFrameTable[sampleIndex] ? C.SAMPLE_FLAG_SYNC : 0);
+    int sampleDescriptionIndex = fragment.header.sampleDescriptionIndex;
+    byte[] encryptionKey = fragment.definesEncryptionData
         ? track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex].keyId : null;
-    trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, encryptionKey);
+    output.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, encryptionKey);
 
-    sampleIndex++;
+    currentTrackBundle.currentSampleIndex++;
+    if (currentTrackBundle.currentSampleIndex == fragment.length) {
+      currentTrackBundle = null;
+    }
     parserState = STATE_READING_SAMPLE_START;
     return true;
   }
 
-  private int appendSampleEncryptionData(ParsableByteArray sampleEncryptionData) {
-    int sampleDescriptionIndex = fragmentRun.header.sampleDescriptionIndex;
-    TrackEncryptionBox encryptionBox =
-        track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
+  /**
+   * Returns the {@link TrackBundle} whose fragment run has the earliest file position out of those
+   * yet to be consumed, or null if all have been consumed.
+   */
+  private static TrackBundle getNextFragmentRun(SparseArray<TrackBundle> trackBundles) {
+    TrackBundle nextTrackBundle = null;
+    long nextTrackRunOffset = Long.MAX_VALUE;
+
+    int trackBundlesSize = trackBundles.size();
+    for (int i = 0; i < trackBundlesSize; i++) {
+      TrackBundle trackBundle = trackBundles.valueAt(i);
+      if (trackBundle.currentSampleIndex == trackBundle.fragment.length) {
+        // This track fragment contains no more runs in the next mdat box.
+      } else {
+        long trunOffset = trackBundle.fragment.dataPosition;
+        if (trunOffset < nextTrackRunOffset) {
+          nextTrackBundle = trackBundle;
+          nextTrackRunOffset = trunOffset;
+        }
+      }
+    }
+    return nextTrackBundle;
+  }
+
+  /**
+   * Appends the corresponding encryption data to the {@link TrackOutput} contained in the given
+   * {@link TrackBundle}.
+   *
+   * @param trackBundle The {@link TrackBundle} that contains the {@link Track} for which the
+   *     Sample encryption data must be output.
+   * @return The number of written bytes.
+   */
+  private int appendSampleEncryptionData(TrackBundle trackBundle) {
+    TrackFragment trackFragment = trackBundle.fragment;
+    ParsableByteArray sampleEncryptionData = trackFragment.sampleEncryptionData;
+    int sampleDescriptionIndex = trackFragment.header.sampleDescriptionIndex;
+    TrackEncryptionBox encryptionBox = trackBundle.track
+        .sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
     int vectorSize = encryptionBox.initializationVectorSize;
-    boolean subsampleEncryption = fragmentRun.sampleHasSubsampleEncryptionTable[sampleIndex];
+    boolean subsampleEncryption = trackFragment
+        .sampleHasSubsampleEncryptionTable[trackBundle.currentSampleIndex];
 
     // Write the signal byte, containing the vector size and the subsample encryption flag.
     encryptionSignalByte.data[0] = (byte) (vectorSize | (subsampleEncryption ? 0x80 : 0));
     encryptionSignalByte.setPosition(0);
-    trackOutput.sampleData(encryptionSignalByte, 1);
+    TrackOutput output = trackBundle.output;
+    output.sampleData(encryptionSignalByte, 1);
     // Write the vector.
-    trackOutput.sampleData(sampleEncryptionData, vectorSize);
+    output.sampleData(sampleEncryptionData, vectorSize);
     // If we don't have subsample encryption data, we're done.
     if (!subsampleEncryption) {
       return 1 + vectorSize;
@@ -814,7 +947,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     int subsampleCount = sampleEncryptionData.readUnsignedShort();
     sampleEncryptionData.skipBytes(-2);
     int subsampleDataLength = 2 + 6 * subsampleCount;
-    trackOutput.sampleData(sampleEncryptionData, subsampleDataLength);
+    output.sampleData(sampleEncryptionData, subsampleDataLength);
     return 1 + vectorSize + subsampleDataLength;
   }
 
@@ -833,6 +966,33 @@ public final class FragmentedMp4Extractor implements Extractor {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
         || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_moof
         || atom == Atom.TYPE_traf || atom == Atom.TYPE_mvex || atom == Atom.TYPE_edts;
+  }
+
+  /**
+   * Holds data corresponding to a single track.
+   */
+  private static final class TrackBundle {
+
+    public final TrackFragment fragment;
+    public final TrackOutput output;
+
+    public Track track;
+    public DefaultSampleValues defaultSampleValues;
+    public int currentSampleIndex;
+
+    public TrackBundle(TrackOutput output) {
+      fragment = new TrackFragment();
+      this.output = output;
+    }
+
+    public void init(Track track, DefaultSampleValues defaultSampleValues) {
+      this.track = Assertions.checkNotNull(track);
+      this.defaultSampleValues = Assertions.checkNotNull(defaultSampleValues);
+      output.format(track.mediaFormat);
+      fragment.reset();
+      currentSampleIndex = 0;
+    }
+
   }
 
 }

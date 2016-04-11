@@ -250,7 +250,28 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   public MediaCodecTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
       Handler eventHandler, EventListener eventListener) {
-    super(source);
+    this (new SampleSource[] {source}, mediaCodecSelector, drmSessionManager,
+        playClearSamplesWithoutKeys, eventHandler, eventListener);
+  }
+
+  /**
+   * @param sources The upstream sources from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public MediaCodecTrackRenderer(SampleSource[] sources, MediaCodecSelector mediaCodecSelector,
+      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
+      Handler eventHandler, EventListener eventListener) {
+    super(sources);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
@@ -664,6 +685,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       if (sampleHolder.isDecodeOnly()) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
       }
+
+      onQueuedInputBuffer(presentationTimeUs, sampleHolder.data, bufferSize, sampleEncrypted);
+
       if (sampleEncrypted) {
         MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(sampleHolder,
             adaptiveReconfigurationBytes);
@@ -674,7 +698,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       inputIndex = -1;
       codecReceivedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-      onQueuedInputBuffer(presentationTimeUs);
+      codecCounters.inputBufferCount++;
     } catch (CryptoException e) {
       notifyCryptoError(e);
       throw new ExoPlaybackException(e);
@@ -771,13 +795,17 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * Invoked when an input buffer is queued into the codec.
+   * Invoked immediately before an input buffer is queued into the codec.
    * <p>
    * The default implementation is a no-op.
    *
    * @param presentationTimeUs The timestamp associated with the input buffer.
+   * @param buffer The buffer to be queued.
+   * @param bufferSize the size of the sample data stored in the buffer.
+   * @param sampleEncrypted Whether the sample data is encrypted.
    */
-  protected void onQueuedInputBuffer(long presentationTimeUs) {
+  protected void onQueuedInputBuffer(
+      long presentationTimeUs, ByteBuffer buffer, int bufferSize, boolean sampleEncrypted) {
     // Do nothing.
   }
 
@@ -789,7 +817,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param presentationTimeUs The timestamp associated with the output buffer.
    */
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    // Do Nothing.
+    // Do nothing.
   }
 
   /**

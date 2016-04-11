@@ -35,6 +35,7 @@ public final class MimeTypes {
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
+  public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
 
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
@@ -54,6 +55,7 @@ public final class MimeTypes {
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
   public static final String AUDIO_AMR_NB = BASE_TYPE_AUDIO + "/3gpp";
   public static final String AUDIO_AMR_WB = BASE_TYPE_AUDIO + "/amr-wb";
+  public static final String AUDIO_FLAC = BASE_TYPE_AUDIO + "/x-flac";
 
   public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
@@ -67,6 +69,8 @@ public final class MimeTypes {
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
   public static final String APPLICATION_MP4VTT = BASE_TYPE_APPLICATION + "/x-mp4vtt";
+  public static final String APPLICATION_VOBSUB = BASE_TYPE_APPLICATION + "/vobsub";
+  public static final String APPLICATION_PGS = BASE_TYPE_APPLICATION + "/pgs";
 
   private MimeTypes() {}
 

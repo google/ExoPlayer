@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream.cache;
 
+import com.google.android.exoplayer.util.Util;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -25,10 +26,11 @@ import java.util.regex.Pattern;
  */
 public final class CacheSpan implements Comparable<CacheSpan> {
 
-  private static final String SUFFIX = ".v1.exo";
-  private static final String SUFFIX_ESCAPED = "\\.v1\\.exo";
-  private static final Pattern cacheFilePattern =
-      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)(" + SUFFIX_ESCAPED + ")$");
+  private static final String SUFFIX = ".v2.exo";
+  private static final Pattern CACHE_FILE_PATTERN_V1 =
+      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\.exo$");
+  private static final Pattern CACHE_FILE_PATTERN_V2 =
+      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.v2\\.exo$");
 
   /**
    * The cache key that uniquely identifies the original stream.
@@ -57,7 +59,8 @@ public final class CacheSpan implements Comparable<CacheSpan> {
 
   public static File getCacheFileName(File cacheDir, String key, long offset,
       long lastAccessTimestamp) {
-    return new File(cacheDir, key + "." + offset + "." + lastAccessTimestamp + SUFFIX);
+    return new File(cacheDir,
+        Util.escapeFileName(key) + "." + offset + "." + lastAccessTimestamp + SUFFIX);
   }
 
   public static CacheSpan createLookup(String key, long position) {
@@ -79,12 +82,25 @@ public final class CacheSpan implements Comparable<CacheSpan> {
    * @return The span, or null if the file name is not correctly formatted.
    */
   public static CacheSpan createCacheEntry(File file) {
-    Matcher matcher = cacheFilePattern.matcher(file.getName());
+    Matcher matcher = CACHE_FILE_PATTERN_V2.matcher(file.getName());
     if (!matcher.matches()) {
       return null;
     }
-    return CacheSpan.createCacheEntry(matcher.group(1), Long.parseLong(matcher.group(2)),
-        Long.parseLong(matcher.group(3)), file);
+    String key = Util.unescapeFileName(matcher.group(1));
+    return key == null ? null : createCacheEntry(
+        key, Long.parseLong(matcher.group(2)), Long.parseLong(matcher.group(3)), file);
+  }
+
+  static File upgradeIfNeeded(File file) {
+    Matcher matcher = CACHE_FILE_PATTERN_V1.matcher(file.getName());
+    if (!matcher.matches()) {
+      return file;
+    }
+    String key = matcher.group(1); // Keys were not escaped in version 1.
+    File newCacheFile = getCacheFileName(file.getParentFile(), key,
+        Long.parseLong(matcher.group(2)), Long.parseLong(matcher.group(3)));
+    file.renameTo(newCacheFile);
+    return newCacheFile;
   }
 
   private static CacheSpan createCacheEntry(String key, long position, long lastAccessTimestamp,

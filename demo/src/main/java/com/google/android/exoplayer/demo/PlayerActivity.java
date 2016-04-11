@@ -195,8 +195,22 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+    if (Util.SDK_INT > 23) {
+      onShown();
+    }
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
+    if (Util.SDK_INT <= 23 || player == null) {
+      onShown();
+    }
+  }
+
+  private void onShown() {
     Intent intent = getIntent();
     contentUri = intent.getData();
     contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA,
@@ -216,6 +230,20 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onPause() {
     super.onPause();
+    if (Util.SDK_INT <= 23) {
+      onHidden();
+    }
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    if (Util.SDK_INT > 23) {
+      onHidden();
+    }
+  }
+
+  private void onHidden() {
     if (!enableBackgroundAudio) {
       releasePlayer();
     } else {

@@ -227,7 +227,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       List<Variant> variants = new ArrayList<>();
       variants.add(new Variant(playlistUrl, format));
       masterPlaylist = new HlsMasterPlaylist(playlistUrl, variants,
-          Collections.<Variant>emptyList());
+          Collections.<Variant>emptyList(), Collections.<Variant>emptyList(), null, null);
     }
   }
 
@@ -308,6 +308,23 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     return variants.length == 1 ? variants[0] : null;
   }
 
+  /**
+   * Returns the language of the audio muxed into variants, or null if unknown.
+   *
+   * @return The language of the audio muxed into variants, or null if unknown.
+   */
+  public String getMuxedAudioLanguage() {
+    return masterPlaylist.muxedAudioLanguage;
+  }
+
+  /**
+   * Returns the language of the captions muxed into variants, or null if unknown.
+   *
+   * @return The language of the captions muxed into variants, or null if unknown.
+   */
+  public String getMuxedCaptionLanguage() {
+    return masterPlaylist.muxedCaptionLanguage;
+  }
 
   /**
    * Returns the currently selected track index.

@@ -528,8 +528,8 @@ import java.util.concurrent.LinkedBlockingDeque;
      * The first entry in {@code offsetHolder} is filled with the absolute position of the sample's
      * data in the rolling buffer.
      * <p>
-     * The fields set are {SampleHolder#size}, {SampleHolder#timeUs}, {SampleHolder#flags} and
-     * {@code offsetHolder[0]}.
+     * Populates {@link SampleHolder#size}, {@link SampleHolder#timeUs}, {@link SampleHolder#flags}
+     * and the {@code extrasHolder}.
      *
      * @param holder The holder into which the current sample information should be written.
      * @param extrasHolder The holder into which extra sample information should be written.
