@@ -267,6 +267,8 @@ FLACParser::FLACParser(DataSource *source)
     : mDataSource(source),
       mCopy(copyTrespass),
       mDecoder(NULL),
+      mSeekTable(NULL),
+      firstFrameOffset(0LL),
       mCurrentPos(0LL),
       mEOF(false),
       mStreamInfoValid(false),
