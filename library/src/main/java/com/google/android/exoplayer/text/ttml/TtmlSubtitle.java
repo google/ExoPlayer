@@ -29,11 +29,13 @@ import java.util.Map;
 public final class TtmlSubtitle implements Subtitle {
 
   private final TtmlNode root;
+  private final Map<String, TtmlRegion> globalRegions;
   private final long[] eventTimesUs;
   private final Map<String, TtmlStyle> globalStyles;
 
-  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles) {
+  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
     this.root = root;
+    this.globalRegions = globalRegions;
     this.globalStyles = globalStyles != null
         ? Collections.unmodifiableMap(globalStyles) : Collections.<String, TtmlStyle>emptyMap();
     this.eventTimesUs = root.getEventTimesUs();
@@ -67,17 +69,22 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    CharSequence cueText = root.getText(timeUs, globalStyles);
-    if (cueText == null) {
+    RegionTrackingFormattedTextManager builder = root.getText(timeUs, globalStyles, globalRegions);
+
+    if (builder == null) {
       return Collections.<Cue>emptyList();
     } else {
-      Cue cue = new Cue(cueText);
-      return Collections.singletonList(cue);
+      return builder.buildCue();
     }
   }
 
   /* @VisibleForTesting */
   /* package */ Map<String, TtmlStyle> getGlobalStyles() {
     return globalStyles;
+  }
+
+  /* @VisibleForTesting */
+  /* package */ Map<String, TtmlRegion> getGlobalRegions() {
+    return globalRegions;
   }
 }

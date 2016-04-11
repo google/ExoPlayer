@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import android.text.SpannableStringBuilder;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,6 +55,8 @@ import java.util.TreeSet;
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
 
+  public static final String ATTR_REGION_ORIGIN = "origin";
+
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
   public static final String UNDERLINE = "underline";
@@ -68,6 +70,7 @@ import java.util.TreeSet;
   public static final String START = "start";
   public static final String END = "end";
 
+  public final String regionId;
   public final String tag;
   public final String text;
   public final boolean isTextNode;
@@ -82,20 +85,21 @@ import java.util.TreeSet;
 
   public static TtmlNode buildTextNode(String text) {
     return new TtmlNode(null, TtmlRenderUtil.applyTextElementSpacePolicy(text), UNDEFINED_TIME,
-        UNDEFINED_TIME, null, null);
+        UNDEFINED_TIME, null, null, null);
   }
 
   public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs,
-      TtmlStyle style, String[] styleIds) {
-    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds);
+      TtmlStyle style, String[] styleIds, String regionId) {
+    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds, regionId);
   }
 
   private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs,
-      TtmlStyle style, String[] styleIds) {
+                   TtmlStyle style, String[] styleIds, String regionId) {
     this.tag = tag;
     this.text = text;
     this.style = style;
     this.styleIds = styleIds;
+    this.regionId = regionId;
     this.isTextNode = text != null;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
@@ -161,91 +165,51 @@ import java.util.TreeSet;
     return styleIds;
   }
 
-  public CharSequence getText(long timeUs, Map<String, TtmlStyle> globalStyles) {
-    SpannableStringBuilder builder = new SpannableStringBuilder();
-    traverseForText(timeUs, builder, false);
-    traverseForStyle(builder, globalStyles);
-    // Having joined the text elements, we need to do some final cleanup on the result.
-    // 1. Collapse multiple consecutive spaces into a single space.
-    int builderLength = builder.length();
-    for (int i = 0; i < builderLength; i++) {
-      if (builder.charAt(i) == ' ') {
-        int j = i + 1;
-        while (j < builder.length() && builder.charAt(j) == ' ') {
-          j++;
-        }
-        int spacesToDelete = j - (i + 1);
-        if (spacesToDelete > 0) {
-          builder.delete(i, i + spacesToDelete);
-          builderLength -= spacesToDelete;
-        }
-      }
-    }
-    // 2. Remove any spaces from the start of each line.
-    if (builderLength > 0 && builder.charAt(0) == ' ') {
-      builder.delete(0, 1);
-      builderLength--;
-    }
-    for (int i = 0; i < builderLength - 1; i++) {
-      if (builder.charAt(i) == '\n' && builder.charAt(i + 1) == ' ') {
-        builder.delete(i + 1, i + 2);
-        builderLength--;
-      }
-    }
-    // 3. Remove any spaces from the end of each line.
-    if (builderLength > 0 && builder.charAt(builderLength - 1) == ' ') {
-      builder.delete(builderLength - 1, builderLength);
-      builderLength--;
-    }
-    for (int i = 0; i < builderLength - 1; i++) {
-      if (builder.charAt(i) == ' ' && builder.charAt(i + 1) == '\n') {
-        builder.delete(i, i + 1);
-        builderLength--;
-      }
-    }
-    // 4. Trim a trailing newline, if there is one.
-    if (builderLength > 0 && builder.charAt(builderLength - 1) == '\n') {
-      builder.delete(builderLength - 1, builderLength);
-      /*builderLength--;*/
-    }
-
-    return builder;
+  public RegionTrackingFormattedTextManager getText(long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
+    RegionTrackingFormattedTextManager formattedTextBuilder = new RegionTrackingFormattedTextManager(globalRegions);
+    traverseForText(timeUs, formattedTextBuilder, false);
+    traverseForStyle(formattedTextBuilder, globalStyles);
+    return formattedTextBuilder;
   }
 
-  private SpannableStringBuilder traverseForText(long timeUs, SpannableStringBuilder builder,
-      boolean descendsPNode) {
-    start = builder.length();
+  private void traverseForText(long timeUs, RegionTrackingFormattedTextManager textManager, boolean descendsPNode) {
+    start = textManager.getBuilder().length();
     end = start;
     if (isTextNode && descendsPNode) {
-      builder.append(text);
+      textManager.getBuilder().append(text);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
-      builder.append('\n');
+      textManager.getBuilder().append('\n');
     } else if (TAG_METADATA.equals(tag)) {
       // Do nothing.
     } else if (isActive(timeUs)) {
       boolean isPNode = TAG_P.equals(tag);
+      if (textManager.setRegionId(regionId)) {
+        start = textManager.getBuilder().length();
+      }
+
       for (int i = 0; i < getChildCount(); ++i) {
-        getChild(i).traverseForText(timeUs, builder, descendsPNode || isPNode);
+        getChild(i).traverseForText(timeUs, textManager, descendsPNode || isPNode);
       }
       if (isPNode) {
-        TtmlRenderUtil.endParagraph(builder);
+        TtmlRenderUtil.endParagraph(textManager.getBuilder());
       }
-      end = builder.length();
+
+      end = textManager.getBuilder().length();
     }
-    return builder;
   }
 
-  private void traverseForStyle(SpannableStringBuilder builder,
-      Map<String, TtmlStyle> globalStyles) {
+  private void traverseForStyle(RegionTrackingFormattedTextManager textManager, Map<String, TtmlStyle> globalStyles) {
     if (start != end) {
       TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
       if (resolvedStyle != null) {
-        TtmlRenderUtil.applyStylesToSpan(builder, start, end, resolvedStyle);
+        textManager.setRegionId(regionId);
+        TtmlRenderUtil.applyStylesToSpan(textManager.getBuilder(), start, end, resolvedStyle);
       }
       for (int i = 0; i < getChildCount(); ++i) {
-        getChild(i).traverseForStyle(builder, globalStyles);
+        getChild(i).traverseForStyle(textManager, globalStyles);
       }
     }
   }
 
 }
+

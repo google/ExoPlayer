@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt:tt xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xmlns:tts="http://www.w3.org/ns/ttml#styling" xmlns:tt="http://www.w3.org/ns/ttml" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:ebuttm="urn:ebu:metadata" xmlns:ebutts="urn:ebu:style" ttp:timeBase="media" xml:lang="en" ttp:cellResolution="50 30">
+    <tt:head>
+        <tt:layout>
+            <tt:region xml:id="bottom50-11" tts:showBackground="whenActive" tts:origin="31.25% 50.09%" tts:extent="68.75% 49.91%" tts:displayAlign="after"/>
+        </tt:layout>
+    </tt:head>
+    <tt:body>
+        <tt:div style="normal">
+            <tt:p xml:id="sub1" begin="00:00:02.169" end="00:00:03.704" region="bottom50-11">DANNY: He was murdered.</tt:p>
+        </tt:div>
+    </tt:body>
+</tt:tt>

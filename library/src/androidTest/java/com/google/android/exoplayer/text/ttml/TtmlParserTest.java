@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import com.google.android.exoplayer.testutil.TestUtil;
-import com.google.android.exoplayer.text.Cue;
-
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
 import android.text.Spannable;
@@ -31,6 +28,10 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
+
+import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.text.Cue;
 
 import java.io.IOException;
 import java.util.List;
@@ -67,6 +68,12 @@ public final class TtmlParserTest extends InstrumentationTestCase {
       "ttml/font_size_invalid.xml";
   private static final String FONT_SIZE_EMPTY_TTML_FILE =
       "ttml/font_size_empty.xml";
+  private static final String SINGLE_POSITIONAL_SUBTITLE = "ttml/single_positional_subtitle.xml";
+  private static final String DUAL_POSITIONAL_SUBTITLE = "ttml/dual_positional_subtitle.xml";
+  private static final String BADLY_FORMATTED_ORIGIN_FILE = "ttml/badly_formatted_origin.xml";
+  private static final String MISSING_REGION_FILE = "ttml/missing_region.xml";
+  private static final String MULTIPLE_SUBTITLES_SAME_TIME_FILE = "ttml/multiple_subtitles_at_same_time.xml";
+  private static final String STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE = "ttml/chain_styles_in_simultaneous_regions.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -88,7 +95,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
-        TtmlColorParser.CYAN, TtmlColorParser.parseColor("lime"), false, true, null);
+            TtmlColorParser.CYAN, TtmlColorParser.parseColor("lime"), false, true, null);
   }
 
   /**
@@ -122,7 +129,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(4, subtitle.getEventTimeCount());
 
     assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, TtmlColorParser.BLUE,
-        TtmlColorParser.YELLOW, true, false, null);
+            TtmlColorParser.YELLOW, true, false, null);
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, TtmlColorParser.RED,
         TtmlColorParser.YELLOW, true, false, null);
   }
@@ -364,6 +371,138 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("empty", String.valueOf(spannable));
     assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
     assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+  }
+
+  public void testCanReadFileWithTTNamespace() throws IOException
+  {
+    TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
+    assertNotNull(subtitle);
+    assertEquals(2, subtitle.getEventTimeCount());
+  }
+
+  public void testCanReadSingleRegionOffsetForSingleSubtitle() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
+    assertEquals(subtitle.getGlobalRegions().size(), 1);
+  }
+
+  public void testCanSetCuePositionBasedOnCorrectRegionOffsetWhenMultipleRegionsAreInInputFile() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
+  }
+
+  public void testCanSetCueLineBasedOnCorrectRegionOffsetWhenMultipleRegionsAreInInputFile() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    assertEquals(1, subtitle.getCues(timeUs).size());
+    assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
+  }
+
+  public void testSetsPositionalSettingsToDefaultWhenBadlyFormattedOriginSupplied() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(BADLY_FORMATTED_ORIGIN_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).position, 0.001);
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).line, 0.001);
+  }
+
+  public void testSetsPositionalSettingsToDefaultWhenOriginIsMissingPercentageMarks() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(BADLY_FORMATTED_ORIGIN_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 3704000);
+    assertEquals("to be young again", subtitle.getCues(timeUs).get(0).text.toString());
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).position, 0.001);
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).line, 0.001);
+  }
+
+  public void testReadsCueCorrectlyWhenReferencedRegionDoesNotExist() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MISSING_REGION_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
+  }
+
+  public void testGeneratesTwoCuesWhenTheyOverlap() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 2169000);
+    final List<Cue> cues = subtitle.getCues(timeUs);
+    assertEquals(2, cues.size());
+    assertTrue(contains(cues, "Last subtitle"));
+    assertTrue(contains(cues, "Now thats what I call a subtitle"));
+  }
+
+  public void testSetsStyleDataOnFirstCue() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    final List<Cue> cues = subtitle.getCues(timeUs);
+    assertAbsoluteFontSize((SpannableStringBuilder) cues.get(0).text, 32);
+  }
+
+  public void testSetsStyleDataOnTwoCuesWhenTheyOverlap() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 2169000);
+    final List<Cue> cues = subtitle.getCues(timeUs);
+    assertEquals(2, cues.size());
+    int lastSubtitle = indexOf(cues, "Last subtitle");
+    int nowSubtitle = indexOf(cues, "Now thats what I call a subtitle");
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(lastSubtitle).text, 6);
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(nowSubtitle).text, 32);
+  }
+
+  public void testGeneratesSingleCueAfterOverlapPeriodFinishes() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    assertEquals(4, subtitle.getEventTimeCount());
+    long timeUs = getNextEventTimeFrom(subtitle, 4169000);
+    final List<Cue> cues = getCues(subtitle, timeUs);
+    assertEquals(1, cues.size());
+    assertEquals("Last subtitle", cues.get(0).text.toString());
+  }
+
+  public void testInheritsFontSizeInDifferentRegionsAtDifferentTimes() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    assertEquals(6, subtitle.getEventTimeCount());
+    final List<Cue> cues = subtitle.getCues(2169000);
+    Cue cue = cues.get(indexOf(cues, "DANNY: He was murdered."));
+    assertEquals("DANNY: He was murdered.", cue.text.toString());
+    assertRelativeFontSize((SpannableStringBuilder) cue.text, 0.78f);
+    assertStyle((SpannableStringBuilder) cue.text, TtmlStyle.STYLE_ITALIC);
+
+    final List<Cue> secondCues = subtitle.getCues(12169000);
+    cue = cues.get(indexOf(secondCues, "WOMAN: Who murdered him?"));
+    assertNotNull(cue);
+  }
+
+  public void testInheritsFontSizeInDifferentRegionsAtTheSameTime() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    assertEquals(6, subtitle.getEventTimeCount());
+    final List<Cue> cues = subtitle.getCues(30000000);
+    Cue cue = cues.get(indexOf(cues, "The quick brown fox"));
+    assertFont((SpannableStringBuilder)cue.text, "Arial");
+    assertRelativeFontSize((SpannableStringBuilder) cue.text, 0.78f);
+
+//    cue = cues.get(indexOf(cues, "JUMPS: But who murdered him?"));
+//    assertNotNull(cue);
+  }
+
+  private List<Cue> getCues(TtmlSubtitle subtitle, long timeUs) {
+    return subtitle.getCues(timeUs);
+  }
+
+  private boolean contains(List<Cue> cues, String value) {
+    return indexOf(cues, value) > -1;
+  }
+
+  private int indexOf(List<Cue> cues, String value) {
+    for (int i = 0; i < cues.size(); i++) {
+      Cue cue = cues.get(i);
+      Log.i("AWPAWP", "indexOf: " + cue.text.toString());
+      if (cue.text.toString().equals(value)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private long getNextEventTimeFrom(TtmlSubtitle subtitle, long fromTime) {
+    int timeIndex = subtitle.getNextEventTimeIndex(fromTime);
+    return subtitle.getEventTime(timeIndex);
   }
 
   private void assertSpans(TtmlSubtitle subtitle, int second,
