@@ -40,7 +40,8 @@ public final class FlacExtractor implements Extractor {
    */
   private static final byte[] FLAC_SIGNATURE = {'f', 'L', 'a', 'C', 0, 0, 0, 0x22};
 
-  private TrackOutput output;
+  private ExtractorOutput output;
+  private TrackOutput trackOutput;
 
   private FlacJni decoder;
 
@@ -49,24 +50,11 @@ public final class FlacExtractor implements Extractor {
   private ParsableByteArray outputBuffer;
   private ByteBuffer outputByteBuffer;
 
-  private boolean isSeekable;
-
   @Override
   public void init(ExtractorOutput output) {
-    this.output = output.track(0);
+    this.output = output;
+    this.trackOutput = output.track(0);
     output.endTracks();
-
-    output.seekMap(new SeekMap() {
-      @Override
-      public boolean isSeekable() {
-        return isSeekable;
-      }
-
-      @Override
-      public long getPosition(long timeUs) {
-        return isSeekable ? decoder.getSeekPosition(timeUs) : 0;
-      }
-    });
 
     try {
       decoder = new FlacJni();
@@ -93,12 +81,25 @@ public final class FlacExtractor implements Extractor {
         throw new IOException("Metadata decoding failed");
       }
       metadataParsed = true;
-      isSeekable = decoder.getSeekPosition(0) != -1;
+
+      output.seekMap(new SeekMap() {
+        final boolean isSeekable = decoder.getSeekPosition(0) != -1;
+
+        @Override
+        public boolean isSeekable() {
+          return isSeekable;
+        }
+
+        @Override
+        public long getPosition(long timeUs) {
+          return isSeekable ? decoder.getSeekPosition(timeUs) : 0;
+        }
+      });
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_RAW,
               MediaFormat.NO_VALUE, streamInfo.bitRate(), streamInfo.durationUs(),
               streamInfo.channels, streamInfo.sampleRate, null, null);
-      output.format(mediaFormat);
+      trackOutput.format(mediaFormat);
 
       outputBuffer = new ParsableByteArray(streamInfo.maxDecodedFrameSize());
       outputByteBuffer = ByteBuffer.wrap(outputBuffer.data);
@@ -109,9 +110,9 @@ public final class FlacExtractor implements Extractor {
     if (size <= 0) {
       return RESULT_END_OF_INPUT;
     }
-    output.sampleData(outputBuffer, size);
+    trackOutput.sampleData(outputBuffer, size);
 
-    output.sampleMetadata(decoder.getLastSampleTimestamp(), C.SAMPLE_FLAG_SYNC, size, 0, null);
+    trackOutput.sampleMetadata(decoder.getLastSampleTimestamp(), C.SAMPLE_FLAG_SYNC, size, 0, null);
 
     return decoder.isEndOfData() ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
