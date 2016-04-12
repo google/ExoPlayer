@@ -89,7 +89,7 @@ FUNC(jobject, flacDecodeMetadata, jlong jContext) {
       context->parser->getStreamInfo();
 
   jclass cls = env->FindClass(
-      "com/google/android/exoplayer/ext/flac/"
+      "com/google/android/exoplayer/util/"
       "FlacStreamInfo");
   jmethodID constructor = env->GetMethodID(cls, "<init>", "(IIIIIIIJ)V");
 
