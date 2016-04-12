@@ -74,7 +74,10 @@ import java.util.List;
 
   @Override
   public FlacDecoderException decode(DecoderInputBuffer inputBuffer,
-      FlacOutputBuffer outputBuffer) {
+      FlacOutputBuffer outputBuffer, boolean reset) {
+    if (reset) {
+      decoder.flush();
+    }
     ByteBuffer data = inputBuffer.data;
     outputBuffer.timestampUs = inputBuffer.timeUs;
     data.limit(data.position());

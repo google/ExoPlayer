@@ -46,7 +46,7 @@ public abstract class SubtitleParser extends
 
   @Override
   protected final ParserException decode(SubtitleInputBuffer inputBuffer,
-      SubtitleOutputBuffer outputBuffer) {
+      SubtitleOutputBuffer outputBuffer, boolean reset) {
     try {
       Subtitle subtitle = decode(inputBuffer.data.array(), inputBuffer.size);
       outputBuffer.setOutput(inputBuffer.timeUs, subtitle, inputBuffer.subsampleOffsetUs);
