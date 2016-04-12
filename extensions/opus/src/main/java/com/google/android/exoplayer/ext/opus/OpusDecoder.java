@@ -150,8 +150,9 @@ import java.util.List;
   }
 
   @Override
-  public OpusDecoderException decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer) {
-    if (inputBuffer.getFlag(Buffer.FLAG_RESET)) {
+  public OpusDecoderException decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer,
+      boolean reset) {
+    if (reset) {
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
       // any other time, skip number of samples as specified by seek preroll.

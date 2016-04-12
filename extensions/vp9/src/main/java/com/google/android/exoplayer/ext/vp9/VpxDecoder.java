@@ -100,7 +100,8 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer) {
+  protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
+      boolean reset) {
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
     sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);

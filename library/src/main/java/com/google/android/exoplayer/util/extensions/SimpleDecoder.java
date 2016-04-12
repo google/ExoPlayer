@@ -51,7 +51,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
   private I dequeuedInputBuffer;
 
   private E exception;
-  private boolean flushDecodedOutputBuffer;
+  private boolean flushed;
   private boolean released;
 
   /**
@@ -141,7 +141,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
   @Override
   public final void flush() {
     synchronized (lock) {
-      flushDecodedOutputBuffer = true;
+      flushed = true;
       if (dequeuedInputBuffer != null) {
         availableInputBuffers[availableInputBufferCount++] = dequeuedInputBuffer;
         dequeuedInputBuffer = null;
@@ -206,6 +206,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
   private boolean decode() throws InterruptedException {
     I inputBuffer;
     O outputBuffer;
+    boolean resetDecoder;
 
     // Wait until we have an input buffer to decode, and an output buffer to decode into.
     synchronized (lock) {
@@ -217,7 +218,8 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
       }
       inputBuffer = queuedInputBuffers.removeFirst();
       outputBuffer = availableOutputBuffers[--availableOutputBufferCount];
-      flushDecodedOutputBuffer = false;
+      resetDecoder = flushed;
+      flushed = false;
     }
 
     outputBuffer.reset();
@@ -227,7 +229,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
       if (inputBuffer.getFlag(C.SAMPLE_FLAG_DECODE_ONLY)) {
         outputBuffer.setFlag(C.SAMPLE_FLAG_DECODE_ONLY);
       }
-      exception = decode(inputBuffer, outputBuffer);
+      exception = decode(inputBuffer, outputBuffer, resetDecoder);
       if (exception != null) {
         // Memory barrier to ensure that the decoder exception is visible from the playback thread.
         synchronized (lock) {}
@@ -236,7 +238,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
     }
 
     synchronized (lock) {
-      if (flushDecodedOutputBuffer || outputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
+      if (flushed || outputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
         // If a flush occurred while decoding or the buffer was only for decoding (not presentation)
         // then make the output buffer available again rather than queueing it to be consumed.
         availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
@@ -273,8 +275,9 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
    *     {@link Buffer#FLAG_DECODE_ONLY} will be set if the same flag is set on {@code inputBuffer},
    *     but the decoder may set/unset the flag if required. If the flag is set after this method
    *     returns, any output should not be presented.
+   * @param reset True if the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
-  protected abstract E decode(I inputBuffer, O outputBuffer);
+  protected abstract E decode(I inputBuffer, O outputBuffer, boolean reset);
 
 }
