@@ -16,6 +16,8 @@
 package com.google.android.exoplayer.ext.flac;
 
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.util.FlacStreamInfo;
+import com.google.android.exoplayer.util.extensions.Buffer;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
@@ -75,6 +77,9 @@ import java.util.List;
 
   @Override
   public FlacDecoderException decode(InputBuffer inputBuffer, FlacOutputBuffer outputBuffer) {
+    if (inputBuffer.getFlag(Buffer.FLAG_RESET)) {
+      decoder.flush();
+    }
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
     sampleHolder.data.limit(sampleHolder.data.position());

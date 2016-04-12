@@ -20,10 +20,8 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
-import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.ogg.VorbisUtil.Mode;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -34,14 +32,8 @@ import java.util.ArrayList;
 /**
  * {@link Extractor} to extract Vorbis data out of Ogg byte stream.
  */
-public final class OggVorbisExtractor implements Extractor, SeekMap {
+public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
 
-  private final ParsableByteArray scratch = new ParsableByteArray(
-      new byte[OggReader.OGG_MAX_SEGMENT_SIZE * 255], 0);
-
-  private final OggReader oggReader = new OggReader();
-
-  private TrackOutput trackOutput;
   private VorbisSetup vorbisSetup;
   private int previousPacketBlockSize;
   private long elapsedSamples;
@@ -50,7 +42,6 @@ public final class OggVorbisExtractor implements Extractor, SeekMap {
   private final OggSeeker oggSeeker = new OggSeeker();
   private long targetGranule = -1;
 
-  private ExtractorOutput extractorOutput;
   private VorbisUtil.VorbisIdHeader vorbisIdHeader;
   private VorbisUtil.CommentHeader commentHeader;
   private long inputLength;
@@ -59,43 +50,11 @@ public final class OggVorbisExtractor implements Extractor, SeekMap {
   private long duration;
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    try {
-      OggUtil.PageHeader header = new OggUtil.PageHeader();
-      if (!OggUtil.populatePageHeader(input, header, scratch, true)
-          || (header.type & 0x02) != 0x02 || header.bodySize < 7) {
-        return false;
-      }
-      scratch.reset();
-      input.peekFully(scratch.data, 0, 7);
-      return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, scratch, true);
-    } catch (ParserException e) {
-      // does not happen
-    } finally {
-      scratch.reset();
-    }
-    return false;
-  }
-
-  @Override
-  public void init(ExtractorOutput output) {
-    trackOutput = output.track(0);
-    output.endTracks();
-    extractorOutput = output;
-  }
-
-  @Override
   public void seek() {
-    oggReader.reset();
+    super.seek();
     previousPacketBlockSize = 0;
     elapsedSamples = 0;
     seenFirstAudioPacket = false;
-    scratch.reset();
-  }
-
-  @Override
-  public void release() {
-    // Do nothing
   }
 
   @Override
@@ -252,6 +211,11 @@ public final class OggVorbisExtractor implements Extractor, SeekMap {
     targetGranule = vorbisSetup.idHeader.sampleRate * timeUs / C.MICROS_PER_SECOND;
     return Math.max(audioStartPosition, ((inputLength - audioStartPosition) * timeUs
         / duration) - 4000);
+  }
+
+  @Override
+  protected boolean verifyBitstreamType() throws ParserException {
+    return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, scratch, true);
   }
 
   /**

@@ -92,6 +92,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean sourceIsReady;
+  private boolean notifyDiscontinuityToDecoder;
 
   private final AudioTrack audioTrack;
   private int audioSessionId;
@@ -261,6 +262,10 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
       inputStreamEnded = true;
       return false;
     }
+    if (notifyDiscontinuityToDecoder) {
+      notifyDiscontinuityToDecoder = false;
+      inputBuffer.setFlag(Buffer.FLAG_RESET);
+    }
 
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
@@ -274,6 +279,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
       outputBuffer = null;
     }
     decoder.flush();
+    notifyDiscontinuityToDecoder = true;
   }
 
   @Override
