@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.util;
 
+import android.os.SystemClock;
+
 /**
  * An interface through which system clocks can be read. The {@link SystemClock} implementation
  * must be used for all non-test cases.
@@ -22,7 +24,7 @@ package com.google.android.exoplayer.util;
 public interface Clock {
 
   /**
-   * Returns {@link android.os.SystemClock#elapsedRealtime}.
+   * Returns {@link SystemClock#elapsedRealtime}.
    *
    * @return Elapsed milliseconds since boot.
    */
