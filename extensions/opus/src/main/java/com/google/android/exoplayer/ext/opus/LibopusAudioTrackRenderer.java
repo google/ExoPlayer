@@ -94,7 +94,6 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean sourceIsReady;
-  private boolean notifyDiscontinuityToDecoder;
 
   private int audioSessionId;
 
@@ -274,10 +273,6 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       inputStreamEnded = true;
       return false;
     }
-    if (notifyDiscontinuityToDecoder) {
-      notifyDiscontinuityToDecoder = false;
-      inputBuffer.setFlag(Buffer.FLAG_RESET);
-    }
 
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
@@ -291,7 +286,6 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       outputBuffer = null;
     }
     decoder.flush();
-    notifyDiscontinuityToDecoder = true;
   }
 
   @Override
