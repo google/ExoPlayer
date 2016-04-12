@@ -41,7 +41,8 @@ import java.util.Map;
 /* package */ final class WebvttCue extends Cue {
 
   public static final String UNIVERSAL_CUE_ID = "";
-  
+  public static final String CUE_ID_PREFIX = "#";
+
   public final String id;
   public final long startTime;
   public final long endTime;
@@ -122,7 +123,7 @@ import java.util.Map;
     public WebvttCue build(Map<String, WebvttCssStyle> styleMap) {
       // TODO: Add support for inner spans.
       maybeApplyStyleToText(styleMap.get(UNIVERSAL_CUE_ID), 0, text.length());
-      maybeApplyStyleToText(styleMap.get(id), 0, text.length());
+      maybeApplyStyleToText(styleMap.get(CUE_ID_PREFIX + id), 0, text.length());
       if (position != Cue.DIMEN_UNSET && positionAnchor == Cue.TYPE_UNSET) {
         derivePositionAnchorFromAlignment();
       }

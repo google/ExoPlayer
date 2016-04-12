@@ -10,14 +10,14 @@ STYLE
 NOTE comment blocks can be used between style blocks.
 
 STYLE
-::cue(2) {
+::cue(#id2) {
   color: peachpuff;
 }
 
-1
+id1
 00:00.000 --> 00:01.234
 This is the first subtitle.
 
-2
+id2
 00:02.345 --> 00:03.456
 This is the second subtitle.
