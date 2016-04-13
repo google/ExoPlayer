@@ -69,7 +69,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
-  private boolean loadControlRegistered;
   private int enabledTrackCount;
 
   private Format downstreamFormat;
@@ -140,7 +139,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         HlsExtractorWrapper extractor = extractors.getFirst();
         if (extractor.isPrepared()) {
           buildTracks(extractor);
-          maybeStartLoading(); // Update the load control.
           prepared = true;
           return true;
         } else if (extractors.size() > 1) {
@@ -150,20 +148,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         }
       }
     }
-    // We're not prepared and we haven't loaded what we need.
-    if (!loadControlRegistered) {
-      loadControl.register(this, bufferSizeContribution);
-      loadControlRegistered = true;
-    }
+    // We're not prepared.
+    maybeThrowError();
     if (!loader.isLoading()) {
       // We're going to have to start loading a chunk to get what we need for preparation. We should
       // attempt to load the chunk at positionUs, so that we'll already be loading the correct chunk
       // in the common case where the renderer is subsequently enabled at this position.
       pendingResetPositionUs = positionUs;
       downstreamPositionUs = positionUs;
+      maybeStartLoading();
     }
-    maybeStartLoading();
-    maybeThrowError();
     return false;
   }
 
@@ -181,6 +175,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
+    boolean tracksWereEnabled = enabledTrackCount > 0;
     // Unselect old tracks.
     for (int i = 0; i < oldStreams.size(); i++) {
       int group = ((TrackStreamImpl) oldStreams.get(i)).group;
@@ -206,24 +201,22 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
       downstreamFormat = null;
-      if (loader != null) {
-        if (loadControlRegistered) {
-          loadControl.unregister(this);
-          loadControlRegistered = false;
-        }
-        if (loader.isLoading()) {
-          loader.cancelLoading();
-        } else {
-          clearState();
-          loadControl.trimAllocator();
-        }
+      if (tracksWereEnabled) {
+        loadControl.unregister(this);
       }
-    } else if (primaryTracksDeselected || (seenFirstTrackSelection && newStreams.length > 0)) {
-      if (!loadControlRegistered) {
+      if (loader.isLoading()) {
+        loader.cancelLoading();
+      } else {
+        clearState();
+        loadControl.trimAllocator();
+      }
+    } else {
+      if (!tracksWereEnabled) {
         loadControl.register(this, bufferSizeContribution);
-        loadControlRegistered = true;
       }
-      seekToInternal(positionUs);
+      if (primaryTracksDeselected || (seenFirstTrackSelection && newStreams.length > 0)) {
+        seekToInternal(positionUs);
+      }
     }
     seenFirstTrackSelection = true;
     return newStreams;
@@ -235,7 +228,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
     }
-    maybeStartLoading();
+    if (!loader.isLoading()) {
+      maybeStartLoading();
+    }
   }
 
   @Override
@@ -269,10 +264,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void release() {
-    enabledTrackCount = 0;
-    if (loadControlRegistered) {
+    if (enabledTrackCount > 0) {
       loadControl.unregister(this);
-      loadControlRegistered = false;
+      enabledTrackCount = 0;
     }
     loader.release();
   }
@@ -629,13 +623,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void maybeStartLoading() {
-    if (loader.isLoading()) {
-      return;
-    }
-
-    long nextLoadPositionUs = getNextLoadPositionUs();
-    boolean isNext = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs, false);
-    if (!isNext || (prepared && enabledTrackCount == 0)) {
+    boolean shouldStartLoading = !prepared || (enabledTrackCount > 0
+        && loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), false));
+    if (!shouldStartLoading) {
       return;
     }
 
@@ -648,7 +638,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     if (endOfStream) {
       loadingFinished = true;
-      loadControl.update(this, downstreamPositionUs, -1, false);
+      if (prepared) {
+        loadControl.update(this, downstreamPositionUs, -1, false);
+      }
       return;
     }
 
@@ -676,8 +668,10 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
           currentLoadable.trigger, currentLoadable.format, -1, -1);
     }
     loader.startLoading(currentLoadable, this);
-    // Update the load control again to indicate that we're now loading.
-    loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
+    if (prepared) {
+      // Update the load control again to indicate that we're now loading.
+      loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
+    }
   }
 
   /**
@@ -688,8 +682,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished || (prepared && enabledTrackCount == 0) ? -1
-          : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
+      return loadingFinished ? -1 : (currentTsLoadable != null ? currentTsLoadable.endTimeUs
+          : previousTsLoadable.endTimeUs);
     }
   }
 

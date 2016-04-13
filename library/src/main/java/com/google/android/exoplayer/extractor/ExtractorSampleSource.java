@@ -336,27 +336,30 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     if (prepared) {
       return true;
     }
-    maybeStartLoading();
-    if (seekMap == null || !tracksBuilt || !haveFormatsForAllTracks()) {
-      maybeThrowError();
-      return false;
+    if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
+      int trackCount = sampleQueues.size();
+      TrackGroup[] trackArray = new TrackGroup[trackCount];
+      trackEnabledStates = new boolean[trackCount];
+      pendingResets = new boolean[trackCount];
+      pendingMediaFormat = new boolean[trackCount];
+      durationUs = seekMap.getDurationUs();
+      for (int i = 0; i < trackCount; i++) {
+        trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
+      }
+      tracks = new TrackGroupArray(trackArray);
+      if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
+          && durationUs == C.UNKNOWN_TIME_US) {
+        loader.setMinRetryCount(DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE);
+      }
+      prepared = true;
+      return true;
     }
-    int trackCount = sampleQueues.size();
-    TrackGroup[] trackArray = new TrackGroup[trackCount];
-    trackEnabledStates = new boolean[trackCount];
-    pendingResets = new boolean[trackCount];
-    pendingMediaFormat = new boolean[trackCount];
-    durationUs = seekMap.getDurationUs();
-    for (int i = 0; i < trackCount; i++) {
-      trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
+    // We're not prepared.
+    maybeThrowError();
+    if (!loader.isLoading()) {
+      startLoading();
     }
-    tracks = new TrackGroupArray(trackArray);
-    if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
-        && durationUs == C.UNKNOWN_TIME_US) {
-      loader.setMinRetryCount(DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE);
-    }
-    prepared = true;
-    return true;
+    return false;
   }
 
   @Override
@@ -414,10 +417,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
     discardSamplesForDisabledTracks(downstreamPositionUs);
-    if (loadingFinished) {
-      return;
-    }
-    maybeStartLoading();
   }
 
   @Override
@@ -588,15 +587,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       loader.cancelLoading();
     } else {
       clearState();
-      maybeStartLoading();
+      startLoading();
     }
   }
 
-  private void maybeStartLoading() {
-    if (loadingFinished || loader.isLoading() || fatalException != null) {
-      return;
-    }
-
+  private void startLoading() {
     sampleTimeOffsetUs = 0;
     havePendingNextSampleUs = false;
     loadable = new ExtractingLoadable(uri, dataSource, extractorHolder, allocator,

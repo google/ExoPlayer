@@ -68,7 +68,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private long pendingResetPositionUs;
   private long lastPreferredQueueSizeEvaluationTimeMs;
   private boolean pendingReset;
-  private boolean loadControlRegistered;
 
   private TrackGroupArray trackGroups;
   private long durationUs;
@@ -169,6 +168,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     Assertions.checkState(prepared);
     Assertions.checkState(oldStreams.size() <= 1);
     Assertions.checkState(newSelections.size() <= 1);
+    boolean trackWasEnabled = trackEnabled;
     // Unselect old tracks.
     if (!oldStreams.isEmpty()) {
       Assertions.checkState(trackEnabled);
@@ -185,9 +185,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     }
     // Cancel or start requests as necessary.
     if (!trackEnabled) {
-      if (loadControlRegistered) {
+      if (trackWasEnabled) {
         loadControl.unregister(this);
-        loadControlRegistered = false;
       }
       if (loader.isLoading()) {
         loader.cancelLoading();
@@ -195,10 +194,9 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         clearState();
         loadControl.trimAllocator();
       }
-    } else if (trackEnabled) {
-      if (!loadControlRegistered) {
+    } else {
+      if (!trackWasEnabled) {
         loadControl.register(this, bufferSizeContribution);
-        loadControlRegistered = true;
       }
       downstreamFormat = null;
       downstreamSampleFormat = null;
@@ -214,7 +212,9 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   public void continueBuffering(long positionUs) {
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
-    maybeStartLoading();
+    if (!loader.isLoading()) {
+      maybeStartLoading();
+    }
   }
 
   @Override
@@ -253,8 +253,10 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public void release() {
-    prepared = false;
-    trackEnabled = false;
+    if (trackEnabled) {
+      loadControl.unregister(this);
+      trackEnabled = false;
+    }
     loader.release();
   }
 
@@ -420,10 +422,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   private void maybeStartLoading() {
-    if (loader.isLoading()) {
-      return;
-    }
-
     long now = SystemClock.elapsedRealtime();
     if (now - lastPreferredQueueSizeEvaluationTimeMs > 5000) {
       int queueSize = chunkSource.getPreferredQueueSize(downstreamPositionUs, readOnlyMediaChunks);
