@@ -96,8 +96,7 @@ public class DashChunkSource implements ChunkSource {
   /**
    * @param manifestFetcher A fetcher for the manifest.
    * @param adaptationSetType The type of the adaptation set exposed by this source. One of
-   *     {@link AdaptationSet#TYPE_AUDIO}, {@link AdaptationSet#TYPE_VIDEO} and
-   *     {@link AdaptationSet#TYPE_TEXT}.
+   *     {@link C#TRACK_TYPE_AUDIO}, {@link C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param liveEdgeLatencyMs For live streams, the number of milliseconds that the playback should

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
@@ -534,7 +535,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private void parseStreamElementStartTag(XmlPullParser parser) throws ParserException {
       type = parseType(parser);
       putNormalizedAttribute(KEY_TYPE, type);
-      if (type == StreamElement.TYPE_TEXT) {
+      if (type == C.TRACK_TYPE_TEXT) {
         subType = parseRequiredString(parser, KEY_SUB_TYPE);
       } else {
         subType = parser.getAttributeValue(null, KEY_SUB_TYPE);
@@ -559,11 +560,11 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       String value = parser.getAttributeValue(null, KEY_TYPE);
       if (value != null) {
         if (KEY_TYPE_AUDIO.equalsIgnoreCase(value)) {
-          return StreamElement.TYPE_AUDIO;
+          return C.TRACK_TYPE_AUDIO;
         } else if (KEY_TYPE_VIDEO.equalsIgnoreCase(value)) {
-          return StreamElement.TYPE_VIDEO;
+          return C.TRACK_TYPE_VIDEO;
         } else if (KEY_TYPE_TEXT.equalsIgnoreCase(value)) {
-          return StreamElement.TYPE_TEXT;
+          return C.TRACK_TYPE_TEXT;
         } else {
           throw new ParserException("Invalid key value[" + value + "]");
         }
@@ -617,14 +618,14 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       int bitrate = parseRequiredInt(parser, KEY_BITRATE);
       String sampleMimeType = fourCCToMimeType(parseRequiredString(parser, KEY_FOUR_CC));
 
-      if (type == StreamElement.TYPE_VIDEO) {
+      if (type == C.TRACK_TYPE_VIDEO) {
         int width = parseRequiredInt(parser, KEY_MAX_WIDTH);
         int height = parseRequiredInt(parser, KEY_MAX_HEIGHT);
         List<byte[]> codecSpecificData = buildCodecSpecificData(
             parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
         format = Format.createVideoContainerFormat(id, MimeTypes.VIDEO_MP4, sampleMimeType, bitrate,
             width, height, Format.NO_VALUE, codecSpecificData);
-      } else if (type == StreamElement.TYPE_AUDIO) {
+      } else if (type == C.TRACK_TYPE_AUDIO) {
         sampleMimeType = sampleMimeType == null ? MimeTypes.AUDIO_AAC : sampleMimeType;
         int channels = parseRequiredInt(parser, KEY_CHANNELS);
         int samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
@@ -633,7 +634,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, bitrate,
             channels, samplingRate, codecSpecificData, language);
-      } else if (type == StreamElement.TYPE_TEXT) {
+      } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
             bitrate, language);

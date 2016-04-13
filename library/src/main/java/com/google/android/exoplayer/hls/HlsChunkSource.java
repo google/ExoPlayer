@@ -56,10 +56,6 @@ import java.util.Locale;
  */
 public class HlsChunkSource {
 
-  public static final int TYPE_DEFAULT = 0;
-  public static final int TYPE_AUDIO = 1;
-  public static final int TYPE_SUBTITLE = 2;
-
   /**
    * The default time for which a media playlist should be blacklisted.
    */
@@ -103,8 +99,8 @@ public class HlsChunkSource {
 
   /**
    * @param manifestFetcher A fetcher for the playlist.
-   * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT},
-   *     {@link #TYPE_AUDIO} and {@link #TYPE_SUBTITLE}.
+   * @param type The type of chunk provided by the source. One of {@link C#TRACK_TYPE_DEFAULT},
+   *     {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
@@ -302,7 +298,7 @@ public class HlsChunkSource {
    * This method should only be called after the source has been prepared.
    */
   public void seek() {
-    if (type == TYPE_DEFAULT) {
+    if (type == C.TRACK_TYPE_DEFAULT) {
       timestampAdjusterProvider.reset();
     }
   }
@@ -536,8 +532,8 @@ public class HlsChunkSource {
   // Private methods.
 
   private void processMasterPlaylist(HlsMasterPlaylist playlist) {
-    if (type == TYPE_SUBTITLE || type == TYPE_AUDIO) {
-      List<Variant> variantList = type == TYPE_AUDIO ? playlist.audios : playlist.subtitles;
+    if (type == C.TRACK_TYPE_TEXT || type == C.TRACK_TYPE_AUDIO) {
+      List<Variant> variantList = type == C.TRACK_TYPE_AUDIO ? playlist.audios : playlist.subtitles;
       if (variantList != null && !variantList.isEmpty()) {
         variants = new Variant[variantList.size()];
         variantList.toArray(variants);

@@ -119,6 +119,31 @@ public final class C {
    */
   public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
+  /**
+   * A type constant for tracks of unknown type.
+   */
+  public static final int TRACK_TYPE_UNKNOWN = -1;
+
+  /**
+   * A type constant for tracks of some default type, where the type itself is unknown.
+   */
+  public static final int TRACK_TYPE_DEFAULT = 0;
+
+  /**
+   * A type constant for audio tracks.
+   */
+  public static final int TRACK_TYPE_AUDIO = 1;
+
+  /**
+   * A type constant for video tracks.
+   */
+  public static final int TRACK_TYPE_VIDEO = 2;
+
+  /**
+   * A type constant for text tracks.
+   */
+  public static final int TRACK_TYPE_TEXT = 3;
+
   private C() {}
 
 }

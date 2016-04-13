@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MultiSampleSource;
@@ -69,20 +70,20 @@ public class HlsSourceBuilder implements SourceBuilder {
 
     DataSource defaultDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher,
-        HlsChunkSource.TYPE_DEFAULT, defaultDataSource, timestampAdjusterProvider,
+        C.TRACK_TYPE_DEFAULT, defaultDataSource, timestampAdjusterProvider,
         new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
     HlsSampleSource defaultSampleSource = new HlsSampleSource(defaultChunkSource, loadControl,
         MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
 
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, HlsChunkSource.TYPE_AUDIO,
+    HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
         audioDataSource, timestampAdjusterProvider, null);
     HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
 
     DataSource subtitleDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher,
-        HlsChunkSource.TYPE_SUBTITLE, subtitleDataSource, timestampAdjusterProvider, null);
+        C.TRACK_TYPE_TEXT, subtitleDataSource, timestampAdjusterProvider, null);
     HlsSampleSource subtitleSampleSource = new HlsSampleSource(subtitleChunkSource, loadControl,
         TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
 

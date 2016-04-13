@@ -23,11 +23,6 @@ import java.util.List;
  */
 public class AdaptationSet {
 
-  public static final int TYPE_UNKNOWN = -1;
-  public static final int TYPE_VIDEO = 0;
-  public static final int TYPE_AUDIO = 1;
-  public static final int TYPE_TEXT = 2;
-
   public final int id;
 
   public final int type;

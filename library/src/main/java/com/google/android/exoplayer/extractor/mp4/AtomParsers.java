@@ -38,6 +38,12 @@ import java.util.List;
  */
 /* package */ final class AtomParsers {
 
+  private static final int TYPE_vide = Util.getIntegerCodeForString("vide");
+  private static final int TYPE_soun = Util.getIntegerCodeForString("soun");
+  private static final int TYPE_text = Util.getIntegerCodeForString("text");
+  private static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
+  private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
+
   /**
    * Parses a trak atom (defined in 14496-12).
    *
@@ -49,8 +55,7 @@ import java.util.List;
   public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, boolean isQuickTime) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
-    if (trackType != Track.TYPE_soun && trackType != Track.TYPE_vide && trackType != Track.TYPE_text
-        && trackType != Track.TYPE_sbtl && trackType != Track.TYPE_subt) {
+    if (trackType == C.TRACK_TYPE_UNKNOWN) {
       return null;
     }
 
@@ -501,7 +506,16 @@ import java.util.List;
    */
   private static int parseHdlr(ParsableByteArray hdlr) {
     hdlr.setPosition(Atom.FULL_HEADER_SIZE + 4);
-    return hdlr.readInt();
+    int trackType = hdlr.readInt();
+    if (trackType == TYPE_soun) {
+      return C.TRACK_TYPE_AUDIO;
+    } else if (trackType == TYPE_vide) {
+      return C.TRACK_TYPE_VIDEO;
+    } else if (trackType == TYPE_text || trackType == TYPE_sbtl || trackType == TYPE_subt) {
+      return C.TRACK_TYPE_TEXT;
+    } else {
+      return C.TRACK_TYPE_UNKNOWN;
+    }
   }
 
   /**

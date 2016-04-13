@@ -87,8 +87,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   /**
    * @param manifestFetcher A fetcher for the manifest.
    * @param streamElementType The type of stream element exposed by this source. One of
-   *     {@link StreamElement#TYPE_VIDEO}, {@link StreamElement#TYPE_AUDIO} and
-   *     {@link StreamElement#TYPE_TEXT}.
+   *     {@link C#TRACK_TYPE_VIDEO}, {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param liveEdgeLatencyMs For live streams, the number of milliseconds that the playback should
@@ -322,9 +321,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           long timescale = manifest.streamElements[i].timescale;
           extractorWrappers = new ChunkExtractorWrapper[formats.length];
           for (int j = 0; j < formats.length; j++) {
-            int nalUnitLengthFieldLength = streamElementType == StreamElement.TYPE_VIDEO ? 4 : -1;
-            int mp4TrackType = getMp4TrackType(streamElementType);
-            Track track = new Track(j, mp4TrackType, timescale, C.UNKNOWN_TIME_US, durationUs,
+            int nalUnitLengthFieldLength = streamElementType == C.TRACK_TYPE_VIDEO ? 4 : -1;
+            Track track = new Track(j, streamElementType, timescale, C.UNKNOWN_TIME_US, durationUs,
                 formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
             FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
                 FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
@@ -427,19 +425,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     byte temp = data[firstPosition];
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
-  }
-
-  private static int getMp4TrackType(int streamElementType) {
-    switch (streamElementType) {
-      case StreamElement.TYPE_AUDIO:
-        return Track.TYPE_soun;
-      case StreamElement.TYPE_VIDEO:
-        return Track.TYPE_vide;
-      case StreamElement.TYPE_TEXT:
-        return Track.TYPE_text;
-      default:
-        throw new IllegalArgumentException("Invalid stream type: " + streamElementType);
-    }
   }
 
 }

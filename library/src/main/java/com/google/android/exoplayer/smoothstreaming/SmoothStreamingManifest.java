@@ -127,11 +127,6 @@ public class SmoothStreamingManifest {
    */
   public static class StreamElement {
 
-    public static final int TYPE_UNKNOWN = -1;
-    public static final int TYPE_AUDIO = 0;
-    public static final int TYPE_VIDEO = 1;
-    public static final int TYPE_TEXT = 2;
-
     private static final String URL_PLACEHOLDER_START_TIME = "{start time}";
     private static final String URL_PLACEHOLDER_BITRATE = "{bitrate}";
 

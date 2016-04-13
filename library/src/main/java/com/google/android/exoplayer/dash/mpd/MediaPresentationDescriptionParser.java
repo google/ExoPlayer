@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
@@ -285,25 +286,25 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected int parseContentType(XmlPullParser xpp) {
     String contentType = xpp.getAttributeValue(null, "contentType");
-    return TextUtils.isEmpty(contentType) ? AdaptationSet.TYPE_UNKNOWN
-        : MimeTypes.BASE_TYPE_AUDIO.equals(contentType) ? AdaptationSet.TYPE_AUDIO
-        : MimeTypes.BASE_TYPE_VIDEO.equals(contentType) ? AdaptationSet.TYPE_VIDEO
-        : MimeTypes.BASE_TYPE_TEXT.equals(contentType) ? AdaptationSet.TYPE_TEXT
-        : AdaptationSet.TYPE_UNKNOWN;
+    return TextUtils.isEmpty(contentType) ? C.TRACK_TYPE_UNKNOWN
+        : MimeTypes.BASE_TYPE_AUDIO.equals(contentType) ? C.TRACK_TYPE_AUDIO
+        : MimeTypes.BASE_TYPE_VIDEO.equals(contentType) ? C.TRACK_TYPE_VIDEO
+        : MimeTypes.BASE_TYPE_TEXT.equals(contentType) ? C.TRACK_TYPE_TEXT
+        : C.TRACK_TYPE_UNKNOWN;
   }
 
   protected int getContentType(Representation representation) {
     String sampleMimeType = representation.format.sampleMimeType;
     if (TextUtils.isEmpty(sampleMimeType)) {
-      return AdaptationSet.TYPE_UNKNOWN;
+      return C.TRACK_TYPE_UNKNOWN;
     } else if (MimeTypes.isVideo(sampleMimeType)) {
-      return AdaptationSet.TYPE_VIDEO;
+      return C.TRACK_TYPE_VIDEO;
     } else if (MimeTypes.isAudio(sampleMimeType)) {
-      return AdaptationSet.TYPE_AUDIO;
+      return C.TRACK_TYPE_AUDIO;
     } else if (mimeTypeIsRawText(sampleMimeType)) {
-      return AdaptationSet.TYPE_TEXT;
+      return C.TRACK_TYPE_TEXT;
     }
-    return AdaptationSet.TYPE_UNKNOWN;
+    return C.TRACK_TYPE_UNKNOWN;
   }
 
   /**
@@ -691,17 +692,17 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
    * Checks two adaptation set content types for consistency, returning the consistent type, or
    * throwing an {@link IllegalStateException} if the types are inconsistent.
    * <p>
-   * Two types are consistent if they are equal, or if one is {@link AdaptationSet#TYPE_UNKNOWN}.
-   * Where one of the types is {@link AdaptationSet#TYPE_UNKNOWN}, the other is returned.
+   * Two types are consistent if they are equal, or if one is {@link C#TRACK_TYPE_UNKNOWN}.
+   * Where one of the types is {@link C#TRACK_TYPE_UNKNOWN}, the other is returned.
    *
    * @param firstType The first type.
    * @param secondType The second type.
    * @return The consistent type.
    */
   private static int checkContentTypeConsistency(int firstType, int secondType) {
-    if (firstType == AdaptationSet.TYPE_UNKNOWN) {
+    if (firstType == C.TRACK_TYPE_UNKNOWN) {
       return secondType;
-    } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
+    } else if (secondType == C.TRACK_TYPE_UNKNOWN) {
       return firstType;
     } else {
       Assertions.checkState(firstType == secondType);
