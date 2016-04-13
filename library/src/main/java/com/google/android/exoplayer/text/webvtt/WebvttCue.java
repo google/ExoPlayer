@@ -18,32 +18,14 @@ package com.google.android.exoplayer.text.webvtt;
 import com.google.android.exoplayer.text.Cue;
 
 import android.text.Layout.Alignment;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
 import android.util.Log;
-
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * A representation of a WebVTT cue.
  */
 /* package */ final class WebvttCue extends Cue {
 
-  public static final String UNIVERSAL_CUE_ID = "";
-  public static final String CUE_ID_PREFIX = "#";
-
-  public final String id;
   public final long startTime;
   public final long endTime;
 
@@ -52,15 +34,13 @@ import java.util.Map;
   }
 
   public WebvttCue(long startTime, long endTime, CharSequence text) {
-    this(null, startTime, endTime, text, null, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET,
+    this(startTime, endTime, text, null, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET,
         Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
   }
 
-  public WebvttCue(String id, long startTime, long endTime, CharSequence text, 
-      Alignment textAlignment, float line, int lineType, int lineAnchor, float position,
-      int positionAnchor, float width) {
+  public WebvttCue(long startTime, long endTime, CharSequence text, Alignment textAlignment, 
+      float line, int lineType, int lineAnchor, float position, int positionAnchor, float width) {
     super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
-    this.id = id;
     this.startTime = startTime;
     this.endTime = endTime;
   }
@@ -83,7 +63,6 @@ import java.util.Map;
 
     private static final String TAG = "WebvttCueBuilder";
 
-    private String id;
     private long startTime;
     private long endTime;
     private SpannableStringBuilder text;
@@ -117,25 +96,13 @@ import java.util.Map;
     // Construction methods.
 
     public WebvttCue build() {
-      return build(Collections.<String, WebvttCssStyle>emptyMap());
-    }
-    
-    public WebvttCue build(Map<String, WebvttCssStyle> styleMap) {
-      // TODO: Add support for inner spans.
-      maybeApplyStyleToText(styleMap.get(UNIVERSAL_CUE_ID), 0, text.length());
-      maybeApplyStyleToText(styleMap.get(CUE_ID_PREFIX + id), 0, text.length());
       if (position != Cue.DIMEN_UNSET && positionAnchor == Cue.TYPE_UNSET) {
         derivePositionAnchorFromAlignment();
       }
-      return new WebvttCue(id, startTime, endTime, text, textAlignment, line, lineType, lineAnchor,
+      return new WebvttCue(startTime, endTime, text, textAlignment, line, lineType, lineAnchor,
           position, positionAnchor, width);
     }
 
-    public Builder setId(String id) {
-      this.id = id;
-      return this;
-    }
-    
     public Builder setStartTime(long time) {
       startTime = time;
       return this;
@@ -207,54 +174,6 @@ import java.util.Map;
         }
       }
       return this;
-    }
-
-    private void maybeApplyStyleToText(WebvttCssStyle style, int start, int end) {
-      if (style == null) {
-        return;
-      }
-      if (style.getStyle() != WebvttCssStyle.UNSPECIFIED) {
-        text.setSpan(new StyleSpan(style.getStyle()), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.isLinethrough()) {
-        text.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.isUnderline()) {
-        text.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.hasFontColor()) {
-        text.setSpan(new ForegroundColorSpan(style.getFontColor()), start, end,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.hasBackgroundColor()) {
-        text.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.getFontFamily() != null) {
-        text.setSpan(new TypefaceSpan(style.getFontFamily()), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.getTextAlign() != null) {
-        text.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.getFontSizeUnit() != WebvttCssStyle.UNSPECIFIED) {
-        switch (style.getFontSizeUnit()) {
-          case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
-            text.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            break;
-          case WebvttCssStyle.FONT_SIZE_UNIT_EM:
-            text.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            break;
-          case WebvttCssStyle.FONT_SIZE_UNIT_PERCENT:
-            text.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            break;
-        }
-      }
     }
 
   }

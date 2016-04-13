@@ -24,6 +24,7 @@ import android.text.Layout.Alignment;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 
 import java.io.IOException;
 import java.util.List;
@@ -154,7 +155,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // Test event count.
-    assertEquals(4, subtitle.getEventTimeCount());
+    assertEquals(6, subtitle.getEventTimeCount());
 
     // Test cues.
     assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.");
@@ -162,11 +163,14 @@ public class WebvttParserTest extends InstrumentationTestCase {
     
     Cue cue1 = subtitle.getCues(0).get(0);
     Cue cue2 = subtitle.getCues(2345000).get(0);
+    Cue cue3 = subtitle.getCues(20000000).get(0);
     Spanned s1 = (Spanned) cue1.text;
     Spanned s2 = (Spanned) cue2.text;
+    Spanned s3 = (Spanned) cue3.text;
     assertEquals(1, s1.getSpans(0, s1.length(), ForegroundColorSpan.class).length);
     assertEquals(1, s1.getSpans(0, s1.length(), BackgroundColorSpan.class).length);
     assertEquals(2, s2.getSpans(0, s2.length(), ForegroundColorSpan.class).length);
+    assertEquals(1, s3.getSpans(10, s3.length(), UnderlineSpan.class).length);
   }
 
   private static void assertCue(WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs,

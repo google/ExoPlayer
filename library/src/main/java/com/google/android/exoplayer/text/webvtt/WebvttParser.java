@@ -76,8 +76,8 @@ public final class WebvttParser extends SubtitleParser {
         parsableWebvttData.readLine(); // Consume the "STYLE" header.
         cssParser.parseBlock(parsableWebvttData, styleMap);
       } else if (eventFound == CUE_FOUND) {
-        if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder)) {
-          subtitles.add(webvttCueBuilder.build(styleMap));
+        if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder, styleMap)) {
+          subtitles.add(webvttCueBuilder.build());
           webvttCueBuilder.reset();
         }
       }

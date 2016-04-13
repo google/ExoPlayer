@@ -86,20 +86,22 @@ import java.util.Map;
   }
 
   /**
-   * Returns a string containing the selector. Empty string is the universal selector, and null
-   * means syntax error.
+   * Returns a string containing the selector. {@link WebvttCueParser#UNIVERSAL_CUE_ID} is the
+   * universal selector, and null means syntax error.
    *
-   * <p> Expected inputs are:
-   * ::cue
-   * ::cue(#id)
-   * ::cue(elem)
-   * ::cue(.class)
-   * ::cue(elem.class)
-   * ::cue(v[voice="Someone"])
+   * <p>Expected inputs are:
+   * <ul>
+   * <li>::cue
+   * <li>::cue(#id)
+   * <li>::cue(elem)
+   * <li>::cue(.class)
+   * <li>::cue(elem.class)
+   * <li>::cue(v[voice="Someone"])
+   * </ul>
    *
    * @param input From which the selector is obtained.
-   * @return A string containing the target, {@link WebvttCue#UNIVERSAL_CUE_ID} if targets all cues
-   *     and null if an error was encountered.
+   * @return A string containing the target, {@link WebvttCueParser#UNIVERSAL_CUE_ID} if the
+   *     selector is universal (targets all cues) or null if an error was encountered.
    */
   private static String parseSelector(ParsableByteArray input, StringBuilder stringBuilder) {
     skipWhitespaceAndComments(input);
@@ -117,7 +119,7 @@ import java.util.Map;
     }
     if ("{".equals(token)) {
       input.setPosition(position);
-      return WebvttCue.UNIVERSAL_CUE_ID;
+      return WebvttCueParser.UNIVERSAL_CUE_ID;
     }
     String target = null;
     if ("(".equals(token)) {

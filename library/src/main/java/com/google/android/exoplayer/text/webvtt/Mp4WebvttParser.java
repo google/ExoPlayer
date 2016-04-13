@@ -22,6 +22,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -82,7 +83,8 @@ public final class Mp4WebvttParser extends SubtitleParser {
       if (boxType == TYPE_sttg) {
         WebvttCueParser.parseCueSettingsList(boxPayload, builder);
       } else if (boxType == TYPE_payl) {
-        WebvttCueParser.parseCueText(boxPayload.trim(), builder);
+        WebvttCueParser.parseCueText(null, boxPayload.trim(), builder, 
+            Collections.<String, WebvttCssStyle>emptyMap());
       } else {
         // Other VTTCueBox children are still not supported and are ignored.
       }

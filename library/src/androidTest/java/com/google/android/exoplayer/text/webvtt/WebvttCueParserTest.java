@@ -21,6 +21,8 @@ import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
+import java.util.Collections;
+
 /**
  * Unit test for {@link WebvttCueParser}.
  */
@@ -221,7 +223,8 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
 
   private static Spanned parseCueText(String string) {
     WebvttCue.Builder builder = new WebvttCue.Builder();
-    WebvttCueParser.parseCueText(string, builder);
+    WebvttCueParser.parseCueText(null, string, builder,
+        Collections.<String, WebvttCssStyle>emptyMap());
     return (Spanned) builder.build().text;
   }
 
