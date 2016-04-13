@@ -137,23 +137,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * Value returned by {@link #getSourceState()} when the source is not ready.
-   */
-  protected static final int SOURCE_STATE_NOT_READY = 0;
-  /**
-   * Value returned by {@link #getSourceState()} when the source is ready and we're able to read
-   * from it.
-   */
-  protected static final int SOURCE_STATE_READY = 1;
-  /**
-   * Value returned by {@link #getSourceState()} when the source is ready but we might not be able
-   * to read from it. We transition to this state when an attempt to read a sample fails despite the
-   * source reporting that samples are available. This can occur when the next sample to be provided
-   * by the source is for another renderer.
-   */
-  protected static final int SOURCE_STATE_READY_READ_MAY_FAIL = 2;
-
-  /**
    * If the {@link MediaCodec} is hotswapped (i.e. replaced during playback), this is the period of
    * time during which {@link #isReady()} will report true regardless of whether the new codec has
    * output frames that are ready to be rendered.
@@ -227,7 +210,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
 
-  private int sourceState;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
@@ -462,7 +444,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
   @Override
   protected void reset(long positionUs) throws ExoPlaybackException {
-    sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
     if (codec != null) {
@@ -481,11 +462,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
-      throws ExoPlaybackException {
-    sourceState = sourceIsReady
-        ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
-        : SOURCE_STATE_NOT_READY;
+  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (format == null) {
       readFormat();
     }
@@ -493,9 +470,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (codec != null) {
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      if (feedInputBuffer(true)) {
-        while (feedInputBuffer(false)) {}
-      }
+      while (feedInputBuffer()) {}
       TraceUtil.endSection();
     }
     codecCounters.ensureUpdated();
@@ -536,12 +511,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * @param firstFeed True if this is the first call to this method from the current invocation of
-   *     {@link #render(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
-  private boolean feedInputBuffer(boolean firstFeed) throws ExoPlaybackException {
+  private boolean feedInputBuffer() throws ExoPlaybackException {
     if (inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
@@ -587,9 +560,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
       result = readSource(formatHolder, buffer);
-      if (firstFeed && sourceState == SOURCE_STATE_READY && result == TrackStream.NOTHING_READ) {
-        sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
-      }
     }
 
     if (result == TrackStream.NOTHING_READ) {
@@ -807,17 +777,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   @Override
   protected boolean isReady() {
     return format != null && !waitingForKeys
-        && (sourceState != SOURCE_STATE_NOT_READY || outputIndex >= 0 || isWithinHotswapPeriod());
-  }
-
-  /**
-   * Gets the source state.
-   *
-   * @return One of {@link #SOURCE_STATE_NOT_READY}, {@link #SOURCE_STATE_READY} and
-   *     {@link #SOURCE_STATE_READY_READ_MAY_FAIL}.
-   */
-  protected final int getSourceState() {
-    return sourceState;
+        && (isSourceReady() || outputIndex >= 0 || isWithinHotswapPeriod());
   }
 
   private boolean isWithinHotswapPeriod() {

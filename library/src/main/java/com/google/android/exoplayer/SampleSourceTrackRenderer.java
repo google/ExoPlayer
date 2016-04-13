@@ -44,12 +44,6 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected final void render(long positionUs, long elapsedRealtimeUs)
-      throws ExoPlaybackException {
-    render(positionUs, elapsedRealtimeUs, trackStream.isReady());
-  }
-
-  @Override
   protected final void maybeThrowError() throws IOException {
     trackStream.maybeThrowError();
   }
@@ -70,6 +64,15 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
     return trackStream.readData(formatHolder, buffer);
   }
 
+  /**
+   * Returns whether the upstream source is ready.
+   *
+   * @return True if the source is ready. False otherwise.
+   */
+  protected final boolean isSourceReady() {
+    return trackStream.isReady();
+  }
+
   // Abstract methods.
 
   /**
@@ -79,18 +82,5 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
    * @throws ExoPlaybackException If an error occurs handling the reset.
    */
   protected abstract void reset(long positionUs) throws ExoPlaybackException;
-
-  /**
-   * Called by {@link #render(long, long)}.
-   *
-   * @param positionUs The current media time in microseconds, measured at the start of the
-   *     current iteration of the rendering loop.
-   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
-   *     measured at the start of the current iteration of the rendering loop.
-   * @param sourceIsReady The result of the most recent call to  {@link TrackStream#isReady()}.
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected abstract void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
-      throws ExoPlaybackException;
 
 }

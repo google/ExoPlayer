@@ -98,8 +98,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
-      throws ExoPlaybackException {
+  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
       buffer.clear();
       int result = readSource(formatHolder, buffer);

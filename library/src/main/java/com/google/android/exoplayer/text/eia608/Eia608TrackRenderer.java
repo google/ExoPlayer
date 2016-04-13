@@ -104,8 +104,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
-      throws ExoPlaybackException {
+  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (isBufferPending()) {
       maybeParsePendingBuffer(positionUs);
     }

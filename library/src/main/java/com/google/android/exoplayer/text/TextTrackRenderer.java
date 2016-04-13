@@ -126,8 +126,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
-      throws ExoPlaybackException {
+  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
     }

@@ -90,7 +90,6 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private boolean sourceIsReady;
 
   private final AudioTrack audioTrack;
   private int audioSessionId;
@@ -131,12 +130,10 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
-      throws ExoPlaybackException {
+  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
     }
-    this.sourceIsReady = sourceIsReady;
 
     // Try and read a format if we don't have one already.
     if (format == null && !readFormat()) {
@@ -275,7 +272,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
   @Override
   protected boolean isReady() {
     return audioTrack.hasPendingData()
-        || (format != null && (sourceIsReady || outputBuffer != null));
+        || (format != null && (isSourceReady() || outputBuffer != null));
   }
 
   @Override
@@ -296,7 +293,6 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     allowPositionDiscontinuity = true;
     inputStreamEnded = false;
     outputStreamEnded = false;
-    sourceIsReady = false;
     if (decoder != null) {
       flushDecoder();
     }
