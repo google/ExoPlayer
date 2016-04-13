@@ -19,7 +19,6 @@ import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
@@ -36,7 +35,7 @@ import java.io.IOException;
  *
  * @param <T> The type of the metadata.
  */
-public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer implements Callback {
+public final class MetadataTrackRenderer<T> extends TrackRenderer implements Callback {
 
   /**
    * An interface for components that process metadata.

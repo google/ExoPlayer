@@ -20,7 +20,6 @@ import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.text.Cue;
@@ -39,7 +38,7 @@ import java.util.TreeSet;
 /**
  * A {@link TrackRenderer} for EIA-608 closed captions in a media stream.
  */
-public final class Eia608TrackRenderer extends SampleSourceTrackRenderer implements Callback {
+public final class Eia608TrackRenderer extends TrackRenderer implements Callback {
 
   private static final int MSG_INVOKE_RENDERER = 0;
 

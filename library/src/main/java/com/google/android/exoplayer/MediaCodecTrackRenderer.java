@@ -40,7 +40,7 @@ import java.util.List;
  * An abstract {@link TrackRenderer} that uses {@link MediaCodec} to decode samples for rendering.
  */
 @TargetApi(16)
-public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer {
+public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   /**
    * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.

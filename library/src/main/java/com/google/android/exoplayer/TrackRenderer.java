@@ -162,27 +162,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Returns the extent to which the renderer supports a given format.
-   * <p>
-   * The returned value is the bitwise OR of two properties:
-   * <ul>
-   * <li>The level of support for the format itself. One of {@code}link #FORMAT_HANDLED},
-   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
-   * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
-   * <li>The level of support for adapting from the format to another format of the same mimeType.
-   * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
-   * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
-   * </ul>
-   * The individual properties can be retrieved by performing a bitwise AND with
-   * {@link #FORMAT_SUPPORT_MASK} and {@link #ADAPTIVE_SUPPORT_MASK} respectively.
-   *
-   * @param format The format.
-   * @return The extent to which the renderer is capable of supporting the given format.
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected abstract int supportsFormat(Format format) throws ExoPlaybackException;
-
-  /**
    * Enable the renderer to consume from the specified {@link TrackStream}.
    *
    * @param formats The enabled formats.
@@ -196,7 +175,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
     stream = trackStream;
-    onEnabled(formats, trackStream, positionUs, joining);
+    onEnabled(formats, joining);
+    reset(positionUs);
   }
 
   /**
@@ -205,13 +185,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * The default implementation is a no-op.
    *
    * @param formats The enabled formats.
-   * @param trackStream The track stream from which the renderer should consume.
-   * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
-      boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -236,6 +213,22 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   protected void onStarted() throws ExoPlaybackException {
     // Do nothing.
+  }
+
+  /**
+   * Attempts to read and process a pending reset from the {@link TrackStream}.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  /* package */ final void checkForReset() throws ExoPlaybackException {
+    long resetPositionUs = stream.readReset();
+    if (resetPositionUs != TrackStream.NO_RESET) {
+      reset(resetPositionUs);
+      return;
+    }
   }
 
   /**
@@ -281,44 +274,73 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
     // Do nothing.
   }
 
-  /**
-   * Whether the renderer is ready for the {@link ExoPlayer} instance to transition to
-   * {@link ExoPlayer#STATE_ENDED}. The player will make this transition as soon as {@code true} is
-   * returned by all of its {@link TrackRenderer}s.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
-   *
-   * @return Whether the renderer is ready for the player to transition to the ended state.
-   */
-  protected abstract boolean isEnded();
+  // Methods to be called by subclasses.
 
   /**
-   * Whether the renderer is able to immediately render media from the current position.
-   * <p>
-   * If the renderer is in the {@link #STATE_STARTED} state then returning true indicates that the
-   * renderer has everything that it needs to continue playback. Returning false indicates that
-   * the player should pause until the renderer is ready.
-   * <p>
-   * If the renderer is in the {@link #STATE_ENABLED} state then returning true indicates that the
-   * renderer is ready for playback to be started. Returning false indicates that it is not.
+   * Throws an error that's preventing the renderer from making progress or buffering more data at
+   * this point in time.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   * {@link #STATE_ENABLED}.
    *
-   * @return True if the renderer is ready to render media. False otherwise.
+   * @throws IOException An error that's preventing the renderer from making progress or buffering
+   *     more data.
    */
-  protected abstract boolean isReady();
+  protected final void maybeThrowError() throws IOException {
+    stream.maybeThrowError();
+  }
 
   /**
-   * Attempts to read and process a pending reset from the {@link TrackStream}.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   * Reads from the enabled upstream source.
    *
+   * @see TrackStream#readData(FormatHolder, DecoderInputBuffer)
+   */
+  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+    return stream.readData(formatHolder, buffer);
+  }
+
+  /**
+   * Returns whether the upstream source is ready.
+   *
+   * @return True if the source is ready. False otherwise.
+   */
+  protected final boolean isSourceReady() {
+    return stream.isReady();
+  }
+
+  // Abstract methods.
+
+  /**
+   * Returns the extent to which the renderer supports a given format.
+   * <p>
+   * The returned value is the bitwise OR of two properties:
+   * <ul>
+   * <li>The level of support for the format itself. One of {@code}link #FORMAT_HANDLED},
+   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
+   * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
+   * <li>The level of support for adapting from the format to another format of the same mimeType.
+   * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
+   * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
+   * </ul>
+   * The individual properties can be retrieved by performing a bitwise AND with
+   * {@link #FORMAT_SUPPORT_MASK} and {@link #ADAPTIVE_SUPPORT_MASK} respectively.
+   *
+   * @param format The format.
+   * @return The extent to which the renderer is capable of supporting the given format.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract void checkForReset() throws ExoPlaybackException;
+  protected abstract int supportsFormat(Format format) throws ExoPlaybackException;
+
+  /**
+   * Invoked when a reset is encountered, and also when the renderer is enabled.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * @param positionUs The playback position in microseconds.
+   * @throws ExoPlaybackException If an error occurs handling the reset.
+   */
+  protected abstract void reset(long positionUs) throws ExoPlaybackException;
 
   /**
    * Incrementally renders the {@link TrackStream}.
@@ -339,16 +361,35 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
       throws ExoPlaybackException;
 
   /**
-   * Throws an error that's preventing the renderer from making progress or buffering more data at
-   * this point in time.
+   * Whether the renderer is able to immediately render media from the current position.
+   * <p>
+   * If the renderer is in the {@link #STATE_STARTED} state then returning true indicates that the
+   * renderer has everything that it needs to continue playback. Returning false indicates that
+   * the player should pause until the renderer is ready.
+   * <p>
+   * If the renderer is in the {@link #STATE_ENABLED} state then returning true indicates that the
+   * renderer is ready for playback to be started. Returning false indicates that it is not.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}.
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
-   * @throws IOException An error that's preventing the renderer from making progress or buffering
-   *     more data.
+   * @return True if the renderer is ready to render media. False otherwise.
    */
-  protected abstract void maybeThrowError() throws IOException;
+  protected abstract boolean isReady();
+
+  /**
+   * Whether the renderer is ready for the {@link ExoPlayer} instance to transition to
+   * {@link ExoPlayer#STATE_ENDED}. The player will make this transition as soon as {@code true} is
+   * returned by all of its {@link TrackRenderer}s.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * @return Whether the renderer is ready for the player to transition to the ended state.
+   */
+  protected abstract boolean isEnded();
+
+  // ExoPlayerComponent implementation.
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {

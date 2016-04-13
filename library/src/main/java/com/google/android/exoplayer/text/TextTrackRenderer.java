@@ -20,7 +20,6 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
@@ -44,7 +43,7 @@ import java.util.List;
  * {@link TextRenderer}.
  */
 @TargetApi(16)
-public final class TextTrackRenderer extends SampleSourceTrackRenderer implements Callback {
+public final class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private static final int MSG_UPDATE_OVERLAY = 0;
 
@@ -99,9 +98,8 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
-      boolean joining) throws ExoPlaybackException {
-    super.onEnabled(formats, trackStream, positionUs, joining);
+  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+    super.onEnabled(formats, joining);
     parser = parserFactory.createParser(formats[0]);
     parser.start();
   }
@@ -120,9 +118,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     }
     nextInputBuffer = null;
     clearTextRenderer();
-    if (parser != null) {
-      parser.flush();
-    }
+    parser.flush();
   }
 
   @Override
@@ -215,10 +211,8 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       nextSubtitle.release();
       nextSubtitle = null;
     }
-    if (parser != null) {
-      parser.release();
-      parser = null;
-    }
+    parser.release();
+    parser = null;
     nextInputBuffer = null;
     clearTextRenderer();
     super.onDisabled();

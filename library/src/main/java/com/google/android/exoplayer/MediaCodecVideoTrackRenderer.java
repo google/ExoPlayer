@@ -260,9 +260,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
-      boolean joining) throws ExoPlaybackException {
-    super.onEnabled(formats, trackStream, positionUs, joining);
+  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+    super.onEnabled(formats, joining);
     adaptiveMaxWidth = Format.NO_VALUE;
     adaptiveMaxHeight = Format.NO_VALUE;
     if (formats.length > 1) {

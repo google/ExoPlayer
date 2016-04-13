@@ -22,7 +22,6 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.MediaClock;
-import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.audio.AudioTrack;
@@ -35,8 +34,7 @@ import java.util.List;
 /**
  * Decodes and renders audio using the native Opus decoder.
  */
-public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
-    implements MediaClock {
+public final class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClock {
 
   /**
    * Interface definition for a callback to be notified of {@link LibopusAudioTrackRenderer} events.

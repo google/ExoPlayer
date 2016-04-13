@@ -36,17 +36,12 @@ public final class DummyTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void checkForReset() throws ExoPlaybackException {
-    throw new IllegalStateException();
-  }
-
-  @Override
   protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     throw new IllegalStateException();
   }
 
   @Override
-  protected void maybeThrowError() {
+  protected void reset(long positionUs) throws ExoPlaybackException {
     throw new IllegalStateException();
   }
 

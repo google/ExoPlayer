@@ -102,6 +102,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.state = ExoPlayer.STATE_IDLE;
     this.durationUs = C.UNKNOWN_TIME_US;
     this.bufferedPositionUs = C.UNKNOWN_TIME_US;
+
+    for (int i = 0; i < renderers.length; i++) {
+      renderers[i].setIndex(i);
+    }
+
     standaloneMediaClock = new StandaloneMediaClock();
     pendingSeekCount = new AtomicInteger();
     enabledRenderers = new TrackRenderer[0];
