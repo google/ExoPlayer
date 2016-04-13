@@ -45,7 +45,6 @@ import java.util.regex.Pattern;
 /* package */ final class WebvttCueParser {
 
   public static final String UNIVERSAL_CUE_ID = "";
-  public static final String CUE_ID_PREFIX = "#";
   public static final Pattern CUE_HEADER_PATTERN = Pattern
       .compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
 
@@ -57,7 +56,6 @@ import java.util.regex.Pattern;
   private static final char CHAR_AMPERSAND = '&';
   private static final char CHAR_SEMI_COLON = ';';
   private static final char CHAR_SPACE = ' ';
-  private static final String SPACE = " ";
 
   private static final String ENTITY_LESS_THAN = "lt";
   private static final String ENTITY_GREATER_THAN = "gt";
@@ -70,6 +68,10 @@ import java.util.regex.Pattern;
   private static final String TAG_CLASS = "c";
   private static final String TAG_VOICE = "v";
   private static final String TAG_LANG = "lang";
+  
+  private static final String CUE_ID_PREFIX = "#";
+  private static final String CUE_VOICE_PREFIX = "v[voice=\"";
+  private static final String CUE_VOICE_SUFFIX = "\"]";
 
   private static final int STYLE_BOLD = Typeface.BOLD;
   private static final int STYLE_ITALIC = Typeface.ITALIC;
@@ -153,7 +155,6 @@ import java.util.regex.Pattern;
       Map<String, WebvttCssStyle> styleMap) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     Stack<StartTag> startTagStack = new Stack<>();
-    String[] tagTokens;
     int pos = 0;
     while (pos < markup.length()) {
       char curr = markup.charAt(pos);
@@ -167,10 +168,10 @@ import java.util.regex.Pattern;
           boolean isClosingTag = markup.charAt(ltPos + 1) == CHAR_SLASH;
           pos = findEndOfTag(markup, ltPos + 1);
           boolean isVoidTag = markup.charAt(pos - 2) == CHAR_SLASH;
-
-          tagTokens = tokenizeTag(markup.substring(
-              ltPos + (isClosingTag ? 2 : 1), isVoidTag ? pos - 2 : pos - 1));
-          if (tagTokens == null || !isSupportedTag(tagTokens[0])) {
+          String fullTagExpression = markup.substring(ltPos + (isClosingTag ? 2 : 1),
+              isVoidTag ? pos - 2 : pos - 1);
+          String tagName = getTagName(fullTagExpression);
+          if (tagName == null || !isSupportedTag(tagName)) {
             continue;
           }
           if (isClosingTag) {
@@ -181,9 +182,10 @@ import java.util.regex.Pattern;
               }
               startTag = startTagStack.pop();
               applySpansForTag(startTag, spannedText, styleMap);
-            } while(!startTag.name.equals(tagTokens[0]));
+            } while(!startTag.name.equals(tagName));
           } else if (!isVoidTag) {
-            startTagStack.push(new StartTag(tagTokens[0], spannedText.length()));
+            startTagStack.push(new StartTag(tagName, spannedText.length(),
+                TAG_VOICE.equals(tagName) ? getVoiceName(fullTagExpression) : null));
           }
           break;
         case CHAR_AMPERSAND:
@@ -309,8 +311,8 @@ import java.util.regex.Pattern;
    * Find end of tag (&gt;). The position returned is the position of the &gt; plus one (exclusive).
    *
    * @param markup The WebVTT cue markup to be parsed.
-   * @param startPos the position from where to start searching for the end of tag.
-   * @return the position of the end of tag plus 1 (one).
+   * @param startPos The position from where to start searching for the end of tag.
+   * @return The position of the end of tag plus 1 (one).
    */
   private static int findEndOfTag(String markup, int startPos) {
     int idx = markup.indexOf(CHAR_GREATER_THAN, startPos);
@@ -376,6 +378,11 @@ import java.util.regex.Pattern;
         return;
     }
     applyStyleToText(spannedText, styleForTag, start, end);
+    if (startTag.voiceName != null) {
+      WebvttCssStyle styleForVoice = styleMap.get(CUE_VOICE_PREFIX + startTag.voiceName
+          + CUE_VOICE_SUFFIX);
+      applyStyleToText(spannedText, styleForVoice, start, end);
+    }
   }
   
   private static void applyStyleToText(SpannableStringBuilder spannedText, 
@@ -428,31 +435,33 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Tokenizes a tag expression into tag name (pos 0) and classes (pos 1..n).
+   * Gets the tag name for the given tag contents.
    *
-   * @param fullTagExpression characters between &amp;lt: and &amp;gt; of a start or end tag
-   * @return an array of <code>String</code>s with the tag name at pos 0 followed by style classes
-   *    or null if it's an empty tag: '&lt;&gt;'
+   * @param tagExpression Characters between &amp;lt: and &amp;gt; of a start or end tag.
+   * @return The name of tag.
    */
-  private static String[] tokenizeTag(String fullTagExpression) {
-    fullTagExpression = fullTagExpression.replace("\\s+", " ").trim();
-    if (fullTagExpression.length() == 0) {
+  private static String getTagName(String tagExpression) {
+    tagExpression = tagExpression.trim();
+    if (tagExpression.isEmpty()) {
       return null;
     }
-    if (fullTagExpression.contains(SPACE)) {
-      fullTagExpression = fullTagExpression.substring(0, fullTagExpression.indexOf(SPACE));
-    }
-    return fullTagExpression.split("\\.");
+    return tagExpression.split("[ \\.]")[0];
+  }
+  
+  private static String getVoiceName(String fullTagExpression) {
+    return fullTagExpression.trim().substring(fullTagExpression.indexOf(" ")).trim();
   }
 
   private static final class StartTag {
 
     public final String name;
     public final int position;
+    public final String voiceName;
 
-    public StartTag(String name, int position) {
+    public StartTag(String name, int position, String voiceName) {
       this.position = position;
       this.name = name;
+      this.voiceName = voiceName;
     }
 
   }

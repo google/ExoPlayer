@@ -15,6 +15,12 @@ STYLE
 }
 
 STYLE
+::cue(v[voice="LaGord"]) { background-color: lime }
+
+STYLE
+::cue(v[voice="The Frog"]) { font-weight: bold }
+
+STYLE
 ::cue(v){text-decoration:underline}
 
 id1
@@ -26,4 +32,8 @@ id2
 This is the second subtitle.
 
 00:20.000 --> 00:21.000
-This is a <v Mary>reference by element</v>
+This is a <v.clazz Mary>reference by element</v>
+
+00:25.000 --> 00:28.000
+<v  LaGord>You are an idiot</v>
+<v  The Frog>You don't have the guts</v>
