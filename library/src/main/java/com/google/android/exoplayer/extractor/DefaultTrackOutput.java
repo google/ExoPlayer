@@ -243,8 +243,7 @@ public class DefaultTrackOutput implements TrackOutput {
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
     largestParsedTimestampUs = Math.max(largestParsedTimestampUs, timeUs);
-    rollingBuffer.commitSample(timeUs, flags, rollingBuffer.getWritePosition() - size - offset,
-        size, encryptionKey);
+    rollingBuffer.commitSample(timeUs, flags, size, offset, encryptionKey);
   }
 
 }

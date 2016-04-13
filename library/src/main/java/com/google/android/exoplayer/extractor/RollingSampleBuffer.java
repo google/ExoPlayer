@@ -19,7 +19,6 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -335,42 +334,6 @@ import java.util.concurrent.LinkedBlockingDeque;
   // Called by the loading thread.
 
   /**
-   * Returns the current write position in the rolling buffer.
-   *
-   * @return The current write position.
-   */
-  public long getWritePosition() {
-    return totalBytesWritten;
-  }
-
-  /**
-   * Appends data to the rolling buffer.
-   *
-   * @param dataSource The source from which to read.
-   * @param length The maximum length of the read.
-   * @param allowEndOfInput True if encountering the end of the input having appended no data is
-   *     allowed, and should result in {@link C#RESULT_END_OF_INPUT} being returned. False if it
-   *     should be considered an error, causing an {@link EOFException} to be thrown.
-   * @return The number of bytes appended, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
-   * @throws IOException If an error occurs reading from the source.
-   */
-  public int appendData(DataSource dataSource, int length, boolean allowEndOfInput)
-      throws IOException {
-    length = prepareForAppend(length);
-    int bytesAppended = dataSource.read(lastAllocation.data,
-        lastAllocation.translateOffset(lastAllocationOffset), length);
-    if (bytesAppended == C.RESULT_END_OF_INPUT) {
-      if (allowEndOfInput) {
-        return C.RESULT_END_OF_INPUT;
-      }
-      throw new EOFException();
-    }
-    lastAllocationOffset += bytesAppended;
-    totalBytesWritten += bytesAppended;
-    return bytesAppended;
-  }
-
-  /**
    * Appends data to the rolling buffer.
    *
    * @param input The source from which to read.
@@ -420,13 +383,17 @@ import java.util.concurrent.LinkedBlockingDeque;
    *
    * @param sampleTimeUs The sample timestamp.
    * @param flags Flags that accompany the sample. See {@code C.BUFFER_FLAG_*}.
-   * @param position The position of the sample data in the rolling buffer.
    * @param size The size of the sample, in bytes.
+   * @param offset The number of bytes that have been passed to
+   *     {@link #appendData(ExtractorInput, int, boolean)} or
+   *     {@link #appendData(ParsableByteArray, int)} since the last byte belonging to the sample
+   *     being committed.
    * @param encryptionKey The encryption key associated with the sample, or null.
    */
-  public void commitSample(long sampleTimeUs, int flags, long position, int size,
+  public void commitSample(long sampleTimeUs, int flags, int size, int offset,
       byte[] encryptionKey) {
-    infoQueue.commitSample(sampleTimeUs, flags, position, size, encryptionKey);
+    long absoluteOffset = totalBytesWritten - size - offset;
+    infoQueue.commitSample(sampleTimeUs, flags, absoluteOffset, size, encryptionKey);
   }
 
   /**
