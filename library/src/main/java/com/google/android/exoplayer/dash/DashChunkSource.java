@@ -44,6 +44,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -70,7 +71,6 @@ public class DashChunkSource implements ChunkSource {
   private final FormatEvaluator adaptiveFormatEvaluator;
   private final Evaluation evaluation;
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
-  private final long liveEdgeLatencyUs;
 
   // Properties of the initial manifest.
   private boolean live;
@@ -78,8 +78,6 @@ public class DashChunkSource implements ChunkSource {
 
   private MediaPresentationDescription currentManifest;
   private DrmInitData drmInitData;
-  private boolean indexIsUnbounded;
-  private boolean indexIsExplicit;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
@@ -99,20 +97,13 @@ public class DashChunkSource implements ChunkSource {
    *     {@link C#TRACK_TYPE_AUDIO}, {@link C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
-   * @param liveEdgeLatencyMs For live streams, the number of milliseconds that the playback should
-   *     lag behind the "live edge" (i.e. the end of the most recently defined media in the
-   *     manifest). Choosing a small value will minimize latency introduced by the player, however
-   *     note that the value sets an upper bound on the length of media that the player can buffer.
-   *     Hence a small value may increase the probability of rebuffering and playback failures.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
-      int adaptationSetType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long liveEdgeLatencyMs) {
+      int adaptationSetType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
     this.manifestFetcher = manifestFetcher;
     this.adaptationSetType = adaptationSetType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
-    this.liveEdgeLatencyUs = liveEdgeLatencyMs * 1000;
     this.evaluation = new Evaluation();
   }
 
@@ -269,25 +260,20 @@ public class DashChunkSource implements ChunkSource {
 
     int segmentNum;
     if (previous == null) {
-      if (live) {
-        playbackPositionUs = getLiveSeekPosition(nowUs);
-      }
-      segmentNum = representationHolder.getSegmentNum(playbackPositionUs);
+      segmentNum = Util.constrainValue(representationHolder.getSegmentNum(playbackPositionUs),
+          firstAvailableSegmentNum, lastAvailableSegmentNum);
     } else {
       segmentNum = previous.getNextChunkIndex();
-    }
-
-    if (live && segmentNum < firstAvailableSegmentNum) {
-      // This is before the first chunk in the current manifest.
-      fatalError = new BehindLiveWindowException();
-      return;
-    } else if (currentManifest.dynamic) {
-      if (segmentNum > lastAvailableSegmentNum) {
-        // This is beyond the last chunk in the current manifest.
+      if (segmentNum < firstAvailableSegmentNum) {
+        // This is before the first chunk in the current manifest.
+        fatalError = new BehindLiveWindowException();
         return;
       }
-    } else if (segmentNum > lastAvailableSegmentNum) {
-      out.endOfStream = true;
+    }
+
+    if (segmentNum > lastAvailableSegmentNum) {
+      // This is beyond the last chunk in the current manifest.
+      out.endOfStream = !currentManifest.dynamic;
       return;
     }
 
@@ -362,8 +348,6 @@ public class DashChunkSource implements ChunkSource {
           }
           trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackFormats);
           drmInitData = getDrmInitData(adaptationSet);
-          updateRepresentationIndependentProperties(periodDurationUs,
-              representationHolders[0].representation);
           return;
         }
       }
@@ -381,24 +365,9 @@ public class DashChunkSource implements ChunkSource {
         Representation representation = representations.get(i);
         representationHolders[i].updateRepresentation(periodDurationUs, representation);
       }
-      updateRepresentationIndependentProperties(periodDurationUs,
-          representationHolders[0].representation);
     } catch (BehindLiveWindowException e) {
       fatalError = e;
       return;
-    }
-  }
-
-  private void updateRepresentationIndependentProperties(long periodDurationUs,
-      Representation arbitaryRepresentation) {
-    DashSegmentIndex segmentIndex = arbitaryRepresentation.getIndex();
-    if (segmentIndex != null) {
-      int lastSegmentNum = segmentIndex.getLastSegmentNum(periodDurationUs);
-      indexIsUnbounded = lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
-      indexIsExplicit = segmentIndex.isExplicit();
-    } else {
-      indexIsUnbounded = false;
-      indexIsExplicit = true;
     }
   }
 
@@ -441,33 +410,6 @@ public class DashChunkSource implements ChunkSource {
           endTimeUs, segmentNum, sampleOffsetUs, representationHolder.extractorWrapper,
           sampleFormat, drmInitData, isSampleFormatFinal);
     }
-  }
-
-  /**
-   * For live playbacks, determines the seek position that snaps playback to be
-   * {@link #liveEdgeLatencyUs} behind the live edge of the current manifest
-   *
-   * @return The seek position in microseconds.
-   */
-  private long getLiveSeekPosition(long nowUs) {
-    long elapsedTimeUs = nowUs - currentManifest.availabilityStartTime * 1000;
-    long liveEdgeTimestampUs;
-    if (indexIsUnbounded) {
-      liveEdgeTimestampUs = elapsedTimeUs;
-    } else {
-      liveEdgeTimestampUs = Long.MIN_VALUE;
-      for (RepresentationHolder representationHolder : representationHolders) {
-        int lastSegmentNum = representationHolder.getLastSegmentNum();
-        long indexLiveEdgeTimestampUs = representationHolder.getSegmentEndTimeUs(lastSegmentNum);
-        liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
-      }
-      if (!indexIsExplicit) {
-        // Some segments defined by the index may not be available yet. Bound the calculated live
-        // edge based on the elapsed time since the manifest became available.
-        liveEdgeTimestampUs = Math.min(liveEdgeTimestampUs, elapsedTimeUs);
-      }
-    }
-    return liveEdgeTimestampUs - liveEdgeLatencyUs;
   }
 
   private int getTrackIndex(Format format) {

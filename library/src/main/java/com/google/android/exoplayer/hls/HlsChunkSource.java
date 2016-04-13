@@ -337,24 +337,15 @@ public class HlsChunkSource {
       return;
     }
 
-    int chunkMediaSequence = 0;
-    if (live) {
-      if (previous == null) {
-        chunkMediaSequence = getLiveStartChunkMediaSequence(variantIndex);
-      } else {
-        chunkMediaSequence = switchingVariant ? previous.chunkIndex : previous.chunkIndex + 1;
-        if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-          fatalError = new BehindLiveWindowException();
-          return;
-        }
-      }
+    int chunkMediaSequence;
+    if (previous == null) {
+      chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
+          true, true) + mediaPlaylist.mediaSequence;
     } else {
-      // Not live.
-      if (previous == null) {
-        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
-            true, true) + mediaPlaylist.mediaSequence;
-      } else {
-        chunkMediaSequence = switchingVariant ? previous.chunkIndex : previous.chunkIndex + 1;
+      chunkMediaSequence = switchingVariant ? previous.chunkIndex : previous.chunkIndex + 1;
+      if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
+        fatalError = new BehindLiveWindowException();
+        return;
       }
     }
 
@@ -622,13 +613,6 @@ public class HlsChunkSource {
         SystemClock.elapsedRealtime() - variantLastPlaylistLoadTimesMs[variantIndex];
     // Don't re-request media playlist more often than one-half of the target duration.
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
-  }
-
-  private int getLiveStartChunkMediaSequence(int variantIndex) {
-    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
-    // For live start playback from the third chunk from the end.
-    int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
-    return chunkIndex + mediaPlaylist.mediaSequence;
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {

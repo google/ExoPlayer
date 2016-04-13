@@ -289,6 +289,18 @@ public final class Util {
   }
 
   /**
+   * Constrains a value to the specified bounds.
+   *
+   * @param value The value to constrain.
+   * @param min The lower bound.
+   * @param max The upper bound.
+   * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
+   */
+  public static int constrainValue(int value, int min, int max) {
+    return Math.max(min, Math.min(value, max));
+  }
+
+  /**
    * Returns the index of the largest value in an array that is less than (or optionally equal to)
    * a specified key.
    * <p>

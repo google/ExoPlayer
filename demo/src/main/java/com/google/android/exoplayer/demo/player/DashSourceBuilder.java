@@ -48,7 +48,6 @@ public class DashSourceBuilder implements SourceBuilder {
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 54;
   private static final int TEXT_BUFFER_SEGMENTS = 2;
-  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final DataSourceFactory dataSourceFactory;
   private final String url;
@@ -76,14 +75,14 @@ public class DashSourceBuilder implements SourceBuilder {
     // Build the video renderer.
     DataSource videoDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_VIDEO,
-        videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
+        videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
 
     // Build the audio renderer.
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
-        audioDataSource, null, LIVE_EDGE_LATENCY_MS);
+        audioDataSource, null);
     ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
         DemoPlayer.TYPE_AUDIO);
@@ -91,7 +90,7 @@ public class DashSourceBuilder implements SourceBuilder {
     // Build the text renderer.
     DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource textChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
-        textDataSource, null, LIVE_EDGE_LATENCY_MS);
+        textDataSource, null);
     ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
         TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
         DemoPlayer.TYPE_TEXT);

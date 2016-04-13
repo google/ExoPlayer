@@ -61,7 +61,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final int streamElementType;
   private final DataSource dataSource;
   private final Evaluation evaluation;
-  private final long liveEdgeLatencyUs;
   private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
@@ -90,20 +89,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
    *     {@link C#TRACK_TYPE_VIDEO}, {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
-   * @param liveEdgeLatencyMs For live streams, the number of milliseconds that the playback should
-   *     lag behind the "live edge" (i.e. the end of the most recently defined media in the
-   *     manifest). Choosing a small value will minimize latency introduced by the player, however
-   *     note that the value sets an upper bound on the length of media that the player can buffer.
-   *     Hence a small value may increase the probability of rebuffering and playback failures.
    */
   public SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
-      int streamElementType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long liveEdgeLatencyMs) {
+      int streamElementType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
     this.manifestFetcher = manifestFetcher;
     this.streamElementType = streamElementType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
-    this.liveEdgeLatencyUs = liveEdgeLatencyMs * 1000;
     evaluation = new Evaluation();
   }
 
@@ -247,30 +239,20 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     int chunkIndex;
     if (previous == null) {
-      if (live) {
-        playbackPositionUs = getLiveSeekPosition(currentManifest, liveEdgeLatencyUs);
-      }
       chunkIndex = streamElement.getChunkIndex(playbackPositionUs);
     } else {
       chunkIndex = previous.getNextChunkIndex() - currentManifestChunkOffset;
+      if (chunkIndex < 0) {
+        // This is before the first chunk in the current manifest.
+        fatalError = new BehindLiveWindowException();
+        return;
+      }
     }
 
-    if (live && chunkIndex < 0) {
-      // This is before the first chunk in the current manifest.
-      fatalError = new BehindLiveWindowException();
-      return;
-    } else if (currentManifest.isLive) {
-      if (chunkIndex >= streamElement.chunkCount) {
-        // This is beyond the last chunk in the current manifest.
-        needManifestRefresh = true;
-        return;
-      } else if (chunkIndex == streamElement.chunkCount - 1) {
-        // This is the last chunk in the current manifest. Mark the manifest as being finished,
-        // but continue to return the final chunk.
-        needManifestRefresh = true;
-      }
-    } else if (chunkIndex >= streamElement.chunkCount) {
-      out.endOfStream = true;
+    needManifestRefresh = currentManifest.isLive && chunkIndex >= streamElement.chunkCount - 1;
+    if (chunkIndex >= streamElement.chunkCount) {
+      // This is beyond the last chunk in the current manifest.
+      out.endOfStream = !currentManifest.isLive;
       return;
     }
 
@@ -337,29 +319,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
     extractorWrappers = null;
     trackGroup = null;
-  }
-
-  /**
-   * For live playbacks, determines the seek position that snaps playback to be
-   * {@code liveEdgeLatencyUs} behind the live edge of the provided manifest.
-   *
-   * @param manifest The manifest.
-   * @param liveEdgeLatencyUs The live edge latency, in microseconds.
-   * @return The seek position in microseconds.
-   */
-  private static long getLiveSeekPosition(SmoothStreamingManifest manifest,
-      long liveEdgeLatencyUs) {
-    long liveEdgeTimestampUs = Long.MIN_VALUE;
-    for (int i = 0; i < manifest.streamElements.length; i++) {
-      StreamElement streamElement = manifest.streamElements[i];
-      if (streamElement.chunkCount > 0) {
-        long elementLiveEdgeTimestampUs =
-            streamElement.getStartTimeUs(streamElement.chunkCount - 1)
-            + streamElement.getChunkDurationUs(streamElement.chunkCount - 1);
-        liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, elementLiveEdgeTimestampUs);
-      }
-    }
-    return liveEdgeTimestampUs - liveEdgeLatencyUs;
   }
 
   /**
