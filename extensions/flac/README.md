@@ -35,6 +35,7 @@ NDK_PATH="<path to Android NDK>"
 * Download and extract flac-1.3.1 as "${FLAC_EXT_PATH}/jni/flac" folder:
 
 ```
+cd "${FLAC_EXT_PATH}/jni" && \
 curl http://downloads.xiph.org/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
 mv flac-1.3.1 flac
 ```
