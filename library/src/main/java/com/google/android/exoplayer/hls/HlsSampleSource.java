@@ -542,8 +542,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     int trackIndex = 0;
     for (int i = 0; i < extractorTrackCount; i++) {
       MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+      String name = null;
       String language = null;
       if (MimeTypes.isAudio(format.mimeType)) {
+        name = chunkSource.getMuxedAudioName();
         language = chunkSource.getMuxedAudioLanguage();
       } else if (MimeTypes.APPLICATION_EIA608.equals(format.mimeType)) {
         language = chunkSource.getMuxedCaptionLanguage();
@@ -559,7 +561,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       } else {
         extractorTrackIndices[trackIndex] = i;
         chunkSourceTrackIndices[trackIndex] = -1;
-        trackFormats[trackIndex++] = format.copyWithLanguage(language);
+        trackFormats[trackIndex++] = format.copyWithLanguageAndName(name, language);
       }
     }
   }

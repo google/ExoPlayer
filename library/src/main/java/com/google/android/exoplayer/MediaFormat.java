@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
-
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -256,8 +256,8 @@ public final class MediaFormat {
         encoderPadding);
   }
 
-  public MediaFormat copyWithLanguage(String language) {
-    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+  public MediaFormat copyWithLanguageAndName(String name, String language) {
+    return new MediaFormat(name, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, encoderDelay,
         encoderPadding);
