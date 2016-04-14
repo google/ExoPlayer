@@ -16,15 +16,15 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackOutput;
+import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to parse sample data.
  */
-public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOutput {
+public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMetadataOutput {
 
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
@@ -88,7 +88,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
     return drmInitData;
   }
 
-  // SingleTrackOutput implementation.
+  // SingleTrackMetadataOutput implementation.
 
   @Override
   public final void seekMap(SeekMap seekMap) {
@@ -103,23 +103,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   @Override
   public final void format(Format format) {
     this.sampleFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
-  }
-
-  @Override
-  public final int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException {
-    return getOutput().sampleData(input, length, allowEndOfInput);
-  }
-
-  @Override
-  public final void sampleData(ParsableByteArray data, int length) {
-    getOutput().sampleData(data, length);
-  }
-
-  @Override
-  public final void sampleMetadata(long timeUs, int flags, int size, int offset,
-      byte[] encryptionKey) {
-    getOutput().sampleMetadata(timeUs + sampleOffsetUs, flags, size, offset, encryptionKey);
   }
 
   // Loadable implementation.
@@ -144,7 +127,9 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
         // Set the target to ourselves.
-        extractorWrapper.init(this);
+        DefaultTrackOutput trackOutput = getTrackOutput();
+        trackOutput.setSampleOffsetUs(sampleOffsetUs);
+        extractorWrapper.init(this, trackOutput);
       }
       // Load and parse the initialization data.
       try {

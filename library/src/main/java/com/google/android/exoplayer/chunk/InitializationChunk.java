@@ -16,12 +16,13 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackOutput;
+import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.SeekMap;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -32,7 +33,8 @@ import java.io.IOException;
 /**
  * A {@link Chunk} that uses an {@link Extractor} to parse initialization data for single track.
  */
-public final class InitializationChunk extends Chunk implements SingleTrackOutput {
+public final class InitializationChunk extends Chunk implements SingleTrackMetadataOutput,
+    TrackOutput {
 
   private final ChunkExtractorWrapper extractorWrapper;
 
@@ -120,7 +122,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
     return seekMap;
   }
 
-  // SingleTrackOutput implementation.
+  // SingleTrackMetadataOutput implementation.
 
   @Override
   public void seekMap(SeekMap seekMap) {
@@ -136,6 +138,8 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
   public void format(Format format) {
     this.sampleFormat = format;
   }
+
+  // TrackOutput implementation.
 
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
@@ -175,7 +179,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
         // Set the target to ourselves.
-        extractorWrapper.init(this);
+        extractorWrapper.init(this, this);
       }
       // Load and parse the initialization data.
       try {

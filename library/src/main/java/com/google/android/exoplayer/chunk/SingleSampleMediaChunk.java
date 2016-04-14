@@ -20,6 +20,7 @@ import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Util;
@@ -95,14 +96,15 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
         length += bytesLoaded;
       }
       ExtractorInput extractorInput = new DefaultExtractorInput(dataSource, bytesLoaded, length);
+      TrackOutput trackOutput = getTrackOutput();
       // Load the sample data.
       int result = 0;
       while (result != C.RESULT_END_OF_INPUT) {
         bytesLoaded += result;
-        result = getOutput().sampleData(extractorInput, Integer.MAX_VALUE, true);
+        result = trackOutput.sampleData(extractorInput, Integer.MAX_VALUE, true);
       }
       int sampleSize = bytesLoaded;
-      getOutput().sampleMetadata(startTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+      trackOutput.sampleMetadata(startTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     } finally {
       dataSource.close();
     }

@@ -35,7 +35,7 @@ public abstract class BaseMediaChunk extends MediaChunk {
    */
   public final boolean isSampleFormatFinal;
 
-  private DefaultTrackOutput output;
+  private DefaultTrackOutput trackOutput;
   private int firstSampleIndex;
 
   /**
@@ -61,11 +61,11 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * Initializes the chunk for loading, setting the {@link DefaultTrackOutput} that will receive
    * samples as they are loaded.
    *
-   * @param output The output that will receive the loaded samples.
+   * @param trackOutput The output that will receive the loaded samples.
    */
-  public void init(DefaultTrackOutput output) {
-    this.output = output;
-    this.firstSampleIndex = output.getWriteIndex();
+  public void init(DefaultTrackOutput trackOutput) {
+    this.trackOutput = trackOutput;
+    this.firstSampleIndex = trackOutput.getWriteIndex();
   }
 
   /**
@@ -97,10 +97,10 @@ public abstract class BaseMediaChunk extends MediaChunk {
   public abstract DrmInitData getDrmInitData();
 
   /**
-   * Returns the output most recently passed to {@link #init(DefaultTrackOutput)}.
+   * Returns the track output most recently passed to {@link #init(DefaultTrackOutput)}.
    */
-  protected final DefaultTrackOutput getOutput() {
-    return output;
+  protected final DefaultTrackOutput getTrackOutput() {
+    return trackOutput;
   }
 
 }

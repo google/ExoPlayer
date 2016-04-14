@@ -30,14 +30,15 @@ import java.io.IOException;
 /**
  * An {@link Extractor} wrapper for loading chunks containing a single track.
  * <p>
- * The wrapper allows switching of the {@link SingleTrackOutput} that receives parsed data.
+ * The wrapper allows switching of the {@link SingleTrackMetadataOutput} and {@link TrackOutput}
+ * which receive parsed data.
  */
 public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput {
 
   /**
-   * Receives stream level data extracted by the wrapped {@link Extractor}.
+   * Receives metadata associated with the track as extracted by the wrapped {@link Extractor}.
    */
-  public interface SingleTrackOutput extends TrackOutput {
+  public interface SingleTrackMetadataOutput {
 
     /**
      * @see ExtractorOutput#seekMap(SeekMap)
@@ -49,11 +50,17 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
      */
     void drmInitData(DrmInitData drmInitData);
 
+    /**
+     * @see TrackOutput#format(Format)
+     */
+    void format(Format format);
+
   }
 
   private final Extractor extractor;
   private boolean extractorInitialized;
-  private SingleTrackOutput output;
+  private SingleTrackMetadataOutput metadataOutput;
+  private TrackOutput trackOutput;
 
   // Accessed only on the loader thread.
   private boolean seenTrack;
@@ -66,13 +73,15 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   }
 
   /**
-   * Initializes the extractor to output to the provided {@link SingleTrackOutput}, and configures
-   * it to receive data from a new chunk.
+   * Initializes the extractor to output to the provided {@link SingleTrackMetadataOutput} and
+   * {@link TrackOutput} instances, and configures it to receive data from a new chunk.
    *
-   * @param output The {@link SingleTrackOutput} that will receive the parsed data.
+   * @param metadataOutput The {@link SingleTrackMetadataOutput} that will receive metadata.
+   * @param trackOutput The {@link TrackOutput} that will receive sample data.
    */
-  public void init(SingleTrackOutput output) {
-    this.output = output;
+  public void init(SingleTrackMetadataOutput metadataOutput, TrackOutput trackOutput) {
+    this.metadataOutput = metadataOutput;
+    this.trackOutput = trackOutput;
     if (!extractorInitialized) {
       extractor.init(this);
       extractorInitialized = true;
@@ -111,35 +120,36 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    output.seekMap(seekMap);
+    metadataOutput.seekMap(seekMap);
   }
 
   @Override
   public void drmInitData(DrmInitData drmInitData) {
-    output.drmInitData(drmInitData);
+    metadataOutput.drmInitData(drmInitData);
   }
 
   // TrackOutput implementation.
 
   @Override
   public void format(Format format) {
-    output.format(format);
+    // Redirect the format to the metadata output. The track output doesn't need it.
+    metadataOutput.format(format);
   }
 
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    return output.sampleData(input, length, allowEndOfInput);
+    return trackOutput.sampleData(input, length, allowEndOfInput);
   }
 
   @Override
   public void sampleData(ParsableByteArray data, int length) {
-    output.sampleData(data, length);
+    trackOutput.sampleData(data, length);
   }
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-    output.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
+    trackOutput.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
   }
 
 }
