@@ -19,13 +19,13 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.FlacSeekTable;
 import com.google.android.exoplayer.util.FlacStreamInfo;
 import com.google.android.exoplayer.util.FlacUtil;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,9 +33,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * {@link Extractor} to extract Flac data out of Ogg byte stream.
+ * {@link StreamReader} to extract Flac data out of Ogg byte stream.
  */
-public final class OggFlacExtractor extends OggExtractor {
+/* package */ final class FlacReader extends StreamReader {
 
   private static final byte AUDIO_PACKET_TYPE = (byte) 0xFF;
   private static final byte SEEKTABLE_PACKET_TYPE = 0x03;
@@ -46,9 +46,9 @@ public final class OggFlacExtractor extends OggExtractor {
 
   private boolean firstAudioPacketProcessed;
 
-  @Override
-  public void init(ExtractorOutput output) {
-    super.init(output);
+  /* package */ static boolean verifyBitstreamType(ParsableByteArray data) {
+    return data.readUnsignedByte() == 0x7F && // packet type
+        data.readUnsignedInt() == 0x464C4143; // ASCII signature "FLAC"
   }
 
   @Override
@@ -56,8 +56,8 @@ public final class OggFlacExtractor extends OggExtractor {
       throws IOException, InterruptedException {
     long position = input.getPosition();
 
-    if (!oggReader.readPacket(input, scratch)) {
-      return RESULT_END_OF_INPUT;
+    if (!oggParser.readPacket(input, scratch)) {
+      return Extractor.RESULT_END_OF_INPUT;
     }
 
     byte[] data = scratch.data;
@@ -94,13 +94,7 @@ public final class OggFlacExtractor extends OggExtractor {
     }
 
     scratch.reset();
-    return RESULT_CONTINUE;
-  }
-
-  @Override
-  protected boolean verifyBitstreamType() {
-    return scratch.readUnsignedByte() == 0x7F && // packet type
-        scratch.readUnsignedInt() == 0x464C4143; // ASCII signature "FLAC"
+    return Extractor.RESULT_CONTINUE;
   }
 
 }

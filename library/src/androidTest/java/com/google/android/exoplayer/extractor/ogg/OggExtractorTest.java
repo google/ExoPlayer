@@ -24,19 +24,27 @@ import junit.framework.TestCase;
 import java.io.IOException;
 
 /**
- * Unit test for {@link OggFlacExtractor}.
+ * Unit test for {@link OggExtractor}.
  */
-public final class OggFlacExtractorTest extends TestCase {
+public final class OggExtractorTest extends TestCase {
 
-  private OggFlacExtractor extractor;
+  private OggExtractor extractor;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    extractor = new OggFlacExtractor();
+    extractor = new OggExtractor();
   }
 
-  public void testSniff() throws Exception {
+  public void testSniffVorbis() throws Exception {
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
+        TestUtil.createByteArray(120, 120),  // Laces
+        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    assertTrue(sniff(createInput(data)));
+  }
+
+  public void testSniffFlac() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 0x02),
         TestUtil.createByteArray(120, 120),  // Laces
@@ -56,7 +64,7 @@ public final class OggFlacExtractorTest extends TestCase {
     assertFalse(sniff(createInput(data)));
   }
 
-  public void testSniffInvalidFlacHeader() throws Exception {
+  public void testSniffInvalidHeader() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 0x02),
         TestUtil.createByteArray(120, 120),  // Laces

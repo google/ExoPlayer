@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * {@link Extractor} to extract Vorbis data out of Ogg byte stream.
+ * {@link StreamReader} to extract Vorbis data out of Ogg byte stream.
  */
-public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
+/* package */ final class VorbisReader extends StreamReader implements SeekMap {
 
   private VorbisSetup vorbisSetup;
   private int previousPacketBlockSize;
@@ -48,6 +48,14 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
   private long audioStartPosition;
   private long totalSamples;
   private long duration;
+
+  /* package */ static boolean verifyBitstreamType(ParsableByteArray data) {
+    try {
+      return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, data, true);
+    } catch (ParserException e) {
+      return false;
+    }
+  }
 
   @Override
   public void seek() {
@@ -71,11 +79,11 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
         if (inputLength != C.LENGTH_UNBOUNDED) {
           // seek to the end just before the last page of stream to get the duration
           seekPosition.position = input.getLength() - 8000;
-          return RESULT_SEEK;
+          return Extractor.RESULT_SEEK;
         }
       }
       totalSamples = inputLength == C.LENGTH_UNBOUNDED ? -1
-          : oggReader.readGranuleOfLastPage(input);
+          : oggParser.readGranuleOfLastPage(input);
 
       ArrayList<byte[]> codecInitialisationData = new ArrayList<>();
       codecInitialisationData.add(vorbisSetup.idHeader.data);
@@ -84,7 +92,7 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
       duration = inputLength == C.LENGTH_UNBOUNDED ? C.UNKNOWN_TIME_US
           : totalSamples * C.MICROS_PER_SECOND / vorbisSetup.idHeader.sampleRate;
       trackOutput.format(MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_VORBIS,
-          this.vorbisSetup.idHeader.bitrateNominal, OggReader.OGG_MAX_SEGMENT_SIZE * 255, duration,
+          this.vorbisSetup.idHeader.bitrateNominal, OggParser.OGG_MAX_SEGMENT_SIZE * 255, duration,
           this.vorbisSetup.idHeader.channels, (int) this.vorbisSetup.idHeader.sampleRate,
           codecInitialisationData, null));
 
@@ -92,7 +100,7 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
         oggSeeker.setup(inputLength - audioStartPosition, totalSamples);
         // seek back to resume from where we finished reading vorbis headers
         seekPosition.position = audioStartPosition;
-        return RESULT_SEEK;
+        return Extractor.RESULT_SEEK;
       }
     }
 
@@ -102,9 +110,9 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
       long position = oggSeeker.getNextSeekPosition(targetGranule, input);
       if (position != -1) {
         seekPosition.position = position;
-        return RESULT_SEEK;
+        return Extractor.RESULT_SEEK;
       } else {
-        elapsedSamples = oggReader.skipToPageOfGranule(input, targetGranule);
+        elapsedSamples = oggParser.skipToPageOfGranule(input, targetGranule);
         previousPacketBlockSize = vorbisIdHeader.blockSize0;
         // we're never at the first packet after seeking
         seenFirstAudioPacket = true;
@@ -113,7 +121,7 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
     }
 
     // playback
-    if (oggReader.readPacket(input, scratch)) {
+    if (oggParser.readPacket(input, scratch)) {
       // if this is an audio packet...
       if ((scratch.data[0] & 0x01) != 1) {
         // ... we need to decode the block size
@@ -137,9 +145,9 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
         previousPacketBlockSize = packetBlockSize;
       }
       scratch.reset();
-      return RESULT_CONTINUE;
+      return Extractor.RESULT_CONTINUE;
     }
-    return RESULT_END_OF_INPUT;
+    return Extractor.RESULT_END_OF_INPUT;
   }
 
   //@VisibleForTesting
@@ -147,18 +155,18 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
       throws IOException, InterruptedException {
 
     if (vorbisIdHeader == null) {
-      oggReader.readPacket(input, scratch);
+      oggParser.readPacket(input, scratch);
       vorbisIdHeader = VorbisUtil.readVorbisIdentificationHeader(scratch);
       scratch.reset();
     }
 
     if (commentHeader == null) {
-      oggReader.readPacket(input, scratch);
+      oggParser.readPacket(input, scratch);
       commentHeader = VorbisUtil.readVorbisCommentHeader(scratch);
       scratch.reset();
     }
 
-    oggReader.readPacket(input, scratch);
+    oggParser.readPacket(input, scratch);
     // the third packet contains the setup header
     byte[] setupHeaderData = new byte[scratch.limit()];
     // raw data of vorbis setup header has to be passed to decoder as CSD buffer #2
@@ -211,11 +219,6 @@ public final class OggVorbisExtractor extends OggExtractor implements SeekMap {
     targetGranule = vorbisSetup.idHeader.sampleRate * timeUs / C.MICROS_PER_SECOND;
     return Math.max(audioStartPosition, ((inputLength - audioStartPosition) * timeUs
         / duration) - 4000);
-  }
-
-  @Override
-  protected boolean verifyBitstreamType() throws ParserException {
-    return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, scratch, true);
   }
 
   /**
