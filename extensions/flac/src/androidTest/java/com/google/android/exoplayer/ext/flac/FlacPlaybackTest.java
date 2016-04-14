@@ -84,7 +84,7 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
               false),
           new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
           new MatroskaExtractor());
-      player.prepare(sampleSource);
+      player.setSource(sampleSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }

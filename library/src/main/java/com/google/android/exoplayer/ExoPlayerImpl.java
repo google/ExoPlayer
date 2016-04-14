@@ -91,8 +91,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void prepare(SampleSource source) {
-    internalPlayer.prepare(source);
+  public void setSource(SampleSource source) {
+    internalPlayer.setSource(source);
   }
 
   @Override

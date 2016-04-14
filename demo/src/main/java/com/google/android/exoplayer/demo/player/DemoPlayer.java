@@ -75,10 +75,10 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     /**
      * Builds a source to play.
      *
-     * @param player The player for which renderers are being built.
+     * @param player The player for which a source is being built.
      * @return SampleSource The source to play.
      */
-    SampleSource buildRenderers(DemoPlayer player);
+    SampleSource buildSource(DemoPlayer player);
   }
 
   /**
@@ -143,7 +143,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
 
   // Constants pulled into this class for convenience.
   public static final int STATE_IDLE = ExoPlayer.STATE_IDLE;
-  public static final int STATE_PREPARING = ExoPlayer.STATE_PREPARING;
   public static final int STATE_BUFFERING = ExoPlayer.STATE_BUFFERING;
   public static final int STATE_READY = ExoPlayer.STATE_READY;
   public static final int STATE_ENDED = ExoPlayer.STATE_ENDED;
@@ -247,8 +246,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     return trackInfo;
   }
 
-  public void prepare() {
-    player.prepare(sourceBuilder.buildRenderers(this));
+  public void setSource() {
+    player.setSource(sourceBuilder.buildSource(this));
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {

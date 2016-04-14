@@ -61,7 +61,7 @@ public class DashSourceBuilder implements SourceBuilder {
   }
 
   @Override
-  public SampleSource buildRenderers(DemoPlayer player) {
+  public SampleSource buildSource(DemoPlayer player) {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     // TODO[REFACTOR]: This needs releasing.

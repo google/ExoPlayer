@@ -56,7 +56,7 @@ public class HlsSourceBuilder implements SourceBuilder {
   }
 
   @Override
-  public SampleSource buildRenderers(DemoPlayer player) {
+  public SampleSource buildSource(DemoPlayer player) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     // TODO[REFACTOR]: This needs releasing.

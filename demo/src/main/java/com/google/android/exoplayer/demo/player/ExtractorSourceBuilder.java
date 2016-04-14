@@ -43,7 +43,7 @@ public class ExtractorSourceBuilder implements SourceBuilder {
   }
 
   @Override
-  public SampleSource buildRenderers(DemoPlayer player) {
+  public SampleSource buildSource(DemoPlayer player) {
     Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
     DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
     return new ExtractorSampleSource(uri, dataSource, allocator,

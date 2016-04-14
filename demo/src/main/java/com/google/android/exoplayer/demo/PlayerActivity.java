@@ -324,7 +324,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       debugViewHelper.start();
     }
     if (playerNeedsPrepare) {
-      player.prepare();
+      player.setSource();
       playerNeedsPrepare = false;
       updateButtonVisibilities();
     }
@@ -366,9 +366,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         break;
       case ExoPlayer.STATE_IDLE:
         text += "idle";
-        break;
-      case ExoPlayer.STATE_PREPARING:
-        text += "preparing";
         break;
       case ExoPlayer.STATE_READY:
         text += "ready";

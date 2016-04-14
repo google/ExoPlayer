@@ -102,7 +102,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
           new MatroskaExtractor());
       player.sendMessage(videoRenderer, LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context));
-      player.prepare(sampleSource);
+      player.setSource(sampleSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }

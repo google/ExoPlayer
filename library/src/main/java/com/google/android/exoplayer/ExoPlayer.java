@@ -19,7 +19,7 @@ import android.os.Looper;
 
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as
- * the ability to prepare, play, pause and seek.
+ * the ability to buffer media, play, pause and seek.
  *
  * <p>Topics covered here are:
  * <ol>
@@ -35,7 +35,7 @@ import android.os.Looper;
  * on) the type of the media being played, how and where it is stored, or how it is rendered.
  * Rather than implementing the loading and rendering of media directly, {@link ExoPlayer} instead
  * delegates this work to one or more {@link TrackRenderer}s, which are injected when the player
- * is prepared. Hence {@link ExoPlayer} is capable of loading and playing any media for which a
+ * is created. Hence {@link ExoPlayer} is capable of loading and playing any media for which a
  * {@link TrackRenderer} implementation can be provided.
  *
  * <p>{@link MediaCodecAudioTrackRenderer} and {@link MediaCodecVideoTrackRenderer} can be used for
@@ -86,7 +86,7 @@ import android.os.Looper;
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
- * {@link #prepare(SampleSource)}, {@link #stop()} or {@link #release()} being invoked.</p>
+ * {@link #setSource(SampleSource)}, {@link #stop()} or {@link #release()} being invoked.</p>
  * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
@@ -200,28 +200,24 @@ public interface ExoPlayer {
   }
 
   /**
-   * The player is neither prepared or being prepared.
+   * The player does not have a source to load, so it is neither buffering nor ready to play.
    */
   int STATE_IDLE = 1;
   /**
-   * The player is being prepared.
+   * The player not able to immediately play from the current position. The cause is
+   * {@link TrackRenderer} specific, but this state typically occurs when more data needs to be
+   * loaded to be ready to play, or more data needs to be buffered for playback to resume.
    */
-  int STATE_PREPARING = 2;
+  int STATE_BUFFERING = 2;
   /**
-   * The player is prepared but not able to immediately play from the current position. The cause
-   * is {@link TrackRenderer} specific, but this state typically occurs when more data needs
-   * to be buffered for playback to start.
+   * The player is able to immediately play from the current position. The player will be playing if
+   * {@link #getPlayWhenReady()} returns true, and paused otherwise.
    */
-  int STATE_BUFFERING = 3;
-  /**
-   * The player is prepared and able to immediately play from the current position. The player will
-   * be playing if {@link #getPlayWhenReady()} returns true, and paused otherwise.
-   */
-  int STATE_READY = 4;
+  int STATE_READY = 3;
   /**
    * The player has finished playing the media.
    */
-  int STATE_ENDED = 5;
+  int STATE_ENDED = 4;
 
   /**
    * Represents an unknown time or duration.
@@ -258,11 +254,12 @@ public interface ExoPlayer {
   int getPlaybackState();
 
   /**
-   * Prepares the player for playback.
+   * Sets the player's source. The player will transition to {@link #STATE_BUFFERING} until it is
+   * ready to play the new source.
    *
    * @param sampleSource The {@link SampleSource} to play.
    */
-  void prepare(SampleSource sampleSource);
+  void setSource(SampleSource sampleSource);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
@@ -305,7 +302,7 @@ public interface ExoPlayer {
    * <p>
    * Calling this method does not reset the playback position. If this player instance will be used
    * to play another video from its start, then {@code seekTo(0)} should be called after stopping
-   * the player and before preparing it for the next video.
+   * the player and before setting the next source.
    */
   void stop();
 

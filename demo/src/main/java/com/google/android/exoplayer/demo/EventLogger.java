@@ -233,8 +233,6 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
         return "E";
       case ExoPlayer.STATE_IDLE:
         return "I";
-      case ExoPlayer.STATE_PREPARING:
-        return "P";
       case ExoPlayer.STATE_READY:
         return "R";
       default:

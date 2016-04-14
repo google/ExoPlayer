@@ -49,17 +49,16 @@ import java.util.concurrent.atomic.AtomicInteger;
   public static final int MSG_ERROR = 3;
 
   // Internal messages
-  private static final int MSG_PREPARE = 1;
-  private static final int MSG_INCREMENTAL_PREPARE = 2;
-  private static final int MSG_SET_PLAY_WHEN_READY = 3;
+  private static final int MSG_SET_SOURCE = 0;
+  private static final int MSG_SET_PLAY_WHEN_READY = 1;
+  private static final int MSG_DO_SOME_WORK = 2;
+  private static final int MSG_SEEK_TO = 3;
   private static final int MSG_STOP = 4;
   private static final int MSG_RELEASE = 5;
-  private static final int MSG_SEEK_TO = 6;
-  private static final int MSG_DO_SOME_WORK = 7;
-  private static final int MSG_TRACK_SELECTION_INVALIDATED = 8;
-  private static final int MSG_CUSTOM = 9;
+  private static final int MSG_TRACK_SELECTION_INVALIDATED = 6;
+  private static final int MSG_CUSTOM = 7;
 
-  private static final int PREPARE_INTERVAL_MS = 10;
+  private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
 
@@ -78,6 +77,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private MediaClock rendererMediaClock;
   private SampleSource source;
   private TrackRenderer[] enabledRenderers;
+  private boolean preparedSource;
   private boolean released;
   private boolean playWhenReady;
   private boolean rebuffering;
@@ -140,8 +140,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     return durationUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
   }
 
-  public void prepare(SampleSource sampleSource) {
-    handler.obtainMessage(MSG_PREPARE, sampleSource).sendToTarget();
+  public void setSource(SampleSource sampleSource) {
+    handler.obtainMessage(MSG_SET_SOURCE, sampleSource).sendToTarget();
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {
@@ -205,12 +205,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   public boolean handleMessage(Message msg) {
     try {
       switch (msg.what) {
-        case MSG_PREPARE: {
-          prepareInternal((SampleSource) msg.obj);
-          return true;
-        }
-        case MSG_INCREMENTAL_PREPARE: {
-          incrementalPrepareInternal();
+        case MSG_SET_SOURCE: {
+          setSourceInternal((SampleSource) msg.obj);
           return true;
         }
         case MSG_SET_PLAY_WHEN_READY: {
@@ -270,26 +266,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private void prepareInternal(SampleSource sampleSource) throws ExoPlaybackException, IOException {
-    resetInternal();
-    setState(ExoPlayer.STATE_PREPARING);
-    this.source = sampleSource;
-    incrementalPrepareInternal();
-  }
-
-  private void incrementalPrepareInternal() throws ExoPlaybackException, IOException {
-    long operationStartTimeMs = SystemClock.elapsedRealtime();
-    if (!source.prepare(positionUs)) {
-      // We're still waiting for the source to be prepared.
-      scheduleNextOperation(MSG_INCREMENTAL_PREPARE, operationStartTimeMs, PREPARE_INTERVAL_MS);
-      return;
-    }
-
-    durationUs = source.getDurationUs();
-    selectTracksInternal();
-    resumeInternal();
-  }
-
   private boolean isReadyOrEnded(TrackRenderer renderer) {
     return renderer.isReady() || renderer.isEnded();
   }
@@ -301,6 +277,13 @@ import java.util.concurrent.atomic.AtomicInteger;
         || bufferedPositionUs == C.END_OF_SOURCE_US
         || bufferedPositionUs >= positionUs + minBufferDurationUs
         || (durationUs != C.UNKNOWN_TIME_US && bufferedPositionUs >= durationUs);
+  }
+
+  private void setSourceInternal(SampleSource source) {
+    resetInternal();
+    this.source = source;
+    setState(ExoPlayer.STATE_BUFFERING);
+    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
   private void setPlayWhenReadyInternal(boolean playWhenReady) throws ExoPlaybackException {
@@ -357,8 +340,21 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   private void doSomeWork() throws ExoPlaybackException, IOException {
-    TraceUtil.beginSection("doSomeWork");
     long operationStartTimeMs = SystemClock.elapsedRealtime();
+    if (!preparedSource) {
+      preparedSource = source.prepare(positionUs);
+      if (preparedSource) {
+        durationUs = source.getDurationUs();
+        selectTracksInternal();
+        resumeInternal();
+      } else {
+        // We're still waiting for the source to be prepared.
+        scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, PREPARING_SOURCE_INTERVAL_MS);
+      }
+      return;
+    }
+
+    TraceUtil.beginSection("doSomeWork");
 
     // Process resets.
     for (TrackRenderer renderer : enabledRenderers) {
@@ -435,7 +431,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       positionUs = positionMs * 1000;
       standaloneMediaClock.stop();
       standaloneMediaClock.setPositionUs(positionUs);
-      if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
+      if (!preparedSource) {
         return;
       }
 
@@ -494,7 +490,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private void resetInternal() {
     handler.removeMessages(MSG_DO_SOME_WORK);
-    handler.removeMessages(MSG_INCREMENTAL_PREPARE);
+    preparedSource = false;
     rebuffering = false;
     trackSelections = null;
     standaloneMediaClock.stop();
@@ -527,7 +523,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       @SuppressWarnings("unchecked")
       Pair<ExoPlayerComponent, Object> targetAndMessage = (Pair<ExoPlayerComponent, Object>) obj;
       targetAndMessage.first.handleMessage(what, targetAndMessage.second);
-      if (state != ExoPlayer.STATE_IDLE && state != ExoPlayer.STATE_PREPARING) {
+      if (preparedSource) {
         // The message may have caused something to change that now requires us to do work.
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
@@ -636,7 +632,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {
-    if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
+    if (!preparedSource) {
       // We don't have tracks yet, so we don't care.
       return;
     }
