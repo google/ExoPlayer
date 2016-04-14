@@ -19,28 +19,23 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
 
 /**
- * Abstract Ogg {@link Extractor}.
+ * Ogg {@link Extractor}.
  */
-public abstract class OggExtractor implements Extractor {
+public class OggExtractor implements Extractor {
 
-  protected final ParsableByteArray scratch = new ParsableByteArray(
-      new byte[OggReader.OGG_MAX_SEGMENT_SIZE * 255], 0);
-
-  protected final OggReader oggReader = new OggReader();
-
-  protected TrackOutput trackOutput;
-
-  protected ExtractorOutput extractorOutput;
+  private StreamReader streamReader;
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     try {
+      ParsableByteArray scratch = new ParsableByteArray(new byte[OggUtil.PAGE_HEADER_SIZE], 0);
       OggUtil.PageHeader header = new OggUtil.PageHeader();
       if (!OggUtil.populatePageHeader(input, header, scratch, true)
           || (header.type & 0x02) != 0x02 || header.bodySize < 7) {
@@ -48,26 +43,34 @@ public abstract class OggExtractor implements Extractor {
       }
       scratch.reset();
       input.peekFully(scratch.data, 0, 7);
-      return verifyBitstreamType();
+      if (FlacReader.verifyBitstreamType(scratch)) {
+        streamReader = new FlacReader();
+      } else {
+        scratch.reset();
+        if (VorbisReader.verifyBitstreamType(scratch)) {
+          streamReader = new VorbisReader();
+        } else {
+          return false;
+        }
+      }
+      return true;
     } catch (ParserException e) {
       // does not happen
     } finally {
-      scratch.reset();
     }
     return false;
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    trackOutput = output.track(0);
+    TrackOutput trackOutput = output.track(0);
     output.endTracks();
-    extractorOutput = output;
+    streamReader.init(output, trackOutput);
   }
 
   @Override
   public void seek() {
-    oggReader.reset();
-    scratch.reset();
+    streamReader.seek();
   }
 
   @Override
@@ -75,6 +78,9 @@ public abstract class OggExtractor implements Extractor {
     // Do nothing
   }
 
-  protected abstract boolean verifyBitstreamType() throws ParserException;
-
+  @Override
+  public int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException, InterruptedException {
+    return streamReader.read(input, seekPosition);
+  }
 }
