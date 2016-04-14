@@ -227,7 +227,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       List<Variant> variants = new ArrayList<>();
       variants.add(new Variant(playlistUrl, format));
       masterPlaylist = new HlsMasterPlaylist(playlistUrl, variants,
-          Collections.<Variant>emptyList(), Collections.<Variant>emptyList(), null, null);
+          Collections.<Variant>emptyList(), Collections.<Variant>emptyList(), null, null, null);
     }
   }
 
@@ -306,6 +306,15 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   public Variant getFixedTrackVariant(int index) {
     Variant[] variants = tracks.get(index).variants;
     return variants.length == 1 ? variants[0] : null;
+  }
+
+  /**
+   * Returns the name of the audio muxed into variants, or null if unknown.
+   *
+   * @return The name of the audio muxed into variants, or null if unknown.
+   */
+  public String getMuxedAudioName() {
+    return masterPlaylist.muxedAudioName;
   }
 
   /**
