@@ -22,12 +22,9 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.demo.player.DashSourceBuilder;
+import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
-import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
-import com.google.android.exoplayer.demo.player.ExtractorSourceBuilder;
-import com.google.android.exoplayer.demo.player.HlsSourceBuilder;
-import com.google.android.exoplayer.demo.player.SmoothStreamingSourceBuilder;
+import com.google.android.exoplayer.demo.player.SourceBuilder;
 import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.id3.GeobFrame;
@@ -286,18 +283,18 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   // Internal methods
 
-  private SourceBuilder getSourceBuilder() {
+  private SampleSource buildSource(DemoPlayer player) {
     switch (contentType) {
       case Util.TYPE_SS:
-        return new SmoothStreamingSourceBuilder(dataSourceFactory, contentUri.toString(),
-            new SmoothStreamingTestMediaDrmCallback());
+        return SourceBuilder.buildSmoothStreamingSource(player, dataSourceFactory,
+            contentUri.toString(), new SmoothStreamingTestMediaDrmCallback());
       case Util.TYPE_DASH:
-        return new DashSourceBuilder(dataSourceFactory, contentUri.toString(),
+        return SourceBuilder.buildDashSource(player, dataSourceFactory, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId, provider));
       case Util.TYPE_HLS:
-        return new HlsSourceBuilder(dataSourceFactory, contentUri.toString());
+        return SourceBuilder.buildHlsSource(player, dataSourceFactory, contentUri.toString());
       case Util.TYPE_OTHER:
-        return new ExtractorSourceBuilder(dataSourceFactory, contentUri);
+        return SourceBuilder.buildExtractorSource(player, dataSourceFactory, contentUri);
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
     }
@@ -305,7 +302,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void preparePlayer(boolean playWhenReady) {
     if (player == null) {
-      player = new DemoPlayer(this, getSourceBuilder());
+      player = new DemoPlayer(this);
       player.addListener(this);
       player.setCaptionListener(this);
       player.setMetadataListener(this);
@@ -324,7 +321,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       debugViewHelper.start();
     }
     if (playerNeedsPrepare) {
-      player.setSource();
+      player.setSource(buildSource(player));
       playerNeedsPrepare = false;
       updateButtonVisibilities();
     }

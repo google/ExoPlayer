@@ -57,9 +57,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * A wrapper around {@link ExoPlayer} that provides a higher level interface. It can be prepared
- * with one of a number of {@link SourceBuilder} classes to suit different use cases (e.g. DASH,
- * SmoothStreaming and so on).
+ * A wrapper around {@link ExoPlayer} that provides a higher level interface.
  */
 public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.EventListener,
     ChunkSampleSourceEventListener, ExtractorSampleSource.EventListener,
@@ -67,19 +65,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,
     DebugTextViewHelper.Provider {
-
-  /**
-   * Builds a source to play.
-   */
-  public interface SourceBuilder {
-    /**
-     * Builds a source to play.
-     *
-     * @param player The player for which a source is being built.
-     * @return SampleSource The source to play.
-     */
-    SampleSource buildSource(DemoPlayer player);
-  }
 
   /**
    * A listener for core events.
@@ -155,7 +140,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
 
   private final ExoPlayer player;
   private final DefaultTrackSelector trackSelector;
-  private final SourceBuilder sourceBuilder;
   private final BandwidthMeter bandwidthMeter;
   private final MediaCodecVideoTrackRenderer videoRenderer;
   private final PlayerControl playerControl;
@@ -171,8 +155,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
 
-  public DemoPlayer(Context context, SourceBuilder sourceBuilder) {
-    this.sourceBuilder = sourceBuilder;
+  public DemoPlayer(Context context) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
     listeners = new CopyOnWriteArrayList<>();
@@ -246,8 +229,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     return trackInfo;
   }
 
-  public void setSource() {
-    player.setSource(sourceBuilder.buildSource(this));
+  public void setSource(SampleSource source) {
+    player.setSource(source);
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {
