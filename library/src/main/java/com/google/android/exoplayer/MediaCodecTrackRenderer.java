@@ -28,7 +28,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
-import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
 
@@ -705,10 +704,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * <p>
    * The default implementation is a no-op.
    *
+   * @param codec The {@link MediaCodec} instance.
    * @param outputFormat The new output format.
-   * @throws ExoPlaybackException If an error occurs on output format change.
    */
-  protected void onOutputFormatChanged(MediaFormat outputFormat) throws ExoPlaybackException {
+  protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat) {
     // Do nothing.
   }
 
@@ -849,7 +848,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (codecNeedsMonoChannelCountWorkaround) {
       format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-    onOutputFormatChanged(format);
+    onOutputFormatChanged(codec, format);
     codecCounters.outputFormatChangedCount++;
   }
 
