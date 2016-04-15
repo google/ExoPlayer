@@ -265,7 +265,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat) {
     boolean passthrough = passthroughMediaFormat != null;
     audioTrack.configure(passthrough ? passthroughMediaFormat : outputFormat, passthrough);
   }
