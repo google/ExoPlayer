@@ -56,8 +56,8 @@ public interface ChunkSource {
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @return The duration of the source in microseconds, or {@link C#UNKNOWN_TIME_US} if the
-   *     duration is unknown.
+   * @return The duration of the source in microseconds, or {@link C#UNSET_TIME_US} if the duration
+   *     is unknown.
    */
   long getDurationUs();
 

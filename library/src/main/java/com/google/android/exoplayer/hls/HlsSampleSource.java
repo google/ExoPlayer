@@ -52,8 +52,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
-
   private static final int PRIMARY_TYPE_NONE = 0;
   private static final int PRIMARY_TYPE_TEXT = 1;
   private static final int PRIMARY_TYPE_AUDIO = 2;
@@ -111,7 +109,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    this.pendingResetPositionUs = NO_RESET_PENDING;
+    this.pendingResetPositionUs = C.UNSET_TIME_US;
     loader = new Loader("Loader:HLS", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     extractors = new LinkedList<>();
@@ -303,7 +301,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       pendingResets[group] = false;
       return lastSeekPositionUs;
     }
-    return TrackStream.NO_RESET;
+    return C.UNSET_TIME_US;
   }
 
   /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
@@ -533,10 +531,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (containerFormat == null) {
       return sampleFormat;
     }
-    int width = containerFormat.width == -1 ? Format.NO_VALUE : containerFormat.width;
-    int height = containerFormat.height == -1 ? Format.NO_VALUE : containerFormat.height;
-    return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate, width,
-        height, containerFormat.language);
+    return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate,
+        containerFormat.width, containerFormat.height, containerFormat.language);
   }
 
   /**
@@ -630,7 +626,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     chunkSource.getNextChunk(previousTsLoadable,
-        pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
+        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : downstreamPositionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk nextLoadable = nextChunkHolder.chunk;
@@ -639,7 +635,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (endOfStream) {
       loadingFinished = true;
       if (prepared) {
-        loadControl.update(this, downstreamPositionUs, -1, false);
+        loadControl.update(this, downstreamPositionUs, C.UNSET_TIME_US, false);
       }
       return;
     }
@@ -653,7 +649,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isTsChunk(currentLoadable)) {
       TsChunk tsChunk = (TsChunk) currentLoadable;
       if (isPendingReset()) {
-        pendingResetPositionUs = NO_RESET_PENDING;
+        pendingResetPositionUs = C.UNSET_TIME_US;
       }
       HlsExtractorWrapper extractorWrapper = tsChunk.extractorWrapper;
       if (extractors.isEmpty() || extractors.getLast() != extractorWrapper) {
@@ -682,8 +678,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? -1 : (currentTsLoadable != null ? currentTsLoadable.endTimeUs
-          : previousTsLoadable.endTimeUs);
+      return loadingFinished ? C.UNSET_TIME_US : (currentTsLoadable != null
+          ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs);
     }
   }
 
@@ -692,7 +688,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private boolean isPendingReset() {
-    return pendingResetPositionUs != NO_RESET_PENDING;
+    return pendingResetPositionUs != C.UNSET_TIME_US;
   }
 
   private final class TrackStreamImpl implements TrackStream {

@@ -143,7 +143,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
     trackBundles = new SparseArray<>();
-    durationUs = C.UNKNOWN_TIME_US;
+    durationUs = C.UNSET_TIME_US;
     enterReadingAtomHeaderState();
   }
 

@@ -30,7 +30,7 @@ public interface SeekMap {
     private final long durationUs;
 
     /**
-     * @param durationUs The duration of the stream in microseconds, or {@link C#UNKNOWN_TIME_US} if
+     * @param durationUs The duration of the stream in microseconds, or {@link C#UNSET_TIME_US} if
      *     the duration is unknown.
      */
     public Unseekable(long durationUs) {
@@ -67,7 +67,7 @@ public interface SeekMap {
   /**
    * Returns the duration of the stream in microseconds.
    *
-   * @return The duration of the stream in microseconds, or {@link C#UNKNOWN_TIME_US} if the
+   * @return The duration of the stream in microseconds, or {@link C#UNSET_TIME_US} if the
    *     duration is unknown.
    */
   long getDurationUs();

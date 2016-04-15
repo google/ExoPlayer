@@ -65,8 +65,8 @@ public interface LoadControl {
    *
    * @param loader The loader invoking the update.
    * @param playbackPositionUs The loader's playback position.
-   * @param nextLoadPositionUs The loader's next load position. -1 if finished, failed, or if the
-   *     next load position is not yet known.
+   * @param nextLoadPositionUs The loader's next load position. {@link C#UNSET_TIME_US} if finished,
+   *     failed, or if the next load position is not yet known.
    * @param loading Whether the loader is currently loading data.
    * @return True if the loader is allowed to start its next load. False otherwise.
    */

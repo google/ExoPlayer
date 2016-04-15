@@ -342,7 +342,7 @@ public abstract class SegmentBase {
     public int getLastSegmentNum(long periodDurationUs) {
       if (segmentTimeline != null) {
         return segmentTimeline.size() + startNumber - 1;
-      } else if (periodDurationUs == C.UNKNOWN_TIME_US) {
+      } else if (periodDurationUs == C.UNSET_TIME_US) {
         return DashSegmentIndex.INDEX_UNBOUNDED;
       } else {
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;

@@ -65,14 +65,14 @@ public class SmoothStreamingManifest {
   public final StreamElement[] streamElements;
 
   /**
-   * The overall presentation duration of the media in microseconds, or {@link C#UNKNOWN_TIME_US}
+   * The overall presentation duration of the media in microseconds, or {@link C#UNSET_TIME_US}
    * if the duration is unknown.
    */
   public final long durationUs;
 
   /**
    * The length of the trailing window for a live broadcast in microseconds, or
-   * {@link C#UNKNOWN_TIME_US} if the stream is not live or if the window length is unspecified.
+   * {@link C#UNSET_TIME_US} if the stream is not live or if the window length is unspecified.
    */
   public final long dvrWindowLengthUs;
 
@@ -101,9 +101,9 @@ public class SmoothStreamingManifest {
     this.isLive = isLive;
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
-    dvrWindowLengthUs = dvrWindowLength == 0 ? C.UNKNOWN_TIME_US
+    dvrWindowLengthUs = dvrWindowLength == 0 ? C.UNSET_TIME_US
         : Util.scaleLargeTimestamp(dvrWindowLength, C.MICROS_PER_SECOND, timescale);
-    durationUs = duration == 0 ? C.UNKNOWN_TIME_US
+    durationUs = duration == 0 ? C.UNSET_TIME_US
         : Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale);
   }
 

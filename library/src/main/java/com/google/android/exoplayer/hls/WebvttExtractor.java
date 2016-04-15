@@ -76,7 +76,7 @@ import java.util.regex.Pattern;
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
+    output.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
   }
 
   @Override

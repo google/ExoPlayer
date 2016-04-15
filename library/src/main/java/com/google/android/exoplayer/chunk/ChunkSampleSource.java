@@ -50,8 +50,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
-
   private final Loader loader;
   private final LoadControl loadControl;
   private final ChunkSource chunkSource;
@@ -128,7 +126,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
-    pendingResetPositionUs = NO_RESET_PENDING;
+    pendingResetPositionUs = C.UNSET_TIME_US;
   }
 
   // SampleSource implementation.
@@ -279,7 +277,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       pendingReset = false;
       return lastSeekPositionUs;
     }
-    return TrackStream.NO_RESET;
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -430,14 +428,13 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       lastPreferredQueueSizeEvaluationTimeMs = now;
     }
 
-    long nextLoadPositionUs = getNextLoadPositionUs();
-    boolean isNext = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs, false);
+    boolean isNext = loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), false);
     if (!isNext) {
       return;
     }
 
     chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
+        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : downstreamPositionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk nextLoadable = nextChunkHolder.chunk;
@@ -445,7 +442,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
     if (endOfStream) {
       loadingFinished = true;
-      loadControl.update(this, downstreamPositionUs, -1, false);
+      loadControl.update(this, downstreamPositionUs, C.UNSET_TIME_US, false);
       return;
     }
 
@@ -460,7 +457,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       mediaChunk.init(sampleQueue);
       mediaChunks.add(mediaChunk);
       if (isPendingReset()) {
-        pendingResetPositionUs = NO_RESET_PENDING;
+        pendingResetPositionUs = C.UNSET_TIME_US;
       }
       eventDispatcher.loadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
           mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
@@ -481,7 +478,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? -1 : mediaChunks.getLast().endTimeUs;
+      return loadingFinished ? C.UNSET_TIME_US : mediaChunks.getLast().endTimeUs;
     }
   }
 
@@ -514,7 +511,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   private boolean isPendingReset() {
-    return pendingResetPositionUs != NO_RESET_PENDING;
+    return pendingResetPositionUs != C.UNSET_TIME_US;
   }
 
 }

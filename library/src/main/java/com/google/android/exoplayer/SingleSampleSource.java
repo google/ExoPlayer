@@ -138,7 +138,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     if (!newSelections.isEmpty()) {
       newStreams[0] = this;
       streamState = STREAM_STATE_SEND_FORMAT;
-      pendingResetPositionUs = NO_RESET;
+      pendingResetPositionUs = C.UNSET_TIME_US;
       maybeStartLoading();
     }
     return newStreams;
@@ -183,7 +183,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public long readReset() {
     long resetPositionUs = pendingResetPositionUs;
-    pendingResetPositionUs = NO_RESET;
+    pendingResetPositionUs = C.UNSET_TIME_US;
     return resetPositionUs;
   }
 

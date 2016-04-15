@@ -112,7 +112,7 @@ public final class AdtsExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0), output.track(1));
     output.endTracks();
-    output.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
+    output.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
   }
 
   @Override

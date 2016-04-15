@@ -189,7 +189,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Returns the duration of the source, or {@link C#UNKNOWN_TIME_US} if the duration is unknown.
+   * Returns the duration of the source, or {@link C#UNSET_TIME_US} if the duration is unknown.
    * <p>
    * This method should only be called after the source has been prepared.
    *
@@ -660,7 +660,7 @@ public class HlsChunkSource {
     variantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
-    durationUs = live ? C.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
+    durationUs = live ? C.UNSET_TIME_US : mediaPlaylist.durationUs;
   }
 
   private boolean allEnabledVariantsBlacklisted() {

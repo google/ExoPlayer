@@ -187,12 +187,12 @@ public final class DefaultLoadControl implements LoadControl {
       updateControlState();
     }
 
-    return currentBufferSize < targetBufferSize && nextLoadPositionUs != -1
+    return currentBufferSize < targetBufferSize && nextLoadPositionUs != C.UNSET_TIME_US
         && nextLoadPositionUs <= maxLoadStartPositionUs;
   }
 
   private int getLoaderBufferState(long playbackPositionUs, long nextLoadPositionUs) {
-    if (nextLoadPositionUs == -1) {
+    if (nextLoadPositionUs == C.UNSET_TIME_US) {
       return ABOVE_HIGH_WATERMARK;
     } else {
       long timeUntilNextLoadPosition = nextLoadPositionUs - playbackPositionUs;
@@ -216,7 +216,7 @@ public final class DefaultLoadControl implements LoadControl {
     for (int i = 0; i < loaders.size(); i++) {
       LoaderState loaderState = loaderStates.get(loaders.get(i));
       loading |= loaderState.loading;
-      haveNextLoadPosition |= loaderState.nextLoadPositionUs != -1;
+      haveNextLoadPosition |= loaderState.nextLoadPositionUs != C.UNSET_TIME_US;
       highestState = Math.max(highestState, loaderState.bufferState);
     }
 
@@ -233,14 +233,14 @@ public final class DefaultLoadControl implements LoadControl {
       notifyLoadingChanged(false);
     }
 
-    maxLoadStartPositionUs = -1;
+    maxLoadStartPositionUs = C.UNSET_TIME_US;
     if (fillingBuffers) {
       for (int i = 0; i < loaders.size(); i++) {
         Object loader = loaders.get(i);
         LoaderState loaderState = loaderStates.get(loader);
         long loaderTime = loaderState.nextLoadPositionUs;
-        if (loaderTime != -1
-            && (maxLoadStartPositionUs == -1 || loaderTime < maxLoadStartPositionUs)) {
+        if (loaderTime != C.UNSET_TIME_US
+            && (maxLoadStartPositionUs == C.UNSET_TIME_US || loaderTime < maxLoadStartPositionUs)) {
           maxLoadStartPositionUs = loaderTime;
         }
       }
@@ -270,7 +270,7 @@ public final class DefaultLoadControl implements LoadControl {
       this.bufferSizeContribution = bufferSizeContribution;
       bufferState = ABOVE_HIGH_WATERMARK;
       loading = false;
-      nextLoadPositionUs = -1;
+      nextLoadPositionUs = C.UNSET_TIME_US;
     }
 
   }

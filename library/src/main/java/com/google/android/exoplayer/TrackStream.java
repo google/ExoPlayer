@@ -34,10 +34,6 @@ public interface TrackStream {
    * A format was read.
    */
   int FORMAT_READ = -3;
-  /**
-   * Returned from {@link #readReset()} to indicate no reset is required.
-   */
-  long NO_RESET = Long.MIN_VALUE;
 
   /**
    * Returns whether data is available to be read.
@@ -60,7 +56,8 @@ public interface TrackStream {
   /**
    * Attempts to read a pending reset.
    *
-   * @return If a reset was read then the position after the reset. Else {@link #NO_RESET}.
+   * @return If a reset was read then the playback position in microseconds after the reset. Else
+   *     {@link C#UNSET_TIME_US}.
    */
   long readReset();
 

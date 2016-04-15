@@ -108,7 +108,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
 
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
-  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   /**
    * Default extractor classes in priority order. They are referred to indirectly so that it is
@@ -326,7 +325,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
     extractorHolder = new ExtractorHolder(extractors, this);
     sampleQueues = new SparseArray<>();
-    pendingResetPositionUs = NO_RESET_PENDING;
+    pendingResetPositionUs = C.UNSET_TIME_US;
   }
 
   // SampleSource implementation.
@@ -348,7 +347,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       }
       tracks = new TrackGroupArray(trackArray);
       if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
-          && durationUs == C.UNKNOWN_TIME_US) {
+          && durationUs == C.UNSET_TIME_US) {
         loader.setMinRetryCount(DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE);
       }
       prepared = true;
@@ -467,7 +466,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       pendingResets[track] = false;
       return lastSeekPositionUs;
     }
-    return TrackStream.NO_RESET;
+    return C.UNSET_TIME_US;
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
@@ -598,13 +597,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         requestedBufferSize);
     if (prepared) {
       Assertions.checkState(isPendingReset());
-      if (durationUs != C.UNKNOWN_TIME_US && pendingResetPositionUs >= durationUs) {
+      if (durationUs != C.UNSET_TIME_US && pendingResetPositionUs >= durationUs) {
         loadingFinished = true;
-        pendingResetPositionUs = NO_RESET_PENDING;
+        pendingResetPositionUs = C.UNSET_TIME_US;
         return;
       }
       loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs));
-      pendingResetPositionUs = NO_RESET_PENDING;
+      pendingResetPositionUs = C.UNSET_TIME_US;
     }
     currentLoadExtractedSamples = false;
     loader.startLoading(loadable, this);
@@ -620,7 +619,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         sampleQueues.valueAt(i).clear();
       }
       loadable.setLoadPosition(0);
-    } else if (!seekMap.isSeekable() && durationUs == C.UNKNOWN_TIME_US) {
+    } else if (!seekMap.isSeekable() && durationUs == C.UNSET_TIME_US) {
       // We're playing a non-seekable stream with unknown duration. Assume it's live, and
       // therefore that the data at the uri is a continuously shifting window of the latest
       // available media. For this case there's no way to continue loading from where a previous
@@ -665,7 +664,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   private boolean isPendingReset() {
-    return pendingResetPositionUs != NO_RESET_PENDING;
+    return pendingResetPositionUs != C.UNSET_TIME_US;
   }
 
   private boolean isLoadableExceptionFatal(IOException e) {

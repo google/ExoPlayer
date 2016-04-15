@@ -200,7 +200,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean codecNeedsMonoChannelCountWorkaround;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
-  private long codecHotswapTimeMs;
+  private long codecHotswapDeadlineMs;
   private int inputIndex;
   private int outputIndex;
   private boolean openedDrmSession;
@@ -366,8 +366,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
           requiresSecureDecoder, codecName));
     }
-    codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
-        SystemClock.elapsedRealtime() : -1;
+    codecHotswapDeadlineMs = getState() == TrackRenderer.STATE_STARTED
+        ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;
     inputIndex = -1;
     outputIndex = -1;
     codecCounters.codecInitCount++;
@@ -411,7 +411,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   protected void releaseCodec() {
     if (codec != null) {
-      codecHotswapTimeMs = -1;
+      codecHotswapDeadlineMs = -1;
       inputIndex = -1;
       outputIndex = -1;
       waitingForKeys = false;
@@ -484,7 +484,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   private void flushCodec() throws ExoPlaybackException {
-    codecHotswapTimeMs = -1;
+    codecHotswapDeadlineMs = -1;
     inputIndex = -1;
     outputIndex = -1;
     waitingForKeys = false;
@@ -776,12 +776,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   @Override
   protected boolean isReady() {
-    return format != null && !waitingForKeys
-        && (isSourceReady() || outputIndex >= 0 || isWithinHotswapPeriod());
-  }
-
-  private boolean isWithinHotswapPeriod() {
-    return SystemClock.elapsedRealtime() < codecHotswapTimeMs + MAX_CODEC_HOTSWAP_TIME_MS;
+    return format != null && !waitingForKeys && (isSourceReady() || outputIndex >= 0
+        || (SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }
 
   /**

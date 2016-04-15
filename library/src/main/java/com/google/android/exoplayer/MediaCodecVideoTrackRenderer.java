@@ -107,7 +107,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventListener eventListener;
-  private final long allowedJoiningTimeUs;
+  private final long allowedJoiningTimeMs;
   private final int videoScalingMode;
   private final int maxDroppedFrameCountToNotify;
   private final boolean deviceNeedsAutoFrcWorkaround;
@@ -118,7 +118,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private Surface surface;
   private boolean reportedDrawnToSurface;
   private boolean renderedFirstFrame;
-  private long joiningDeadlineUs;
+  private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrameCount;
   private int consecutiveDroppedFrameCount;
@@ -206,11 +206,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         eventListener);
     this.frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     this.videoScalingMode = videoScalingMode;
-    this.allowedJoiningTimeUs = allowedJoiningTimeMs * 1000;
+    this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
     deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
-    joiningDeadlineUs = -1;
+    joiningDeadlineMs = -1;
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
@@ -276,8 +276,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         adaptiveMaxHeight = 1080;
       }
     }
-    if (joining && allowedJoiningTimeUs > 0) {
-      joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
+    if (joining && allowedJoiningTimeMs > 0) {
+      joiningDeadlineMs = SystemClock.elapsedRealtime() + allowedJoiningTimeMs;
     }
     frameReleaseTimeHelper.enable();
   }
@@ -287,24 +287,24 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     super.reset(positionUs);
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
-    joiningDeadlineUs = -1;
+    joiningDeadlineMs = -1;
   }
 
   @Override
   protected boolean isReady() {
     if (renderedFirstFrame && super.isReady()) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
-      joiningDeadlineUs = -1;
+      joiningDeadlineMs = -1;
       return true;
-    } else if (joiningDeadlineUs == -1) {
+    } else if (joiningDeadlineMs == -1) {
       // Not joining.
       return false;
-    } else if (SystemClock.elapsedRealtime() * 1000 < joiningDeadlineUs) {
+    } else if (SystemClock.elapsedRealtime() < joiningDeadlineMs) {
       // Joining and still within the joining deadline.
       return true;
     } else {
       // The joining deadline has been exceeded. Give up and clear the deadline.
-      joiningDeadlineUs = -1;
+      joiningDeadlineMs = -1;
       return false;
     }
   }
@@ -318,7 +318,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onStopped() {
-    joiningDeadlineUs = -1;
+    joiningDeadlineMs = -1;
     maybeNotifyDroppedFrameCount();
     super.onStopped();
   }

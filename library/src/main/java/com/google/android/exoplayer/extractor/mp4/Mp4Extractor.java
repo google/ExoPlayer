@@ -295,7 +295,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * Updates the stored track metadata to reflect the contents of the specified moov atom.
    */
   private void processMoovAtom(ContainerAtom moov) throws ParserException {
-    long durationUs = C.UNKNOWN_TIME_US;
+    long durationUs = C.UNSET_TIME_US;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
     GaplessInfo gaplessInfo = null;

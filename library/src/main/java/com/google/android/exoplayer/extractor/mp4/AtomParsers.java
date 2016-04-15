@@ -64,7 +64,7 @@ import java.util.List;
     long movieTimescale = parseMvhd(mvhd.data);
     long durationUs;
     if (duration == -1) {
-      durationUs = C.UNKNOWN_TIME_US;
+      durationUs = C.UNSET_TIME_US;
     } else {
       durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, movieTimescale);
     }

@@ -225,7 +225,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   /* package */ final void checkForReset() throws ExoPlaybackException {
     long resetPositionUs = stream.readReset();
-    if (resetPositionUs != TrackStream.NO_RESET) {
+    if (resetPositionUs != C.UNSET_TIME_US) {
       reset(resetPositionUs);
       return;
     }

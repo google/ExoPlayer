@@ -329,7 +329,7 @@ public class DashChunkSource implements ChunkSource {
   private void initForManifest(MediaPresentationDescription manifest) {
     Period period = manifest.getPeriod(0);
     live = currentManifest.dynamic;
-    durationUs = live ? C.UNKNOWN_TIME_US : currentManifest.duration * 1000;
+    durationUs = live ? C.UNSET_TIME_US : currentManifest.duration * 1000;
 
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
@@ -439,7 +439,7 @@ public class DashChunkSource implements ChunkSource {
   private static long getPeriodDurationUs(MediaPresentationDescription manifest, int index) {
     long durationMs = manifest.getPeriodDuration(index);
     if (durationMs == -1) {
-      return C.UNKNOWN_TIME_US;
+      return C.UNSET_TIME_US;
     } else {
       return durationMs * 1000;
     }

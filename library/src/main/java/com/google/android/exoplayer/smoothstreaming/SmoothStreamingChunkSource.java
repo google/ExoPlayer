@@ -304,7 +304,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           extractorWrappers = new ChunkExtractorWrapper[formats.length];
           for (int j = 0; j < formats.length; j++) {
             int nalUnitLengthFieldLength = streamElementType == C.TRACK_TYPE_VIDEO ? 4 : -1;
-            Track track = new Track(j, streamElementType, timescale, C.UNKNOWN_TIME_US, durationUs,
+            Track track = new Track(j, streamElementType, timescale, C.UNSET_TIME_US, durationUs,
                 formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
             FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
                 FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME

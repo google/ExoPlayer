@@ -132,7 +132,7 @@ public final class FrameworkSampleSource implements SampleSource {
     } else {
       extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
     }
-    durationUs = C.UNKNOWN_TIME_US;
+    durationUs = C.UNSET_TIME_US;
     trackStates = new int[extractor.getTrackCount()];
     pendingResets = new boolean[trackStates.length];
     TrackGroup[] trackArray = new TrackGroup[trackStates.length];
@@ -150,7 +150,7 @@ public final class FrameworkSampleSource implements SampleSource {
 
   @Override
   public long getDurationUs() {
-    return C.UNKNOWN_TIME_US;
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -212,7 +212,7 @@ public final class FrameworkSampleSource implements SampleSource {
 
     long bufferedDurationUs = extractor.getCachedDuration();
     if (bufferedDurationUs == -1) {
-      return C.UNKNOWN_TIME_US;
+      return C.UNSET_TIME_US;
     }
 
     long sampleTime = extractor.getSampleTime();
@@ -234,7 +234,7 @@ public final class FrameworkSampleSource implements SampleSource {
       pendingResets[track] = false;
       return lastSeekPositionUs;
     }
-    return TrackStream.NO_RESET;
+    return C.UNSET_TIME_US;
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
@@ -266,7 +266,7 @@ public final class FrameworkSampleSource implements SampleSource {
         buffer.addFlag(C.BUFFER_FLAG_ENCRYPTED);
         buffer.cryptoInfo.setFromExtractorV16(extractor);
       }
-      pendingSeekPositionUs = C.UNKNOWN_TIME_US;
+      pendingSeekPositionUs = C.UNSET_TIME_US;
       extractor.advance();
       return TrackStream.BUFFER_READ;
     } else if (extractorTrackIndex < 0) {

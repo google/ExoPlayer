@@ -100,8 +100,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.playWhenReady = playWhenReady;
     this.eventHandler = eventHandler;
     this.state = ExoPlayer.STATE_IDLE;
-    this.durationUs = C.UNKNOWN_TIME_US;
-    this.bufferedPositionUs = C.UNKNOWN_TIME_US;
+    this.durationUs = C.UNSET_TIME_US;
+    this.bufferedPositionUs = C.UNSET_TIME_US;
 
     for (int i = 0; i < renderers.length; i++) {
       renderers[i].setIndex(i);
@@ -131,13 +131,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   public long getBufferedPosition() {
     long bufferedPositionUs = this.bufferedPositionUs;
-    return bufferedPositionUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
+    return bufferedPositionUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME
         : bufferedPositionUs / 1000;
   }
 
   public long getDuration() {
     long durationUs = this.durationUs;
-    return durationUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
+    return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
   }
 
   public void setSource(SampleSource sampleSource) {
@@ -273,10 +273,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean haveSufficientBuffer() {
     long minBufferDurationUs = rebuffering ? minRebufferUs : minBufferUs;
     return minBufferDurationUs <= 0
-        || bufferedPositionUs == C.UNKNOWN_TIME_US
+        || bufferedPositionUs == C.UNSET_TIME_US
         || bufferedPositionUs == C.END_OF_SOURCE_US
         || bufferedPositionUs >= positionUs + minBufferDurationUs
-        || (durationUs != C.UNKNOWN_TIME_US && bufferedPositionUs >= durationUs);
+        || (durationUs != C.UNSET_TIME_US && bufferedPositionUs >= durationUs);
   }
 
   private void setSourceInternal(SampleSource source) {
@@ -336,7 +336,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     long sourceBufferedPositionUs = enabledRenderers.length > 0 ? source.getBufferedPositionUs()
         : C.END_OF_SOURCE_US;
     bufferedPositionUs = sourceBufferedPositionUs == C.END_OF_SOURCE_US
-        && durationUs != C.UNKNOWN_TIME_US ? durationUs : sourceBufferedPositionUs;
+        && durationUs != C.UNSET_TIME_US ? durationUs : sourceBufferedPositionUs;
   }
 
   private void doSomeWork() throws ExoPlaybackException, IOException {
@@ -384,7 +384,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded;
     }
 
-    if (allRenderersEnded && (durationUs == C.UNKNOWN_TIME_US || durationUs <= positionUs)) {
+    if (allRenderersEnded && (durationUs == C.UNSET_TIME_US || durationUs <= positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded
@@ -460,7 +460,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     updateBufferedPositionUs();
-    if (allRenderersEnded && (durationUs == C.UNKNOWN_TIME_US || durationUs <= positionUs)) {
+    if (allRenderersEnded && (durationUs == C.UNSET_TIME_US || durationUs <= positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
     } else {
       setState(allRenderersReadyOrEnded && haveSufficientBuffer() ? ExoPlayer.STATE_READY

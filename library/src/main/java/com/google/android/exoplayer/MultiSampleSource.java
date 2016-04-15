@@ -61,10 +61,10 @@ public final class MultiSampleSource implements SampleSource {
     int totalTrackGroupCount = 0;
     for (SampleSource source : sources) {
       totalTrackGroupCount += source.getTrackGroups().length;
-      if (durationUs != C.UNKNOWN_TIME_US) {
+      if (durationUs != C.UNSET_TIME_US) {
         long sourceDurationUs = source.getDurationUs();
-        durationUs = sourceDurationUs == C.UNKNOWN_TIME_US
-            ? C.UNKNOWN_TIME_US : Math.max(durationUs, sourceDurationUs);
+        durationUs = sourceDurationUs == C.UNSET_TIME_US
+            ? C.UNSET_TIME_US : Math.max(durationUs, sourceDurationUs);
       }
     }
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
@@ -125,18 +125,18 @@ public final class MultiSampleSource implements SampleSource {
 
   @Override
   public long getBufferedPositionUs() {
-    long bufferedPositionUs = durationUs != C.UNKNOWN_TIME_US ? durationUs : Long.MAX_VALUE;
+    long bufferedPositionUs = durationUs != C.UNSET_TIME_US ? durationUs : Long.MAX_VALUE;
     for (SampleSource source : enabledSources) {
       long rendererBufferedPositionUs = source.getBufferedPositionUs();
-      if (rendererBufferedPositionUs == C.UNKNOWN_TIME_US) {
-        return C.UNKNOWN_TIME_US;
+      if (rendererBufferedPositionUs == C.UNSET_TIME_US) {
+        return C.UNSET_TIME_US;
       } else if (rendererBufferedPositionUs == C.END_OF_SOURCE_US) {
         // This source is fully buffered.
       } else {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
     }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.UNKNOWN_TIME_US : bufferedPositionUs;
+    return bufferedPositionUs == Long.MAX_VALUE ? C.UNSET_TIME_US : bufferedPositionUs;
   }
 
   @Override

@@ -41,8 +41,8 @@ public interface SampleSource {
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @return The duration of the source in microseconds, or {@link C#UNKNOWN_TIME_US} if the
-   *     duration is not known.
+   * @return The duration of the source in microseconds, or {@link C#UNSET_TIME_US} if the duration
+   *     is not known.
    */
   long getDurationUs();
 
@@ -89,9 +89,9 @@ public interface SampleSource {
    * <p>
    * This method should only be called when at least one track is selected.
    *
-   * @return An estimate of the absolute position in microseconds up to which data is buffered,
-   *     or {@link C#END_OF_SOURCE_US} if the track is fully buffered, or {@link C#UNKNOWN_TIME_US}
-   *     if no estimate is available.
+   * @return An estimate of the absolute position in microseconds up to which data is buffered, or
+   *     {@link C#END_OF_SOURCE_US} if the track is fully buffered, or {@link C#UNSET_TIME_US} if no
+   *     estimate is available.
    */
   long getBufferedPositionUs();
 

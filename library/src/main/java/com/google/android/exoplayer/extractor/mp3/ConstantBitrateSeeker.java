@@ -31,17 +31,17 @@ import com.google.android.exoplayer.C;
   public ConstantBitrateSeeker(long firstFramePosition, int bitrate, long inputLength) {
     this.firstFramePosition = firstFramePosition;
     this.bitrate = bitrate;
-    durationUs = inputLength == C.LENGTH_UNBOUNDED ? C.UNKNOWN_TIME_US : getTimeUs(inputLength);
+    durationUs = inputLength == C.LENGTH_UNBOUNDED ? C.UNSET_TIME_US : getTimeUs(inputLength);
   }
 
   @Override
   public boolean isSeekable() {
-    return durationUs != C.UNKNOWN_TIME_US;
+    return durationUs != C.UNSET_TIME_US;
   }
 
   @Override
   public long getPosition(long timeUs) {
-    return durationUs == C.UNKNOWN_TIME_US ? 0
+    return durationUs == C.UNSET_TIME_US ? 0
         : firstFramePosition + (timeUs * bitrate) / (C.MICROS_PER_SECOND * BITS_PER_BYTE);
   }
 

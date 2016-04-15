@@ -37,7 +37,7 @@ public interface DashSegmentIndex {
    *
    * @param timeUs The time in microseconds.
    * @param periodDurationUs The duration of the enclosing period in microseconds, or
-   *     {@link C#UNKNOWN_TIME_US} if the period's duration is not yet known.
+   *     {@link C#UNSET_TIME_US} if the period's duration is not yet known.
    * @return The segment number of the corresponding segment.
    */
   int getSegmentNum(long timeUs, long periodDurationUs);
@@ -55,7 +55,7 @@ public interface DashSegmentIndex {
    *
    * @param segmentNum The segment number.
    * @param periodDurationUs The duration of the enclosing period in microseconds, or
-   *     {@link C#UNKNOWN_TIME_US} if the period's duration is not yet known.
+   *     {@link C#UNSET_TIME_US} if the period's duration is not yet known.
    * @return The duration of the segment, in microseconds.
    */
   long getDurationUs(int segmentNum, long periodDurationUs);
@@ -83,7 +83,7 @@ public interface DashSegmentIndex {
    * must manually determine the window of currently available segments.
    *
    * @param periodDurationUs The duration of the enclosing period in microseconds, or
-   *     {@link C#UNKNOWN_TIME_US} if the period's duration is not yet known.
+   *     {@link C#UNSET_TIME_US} if the period's duration is not yet known.
    * @return The segment number of the last segment, or {@link #INDEX_UNBOUNDED}.
    */
   int getLastSegmentNum(long periodDurationUs);

@@ -189,9 +189,9 @@ public final class MatroskaExtractor implements Extractor {
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
-  private long timecodeScale = C.UNKNOWN_TIME_US;
-  private long durationTimecode = C.UNKNOWN_TIME_US;
-  private long durationUs = C.UNKNOWN_TIME_US;
+  private long timecodeScale = C.UNSET_TIME_US;
+  private long durationTimecode = C.UNSET_TIME_US;
+  private long durationUs = C.UNSET_TIME_US;
 
   // The track corresponding to the current TrackEntry element, or null.
   private Track currentTrack;
@@ -417,11 +417,11 @@ public final class MatroskaExtractor implements Extractor {
   /* package */ void endMasterElement(int id) throws ParserException {
     switch (id) {
       case ID_SEGMENT_INFO:
-        if (timecodeScale == C.UNKNOWN_TIME_US) {
+        if (timecodeScale == C.UNSET_TIME_US) {
           // timecodeScale was omitted. Use the default value.
           timecodeScale = 1000000;
         }
-        if (durationTimecode != C.UNKNOWN_TIME_US) {
+        if (durationTimecode != C.UNSET_TIME_US) {
           durationUs = scaleTimecodeToUs(durationTimecode);
         }
         return;
@@ -987,7 +987,7 @@ public final class MatroskaExtractor implements Extractor {
    *     information was missing or incomplete.
    */
   private SeekMap buildSeekMap() {
-    if (segmentContentPosition == UNKNOWN || durationUs == C.UNKNOWN_TIME_US
+    if (segmentContentPosition == UNKNOWN || durationUs == C.UNSET_TIME_US
         || cueTimesUs == null || cueTimesUs.size() == 0
         || cueClusterPositions == null || cueClusterPositions.size() != cueTimesUs.size()) {
       // Cues information is missing or incomplete.
@@ -1043,7 +1043,7 @@ public final class MatroskaExtractor implements Extractor {
   }
 
   private long scaleTimecodeToUs(long unscaledTimecode) throws ParserException {
-    if (timecodeScale == C.UNKNOWN_TIME_US) {
+    if (timecodeScale == C.UNSET_TIME_US) {
       throw new ParserException("Can't scale timecode prior to timecodeScale being set.");
     }
     return Util.scaleLargeTimestamp(unscaledTimecode, timecodeScale, 1000);

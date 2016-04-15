@@ -341,11 +341,11 @@ public final class Eia608TrackRenderer extends TrackRenderer implements Callback
 
   private void clearPendingBuffer() {
     buffer.clear();
-    buffer.timeUs = C.UNKNOWN_TIME_US;
+    buffer.timeUs = C.UNSET_TIME_US;
   }
 
   private boolean isBufferPending() {
-    return buffer.timeUs != C.UNKNOWN_TIME_US;
+    return buffer.timeUs != C.UNSET_TIME_US;
   }
 
 }

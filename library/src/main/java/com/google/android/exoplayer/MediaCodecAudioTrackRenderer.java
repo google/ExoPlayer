@@ -367,7 +367,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       if (audioTrackHadData && !audioTrackHasData && getState() == TrackRenderer.STATE_STARTED) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
         long bufferSizeUs = audioTrack.getBufferSizeUs();
-        long bufferSizeMs = bufferSizeUs == C.UNKNOWN_TIME_US ? -1 : bufferSizeUs / 1000;
+        long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;
         notifyAudioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs, elapsedSinceLastFeedMs);
       }
     }

@@ -26,14 +26,14 @@ import android.media.MediaCodec;
 public final class C {
 
   /**
-   * Special microsecond constant representing an unknown time or duration.
-   */
-  public static final long UNKNOWN_TIME_US = -1L;
-
-  /**
    * Special microsecond constant representing the end of a source.
    */
-  public static final long END_OF_SOURCE_US = -2L;
+  public static final long END_OF_SOURCE_US = Long.MIN_VALUE;
+
+  /**
+   * Special microsecond constant representing an unset or unknown time or duration.
+   */
+  public static final long UNSET_TIME_US = Long.MIN_VALUE + 1;
 
   /**
    * The number of microseconds in one second.
