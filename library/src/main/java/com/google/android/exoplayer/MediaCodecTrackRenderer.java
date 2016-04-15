@@ -775,10 +775,11 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * <p>
    * The default implementation is a no-op.
    *
+   * @param codec The {@link MediaCodec} instance.
    * @param outputFormat The new output format.
    * @throws ExoPlaybackException If an error occurs on output format change.
    */
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat)
+  protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat)
       throws ExoPlaybackException {
     // Do nothing.
   }
@@ -934,7 +935,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (codecNeedsMonoChannelCountWorkaround) {
       format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-    onOutputFormatChanged(format);
+    onOutputFormatChanged(codec, format);
     codecCounters.outputFormatChangedCount++;
   }
 

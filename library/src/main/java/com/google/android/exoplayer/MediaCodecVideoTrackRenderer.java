@@ -346,7 +346,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat) {
     boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
         && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
         && outputFormat.containsKey(KEY_CROP_TOP);
@@ -371,6 +371,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       // On API level 20 and below the decoder does not apply the rotation.
       currentUnappliedRotationDegrees = pendingRotationDegrees;
     }
+    // Must be applied each time the output format changes.
+    codec.setVideoScalingMode(videoScalingMode);
   }
 
   @Override
