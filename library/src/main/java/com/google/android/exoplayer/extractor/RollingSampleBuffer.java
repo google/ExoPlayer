@@ -153,6 +153,17 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
+   * Skips all currently buffered samples.
+   */
+  public void skipAllSamples() {
+    long nextOffset = infoQueue.skipAllSamples();
+    if (nextOffset == -1) {
+      return;
+    }
+    dropDownstreamTo(nextOffset);
+  }
+
+  /**
    * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
    *
    * @param timeUs The seek time.
@@ -531,6 +542,25 @@ import java.util.concurrent.LinkedBlockingDeque;
       }
       return queueSize > 0 ? offsets[relativeReadIndex]
           : (sizes[lastReadIndex] + offsets[lastReadIndex]);
+    }
+
+    /**
+     * Skips all currently buffered samples.
+     *
+     * @return The absolute position of the first byte in the rolling buffer that may still be
+     *     required after skipping the samples, or -1 if no samples were skipped.
+     */
+    public synchronized long skipAllSamples() {
+      if (queueSize == 0) {
+        return -1;
+      }
+
+      relativeReadIndex = (relativeReadIndex + queueSize) % capacity;
+      absoluteReadIndex += queueSize;
+      queueSize = 0;
+
+      int lastReadIndex = (relativeReadIndex == 0 ? capacity : relativeReadIndex) - 1;
+      return sizes[lastReadIndex] + offsets[lastReadIndex];
     }
 
     /**

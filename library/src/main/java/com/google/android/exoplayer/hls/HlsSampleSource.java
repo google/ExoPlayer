@@ -224,7 +224,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
     if (!extractors.isEmpty()) {
-      discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
+      discardSamplesForDisabledTracks(getCurrentExtractor());
     }
     if (!loader.isLoading()) {
       maybeStartLoading();
@@ -570,13 +570,13 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return extractor;
   }
 
-  private void discardSamplesForDisabledTracks(HlsExtractorWrapper extractor, long timeUs) {
+  private void discardSamplesForDisabledTracks(HlsExtractorWrapper extractor) {
     if (!extractor.isPrepared()) {
       return;
     }
     for (int i = 0; i < groupEnabledStates.length; i++) {
       if (!groupEnabledStates[i]) {
-        extractor.discardUntil(i, timeUs);
+        extractor.discardSamplesForTrack(i);
       }
     }
   }

@@ -415,7 +415,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
-    discardSamplesForDisabledTracks(downstreamPositionUs);
+    discardSamplesForDisabledTracks();
   }
 
   @Override
@@ -647,10 +647,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     return true;
   }
 
-  private void discardSamplesForDisabledTracks(long timeUs) {
+  private void discardSamplesForDisabledTracks() {
     for (int i = 0; i < trackEnabledStates.length; i++) {
       if (!trackEnabledStates[i]) {
-        sampleQueues.valueAt(i).discardUntil(timeUs);
+        sampleQueues.valueAt(i).skipAllSamples();
       }
     }
   }

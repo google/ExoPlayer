@@ -146,17 +146,10 @@ public class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Discards samples from the queue up to the specified time.
-   *
-   * @param timeUs The time up to which samples should be discarded, in microseconds.
+   * Skips all currently buffered samples.
    */
-  public void discardUntil(long timeUs) {
-    while (rollingBuffer.peekSample(sampleBuffer) && sampleBuffer.timeUs < timeUs) {
-      rollingBuffer.skipSample();
-      // We're discarding one or more samples. A subsequent read will need to start at a keyframe.
-      needKeyframe = true;
-    }
-    lastReadTimeUs = Long.MIN_VALUE;
+  public void skipAllSamples() {
+    rollingBuffer.skipAllSamples();
   }
 
   /**

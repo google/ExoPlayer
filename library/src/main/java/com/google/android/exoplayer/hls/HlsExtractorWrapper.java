@@ -191,16 +191,15 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Discards samples for the specified track up to the specified time.
+   * Discards all samples for the specified track.
    * <p>
    * This method must only be called after the extractor has been prepared.
    *
    * @param track The track from which samples should be discarded.
-   * @param timeUs The time up to which samples should be discarded, in microseconds.
    */
-  public void discardUntil(int track, long timeUs) {
+  public void discardSamplesForTrack(int track) {
     Assertions.checkState(isPrepared());
-    sampleQueues.valueAt(track).discardUntil(timeUs);
+    sampleQueues.valueAt(track).skipAllSamples();
   }
 
   /**
