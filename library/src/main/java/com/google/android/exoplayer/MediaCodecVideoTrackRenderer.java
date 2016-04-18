@@ -326,7 +326,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       android.media.MediaFormat format, MediaCrypto crypto) {
     maybeSetMaxInputSize(format, codecIsAdaptive);
     codec.configure(format, surface, crypto, 0);
-    codec.setVideoScalingMode(videoScalingMode);
   }
 
   @Override
