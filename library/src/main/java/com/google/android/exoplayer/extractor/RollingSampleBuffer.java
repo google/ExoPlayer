@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
@@ -30,7 +31,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * A rolling buffer of sample data and corresponding sample information.
  */
-/* package */ final class RollingSampleBuffer {
+/* package */ final class RollingSampleBuffer implements TrackOutput {
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
@@ -49,6 +50,9 @@ import java.util.concurrent.LinkedBlockingDeque;
   private long totalBytesWritten;
   private Allocation lastAllocation;
   private int lastAllocationOffset;
+
+  // Accessed by both the loading and consuming threads.
+  private volatile Format upstreamFormat;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
@@ -129,6 +133,13 @@ import java.util.concurrent.LinkedBlockingDeque;
    */
   public int getReadIndex() {
     return infoQueue.getReadIndex();
+  }
+
+  /**
+   * Returns the current upstream format.
+   */
+  public Format getUpstreamFormat() {
+    return upstreamFormat;
   }
 
   /**
@@ -344,19 +355,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   // Called by the loading thread.
 
-  /**
-   * Appends data to the rolling buffer.
-   *
-   * @param input The source from which to read.
-   * @param length The maximum length of the read.
-   * @param allowEndOfInput True if encountering the end of the input having appended no data is
-   *     allowed, and should result in {@link C#RESULT_END_OF_INPUT} being returned. False if it
-   *     should be considered an error, causing an {@link EOFException} to be thrown.
-   * @return The number of bytes appended, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
-   * @throws IOException If an error occurs reading from the source.
-   * @throws InterruptedException If the thread has been interrupted.
-   */
-  public int appendData(ExtractorInput input, int length, boolean allowEndOfInput)
+  @Override
+  public void format(Format format) {
+    upstreamFormat = format;
+  }
+
+  @Override
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     length = prepareForAppend(length);
     int bytesAppended = input.read(lastAllocation.data,
@@ -372,13 +377,8 @@ import java.util.concurrent.LinkedBlockingDeque;
     return bytesAppended;
   }
 
-  /**
-   * Appends data to the rolling buffer.
-   *
-   * @param buffer A buffer containing the data to append.
-   * @param length The length of the data to append.
-   */
-  public void appendData(ParsableByteArray buffer, int length) {
+  @Override
+  public void sampleData(ParsableByteArray buffer, int length) {
     while (length > 0) {
       int thisAppendLength = prepareForAppend(length);
       buffer.readBytes(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
@@ -389,19 +389,8 @@ import java.util.concurrent.LinkedBlockingDeque;
     }
   }
 
-  /**
-   * Indicates the end point for the current sample, making it available for consumption.
-   *
-   * @param sampleTimeUs The sample timestamp.
-   * @param flags Flags that accompany the sample. See {@code C.BUFFER_FLAG_*}.
-   * @param size The size of the sample, in bytes.
-   * @param offset The number of bytes that have been passed to
-   *     {@link #appendData(ExtractorInput, int, boolean)} or
-   *     {@link #appendData(ParsableByteArray, int)} since the last byte belonging to the sample
-   *     being committed.
-   * @param encryptionKey The encryption key associated with the sample, or null.
-   */
-  public void commitSample(long sampleTimeUs, int flags, int size, int offset,
+  @Override
+  public void sampleMetadata(long sampleTimeUs, int flags, int size, int offset,
       byte[] encryptionKey) {
     long absoluteOffset = totalBytesWritten - size - offset;
     infoQueue.commitSample(sampleTimeUs, flags, absoluteOffset, size, encryptionKey);

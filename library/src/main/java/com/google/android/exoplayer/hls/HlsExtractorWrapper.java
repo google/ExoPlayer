@@ -81,7 +81,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   public boolean isPrepared() {
     if (!prepared && tracksBuilt) {
       for (int i = 0; i < sampleQueues.size(); i++) {
-        if (!sampleQueues.valueAt(i).hasFormat()) {
+        if (sampleQueues.valueAt(i).getFormat() == null) {
           return false;
         }
       }

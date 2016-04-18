@@ -37,9 +37,8 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
 
-  private Format sampleFormat;
-  private DrmInitData drmInitData;
-
+  private volatile DrmInitData drmInitData;
+  private volatile Format sampleFormat;
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
 

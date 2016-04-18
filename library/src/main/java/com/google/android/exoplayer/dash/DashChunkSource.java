@@ -289,8 +289,9 @@ public class DashChunkSource implements ChunkSource {
       InitializationChunk initializationChunk = (InitializationChunk) chunk;
       RepresentationHolder representationHolder =
           representationHolders[getTrackIndex(initializationChunk.format)];
-      if (initializationChunk.hasSampleFormat()) {
-        representationHolder.sampleFormat = initializationChunk.getSampleFormat();
+      Format sampleFormat = initializationChunk.getSampleFormat();
+      if (sampleFormat != null) {
+        representationHolder.sampleFormat = sampleFormat;
       }
       // The null check avoids overwriting an index obtained from the manifest with one obtained
       // from the stream. If the manifest defines an index then the stream shouldn't, but in cases
@@ -302,7 +303,7 @@ public class DashChunkSource implements ChunkSource {
       }
       // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
       // obtained from the stream, as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-      if (drmInitData == null && initializationChunk.hasDrmInitData()) {
+      if (drmInitData == null) {
         drmInitData = initializationChunk.getDrmInitData();
       }
     }

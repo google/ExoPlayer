@@ -69,30 +69,12 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   }
 
   /**
-   * True if a {@link Format} was parsed from the chunk. False otherwise.
-   * <p>
-   * Should be called after loading has completed.
-   */
-  public boolean hasSampleFormat() {
-    return sampleFormat != null;
-  }
-
-  /**
    * Returns a {@link Format} parsed from the chunk, or null.
    * <p>
    * Should be called after loading has completed.
    */
   public Format getSampleFormat() {
     return sampleFormat;
-  }
-
-  /**
-   * True if a {@link DrmInitData} was parsed from the chunk. False otherwise.
-   * <p>
-   * Should be called after loading has completed.
-   */
-  public boolean hasDrmInitData() {
-    return drmInitData != null;
   }
 
   /**

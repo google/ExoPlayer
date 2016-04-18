@@ -41,7 +41,6 @@ public class DefaultTrackOutput implements TrackOutput {
 
   // Accessed by both the loading and consuming threads.
   private volatile long largestParsedTimestampUs;
-  private volatile Format format;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
@@ -96,17 +95,10 @@ public class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * True if the output has received a format. False otherwise.
-   */
-  public boolean hasFormat() {
-    return format != null;
-  }
-
-  /**
    * The format most recently received by the output, or null if a format has yet to be received.
    */
   public Format getFormat() {
-    return format;
+    return rollingBuffer.getUpstreamFormat();
   }
 
   /**
@@ -234,25 +226,25 @@ public class DefaultTrackOutput implements TrackOutput {
 
   @Override
   public void format(Format format) {
-    this.format = format;
+    rollingBuffer.format(format);
   }
 
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    return rollingBuffer.appendData(input, length, allowEndOfInput);
+    return rollingBuffer.sampleData(input, length, allowEndOfInput);
   }
 
   @Override
   public void sampleData(ParsableByteArray buffer, int length) {
-    rollingBuffer.appendData(buffer, length);
+    rollingBuffer.sampleData(buffer, length);
   }
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
     timeUs += sampleOffsetUs;
     largestParsedTimestampUs = Math.max(largestParsedTimestampUs, timeUs);
-    rollingBuffer.commitSample(timeUs, flags, size, offset, encryptionKey);
+    rollingBuffer.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
   }
 
 }

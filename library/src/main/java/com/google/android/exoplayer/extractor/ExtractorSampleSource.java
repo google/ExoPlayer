@@ -640,7 +640,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private boolean haveFormatsForAllTracks() {
     for (int i = 0; i < sampleQueues.size(); i++) {
-      if (!sampleQueues.valueAt(i).hasFormat()) {
+      if (sampleQueues.valueAt(i).getFormat() == null) {
         return false;
       }
     }
