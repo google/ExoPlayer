@@ -109,14 +109,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
-  private boolean playerNeedsPrepare;
+  private boolean playerNeedsSource;
 
   private long playerPosition;
-
-  private Uri contentUri;
-  private int contentType;
-  private String contentId;
-  private String provider;
 
   // Activity lifecycle
 
@@ -173,6 +168,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (currentHandler != defaultCookieManager) {
       CookieHandler.setDefault(defaultCookieManager);
     }
+
+    configureSubtitleView();
   }
 
   @Override
@@ -186,28 +183,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onStart() {
     super.onStart();
     if (Util.SDK_INT > 23) {
-      onShown();
+      initializePlayer();
     }
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    if (Util.SDK_INT <= 23 || player == null) {
-      onShown();
-    }
-  }
-
-  private void onShown() {
-    Intent intent = getIntent();
-    contentUri = intent.getData();
-    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA,
-        inferContentType(contentUri, intent.getStringExtra(CONTENT_EXT_EXTRA)));
-    contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
-    provider = intent.getStringExtra(PROVIDER_EXTRA);
-    configureSubtitleView();
-    if (!maybeRequestPermission()) {
-      preparePlayer(true);
+    if ((Util.SDK_INT <= 23 || player == null)) {
+      initializePlayer();
     }
   }
 
@@ -215,7 +199,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onPause() {
     super.onPause();
     if (Util.SDK_INT <= 23) {
-      onHidden();
+      releasePlayer();
     }
   }
 
@@ -223,13 +207,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onStop() {
     super.onStop();
     if (Util.SDK_INT > 23) {
-      onHidden();
+      releasePlayer();
     }
-  }
-
-  private void onHidden() {
-    shutterView.setVisibility(View.VISIBLE);
-    releasePlayer();
   }
 
   // OnClickListener methods
@@ -237,7 +216,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onClick(View view) {
     if (view == retryButton) {
-      preparePlayer(true);
+      initializePlayer();
     }
   }
 
@@ -247,7 +226,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onRequestPermissionsResult(int requestCode, String[] permissions,
       int[] grantResults) {
     if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-      preparePlayer(true);
+      initializePlayer();
     } else {
       Toast.makeText(getApplicationContext(), R.string.storage_permission_denied,
           Toast.LENGTH_LONG).show();
@@ -261,11 +240,12 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
    * Checks whether it is necessary to ask for permission to read storage. If necessary, it also
    * requests permission.
    *
-   * @return true if a permission request is made. False if it is not necessary.
+   * @param uri A URI that may require {@link permission#READ_EXTERNAL_STORAGE} to play.
+   * @return True if a permission request is made. False if it is not necessary.
    */
   @TargetApi(23)
-  private boolean maybeRequestPermission() {
-    if (requiresPermission(contentUri)) {
+  private boolean maybeRequestPermission(Uri uri) {
+    if (requiresPermission(uri)) {
       requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
       return true;
     } else {
@@ -283,24 +263,24 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   // Internal methods
 
-  private SampleSource buildSource(DemoPlayer player) {
-    switch (contentType) {
+  private SampleSource buildSource(Uri uri, String id, String provider, int type) {
+    switch (type) {
       case Util.TYPE_SS:
-        return SourceBuilder.buildSmoothStreamingSource(player, dataSourceFactory,
-            contentUri.toString(), new SmoothStreamingTestMediaDrmCallback());
+        return SourceBuilder.buildSmoothStreamingSource(player, dataSourceFactory, uri,
+            new SmoothStreamingTestMediaDrmCallback());
       case Util.TYPE_DASH:
-        return SourceBuilder.buildDashSource(player, dataSourceFactory, contentUri.toString(),
-            new WidevineTestMediaDrmCallback(contentId, provider));
+        return SourceBuilder.buildDashSource(player, dataSourceFactory, uri,
+            new WidevineTestMediaDrmCallback(id, provider));
       case Util.TYPE_HLS:
-        return SourceBuilder.buildHlsSource(player, dataSourceFactory, contentUri.toString());
+        return SourceBuilder.buildHlsSource(player, dataSourceFactory, uri);
       case Util.TYPE_OTHER:
-        return SourceBuilder.buildExtractorSource(player, dataSourceFactory, contentUri);
+        return SourceBuilder.buildExtractorSource(player, dataSourceFactory, uri);
       default:
-        throw new IllegalStateException("Unsupported type: " + contentType);
+        throw new IllegalStateException("Unsupported type: " + type);
     }
   }
 
-  private void preparePlayer(boolean playWhenReady) {
+  private void initializePlayer() {
     if (player == null) {
       player = new DemoPlayer(this);
       player.addListener(this);
@@ -309,7 +289,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.seekTo(playerPosition);
       trackSelector = player.getTrackSelector();
       trackSelectionHelper = new TrackSelectionHelper(trackSelector);
-      playerNeedsPrepare = true;
+      playerNeedsSource = true;
       mediaController.setMediaPlayer(player.getPlayerControl());
       mediaController.setEnabled(true);
       eventLogger = new EventLogger();
@@ -317,20 +297,31 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.addListener(eventLogger);
       player.setInfoListener(eventLogger);
       player.setInternalErrorListener(eventLogger);
+      player.setSurface(surfaceView.getHolder().getSurface());
+      player.setPlayWhenReady(true);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
-    if (playerNeedsPrepare) {
-      player.setSource(buildSource(player));
-      playerNeedsPrepare = false;
+    if (playerNeedsSource) {
+      Intent intent = getIntent();
+      Uri uri = intent.getData();
+      if (maybeRequestPermission(uri)) {
+        // The player will be reinitialized if permission is granted.
+        return;
+      }
+      String id = intent.getStringExtra(CONTENT_ID_EXTRA);
+      String provider = intent.getStringExtra(PROVIDER_EXTRA);
+      int type = intent.getIntExtra(CONTENT_TYPE_EXTRA,
+          inferContentType(uri, intent.getStringExtra(CONTENT_EXT_EXTRA)));
+      player.setSource(buildSource(uri, id, provider, type));
+      playerNeedsSource = false;
       updateButtonVisibilities();
     }
-    player.setSurface(surfaceView.getHolder().getSurface());
-    player.setPlayWhenReady(playWhenReady);
   }
 
   private void releasePlayer() {
     if (player != null) {
+      shutterView.setVisibility(View.VISIBLE);
       debugViewHelper.stop();
       debugViewHelper = null;
       playerPosition = player.getCurrentPosition();
@@ -407,7 +398,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (errorString != null) {
       Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
-    playerNeedsPrepare = true;
+    playerNeedsSource = true;
     updateButtonVisibilities();
     showControls();
   }
@@ -423,7 +414,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // User controls
 
   private void updateButtonVisibilities() {
-    retryButton.setVisibility(playerNeedsPrepare ? View.VISIBLE : View.GONE);
+    retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
     videoButton.setVisibility(haveTracks(DemoPlayer.TYPE_VIDEO) ? View.VISIBLE : View.GONE);
     audioButton.setVisibility(haveTracks(DemoPlayer.TYPE_AUDIO) ? View.VISIBLE : View.GONE);
     textButton.setVisibility(haveTracks(DemoPlayer.TYPE_TEXT) ? View.VISIBLE : View.GONE);

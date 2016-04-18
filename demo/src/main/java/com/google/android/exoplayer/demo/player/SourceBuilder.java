@@ -43,6 +43,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -64,12 +65,12 @@ public class SourceBuilder {
   // TODO[REFACTOR]: Bring back DASH DRM support.
   // TODO[REFACTOR]: Bring back DASH UTC timing element support.
   public static SampleSource buildDashSource(DemoPlayer player, DataSourceFactory dataSourceFactory,
-      String url, MediaDrmCallback drmCallback) {
+      Uri uri, MediaDrmCallback drmCallback) {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     // TODO[REFACTOR]: This needs releasing.
-    ManifestFetcher<MediaPresentationDescription> manifestFetcher = new ManifestFetcher<>(
-        Uri.parse(url), manifestDataSource, parser);
+    ManifestFetcher<MediaPresentationDescription> manifestFetcher = new ManifestFetcher<>(uri,
+        manifestDataSource, parser);
 
     Handler mainHandler = player.getMainHandler();
     BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
@@ -103,11 +104,14 @@ public class SourceBuilder {
 
   // TODO[REFACTOR]: Bring back DRM support.
   public static SampleSource buildSmoothStreamingSource(DemoPlayer player,
-      DataSourceFactory dataSourceFactory, String url, MediaDrmCallback drmCallback) {
+      DataSourceFactory dataSourceFactory, Uri uri, MediaDrmCallback drmCallback) {
+    if (!Util.toLowerInvariant(uri.getLastPathSegment()).equals("manifest")) {
+      uri = Uri.withAppendedPath(uri, "Manifest");
+    }
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
     // TODO[REFACTOR]: This needs releasing.
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
-    ManifestFetcher<SmoothStreamingManifest> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
+    ManifestFetcher<SmoothStreamingManifest> manifestFetcher = new ManifestFetcher<>(uri,
         manifestDataSource, parser);
     Handler mainHandler = player.getMainHandler();
     BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
@@ -138,13 +142,13 @@ public class SourceBuilder {
     return new MultiSampleSource(videoSampleSource, audioSampleSource, textSampleSource);
   }
 
-  public static SampleSource buildHlsSource(DemoPlayer player,
-      DataSourceFactory dataSourceFactory, String url) {
+  public static SampleSource buildHlsSource(DemoPlayer player, DataSourceFactory dataSourceFactory,
+      Uri uri) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     // TODO[REFACTOR]: This needs releasing.
-    ManifestFetcher<HlsPlaylist> manifestFetcher = new ManifestFetcher<>(Uri.parse(url),
-        manifestDataSource, parser);
+    ManifestFetcher<HlsPlaylist> manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource,
+        parser);
 
     Handler mainHandler = player.getMainHandler();
     BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
