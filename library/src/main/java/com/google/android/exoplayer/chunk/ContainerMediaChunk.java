@@ -131,7 +131,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
         trackOutput.setSampleOffsetUs(sampleOffsetUs);
         extractorWrapper.init(this, trackOutput);
       }
-      // Load and parse the initialization data.
+      // Load and parse the sample data.
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
