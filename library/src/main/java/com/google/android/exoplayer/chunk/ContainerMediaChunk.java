@@ -56,16 +56,12 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    *     the data is known to define its own sample format.
    * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
    *     protected. May also be null if the data is known to define its own initialization data.
-   * @param isSampleFormatFinal True if {@code sampleFormat} and {@code drmInitData} are known to be
-   *     correct and final. False if the data may define its own sample format or initialization
-   *     data.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, Format sampleFormat, DrmInitData drmInitData,
-      boolean isSampleFormatFinal) {
+      ChunkExtractorWrapper extractorWrapper, Format sampleFormat, DrmInitData drmInitData) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
-        isSampleFormatFinal);
+        sampleFormat != null);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.sampleFormat = getAdjustedSampleFormat(sampleFormat, sampleOffsetUs);

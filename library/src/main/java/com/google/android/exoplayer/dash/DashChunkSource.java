@@ -405,11 +405,10 @@ public class DashChunkSource implements ChunkSource {
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, trackFormat,
           startTimeUs, endTimeUs, segmentNum, trackFormat, null);
     } else {
-      boolean isSampleFormatFinal = sampleFormat != null;
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, trackFormat, startTimeUs,
           endTimeUs, segmentNum, sampleOffsetUs, representationHolder.extractorWrapper,
-          sampleFormat, drmInitData, isSampleFormatFinal);
+          sampleFormat, drmInitData);
     }
   }
 
