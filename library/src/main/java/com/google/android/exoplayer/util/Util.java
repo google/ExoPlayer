@@ -802,7 +802,7 @@ public final class Util {
       return TYPE_OTHER;
     } else if (fileName.endsWith(".mpd")) {
       return TYPE_DASH;
-    } else if (fileName.endsWith(".ism")) {
+    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")) {
       return TYPE_SS;
     } else if (fileName.endsWith(".m3u8")) {
       return TYPE_HLS;
