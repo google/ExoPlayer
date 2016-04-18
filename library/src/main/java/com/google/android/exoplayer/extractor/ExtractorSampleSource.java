@@ -195,7 +195,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
-  private final SparseArray<InternalTrackOutput> sampleQueues;
+  private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final int minLoadableRetryCount;
   private final Uri uri;
   private final DataSource dataSource;
@@ -226,7 +226,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private ExtractingLoadable loadable;
   private IOException fatalException;
-  private boolean currentLoadExtractedSamples;
+  private int extractedSamplesCountAtStartOfLoad;
   private boolean loadingFinished;
 
   /**
@@ -474,7 +474,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    InternalTrackOutput sampleQueue = sampleQueues.valueAt(track);
+    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(track);
     if (pendingMediaFormat[track]) {
       formatHolder.format = sampleQueue.getFormat();
       formatHolder.drmInitData = drmInitData;
@@ -528,18 +528,19 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return Loader.DONT_RETRY;
     }
     configureRetry();
-    int retryAction = currentLoadExtractedSamples ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
-    currentLoadExtractedSamples = false;
-    return retryAction;
+    int extractedSamplesCount = getExtractedSamplesCount();
+    boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
+    extractedSamplesCountAtStartOfLoad = extractedSamplesCount;
+    return madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
   }
 
   // ExtractorOutput implementation.
 
   @Override
   public TrackOutput track(int id) {
-    InternalTrackOutput sampleQueue = sampleQueues.get(id);
+    DefaultTrackOutput sampleQueue = sampleQueues.get(id);
     if (sampleQueue == null) {
-      sampleQueue = new InternalTrackOutput(allocator);
+      sampleQueue = new DefaultTrackOutput(allocator);
       sampleQueues.put(id, sampleQueue);
     }
     return sampleQueue;
@@ -605,7 +606,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs));
       pendingResetPositionUs = C.UNSET_TIME_US;
     }
-    currentLoadExtractedSamples = false;
+    extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
     loader.startLoading(loadable, this);
   }
 
@@ -636,6 +637,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       // We're playing a seekable on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
     }
+  }
+
+  private int getExtractedSamplesCount() {
+    int extractedSamplesCount = 0;
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      extractedSamplesCount += sampleQueues.valueAt(i).getWriteIndex();
+    }
+    return extractedSamplesCount;
   }
 
   private boolean haveFormatsForAllTracks() {
@@ -708,24 +717,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
       return ExtractorSampleSource.this.readData(track, formatHolder, buffer);
-    }
-
-  }
-
-  /**
-   * Extension of {@link DefaultTrackOutput} that increments a shared counter of the total number
-   * of extracted samples.
-   */
-  private class InternalTrackOutput extends DefaultTrackOutput {
-
-    public InternalTrackOutput(Allocator allocator) {
-      super(allocator);
-    }
-
-    @Override
-    public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-      super.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
-      currentLoadExtractedSamples = true;
     }
 
   }
