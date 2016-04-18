@@ -47,6 +47,7 @@ import java.util.concurrent.LinkedBlockingDeque;
   private long totalBytesDropped;
 
   // Accessed only by the loading thread.
+  private long sampleOffsetUs;
   private long totalBytesWritten;
   private Allocation lastAllocation;
   private int lastAllocationOffset;
@@ -355,6 +356,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   // Called by the loading thread.
 
+  /**
+   * Sets an offset that will be added to the timestamps of subsequently queued samples.
+   *
+   * @param sampleOffsetUs The timestamp offset in microseconds.
+   */
+  public void setSampleOffsetUs(long sampleOffsetUs) {
+    this.sampleOffsetUs = sampleOffsetUs;
+  }
+
   @Override
   public void format(Format format) {
     upstreamFormat = format;
@@ -390,10 +400,10 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   @Override
-  public void sampleMetadata(long sampleTimeUs, int flags, int size, int offset,
-      byte[] encryptionKey) {
+  public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+    timeUs += sampleOffsetUs;
     long absoluteOffset = totalBytesWritten - size - offset;
-    infoQueue.commitSample(sampleTimeUs, flags, absoluteOffset, size, encryptionKey);
+    infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey);
   }
 
   /**

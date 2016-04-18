@@ -31,9 +31,6 @@ public class DefaultTrackOutput implements TrackOutput {
   private final RollingSampleBuffer rollingBuffer;
   private final DecoderInputBuffer sampleBuffer;
 
-  // Accessed only by the loading thread.
-  private long sampleOffsetUs;
-
   // Accessed only by the consuming thread.
   private boolean needKeyframe;
   private long lastReadTimeUs;
@@ -219,10 +216,8 @@ public class DefaultTrackOutput implements TrackOutput {
    * @param sampleOffsetUs The offset in microseconds.
    */
   public void setSampleOffsetUs(long sampleOffsetUs) {
-    this.sampleOffsetUs = sampleOffsetUs;
+    rollingBuffer.setSampleOffsetUs(sampleOffsetUs);
   }
-
-  // TrackOutput implementation. Called by the loading thread.
 
   @Override
   public void format(Format format) {
@@ -242,7 +237,6 @@ public class DefaultTrackOutput implements TrackOutput {
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-    timeUs += sampleOffsetUs;
     largestParsedTimestampUs = Math.max(largestParsedTimestampUs, timeUs);
     rollingBuffer.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
   }
