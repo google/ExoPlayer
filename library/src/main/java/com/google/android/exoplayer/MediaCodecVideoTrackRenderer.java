@@ -371,7 +371,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
     codec.configure(getFrameworkMediaFormat(format), surface, crypto, 0);
-    codec.setVideoScalingMode(videoScalingMode);
   }
 
   @Override
