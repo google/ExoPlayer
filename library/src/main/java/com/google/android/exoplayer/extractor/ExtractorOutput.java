@@ -27,7 +27,7 @@ public interface ExtractorOutput {
    * <p>
    * Returns a {@link TrackOutput} that will receive track level data belonging to the track.
    *
-   * @param trackId A track identifier.
+   * @param trackId A unique track identifier.
    * @return The {@link TrackOutput} that should receive track level data belonging to the track.
    */
   TrackOutput track(int trackId);

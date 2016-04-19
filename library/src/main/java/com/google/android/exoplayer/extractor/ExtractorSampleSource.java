@@ -35,7 +35,6 @@ import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.util.SparseArray;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -195,7 +194,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
-  private final SparseArray<RollingSampleBuffer> sampleQueues;
   private final int minLoadableRetryCount;
   private final Uri uri;
   private final DataSource dataSource;
@@ -210,6 +208,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private int enabledTrackCount;
+  private RollingSampleBuffer[] sampleQueues;
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
@@ -324,8 +323,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       }
     }
     extractorHolder = new ExtractorHolder(extractors, this);
-    sampleQueues = new SparseArray<>();
     pendingResetPositionUs = C.UNSET_TIME_US;
+    sampleQueues = new RollingSampleBuffer[0];
   }
 
   // SampleSource implementation.
@@ -336,14 +335,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return true;
     }
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
-      int trackCount = sampleQueues.size();
+      int trackCount = sampleQueues.length;
       TrackGroup[] trackArray = new TrackGroup[trackCount];
       trackEnabledStates = new boolean[trackCount];
       pendingResets = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
       durationUs = seekMap.getDurationUs();
       for (int i = 0; i < trackCount; i++) {
-        trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getUpstreamFormat());
+        trackArray[i] = new TrackGroup(sampleQueues[i].getUpstreamFormat());
       }
       tracks = new TrackGroupArray(trackArray);
       if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
@@ -426,9 +425,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return pendingResetPositionUs;
     } else {
       long largestQueuedTimestampUs = Long.MIN_VALUE;
-      for (int i = 0; i < sampleQueues.size(); i++) {
+      for (RollingSampleBuffer sampleQueue : sampleQueues) {
         largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
-            sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
+            sampleQueue.getLargestQueuedTimestampUs());
       }
       return largestQueuedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
           : largestQueuedTimestampUs;
@@ -450,7 +449,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   /* package */ boolean isReady(int track) {
     Assertions.checkState(trackEnabledStates[track]);
-    return !sampleQueues.valueAt(track).isEmpty();
+    return sampleQueues[track].isEmpty();
 
   }
 
@@ -474,7 +473,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    RollingSampleBuffer sampleQueue = sampleQueues.valueAt(track);
+    RollingSampleBuffer sampleQueue = sampleQueues[track];
     if (pendingMediaFormat[track]) {
       formatHolder.format = sampleQueue.getUpstreamFormat();
       formatHolder.drmInitData = drmInitData;
@@ -538,11 +537,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public TrackOutput track(int id) {
-    RollingSampleBuffer sampleQueue = sampleQueues.get(id);
-    if (sampleQueue == null) {
-      sampleQueue = new RollingSampleBuffer(allocator);
-      sampleQueues.put(id, sampleQueue);
-    }
+    sampleQueues = Arrays.copyOf(sampleQueues, sampleQueues.length + 1);
+    RollingSampleBuffer sampleQueue = new RollingSampleBuffer(allocator);
+    sampleQueues[sampleQueues.length - 1] = sampleQueue;
     return sampleQueue;
   }
 
@@ -565,14 +562,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private void seekToInternal(long positionUs) {
     // Treat all seeks into non-seekable media as being to t=0.
-    positionUs = !seekMap.isSeekable() ? 0 : positionUs;
+    positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
     Arrays.fill(pendingResets, true);
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
-    for (int i = 0; seekInsideBuffer && i < sampleQueues.size(); i++) {
-      seekInsideBuffer &= sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
+    for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
+      seekInsideBuffer &= sampleQueues[i].skipToKeyframeBefore(positionUs);
     }
     // If we failed to seek within the sample queues, we need to restart.
     if (!seekInsideBuffer) {
@@ -616,18 +613,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       // We don't know whether we're playing an on-demand or a live stream. For a live stream we
       // need to load from the start, as outlined below. Since we might be playing a live stream,
       // play it safe and load from the start.
-      for (int i = 0; i < sampleQueues.size(); i++) {
-        sampleQueues.valueAt(i).clear();
-      }
+      clearSampleQueues();
       loadable.setLoadPosition(0);
     } else if (!seekMap.isSeekable() && durationUs == C.UNSET_TIME_US) {
       // We're playing a non-seekable stream with unknown duration. Assume it's live, and
       // therefore that the data at the uri is a continuously shifting window of the latest
       // available media. For this case there's no way to continue loading from where a previous
       // load finished, so it's necessary to load from the start whenever commencing a new load.
-      for (int i = 0; i < sampleQueues.size(); i++) {
-        sampleQueues.valueAt(i).clear();
-      }
+      clearSampleQueues();
       loadable.setLoadPosition(0);
       // To avoid introducing a discontinuity, we shift the sample timestamps so that they will
       // continue from the current downstream position.
@@ -641,15 +634,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private int getExtractedSamplesCount() {
     int extractedSamplesCount = 0;
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      extractedSamplesCount += sampleQueues.valueAt(i).getWriteIndex();
+    for (RollingSampleBuffer sampleQueue : sampleQueues) {
+      extractedSamplesCount += sampleQueue.getWriteIndex();
     }
     return extractedSamplesCount;
   }
 
   private boolean haveFormatsForAllTracks() {
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
+    for (RollingSampleBuffer sampleQueue : sampleQueues) {
+      if (sampleQueue.getUpstreamFormat() == null) {
         return false;
       }
     }
@@ -659,17 +652,21 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private void discardSamplesForDisabledTracks() {
     for (int i = 0; i < trackEnabledStates.length; i++) {
       if (!trackEnabledStates[i]) {
-        sampleQueues.valueAt(i).skipAllSamples();
+        sampleQueues[i].skipAllSamples();
       }
     }
   }
 
   private void clearState() {
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      sampleQueues.valueAt(i).clear();
-    }
+    clearSampleQueues();
     loadable = null;
     fatalException = null;
+  }
+
+  private void clearSampleQueues() {
+    for (RollingSampleBuffer sampleQueue : sampleQueues) {
+      sampleQueue.clear();
+    }
   }
 
   private boolean isPendingReset() {
