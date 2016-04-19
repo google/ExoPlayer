@@ -50,11 +50,6 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
      */
     void drmInitData(DrmInitData drmInitData);
 
-    /**
-     * @see TrackOutput#format(Format)
-     */
-    void format(Format format);
-
   }
 
   private final Extractor extractor;
@@ -132,8 +127,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void format(Format format) {
-    // Redirect the format to the metadata output. The track output doesn't need it.
-    metadataOutput.format(format);
+    trackOutput.format(format);
   }
 
   @Override

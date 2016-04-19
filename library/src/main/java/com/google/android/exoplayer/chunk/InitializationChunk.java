@@ -87,15 +87,6 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   }
 
   /**
-   * True if a {@link SeekMap} was parsed from the chunk. False otherwise.
-   * <p>
-   * Should be called after loading has completed.
-   */
-  public boolean hasSeekMap() {
-    return seekMap != null;
-  }
-
-  /**
    * Returns a {@link SeekMap} parsed from the chunk, or null.
    * <p>
    * Should be called after loading has completed.
@@ -116,12 +107,12 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
     this.drmInitData = drmInitData;
   }
 
+  // TrackOutput implementation.
+
   @Override
   public void format(Format format) {
     this.sampleFormat = format;
   }
-
-  // TrackOutput implementation.
 
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)

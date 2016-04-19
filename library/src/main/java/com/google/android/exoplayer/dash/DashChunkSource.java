@@ -38,6 +38,7 @@ import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -296,10 +297,12 @@ public class DashChunkSource implements ChunkSource {
       // The null check avoids overwriting an index obtained from the manifest with one obtained
       // from the stream. If the manifest defines an index then the stream shouldn't, but in cases
       // where it does we should ignore it.
-      if (representationHolder.segmentIndex == null && initializationChunk.hasSeekMap()) {
-        representationHolder.segmentIndex = new DashWrappingSegmentIndex(
-            (ChunkIndex) initializationChunk.getSeekMap(),
-            initializationChunk.dataSpec.uri.toString());
+      if (representationHolder.segmentIndex == null) {
+        SeekMap seekMap = initializationChunk.getSeekMap();
+        if (seekMap != null) {
+          representationHolder.segmentIndex = new DashWrappingSegmentIndex((ChunkIndex) seekMap,
+              initializationChunk.dataSpec.uri.toString());
+        }
       }
       // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
       // obtained from the stream, as per DASH IF Interoperability Recommendations V3.0, 7.5.3.

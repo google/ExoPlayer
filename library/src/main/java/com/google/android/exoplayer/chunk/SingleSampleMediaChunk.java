@@ -19,8 +19,8 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Util;
@@ -53,7 +53,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger,
       Format format, long startTimeUs, long endTimeUs, int chunkIndex, Format sampleFormat,
       DrmInitData sampleDrmInitData) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, true);
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
     this.sampleFormat = sampleFormat;
     this.sampleDrmInitData = sampleDrmInitData;
   }
@@ -61,11 +61,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   @Override
   public long bytesLoaded() {
     return bytesLoaded;
-  }
-
-  @Override
-  public Format getSampleFormat() {
-    return sampleFormat;
   }
 
   @Override
@@ -96,7 +91,8 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
         length += bytesLoaded;
       }
       ExtractorInput extractorInput = new DefaultExtractorInput(dataSource, bytesLoaded, length);
-      TrackOutput trackOutput = getTrackOutput();
+      DefaultTrackOutput trackOutput = getTrackOutput();
+      trackOutput.formatWithOffset(sampleFormat, 0);
       // Load the sample data.
       int result = 0;
       while (result != C.RESULT_END_OF_INPUT) {

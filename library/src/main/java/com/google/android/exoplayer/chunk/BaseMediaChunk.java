@@ -28,13 +28,6 @@ import com.google.android.exoplayer.upstream.DataSpec;
  */
 public abstract class BaseMediaChunk extends MediaChunk {
 
-  /**
-   * Whether {@link #getSampleFormat()} and {@link #getDrmInitData()} can be called at any time to
-   * obtain the chunk's sample format and drm initialization data. If false, these methods are only
-   * guaranteed to return correct data after the first sample data has been output from the chunk.
-   */
-  public final boolean isSampleFormatFinal;
-
   private DefaultTrackOutput trackOutput;
   private int firstSampleIndex;
 
@@ -46,15 +39,10 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isSampleFormatFinal True if {@link #getSampleFormat()} and {@link #getDrmInitData()} can
-   *     be called at any time to obtain the sample format and drm initialization data. False if
-   *     these methods are only guaranteed to return correct data after the first sample data has
-   *     been output from the chunk.
    */
   public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isSampleFormatFinal) {
+      long startTimeUs, long endTimeUs, int chunkIndex) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
-    this.isSampleFormatFinal = isSampleFormatFinal;
   }
 
   /**
@@ -77,20 +65,7 @@ public abstract class BaseMediaChunk extends MediaChunk {
   }
 
   /**
-   * Gets the {@link Format} of the samples in the chunk.
-   * <p>
-   * See {@link #isSampleFormatFinal} for information about when this method is guaranteed to return
-   * correct data.
-   *
-   * @return The {@link Format} of the samples in the chunk.
-   */
-  public abstract Format getSampleFormat();
-
-  /**
    * Gets the {@link DrmInitData} corresponding to the chunk.
-   * <p>
-   * See {@link #isSampleFormatFinal} for information about when this method is guaranteed to return
-   * correct data.
    *
    * @return The {@link DrmInitData} corresponding to this chunk.
    */

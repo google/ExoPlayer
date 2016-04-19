@@ -137,10 +137,18 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
-   * Returns the current upstream format.
+   * Returns the current upstream {@link Format}.
    */
   public Format getUpstreamFormat() {
     return upstreamFormat;
+  }
+
+  /**
+   * Returns the current downstream {@link Format}.
+   */
+  public Format getDownstreamFormat() {
+    Format nextSampleFormat = infoQueue.peekFormat();
+    return nextSampleFormat != null ? nextSampleFormat : upstreamFormat;
   }
 
   /**
@@ -357,17 +365,22 @@ import java.util.concurrent.LinkedBlockingDeque;
   // Called by the loading thread.
 
   /**
-   * Sets an offset that will be added to the timestamps of subsequently queued samples.
+   * Like {@link #format(Format)}, but with an offset that will be added to the timestamps of
+   * samples subsequently queued to the buffer. The offset is also used to adjust
+   * {@link Format#subsampleOffsetUs} for both the {@link Format} passed and those subsequently
+   * passed to {@link #format(Format)}.
    *
+   * @param format The format.
    * @param sampleOffsetUs The timestamp offset in microseconds.
    */
-  public void setSampleOffsetUs(long sampleOffsetUs) {
+  public void formatWithOffset(Format format, long sampleOffsetUs) {
     this.sampleOffsetUs = sampleOffsetUs;
+    upstreamFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
   }
 
   @Override
   public void format(Format format) {
-    upstreamFormat = format;
+    upstreamFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
   }
 
   @Override
@@ -403,7 +416,7 @@ import java.util.concurrent.LinkedBlockingDeque;
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
     timeUs += sampleOffsetUs;
     long absoluteOffset = totalBytesWritten - size - offset;
-    infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey);
+    infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey, upstreamFormat);
   }
 
   /**
@@ -420,6 +433,23 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
+   * Adjusts a {@link Format} to incorporate a sample offset into {@link Format#subsampleOffsetUs}.
+   *
+   * @param format The {@link Format} to adjust.
+   * @param sampleOffsetUs The offset to apply.
+   * @return The adjusted {@link Format}.
+   */
+  private static Format getAdjustedSampleFormat(Format format, long sampleOffsetUs) {
+    if (format == null) {
+      return null;
+    }
+    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
+      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+    }
+    return format;
+  }
+
+  /**
    * Holds information about the samples in the rolling buffer.
    */
   private static final class InfoQueue {
@@ -433,6 +463,7 @@ import java.util.concurrent.LinkedBlockingDeque;
     private int[] flags;
     private long[] timesUs;
     private byte[][] encryptionKeys;
+    private Format[] formats;
 
     private int queueSize;
     private int absoluteReadIndex;
@@ -446,6 +477,7 @@ import java.util.concurrent.LinkedBlockingDeque;
       flags = new int[capacity];
       sizes = new int[capacity];
       encryptionKeys = new byte[capacity][];
+      formats = new Format[capacity];
     }
 
     // Called by the consuming thread, but only when there is no loading thread.
@@ -498,6 +530,16 @@ import java.util.concurrent.LinkedBlockingDeque;
      */
     public int getReadIndex() {
       return absoluteReadIndex;
+    }
+
+    /**
+     * Returns the {@link Format} of the next sample, or null of the queue is empty.
+     */
+    public synchronized Format peekFormat() {
+      if (queueSize == 0) {
+        return null;
+      }
+      return formats[relativeReadIndex];
     }
 
     /**
@@ -609,12 +651,13 @@ import java.util.concurrent.LinkedBlockingDeque;
     // Called by the loading thread.
 
     public synchronized void commitSample(long timeUs, int sampleFlags, long offset, int size,
-        byte[] encryptionKey) {
+        byte[] encryptionKey, Format format) {
       timesUs[relativeWriteIndex] = timeUs;
       offsets[relativeWriteIndex] = offset;
       sizes[relativeWriteIndex] = size;
       flags[relativeWriteIndex] = sampleFlags;
       encryptionKeys[relativeWriteIndex] = encryptionKey;
+      formats[relativeWriteIndex] = format;
       // Increment the write index.
       queueSize++;
       if (queueSize == capacity) {
@@ -625,23 +668,27 @@ import java.util.concurrent.LinkedBlockingDeque;
         int[] newFlags = new int[newCapacity];
         int[] newSizes = new int[newCapacity];
         byte[][] newEncryptionKeys = new byte[newCapacity][];
+        Format[] newFormats = new Format[newCapacity];
         int beforeWrap = capacity - relativeReadIndex;
         System.arraycopy(offsets, relativeReadIndex, newOffsets, 0, beforeWrap);
         System.arraycopy(timesUs, relativeReadIndex, newTimesUs, 0, beforeWrap);
         System.arraycopy(flags, relativeReadIndex, newFlags, 0, beforeWrap);
         System.arraycopy(sizes, relativeReadIndex, newSizes, 0, beforeWrap);
         System.arraycopy(encryptionKeys, relativeReadIndex, newEncryptionKeys, 0, beforeWrap);
+        System.arraycopy(formats, relativeReadIndex, newFormats, 0, beforeWrap);
         int afterWrap = relativeReadIndex;
         System.arraycopy(offsets, 0, newOffsets, beforeWrap, afterWrap);
         System.arraycopy(timesUs, 0, newTimesUs, beforeWrap, afterWrap);
         System.arraycopy(flags, 0, newFlags, beforeWrap, afterWrap);
         System.arraycopy(sizes, 0, newSizes, beforeWrap, afterWrap);
         System.arraycopy(encryptionKeys, 0, newEncryptionKeys, beforeWrap, afterWrap);
+        System.arraycopy(formats, 0, newFormats, beforeWrap, afterWrap);
         offsets = newOffsets;
         timesUs = newTimesUs;
         flags = newFlags;
         sizes = newSizes;
         encryptionKeys = newEncryptionKeys;
+        formats = newFormats;
         relativeReadIndex = 0;
         relativeWriteIndex = capacity;
         queueSize = capacity;

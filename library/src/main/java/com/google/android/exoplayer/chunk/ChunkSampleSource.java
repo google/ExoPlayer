@@ -300,14 +300,12 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       downstreamFormat = currentChunk.format;
     }
 
-    if (haveSamples || currentChunk.isSampleFormatFinal) {
-      Format sampleFormat = currentChunk.getSampleFormat();
-      if (!sampleFormat.equals(downstreamSampleFormat)) {
-        formatHolder.format = sampleFormat;
-        formatHolder.drmInitData = currentChunk.getDrmInitData();
-        downstreamSampleFormat = sampleFormat;
-        return FORMAT_READ;
-      }
+    Format sampleFormat = sampleQueue.getDownstreamFormat();
+    if (sampleFormat != null && !sampleFormat.equals(downstreamSampleFormat)) {
+      formatHolder.format = sampleFormat;
+      formatHolder.drmInitData = currentChunk.getDrmInitData();
+      downstreamSampleFormat = sampleFormat;
+      return FORMAT_READ;
     }
 
     if (!haveSamples) {

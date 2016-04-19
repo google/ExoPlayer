@@ -343,7 +343,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       pendingMediaFormat = new boolean[trackCount];
       durationUs = seekMap.getDurationUs();
       for (int i = 0; i < trackCount; i++) {
-        trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
+        trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getUpstreamFormat());
       }
       tracks = new TrackGroupArray(trackArray);
       if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
@@ -476,7 +476,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
     DefaultTrackOutput sampleQueue = sampleQueues.valueAt(track);
     if (pendingMediaFormat[track]) {
-      formatHolder.format = sampleQueue.getFormat();
+      formatHolder.format = sampleQueue.getUpstreamFormat();
       formatHolder.drmInitData = drmInitData;
       pendingMediaFormat[track] = false;
       return TrackStream.FORMAT_READ;
@@ -649,7 +649,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private boolean haveFormatsForAllTracks() {
     for (int i = 0; i < sampleQueues.size(); i++) {
-      if (sampleQueues.valueAt(i).getFormat() == null) {
+      if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
         return false;
       }
     }

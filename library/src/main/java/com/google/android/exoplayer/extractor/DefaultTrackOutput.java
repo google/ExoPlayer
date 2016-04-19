@@ -92,10 +92,17 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * The format most recently received by the output, or null if a format has yet to be received.
+   * Returns the current upstream {@link Format}.
    */
-  public Format getFormat() {
+  public Format getUpstreamFormat() {
     return rollingBuffer.getUpstreamFormat();
+  }
+
+  /**
+   * Returns the current downstream {@link Format}.
+   */
+  public Format getDownstreamFormat() {
+    return rollingBuffer.getDownstreamFormat();
   }
 
   /**
@@ -210,13 +217,16 @@ public final class DefaultTrackOutput implements TrackOutput {
   // Called by the loading thread.
 
   /**
-   * Sets an offset that will be added to the timestamps passed to
-   * {@link #sampleMetadata(long, int, int, int, byte[])}.
+   * Like {@link #format(Format)}, but with an offset that will be added to the timestamps of
+   * samples subsequently queued to the buffer. The offset is also used to adjust
+   * {@link Format#subsampleOffsetUs} for both the {@link Format} passed and those subsequently
+   * passed to {@link #format(Format)}.
    *
+   * @param format The format.
    * @param sampleOffsetUs The offset in microseconds.
    */
-  public void setSampleOffsetUs(long sampleOffsetUs) {
-    rollingBuffer.setSampleOffsetUs(sampleOffsetUs);
+  public void formatWithOffset(Format format, long sampleOffsetUs) {
+    rollingBuffer.formatWithOffset(format, sampleOffsetUs);
   }
 
   @Override

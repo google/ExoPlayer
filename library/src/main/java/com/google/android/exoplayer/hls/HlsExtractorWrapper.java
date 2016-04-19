@@ -44,7 +44,6 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final boolean shouldSpliceIn;
 
-  private Format[] sampleFormats;
   private Allocator allocator;
 
   private volatile boolean tracksBuilt;
@@ -81,15 +80,11 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   public boolean isPrepared() {
     if (!prepared && tracksBuilt) {
       for (int i = 0; i < sampleQueues.size(); i++) {
-        if (sampleQueues.valueAt(i).getFormat() == null) {
+        if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
           return false;
         }
       }
       prepared = true;
-      sampleFormats = new Format[sampleQueues.size()];
-      for (int i = 0; i < sampleFormats.length; i++) {
-        sampleFormats[i] = sampleQueues.valueAt(i).getFormat();
-      }
     }
     return prepared;
   }
@@ -173,7 +168,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    */
   public Format getSampleFormat(int track) {
     Assertions.checkState(isPrepared());
-    return sampleFormats[track];
+    return sampleQueues.valueAt(track).getUpstreamFormat();
   }
 
   /**

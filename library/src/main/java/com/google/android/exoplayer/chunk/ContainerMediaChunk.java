@@ -60,22 +60,16 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
       ChunkExtractorWrapper extractorWrapper, Format sampleFormat, DrmInitData drmInitData) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
-        sampleFormat != null);
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.sampleFormat = getAdjustedSampleFormat(sampleFormat, sampleOffsetUs);
+    this.sampleFormat = sampleFormat;
     this.drmInitData = drmInitData;
   }
 
   @Override
   public final long bytesLoaded() {
     return bytesLoaded;
-  }
-
-  @Override
-  public final Format getSampleFormat() {
-    return sampleFormat;
   }
 
   @Override
@@ -93,11 +87,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
   @Override
   public final void drmInitData(DrmInitData drmInitData) {
     this.drmInitData = drmInitData;
-  }
-
-  @Override
-  public final void format(Format format) {
-    this.sampleFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
   }
 
   // Loadable implementation.
@@ -123,7 +112,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
       if (bytesLoaded == 0) {
         // Set the target to ourselves.
         DefaultTrackOutput trackOutput = getTrackOutput();
-        trackOutput.setSampleOffsetUs(sampleOffsetUs);
+        trackOutput.formatWithOffset(sampleFormat, sampleOffsetUs);
         extractorWrapper.init(this, trackOutput);
       }
       // Load and parse the sample data.
@@ -138,18 +127,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
     } finally {
       dataSource.close();
     }
-  }
-
-  // Private methods.
-
-  private static Format getAdjustedSampleFormat(Format format, long sampleOffsetUs) {
-    if (format == null) {
-      return null;
-    }
-    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
-      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
-    }
-    return format;
   }
 
 }
