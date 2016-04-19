@@ -18,6 +18,7 @@ package com.google.android.exoplayer.ext.opus;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
+import com.google.android.exoplayer.util.extensions.SimpleOutputBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,7 +28,7 @@ import java.util.List;
  * JNI wrapper for the libopus Opus decoder.
  */
 /* package */ final class OpusDecoder extends
-    SimpleDecoder<DecoderInputBuffer, OpusOutputBuffer, OpusDecoderException> {
+    SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
 
   /**
    * Whether the underlying libopus library is available.
@@ -77,7 +78,7 @@ import java.util.List;
    */
   public OpusDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
       List<byte[]> initializationData) throws OpusDecoderException {
-    super(new DecoderInputBuffer[numInputBuffers], new OpusOutputBuffer[numOutputBuffers]);
+    super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     byte[] headerBytes = initializationData.get(0);
     if (headerBytes.length < 19) {
       throw new OpusDecoderException("Header size is too small.");
@@ -139,18 +140,13 @@ import java.util.List;
   }
 
   @Override
-  public OpusOutputBuffer createOutputBuffer() {
-    return new OpusOutputBuffer(this);
-  }
-
-  @Override
-  protected void releaseOutputBuffer(OpusOutputBuffer buffer) {
-    super.releaseOutputBuffer(buffer);
+  public SimpleOutputBuffer createOutputBuffer() {
+    return new SimpleOutputBuffer(this);
   }
 
   @Override
   public OpusDecoderException decode(DecoderInputBuffer inputBuffer,
-      OpusOutputBuffer outputBuffer, boolean reset) {
+      SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to

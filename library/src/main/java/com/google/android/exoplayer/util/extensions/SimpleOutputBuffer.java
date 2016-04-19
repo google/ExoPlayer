@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.ext.flac;
-
-import com.google.android.exoplayer.util.extensions.OutputBuffer;
+package com.google.android.exoplayer.util.extensions;
 
 import java.nio.ByteBuffer;
 
 /**
- * Buffer for {@link FlacDecoder} output.
+ * Buffer for {@link SimpleDecoder} output.
  */
-public final class FlacOutputBuffer extends OutputBuffer {
+public class SimpleOutputBuffer extends OutputBuffer {
 
-  private final FlacDecoder owner;
+  private final SimpleDecoder<?, SimpleOutputBuffer, ?> owner;
 
   public ByteBuffer data;
 
-  /* package */ FlacOutputBuffer(FlacDecoder owner) {
+  public SimpleOutputBuffer(SimpleDecoder<?, SimpleOutputBuffer, ?> owner) {
     this.owner = owner;
   }
 
-  /* package */ void init(int size) {
+  public void init(int size) {
     if (data == null || data.capacity() < size) {
       data = ByteBuffer.allocateDirect(size);
     }

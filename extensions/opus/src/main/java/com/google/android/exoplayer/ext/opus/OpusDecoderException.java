@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
+import com.google.android.exoplayer.util.extensions.AudioDecoderException;
+
 /**
  * Thrown when an Opus decoder error occurs.
  */
-public final class OpusDecoderException extends Exception {
+public final class OpusDecoderException extends AudioDecoderException {
 
   /* package */ OpusDecoderException(String message) {
     super(message);

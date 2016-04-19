@@ -59,13 +59,10 @@ public final class VpxOutputBuffer extends OutputBuffer {
   /* package */ void initForRgbFrame(int width, int height) {
     this.width = width;
     this.height = height;
+    this.yuvPlanes = null;
+
     int minimumRgbSize = width * height * 2;
-    if (data == null || data.capacity() < minimumRgbSize) {
-      data = ByteBuffer.allocateDirect(minimumRgbSize);
-      yuvPlanes = null;
-    }
-    data.position(0);
-    data.limit(minimumRgbSize);
+    initData(minimumRgbSize);
   }
 
   /**
@@ -76,13 +73,12 @@ public final class VpxOutputBuffer extends OutputBuffer {
     this.width = width;
     this.height = height;
     this.colorspace = colorspace;
+
     int yLength = yStride * height;
     int uvLength = uvStride * ((height + 1) / 2);
     int minimumYuvSize = yLength + (uvLength * 2);
-    if (data == null || data.capacity() < minimumYuvSize) {
-      data = ByteBuffer.allocateDirect(minimumYuvSize);
-    }
-    data.limit(minimumYuvSize);
+    initData(minimumYuvSize);
+
     if (yuvPlanes == null) {
       yuvPlanes = new ByteBuffer[3];
     }
@@ -102,6 +98,14 @@ public final class VpxOutputBuffer extends OutputBuffer {
     yuvStrides[0] = yStride;
     yuvStrides[1] = uvStride;
     yuvStrides[2] = uvStride;
+  }
+
+  private void initData(int size) {
+    if (data == null || data.capacity() < size) {
+      data = ByteBuffer.allocateDirect(size);
+    }
+    data.position(0);
+    data.limit(size);
   }
 
 }

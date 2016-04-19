@@ -17,6 +17,7 @@ package com.google.android.exoplayer.ext.flac;
 
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
+import com.google.android.exoplayer.util.extensions.SimpleOutputBuffer;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -25,21 +26,23 @@ import java.util.List;
  * Flac decoder.
  */
 /* package */ final class FlacDecoder extends
-    SimpleDecoder<DecoderInputBuffer, FlacOutputBuffer, FlacDecoderException> {
+    SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FlacDecoderException> {
 
   private final int maxOutputBufferSize;
   private final FlacJni decoder;
+
   /**
    * Creates a Flac decoder.
    *
    * @param numInputBuffers The number of input buffers.
    * @param numOutputBuffers The number of output buffers.
-   * @param initializationData Codec-specific initialization data.
+   * @param initializationData Codec-specific initialization data. It should contain only one entry
+   *    which is the flac file header.
    * @throws FlacDecoderException Thrown if an exception occurs when initializing the decoder.
    */
   public FlacDecoder(int numInputBuffers, int numOutputBuffers, List<byte[]> initializationData)
       throws FlacDecoderException {
-    super(new DecoderInputBuffer[numInputBuffers], new FlacOutputBuffer[numOutputBuffers]);
+    super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (initializationData.size() != 1) {
       throw new FlacDecoderException("Wrong number of initialization data");
     }
@@ -63,18 +66,13 @@ import java.util.List;
   }
 
   @Override
-  public FlacOutputBuffer createOutputBuffer() {
-    return new FlacOutputBuffer(this);
-  }
-
-  @Override
-  protected void releaseOutputBuffer(FlacOutputBuffer buffer) {
-    super.releaseOutputBuffer(buffer);
+  public SimpleOutputBuffer createOutputBuffer() {
+    return new SimpleOutputBuffer(this);
   }
 
   @Override
   public FlacDecoderException decode(DecoderInputBuffer inputBuffer,
-      FlacOutputBuffer outputBuffer, boolean reset) {
+      SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       decoder.flush();
     }

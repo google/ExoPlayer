@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.ext.flac;
-
-import com.google.android.exoplayer.util.extensions.AudioDecoderException;
+package com.google.android.exoplayer.util.extensions;
 
 /**
- * Thrown when an Flac decoder error occurs.
+ * Thrown when a decoder error occurs.
  */
-public final class FlacDecoderException extends AudioDecoderException {
+public class AudioDecoderException extends Exception {
 
-  /* package */ FlacDecoderException(String message) {
-    super(message);
+  public AudioDecoderException(String detailMessage) {
+    super(detailMessage);
   }
 
 }
