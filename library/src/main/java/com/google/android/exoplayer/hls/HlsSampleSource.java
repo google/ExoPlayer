@@ -29,6 +29,7 @@ import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.extractor.RollingSampleBuffer;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -59,7 +60,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private final Loader loader;
   private final HlsChunkSource chunkSource;
-  private final LinkedList<HlsExtractorWrapper> extractors;
+  private final LinkedList<TsChunk> tsChunks = new LinkedList<TsChunk>();
+  private final HlsOutput output;
   private final int bufferSizeContribution;
   private final ChunkHolder nextChunkHolder;
   private final EventDispatcher eventDispatcher;
@@ -69,6 +71,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private boolean seenFirstTrackSelection;
   private int enabledTrackCount;
 
+  private RollingSampleBuffer[] trackOutputs;
   private Format downstreamFormat;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
@@ -112,7 +115,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     this.pendingResetPositionUs = C.UNSET_TIME_US;
     loader = new Loader("Loader:HLS", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
-    extractors = new LinkedList<>();
+    output = new HlsOutput(loadControl.getAllocator());
     nextChunkHolder = new ChunkHolder();
   }
 
@@ -131,20 +134,11 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       prepared = true;
       return true;
     }
-    if (!extractors.isEmpty()) {
-      while (true) {
-        // We're not prepared, but we might have loaded what we need.
-        HlsExtractorWrapper extractor = extractors.getFirst();
-        if (extractor.isPrepared()) {
-          buildTracks(extractor);
-          prepared = true;
-          return true;
-        } else if (extractors.size() > 1) {
-          extractors.removeFirst().clear();
-        } else {
-          break;
-        }
-      }
+    if (output.prepare()) {
+      trackOutputs = output.getTrackOutputs();
+      buildTracks();
+      prepared = true;
+      return true;
     }
     // We're not prepared.
     maybeThrowError();
@@ -223,9 +217,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   @Override
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
-    if (!extractors.isEmpty()) {
-      discardSamplesForDisabledTracks(getCurrentExtractor());
-    }
+    discardSamplesForDisabledTracks();
     if (!loader.isLoading()) {
       maybeStartLoading();
     }
@@ -238,20 +230,17 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     } else if (loadingFinished) {
       return C.END_OF_SOURCE_US;
     } else {
-      long bufferedPositionUs = extractors.getLast().getLargestParsedTimestampUs();
-      if (extractors.size() > 1) {
-        // When adapting from one format to the next, the penultimate extractor may have the largest
-        // parsed timestamp (e.g. if the last extractor hasn't parsed any timestamps yet).
-        bufferedPositionUs = Math.max(bufferedPositionUs,
-            extractors.get(extractors.size() - 2).getLargestParsedTimestampUs());
-      }
+      long bufferedPositionUs = downstreamPositionUs;
       if (previousTsLoadable != null) {
         // Buffered position should be at least as large as the end time of the previously loaded
         // chunk.
         bufferedPositionUs = Math.max(previousTsLoadable.endTimeUs, bufferedPositionUs);
       }
-      return bufferedPositionUs == Long.MIN_VALUE ? downstreamPositionUs
-          : bufferedPositionUs;
+      for (RollingSampleBuffer trackOutput : trackOutputs) {
+        bufferedPositionUs = Math.max(bufferedPositionUs,
+            trackOutput.getLargestQueuedTimestampUs());
+      }
+      return bufferedPositionUs;
     }
   }
 
@@ -276,19 +265,10 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (loadingFinished) {
       return true;
     }
-    if (isPendingReset() || extractors.isEmpty()) {
+    if (isPendingReset()) {
       return false;
     }
-    for (int extractorIndex = 0; extractorIndex < extractors.size(); extractorIndex++) {
-      HlsExtractorWrapper extractor = extractors.get(extractorIndex);
-      if (!extractor.isPrepared()) {
-        break;
-      }
-      if (extractor.hasSamples(group)) {
-        return true;
-      }
-    }
-    return false;
+    return !trackOutputs[group].isEmpty();
   }
 
   /* package */ void maybeThrowError() throws IOException {
@@ -309,50 +289,38 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return TrackStream.NOTHING_READ;
     }
 
-    HlsExtractorWrapper extractor = getCurrentExtractor();
-    if (!extractor.isPrepared()) {
+    TsChunk currentChunk = tsChunks.getFirst();
+    Format currentFormat = currentChunk.format;
+    if (downstreamFormat == null || !downstreamFormat.equals(currentFormat)) {
+      eventDispatcher.downstreamFormatChanged(currentFormat, currentChunk.trigger,
+          currentChunk.startTimeUs);
+      downstreamFormat = currentFormat;
+    }
+
+    RollingSampleBuffer sampleQueue = trackOutputs[group];
+    if (sampleQueue.isEmpty()) {
+      if (loadingFinished) {
+        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        return TrackStream.BUFFER_READ;
+      }
       return TrackStream.NOTHING_READ;
     }
 
-    if (downstreamFormat == null || !downstreamFormat.equals(extractor.format)) {
-      // Notify a change in the downstream format.
-      eventDispatcher.downstreamFormatChanged(extractor.format, extractor.trigger,
-          extractor.startTimeUs);
-      downstreamFormat = extractor.format;
-    }
-
-    if (extractors.size() > 1) {
-      // If there's more than one extractor, attempt to configure a seamless splice from the
-      // current one to the next one.
-      extractor.configureSpliceTo(extractors.get(1));
-    }
-
-    int extractorIndex = 0;
-    while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(group)) {
-      // We're finished reading from the extractor for this particular track, so advance to the
-      // next one for the current read.
-      extractor = extractors.get(++extractorIndex);
-      if (!extractor.isPrepared()) {
-        return TrackStream.NOTHING_READ;
-      }
-    }
-
-    Format sampleFormat = extractor.getSampleFormat(group);
-    if (sampleFormat != null && !sampleFormat.equals(downstreamSampleFormats[group])) {
+    Format sampleFormat = sampleQueue.getDownstreamFormat();
+    if (!sampleFormat.equals(downstreamSampleFormats[group])) {
       formatHolder.format = sampleFormat;
       downstreamSampleFormats[group] = sampleFormat;
       return TrackStream.FORMAT_READ;
     }
 
-    if (extractor.getSample(group, buffer)) {
-      if (buffer.timeUs < lastSeekPositionUs) {
+    if (sampleQueue.readSample(buffer)) {
+      long sampleTimeUs = buffer.timeUs;
+      while (tsChunks.size() > 1 && tsChunks.get(1).startTimeUs <= sampleTimeUs) {
+        tsChunks.removeFirst();
+      }
+      if (sampleTimeUs < lastSeekPositionUs) {
         buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
-      return TrackStream.BUFFER_READ;
-    }
-
-    if (loadingFinished) {
-      buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
       return TrackStream.BUFFER_READ;
     }
 
@@ -441,17 +409,15 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
    * effect of selecting an extractor track, leaving the selected track on the chunk source
    * unchanged.</li>
    * </ul>
-   *
-   * @param extractor The prepared extractor.
    */
-  private void buildTracks(HlsExtractorWrapper extractor) {
+  private void buildTracks() {
     // Iterate through the extractor tracks to discover the "primary" track type, and the index
     // of the single track of this type.
     int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
     int primaryExtractorTrackIndex = -1;
-    int extractorTrackCount = extractor.getTrackCount();
+    int extractorTrackCount = trackOutputs.length;
     for (int i = 0; i < extractorTrackCount; i++) {
-      String sampleMimeType = extractor.getSampleFormat(i).sampleMimeType;
+      String sampleMimeType = trackOutputs[i].getUpstreamFormat().sampleMimeType;
       int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = PRIMARY_TYPE_VIDEO;
@@ -484,7 +450,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     // Construct the set of exposed track groups.
     TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];
     for (int i = 0; i < extractorTrackCount; i++) {
-      Format sampleFormat = extractor.getSampleFormat(i);
+      Format sampleFormat = trackOutputs[i].getUpstreamFormat();
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
@@ -550,47 +516,15 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     restartFrom(positionUs);
   }
 
-  /**
-   * Gets the current extractor from which samples should be read.
-   * <p>
-   * Calling this method discards extractors without any samples from the front of the queue. The
-   * last extractor is retained even if it doesn't have any samples.
-   * <p>
-   * This method must not be called unless {@link #extractors} is non-empty.
-   *
-   * @return The current extractor from which samples should be read. Guaranteed to be non-null.
-   */
-  private HlsExtractorWrapper getCurrentExtractor() {
-    HlsExtractorWrapper extractor = extractors.getFirst();
-    while (extractors.size() > 1 && !haveSamplesForEnabledTracks(extractor)) {
-      // We're finished reading from the extractor for all tracks, and so can discard it.
-      extractors.removeFirst().clear();
-      extractor = extractors.getFirst();
-    }
-    return extractor;
-  }
-
-  private void discardSamplesForDisabledTracks(HlsExtractorWrapper extractor) {
-    if (!extractor.isPrepared()) {
+  private void discardSamplesForDisabledTracks() {
+    if (!output.prepare()) {
       return;
     }
     for (int i = 0; i < groupEnabledStates.length; i++) {
       if (!groupEnabledStates[i]) {
-        extractor.discardSamplesForTrack(i);
+        trackOutputs[i].skipAllSamples();
       }
     }
-  }
-
-  private boolean haveSamplesForEnabledTracks(HlsExtractorWrapper extractor) {
-    if (!extractor.isPrepared()) {
-      return false;
-    }
-    for (int i = 0; i < groupEnabledStates.length; i++) {
-      if (groupEnabledStates[i] && extractor.hasSamples(i)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void restartFrom(long positionUs) {
@@ -605,10 +539,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void clearState() {
-    for (int i = 0; i < extractors.size(); i++) {
-      extractors.get(i).clear();
-    }
-    extractors.clear();
+    tsChunks.clear();
+    output.clear();
     clearCurrentLoadable();
     previousTsLoadable = null;
   }
@@ -651,11 +583,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       if (isPendingReset()) {
         pendingResetPositionUs = C.UNSET_TIME_US;
       }
-      HlsExtractorWrapper extractorWrapper = tsChunk.extractorWrapper;
-      if (extractors.isEmpty() || extractors.getLast() != extractorWrapper) {
-        extractorWrapper.init(loadControl.getAllocator());
-        extractors.addLast(extractorWrapper);
-      }
+      tsChunk.init(output);
+      tsChunks.addLast(tsChunk);
       eventDispatcher.loadStarted(tsChunk.dataSpec.length, tsChunk.type, tsChunk.trigger,
           tsChunk.format, tsChunk.startTimeUs, tsChunk.endTimeUs);
       currentTsLoadable = tsChunk;

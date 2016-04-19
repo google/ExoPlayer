@@ -46,11 +46,13 @@ public final class RollingSampleBuffer implements TrackOutput {
   // Accessed only by the consuming thread.
   private long totalBytesDropped;
 
-  // Accessed only by the loading thread.
+  // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
   private long sampleOffsetUs;
   private long totalBytesWritten;
   private Allocation lastAllocation;
   private int lastAllocationOffset;
+  private boolean needKeyframe;
+  private boolean pendingSplice;
 
   // Accessed by both the loading and consuming threads.
   private volatile Format upstreamFormat;
@@ -66,6 +68,7 @@ public final class RollingSampleBuffer implements TrackOutput {
     extrasHolder = new BufferExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     lastAllocationOffset = allocationLength;
+    needKeyframe = true;
   }
 
   // Called by the consuming thread, but only when there is no loading thread.
@@ -82,6 +85,15 @@ public final class RollingSampleBuffer implements TrackOutput {
     totalBytesWritten = 0;
     lastAllocation = null;
     lastAllocationOffset = allocationLength;
+    needKeyframe = true;
+  }
+
+  /**
+   * Indicates that samples subsequently queued to the buffer should be spliced into those already
+   * queued.
+   */
+  public void splice() {
+    pendingSplice = true;
   }
 
   /**
@@ -173,27 +185,6 @@ public final class RollingSampleBuffer implements TrackOutput {
   }
 
   /**
-   * Fills {@code buffer} with information about the current sample, but does not write its data.
-   * <p>
-   * Populates {@link DecoderInputBuffer#size}, {@link DecoderInputBuffer#timeUs} and the buffer
-   * flags.
-   *
-   * @param buffer The buffer into which the current sample information should be written.
-   * @return True if the buffer was filled. False if there is no current sample.
-   */
-  public boolean peekSample(DecoderInputBuffer buffer) {
-    return infoQueue.peekSample(buffer, extrasHolder);
-  }
-
-  /**
-   * Skips the current sample.
-   */
-  public void skipSample() {
-    long nextOffset = infoQueue.moveToNextSample();
-    dropDownstreamTo(nextOffset);
-  }
-
-  /**
    * Skips all currently buffered samples.
    */
   public void skipAllSamples() {
@@ -227,7 +218,7 @@ public final class RollingSampleBuffer implements TrackOutput {
    */
   public boolean readSample(DecoderInputBuffer buffer) {
     // Write the sample information into the buffer and extrasHolder.
-    boolean haveSample = infoQueue.peekSample(buffer, extrasHolder);
+    boolean haveSample = infoQueue.readSample(buffer, extrasHolder);
     if (!haveSample) {
       return false;
     }
@@ -240,8 +231,7 @@ public final class RollingSampleBuffer implements TrackOutput {
     buffer.ensureSpaceForWrite(buffer.size);
     readData(extrasHolder.offset, buffer.data, buffer.size);
     // Advance the read head.
-    long nextOffset = infoQueue.moveToNextSample();
-    dropDownstreamTo(nextOffset);
+    dropDownstreamTo(extrasHolder.nextOffset);
     return true;
   }
 
@@ -396,7 +386,7 @@ public final class RollingSampleBuffer implements TrackOutput {
    */
   public void formatWithOffset(Format format, long sampleOffsetUs) {
     this.sampleOffsetUs = sampleOffsetUs;
-    upstreamFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
+    format(format);
   }
 
   @Override
@@ -435,6 +425,22 @@ public final class RollingSampleBuffer implements TrackOutput {
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+    if (pendingSplice) {
+      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !infoQueue.attemptSplice(timeUs)) {
+        return;
+      }
+      // TODO - We should be able to actually remove the data from the rolling buffer after a splice
+      // succeeds, but doing so is a little bit tricky; it requires moving data written after the
+      // last committed sample.
+      pendingSplice = false;
+    }
+    if (needKeyframe) {
+      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
+        // TODO - As above, although this case is probably less worthwhile.
+        return;
+      }
+      needKeyframe = false;
+    }
     timeUs += sampleOffsetUs;
     long absoluteOffset = totalBytesWritten - size - offset;
     infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey, upstreamFormat);
@@ -601,7 +607,8 @@ public final class RollingSampleBuffer implements TrackOutput {
     /**
      * Fills {@code buffer} with information about the current sample, but does not write its data.
      * The absolute position of the sample's data in the rolling buffer is stored in
-     * {@code extrasHolder}.
+     * {@code extrasHolder}, along with an encryption id if present, and the absolute position of
+     * the first byte that may still be required after the current sample has been read.
      * <p>
      * Populates {@link DecoderInputBuffer#size}, {@link DecoderInputBuffer#timeUs}, the buffer
      * flags and {@code extrasHolder}.
@@ -610,7 +617,7 @@ public final class RollingSampleBuffer implements TrackOutput {
      * @param extrasHolder The holder into which extra sample information should be written.
      * @return True if the buffer and extras were filled. False if there is no current sample.
      */
-    public synchronized boolean peekSample(DecoderInputBuffer buffer,
+    public synchronized boolean readSample(DecoderInputBuffer buffer,
         BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
         return false;
@@ -620,26 +627,19 @@ public final class RollingSampleBuffer implements TrackOutput {
       buffer.setFlags(flags[relativeReadIndex]);
       extrasHolder.offset = offsets[relativeReadIndex];
       extrasHolder.encryptionKeyId = encryptionKeys[relativeReadIndex];
-      return true;
-    }
 
-    /**
-     * Advances the read index to the next sample.
-     *
-     * @return The absolute position of the first byte in the rolling buffer that may still be
-     *     required after advancing the index. Data prior to this position can be dropped.
-     */
-    public synchronized long moveToNextSample() {
+      largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, buffer.timeUs);
       queueSize--;
-      largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, timesUs[relativeReadIndex]);
-      int lastReadIndex = relativeReadIndex++;
+      relativeReadIndex++;
       absoluteReadIndex++;
       if (relativeReadIndex == capacity) {
         // Wrap around.
         relativeReadIndex = 0;
       }
-      return queueSize > 0 ? offsets[relativeReadIndex]
-          : (sizes[lastReadIndex] + offsets[lastReadIndex]);
+
+      extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
+          : extrasHolder.offset + buffer.size;
+      return true;
     }
 
     /**
@@ -760,6 +760,26 @@ public final class RollingSampleBuffer implements TrackOutput {
       }
     }
 
+    /**
+     * Attempts to discard samples from the tail of the queue to allow samples starting from the
+     * specified timestamp to be spliced in.
+     *
+     * @param timeUs The timestamp at which the splice occurs.
+     * @return Whether the splice was successful.
+     */
+    public synchronized boolean attemptSplice(long timeUs) {
+      if (largestDequeuedTimestampUs >= timeUs) {
+        return false;
+      }
+      int retainCount = queueSize;
+      while (retainCount > 0
+          && timesUs[(relativeReadIndex + retainCount - 1) % capacity] >= timeUs) {
+        retainCount--;
+      }
+      discardUpstreamSamples(absoluteReadIndex + retainCount);
+      return true;
+    }
+
   }
 
   /**
@@ -768,6 +788,7 @@ public final class RollingSampleBuffer implements TrackOutput {
   private static final class BufferExtrasHolder {
 
     public long offset;
+    public long nextOffset;
     public byte[] encryptionKeyId;
 
   }

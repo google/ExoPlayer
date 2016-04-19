@@ -37,11 +37,13 @@ public final class TsChunk extends MediaChunk {
   public final int discontinuitySequenceNumber;
 
   /**
-   * The wrapped extractor into which this chunk is being consumed.
+   * The extractor into which this chunk is being consumed.
    */
-  public final HlsExtractorWrapper extractorWrapper;
+  public final Extractor extractor;
 
   private final boolean isEncrypted;
+  private final boolean extractorNeedsInit;
+  private final boolean shouldSpliceIn;
 
   private int bytesLoaded;
   private volatile boolean loadCanceled;
@@ -53,21 +55,43 @@ public final class TsChunk extends MediaChunk {
    * @param format The format of the stream to which this chunk belongs.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param chunkIndex The index of the chunk.
-   * @param extractorWrapper A wrapped extractor to parse samples from the data.
+   * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
+   * @param extractor The extractor to parse samples from the data.
+   * @param extractorNeedsInit Whether the extractor needs initializing with the target
+   *     {@link HlsOutput}.
+   * @param shouldSpliceIn Whether the samples parsed from this chunk should be spliced into any
+   *     samples already queued to the {@link HlsOutput}.
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
   public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, int discontinuitySequenceNumber,
-      HlsExtractorWrapper extractorWrapper, byte[] encryptionKey, byte[] encryptionIv) {
+      Extractor extractor, boolean extractorNeedsInit, boolean shouldSpliceIn,
+      byte[] encryptionKey, byte[] encryptionIv) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, trigger, format,
         startTimeUs, endTimeUs, chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
-    this.extractorWrapper = extractorWrapper;
+    this.extractor = extractor;
+    this.extractorNeedsInit = extractorNeedsInit;
+    this.shouldSpliceIn = shouldSpliceIn;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+  }
+
+  /**
+   * Initializes the chunk for loading, setting the {@link HlsOutput} that will receive samples as
+   * they are loaded.
+   *
+   * @param output The output that will receive the loaded samples.
+   */
+  public void init(HlsOutput output) {
+    if (shouldSpliceIn) {
+      output.splice();
+    }
+    if (extractorNeedsInit) {
+      extractor.init(output);
+    }
   }
 
   @Override
@@ -102,7 +126,6 @@ public final class TsChunk extends MediaChunk {
       loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
       skipLoadedBytes = false;
     }
-
     try {
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
@@ -112,7 +135,7 @@ public final class TsChunk extends MediaChunk {
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractorWrapper.read(input);
+          result = extractor.read(input, null);
         }
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);

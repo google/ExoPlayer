@@ -399,19 +399,16 @@ public class HlsChunkSource {
     Format format = variants[variantIndex].format;
 
     // Configure the extractor that will read the chunk.
-    HlsExtractorWrapper extractorWrapper;
+    Extractor extractor;
+    boolean extractorNeedsInit = true;
     String lastPathSegment = chunkUri.getLastPathSegment();
     if (lastPathSegment.endsWith(AAC_FILE_EXTENSION)) {
       // TODO: Inject a timestamp adjuster and use it along with ID3 PRIV tag values with owner
       // identifier com.apple.streaming.transportStreamTimestamp. This may also apply to the MP3
       // case below.
-      Extractor extractor = new AdtsExtractor(startTimeUs);
-      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariant);
+      extractor = new AdtsExtractor(startTimeUs);
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
-      Extractor extractor = new Mp3Extractor(startTimeUs);
-      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariant);
+      extractor = new Mp3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
       PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
@@ -422,9 +419,7 @@ public class HlsChunkSource {
         // a discontinuity sequence greater than the one that this source is trying to start at.
         return;
       }
-      Extractor extractor = new WebvttExtractor(format.language, timestampAdjuster);
-      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariant);
+      extractor = new WebvttExtractor(format.language, timestampAdjuster);
     } else if (previous == null
         || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || format != previous.format) {
@@ -448,17 +443,16 @@ public class HlsChunkSource {
           workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_H264_STREAM;
         }
       }
-      Extractor extractor = new TsExtractor(timestampAdjuster, workaroundFlags);
-      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariant);
+      extractor = new TsExtractor(timestampAdjuster, workaroundFlags);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
-      extractorWrapper = previous.extractorWrapper;
+      extractor = previous.extractor;
+      extractorNeedsInit = false;
     }
 
     out.chunk = new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-        chunkMediaSequence, segment.discontinuitySequenceNumber, extractorWrapper, encryptionKey,
-        encryptionIv);
+        chunkMediaSequence, segment.discontinuitySequenceNumber, extractor, extractorNeedsInit,
+        switchingVariant, encryptionKey, encryptionIv);
   }
 
   /**
@@ -584,15 +578,15 @@ public class HlsChunkSource {
 
   private int getNextVariantIndex(TsChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
-    long bufferedDurationUs;
-    if (previous != null) {
-      // Use start time of the previous chunk rather than its end time because switching format will
-      // require downloading overlapping segments.
-      bufferedDurationUs = Math.max(0, previous.startTimeUs - playbackPositionUs);
-    } else {
-      bufferedDurationUs = 0;
-    }
     if (enabledVariants.length > 1) {
+      long bufferedDurationUs;
+      if (previous != null) {
+        // Use start time of the previous chunk rather than its end time because switching format
+        // will require downloading overlapping segments.
+        bufferedDurationUs = Math.max(0, previous.startTimeUs - playbackPositionUs);
+      } else {
+        bufferedDurationUs = 0;
+      }
       adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, enabledVariantBlacklistFlags,
           evaluation);
     } else {
