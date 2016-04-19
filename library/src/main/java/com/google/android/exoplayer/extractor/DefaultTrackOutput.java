@@ -36,9 +36,6 @@ public final class DefaultTrackOutput implements TrackOutput {
   private long lastReadTimeUs;
   private long spliceOutTimeUs;
 
-  // Accessed by both the loading and consuming threads.
-  private volatile long largestParsedTimestampUs;
-
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    */
@@ -48,7 +45,6 @@ public final class DefaultTrackOutput implements TrackOutput {
     needKeyframe = true;
     lastReadTimeUs = Long.MIN_VALUE;
     spliceOutTimeUs = Long.MIN_VALUE;
-    largestParsedTimestampUs = Long.MIN_VALUE;
   }
 
   // Called by the consuming thread, but only when there is no loading thread.
@@ -61,35 +57,9 @@ public final class DefaultTrackOutput implements TrackOutput {
     needKeyframe = true;
     lastReadTimeUs = Long.MIN_VALUE;
     spliceOutTimeUs = Long.MIN_VALUE;
-    largestParsedTimestampUs = Long.MIN_VALUE;
-  }
-
-  /**
-   * Returns the current absolute write index.
-   */
-  public int getWriteIndex() {
-    return rollingBuffer.getWriteIndex();
-  }
-
-  /**
-   * Discards samples from the write side of the queue.
-   *
-   * @param discardFromIndex The absolute index of the first sample to be discarded.
-   */
-  public void discardUpstreamSamples(int discardFromIndex) {
-    rollingBuffer.discardUpstreamSamples(discardFromIndex);
-    largestParsedTimestampUs = rollingBuffer.peekSample(sampleBuffer) ? sampleBuffer.timeUs
-        : Long.MIN_VALUE;
   }
 
   // Called by the consuming thread.
-
-  /**
-   * Returns the current absolute read index.
-   */
-  public int getReadIndex() {
-    return rollingBuffer.getReadIndex();
-  }
 
   /**
    * Returns the current upstream {@link Format}.
@@ -99,18 +69,11 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Returns the current downstream {@link Format}.
-   */
-  public Format getDownstreamFormat() {
-    return rollingBuffer.getDownstreamFormat();
-  }
-
-  /**
    * The largest timestamp of any sample received by the output, or {@link Long#MIN_VALUE} if a
    * sample has yet to be received.
    */
   public long getLargestParsedTimestampUs() {
-    return largestParsedTimestampUs;
+    return rollingBuffer.getLargestQueuedTimestampUs();
   }
 
   /**
@@ -146,16 +109,6 @@ public final class DefaultTrackOutput implements TrackOutput {
    */
   public void skipAllSamples() {
     rollingBuffer.skipAllSamples();
-  }
-
-  /**
-   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
-   *
-   * @param timeUs The seek time.
-   * @return True if the skip was successful. False otherwise.
-   */
-  public boolean skipToKeyframeBefore(long timeUs) {
-    return rollingBuffer.skipToKeyframeBefore(timeUs);
   }
 
   /**
@@ -216,19 +169,6 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   // Called by the loading thread.
 
-  /**
-   * Like {@link #format(Format)}, but with an offset that will be added to the timestamps of
-   * samples subsequently queued to the buffer. The offset is also used to adjust
-   * {@link Format#subsampleOffsetUs} for both the {@link Format} passed and those subsequently
-   * passed to {@link #format(Format)}.
-   *
-   * @param format The format.
-   * @param sampleOffsetUs The offset in microseconds.
-   */
-  public void formatWithOffset(Format format, long sampleOffsetUs) {
-    rollingBuffer.formatWithOffset(format, sampleOffsetUs);
-  }
-
   @Override
   public void format(Format format) {
     rollingBuffer.format(format);
@@ -247,7 +187,6 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, timeUs);
     rollingBuffer.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
   }
 

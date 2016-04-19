@@ -31,7 +31,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * A rolling buffer of sample data and corresponding sample information.
  */
-/* package */ final class RollingSampleBuffer implements TrackOutput {
+public final class RollingSampleBuffer implements TrackOutput {
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
@@ -130,6 +130,13 @@ import java.util.concurrent.LinkedBlockingDeque;
   // Called by the consuming thread.
 
   /**
+   * Returns whether the buffer is empty.
+   */
+  public boolean isEmpty() {
+    return infoQueue.isEmpty();
+  }
+
+  /**
    * Returns the current absolute read index.
    */
   public int getReadIndex() {
@@ -149,6 +156,20 @@ import java.util.concurrent.LinkedBlockingDeque;
   public Format getDownstreamFormat() {
     Format nextSampleFormat = infoQueue.peekFormat();
     return nextSampleFormat != null ? nextSampleFormat : upstreamFormat;
+  }
+
+  /**
+   * Returns the largest sample timestamp that has been queued since the last {@link #clear()}.
+   * <p>
+   * Samples that were discarded by calling {@link #discardUpstreamSamples(int)} are not
+   * considered as having been queued. Samples that were dequeued from the front of the queue are
+   * considered as having been queued.
+   *
+     * @return The largest sample timestamp that has been queued, or {@link Long#MIN_VALUE} if no
+     *     samples have been queued.
+   */
+  public long getLargestQueuedTimestampUs() {
+    return infoQueue.getLargestQueuedTimestampUs();
   }
 
   /**
@@ -470,6 +491,9 @@ import java.util.concurrent.LinkedBlockingDeque;
     private int relativeReadIndex;
     private int relativeWriteIndex;
 
+    private long largestDequeuedTimestampUs;
+    private long largestQueuedTimestampUs;
+
     public InfoQueue() {
       capacity = SAMPLE_CAPACITY_INCREMENT;
       offsets = new long[capacity];
@@ -478,6 +502,8 @@ import java.util.concurrent.LinkedBlockingDeque;
       sizes = new int[capacity];
       encryptionKeys = new byte[capacity][];
       formats = new Format[capacity];
+      largestDequeuedTimestampUs = Long.MIN_VALUE;
+      largestQueuedTimestampUs = Long.MIN_VALUE;
     }
 
     // Called by the consuming thread, but only when there is no loading thread.
@@ -490,6 +516,8 @@ import java.util.concurrent.LinkedBlockingDeque;
       relativeReadIndex = 0;
       relativeWriteIndex = 0;
       queueSize = 0;
+      largestDequeuedTimestampUs = Long.MIN_VALUE;
+      largestQueuedTimestampUs = Long.MIN_VALUE;
     }
 
     /**
@@ -520,6 +548,16 @@ import java.util.concurrent.LinkedBlockingDeque;
 
       queueSize -= discardCount;
       relativeWriteIndex = (relativeWriteIndex + capacity - discardCount) % capacity;
+      // Update the largest queued timestamp, assuming that the timestamps prior to a keyframe are
+      // always less than the timestamp of the keyframe itself, and of subsequent frames.
+      largestQueuedTimestampUs = Long.MIN_VALUE;
+      for (int i = queueSize - 1; i >= 0; i--) {
+        int sampleIndex = (relativeReadIndex + i) % capacity;
+        largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timesUs[sampleIndex]);
+        if ((flags[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
+          break;
+        }
+      }
       return offsets[relativeWriteIndex];
     }
 
@@ -532,6 +570,10 @@ import java.util.concurrent.LinkedBlockingDeque;
       return absoluteReadIndex;
     }
 
+    public synchronized boolean isEmpty() {
+      return queueSize == 0;
+    }
+
     /**
      * Returns the {@link Format} of the next sample, or null of the queue is empty.
      */
@@ -540,6 +582,20 @@ import java.util.concurrent.LinkedBlockingDeque;
         return null;
       }
       return formats[relativeReadIndex];
+    }
+
+    /**
+     * Returns the largest sample timestamp that has been queued since the last {@link #clear()}.
+     * <p>
+     * Samples that were discarded by calling {@link #discardUpstreamSamples(int)} are not
+     * considered as having been queued. Samples that were dequeued from the front of the queue are
+     * considered as having been queued.
+     *
+     * @return The largest sample timestamp that has been queued, or {@link Long#MIN_VALUE} if no
+     *     samples have been queued.
+     */
+    public synchronized long getLargestQueuedTimestampUs() {
+      return Math.max(largestDequeuedTimestampUs, largestQueuedTimestampUs);
     }
 
     /**
@@ -575,6 +631,7 @@ import java.util.concurrent.LinkedBlockingDeque;
      */
     public synchronized long moveToNextSample() {
       queueSize--;
+      largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, timesUs[relativeReadIndex]);
       int lastReadIndex = relativeReadIndex++;
       absoluteReadIndex++;
       if (relativeReadIndex == capacity) {
@@ -658,6 +715,7 @@ import java.util.concurrent.LinkedBlockingDeque;
       flags[relativeWriteIndex] = sampleFlags;
       encryptionKeys[relativeWriteIndex] = encryptionKey;
       formats[relativeWriteIndex] = format;
+      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
       // Increment the write index.
       queueSize++;
       if (queueSize == capacity) {

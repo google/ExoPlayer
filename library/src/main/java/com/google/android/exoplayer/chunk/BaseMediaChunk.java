@@ -17,18 +17,18 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.extractor.DefaultTrackOutput;
+import com.google.android.exoplayer.extractor.RollingSampleBuffer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
 /**
  * A base implementation of {@link MediaChunk}, for chunks that contain a single track.
  * <p>
- * Loaded samples are output to a {@link DefaultTrackOutput}.
+ * Loaded samples are output to a {@link RollingSampleBuffer}.
  */
 public abstract class BaseMediaChunk extends MediaChunk {
 
-  private DefaultTrackOutput trackOutput;
+  private RollingSampleBuffer trackOutput;
   private int firstSampleIndex;
 
   /**
@@ -46,19 +46,19 @@ public abstract class BaseMediaChunk extends MediaChunk {
   }
 
   /**
-   * Initializes the chunk for loading, setting the {@link DefaultTrackOutput} that will receive
+   * Initializes the chunk for loading, setting the {@link RollingSampleBuffer} that will receive
    * samples as they are loaded.
    *
    * @param trackOutput The output that will receive the loaded samples.
    */
-  public void init(DefaultTrackOutput trackOutput) {
+  public void init(RollingSampleBuffer trackOutput) {
     this.trackOutput = trackOutput;
     this.firstSampleIndex = trackOutput.getWriteIndex();
   }
 
   /**
    * Returns the index of the first sample in the output that was passed to
-   * {@link #init(DefaultTrackOutput)} that will originate from this chunk.
+   * {@link #init(RollingSampleBuffer)} that will originate from this chunk.
    */
   public final int getFirstSampleIndex() {
     return firstSampleIndex;
@@ -72,9 +72,9 @@ public abstract class BaseMediaChunk extends MediaChunk {
   public abstract DrmInitData getDrmInitData();
 
   /**
-   * Returns the track output most recently passed to {@link #init(DefaultTrackOutput)}.
+   * Returns the track output most recently passed to {@link #init(RollingSampleBuffer)}.
    */
-  protected final DefaultTrackOutput getTrackOutput() {
+  protected final RollingSampleBuffer getTrackOutput() {
     return trackOutput;
   }
 

@@ -195,7 +195,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
-  private final SparseArray<DefaultTrackOutput> sampleQueues;
+  private final SparseArray<RollingSampleBuffer> sampleQueues;
   private final int minLoadableRetryCount;
   private final Uri uri;
   private final DataSource dataSource;
@@ -425,13 +425,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      long largestParsedTimestampUs = Long.MIN_VALUE;
+      long largestQueuedTimestampUs = Long.MIN_VALUE;
       for (int i = 0; i < sampleQueues.size(); i++) {
-        largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
-            sampleQueues.valueAt(i).getLargestParsedTimestampUs());
+        largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
+            sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
       }
-      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
-          : largestParsedTimestampUs;
+      return largestQueuedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
+          : largestQueuedTimestampUs;
     }
   }
 
@@ -474,7 +474,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(track);
+    RollingSampleBuffer sampleQueue = sampleQueues.valueAt(track);
     if (pendingMediaFormat[track]) {
       formatHolder.format = sampleQueue.getUpstreamFormat();
       formatHolder.drmInitData = drmInitData;
@@ -482,7 +482,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.FORMAT_READ;
     }
 
-    if (sampleQueue.getSample(buffer)) {
+    if (sampleQueue.readSample(buffer)) {
       if (buffer.timeUs < lastSeekPositionUs) {
         buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
@@ -538,9 +538,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public TrackOutput track(int id) {
-    DefaultTrackOutput sampleQueue = sampleQueues.get(id);
+    RollingSampleBuffer sampleQueue = sampleQueues.get(id);
     if (sampleQueue == null) {
-      sampleQueue = new DefaultTrackOutput(allocator);
+      sampleQueue = new RollingSampleBuffer(allocator);
       sampleQueues.put(id, sampleQueue);
     }
     return sampleQueue;
