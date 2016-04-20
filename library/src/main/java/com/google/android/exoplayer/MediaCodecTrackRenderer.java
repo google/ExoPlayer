@@ -964,7 +964,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    *     propagation incorrectly on the host device. False otherwise.
    */
   private static boolean codecNeedsEosPropagationWorkaround(String name) {
-    return Util.SDK_INT <= 17 && "OMX.rk.video_decoder.avc".equals(name);
+    return Util.SDK_INT <= 17 && ("OMX.rk.video_decoder.avc".equals(name)
+        || "OMX.allwinner.video.decoder.avc".equals(name));
   }
 
   /**
