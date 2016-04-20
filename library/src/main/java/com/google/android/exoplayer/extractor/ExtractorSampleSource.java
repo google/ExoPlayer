@@ -52,7 +52,7 @@ import java.util.List;
  * <li>MP4, including M4A ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
  * <li>fMP4 ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
  * <li>Matroska and WebM ({@link com.google.android.exoplayer.extractor.mkv.MatroskaExtractor})</li>
- * <li>Ogg Vorbis ({@link com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor}</li>
+ * <li>Ogg Vorbis/FLAC ({@link com.google.android.exoplayer.extractor.ogg.OggExtractor}</li>
  * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
  * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
  * <li>MPEG TS ({@link com.google.android.exoplayer.extractor.ts.TsExtractor})</li>
