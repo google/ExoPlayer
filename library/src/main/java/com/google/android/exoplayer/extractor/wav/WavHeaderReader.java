@@ -52,8 +52,8 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(16);
 
     // Attempt to read the RIFF chunk.
-    ChunkHeader riffChunkHeader = ChunkHeader.peek(input, scratch);
-    if (riffChunkHeader.id != Util.getIntegerCodeForString("RIFF")) {
+    ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
+    if (chunkHeader.id != Util.getIntegerCodeForString("RIFF")) {
       return null;
     }
 
@@ -65,13 +65,17 @@ import java.io.IOException;
       return null;
     }
 
-    // Attempt to read the format chunk.
-    ChunkHeader formatChunkHeader = ChunkHeader.peek(input, scratch);
-    if (formatChunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
-      throw new ParserException(
-          "Second chunk in RIFF WAV should be format; got: " + formatChunkHeader.id);
+    // If a bext chunk is present, skip it. Otherwise we expect a format chunk.
+    chunkHeader = ChunkHeader.peek(input, scratch);
+    if (chunkHeader.id == Util.getIntegerCodeForString("bext")) {
+      input.advancePeekPosition((int) chunkHeader.size);
+      chunkHeader = ChunkHeader.peek(input, scratch);
     }
-    Assertions.checkState(formatChunkHeader.size >= 16);
+
+    if (chunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
+      throw new ParserException("Expected format chunk; found: " + chunkHeader.id);
+    }
+    Assertions.checkState(chunkHeader.size >= 16);
 
     input.peekFully(scratch.data, 0, 16);
     scratch.setPosition(0);
@@ -101,7 +105,7 @@ import java.io.IOException;
     }
 
     // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
-    input.advancePeekPosition((int) formatChunkHeader.size - 16);
+    input.advancePeekPosition((int) chunkHeader.size - 16);
 
     return new WavHeader(
         numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample);
