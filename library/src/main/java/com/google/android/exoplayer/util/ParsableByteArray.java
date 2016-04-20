@@ -328,6 +328,11 @@ public final class ParsableByteArray {
     return result;
   }
 
+  /** Reads the next eight bytes as a 64-bit floating point value. */
+  public double readDouble() {
+    return Double.longBitsToDouble(readLong());
+  }
+
   /**
    * Reads the next {@code length} bytes as UTF-8 characters.
    *

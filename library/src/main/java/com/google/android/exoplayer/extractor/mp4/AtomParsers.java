@@ -569,7 +569,8 @@ import java.util.List;
           || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl
-          || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb) {
+          || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb
+          || childAtomType == Atom.TYPE_lpcm || childAtomType == Atom.TYPE_sowt) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, isQuickTime, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
@@ -827,16 +828,29 @@ import java.util.List;
       parent.skipBytes(16);
     }
 
-    int channelCount = parent.readUnsignedShort();
-    int sampleSize = parent.readUnsignedShort();
-    parent.skipBytes(4);
-    int sampleRate = parent.readUnsignedFixedPoint1616();
+    int channelCount;
+    int sampleRate;
 
-    if (quickTimeSoundDescriptionVersion > 0) {
-      parent.skipBytes(16);
-      if (quickTimeSoundDescriptionVersion == 2) {
-        parent.skipBytes(20);
+    if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
+      channelCount = parent.readUnsignedShort();
+      parent.skipBytes(6);  // sampleSize, compressionId, packetSize.
+      sampleRate = parent.readUnsignedFixedPoint1616();
+
+      if (quickTimeSoundDescriptionVersion == 1) {
+        parent.skipBytes(16);
       }
+    } else if (quickTimeSoundDescriptionVersion == 2) {
+      parent.skipBytes(16);  // always[3,16,Minus2,0,65536], sizeOfStructOnly
+
+      sampleRate = (int) Math.round(parent.readDouble());
+      channelCount = parent.readUnsignedIntToInt();
+
+      // Skip always7F000000, sampleSize, formatSpecificFlags, constBytesPerAudioPacket,
+      // constLPCMFramesPerAudioPacket.
+      parent.skipBytes(20);
+    } else {
+      // Unsupported version.
+      return;
     }
 
     // If the atom type determines a MIME type, set it immediately.
@@ -855,6 +869,8 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AMR_NB;
     } else if (atomType == Atom.TYPE_sawb) {
       mimeType = MimeTypes.AUDIO_AMR_WB;
+    } else if (atomType == Atom.TYPE_lpcm || atomType == Atom.TYPE_sowt) {
+      mimeType = MimeTypes.AUDIO_RAW;
     }
 
     byte[] initializationData = null;
@@ -914,7 +930,7 @@ import java.util.List;
     }
 
     out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-        Format.NO_VALUE, sampleSize, channelCount, sampleRate,
+        Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
   }
