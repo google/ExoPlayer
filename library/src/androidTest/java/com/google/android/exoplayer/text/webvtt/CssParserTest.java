@@ -178,6 +178,36 @@ public final class CssParserTest extends InstrumentationTestCase {
     assertEquals(CssParser.parseNextToken(input, builder), null);
   }
 
+  public void testStyleScoreSystem() {
+    WebvttCssStyle style = new WebvttCssStyle();
+    // Universal selector.
+    assertEquals(1, style.getSpecificityScore(null, null, new String[0], null));
+    // Class match without tag match.
+    style.setTargetClasses(new String[] { "class1", "class2"});
+    assertEquals(8, style.getSpecificityScore(null, null,
+        new String[] { "class1", "class2", "class3" }, null));
+    // Class and tag match
+    style.setTargetTagName("b");
+    assertEquals(10, style.getSpecificityScore(null, "b",
+        new String[] { "class1", "class2", "class3" }, null));
+    // Class insufficiency.
+    assertEquals(0, style.getSpecificityScore(null, "b", new String[] { "class1", "class" }, null));
+    // Voice, classes and tag match.
+    style.setTargetVoice("Manuel Cráneo");
+    assertEquals(14, style.getSpecificityScore(null, "b",
+        new String[] { "class1", "class2", "class3" }, "Manuel Cráneo"));
+    // Voice mismatch.
+    assertEquals(0, style.getSpecificityScore(null, "b",
+        new String[] { "class1", "class2", "class3" }, "Manuel Craneo"));
+    // Id, voice, classes and tag match.
+    style.setTargetId("id");
+    assertEquals(0x40000000 + 14, style.getSpecificityScore("id", "b",
+        new String[] { "class1", "class2", "class3" }, "Manuel Cráneo"));
+    // Id mismatch.
+    assertEquals(0, style.getSpecificityScore("id1", "b",
+        new String[] { "class1", "class2", "class3" }, null));
+  }
+
   // Utility methods.
 
   private void assertSkipsToEndOfSkip(String expectedLine, String s) {

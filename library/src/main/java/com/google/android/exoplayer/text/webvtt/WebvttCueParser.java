@@ -211,10 +211,10 @@ import java.util.regex.Pattern;
       }
     }
     // apply unclosed tags
+    applyStyleToText(spannedText, styleMap.get(UNIVERSAL_CUE_ID), 0, spannedText.length());
     while (!startTagStack.isEmpty()) {
       applySpansForTag(startTagStack.pop(), spannedText, styleMap);
     }
-    applyStyleToText(spannedText, styleMap.get(UNIVERSAL_CUE_ID), 0, spannedText.length());
     applyStyleToText(spannedText, styleMap.get(CUE_ID_PREFIX + id), 0, spannedText.length());
     builder.setText(spannedText);
   }
