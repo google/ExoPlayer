@@ -34,7 +34,7 @@ import com.google.android.exoplayer.testutil.TestUtil;
         0x4F, 0x67, 0x67, 0x53, // Oggs.
         0x00, // Stream revision.
         headerType,
-        (int) (granule) & 0xFF,
+        (int) (granule >> 0) & 0xFF,
         (int) (granule >> 8) & 0xFF,
         (int) (granule >> 16) & 0xFF,
         (int) (granule >> 24) & 0xFF,
@@ -46,7 +46,7 @@ import com.google.android.exoplayer.testutil.TestUtil;
         0x10,
         0x00,
         0x00, // MSB of data serial number.
-        (pageSequenceCounter) & 0xFF,
+        (pageSequenceCounter >> 0) & 0xFF,
         (pageSequenceCounter >> 8) & 0xFF,
         (pageSequenceCounter >> 16) & 0xFF,
         (pageSequenceCounter >> 24) & 0xFF,

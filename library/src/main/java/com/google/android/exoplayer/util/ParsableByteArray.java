@@ -391,4 +391,38 @@ public final class ParsableByteArray {
     return line;
   }
 
+  /**
+   * Reads a long value encoded by UTF-8 encoding
+   * @throws NumberFormatException if there is a problem with decoding
+   * @return Decoded long value
+   */
+  public long readUtf8EncodedLong() {
+    int length = 0;
+    long value = data[position];
+    // find the high most 0 bit
+    for (int j = 7; j >= 0; j--) {
+      if ((value & (1 << j)) == 0) {
+        if (j < 6) {
+          value &= (1 << j) - 1;
+          length = 7 - j;
+        } else if (j == 7) {
+          length = 1;
+        }
+        break;
+      }
+    }
+    if (length == 0) {
+      throw new NumberFormatException("Invalid UTF-8 sequence first byte: " + value);
+    }
+    for (int i = 1; i < length; i++) {
+      int x = data[position + i];
+      if ((x & 0xC0) != 0x80) { // if the high most 0 bit not 7th
+        throw new NumberFormatException("Invalid UTF-8 sequence continuation byte: " + value);
+      }
+      value = (value << 6) | (x & 0x3F);
+    }
+    position += length;
+    return value;
+  }
+
 }

@@ -174,7 +174,7 @@ import java.util.Arrays;
     bitArray.skipBits(headerData.getPosition() * 8);
 
     for (int i = 0; i < numberOfBooks; i++) {
-      skipBook(bitArray);
+      readBook(bitArray);
     }
 
     int timeCount = bitArray.readBits(6) + 1;
@@ -336,7 +336,7 @@ import java.util.Arrays;
     }
   }
 
-  private static void skipBook(VorbisBitArray bitArray) throws ParserException {
+  private static CodeBook readBook(VorbisBitArray bitArray) throws ParserException {
     if (bitArray.readBits(24) != 0x564342) {
       throw new ParserException("expected code book to start with [0x56, 0x43, 0x42] at "
           + bitArray.getPosition());
@@ -393,6 +393,7 @@ import java.util.Arrays;
       // discard (no decoding required yet)
       bitArray.skipBits((int) (lookupValuesCount * valueBits));
     }
+    return new CodeBook(dimensions, entries, lengthMap, lookupType, isOrdered);
   }
 
   /**
@@ -400,6 +401,25 @@ import java.util.Arrays;
    */
   private static long mapType1QuantValues(long entries, long dimension) {
     return (long) Math.floor(Math.pow(entries, 1.d / dimension));
+  }
+
+  public static final class CodeBook {
+
+    public final int dimensions;
+    public final int entries;
+    public final long[] lengthMap;
+    public final int lookupType;
+    public final boolean isOrdered;
+
+    public CodeBook(int dimensions, int entries, long[] lengthMap, int lookupType,
+        boolean isOrdered) {
+      this.dimensions = dimensions;
+      this.entries = entries;
+      this.lengthMap = lengthMap;
+      this.lookupType = lookupType;
+      this.isOrdered = isOrdered;
+    }
+
   }
 
   public static final class CommentHeader {

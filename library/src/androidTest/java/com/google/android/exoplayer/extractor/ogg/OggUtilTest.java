@@ -32,7 +32,7 @@ import java.util.Random;
  */
 public final class OggUtilTest extends TestCase {
 
-  private final Random random = new Random(0);
+  private Random random = new Random(0);
 
   public void testReadBits() throws Exception {
     assertEquals(0, OggUtil.readBits((byte) 0x00, 2, 2));
