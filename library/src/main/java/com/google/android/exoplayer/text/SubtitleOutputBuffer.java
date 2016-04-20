@@ -52,11 +52,6 @@ import java.util.List;
   }
 
   @Override
-  public long getLastEventTime() {
-    return subtitle.getLastEventTime() + offsetUs;
-  }
-
-  @Override
   public int getNextEventTimeIndex(long timeUs) {
     return subtitle.getNextEventTimeIndex(timeUs - offsetUs);
   }

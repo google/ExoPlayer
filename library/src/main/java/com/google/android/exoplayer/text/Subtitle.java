@@ -28,7 +28,7 @@ public interface Subtitle {
    * @param timeUs The time in microseconds.
    * @return The index of the next event, or -1 if there are no events after the specified time.
    */
-  public int getNextEventTimeIndex(long timeUs);
+  int getNextEventTimeIndex(long timeUs);
 
   /**
    * Gets the number of event times, where events are defined as points in time at which the cues
@@ -36,7 +36,7 @@ public interface Subtitle {
    *
    * @return The number of event times.
    */
-  public int getEventTimeCount();
+  int getEventTimeCount();
 
   /**
    * Gets the event time at a specified index.
@@ -44,14 +44,7 @@ public interface Subtitle {
    * @param index The index of the event time to obtain.
    * @return The event time in microseconds.
    */
-  public long getEventTime(int index);
-
-  /**
-   * Convenience method for obtaining the last event time.
-   *
-   * @return The time of the last event in microseconds, or -1 if {@code getEventTimeCount() == 0}.
-   */
-  public long getLastEventTime();
+  long getEventTime(int index);
 
   /**
    * Retrieve the subtitle cues that should be displayed at a given time.
@@ -59,6 +52,6 @@ public interface Subtitle {
    * @param timeUs The time in microseconds.
    * @return A list of cues that should be displayed, possibly empty.
    */
-  public List<Cue> getCues(long timeUs);
+  List<Cue> getCues(long timeUs);
 
 }

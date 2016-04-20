@@ -192,10 +192,10 @@ public final class MultiSampleSource implements SampleSource {
 
   private Pair<SampleSource, Integer> getSourceAndGroup(int group) {
     int totalTrackGroupCount = 0;
-    for (int i = 0; i < sources.length; i++) {
-      int sourceTrackGroupCount = sources[i].getTrackGroups().length;
+    for (SampleSource source : sources) {
+      int sourceTrackGroupCount = source.getTrackGroups().length;
       if (group < totalTrackGroupCount + sourceTrackGroupCount) {
-        return Pair.create(sources[i], group - totalTrackGroupCount);
+        return Pair.create(source, group - totalTrackGroupCount);
       }
       totalTrackGroupCount += sourceTrackGroupCount;
     }

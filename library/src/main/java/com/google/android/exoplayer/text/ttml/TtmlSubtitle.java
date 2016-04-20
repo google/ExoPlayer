@@ -55,11 +55,6 @@ public final class TtmlSubtitle implements Subtitle {
     return eventTimesUs[index];
   }
 
-  @Override
-  public long getLastEventTime() {
-    return (eventTimesUs.length == 0 ? -1 : eventTimesUs[eventTimesUs.length - 1]);
-  }
-
   /* @VisibleForTesting */
   /* package */ TtmlNode getRoot() {
     return root;
@@ -69,7 +64,7 @@ public final class TtmlSubtitle implements Subtitle {
   public List<Cue> getCues(long timeUs) {
     CharSequence cueText = root.getText(timeUs, globalStyles);
     if (cueText == null) {
-      return Collections.<Cue>emptyList();
+      return Collections.emptyList();
     } else {
       Cue cue = new Cue(cueText);
       return Collections.singletonList(cue);

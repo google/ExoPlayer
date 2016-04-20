@@ -26,7 +26,9 @@ import com.google.android.exoplayer.util.Assertions;
 /* package */ final class VorbisBitArray {
 
   public final byte[] data;
-  private int limit;
+
+  private final int limit;
+
   private int byteOffset;
   private int bitOffset;
 

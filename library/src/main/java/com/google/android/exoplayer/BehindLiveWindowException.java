@@ -26,8 +26,4 @@ public final class BehindLiveWindowException extends IOException {
     super();
   }
 
-  public BehindLiveWindowException(String message) {
-    super(message);
-  }
-
 }

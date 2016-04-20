@@ -94,46 +94,44 @@ import java.util.List;
 
   @Override
   public void consume(ParsableByteArray data) {
-    while (data.bytesLeft() > 0) {
-      int offset = data.getPosition();
-      int limit = data.limit();
-      byte[] dataArray = data.data;
+    int offset = data.getPosition();
+    int limit = data.limit();
+    byte[] dataArray = data.data;
 
-      // Append the data to the buffer.
-      totalBytesWritten += data.bytesLeft();
-      output.sampleData(data, data.bytesLeft());
+    // Append the data to the buffer.
+    totalBytesWritten += data.bytesLeft();
+    output.sampleData(data, data.bytesLeft());
 
-      // Scan the appended data, processing NAL units as they are encountered
-      while (true) {
-        int nalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
+    // Scan the appended data, processing NAL units as they are encountered
+    while (true) {
+      int nalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
 
-        if (nalUnitOffset == limit) {
-          // We've scanned to the end of the data without finding the start of another NAL unit.
-          nalUnitData(dataArray, offset, limit);
-          return;
-        }
-
-        // We've seen the start of a NAL unit of the following type.
-        int nalUnitType = NalUnitUtil.getNalUnitType(dataArray, nalUnitOffset);
-
-        // This is the number of bytes from the current offset to the start of the next NAL unit.
-        // It may be negative if the NAL unit started in the previously consumed data.
-        int lengthToNalUnit = nalUnitOffset - offset;
-        if (lengthToNalUnit > 0) {
-          nalUnitData(dataArray, offset, nalUnitOffset);
-        }
-        int bytesWrittenPastPosition = limit - nalUnitOffset;
-        long absolutePosition = totalBytesWritten - bytesWrittenPastPosition;
-        // Indicate the end of the previous NAL unit. If the length to the start of the next unit
-        // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
-        // when notifying that the unit has ended.
-        endNalUnit(absolutePosition, bytesWrittenPastPosition,
-            lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
-        // Indicate the start of the next NAL unit.
-        startNalUnit(absolutePosition, nalUnitType, pesTimeUs);
-        // Continue scanning the data.
-        offset = nalUnitOffset + 3;
+      if (nalUnitOffset == limit) {
+        // We've scanned to the end of the data without finding the start of another NAL unit.
+        nalUnitData(dataArray, offset, limit);
+        return;
       }
+
+      // We've seen the start of a NAL unit of the following type.
+      int nalUnitType = NalUnitUtil.getNalUnitType(dataArray, nalUnitOffset);
+
+      // This is the number of bytes from the current offset to the start of the next NAL unit.
+      // It may be negative if the NAL unit started in the previously consumed data.
+      int lengthToNalUnit = nalUnitOffset - offset;
+      if (lengthToNalUnit > 0) {
+        nalUnitData(dataArray, offset, nalUnitOffset);
+      }
+      int bytesWrittenPastPosition = limit - nalUnitOffset;
+      long absolutePosition = totalBytesWritten - bytesWrittenPastPosition;
+      // Indicate the end of the previous NAL unit. If the length to the start of the next unit
+      // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
+      // when notifying that the unit has ended.
+      endNalUnit(absolutePosition, bytesWrittenPastPosition,
+          lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
+      // Indicate the start of the next NAL unit.
+      startNalUnit(absolutePosition, nalUnitType, pesTimeUs);
+      // Continue scanning the data.
+      offset = nalUnitOffset + 3;
     }
   }
 

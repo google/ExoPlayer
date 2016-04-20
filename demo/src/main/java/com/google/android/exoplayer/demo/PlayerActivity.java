@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
-import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -106,7 +105,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private DataSourceFactory dataSourceFactory;
   private DemoPlayer player;
-  private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsSource;
@@ -137,11 +135,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     root.setOnKeyListener(new OnKeyListener() {
       @Override
       public boolean onKey(View v, int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE
-            || keyCode == KeyEvent.KEYCODE_MENU) {
-          return false;
-        }
-        return mediaController.dispatchKeyEvent(event);
+        return keyCode != KeyEvent.KEYCODE_BACK && keyCode != KeyEvent.KEYCODE_ESCAPE
+            && keyCode != KeyEvent.KEYCODE_MENU && mediaController.dispatchKeyEvent(event);
       }
     });
 
@@ -287,8 +282,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.setCaptionListener(this);
       player.setMetadataListener(this);
       player.seekTo(playerPosition);
-      trackSelector = player.getTrackSelector();
-      trackSelectionHelper = new TrackSelectionHelper(trackSelector);
+      trackSelectionHelper = new TrackSelectionHelper(player.getTrackSelector());
       playerNeedsSource = true;
       mediaController.setMediaPlayer(player.getPlayerControl());
       mediaController.setEnabled(true);

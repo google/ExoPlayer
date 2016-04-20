@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 public class CTest extends TestCase {
 
   @SuppressLint("InlinedApi")
-  public static final void testContants() {
+  public static void testConstants() {
     // Sanity check that constant values match those defined by the platform.
     assertEquals(MediaCodec.BUFFER_FLAG_KEY_FRAME, C.BUFFER_FLAG_KEY_FRAME);
     assertEquals(MediaCodec.BUFFER_FLAG_END_OF_STREAM, C.BUFFER_FLAG_END_OF_STREAM);

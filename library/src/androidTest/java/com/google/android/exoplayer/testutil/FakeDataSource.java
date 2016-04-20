@@ -60,7 +60,7 @@ public final class FakeDataSource implements DataSource {
       totalLength += segment.length;
     }
     this.totalLength = totalLength;
-    openedDataSpecs = new ArrayList<DataSpec>();
+    openedDataSpecs = new ArrayList<>();
   }
 
   @Override

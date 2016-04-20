@@ -144,14 +144,18 @@ public final class UrlTemplate {
             }
             identifier = identifier.substring(0, formatTagIndex);
           }
-          if (identifier.equals(NUMBER)) {
-            identifiers[identifierCount] = NUMBER_ID;
-          } else if (identifier.equals(BANDWIDTH)) {
-            identifiers[identifierCount] = BANDWIDTH_ID;
-          } else if (identifier.equals(TIME)) {
-            identifiers[identifierCount] = TIME_ID;
-          } else {
-            throw new IllegalArgumentException("Invalid template: " + template);
+          switch (identifier) {
+            case NUMBER:
+              identifiers[identifierCount] = NUMBER_ID;
+              break;
+            case BANDWIDTH:
+              identifiers[identifierCount] = BANDWIDTH_ID;
+              break;
+            case TIME:
+              identifiers[identifierCount] = TIME_ID;
+              break;
+            default:
+              throw new IllegalArgumentException("Invalid template: " + template);
           }
           identifierFormatTags[identifierCount] = formatTag;
         }

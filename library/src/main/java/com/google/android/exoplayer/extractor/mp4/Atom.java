@@ -260,8 +260,8 @@ import java.util.List;
     @Override
     public String toString() {
       return getAtomTypeString(type)
-          + " leaves: " + Arrays.toString(leafChildren.toArray(new LeafAtom[0]))
-          + " containers: " + Arrays.toString(containerChildren.toArray(new ContainerAtom[0]));
+          + " leaves: " + Arrays.toString(leafChildren.toArray())
+          + " containers: " + Arrays.toString(containerChildren.toArray());
     }
 
   }

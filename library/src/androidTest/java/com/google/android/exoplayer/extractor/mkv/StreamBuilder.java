@@ -65,10 +65,11 @@ import java.util.List;
 
   private static final int NO_VALUE = -1;
 
+  private final List<EbmlElement> trackEntries;
+  private final List<EbmlElement> mediaSegments;
+
   private EbmlElement header;
   private EbmlElement info;
-  private List<EbmlElement> trackEntries;
-  private List<EbmlElement> mediaSegments;
 
   public StreamBuilder() {
     trackEntries = new LinkedList<>();
@@ -185,13 +186,13 @@ import java.util.List;
     Assertions.checkNotNull(header);
     Assertions.checkNotNull(info);
 
-    EbmlElement tracks = element(0x1654AE6B, trackEntries.toArray(new EbmlElement[0]));
+    EbmlElement tracks = element(0x1654AE6B,
+        trackEntries.toArray(new EbmlElement[trackEntries.size()]));
     EbmlElement[] children;
 
     if (cuePointCount == 0) {
       children = new EbmlElement[2 + mediaSegments.size()];
-      System.arraycopy(mediaSegments.toArray(new EbmlElement[0]), 0, children, 2,
-          mediaSegments.size());
+      System.arraycopy(mediaSegments.toArray(), 0, children, 2, mediaSegments.size());
       children[0] = info;
       children[1] = tracks;
     } else {
@@ -211,8 +212,7 @@ import java.util.List;
 
       // Build the top-level segment element.
       children = new EbmlElement[3 + mediaSegments.size()];
-      System.arraycopy(mediaSegments.toArray(new EbmlElement[0]), 0, children, 3,
-          mediaSegments.size());
+      System.arraycopy(mediaSegments.toArray(), 0, children, 3, mediaSegments.size());
       children[0] = info;
       children[1] = tracks;
       children[2] = cues;

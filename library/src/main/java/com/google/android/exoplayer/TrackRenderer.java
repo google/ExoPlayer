@@ -227,7 +227,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
     long resetPositionUs = stream.readReset();
     if (resetPositionUs != C.UNSET_TIME_US) {
       reset(resetPositionUs);
-      return;
     }
   }
 

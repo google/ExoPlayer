@@ -60,7 +60,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private final Loader loader;
   private final HlsChunkSource chunkSource;
-  private final LinkedList<HlsMediaChunk> mediaChunks = new LinkedList<HlsMediaChunk>();
+  private final LinkedList<HlsMediaChunk> mediaChunks = new LinkedList<>();
   private final HlsOutput output;
   private final int bufferSizeContribution;
   private final ChunkHolder nextChunkHolder;
@@ -262,13 +262,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   /* package */ boolean isReady(int group) {
     Assertions.checkState(groupEnabledStates[group]);
-    if (loadingFinished) {
-      return true;
-    }
-    if (isPendingReset()) {
-      return false;
-    }
-    return !sampleQueues[group].isEmpty();
+    return loadingFinished || (!isPendingReset() && !sampleQueues[group].isEmpty());
   }
 
   /* package */ void maybeThrowError() throws IOException {

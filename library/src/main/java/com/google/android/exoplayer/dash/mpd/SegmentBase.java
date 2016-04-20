@@ -327,7 +327,7 @@ public abstract class SegmentBase {
 
     @Override
     public RangedUri getSegmentUrl(Representation representation, int sequenceNumber) {
-      long time = 0;
+      long time;
       if (segmentTimeline != null) {
         time = segmentTimeline.get(sequenceNumber - startNumber).startTime;
       } else {
@@ -357,8 +357,8 @@ public abstract class SegmentBase {
    */
   public static class SegmentTimelineElement {
 
-    /* package */ long startTime;
-    /* package */ long duration;
+    /* package */ final long startTime;
+    /* package */ final long duration;
 
     /**
      * @param startTime The start time of the element. The value in seconds is the division of this

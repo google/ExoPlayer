@@ -359,9 +359,7 @@ public final class SimpleCache implements Cache {
       // floorSpan covers the queried region.
       return true;
     }
-    Iterator<CacheSpan> iterator = entries.tailSet(floorSpan, false).iterator();
-    while (iterator.hasNext()) {
-      CacheSpan next = iterator.next();
+    for (CacheSpan next : entries.tailSet(floorSpan, false)) {
       if (next.position > currentEndPosition) {
         // There's a hole in the cache within the queried region.
         return false;

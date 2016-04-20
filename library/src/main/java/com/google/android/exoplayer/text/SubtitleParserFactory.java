@@ -53,7 +53,7 @@ public interface SubtitleParserFactory {
    * <li>TX3G ({@link com.google.android.exoplayer.text.tx3g.Tx3gParser})</li>
    * </ul>
    */
-  final SubtitleParserFactory DEFAULT = new SubtitleParserFactory() {
+  SubtitleParserFactory DEFAULT = new SubtitleParserFactory() {
 
     @Override
     public boolean supportsFormat(Format format) {
@@ -68,7 +68,7 @@ public interface SubtitleParserFactory {
           throw new IllegalArgumentException("Attempted to create parser for unsupported format");
         }
         return clazz.asSubclass(SubtitleParser.class).newInstance();
-      } catch (InstantiationException | IllegalAccessException e) {
+      } catch (Exception e) {
         throw new IllegalStateException("Unexpected error instantiating parser", e);
       }
     }

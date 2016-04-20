@@ -216,7 +216,7 @@ public final class PsExtractor implements Extractor {
       input.readFully(psPacketBuffer.data, 0, pesLength);
       psPacketBuffer.setPosition(6);
       psPacketBuffer.setLimit(pesLength);
-      payloadReader.consume(psPacketBuffer, output);
+      payloadReader.consume(psPacketBuffer);
       psPacketBuffer.setLimit(psPacketBuffer.capacity());
     }
 
@@ -253,8 +253,8 @@ public final class PsExtractor implements Extractor {
      * Notifies the reader that a seek has occurred.
      * <p>
      * Following a call to this method, the data passed to the next invocation of
-     * {@link #consume(ParsableByteArray, ExtractorOutput)} will not be a continuation of
-     * the data that was previously passed. Hence the reader should reset any internal state.
+     * {@link #consume(ParsableByteArray)} will not be a continuation of the data that was
+     * previously passed. Hence the reader should reset any internal state.
      */
     public void seek() {
       seenFirstDts = false;
@@ -265,9 +265,8 @@ public final class PsExtractor implements Extractor {
      * Consumes the payload of a PS packet.
      *
      * @param data The PES packet. The position will be set to the start of the payload.
-     * @param output The output to which parsed data should be written.
      */
-    public void consume(ParsableByteArray data, ExtractorOutput output) {
+    public void consume(ParsableByteArray data) {
       data.readBytes(pesScratch.data, 0, 3);
       pesScratch.setPosition(0);
       parseHeader();

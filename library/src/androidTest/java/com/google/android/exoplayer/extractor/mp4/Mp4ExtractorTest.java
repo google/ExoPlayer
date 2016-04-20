@@ -88,7 +88,7 @@ public final class Mp4ExtractorTest extends TestCase {
   /** Video frame timestamps in time units. */
   private static final int[] SAMPLE_TIMESTAMPS = {0, 2, 3, 5, 6, 7};
   /** Video frame sizes in bytes, including a very large sample. */
-  private static final int[] SAMPLE_SIZES = {100, 20, 20, 44, 100, 1 * 1024 * 1024};
+  private static final int[] SAMPLE_SIZES = {100, 20, 20, 44, 100, 1024 * 1024};
   /** Indices of key-frames. */
   private static final boolean[] SAMPLE_IS_SYNC = {true, false, false, false, true, true};
   /** Indices of video frame chunk offsets. */
@@ -260,8 +260,8 @@ public final class Mp4ExtractorTest extends TestCase {
 
   private static byte[] getStss() {
     int synchronizationSampleCount = 0;
-    for (int i = 0; i < SAMPLE_IS_SYNC.length; i++) {
-      if (SAMPLE_IS_SYNC[i]) {
+    for (boolean sampleIsSync : SAMPLE_IS_SYNC) {
+      if (sampleIsSync) {
         synchronizationSampleCount++;
       }
     }
@@ -364,7 +364,7 @@ public final class Mp4ExtractorTest extends TestCase {
     return CHUNK_OFFSETS[chunkIndex] + offsetInChunk;
   }
 
-  private static final byte[] getTestInputData(boolean includeStss, boolean mp4vFormat) {
+  private static byte[] getTestInputData(boolean includeStss, boolean mp4vFormat) {
     return includeStss ? getTestMp4File(mp4vFormat)
         : getTestMp4FileWithoutSynchronizationData(mp4vFormat);
   }

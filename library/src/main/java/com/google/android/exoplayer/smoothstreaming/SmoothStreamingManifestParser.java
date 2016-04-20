@@ -63,8 +63,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
   }
 
   @Override
-  public SmoothStreamingManifest parse(Uri uri, InputStream inputStream)
-      throws IOException, ParserException {
+  public SmoothStreamingManifest parse(Uri uri, InputStream inputStream) throws IOException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, null);
@@ -105,8 +104,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       this.normalizedAttributes = new LinkedList<>();
     }
 
-    public final Object parse(XmlPullParser xmlParser) throws XmlPullParserException, IOException,
-        ParserException {
+    public final Object parse(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
       String tagName;
       boolean foundStartTag = false;
       int skippingElementDepth = 0;
@@ -224,17 +222,15 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
 
     /**
      * @param xmlParser The underlying {@link XmlPullParser}
-     * @throws ParserException
      */
-    protected void parseText(XmlPullParser xmlParser) throws ParserException {
+    protected void parseText(XmlPullParser xmlParser) {
       // Do nothing.
     }
 
     /**
      * @param xmlParser The underlying {@link XmlPullParser}
-     * @throws ParserException
      */
-    protected void parseEndTag(XmlPullParser xmlParser) throws ParserException {
+    protected void parseEndTag(XmlPullParser xmlParser) {
       // Do nothing.
     }
 
@@ -335,6 +331,8 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private static final String KEY_LOOKAHEAD_COUNT = "LookaheadCount";
     private static final String KEY_IS_LIVE = "IsLive";
 
+    private final List<StreamElement> streamElements;
+
     private int majorVersion;
     private int minorVersion;
     private long timescale;
@@ -343,7 +341,6 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private int lookAheadCount;
     private boolean isLive;
     private ProtectionElement protectionElement;
-    private List<StreamElement> streamElements;
 
     public SmoothStreamMediaParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);

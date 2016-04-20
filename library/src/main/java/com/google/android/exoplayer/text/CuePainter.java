@@ -233,7 +233,6 @@ import android.util.Log;
     }
 
     int textTop;
-    int textBottom;
     if (cueLine != Cue.DIMEN_UNSET) {
       int anchorPosition;
       if (cueLineType == Cue.LINE_TYPE_FRACTION) {
@@ -250,17 +249,13 @@ import android.util.Log;
       textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
           : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
           : anchorPosition;
-      textBottom = textTop + textHeight;
-      if (textBottom > parentBottom) {
+      if (textTop + textHeight > parentBottom) {
         textTop = parentBottom - textHeight;
-        textBottom = parentBottom;
       } else if (textTop < parentTop) {
         textTop = parentTop;
-        textBottom = parentTop + textHeight;
       }
     } else {
       textTop = parentBottom - textHeight - (int) (parentHeight * bottomPaddingFraction);
-      textBottom = textTop + textHeight;
     }
 
     textWidth = textRight - textLeft;

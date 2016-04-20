@@ -371,7 +371,6 @@ public class DashChunkSource implements ChunkSource {
       }
     } catch (BehindLiveWindowException e) {
       fatalError = e;
-      return;
     }
   }
 

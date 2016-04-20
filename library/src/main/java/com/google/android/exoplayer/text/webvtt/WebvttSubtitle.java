@@ -73,14 +73,6 @@ public final class WebvttSubtitle implements Subtitle {
   }
 
   @Override
-  public long getLastEventTime() {
-    if (getEventTimeCount() == 0) {
-      return -1;
-    }
-    return sortedCueTimesUs[sortedCueTimesUs.length - 1];
-  }
-
-  @Override
   public List<Cue> getCues(long timeUs) {
     ArrayList<Cue> list = null;
     WebvttCue firstNormalCue = null;
@@ -120,7 +112,7 @@ public final class WebvttSubtitle implements Subtitle {
     if (list != null) {
       return list;
     } else {
-      return Collections.<Cue>emptyList();
+      return Collections.emptyList();
     }
   }
 

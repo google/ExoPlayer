@@ -403,24 +403,21 @@ public final class Format {
   }
 
   @TargetApi(16)
-  private static final void maybeSetStringV16(MediaFormat format, String key,
-      String value) {
+  private static void maybeSetStringV16(MediaFormat format, String key, String value) {
     if (value != null) {
       format.setString(key, value);
     }
   }
 
   @TargetApi(16)
-  private static final void maybeSetIntegerV16(MediaFormat format, String key,
-      int value) {
+  private static void maybeSetIntegerV16(MediaFormat format, String key, int value) {
     if (value != NO_VALUE) {
       format.setInteger(key, value);
     }
   }
 
   @TargetApi(16)
-  private static final void maybeSetFloatV16(MediaFormat format, String key,
-      float value) {
+  private static void maybeSetFloatV16(MediaFormat format, String key, float value) {
     if (value != NO_VALUE) {
       format.setFloat(key, value);
     }

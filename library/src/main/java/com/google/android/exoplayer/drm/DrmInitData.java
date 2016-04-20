@@ -35,12 +35,12 @@ public interface DrmInitData {
    * @param schemeUuid The DRM scheme's UUID.
    * @return The initialization data for the scheme, or null if the scheme is not supported.
    */
-  public abstract SchemeInitData get(UUID schemeUuid);
+  SchemeInitData get(UUID schemeUuid);
 
   /**
    * A {@link DrmInitData} implementation that maps UUID onto scheme specific data.
    */
-  public static final class Mapped implements DrmInitData {
+  final class Mapped implements DrmInitData {
 
     private final Map<UUID, SchemeInitData> schemeData;
 
@@ -68,9 +68,9 @@ public interface DrmInitData {
   /**
    * A {@link DrmInitData} implementation that returns the same initialization data for all schemes.
    */
-  public static final class Universal implements DrmInitData {
+  final class Universal implements DrmInitData {
 
-    private SchemeInitData data;
+    private final SchemeInitData data;
 
     public Universal(SchemeInitData data) {
       this.data = data;
@@ -86,7 +86,7 @@ public interface DrmInitData {
   /**
    * Scheme initialization data.
    */
-  public static final class SchemeInitData {
+  final class SchemeInitData {
 
     /**
      * The mimeType of {@link #data}.

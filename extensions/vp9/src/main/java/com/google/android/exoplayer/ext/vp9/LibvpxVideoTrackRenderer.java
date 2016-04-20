@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.ext.vp9;
 
 import com.google.android.exoplayer.CodecCounters;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
@@ -121,7 +122,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   private Format format;
   private VpxDecoder decoder;
-  private VpxInputBuffer inputBuffer;
+  private DecoderInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
   private VpxOutputBuffer nextOutputBuffer;
 
@@ -335,9 +336,6 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
-    } else {
-      inputBuffer.width = format.width;
-      inputBuffer.height = format.height;
     }
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;

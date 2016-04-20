@@ -90,8 +90,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   // MPD parsing.
 
   @Override
-  public MediaPresentationDescription parse(Uri uri, InputStream inputStream)
-      throws IOException, ParserException {
+  public MediaPresentationDescription parse(Uri uri, InputStream inputStream) throws IOException {
     try {
       XmlPullParser xpp = xmlParserFactory.newPullParser();
       xpp.setInput(inputStream, null);
@@ -101,9 +100,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
             "inputStream does not contain a valid media presentation description");
       }
       return parseMediaPresentationDescription(xpp, uri.toString());
-    } catch (XmlPullParserException e) {
-      throw new ParserException(e);
-    } catch (ParseException e) {
+    } catch (XmlPullParserException | ParseException e) {
       throw new ParserException(e);
     }
   }
@@ -114,7 +111,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", -1);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", -1);
     String typeString = xpp.getAttributeValue(null, "type");
-    boolean dynamic = (typeString != null) ? typeString.equals("dynamic") : false;
+    boolean dynamic = typeString != null && typeString.equals("dynamic");
     long minUpdateTimeMs = (dynamic) ? parseDuration(xpp, "minimumUpdatePeriod", -1) : -1;
     long timeShiftBufferDepthMs = (dynamic) ? parseDuration(xpp, "timeShiftBufferDepth", -1) : -1;
     UtcTimingElement utcTiming = null;
@@ -372,7 +369,6 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     float frameRate = parseFrameRate(xpp, adaptationSetFrameRate);
     int audioChannels = adaptationSetAudioChannels;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", adaptationSetAudioSamplingRate);
-    String language = adaptationSetLanguage;
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -399,7 +395,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     } while (!ParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
-        audioSamplingRate, bandwidth, language, codecs);
+        audioSamplingRate, bandwidth, adaptationSetLanguage, codecs);
     return buildRepresentation(contentId, -1, format,
         segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
   }

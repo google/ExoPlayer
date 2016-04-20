@@ -74,7 +74,7 @@ import java.util.TreeSet;
   public final long startTimeUs;
   public final long endTimeUs;
   public final TtmlStyle style;
-  private String[] styleIds;
+  private final String[] styleIds;
 
   private List<TtmlNode> children;
   private int start;

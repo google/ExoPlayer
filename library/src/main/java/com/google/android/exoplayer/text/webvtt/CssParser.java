@@ -286,10 +286,6 @@ import java.util.Map;
     return false;
   }
 
-  boolean commentEndsInPosition(byte[] data, int pos) {
-    return data[pos] == '/' && data[pos - 1] == '*';
-  }
-
   private static String parseIdentifier(ParsableByteArray input, StringBuilder stringBuilder) {
     stringBuilder.setLength(0);
     int position = input.getPosition();

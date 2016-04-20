@@ -37,10 +37,6 @@ public final class UdpDataSource implements DataSource {
    */
   public static final class UdpDataSourceException extends IOException {
 
-    public UdpDataSourceException(String message) {
-      super(message);
-    }
-
     public UdpDataSourceException(IOException cause) {
       super(cause);
     }
@@ -58,8 +54,9 @@ public final class UdpDataSource implements DataSource {
   public static final int DEAFULT_SOCKET_TIMEOUT_MILLIS = 8 * 1000;
 
   private final TransferListener listener;
-  private final DatagramPacket packet;
   private final int socketTimeoutMillis;
+  private final byte[] packetBuffer;
+  private final DatagramPacket packet;
 
   private Uri uri;
   private DatagramSocket socket;
@@ -68,7 +65,6 @@ public final class UdpDataSource implements DataSource {
   private InetSocketAddress socketAddress;
   private boolean opened;
 
-  private byte[] packetBuffer;
   private int packetRemaining;
 
   /**

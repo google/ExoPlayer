@@ -663,8 +663,8 @@ public class HlsChunkSource {
   }
 
   private boolean allEnabledVariantsBlacklisted() {
-    for (int i = 0; i < enabledVariantBlacklistFlags.length; i++) {
-      if (!enabledVariantBlacklistFlags[i]) {
+    for (boolean enabledVariantBlacklistFlag : enabledVariantBlacklistFlags) {
+      if (!enabledVariantBlacklistFlag) {
         return false;
       }
     }

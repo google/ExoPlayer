@@ -85,71 +85,69 @@ import java.util.Collections;
 
   @Override
   public void consume(ParsableByteArray data) {
-    while (data.bytesLeft() > 0) {
-      int offset = data.getPosition();
-      int limit = data.limit();
-      byte[] dataArray = data.data;
+    int offset = data.getPosition();
+    int limit = data.limit();
+    byte[] dataArray = data.data;
 
-      // Append the data to the buffer.
-      totalBytesWritten += data.bytesLeft();
-      output.sampleData(data, data.bytesLeft());
+    // Append the data to the buffer.
+    totalBytesWritten += data.bytesLeft();
+    output.sampleData(data, data.bytesLeft());
 
-      int searchOffset = offset;
-      while (true) {
-        int startCodeOffset = NalUnitUtil.findNalUnit(dataArray, searchOffset, limit, prefixFlags);
+    int searchOffset = offset;
+    while (true) {
+      int startCodeOffset = NalUnitUtil.findNalUnit(dataArray, searchOffset, limit, prefixFlags);
 
-        if (startCodeOffset == limit) {
-          // We've scanned to the end of the data without finding another start code.
-          if (!hasOutputFormat) {
-            csdBuffer.onData(dataArray, offset, limit);
-          }
-          return;
-        }
-
-        // We've found a start code with the following value.
-        int startCodeValue = data.data[startCodeOffset + 3] & 0xFF;
-
+      if (startCodeOffset == limit) {
+        // We've scanned to the end of the data without finding another start code.
         if (!hasOutputFormat) {
-          // This is the number of bytes from the current offset to the start of the next start
-          // code. It may be negative if the start code started in the previously consumed data.
-          int lengthToStartCode = startCodeOffset - offset;
-          if (lengthToStartCode > 0) {
-            csdBuffer.onData(dataArray, offset, startCodeOffset);
-          }
-          // This is the number of bytes belonging to the next start code that have already been
-          // passed to csdDataTargetBuffer.
-          int bytesAlreadyPassed = lengthToStartCode < 0 ? -lengthToStartCode : 0;
-          if (csdBuffer.onStartCode(startCodeValue, bytesAlreadyPassed)) {
-            // The csd data is complete, so we can parse and output the media format.
-            Pair<Format, Long> result = parseCsdBuffer(csdBuffer);
-            output.format(result.first);
-            frameDurationUs = result.second;
-            hasOutputFormat = true;
-          }
+          csdBuffer.onData(dataArray, offset, limit);
         }
-
-        if (hasOutputFormat && (startCodeValue == START_GROUP || startCodeValue == START_PICTURE)) {
-          int bytesWrittenPastStartCode = limit - startCodeOffset;
-          if (foundFirstFrameInGroup) {
-            int flags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
-            int size = (int) (totalBytesWritten - framePosition) - bytesWrittenPastStartCode;
-            output.sampleMetadata(frameTimeUs, flags, size, bytesWrittenPastStartCode, null);
-            isKeyframe = false;
-          }
-          if (startCodeValue == START_GROUP) {
-            foundFirstFrameInGroup = false;
-            isKeyframe = true;
-          } else /* startCode == START_PICTURE */ {
-            frameTimeUs = pesPtsUsAvailable ? pesTimeUs : (frameTimeUs + frameDurationUs);
-            framePosition = totalBytesWritten - bytesWrittenPastStartCode;
-            pesPtsUsAvailable = false;
-            foundFirstFrameInGroup = true;
-          }
-        }
-
-        offset = startCodeOffset;
-        searchOffset = offset + 3;
+        return;
       }
+
+      // We've found a start code with the following value.
+      int startCodeValue = data.data[startCodeOffset + 3] & 0xFF;
+
+      if (!hasOutputFormat) {
+        // This is the number of bytes from the current offset to the start of the next start
+        // code. It may be negative if the start code started in the previously consumed data.
+        int lengthToStartCode = startCodeOffset - offset;
+        if (lengthToStartCode > 0) {
+          csdBuffer.onData(dataArray, offset, startCodeOffset);
+        }
+        // This is the number of bytes belonging to the next start code that have already been
+        // passed to csdDataTargetBuffer.
+        int bytesAlreadyPassed = lengthToStartCode < 0 ? -lengthToStartCode : 0;
+        if (csdBuffer.onStartCode(startCodeValue, bytesAlreadyPassed)) {
+          // The csd data is complete, so we can parse and output the media format.
+          Pair<Format, Long> result = parseCsdBuffer(csdBuffer);
+          output.format(result.first);
+          frameDurationUs = result.second;
+          hasOutputFormat = true;
+        }
+      }
+
+      if (hasOutputFormat && (startCodeValue == START_GROUP || startCodeValue == START_PICTURE)) {
+        int bytesWrittenPastStartCode = limit - startCodeOffset;
+        if (foundFirstFrameInGroup) {
+          int flags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
+          int size = (int) (totalBytesWritten - framePosition) - bytesWrittenPastStartCode;
+          output.sampleMetadata(frameTimeUs, flags, size, bytesWrittenPastStartCode, null);
+          isKeyframe = false;
+        }
+        if (startCodeValue == START_GROUP) {
+          foundFirstFrameInGroup = false;
+          isKeyframe = true;
+        } else /* startCode == START_PICTURE */ {
+          frameTimeUs = pesPtsUsAvailable ? pesTimeUs : (frameTimeUs + frameDurationUs);
+          framePosition = totalBytesWritten - bytesWrittenPastStartCode;
+          pesPtsUsAvailable = false;
+          foundFirstFrameInGroup = true;
+        }
+      }
+
+      offset = startCodeOffset;
+      searchOffset = offset + 3;
     }
   }
 

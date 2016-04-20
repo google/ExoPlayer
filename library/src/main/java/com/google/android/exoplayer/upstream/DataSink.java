@@ -23,21 +23,20 @@ import java.io.IOException;
 public interface DataSink {
 
   /**
-   * Opens the {@link DataSink} to consume the specified data. Calls to {@link #open(DataSpec)} and
-   * {@link #close()} must be balanced.
+   * Opens the {@link DataSink} to consume the specified data.
    *
    * @param dataSpec Defines the data to be consumed.
    * @return This {@link DataSink}, for convenience.
    * @throws IOException
    */
-  public DataSink open(DataSpec dataSpec) throws IOException;
+  DataSink open(DataSpec dataSpec) throws IOException;
 
   /**
    * Closes the {@link DataSink}.
    *
    * @throws IOException
    */
-  public void close() throws IOException;
+  void close() throws IOException;
 
   /**
    * Consumes the provided data.
@@ -47,6 +46,6 @@ public interface DataSink {
    * @param length The length of the data to consume, in bytes.
    * @throws IOException
    */
-  public void write(byte[] buffer, int offset, int length) throws IOException;
+  void write(byte[] buffer, int offset, int length) throws IOException;
 
 }

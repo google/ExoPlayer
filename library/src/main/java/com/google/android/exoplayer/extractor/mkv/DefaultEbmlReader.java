@@ -145,8 +145,8 @@ import java.util.Stack;
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
    */
-  private long maybeResyncToNextLevel1Element(ExtractorInput input) throws EOFException,
-      IOException, InterruptedException {
+  private long maybeResyncToNextLevel1Element(ExtractorInput input) throws IOException,
+      InterruptedException {
     input.resetPeekPosition();
     while (true) {
       input.peekFully(scratch, 0, MAX_ID_BYTES);

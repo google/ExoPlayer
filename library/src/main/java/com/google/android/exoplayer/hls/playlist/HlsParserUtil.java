@@ -25,9 +25,6 @@ import java.util.regex.Pattern;
  */
 /* package */ final class HlsParserUtil {
 
-  private static final String BOOLEAN_YES = "YES";
-  private static final String BOOLEAN_NO = "NO";
-
   private HlsParserUtil() {}
 
   public static String parseStringAttr(String line, Pattern pattern, String tag)
@@ -55,18 +52,6 @@ import java.util.regex.Pattern;
       return matcher.group(1);
     }
     return null;
-  }
-
-  public static boolean parseOptionalBooleanAttr(String line, Pattern pattern) {
-    Matcher matcher = pattern.matcher(line);
-    if (matcher.find()) {
-      return BOOLEAN_YES.equals(matcher.group(1));
-    }
-    return false;
-  }
-
-  public static Pattern compileBooleanAttrPattern(String attrName) {
-    return Pattern.compile(attrName + "=(" + BOOLEAN_YES + "|" + BOOLEAN_NO + ")");
   }
 
 }

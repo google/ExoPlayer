@@ -47,11 +47,11 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public interface EventListener {
 
-    public void onManifestRefreshStarted();
+    void onManifestRefreshStarted();
 
-    public void onManifestRefreshed();
+    void onManifestRefreshed();
 
-    public void onManifestError(IOException e);
+    void onManifestError(IOException e);
 
   }
 
@@ -65,7 +65,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
      * Returns the {@link Uri} from which subsequent manifests should be requested, or null to
      * continue using the current {@link Uri}.
      */
-    public Uri getNextManifestUri();
+    Uri getNextManifestUri();
 
   }
 

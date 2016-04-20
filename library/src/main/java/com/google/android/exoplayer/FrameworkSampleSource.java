@@ -98,6 +98,7 @@ public final class FrameworkSampleSource implements SampleSource {
     fileDescriptor = null;
     fileDescriptorOffset = 0;
     fileDescriptorLength = 0;
+    durationUs = C.UNSET_TIME_US;
   }
 
   /**
@@ -117,6 +118,7 @@ public final class FrameworkSampleSource implements SampleSource {
     context = null;
     uri = null;
     headers = null;
+    durationUs = C.UNSET_TIME_US;
   }
 
   // SampleSource implementation.
@@ -132,7 +134,6 @@ public final class FrameworkSampleSource implements SampleSource {
     } else {
       extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
     }
-    durationUs = C.UNSET_TIME_US;
     trackStates = new int[extractor.getTrackCount()];
     pendingResets = new boolean[trackStates.length];
     TrackGroup[] trackArray = new TrackGroup[trackStates.length];
@@ -150,7 +151,7 @@ public final class FrameworkSampleSource implements SampleSource {
 
   @Override
   public long getDurationUs() {
-    return C.UNSET_TIME_US;
+    return durationUs;
   }
 
   @Override

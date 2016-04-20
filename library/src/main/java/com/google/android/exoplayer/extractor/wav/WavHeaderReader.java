@@ -39,14 +39,13 @@ import java.io.IOException;
    * Peeks and returns a {@code WavHeader}.
    *
    * @param input Input stream to peek the WAV header from.
+   * @throws ParserException If the input file is an incorrect RIFF WAV.
    * @throws IOException If peeking from the input fails.
    * @throws InterruptedException If interrupted while peeking from input.
-   * @throws ParserException If the input file is an incorrect RIFF WAV.
    * @return A new {@code WavHeader} peeked from {@code input}, or null if the input is not a
    *     supported WAV format.
    */
-  public static WavHeader peek(ExtractorInput input)
-      throws IOException, InterruptedException, ParserException {
+  public static WavHeader peek(ExtractorInput input) throws IOException, InterruptedException {
     Assertions.checkNotNull(input);
 
     // Allocate a scratch buffer large enough to store the format chunk.
@@ -117,12 +116,12 @@ import java.io.IOException;
    * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to
    *     a valid chunk header.
    * @param wavHeader WAV header to populate with data bounds.
+   * @throws ParserException If an error occurs parsing chunks.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from input.
-   * @throws ParserException If an error occurs parsing chunks.
    */
   public static void skipToData(ExtractorInput input, WavHeader wavHeader)
-      throws IOException, InterruptedException, ParserException {
+      throws IOException, InterruptedException {
     Assertions.checkNotNull(input);
     Assertions.checkNotNull(wavHeader);
 

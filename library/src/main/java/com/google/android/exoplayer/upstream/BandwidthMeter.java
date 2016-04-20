@@ -23,7 +23,7 @@ public interface BandwidthMeter extends TransferListener {
   /**
    * Interface definition for a callback to be notified of {@link BandwidthMeter} events.
    */
-  public interface EventListener {
+  interface EventListener {
 
     /**
      * Invoked periodically to indicate that bytes have been transferred.
@@ -40,7 +40,7 @@ public interface BandwidthMeter extends TransferListener {
   /**
    * Indicates no bandwidth estimate is available.
    */
-  final long NO_ESTIMATE = -1;
+  long NO_ESTIMATE = -1;
 
   /**
    * Gets the estimated bandwidth, in bits/sec.

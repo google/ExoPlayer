@@ -342,8 +342,8 @@ import java.util.Collections;
   private static void skipShortTermRefPicSets(ParsableNalUnitBitArray bitArray) {
     int numShortTermRefPicSets = bitArray.readUnsignedExpGolombCodedInt();
     boolean interRefPicSetPredictionFlag = false;
-    int numNegativePics = 0;
-    int numPositivePics = 0;
+    int numNegativePics;
+    int numPositivePics;
     // As this method applies in a SPS, the only element of NumDeltaPocs accessed is the previous
     // one, so we just keep track of that rather than storing the whole array.
     // RefRpsIdx = stRpsIdx - (delta_idx_minus1 + 1) and delta_idx_minus1 is always zero in SPS.

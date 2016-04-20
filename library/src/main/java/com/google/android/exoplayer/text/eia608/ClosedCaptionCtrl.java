@@ -18,38 +18,36 @@ package com.google.android.exoplayer.text.eia608;
 /* package */ final class ClosedCaptionCtrl extends ClosedCaption {
 
   /**
-   * The receipt of the {@link #RESUME_CAPTION_LOADING} command initiates pop-on style captioning.
-   * Subsequent data should be loaded into a non-displayed memory and held there until the
-   * {@link #END_OF_CAPTION} command is received, at which point the non-displayed memory becomes
-   * the displayed memory (and vice versa).
+   * Command initiating pop-on style captioning. Subsequent data should be loaded into a
+   * non-displayed memory and held there until the {@link #END_OF_CAPTION} command is received, at
+   * which point the non-displayed memory becomes the displayed memory (and vice versa).
    */
   public static final byte RESUME_CAPTION_LOADING = 0x20;
   /**
-   * The receipt of the {@link #ROLL_UP_CAPTIONS_2_ROWS} command initiates roll-up style
-   * captioning, with the maximum of 2 rows displayed simultaneously.
+   * Command initiating roll-up style captioning, with the maximum of 2 rows displayed
+   * simultaneously.
    */
   public static final byte ROLL_UP_CAPTIONS_2_ROWS = 0x25;
   /**
-   * The receipt of the {@link #ROLL_UP_CAPTIONS_3_ROWS} command initiates roll-up style
-   * captioning, with the maximum of 3 rows displayed simultaneously.
+   * Command initiating roll-up style captioning, with the maximum of 3 rows displayed
+   * simultaneously.
    */
   public static final byte ROLL_UP_CAPTIONS_3_ROWS = 0x26;
   /**
-   * The receipt of the {@link #ROLL_UP_CAPTIONS_4_ROWS} command initiates roll-up style
-   * captioning, with the maximum of 4 rows displayed simultaneously.
+   * Command initiating roll-up style captioning, with the maximum of 4 rows displayed
+   * simultaneously.
    */
   public static final byte ROLL_UP_CAPTIONS_4_ROWS = 0x27;
   /**
-   * The receipt of the {@link #RESUME_DIRECT_CAPTIONING} command initiates paint-on style
-   * captioning. Subsequent data should be addressed immediately to displayed memory without need
-   * for the {@link #RESUME_CAPTION_LOADING} command.
+   * Command initiating paint-on style captioning. Subsequent data should be addressed immediately
+   * to displayed memory without need for the {@link #RESUME_CAPTION_LOADING} command.
    */
   public static final byte RESUME_DIRECT_CAPTIONING = 0x29;
   /**
-   * The receipt of the {@link #END_OF_CAPTION} command indicates the end of pop-on style caption,
-   * at this point already loaded in non-displayed memory caption should become the displayed
-   * memory (and vice versa). If no {@link #RESUME_CAPTION_LOADING} command has been received,
-   * {@link #END_OF_CAPTION} command forces the receiver into pop-on style.
+   * Command indicating the end of a pop-on style caption. At this point the caption loaded in
+   * non-displayed memory should be swapped with the one in displayed memory. If no
+   * {@link #RESUME_CAPTION_LOADING} command has been received, this command forces the receiver
+   * into pop-on style.
    */
   public static final byte END_OF_CAPTION = 0x2F;
 

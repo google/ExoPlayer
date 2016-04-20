@@ -108,7 +108,7 @@ public final class ContentDataSource implements DataSource {
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     } else {
-      int bytesRead = 0;
+      int bytesRead;
       try {
         int bytesToRead = bytesRemaining == C.LENGTH_UNBOUNDED ? readLength
             : (int) Math.min(bytesRemaining, readLength);

@@ -148,11 +148,7 @@ public final class DecoderInfo {
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {
-    if (Util.SDK_INT >= 19) {
-      return isAdaptiveV19(capabilities);
-    } else {
-      return false;
-    }
+    return Util.SDK_INT >= 19 && isAdaptiveV19(capabilities);
   }
 
   @TargetApi(19)

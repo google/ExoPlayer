@@ -46,17 +46,15 @@ public final class CodecCounters {
 
   public String getDebugString() {
     ensureUpdated();
-    StringBuilder builder = new StringBuilder();
-    builder.append("cic:").append(codecInitCount);
-    builder.append(" crc:").append(codecReleaseCount);
-    builder.append(" ibc:").append(inputBufferCount);
-    builder.append(" ofc:").append(outputFormatChangedCount);
-    builder.append(" obc:").append(outputBuffersChangedCount);
-    builder.append(" ren:").append(renderedOutputBufferCount);
-    builder.append(" sob:").append(skippedOutputBufferCount);
-    builder.append(" dob:").append(droppedOutputBufferCount);
-    builder.append(" mcdob:").append(maxConsecutiveDroppedOutputBufferCount);
-    return builder.toString();
+    return "cic:" + codecInitCount
+        + " crc:" + codecReleaseCount
+        + " ibc:" + inputBufferCount
+        + " ofc:" + outputFormatChangedCount
+        + " obc:" + outputBuffersChangedCount
+        + " ren:" + renderedOutputBufferCount
+        + " sob:" + skippedOutputBufferCount
+        + " dob:" + droppedOutputBufferCount
+        + " mcdob:" + maxConsecutiveDroppedOutputBufferCount;
   }
 
 }

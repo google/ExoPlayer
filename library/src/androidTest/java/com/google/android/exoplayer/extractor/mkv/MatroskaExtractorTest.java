@@ -794,15 +794,8 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
     output.assertSample(index, expectedMedia, timeUs, flags, encryptionKey);
   }
 
-  private byte[] getVorbisCodecPrivate() {
-    byte[] codecPrivate = new byte[4207];
-    try {
-      getInstrumentation().getContext().getResources().getAssets().open(TEST_VORBIS_CODEC_PRIVATE)
-          .read(codecPrivate);
-    } catch (IOException e) {
-      fail(); // should never happen
-    }
-    return codecPrivate;
+  private byte[] getVorbisCodecPrivate() throws IOException {
+    return TestUtil.getByteArray(getInstrumentation(), TEST_VORBIS_CODEC_PRIVATE);
   }
 
   private static byte[] createFrameData(int size) {

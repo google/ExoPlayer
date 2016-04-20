@@ -30,8 +30,8 @@ public abstract class Representation {
   /**
    * Identifies the piece of content to which this {@link Representation} belongs.
    * <p>
-   * For example, all {@link Representation}s belonging to a video should have the same
-   * {@link #contentId}, which should uniquely identify that video.
+   * For example, all {@link Representation}s belonging to a video should have the same content
+   * identifier that uniquely identifies that video.
    */
   public final String contentId;
   /**

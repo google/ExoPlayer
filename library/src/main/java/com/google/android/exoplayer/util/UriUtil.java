@@ -163,7 +163,7 @@ public final class UriUtil {
     int segmentStart = offset;
     int i = offset;
     while (i <= limit) {
-      int nextSegmentStart = -1;
+      int nextSegmentStart;
       if (i == limit) {
         nextSegmentStart = i;
       } else if (uri.charAt(i) == '/') {

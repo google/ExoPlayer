@@ -27,7 +27,7 @@ public interface Cache {
   /**
    * Interface definition for a callback to be notified of {@link Cache} events.
    */
-  public interface Listener {
+  interface Listener {
 
     /**
      * Invoked when a {@link CacheSpan} is added to the cache.

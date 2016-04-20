@@ -32,34 +32,34 @@ import java.io.IOException;
   /**
    * Type for unknown elements.
    */
-  public static final int TYPE_UNKNOWN = 0;
+  int TYPE_UNKNOWN = 0;
   /**
    * Type for elements that contain child elements.
    */
-  public static final int TYPE_MASTER = 1;
+  int TYPE_MASTER = 1;
   /**
    * Type for integer value elements of up to 8 bytes.
    */
-  public static final int TYPE_UNSIGNED_INT = 2;
+  int TYPE_UNSIGNED_INT = 2;
   /**
    * Type for string elements.
    */
-  public static final int TYPE_STRING = 3;
+  int TYPE_STRING = 3;
   /**
    * Type for binary elements.
    */
-  public static final int TYPE_BINARY = 4;
+  int TYPE_BINARY = 4;
   /**
    * Type for IEEE floating point value elements of either 4 or 8 bytes.
    */
-  public static final int TYPE_FLOAT = 5;
+  int TYPE_FLOAT = 5;
 
   /**
    * Initializes the extractor with an {@link EbmlReaderOutput}.
    *
    * @param output An {@link EbmlReaderOutput} to receive events.
    */
-  public void init(EbmlReaderOutput output);
+  void init(EbmlReaderOutput output);
 
   /**
    * Resets the state of the reader.
@@ -67,7 +67,7 @@ import java.io.IOException;
    * Subsequent calls to {@link #read(ExtractorInput)} will start reading a new EBML structure
    * from scratch.
    */
-  public void reset();
+  void reset();
 
   /**
    * Reads from an {@link ExtractorInput}, invoking an event callback if possible.
@@ -78,7 +78,6 @@ import java.io.IOException;
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
    */
-  public boolean read(ExtractorInput input) throws ParserException, IOException,
-      InterruptedException;
+  boolean read(ExtractorInput input) throws IOException, InterruptedException;
 
 }

@@ -100,7 +100,7 @@ import java.nio.charset.Charset;
       if (extendedHeaderSize > frame.bytesLeft()) {
         return null;
       }
-      int paddingSize = 0;
+      int paddingSize;
       if (extendedHeaderSize >= 6) {
         frame.skipBytes(2); // extended flags
         paddingSize = frame.readUnsignedIntToInt();

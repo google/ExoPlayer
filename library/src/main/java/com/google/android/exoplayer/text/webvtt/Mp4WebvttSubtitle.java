@@ -50,11 +50,6 @@ import java.util.List;
   }
 
   @Override
-  public long getLastEventTime() {
-    return 0;
-  }
-
-  @Override
   public List<Cue> getCues(long timeUs) {
     return timeUs >= 0 ? cues : Collections.<Cue>emptyList();
   }

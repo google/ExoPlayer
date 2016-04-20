@@ -503,11 +503,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
           renderer.disable();
         }
-      } catch (ExoPlaybackException e) {
+      } catch (ExoPlaybackException | RuntimeException e) {
         // There's nothing we can do.
-        Log.e(TAG, "Stop failed.", e);
-      } catch (RuntimeException e) {
-        // Ditto.
         Log.e(TAG, "Stop failed.", e);
       }
     }

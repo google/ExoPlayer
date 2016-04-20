@@ -70,7 +70,7 @@ public interface FormatEvaluator {
   /**
    * A format evaluation.
    */
-  public static final class Evaluation {
+  final class Evaluation {
 
     /**
      * The selected format.
@@ -99,7 +99,7 @@ public interface FormatEvaluator {
   /**
    * Selects randomly between the available formats, excluding those that are blacklisted.
    */
-  public static final class RandomEvaluator implements FormatEvaluator {
+  final class RandomEvaluator implements FormatEvaluator {
 
     private final Random random;
 
@@ -131,8 +131,8 @@ public interface FormatEvaluator {
         Evaluation evaluation) {
       // Count the number of non-blacklisted formats.
       int nonBlacklistedFormatCount = 0;
-      for (int i = 0; i < blacklistFlags.length; i++) {
-        if (!blacklistFlags[i]) {
+      for (boolean blacklistFlag : blacklistFlags) {
+        if (!blacklistFlag) {
           nonBlacklistedFormatCount++;
         }
       }
@@ -171,7 +171,7 @@ public interface FormatEvaluator {
    * reference implementation only. It is recommended that application developers implement their
    * own adaptive evaluator to more precisely suit their use case.
    */
-  public static final class AdaptiveEvaluator implements FormatEvaluator {
+  final class AdaptiveEvaluator implements FormatEvaluator {
 
     public static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
 

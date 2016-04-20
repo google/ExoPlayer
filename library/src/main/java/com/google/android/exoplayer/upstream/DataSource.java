@@ -27,13 +27,11 @@ import java.io.IOException;
 public interface DataSource {
 
   /**
-   * Opens the {@link DataSource} to read the specified data. Calls to {@link #open(DataSpec)} and
-   * {@link #close()} must be balanced.
+   * Opens the {@link DataSource} to read the specified data.
    * <p>
-   * Note: If {@link #open(DataSpec)} throws an {@link IOException}, callers must still call
-   * {@link #close()} to ensure that any partial effects of the {@link #open(DataSpec)} invocation
-   * are cleaned up. Implementations of this class can assume that callers will call
-   * {@link #close()} in this case.
+   * Note: If an {@link IOException} is thrown, callers must still call {@link #close()} to ensure
+   * that any partial effects of the invocation are cleaned up. Implementations of this class can
+   * assume that callers will call {@link #close()} in this case.
    *
    * @param dataSpec Defines the data to be read.
    * @throws IOException If an error occurs opening the source.

@@ -27,24 +27,24 @@ public interface DrmSessionManager {
   /**
    * The error state. {@link #getError()} can be used to retrieve the cause.
    */
-  public static final int STATE_ERROR = 0;
+  int STATE_ERROR = 0;
   /**
    * The session is closed.
    */
-  public static final int STATE_CLOSED = 1;
+  int STATE_CLOSED = 1;
   /**
    * The session is being opened (i.e. {@link #open(DrmInitData)} has been called, but the session
    * is not yet open).
    */
-  public static final int STATE_OPENING = 2;
+  int STATE_OPENING = 2;
   /**
    * The session is open, but does not yet have the keys required for decryption.
    */
-  public static final int STATE_OPENED = 3;
+  int STATE_OPENED = 3;
   /**
    * The session is open and has the keys required for decryption.
    */
-  public static final int STATE_OPENED_WITH_KEYS = 4;
+  int STATE_OPENED_WITH_KEYS = 4;
 
   /**
    * Opens the session, possibly asynchronously.

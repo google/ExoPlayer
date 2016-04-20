@@ -32,7 +32,7 @@ public interface HttpDataSource extends DataSource {
   /**
    * A {@link Predicate} that rejects content types often used for pay-walls.
    */
-  public static final Predicate<String> REJECT_PAYWALL_TYPES = new Predicate<String>() {
+  Predicate<String> REJECT_PAYWALL_TYPES = new Predicate<String>() {
 
     @Override
     public boolean evaluate(String contentType) {
@@ -47,7 +47,7 @@ public interface HttpDataSource extends DataSource {
   /**
    * Thrown when an error is encountered when trying to read from a {@link HttpDataSource}.
    */
-  public static class HttpDataSourceException extends IOException {
+  class HttpDataSourceException extends IOException {
 
     /*
      * The {@link DataSpec} associated with the current connection.
@@ -79,7 +79,7 @@ public interface HttpDataSource extends DataSource {
   /**
    * Thrown when the content type is invalid.
    */
-  public static final class InvalidContentTypeException extends HttpDataSourceException {
+  final class InvalidContentTypeException extends HttpDataSourceException {
 
     public final String contentType;
 
@@ -93,7 +93,7 @@ public interface HttpDataSource extends DataSource {
   /**
    * Thrown when an attempt to open a connection results in a response code not in the 2xx range.
    */
-  public static final class InvalidResponseCodeException extends HttpDataSourceException {
+  final class InvalidResponseCodeException extends HttpDataSourceException {
 
     /**
      * The response code that was outside of the 2xx range.

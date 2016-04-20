@@ -90,7 +90,7 @@ public final class FileDataSource implements DataSource {
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     } else {
-      int bytesRead = 0;
+      int bytesRead;
       try {
         bytesRead = file.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
       } catch (IOException e) {

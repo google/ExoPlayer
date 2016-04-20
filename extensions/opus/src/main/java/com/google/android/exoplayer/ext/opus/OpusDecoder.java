@@ -108,9 +108,7 @@ import java.util.List;
       // Read the channel mapping.
       numStreams = headerBytes[19] & 0xFF;
       numCoupled = headerBytes[20] & 0xFF;
-      for (int i = 0; i < channelCount; i++) {
-        streamMap[i] = headerBytes[21 + i];
-      }
+      System.arraycopy(headerBytes, 21, streamMap, 0, channelCount);
     }
     if (initializationData.size() == 3) {
       if (initializationData.get(1).length != 8 || initializationData.get(2).length != 8) {

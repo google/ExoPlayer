@@ -140,11 +140,10 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
     }
 
     boolean textRendererNeedsUpdate = false;
-    long subtitleNextEventTimeUs = Long.MAX_VALUE;
     if (subtitle != null) {
       // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we
       // advance to the next event.
-      subtitleNextEventTimeUs = getNextEventTime();
+      long subtitleNextEventTimeUs = getNextEventTime();
       while (subtitleNextEventTimeUs <= positionUs) {
         nextSubtitleEventIndex++;
         subtitleNextEventTimeUs = getNextEventTime();

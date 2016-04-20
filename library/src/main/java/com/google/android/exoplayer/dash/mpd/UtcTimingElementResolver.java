@@ -154,7 +154,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   private static class XsDateTimeParser implements UriLoadable.Parser<Long> {
 
     @Override
-    public Long parse(Uri uri, InputStream inputStream) throws ParserException, IOException {
+    public Long parse(Uri uri, InputStream inputStream) throws IOException {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       try {
         return Util.parseXsDateTime(firstLine);
@@ -168,7 +168,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   private static class Iso8601Parser implements UriLoadable.Parser<Long> {
 
     @Override
-    public Long parse(Uri uri, InputStream inputStream) throws ParserException, IOException {
+    public Long parse(Uri uri, InputStream inputStream) throws IOException {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       try {
         // TODO: It may be necessary to handle timestamp offsets from UTC.

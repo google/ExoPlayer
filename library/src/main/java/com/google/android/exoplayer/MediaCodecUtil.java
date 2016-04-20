@@ -126,8 +126,7 @@ public final class MediaCodecUtil {
       String codecName = info.getName();
       if (isCodecUsableDecoder(info, codecName, secureDecodersExplicit)) {
         String[] supportedTypes = info.getSupportedTypes();
-        for (int j = 0; j < supportedTypes.length; j++) {
-          String supportedType = supportedTypes[j];
+        for (String supportedType : supportedTypes) {
           if (supportedType.equalsIgnoreCase(mimeType)) {
             CodecCapabilities capabilities = info.getCapabilitiesForType(supportedType);
             boolean secure = mediaCodecList.isSecurePlaybackSupported(key.mimeType, capabilities);
@@ -291,25 +290,25 @@ public final class MediaCodecUtil {
     /**
      * The number of codecs in the list.
      */
-    public int getCodecCount();
+    int getCodecCount();
 
     /**
      * The info at the specified index in the list.
      *
      * @param index The index.
      */
-    public MediaCodecInfo getCodecInfoAt(int index);
+    MediaCodecInfo getCodecInfoAt(int index);
 
     /**
      * @return Returns whether secure decoders are explicitly listed, if present.
      */
-    public boolean secureDecodersExplicit();
+    boolean secureDecodersExplicit();
 
     /**
      * Whether secure playback is supported for the given {@link CodecCapabilities}, which should
      * have been obtained from a {@link MediaCodecInfo} obtained from this list.
      */
-    public boolean isSecurePlaybackSupported(String mimeType, CodecCapabilities capabilities);
+    boolean isSecurePlaybackSupported(String mimeType, CodecCapabilities capabilities);
 
   }
 

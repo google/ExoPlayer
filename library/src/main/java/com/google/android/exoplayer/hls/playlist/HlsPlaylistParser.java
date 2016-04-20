@@ -109,7 +109,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   //     HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
 
   @Override
-  public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException, ParserException {
+  public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     Queue<String> extraLines = new LinkedList<>();
     String line;

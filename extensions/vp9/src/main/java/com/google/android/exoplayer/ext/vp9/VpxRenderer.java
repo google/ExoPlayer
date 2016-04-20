@@ -78,7 +78,6 @@ import javax.microedition.khronos.opengles.GL10;
   private int program;
   private int texLocation;
   private int colorMatrixLocation;
-  private FloatBuffer textureCoords;
   private int previousWidth;
   private int previousStride;
 
@@ -171,7 +170,7 @@ import javax.microedition.khronos.opengles.GL10;
     // Set cropping of stride if either width or stride has changed.
     if (previousWidth != outputBuffer.width || previousStride != outputBuffer.yuvStrides[0]) {
       float crop = (float) outputBuffer.width / outputBuffer.yuvStrides[0];
-      textureCoords = nativeFloatBuffer(
+      FloatBuffer textureCoords = nativeFloatBuffer(
           0.0f, 0.0f,
           0.0f, 1.0f,
           crop, 0.0f,

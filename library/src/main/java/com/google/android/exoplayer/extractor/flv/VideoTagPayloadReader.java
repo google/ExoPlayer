@@ -137,10 +137,8 @@ import java.util.List;
    * Builds initialization data for a {@link Format} from H.264 (AVC) codec private data.
    *
    * @return The AvcSequenceHeader data needed to initialize the video codec.
-   * @throws ParserException If the initialization data could not be built.
    */
-  private AvcSequenceHeaderData parseAvcCodecPrivate(ParsableByteArray buffer)
-      throws ParserException {
+  private AvcSequenceHeaderData parseAvcCodecPrivate(ParsableByteArray buffer) {
     // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
     buffer.setPosition(4);
     int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;

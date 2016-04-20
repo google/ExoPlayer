@@ -68,9 +68,7 @@ import javax.crypto.spec.SecretKeySpec;
     Cipher cipher;
     try {
       cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchPaddingException e) {
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
       throw new RuntimeException(e);
     }
 
@@ -79,9 +77,7 @@ import javax.crypto.spec.SecretKeySpec;
 
     try {
       cipher.init(Cipher.DECRYPT_MODE, cipherKey, cipherIV);
-    } catch (InvalidKeyException e) {
-      throw new RuntimeException(e);
-    } catch (InvalidAlgorithmParameterException e) {
+    } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
       throw new RuntimeException(e);
     }
 

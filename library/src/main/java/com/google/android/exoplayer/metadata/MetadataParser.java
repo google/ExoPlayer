@@ -30,7 +30,7 @@ public interface MetadataParser<T> {
    * @param mimeType A metadata mime type.
    * @return Whether the mime type is supported.
    */
-  public boolean canParse(String mimeType);
+  boolean canParse(String mimeType);
 
   /**
    * Parses metadata objects of type <T> from the provided binary data.
@@ -40,6 +40,6 @@ public interface MetadataParser<T> {
    * @return @return A parsed metadata object of type <T>.
    * @throws IOException If a problem occurred parsing the data.
    */
-  public T parse(byte[] data, int size) throws IOException;
+  T parse(byte[] data, int size) throws IOException;
 
 }

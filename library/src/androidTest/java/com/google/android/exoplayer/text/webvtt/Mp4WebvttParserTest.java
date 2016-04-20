@@ -105,7 +105,7 @@ public final class Mp4WebvttParserTest extends TestCase {
 
   public void testNoCueSample() throws IOException {
     Subtitle result = parser.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length);
-    assertMp4WebvttSubtitleEquals(result, new Cue[] {});
+    assertMp4WebvttSubtitleEquals(result, new Cue[0]);
   }
 
   // Negative tests.

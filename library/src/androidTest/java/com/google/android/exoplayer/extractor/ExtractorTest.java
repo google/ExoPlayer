@@ -24,7 +24,7 @@ import junit.framework.TestCase;
  */
 public class ExtractorTest extends TestCase {
 
-  public static final void testContants() {
+  public static void testContants() {
     // Sanity check that constant values match those defined by {@link C}.
     assertEquals(C.RESULT_END_OF_INPUT, Extractor.RESULT_END_OF_INPUT);
     // Sanity check that the other constant values don't overlap.

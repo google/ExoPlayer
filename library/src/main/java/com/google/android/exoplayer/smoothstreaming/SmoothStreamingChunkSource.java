@@ -266,10 +266,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     int manifestTrackIndex = getManifestTrackIndex(streamElement, selectedFormat);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
-    Chunk mediaChunk = newMediaChunk(selectedFormat, dataSource, uri, null,
-        currentAbsoluteChunkIndex, chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger,
-        extractorWrapper, drmInitData, selectedFormat);
-    out.chunk = mediaChunk;
+    out.chunk = newMediaChunk(selectedFormat, dataSource, uri, null, currentAbsoluteChunkIndex,
+        chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, extractorWrapper, drmInitData,
+        selectedFormat);
   }
 
   @Override

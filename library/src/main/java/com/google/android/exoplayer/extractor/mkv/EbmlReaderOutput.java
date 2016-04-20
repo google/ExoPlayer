@@ -112,6 +112,6 @@ import java.io.IOException;
    * @throws InterruptedException If the thread is interrupted.
    */
   void binaryElement(int id, int contentsSize, ExtractorInput input)
-      throws ParserException, IOException, InterruptedException;
+      throws IOException, InterruptedException;
 
 }

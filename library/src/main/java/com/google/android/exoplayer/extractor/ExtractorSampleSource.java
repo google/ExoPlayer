@@ -315,9 +315,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       for (int i = 0; i < extractors.length; i++) {
         try {
           extractors[i] = DEFAULT_EXTRACTOR_CLASSES.get(i).newInstance();
-        } catch (InstantiationException e) {
-          throw new IllegalStateException("Unexpected error creating default extractor", e);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
           throw new IllegalStateException("Unexpected error creating default extractor", e);
         }
       }
@@ -569,7 +567,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
-      seekInsideBuffer &= sampleQueues[i].skipToKeyframeBefore(positionUs);
+      seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
     }
     // If we failed to seek within the sample queues, we need to restart.
     if (!seekInsideBuffer) {
@@ -827,7 +825,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
      * @throws InterruptedException Thrown if the thread was interrupted.
      */
     public Extractor selectExtractor(ExtractorInput input)
-        throws UnrecognizedInputFormatException, IOException, InterruptedException {
+        throws IOException, InterruptedException {
       if (extractor != null) {
         return extractor;
       }

@@ -59,19 +59,11 @@ import java.util.List;
   }
 
   @Override
-  public long getLastEventTime() {
-    if (getEventTimeCount() == 0) {
-      return -1;
-    }
-    return cueTimesUs[cueTimesUs.length - 1];
-  }
-
-  @Override
   public List<Cue> getCues(long timeUs) {
     int index = Util.binarySearchFloor(cueTimesUs, timeUs, true, false);
     if (index == -1 || cues[index] == null) {
       // timeUs is earlier than the start of the first cue, or we have an empty cue.
-      return Collections.<Cue>emptyList();
+      return Collections.emptyList();
     } else {
       return Collections.singletonList(cues[index]);
     }

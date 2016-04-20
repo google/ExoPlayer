@@ -29,18 +29,18 @@ public interface Extractor {
    * to the next {@link #read(ExtractorInput, PositionHolder)} is required to provide data
    * continuing from the position in the stream reached by the returning call.
    */
-  public static final int RESULT_CONTINUE = 0;
+  int RESULT_CONTINUE = 0;
   /**
    * Returned by {@link #read(ExtractorInput, PositionHolder)} if the {@link ExtractorInput} passed
    * to the next {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting
    * from a specified position in the stream.
    */
-  public static final int RESULT_SEEK = 1;
+  int RESULT_SEEK = 1;
   /**
    * Returned by {@link #read(ExtractorInput, PositionHolder)} if the end of the
    * {@link ExtractorInput} was reached. Equal to {@link C#RESULT_END_OF_INPUT}.
    */
-  public static final int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
+  int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
 
   /**
    * Initializes the extractor with an {@link ExtractorOutput}.

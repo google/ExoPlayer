@@ -280,23 +280,29 @@ public final class TtmlParser extends SubtitleParser {
     for (int i = 0; i < attributeCount; i++) {
       String attr = ParserUtil.removeNamespacePrefix(parser.getAttributeName(i));
       String value = parser.getAttributeValue(i);
-      if (attr.equals(ATTR_BEGIN)) {
-        startTime = parseTimeExpression(value,
-            DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
-      } else if (attr.equals(ATTR_END)) {
-        endTime = parseTimeExpression(value,
-            DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
-      } else if (attr.equals(ATTR_DURATION)) {
-        duration = parseTimeExpression(value,
-            DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
-      } else if (attr.equals(ATTR_STYLE)) {
-        // IDREFS: potentially multiple space delimited ids
-        String[] ids = parseStyleIds(value);
-        if (ids.length > 0) {
-          styleIds = ids;
-        }
-      } else {
-        // Do nothing.
+      switch (attr) {
+        case ATTR_BEGIN:
+          startTime = parseTimeExpression(value,
+              DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
+          break;
+        case ATTR_END:
+          endTime = parseTimeExpression(value,
+              DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
+          break;
+        case ATTR_DURATION:
+          duration = parseTimeExpression(value,
+              DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
+          break;
+        case ATTR_STYLE:
+          // IDREFS: potentially multiple space delimited ids
+          String[] ids = parseStyleIds(value);
+          if (ids.length > 0) {
+            styleIds = ids;
+          }
+          break;
+        default:
+          // Do nothing.
+          break;
       }
     }
     if (parent != null && parent.startTimeUs != TtmlNode.UNDEFINED_TIME) {
@@ -320,7 +326,7 @@ public final class TtmlParser extends SubtitleParser {
   }
 
   private static boolean isSupportedTag(String tag) {
-    if (tag.equals(TtmlNode.TAG_TT)
+    return tag.equals(TtmlNode.TAG_TT)
         || tag.equals(TtmlNode.TAG_HEAD)
         || tag.equals(TtmlNode.TAG_BODY)
         || tag.equals(TtmlNode.TAG_DIV)
@@ -334,10 +340,7 @@ public final class TtmlParser extends SubtitleParser {
         || tag.equals(TtmlNode.TAG_METADATA)
         || tag.equals(TtmlNode.TAG_SMPTE_IMAGE)
         || tag.equals(TtmlNode.TAG_SMPTE_DATA)
-        || tag.equals(TtmlNode.TAG_SMPTE_INFORMATION)) {
-      return true;
-    }
-    return false;
+        || tag.equals(TtmlNode.TAG_SMPTE_INFORMATION);
   }
 
   private static void parseFontSize(String expression, TtmlStyle out) throws ParserException {
@@ -411,18 +414,25 @@ public final class TtmlParser extends SubtitleParser {
       String timeValue = matcher.group(1);
       double offsetSeconds = Double.parseDouble(timeValue);
       String unit = matcher.group(2);
-      if (unit.equals("h")) {
-        offsetSeconds *= 3600;
-      } else if (unit.equals("m")) {
-        offsetSeconds *= 60;
-      } else if (unit.equals("s")) {
-        // Do nothing.
-      } else if (unit.equals("ms")) {
-        offsetSeconds /= 1000;
-      } else if (unit.equals("f")) {
-        offsetSeconds /= frameRate;
-      } else if (unit.equals("t")) {
-        offsetSeconds /= tickRate;
+      switch (unit) {
+        case "h":
+          offsetSeconds *= 3600;
+          break;
+        case "m":
+          offsetSeconds *= 60;
+          break;
+        case "s":
+          // Do nothing.
+          break;
+        case "ms":
+          offsetSeconds /= 1000;
+          break;
+        case "f":
+          offsetSeconds /= frameRate;
+          break;
+        case "t":
+          offsetSeconds /= tickRate;
+          break;
       }
       return (long) (offsetSeconds * C.MICROS_PER_SECOND);
     }

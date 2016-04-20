@@ -667,11 +667,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (drmManagerState == DrmSessionManager.STATE_ERROR) {
       throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
     }
-    if (drmManagerState != DrmSessionManager.STATE_OPENED_WITH_KEYS &&
-        (bufferEncrypted || !playClearSamplesWithoutKeys)) {
-      return true;
-    }
-    return false;
+    return drmManagerState != DrmSessionManager.STATE_OPENED_WITH_KEYS
+        && (bufferEncrypted || !playClearSamplesWithoutKeys);
   }
 
   /**
@@ -840,10 +837,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   /**
    * Processes a new output format.
-   *
-   * @throws ExoPlaybackException If an error occurs processing the output format.
    */
-  private void processOutputFormat() throws ExoPlaybackException {
+  private void processOutputFormat() {
     android.media.MediaFormat format = codec.getOutputFormat();
     if (codecNeedsMonoChannelCountWorkaround) {
       format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
@@ -917,7 +912,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private int getDecodeOnlyIndex(long presentationTimeUs) {
     final int size = decodeOnlyPresentationTimestamps.size();
     for (int i = 0; i < size; i++) {
-      if (decodeOnlyPresentationTimestamps.get(i).longValue() == presentationTimeUs) {
+      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
         return i;
       }
     }

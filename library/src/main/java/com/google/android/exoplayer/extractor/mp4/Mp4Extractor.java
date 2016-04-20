@@ -69,7 +69,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int atomHeaderBytesRead;
   private ParsableByteArray atomData;
 
-  private int sampleSize;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
 
@@ -341,7 +340,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
     }
     this.durationUs = durationUs;
-    this.tracks = tracks.toArray(new Mp4Track[0]);
+    this.tracks = tracks.toArray(new Mp4Track[tracks.size()]);
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);
   }
@@ -378,7 +377,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       return RESULT_SEEK;
     }
     input.skipFully((int) skipAmount);
-    sampleSize = track.sampleTable.sizes[sampleIndex];
+    int sampleSize = track.sampleTable.sizes[sampleIndex];
     if (track.track.nalUnitLengthFieldLength != -1) {
       // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
       // they're only 1 or 2 bytes long.

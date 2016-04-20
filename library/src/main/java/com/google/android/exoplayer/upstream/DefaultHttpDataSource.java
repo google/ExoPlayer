@@ -339,9 +339,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
-      HttpURLConnection connection = makeConnection(
-          url, postBody, position, length, allowGzip, true /* followRedirects */);
-      return connection;
+      return makeConnection(url, postBody, position, length, allowGzip, true /* followRedirects */);
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.ext.vp9;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
 import java.nio.ByteBuffer;
@@ -24,7 +25,7 @@ import java.nio.ByteBuffer;
  * JNI wrapper for the libvpx VP9 decoder.
  */
 /* package */ final class VpxDecoder extends
-    SimpleDecoder<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> {
+    SimpleDecoder<DecoderInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
   public static final int OUTPUT_MODE_UNKNOWN = -1;
   public static final int OUTPUT_MODE_YUV = 0;
@@ -65,7 +66,7 @@ import java.nio.ByteBuffer;
    */
   public VpxDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize)
       throws VpxDecoderException {
-    super(new VpxInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
+    super(new DecoderInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
     vpxDecContext = vpxInit();
     if (vpxDecContext == 0) {
       throw new VpxDecoderException("Failed to initialize decoder");
@@ -84,8 +85,8 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  protected VpxInputBuffer createInputBuffer() {
-    return new VpxInputBuffer();
+  protected DecoderInputBuffer createInputBuffer() {
+    return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
   }
 
   @Override
@@ -99,7 +100,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
+  protected VpxDecoderException decode(DecoderInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
       boolean reset) {
     outputBuffer.timestampUs = inputBuffer.timeUs;
     inputBuffer.data.position(inputBuffer.data.position() - inputBuffer.size);
