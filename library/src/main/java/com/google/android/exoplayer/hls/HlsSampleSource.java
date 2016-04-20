@@ -29,7 +29,7 @@ import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.extractor.RollingSampleBuffer;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -60,7 +60,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private final Loader loader;
   private final HlsChunkSource chunkSource;
-  private final LinkedList<TsChunk> tsChunks = new LinkedList<TsChunk>();
+  private final LinkedList<HlsMediaChunk> mediaChunks = new LinkedList<HlsMediaChunk>();
   private final HlsOutput output;
   private final int bufferSizeContribution;
   private final ChunkHolder nextChunkHolder;
@@ -71,7 +71,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private boolean seenFirstTrackSelection;
   private int enabledTrackCount;
 
-  private RollingSampleBuffer[] trackOutputs;
+  private DefaultTrackOutput[] sampleQueues;
   private Format downstreamFormat;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
@@ -89,8 +89,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private boolean loadingFinished;
   private Chunk currentLoadable;
-  private TsChunk currentTsLoadable;
-  private TsChunk previousTsLoadable;
+  private HlsMediaChunk currentMediaChunkLoadable;
+  private HlsMediaChunk previousMediaChunkLoadable;
 
   private long currentLoadStartTimeMs;
 
@@ -135,7 +135,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return true;
     }
     if (output.prepare()) {
-      trackOutputs = output.getTrackOutputs();
+      sampleQueues = output.getTrackOutputs();
       buildTracks();
       prepared = true;
       return true;
@@ -231,14 +231,14 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return C.END_OF_SOURCE_US;
     } else {
       long bufferedPositionUs = downstreamPositionUs;
-      if (previousTsLoadable != null) {
+      if (previousMediaChunkLoadable != null) {
         // Buffered position should be at least as large as the end time of the previously loaded
         // chunk.
-        bufferedPositionUs = Math.max(previousTsLoadable.endTimeUs, bufferedPositionUs);
+        bufferedPositionUs = Math.max(previousMediaChunkLoadable.endTimeUs, bufferedPositionUs);
       }
-      for (RollingSampleBuffer trackOutput : trackOutputs) {
+      for (DefaultTrackOutput sampleQueue : sampleQueues) {
         bufferedPositionUs = Math.max(bufferedPositionUs,
-            trackOutput.getLargestQueuedTimestampUs());
+            sampleQueue.getLargestQueuedTimestampUs());
       }
       return bufferedPositionUs;
     }
@@ -268,7 +268,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset()) {
       return false;
     }
-    return !trackOutputs[group].isEmpty();
+    return !sampleQueues[group].isEmpty();
   }
 
   /* package */ void maybeThrowError() throws IOException {
@@ -289,7 +289,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return TrackStream.NOTHING_READ;
     }
 
-    TsChunk currentChunk = tsChunks.getFirst();
+    HlsMediaChunk currentChunk = mediaChunks.getFirst();
     Format currentFormat = currentChunk.format;
     if (downstreamFormat == null || !downstreamFormat.equals(currentFormat)) {
       eventDispatcher.downstreamFormatChanged(currentFormat, currentChunk.trigger,
@@ -297,7 +297,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       downstreamFormat = currentFormat;
     }
 
-    RollingSampleBuffer sampleQueue = trackOutputs[group];
+    DefaultTrackOutput sampleQueue = sampleQueues[group];
     if (sampleQueue.isEmpty()) {
       if (loadingFinished) {
         buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
@@ -315,8 +315,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     if (sampleQueue.readSample(buffer)) {
       long sampleTimeUs = buffer.timeUs;
-      while (tsChunks.size() > 1 && tsChunks.get(1).startTimeUs <= sampleTimeUs) {
-        tsChunks.removeFirst();
+      while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= sampleTimeUs) {
+        mediaChunks.removeFirst();
       }
       if (sampleTimeUs < lastSeekPositionUs) {
         buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
@@ -335,12 +335,13 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     long now = SystemClock.elapsedRealtime();
     long loadDurationMs = now - currentLoadStartTimeMs;
     chunkSource.onChunkLoadCompleted(currentLoadable);
-    if (isTsChunk(currentLoadable)) {
-      Assertions.checkState(currentLoadable == currentTsLoadable);
-      previousTsLoadable = currentTsLoadable;
-      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
-          currentTsLoadable.trigger, currentTsLoadable.format, currentTsLoadable.startTimeUs,
-          currentTsLoadable.endTimeUs, now, loadDurationMs);
+    if (isMediaChunk(currentLoadable)) {
+      Assertions.checkState(currentLoadable == currentMediaChunkLoadable);
+      previousMediaChunkLoadable = currentMediaChunkLoadable;
+      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentMediaChunkLoadable.type,
+          currentMediaChunkLoadable.trigger, currentMediaChunkLoadable.format,
+          currentMediaChunkLoadable.startTimeUs, currentMediaChunkLoadable.endTimeUs, now,
+          loadDurationMs);
     } else {
       eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
@@ -363,12 +364,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   @Override
   public int onLoadError(Loadable loadable, IOException e) {
     long bytesLoaded = currentLoadable.bytesLoaded();
-    boolean cancelable = !isTsChunk(currentLoadable) || bytesLoaded == 0;
+    boolean cancelable = !isMediaChunk(currentLoadable) || bytesLoaded == 0;
     if (chunkSource.onChunkLoadError(currentLoadable, cancelable, e)) {
       eventDispatcher.loadError(e);
       eventDispatcher.loadCanceled(bytesLoaded);
       clearCurrentLoadable();
-      if (previousTsLoadable == null && !isPendingReset()) {
+      if (previousMediaChunkLoadable == null && !isPendingReset()) {
         pendingResetPositionUs = lastSeekPositionUs;
       }
       maybeStartLoading();
@@ -415,9 +416,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     // of the single track of this type.
     int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
     int primaryExtractorTrackIndex = -1;
-    int extractorTrackCount = trackOutputs.length;
+    int extractorTrackCount = sampleQueues.length;
     for (int i = 0; i < extractorTrackCount; i++) {
-      String sampleMimeType = trackOutputs[i].getUpstreamFormat().sampleMimeType;
+      String sampleMimeType = sampleQueues[i].getUpstreamFormat().sampleMimeType;
       int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = PRIMARY_TYPE_VIDEO;
@@ -450,7 +451,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     // Construct the set of exposed track groups.
     TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];
     for (int i = 0; i < extractorTrackCount; i++) {
-      Format sampleFormat = trackOutputs[i].getUpstreamFormat();
+      Format sampleFormat = sampleQueues[i].getUpstreamFormat();
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
@@ -522,7 +523,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     for (int i = 0; i < groupEnabledStates.length; i++) {
       if (!groupEnabledStates[i]) {
-        trackOutputs[i].skipAllSamples();
+        sampleQueues[i].skipAllSamples();
       }
     }
   }
@@ -539,14 +540,14 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void clearState() {
-    tsChunks.clear();
+    mediaChunks.clear();
     output.clear();
     clearCurrentLoadable();
-    previousTsLoadable = null;
+    previousMediaChunkLoadable = null;
   }
 
   private void clearCurrentLoadable() {
-    currentTsLoadable = null;
+    currentMediaChunkLoadable = null;
     currentLoadable = null;
   }
 
@@ -557,7 +558,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    chunkSource.getNextChunk(previousTsLoadable,
+    chunkSource.getNextChunk(previousMediaChunkLoadable,
         pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : downstreamPositionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
@@ -578,16 +579,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     currentLoadStartTimeMs = SystemClock.elapsedRealtime();
     currentLoadable = nextLoadable;
-    if (isTsChunk(currentLoadable)) {
-      TsChunk tsChunk = (TsChunk) currentLoadable;
+    if (isMediaChunk(currentLoadable)) {
+      HlsMediaChunk mediaChunk = (HlsMediaChunk) currentLoadable;
       if (isPendingReset()) {
         pendingResetPositionUs = C.UNSET_TIME_US;
       }
-      tsChunk.init(output);
-      tsChunks.addLast(tsChunk);
-      eventDispatcher.loadStarted(tsChunk.dataSpec.length, tsChunk.type, tsChunk.trigger,
-          tsChunk.format, tsChunk.startTimeUs, tsChunk.endTimeUs);
-      currentTsLoadable = tsChunk;
+      mediaChunk.init(output);
+      mediaChunks.addLast(mediaChunk);
+      eventDispatcher.loadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
+          mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
+      currentMediaChunkLoadable = mediaChunk;
     } else {
       eventDispatcher.loadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1);
@@ -607,13 +608,13 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? C.UNSET_TIME_US : (currentTsLoadable != null
-          ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs);
+      return loadingFinished ? C.UNSET_TIME_US : (currentMediaChunkLoadable != null
+          ? currentMediaChunkLoadable.endTimeUs : previousMediaChunkLoadable.endTimeUs);
     }
   }
 
-  private boolean isTsChunk(Chunk chunk) {
-    return chunk instanceof TsChunk;
+  private boolean isMediaChunk(Chunk chunk) {
+    return chunk instanceof HlsMediaChunk;
   }
 
   private boolean isPendingReset() {

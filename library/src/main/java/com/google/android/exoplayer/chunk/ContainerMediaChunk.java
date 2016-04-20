@@ -19,9 +19,9 @@ import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.RollingSampleBuffer;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -111,7 +111,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
         // Set the target to ourselves.
-        RollingSampleBuffer trackOutput = getTrackOutput();
+        DefaultTrackOutput trackOutput = getTrackOutput();
         trackOutput.formatWithOffset(sampleFormat, sampleOffsetUs);
         extractorWrapper.init(this, trackOutput);
       }

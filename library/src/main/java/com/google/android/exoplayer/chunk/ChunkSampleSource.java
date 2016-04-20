@@ -26,7 +26,7 @@ import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.extractor.RollingSampleBuffer;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -56,7 +56,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private final ChunkHolder nextChunkHolder;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
-  private final RollingSampleBuffer sampleQueue;
+  private final DefaultTrackOutput sampleQueue;
   private final int bufferSizeContribution;
   private final EventDispatcher eventDispatcher;
 
@@ -125,7 +125,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
-    sampleQueue = new RollingSampleBuffer(loadControl.getAllocator());
+    sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
     pendingResetPositionUs = C.UNSET_TIME_US;
   }
 

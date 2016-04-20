@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls;
+package com.google.android.exoplayer.hls.playlist;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
+import com.google.android.exoplayer.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
 

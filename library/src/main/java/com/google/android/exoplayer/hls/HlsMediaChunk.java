@@ -27,9 +27,9 @@ import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 
 /**
- * An MPEG2TS chunk.
+ * An HLS {@link MediaChunk}.
  */
-public final class TsChunk extends MediaChunk {
+/* package */ final class HlsMediaChunk extends MediaChunk {
 
   /**
    * The discontinuity sequence number of the chunk.
@@ -65,7 +65,7 @@ public final class TsChunk extends MediaChunk {
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, int discontinuitySequenceNumber,
       Extractor extractor, boolean extractorNeedsInit, boolean shouldSpliceIn,
       byte[] encryptionKey, byte[] encryptionIv) {

@@ -28,6 +28,11 @@ import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
+import com.google.android.exoplayer.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer.hls.playlist.HlsPlaylist;
+import com.google.android.exoplayer.hls.playlist.HlsPlaylistParser;
+import com.google.android.exoplayer.hls.playlist.Variant;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -325,7 +330,7 @@ public class HlsChunkSource {
    *     should be interpreted as a seek position.
    * @param out A holder to populate.
    */
-  public void getNextChunk(TsChunk previous, long playbackPositionUs, ChunkHolder out) {
+  public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
     int variantIndex = getNextVariantIndex(previous, playbackPositionUs);
     boolean switchingVariant = previous != null
         && variants[variantIndex].format != previous.format;
@@ -450,7 +455,7 @@ public class HlsChunkSource {
       extractorNeedsInit = false;
     }
 
-    out.chunk = new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
+    out.chunk = new HlsMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
         chunkMediaSequence, segment.discontinuitySequenceNumber, extractor, extractorNeedsInit,
         switchingVariant, encryptionKey, encryptionIv);
   }
@@ -576,7 +581,7 @@ public class HlsChunkSource {
     return false;
   }
 
-  private int getNextVariantIndex(TsChunk previous, long playbackPositionUs) {
+  private int getNextVariantIndex(HlsMediaChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
     if (enabledVariants.length > 1) {
       long bufferedDurationUs;

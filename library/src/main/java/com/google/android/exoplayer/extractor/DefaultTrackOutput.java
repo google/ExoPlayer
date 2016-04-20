@@ -29,9 +29,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- * A rolling buffer of sample data and corresponding sample information.
+ * A {@link TrackOutput} that buffers extracted samples in a queue and allows for consumption from
+ * that queue.
  */
-public final class RollingSampleBuffer implements TrackOutput {
+public final class DefaultTrackOutput implements TrackOutput {
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
@@ -60,7 +61,7 @@ public final class RollingSampleBuffer implements TrackOutput {
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    */
-  public RollingSampleBuffer(Allocator allocator) {
+  public DefaultTrackOutput(Allocator allocator) {
     this.allocator = allocator;
     allocationLength = allocator.getIndividualAllocationLength();
     infoQueue = new InfoQueue();

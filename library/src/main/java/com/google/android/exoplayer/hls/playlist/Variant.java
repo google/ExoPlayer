@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls;
+package com.google.android.exoplayer.hls.playlist;
+
+import com.google.android.exoplayer.Format;
 
 /**
- * Represents an HLS playlist.
+ * Variant stream reference.
  */
-public abstract class HlsPlaylist {
+public final class Variant {
 
-  public final static int TYPE_MASTER = 0;
-  public final static int TYPE_MEDIA = 1;
+  public final String url;
+  public final Format format;
+  public final String codecs;
 
-  public final String baseUri;
-  public final int type;
-
-  protected HlsPlaylist(String baseUri, int type) {
-    this.baseUri = baseUri;
-    this.type = type;
+  public Variant(String url, Format format, String codecs) {
+    this.url = url;
+    this.format = format;
+    this.codecs = codecs;
   }
 
 }

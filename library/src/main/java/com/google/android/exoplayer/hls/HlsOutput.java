@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
-import com.google.android.exoplayer.extractor.RollingSampleBuffer;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.upstream.Allocator;
 
@@ -29,10 +29,10 @@ import android.util.SparseArray;
 /* package */ final class HlsOutput implements ExtractorOutput {
 
   private final Allocator allocator;
-  private final SparseArray<RollingSampleBuffer> sampleQueues = new SparseArray<>();
+  private final SparseArray<DefaultTrackOutput> sampleQueues = new SparseArray<>();
 
   private boolean prepared;
-  private RollingSampleBuffer[] trackOutputArray;
+  private DefaultTrackOutput[] trackOutputArray;
   private volatile boolean tracksBuilt;
 
   public HlsOutput(Allocator allocator) {
@@ -53,12 +53,12 @@ import android.util.SparseArray;
       return false;
     } else {
       if (trackOutputArray == null) {
-        trackOutputArray = new RollingSampleBuffer[sampleQueues.size()];
+        trackOutputArray = new DefaultTrackOutput[sampleQueues.size()];
         for (int i = 0; i < trackOutputArray.length; i++) {
           trackOutputArray[i] = sampleQueues.valueAt(i);
         }
       }
-      for (RollingSampleBuffer sampleQueue : trackOutputArray) {
+      for (DefaultTrackOutput sampleQueue : trackOutputArray) {
         if (sampleQueue.getUpstreamFormat() == null) {
           return false;
         }
@@ -71,7 +71,7 @@ import android.util.SparseArray;
   /**
    * Returns the array of track outputs, or null if the output is not yet prepared.
    */
-  public RollingSampleBuffer[] getTrackOutputs() {
+  public DefaultTrackOutput[] getTrackOutputs() {
     return trackOutputArray;
   }
 
@@ -98,11 +98,11 @@ import android.util.SparseArray;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public RollingSampleBuffer track(int id) {
+  public DefaultTrackOutput track(int id) {
     if (sampleQueues.indexOfKey(id) >= 0) {
       return sampleQueues.get(id);
     }
-    RollingSampleBuffer trackOutput = new RollingSampleBuffer(allocator);
+    DefaultTrackOutput trackOutput = new DefaultTrackOutput(allocator);
     sampleQueues.put(id, trackOutput);
     return trackOutput;
   }

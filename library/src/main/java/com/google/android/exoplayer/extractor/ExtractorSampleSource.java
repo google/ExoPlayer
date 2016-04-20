@@ -208,7 +208,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private int enabledTrackCount;
-  private RollingSampleBuffer[] sampleQueues;
+  private DefaultTrackOutput[] sampleQueues;
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
@@ -324,7 +324,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
-    sampleQueues = new RollingSampleBuffer[0];
+    sampleQueues = new DefaultTrackOutput[0];
   }
 
   // SampleSource implementation.
@@ -425,7 +425,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return pendingResetPositionUs;
     } else {
       long largestQueuedTimestampUs = Long.MIN_VALUE;
-      for (RollingSampleBuffer sampleQueue : sampleQueues) {
+      for (DefaultTrackOutput sampleQueue : sampleQueues) {
         largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
             sampleQueue.getLargestQueuedTimestampUs());
       }
@@ -473,7 +473,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    RollingSampleBuffer sampleQueue = sampleQueues[track];
+    DefaultTrackOutput sampleQueue = sampleQueues[track];
     if (pendingMediaFormat[track]) {
       formatHolder.format = sampleQueue.getUpstreamFormat();
       formatHolder.drmInitData = drmInitData;
@@ -538,7 +538,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public TrackOutput track(int id) {
     sampleQueues = Arrays.copyOf(sampleQueues, sampleQueues.length + 1);
-    RollingSampleBuffer sampleQueue = new RollingSampleBuffer(allocator);
+    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(allocator);
     sampleQueues[sampleQueues.length - 1] = sampleQueue;
     return sampleQueue;
   }
@@ -634,14 +634,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private int getExtractedSamplesCount() {
     int extractedSamplesCount = 0;
-    for (RollingSampleBuffer sampleQueue : sampleQueues) {
+    for (DefaultTrackOutput sampleQueue : sampleQueues) {
       extractedSamplesCount += sampleQueue.getWriteIndex();
     }
     return extractedSamplesCount;
   }
 
   private boolean haveFormatsForAllTracks() {
-    for (RollingSampleBuffer sampleQueue : sampleQueues) {
+    for (DefaultTrackOutput sampleQueue : sampleQueues) {
       if (sampleQueue.getUpstreamFormat() == null) {
         return false;
       }
@@ -664,7 +664,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   private void clearSampleQueues() {
-    for (RollingSampleBuffer sampleQueue : sampleQueues) {
+    for (DefaultTrackOutput sampleQueue : sampleQueues) {
       sampleQueue.clear();
     }
   }
