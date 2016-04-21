@@ -113,13 +113,8 @@ import java.util.List;
     int fixedSampleSize = stsz.readUnsignedIntToInt();
     int sampleCount = stsz.readUnsignedIntToInt();
 
-    long[] offsets = new long[sampleCount];
-    int[] sizes = new int[sampleCount];
-    int maximumSize = 0;
-    long[] timestamps = new long[sampleCount];
-    int[] flags = new int[sampleCount];
     if (sampleCount == 0) {
-      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
+      return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
     }
 
     // Prepare to read chunk offsets.
@@ -163,7 +158,7 @@ import java.util.List;
       nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
     }
 
-    // Calculate the chunk offsets
+    // Calculate the chunk offsets.
     long offsetBytes;
     if (chunkOffsetsAtom.type == Atom.TYPE_stco) {
       offsetBytes = chunkOffsets.readUnsignedInt();
@@ -171,51 +166,90 @@ import java.util.List;
       offsetBytes = chunkOffsets.readUnsignedLongToLong();
     }
 
+    // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
+    boolean isRechunkable =
+        fixedSampleSize != 0
+            && MimeTypes.AUDIO_RAW.equals(track.mediaFormat.mimeType)
+            && remainingTimestampDeltaChanges == 0
+            && remainingTimestampOffsetChanges == 0
+            && remainingSynchronizationSamples == 0;
+
+    long[] offsets = null;
+    int[] sizes = null;
+    int maximumSize = 0;
+    long[] timestamps = null;
+    int[] flags = null;
+    // If we're rechunking fixed sample size data, we must store chunk offset and sample counts.
+    long[] chunkOffsetsBytes = null;
+    int[] chunkSampleCounts = null;
+    if (isRechunkable) {
+      chunkOffsetsBytes = new long[chunkCount];
+      chunkSampleCounts = new int[chunkCount];
+    } else {
+      offsets = new long[sampleCount];
+      sizes = new int[sampleCount];
+      timestamps = new long[sampleCount];
+      flags = new int[sampleCount];
+    }
+
     long timestampTimeUnits = 0;
-    for (int i = 0; i < sampleCount; i++) {
-      // Add on the timestamp offset if ctts is present.
-      if (ctts != null) {
-        while (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
-          remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
-          // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
-          // version 0 ctts boxes, however some streams violate the spec and use signed integers
-          // instead. It's safe to always parse sample offsets as signed integers here, because
-          // unsigned integers will still be parsed correctly (unless their top bit is set, which is
-          // never true in practice because sample offsets are always small).
-          timestampOffset = ctts.readInt();
-          remainingTimestampOffsetChanges--;
+    int remainingSamples = sampleCount;
+    while (remainingSamples > 0) {
+      int i = sampleCount - remainingSamples;
+      if (!isRechunkable) {
+        // Add on the timestamp offset if ctts is present.
+        if (ctts != null) {
+          while (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
+            remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
+            // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers
+            // in version 0 ctts boxes, however some streams violate the spec and use signed
+            // integers instead. It's safe to always parse sample offsets as signed integers here,
+            // because unsigned integers will still be parsed correctly (unless their top bit is
+            // set, which is never true in practice because sample offsets are always small).
+            timestampOffset = ctts.readInt();
+            remainingTimestampOffsetChanges--;
+          }
+          remainingSamplesAtTimestampOffset--;
         }
-        remainingSamplesAtTimestampOffset--;
-      }
 
-      offsets[i] = offsetBytes;
-      sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
-      if (sizes[i] > maximumSize) {
-        maximumSize = sizes[i];
-      }
-      timestamps[i] = timestampTimeUnits + timestampOffset;
-
-      // All samples are synchronization samples if the stss is not present.
-      flags[i] = stss == null ? C.SAMPLE_FLAG_SYNC : 0;
-      if (i == nextSynchronizationSampleIndex) {
-        flags[i] = C.SAMPLE_FLAG_SYNC;
-        remainingSynchronizationSamples--;
-        if (remainingSynchronizationSamples > 0) {
-          nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+        offsets[i] = offsetBytes;
+        sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+        if (sizes[i] > maximumSize) {
+          maximumSize = sizes[i];
         }
-      }
+        timestamps[i] = timestampTimeUnits + timestampOffset;
 
-      // Add on the duration of this sample.
-      timestampTimeUnits += timestampDeltaInTimeUnits;
-      remainingSamplesAtTimestampDelta--;
-      if (remainingSamplesAtTimestampDelta == 0 && remainingTimestampDeltaChanges > 0) {
-        remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
-        timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
-        remainingTimestampDeltaChanges--;
+        // All samples are synchronization samples if the stss is not present.
+        flags[i] = stss == null ? C.SAMPLE_FLAG_SYNC : 0;
+        if (i == nextSynchronizationSampleIndex) {
+          flags[i] = C.SAMPLE_FLAG_SYNC;
+          remainingSynchronizationSamples--;
+          if (remainingSynchronizationSamples > 0) {
+            nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+          }
+        }
+
+        // Add on the duration of this sample.
+        timestampTimeUnits += timestampDeltaInTimeUnits;
+        remainingSamplesAtTimestampDelta--;
+        if (remainingSamplesAtTimestampDelta == 0 && remainingTimestampDeltaChanges > 0) {
+          remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
+          timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
+          remainingTimestampDeltaChanges--;
+        }
+        remainingSamplesInChunk--;
+        remainingSamples--;
+      } else {
+        // Store the latest chunk offset and sample count.
+        chunkOffsetsBytes[chunkIndex] = offsetBytes;
+        chunkSampleCounts[chunkIndex] = samplesPerChunk;
+
+        remainingSamplesAtTimestampDelta -= samplesPerChunk;
+        remainingSamplesInChunk -= samplesPerChunk;
+        remainingSamples -= samplesPerChunk;
       }
 
       // If we're at the last sample in this chunk, move to the next chunk.
-      remainingSamplesInChunk--;
       if (remainingSamplesInChunk == 0) {
         chunkIndex++;
         if (chunkIndex < chunkCount) {
@@ -224,20 +258,18 @@ import java.util.List;
           } else {
             offsetBytes = chunkOffsets.readUnsignedLongToLong();
           }
-        }
 
-        // Change the samples-per-chunk if required.
-        if (chunkIndex == nextSamplesPerChunkChangeChunkIndex) {
-          samplesPerChunk = stsc.readUnsignedIntToInt();
-          stsc.skipBytes(4); // Skip the sample description index.
-          remainingSamplesPerChunkChanges--;
-          if (remainingSamplesPerChunkChanges > 0) {
-            nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
+          // Change the samples-per-chunk if required.
+          if (chunkIndex == nextSamplesPerChunkChangeChunkIndex) {
+            samplesPerChunk = stsc.readUnsignedIntToInt();
+            stsc.skipBytes(4); // Skip the sample description index.
+            remainingSamplesPerChunkChanges--;
+            if (remainingSamplesPerChunkChanges > 0) {
+              nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
+            }
           }
-        }
 
-        // Expect samplesPerChunk samples in the following chunk, if it's before the end.
-        if (chunkIndex < chunkCount) {
+          // Expect samplesPerChunk samples in the following chunk.
           remainingSamplesInChunk = samplesPerChunk;
         }
       } else {
@@ -252,6 +284,17 @@ import java.util.List;
     Assertions.checkArgument(remainingSamplesInChunk == 0);
     Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
     Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
+
+    if (isRechunkable) {
+      FixedSampleSizeRechunker.Results rechunkedResults =
+          FixedSampleSizeRechunker.rechunk(
+              fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
+      offsets = rechunkedResults.offsets;
+      sizes = rechunkedResults.sizes;
+      maximumSize = rechunkedResults.maximumSize;
+      timestamps = rechunkedResults.timestamps;
+      flags = rechunkedResults.flags;
+    }
 
     if (track.editListDurations == null) {
       Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
