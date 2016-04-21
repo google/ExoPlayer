@@ -169,7 +169,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor")
+          Class.forName("com.google.android.exoplayer.extractor.ogg.OggExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.
