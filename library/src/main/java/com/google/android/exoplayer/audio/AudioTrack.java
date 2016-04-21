@@ -579,26 +579,23 @@ public final class AudioTrack {
         // If this is the first encoded sample, calculate the sample size in frames.
         framesPerEncodedSample = getFramesPerEncodedSample(encoding, buffer);
       }
-      long frames = passthrough ? framesPerEncodedSample : pcmBytesToFrames(size);
-      long bufferDurationUs = framesToDurationUs(frames);
-      // Note: presentationTimeUs corresponds to the end of the sample, not the start.
-      long bufferStartTime = presentationTimeUs - bufferDurationUs;
       if (startMediaTimeState == START_NOT_SET) {
-        startMediaTimeUs = Math.max(0, bufferStartTime);
+        startMediaTimeUs = Math.max(0, presentationTimeUs);
         startMediaTimeState = START_IN_SYNC;
       } else {
-        // Sanity check that bufferStartTime is consistent with the expected value.
-        long expectedBufferStartTime = startMediaTimeUs + framesToDurationUs(getSubmittedFrames());
+        // Sanity check that presentationTimeUs is consistent with the expected value.
+        long expectedPresentationTimeUs = startMediaTimeUs
+            + framesToDurationUs(getSubmittedFrames());
         if (startMediaTimeState == START_IN_SYNC
-            && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
-          Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got "
-              + bufferStartTime + "]");
+            && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
+          Log.e(TAG, "Discontinuity detected [expected " + expectedPresentationTimeUs + ", got "
+              + presentationTimeUs + "]");
           startMediaTimeState = START_NEED_SYNC;
         }
         if (startMediaTimeState == START_NEED_SYNC) {
           // Adjust startMediaTimeUs to be consistent with the current buffer's start time and the
           // number of bytes submitted.
-          startMediaTimeUs += (bufferStartTime - expectedBufferStartTime);
+          startMediaTimeUs += (presentationTimeUs - expectedPresentationTimeUs);
           startMediaTimeState = START_IN_SYNC;
           result |= RESULT_POSITION_DISCONTINUITY;
         }
