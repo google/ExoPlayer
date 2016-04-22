@@ -73,11 +73,11 @@ public final class FrameworkSampleSource implements SampleSource {
   private final long fileDescriptorLength;
 
   private boolean prepared;
+  private boolean notifyReset;
   private long durationUs;
   private MediaExtractor extractor;
   private TrackGroupArray tracks;
   private int[] trackStates;
-  private boolean[] pendingResets;
 
   private int enabledTrackCount;
   private long lastSeekPositionUs;
@@ -135,7 +135,6 @@ public final class FrameworkSampleSource implements SampleSource {
       extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
     }
     trackStates = new int[extractor.getTrackCount()];
-    pendingResets = new boolean[trackStates.length];
     TrackGroup[] trackArray = new TrackGroup[trackStates.length];
     for (int i = 0; i < trackStates.length; i++) {
       MediaFormat format = extractor.getTrackFormat(i);
@@ -170,7 +169,6 @@ public final class FrameworkSampleSource implements SampleSource {
       enabledTrackCount--;
       trackStates[track] = TRACK_STATE_DISABLED;
       extractor.unselectTrack(track);
-      pendingResets[track] = false;
     }
     // Select new tracks.
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
@@ -195,6 +193,15 @@ public final class FrameworkSampleSource implements SampleSource {
   @Override
   public void continueBuffering(long positionUs) {
      // MediaExtractor takes care of buffering. Do nothing.
+  }
+
+  @Override
+  public long readReset() {
+    if (notifyReset) {
+      notifyReset = false;
+      return lastSeekPositionUs;
+    }
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -230,17 +237,9 @@ public final class FrameworkSampleSource implements SampleSource {
 
   // TrackStream methods.
 
-  /* package */ long readReset(int track) {
-    if (pendingResets[track]) {
-      pendingResets[track] = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
-  }
-
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
-    if (pendingResets[track]) {
+    if (notifyReset) {
       return TrackStream.NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
@@ -302,11 +301,7 @@ public final class FrameworkSampleSource implements SampleSource {
       lastSeekPositionUs = positionUs;
       pendingSeekPositionUs = positionUs;
       extractor.seekTo(positionUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-      for (int i = 0; i < trackStates.length; ++i) {
-        if (trackStates[i] != TRACK_STATE_DISABLED) {
-          pendingResets[i] = true;
-        }
-      }
+      notifyReset = true;
     }
   }
 
@@ -380,11 +375,6 @@ public final class FrameworkSampleSource implements SampleSource {
     @Override
     public void maybeThrowError() throws IOException {
       // Do nothing.
-    }
-
-    @Override
-    public long readReset() {
-      return FrameworkSampleSource.this.readReset(track);
     }
 
     @Override

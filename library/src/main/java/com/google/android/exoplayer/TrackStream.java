@@ -54,18 +54,7 @@ public interface TrackStream {
   void maybeThrowError() throws IOException;
 
   /**
-   * Attempts to read a pending reset.
-   *
-   * @return If a reset was read then the playback position in microseconds after the reset. Else
-   *     {@link C#UNSET_TIME_US}.
-   */
-  long readReset();
-
-  /**
    * Attempts to read from the stream.
-   * <p>
-   * This method will always return {@link #NOTHING_READ} in the case that there's a pending
-   * discontinuity to be read from {@link #readReset} for the specified track.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the

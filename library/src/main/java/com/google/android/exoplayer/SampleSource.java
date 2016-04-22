@@ -85,6 +85,14 @@ public interface SampleSource {
   void continueBuffering(long positionUs);
 
   /**
+   * Attempts to read a pending reset.
+   *
+   * @return If a reset was read then the playback position in microseconds after the reset. Else
+   *     {@link C#UNSET_TIME_US}.
+   */
+  long readReset();
+
+  /**
    * Returns an estimate of the position up to which data is buffered for the enabled tracks.
    * <p>
    * This method should only be called when at least one track is selected.

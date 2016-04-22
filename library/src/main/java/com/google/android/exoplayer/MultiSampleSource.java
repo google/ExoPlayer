@@ -124,6 +124,20 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
+  public long readReset() {
+    long resetPositionUs = C.UNSET_TIME_US;
+    for (SampleSource source : enabledSources) {
+      long childResetPositionUs = source.readReset();
+      if (resetPositionUs == C.UNSET_TIME_US) {
+        resetPositionUs = childResetPositionUs;
+      } else if (childResetPositionUs != C.UNSET_TIME_US) {
+        resetPositionUs = Math.min(resetPositionUs, childResetPositionUs);
+      }
+    }
+    return resetPositionUs;
+  }
+
+  @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = durationUs != C.UNSET_TIME_US ? durationUs : Long.MAX_VALUE;
     for (SampleSource source : enabledSources) {

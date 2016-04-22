@@ -39,7 +39,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,6 +68,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
+  private boolean notifyReset;
   private int enabledTrackCount;
   private DefaultTrackOutput[] sampleQueues;
   private Format downstreamFormat;
@@ -79,7 +79,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private int primaryTrackGroupIndex;
   // Indexed by group.
   private boolean[] groupEnabledStates;
-  private boolean[] pendingResets;
   private Format[] downstreamSampleFormats;
 
   private long downstreamPositionUs;
@@ -204,7 +203,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       int[] tracks = selection.getTracks();
       setTrackGroupEnabledState(group, true);
       downstreamSampleFormats[group] = null;
-      pendingResets[group] = false;
       if (group == primaryTrackGroupIndex) {
         primaryTracksDeselected |= chunkSource.selectTracks(tracks);
       }
@@ -243,6 +241,15 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!loader.isLoading()) {
       maybeStartLoading();
     }
+  }
+
+  @Override
+  public long readReset() {
+    if (notifyReset) {
+      notifyReset = false;
+      return lastSeekPositionUs;
+    }
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -293,16 +300,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     chunkSource.maybeThrowError();
   }
 
-  /* package */ long readReset(int group) {
-    if (pendingResets[group]) {
-      pendingResets[group] = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
-  }
-
   /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (pendingResets[group] || isPendingReset()) {
+    if (notifyReset || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
 
@@ -464,7 +463,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     // Instantiate the necessary internal data-structures.
     primaryTrackGroupIndex = -1;
     groupEnabledStates = new boolean[extractorTrackCount];
-    pendingResets = new boolean[extractorTrackCount];
     downstreamSampleFormats = new Format[extractorTrackCount];
 
     // Construct the set of exposed track groups.
@@ -531,7 +529,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     positionUs = chunkSource.isLive() ? 0 : positionUs;
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
-    Arrays.fill(pendingResets, true);
+    notifyReset = true;
     boolean seekInsideBuffer = !isPendingReset();
     // TODO[REFACTOR]: This will nearly always fail to seek inside all buffers due to sparse tracks
     // such as ID3 (probably EIA608 too). We need a way to not care if we can't seek to the keyframe
@@ -668,11 +666,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     @Override
     public void maybeThrowError() throws IOException {
       HlsSampleSource.this.maybeThrowError();
-    }
-
-    @Override
-    public long readReset() {
-      return HlsSampleSource.this.readReset(group);
     }
 
     @Override

@@ -216,21 +216,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Attempts to read and process a pending reset from the {@link TrackStream}.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  /* package */ final void checkForReset() throws ExoPlaybackException {
-    long resetPositionUs = stream.readReset();
-    if (resetPositionUs != C.UNSET_TIME_US) {
-      reset(resetPositionUs);
-    }
-  }
-
-  /**
    * Stops the renderer.
    *
    * @throws ExoPlaybackException If an error occurs.

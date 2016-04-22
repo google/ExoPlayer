@@ -356,14 +356,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     TraceUtil.beginSection("doSomeWork");
 
-    // Process resets.
-    for (TrackRenderer renderer : enabledRenderers) {
-      renderer.checkForReset();
-    }
-
-    updatePositionUs();
-    updateBufferedPositionUs();
     if (enabledRenderers.length > 0) {
+      // Process reset if there is one, else update the position.
+      if (!checkForSourceResetInternal()) {
+        updatePositionUs();
+      }
+      updateBufferedPositionUs();
       source.continueBuffering(positionUs);
     }
 
@@ -435,14 +433,12 @@ import java.util.concurrent.atomic.AtomicInteger;
         return;
       }
 
-      if (enabledRenderers != null) {
+      if (enabledRenderers.length > 0) {
         for (TrackRenderer renderer : enabledRenderers) {
           ensureStopped(renderer);
         }
         source.seekToUs(positionUs);
-        for (TrackRenderer renderer : enabledRenderers) {
-          renderer.checkForReset();
-        }
+        checkForSourceResetInternal();
       }
 
       resumeInternal();
@@ -472,6 +468,19 @@ import java.util.concurrent.atomic.AtomicInteger;
       startRenderers();
     }
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+  }
+
+  private boolean checkForSourceResetInternal() throws ExoPlaybackException {
+    long resetPositionUs = source.readReset();
+    if (resetPositionUs == C.UNSET_TIME_US) {
+      return false;
+    }
+    positionUs = resetPositionUs;
+    standaloneMediaClock.setPositionUs(resetPositionUs);
+    for (TrackRenderer renderer : enabledRenderers) {
+      renderer.reset(resetPositionUs);
+    }
+    return true;
   }
 
   private void stopInternal() {

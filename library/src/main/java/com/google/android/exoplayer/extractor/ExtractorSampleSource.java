@@ -207,21 +207,17 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
+  private boolean notifyReset;
   private int enabledTrackCount;
   private DefaultTrackOutput[] sampleQueues;
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
-  private boolean[] pendingResets;
   private boolean[] trackEnabledStates;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
-
-  private boolean havePendingNextSampleUs;
-  private long pendingNextSampleUs;
-  private long sampleTimeOffsetUs;
 
   private ExtractingLoadable loadable;
   private IOException fatalException;
@@ -336,7 +332,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       int trackCount = sampleQueues.length;
       TrackGroup[] trackArray = new TrackGroup[trackCount];
       trackEnabledStates = new boolean[trackCount];
-      pendingResets = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
       durationUs = seekMap.getDurationUs();
       for (int i = 0; i < trackCount; i++) {
@@ -390,7 +385,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       enabledTrackCount++;
       trackEnabledStates[track] = true;
       pendingMediaFormat[track] = true;
-      pendingResets[track] = false;
       newStreams[i] = new TrackStreamImpl(track);
     }
     // Cancel or start requests as necessary.
@@ -413,6 +407,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
     discardSamplesForDisabledTracks();
+  }
+
+  @Override
+  public long readReset() {
+    if (notifyReset) {
+      notifyReset = false;
+      return lastSeekPositionUs;
+    }
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -458,16 +461,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     loader.maybeThrowError();
   }
 
-  /* package */ long readReset(int track) {
-    if (pendingResets[track]) {
-      pendingResets[track] = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
-  }
-
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (pendingResets[track] || isPendingReset()) {
+    if (notifyReset || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
 
@@ -483,12 +478,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       if (buffer.timeUs < lastSeekPositionUs) {
         buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
-      if (havePendingNextSampleUs) {
-        // Set the offset to make the timestamp of this sample equal to pendingNextSampleUs.
-        sampleTimeOffsetUs = pendingNextSampleUs - buffer.timeUs;
-        havePendingNextSampleUs = false;
-      }
-      buffer.timeUs += sampleTimeOffsetUs;
       return TrackStream.BUFFER_READ;
     }
 
@@ -524,10 +513,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       fatalException = e;
       return Loader.DONT_RETRY;
     }
-    configureRetry();
     int extractedSamplesCount = getExtractedSamplesCount();
     boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
-    extractedSamplesCountAtStartOfLoad = extractedSamplesCount;
+    configureRetry(); // May clear the sample queues.
+    extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
     return madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
   }
 
@@ -563,7 +552,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
-    Arrays.fill(pendingResets, true);
+    notifyReset = true;
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
@@ -589,8 +578,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   private void startLoading() {
-    sampleTimeOffsetUs = 0;
-    havePendingNextSampleUs = false;
     loadable = new ExtractingLoadable(uri, dataSource, extractorHolder, allocator,
         requestedBufferSize);
     if (prepared) {
@@ -620,12 +607,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       // therefore that the data at the uri is a continuously shifting window of the latest
       // available media. For this case there's no way to continue loading from where a previous
       // load finished, so it's necessary to load from the start whenever commencing a new load.
+      notifyReset = true;
       clearSampleQueues();
       loadable.setLoadPosition(0);
-      // To avoid introducing a discontinuity, we shift the sample timestamps so that they will
-      // continue from the current downstream position.
-      pendingNextSampleUs = downstreamPositionUs;
-      havePendingNextSampleUs = true;
     } else {
       // We're playing a seekable on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
@@ -704,11 +688,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     @Override
     public void maybeThrowError() throws IOException {
       ExtractorSampleSource.this.maybeThrowError();
-    }
-
-    @Override
-    public long readReset() {
-      return ExtractorSampleSource.this.readReset(track);
     }
 
     @Override
