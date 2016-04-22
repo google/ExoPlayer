@@ -314,12 +314,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       downstreamFormat = currentFormat;
     }
 
-    int result = sampleQueues[group].readData(formatHolder, buffer, loadingFinished);
-    if (result == TrackStream.BUFFER_READ && !buffer.isEndOfStream()
-        && buffer.timeUs < lastSeekPositionUs) {
-      buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-    }
-    return result;
+    return sampleQueues[group].readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }
 
   // Loader.Callback implementation.

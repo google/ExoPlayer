@@ -463,16 +463,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    int result = sampleQueues[track].readData(formatHolder, buffer, loadingFinished);
-    switch (result) {
-      case TrackStream.FORMAT_READ:
-        formatHolder.drmInitData = drmInitData;
-        break;
-      case TrackStream.BUFFER_READ:
-        if (!buffer.isEndOfStream() && buffer.timeUs < lastSeekPositionUs) {
-          buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-        }
-        break;
+    int result = sampleQueues[track].readData(formatHolder, buffer, loadingFinished,
+        lastSeekPositionUs);
+    if (result == TrackStream.FORMAT_READ) {
+      formatHolder.drmInitData = drmInitData;
     }
     return result;
   }

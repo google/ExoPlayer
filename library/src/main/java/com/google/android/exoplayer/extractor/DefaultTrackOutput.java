@@ -90,8 +90,8 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Indicates that {@link #readData(FormatHolder, DecoderInputBuffer, boolean)} should provide
-   * the sample format before any samples, even if it has already been provided.
+   * Indicates that {@link #readData(FormatHolder, DecoderInputBuffer, boolean, long)} should
+   * provide the sample format before any samples, even if it has already been provided.
    */
   public void needDownstreamFormat() {
     downstreamFormat = null;
@@ -220,14 +220,14 @@ public final class DefaultTrackOutput implements TrackOutput {
    *     {@link DecoderInputBuffer#data} references a valid buffer. If the end of the stream has
    *     been reached, the {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
+   * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
+   *     be set if the buffer's timestamp is less than this value.
    * @return The result, which can be {@link TrackStream#NOTHING_READ},
    *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.
    */
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean loadingFinished) {
-    // Write the sample information into the buffer and extrasHolder.
-    int result = infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder);
-    switch (result) {
+      boolean loadingFinished, long decodeOnlyUntilUs) {
+    switch (infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder)) {
       case TrackStream.NOTHING_READ:
         if (loadingFinished) {
           buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
@@ -236,8 +236,11 @@ public final class DefaultTrackOutput implements TrackOutput {
         return TrackStream.NOTHING_READ;
       case TrackStream.FORMAT_READ:
         downstreamFormat = formatHolder.format;
-        break;
+        return TrackStream.FORMAT_READ;
       case TrackStream.BUFFER_READ:
+        if (buffer.timeUs < decodeOnlyUntilUs) {
+          buffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+        }
         // Read encryption data if the sample is encrypted.
         if (buffer.isEncrypted()) {
           readEncryptionData(buffer, extrasHolder);
@@ -247,9 +250,10 @@ public final class DefaultTrackOutput implements TrackOutput {
         readData(extrasHolder.offset, buffer.data, buffer.size);
         // Advance the read head.
         dropDownstreamTo(extrasHolder.nextOffset);
-        break;
+        return TrackStream.BUFFER_READ;
+      default:
+        throw new IllegalStateException();
     }
-    return result;
   }
 
   /**

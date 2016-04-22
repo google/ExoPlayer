@@ -61,12 +61,12 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private final LoadControl loadControl;
 
   private boolean prepared;
+  private boolean notifyReset;
   private long lastPreferredQueueSizeEvaluationTimeMs;
   private Format downstreamFormat;
 
   private TrackGroupArray trackGroups;
   private boolean trackEnabled;
-  private boolean pendingReset;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -198,7 +198,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       sampleQueue.needDownstreamFormat();
       downstreamPositionUs = positionUs;
       lastSeekPositionUs = positionUs;
-      pendingReset = false;
+      notifyReset = false;
       restartFrom(positionUs);
     }
     return newStreams;
@@ -211,6 +211,15 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (!loader.isLoading()) {
       maybeStartLoading();
     }
+  }
+
+  @Override
+  public long readReset() {
+    if (notifyReset) {
+      notifyReset = false;
+      return lastSeekPositionUs;
+    }
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -248,7 +257,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       restartFrom(positionUs);
     }
     // Either way, we need to send a discontinuity to the downstream components.
-    pendingReset = true;
+    notifyReset = true;
   }
 
   @Override
@@ -274,17 +283,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public long readReset() {
-    if (pendingReset) {
-      pendingReset = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
-  }
-
-  @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (pendingReset || isPendingReset()) {
+    if (notifyReset || isPendingReset()) {
       return NOTHING_READ;
     }
 
@@ -300,19 +300,9 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       downstreamFormat = currentFormat;
     }
 
-    int result = sampleQueue.readData(formatHolder, buffer, loadingFinished);
-    switch (result) {
-      case FORMAT_READ:
-        formatHolder.drmInitData = currentChunk.getDrmInitData();
-        break;
-      case BUFFER_READ:
-        if (!buffer.isEndOfStream()) {
-          if (buffer.timeUs < lastSeekPositionUs) {
-            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-          }
-          onSampleRead(currentChunk, buffer);
-        }
-        break;
+    int result = sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
+    if (result == FORMAT_READ) {
+      formatHolder.drmInitData = currentChunk.getDrmInitData();
     }
     return result;
   }
@@ -374,17 +364,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   // Internal methods.
-
-  /**
-   * Called when a sample has been read. Can be used to perform any modifications necessary before
-   * the sample is returned.
-   *
-   * @param mediaChunk The chunk from which the sample was obtained.
-   * @param buffer Holds the read sample.
-   */
-  protected void onSampleRead(MediaChunk mediaChunk, DecoderInputBuffer buffer) {
-    // Do nothing.
-  }
 
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;
