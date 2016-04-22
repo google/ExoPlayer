@@ -18,6 +18,8 @@ package com.google.android.exoplayer.extractor;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.FormatHolder;
+import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
@@ -46,6 +48,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   // Accessed only by the consuming thread.
   private long totalBytesDropped;
+  private Format downstreamFormat;
 
   // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
   private long sampleOffsetUs;
@@ -54,9 +57,6 @@ public final class DefaultTrackOutput implements TrackOutput {
   private int lastAllocationOffset;
   private boolean needKeyframe;
   private boolean pendingSplice;
-
-  // Accessed by both the loading and consuming threads.
-  private volatile Format upstreamFormat;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
@@ -87,6 +87,14 @@ public final class DefaultTrackOutput implements TrackOutput {
     lastAllocation = null;
     lastAllocationOffset = allocationLength;
     needKeyframe = true;
+  }
+
+  /**
+   * Indicates that {@link #readData(FormatHolder, DecoderInputBuffer, boolean)} should provide
+   * the sample format before any samples, even if it has already been provided.
+   */
+  public void needDownstreamFormat() {
+    downstreamFormat = null;
   }
 
   /**
@@ -157,18 +165,10 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Returns the current upstream {@link Format}.
+   * Returns the upstream {@link Format} in which samples are being queued.
    */
   public Format getUpstreamFormat() {
-    return upstreamFormat;
-  }
-
-  /**
-   * Returns the current downstream {@link Format}.
-   */
-  public Format getDownstreamFormat() {
-    Format nextSampleFormat = infoQueue.peekFormat();
-    return nextSampleFormat != null ? nextSampleFormat : upstreamFormat;
+    return infoQueue.getUpstreamFormat();
   }
 
   /**
@@ -212,28 +212,44 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Reads the current sample, advancing the read index to the next sample.
+   * Attempts to read from the queue.
    *
-   * @param buffer The buffer into which the current sample should be written.
-   * @return True if a sample was read. False if there is no current sample.
+   * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
+   * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
+   *     end of the stream. If the caller requires the sample data then it must ensure that
+   *     {@link DecoderInputBuffer#data} references a valid buffer. If the end of the stream has
+   *     been reached, the {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @param loadingFinished True if an empty queue should be considered the end of the stream.
+   * @return The result, which can be {@link TrackStream#NOTHING_READ},
+   *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.
    */
-  public boolean readSample(DecoderInputBuffer buffer) {
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+      boolean loadingFinished) {
     // Write the sample information into the buffer and extrasHolder.
-    boolean haveSample = infoQueue.readSample(buffer, extrasHolder);
-    if (!haveSample) {
-      return false;
+    int result = infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder);
+    switch (result) {
+      case TrackStream.NOTHING_READ:
+        if (loadingFinished) {
+          buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+          return TrackStream.BUFFER_READ;
+        }
+        return TrackStream.NOTHING_READ;
+      case TrackStream.FORMAT_READ:
+        downstreamFormat = formatHolder.format;
+        break;
+      case TrackStream.BUFFER_READ:
+        // Read encryption data if the sample is encrypted.
+        if (buffer.isEncrypted()) {
+          readEncryptionData(buffer, extrasHolder);
+        }
+        // Write the sample data into the holder.
+        buffer.ensureSpaceForWrite(buffer.size);
+        readData(extrasHolder.offset, buffer.data, buffer.size);
+        // Advance the read head.
+        dropDownstreamTo(extrasHolder.nextOffset);
+        break;
     }
-
-    // Read encryption data if the sample is encrypted.
-    if (buffer.isEncrypted()) {
-      readEncryptionData(buffer, extrasHolder);
-    }
-    // Write the sample data into the holder.
-    buffer.ensureSpaceForWrite(buffer.size);
-    readData(extrasHolder.offset, buffer.data, buffer.size);
-    // Advance the read head.
-    dropDownstreamTo(extrasHolder.nextOffset);
-    return true;
+    return result;
   }
 
   /**
@@ -392,7 +408,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   @Override
   public void format(Format format) {
-    upstreamFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
+    infoQueue.format(getAdjustedSampleFormat(format, sampleOffsetUs));
   }
 
   @Override
@@ -444,7 +460,7 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
     timeUs += sampleOffsetUs;
     long absoluteOffset = totalBytesWritten - size - offset;
-    infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey, upstreamFormat);
+    infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey);
   }
 
   /**
@@ -500,6 +516,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     private long largestDequeuedTimestampUs;
     private long largestQueuedTimestampUs;
+    private Format upstreamFormat;
 
     public InfoQueue() {
       capacity = SAMPLE_CAPACITY_INCREMENT;
@@ -577,18 +594,18 @@ public final class DefaultTrackOutput implements TrackOutput {
       return absoluteReadIndex;
     }
 
+    /**
+     * Returns whether the queue is empty.
+     */
     public synchronized boolean isEmpty() {
       return queueSize == 0;
     }
 
     /**
-     * Returns the {@link Format} of the next sample, or null of the queue is empty.
+     * Returns the upstream {@link Format} in which samples are being queued.
      */
-    public synchronized Format peekFormat() {
-      if (queueSize == 0) {
-        return null;
-      }
-      return formats[relativeReadIndex];
+    public synchronized Format getUpstreamFormat() {
+      return upstreamFormat;
     }
 
     /**
@@ -606,23 +623,34 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
 
     /**
-     * Fills {@code buffer} with information about the current sample, but does not write its data.
-     * The absolute position of the sample's data in the rolling buffer is stored in
-     * {@code extrasHolder}, along with an encryption id if present, and the absolute position of
-     * the first byte that may still be required after the current sample has been read.
-     * <p>
-     * Populates {@link DecoderInputBuffer#size}, {@link DecoderInputBuffer#timeUs}, the buffer
-     * flags and {@code extrasHolder}.
+     * Attempts to read from the queue.
      *
-     * @param buffer The buffer into which the current sample information should be written.
+     * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
+     * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
+     *     end of the stream. If a sample is read then the buffer is populated with information
+     *     about the sample, but not its data. The absolute position of the data in the rolling
+     *     buffer is stored in {@code extrasHolder}, along with an encryption id if present and the
+     *     absolute position of the first byte that may still be required after the current sample
+     *     has been read.
      * @param extrasHolder The holder into which extra sample information should be written.
-     * @return True if the buffer and extras were filled. False if there is no current sample.
+     * @return The result, which can be {@link TrackStream#NOTHING_READ},
+     *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.
      */
-    public synchronized boolean readSample(DecoderInputBuffer buffer,
-        BufferExtrasHolder extrasHolder) {
+    public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+        Format downstreamFormat, BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
-        return false;
+        if (upstreamFormat != null && !upstreamFormat.equals(downstreamFormat)) {
+          formatHolder.format = upstreamFormat;
+          return TrackStream.FORMAT_READ;
+        }
+        return TrackStream.NOTHING_READ;
       }
+
+      if (!formats[relativeReadIndex].equals(downstreamFormat)) {
+        formatHolder.format = formats[relativeReadIndex];
+        return TrackStream.FORMAT_READ;
+      }
+
       buffer.timeUs = timesUs[relativeReadIndex];
       buffer.size = sizes[relativeReadIndex];
       buffer.setFlags(flags[relativeReadIndex]);
@@ -640,7 +668,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
       extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
           : extrasHolder.offset + buffer.size;
-      return true;
+      return TrackStream.BUFFER_READ;
     }
 
     /**
@@ -708,14 +736,18 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     // Called by the loading thread.
 
+    public synchronized void format(Format format) {
+      upstreamFormat = format;
+    }
+
     public synchronized void commitSample(long timeUs, int sampleFlags, long offset, int size,
-        byte[] encryptionKey, Format format) {
+        byte[] encryptionKey) {
       timesUs[relativeWriteIndex] = timeUs;
       offsets[relativeWriteIndex] = offset;
       sizes[relativeWriteIndex] = size;
       flags[relativeWriteIndex] = sampleFlags;
       encryptionKeys[relativeWriteIndex] = encryptionKey;
-      formats[relativeWriteIndex] = format;
+      formats[relativeWriteIndex] = upstreamFormat;
       largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
       // Increment the write index.
       queueSize++;

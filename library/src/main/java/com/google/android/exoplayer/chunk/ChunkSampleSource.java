@@ -67,7 +67,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private TrackGroupArray trackGroups;
   private boolean trackEnabled;
   private boolean pendingReset;
-  private Format downstreamSampleFormat;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -196,7 +195,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
         loadControl.register(this, bufferSizeContribution);
       }
       downstreamFormat = null;
-      downstreamSampleFormat = null;
+      sampleQueue.needDownstreamFormat();
       downstreamPositionUs = positionUs;
       lastSeekPositionUs = positionUs;
       pendingReset = false;
@@ -265,7 +264,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public boolean isReady() {
-    return loadingFinished || !sampleQueue.isEmpty();
+    return loadingFinished || (!isPendingReset() && !sampleQueue.isEmpty());
   }
 
   @Override
@@ -289,44 +288,33 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       return NOTHING_READ;
     }
 
-    BaseMediaChunk currentChunk = mediaChunks.getFirst();
     while (mediaChunks.size() > 1
         && mediaChunks.get(1).getFirstSampleIndex() <= sampleQueue.getReadIndex()) {
       mediaChunks.removeFirst();
-      currentChunk = mediaChunks.getFirst();
     }
-
-    if (downstreamFormat == null || !downstreamFormat.equals(currentChunk.format)) {
-      eventDispatcher.downstreamFormatChanged(currentChunk.format, currentChunk.trigger,
+    BaseMediaChunk currentChunk = mediaChunks.getFirst();
+    Format currentFormat = currentChunk.format;
+    if (downstreamFormat == null || !downstreamFormat.equals(currentFormat)) {
+      eventDispatcher.downstreamFormatChanged(currentFormat, currentChunk.trigger,
           currentChunk.startTimeUs);
-      downstreamFormat = currentChunk.format;
+      downstreamFormat = currentFormat;
     }
 
-    if (sampleQueue.isEmpty()) {
-      if (loadingFinished) {
-        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-        return BUFFER_READ;
-      }
-      return NOTHING_READ;
+    int result = sampleQueue.readData(formatHolder, buffer, loadingFinished);
+    switch (result) {
+      case FORMAT_READ:
+        formatHolder.drmInitData = currentChunk.getDrmInitData();
+        break;
+      case BUFFER_READ:
+        if (!buffer.isEndOfStream()) {
+          if (buffer.timeUs < lastSeekPositionUs) {
+            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+          }
+          onSampleRead(currentChunk, buffer);
+        }
+        break;
     }
-
-    Format sampleFormat = sampleQueue.getDownstreamFormat();
-    if (!sampleFormat.equals(downstreamSampleFormat)) {
-      formatHolder.format = sampleFormat;
-      formatHolder.drmInitData = currentChunk.getDrmInitData();
-      downstreamSampleFormat = sampleFormat;
-      return FORMAT_READ;
-    }
-
-    if (sampleQueue.readSample(buffer)) {
-      if (buffer.timeUs < lastSeekPositionUs) {
-        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-      }
-      onSampleRead(currentChunk, buffer);
-      return BUFFER_READ;
-    }
-
-    return NOTHING_READ;
+    return result;
   }
 
   // Loader.Callback implementation.

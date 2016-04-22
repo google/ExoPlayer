@@ -79,7 +79,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private int primaryTrackGroupIndex;
   // Indexed by group.
   private boolean[] groupEnabledStates;
-  private Format[] downstreamSampleFormats;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -202,7 +201,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       int group = selection.group;
       int[] tracks = selection.getTracks();
       setTrackGroupEnabledState(group, true);
-      downstreamSampleFormats[group] = null;
+      sampleQueues[group].needDownstreamFormat();
       if (group == primaryTrackGroupIndex) {
         primaryTracksDeselected |= chunkSource.selectTracks(tracks);
       }
@@ -291,7 +290,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   // TrackStream implementation.
 
   /* package */ boolean isReady(int group) {
-    Assertions.checkState(groupEnabledStates[group]);
     return loadingFinished || (!isPendingReset() && !sampleQueues[group].isEmpty());
   }
 
@@ -305,6 +303,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return TrackStream.NOTHING_READ;
     }
 
+    while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= downstreamPositionUs) {
+      mediaChunks.removeFirst();
+    }
     HlsMediaChunk currentChunk = mediaChunks.getFirst();
     Format currentFormat = currentChunk.format;
     if (downstreamFormat == null || !downstreamFormat.equals(currentFormat)) {
@@ -313,34 +314,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       downstreamFormat = currentFormat;
     }
 
-    DefaultTrackOutput sampleQueue = sampleQueues[group];
-    if (sampleQueue.isEmpty()) {
-      if (loadingFinished) {
-        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-        return TrackStream.BUFFER_READ;
-      }
-      return TrackStream.NOTHING_READ;
+    int result = sampleQueues[group].readData(formatHolder, buffer, loadingFinished);
+    if (result == TrackStream.BUFFER_READ && !buffer.isEndOfStream()
+        && buffer.timeUs < lastSeekPositionUs) {
+      buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
-
-    Format sampleFormat = sampleQueue.getDownstreamFormat();
-    if (!sampleFormat.equals(downstreamSampleFormats[group])) {
-      formatHolder.format = sampleFormat;
-      downstreamSampleFormats[group] = sampleFormat;
-      return TrackStream.FORMAT_READ;
-    }
-
-    if (sampleQueue.readSample(buffer)) {
-      long sampleTimeUs = buffer.timeUs;
-      while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= sampleTimeUs) {
-        mediaChunks.removeFirst();
-      }
-      if (sampleTimeUs < lastSeekPositionUs) {
-        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-      }
-      return TrackStream.BUFFER_READ;
-    }
-
-    return TrackStream.NOTHING_READ;
+    return result;
   }
 
   // Loader.Callback implementation.
@@ -463,7 +442,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     // Instantiate the necessary internal data-structures.
     primaryTrackGroupIndex = -1;
     groupEnabledStates = new boolean[extractorTrackCount];
-    downstreamSampleFormats = new Format[extractorTrackCount];
 
     // Construct the set of exposed track groups.
     TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];

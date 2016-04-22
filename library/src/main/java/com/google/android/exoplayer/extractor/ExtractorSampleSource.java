@@ -212,7 +212,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private DefaultTrackOutput[] sampleQueues;
   private TrackGroupArray tracks;
   private long durationUs;
-  private boolean[] pendingMediaFormat;
   private boolean[] trackEnabledStates;
 
   private long downstreamPositionUs;
@@ -332,7 +331,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       int trackCount = sampleQueues.length;
       TrackGroup[] trackArray = new TrackGroup[trackCount];
       trackEnabledStates = new boolean[trackCount];
-      pendingMediaFormat = new boolean[trackCount];
       durationUs = seekMap.getDurationUs();
       for (int i = 0; i < trackCount; i++) {
         trackArray[i] = new TrackGroup(sampleQueues[i].getUpstreamFormat());
@@ -384,7 +382,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       Assertions.checkState(!trackEnabledStates[track]);
       enabledTrackCount++;
       trackEnabledStates[track] = true;
-      pendingMediaFormat[track] = true;
+      sampleQueues[track].needDownstreamFormat();
       newStreams[i] = new TrackStreamImpl(track);
     }
     // Cancel or start requests as necessary.
@@ -449,8 +447,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // TrackStream methods.
 
   /* package */ boolean isReady(int track) {
-    Assertions.checkState(trackEnabledStates[track]);
-    return sampleQueues[track].isEmpty();
+    return loadingFinished || (!isPendingReset() && !sampleQueues[track].isEmpty());
 
   }
 
@@ -466,27 +463,18 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    DefaultTrackOutput sampleQueue = sampleQueues[track];
-    if (pendingMediaFormat[track]) {
-      formatHolder.format = sampleQueue.getUpstreamFormat();
-      formatHolder.drmInitData = drmInitData;
-      pendingMediaFormat[track] = false;
-      return TrackStream.FORMAT_READ;
+    int result = sampleQueues[track].readData(formatHolder, buffer, loadingFinished);
+    switch (result) {
+      case TrackStream.FORMAT_READ:
+        formatHolder.drmInitData = drmInitData;
+        break;
+      case TrackStream.BUFFER_READ:
+        if (!buffer.isEndOfStream() && buffer.timeUs < lastSeekPositionUs) {
+          buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+        }
+        break;
     }
-
-    if (sampleQueue.readSample(buffer)) {
-      if (buffer.timeUs < lastSeekPositionUs) {
-        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-      }
-      return TrackStream.BUFFER_READ;
-    }
-
-    if (loadingFinished) {
-      buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      return TrackStream.BUFFER_READ;
-    }
-
-    return TrackStream.NOTHING_READ;
+    return result;
   }
 
   // Loader.Callback implementation.
