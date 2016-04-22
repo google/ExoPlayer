@@ -567,7 +567,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
-      seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
+      if (trackEnabledStates[i]) {
+        seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
+      }
     }
     // If we failed to seek within the sample queues, we need to restart.
     if (!seekInsideBuffer) {

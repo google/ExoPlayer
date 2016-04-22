@@ -532,8 +532,26 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
     Arrays.fill(pendingResets, true);
-    chunkSource.seek();
-    restartFrom(positionUs);
+    boolean seekInsideBuffer = !isPendingReset();
+    // TODO[REFACTOR]: This will nearly always fail to seek inside all buffers due to sparse tracks
+    // such as ID3 (probably EIA608 too). We need a way to not care if we can't seek to the keyframe
+    // before for such tracks. For ID3 we probably explicitly don't want the keyframe before, even
+    // if we do have it, since it might be quite a long way behind the seek position. We probably
+    // only want to output ID3 buffers whose timestamps are greater than or equal to positionUs.
+    for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
+      if (groupEnabledStates[i]) {
+        seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
+      }
+    }
+    if (seekInsideBuffer) {
+      while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= positionUs) {
+        mediaChunks.removeFirst();
+      }
+    } else {
+      // If we failed to seek within the sample queues, we need to restart.
+      chunkSource.seek();
+      restartFrom(positionUs);
+    }
   }
 
   private void discardSamplesForDisabledTracks() {
