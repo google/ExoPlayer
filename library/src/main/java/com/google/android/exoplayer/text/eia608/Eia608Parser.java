@@ -15,24 +15,42 @@
  */
 package com.google.android.exoplayer.text.eia608;
 
-import com.google.android.exoplayer.DecoderInputBuffer;
-import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.text.SubtitleInputBuffer;
+import com.google.android.exoplayer.text.SubtitleOutputBuffer;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.extensions.Decoder;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 /**
  * Facilitates the extraction and parsing of EIA-608 (a.k.a. "line 21 captions" and "CEA-608")
  * Closed Captions from the SEI data block from H.264.
  */
-public final class Eia608Parser {
+public final class Eia608Parser implements
+    Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> {
+
+  private static final int NUM_INPUT_BUFFERS = 10;
+  private static final int NUM_OUTPUT_BUFFERS = 2;
 
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;
   private static final int PROVIDER_CODE = 0x31;
   private static final int USER_ID = 0x47413934; // "GA94"
   private static final int USER_DATA_TYPE_CODE = 0x3;
+
+  private static final int CC_MODE_UNKNOWN = 0;
+  private static final int CC_MODE_ROLL_UP = 1;
+  private static final int CC_MODE_POP_ON = 2;
+  private static final int CC_MODE_PAINT_ON = 3;
+
+  // The default number of rows to display in roll-up captions mode.
+  private static final int DEFAULT_CAPTIONS_ROW_COUNT = 4;
 
   // Basic North American 608 CC char set, mostly ASCII. Indexed by (char-0x20).
   private static final int[] BASIC_CHARACTER_SET = new int[] {
@@ -102,28 +120,126 @@ public final class Eia608Parser {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
+  private final LinkedList<SubtitleInputBuffer> availableInputBuffers;
+  private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
+  private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
+
   private final ParsableBitArray seiBuffer;
-  private final StringBuilder stringBuilder;
+  private final StringBuilder textStringBuilder;
   private final ArrayList<ClosedCaption> captions;
 
-  /* package */ Eia608Parser() {
+  private final StringBuilder captionStringBuilder;
+
+  private SubtitleInputBuffer dequeuedInputBuffer;
+
+  private int captionMode;
+  private int captionRowCount;
+  private String captionString;
+  private ClosedCaptionCtrl repeatableControl;
+
+  public Eia608Parser() {
+    availableInputBuffers = new LinkedList<>();
+    for (int i = 0; i < NUM_INPUT_BUFFERS; i++) {
+      availableInputBuffers.add(new SubtitleInputBuffer());
+    }
+    availableOutputBuffers = new LinkedList<>();
+    for (int i = 0; i < NUM_OUTPUT_BUFFERS; i++) {
+      availableOutputBuffers.add(new Eia608SubtitleOutputBuffer(this));
+    }
+    queuedInputBuffers = new TreeSet<>();
+
     seiBuffer = new ParsableBitArray();
-    stringBuilder = new StringBuilder();
+    textStringBuilder = new StringBuilder();
     captions = new ArrayList<>();
+
+    captionStringBuilder = new StringBuilder();
+
+    setCaptionMode(CC_MODE_UNKNOWN);
+    captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
   }
 
-  /* package */ boolean canParse(String mimeType) {
-    return mimeType.equals(MimeTypes.APPLICATION_EIA608);
+  @Override
+  public SubtitleInputBuffer dequeueInputBuffer() throws ParserException {
+    Assertions.checkState(dequeuedInputBuffer == null);
+    if (availableInputBuffers.isEmpty()) {
+      return null;
+    }
+    dequeuedInputBuffer = availableInputBuffers.pollFirst();
+    return dequeuedInputBuffer;
   }
 
-  /* package */ ClosedCaptionList parse(DecoderInputBuffer buffer) {
-    if (buffer.size < 10) {
+  @Override
+  public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws ParserException {
+    Assertions.checkArgument(inputBuffer != null);
+    Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
+    queuedInputBuffers.add(inputBuffer);
+    dequeuedInputBuffer = null;
+  }
+
+  @Override
+  public SubtitleOutputBuffer dequeueOutputBuffer() throws ParserException {
+    if (queuedInputBuffers.isEmpty() || availableOutputBuffers.isEmpty()) {
+      return null;
+    }
+
+    SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+    SubtitleInputBuffer inputBuffer = queuedInputBuffers.pollFirst();
+
+    // TODO: investigate ways of batching multiple SubtitleInputBuffers into a single
+    // SubtitleOutputBuffer
+    if (inputBuffer.isEndOfStream()) {
+      outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+      return outputBuffer;
+    }
+    ClosedCaptionList captionList = decode(inputBuffer);
+    Eia608Subtitle subtitle = generateSubtitle(captionList);
+    outputBuffer.setOutput(inputBuffer.timeUs, subtitle, 0);
+    if (inputBuffer.isDecodeOnly()) {
+      outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+    }
+    releaseInputBuffer(inputBuffer);
+    return outputBuffer;
+  }
+
+  private void releaseInputBuffer(SubtitleInputBuffer inputBuffer) {
+    inputBuffer.clear();
+    availableInputBuffers.add(inputBuffer);
+  }
+
+  protected void releaseOutputBuffer(SubtitleOutputBuffer outputBuffer) {
+    outputBuffer.clear();
+    availableOutputBuffers.add(outputBuffer);
+  }
+
+  @Override
+  public void flush() {
+    setCaptionMode(CC_MODE_UNKNOWN);
+    captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
+    captionStringBuilder.setLength(0);
+    captionString = null;
+    repeatableControl = null;
+    while (!queuedInputBuffers.isEmpty()) {
+      releaseInputBuffer(queuedInputBuffers.pollFirst());
+    }
+    if (dequeuedInputBuffer != null) {
+      releaseInputBuffer(dequeuedInputBuffer);
+      dequeuedInputBuffer = null;
+    }
+  }
+
+  @Override
+  public void release() {
+    // Do nothing
+  }
+
+  private ClosedCaptionList decode(SubtitleInputBuffer inputBuffer) {
+    if (inputBuffer.size < 10) {
       return null;
     }
 
     captions.clear();
-    stringBuilder.setLength(0);
-    seiBuffer.reset(buffer.data.array());
+    textStringBuilder.setLength(0);
+    seiBuffer.reset(inputBuffer.data.array());
 
     // country_code (8) + provider_code (16) + user_identifier (32) + user_data_type_code (8) +
     // reserved (1) + process_cc_data_flag (1) + zero_bit (1)
@@ -157,7 +273,7 @@ public final class Eia608Parser {
       // ccData2 - P|0|1|1|X|X|X|X
       if ((ccData1 == 0x11 || ccData1 == 0x19)
           && ((ccData2 & 0x70) == 0x30)) {
-        stringBuilder.append(getSpecialChar(ccData2));
+        textStringBuilder.append(getSpecialChar(ccData2));
         continue;
       }
 
@@ -166,7 +282,7 @@ public final class Eia608Parser {
       if ((ccData1 == 0x12 || ccData1 == 0x1A)
           && ((ccData2 & 0x60) == 0x20)) {
         backspace(); // Remove standard equivalent of the special extended char.
-        stringBuilder.append(getExtendedEsFrChar(ccData2));
+        textStringBuilder.append(getExtendedEsFrChar(ccData2));
         continue;
       }
 
@@ -175,7 +291,7 @@ public final class Eia608Parser {
       if ((ccData1 == 0x13 || ccData1 == 0x1B)
           && ((ccData2 & 0x60) == 0x20)) {
         backspace(); // Remove standard equivalent of the special extended char.
-        stringBuilder.append(getExtendedPtDeChar(ccData2));
+        textStringBuilder.append(getExtendedPtDeChar(ccData2));
         continue;
       }
 
@@ -186,9 +302,9 @@ public final class Eia608Parser {
       }
 
       // Basic North American character set.
-      stringBuilder.append(getChar(ccData1));
+      textStringBuilder.append(getChar(ccData1));
       if (ccData2 >= 0x20) {
-        stringBuilder.append(getChar(ccData2));
+        textStringBuilder.append(getChar(ccData2));
       }
     }
 
@@ -200,7 +316,153 @@ public final class Eia608Parser {
 
     ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
     captions.toArray(captionArray);
-    return new ClosedCaptionList(buffer.timeUs, buffer.isDecodeOnly(), captionArray);
+    return new ClosedCaptionList(inputBuffer.timeUs, captionArray);
+  }
+
+  public Eia608Subtitle generateSubtitle(ClosedCaptionList captionList) {
+    int captionBufferSize = (captionList == null) ? 0 : captionList.captions.length;
+    if (captionBufferSize != 0) {
+      boolean isRepeatableControl = false;
+      for (ClosedCaption caption : captionList.captions) {
+        if (caption.type == ClosedCaption.TYPE_CTRL) {
+          ClosedCaptionCtrl captionCtrl = (ClosedCaptionCtrl) caption;
+          isRepeatableControl = captionBufferSize == 1 && captionCtrl.isRepeatable();
+          if (isRepeatableControl && repeatableControl != null
+              && repeatableControl.cc1 == captionCtrl.cc1
+              && repeatableControl.cc2 == captionCtrl.cc2) {
+            repeatableControl = null;
+            continue;
+          } else if (isRepeatableControl) {
+            repeatableControl = captionCtrl;
+          }
+          if (captionCtrl.isMiscCode()) {
+            handleMiscCode(captionCtrl);
+          } else if (captionCtrl.isPreambleAddressCode()) {
+            handlePreambleAddressCode();
+          }
+        } else {
+          handleText((ClosedCaptionText) caption);
+        }
+      }
+
+      if (!isRepeatableControl) {
+        repeatableControl = null;
+      }
+      if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
+        captionString = getDisplayCaption();
+      }
+    }
+
+    return new Eia608Subtitle(captionString);
+  }
+
+  private void handleMiscCode(ClosedCaptionCtrl caption) {
+    switch (caption.cc2) {
+      case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_2_ROWS:
+        captionRowCount = 2;
+        setCaptionMode(CC_MODE_ROLL_UP);
+        return;
+      case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_3_ROWS:
+        captionRowCount = 3;
+        setCaptionMode(CC_MODE_ROLL_UP);
+        return;
+      case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_4_ROWS:
+        captionRowCount = 4;
+        setCaptionMode(CC_MODE_ROLL_UP);
+        return;
+      case ClosedCaptionCtrl.RESUME_CAPTION_LOADING:
+        setCaptionMode(CC_MODE_POP_ON);
+        return;
+      case ClosedCaptionCtrl.RESUME_DIRECT_CAPTIONING:
+        setCaptionMode(CC_MODE_PAINT_ON);
+        return;
+    }
+
+    if (captionMode == CC_MODE_UNKNOWN) {
+      return;
+    }
+
+    switch (caption.cc2) {
+      case ClosedCaptionCtrl.ERASE_DISPLAYED_MEMORY:
+        captionString = null;
+        if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
+          captionStringBuilder.setLength(0);
+        }
+        return;
+      case ClosedCaptionCtrl.ERASE_NON_DISPLAYED_MEMORY:
+        captionStringBuilder.setLength(0);
+        return;
+      case ClosedCaptionCtrl.END_OF_CAPTION:
+        captionString = getDisplayCaption();
+        captionStringBuilder.setLength(0);
+        return;
+      case ClosedCaptionCtrl.CARRIAGE_RETURN:
+        maybeAppendNewline();
+        return;
+      case ClosedCaptionCtrl.BACKSPACE:
+        if (captionStringBuilder.length() > 0) {
+          captionStringBuilder.setLength(captionStringBuilder.length() - 1);
+        }
+        return;
+    }
+  }
+
+  private void handlePreambleAddressCode() {
+    // TODO: Add better handling of this with specific positioning.
+    maybeAppendNewline();
+  }
+
+  private void handleText(ClosedCaptionText caption) {
+    captionStringBuilder.append(caption.text);
+  }
+
+  private void maybeAppendNewline() {
+    int buildLength = captionStringBuilder.length();
+    if (buildLength > 0 && captionStringBuilder.charAt(buildLength - 1) != '\n') {
+      captionStringBuilder.append('\n');
+    }
+  }
+
+  private String getDisplayCaption() {
+    int buildLength = captionStringBuilder.length();
+    if (buildLength == 0) {
+      return null;
+    }
+
+    boolean endsWithNewline = captionStringBuilder.charAt(buildLength - 1) == '\n';
+    if (buildLength == 1 && endsWithNewline) {
+      return null;
+    }
+
+    int endIndex = endsWithNewline ? buildLength - 1 : buildLength;
+    if (captionMode != CC_MODE_ROLL_UP) {
+      return captionStringBuilder.substring(0, endIndex);
+    }
+
+    int startIndex = 0;
+    int searchBackwardFromIndex = endIndex;
+    for (int i = 0; i < captionRowCount && searchBackwardFromIndex != -1; i++) {
+      searchBackwardFromIndex = captionStringBuilder.lastIndexOf("\n", searchBackwardFromIndex - 1);
+    }
+    if (searchBackwardFromIndex != -1) {
+      startIndex = searchBackwardFromIndex + 1;
+    }
+    captionStringBuilder.delete(0, startIndex);
+    return captionStringBuilder.substring(0, endIndex - startIndex);
+  }
+
+  private void setCaptionMode(int captionMode) {
+    if (this.captionMode == captionMode) {
+      return;
+    }
+
+    this.captionMode = captionMode;
+    // Clear the working memory.
+    captionStringBuilder.setLength(0);
+    if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
+      // When switching to roll-up or unknown, we also need to clear the caption.
+      captionString = null;
+    }
   }
 
   private static char getChar(byte ccData) {
@@ -224,9 +486,10 @@ public final class Eia608Parser {
   }
 
   private void addBufferedText() {
-    if (stringBuilder.length() > 0) {
-      captions.add(new ClosedCaptionText(stringBuilder.toString()));
-      stringBuilder.setLength(0);
+    if (textStringBuilder.length() > 0) {
+      String textSnippet = textStringBuilder.toString();
+      captions.add(new ClosedCaptionText(textSnippet));
+      textStringBuilder.setLength(0);
     }
   }
 

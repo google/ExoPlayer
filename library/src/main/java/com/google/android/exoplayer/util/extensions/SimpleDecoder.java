@@ -25,7 +25,7 @@ import java.util.LinkedList;
  * Base class for {@link Decoder}s that use their own decode thread.
  */
 public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends OutputBuffer,
-    E extends Exception> extends Thread implements Decoder<I, O, E> {
+    E extends Exception> implements Decoder<I, O, E> {
 
   /**
    * Listener for {@link SimpleDecoder} events.
@@ -40,6 +40,8 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
     void onDecoderError(E e);
 
   }
+
+  private final Thread decodeThread;
 
   private final Object lock;
   private final LinkedList<I> queuedInputBuffers;
@@ -73,6 +75,13 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
     for (int i = 0; i < availableOutputBufferCount; i++) {
       availableOutputBuffers[i] = createOutputBuffer();
     }
+    decodeThread = new Thread() {
+      @Override
+      public void run() {
+        SimpleDecoder.this.run();
+      }
+    };
+    decodeThread.start();
   }
 
   /**
@@ -159,7 +168,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
       lock.notify();
     }
     try {
-      join();
+      decodeThread.join();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -188,8 +197,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
     }
   }
 
-  @Override
-  public final void run() {
+  private void run() {
     try {
       while (decode()) {
         // Do nothing.

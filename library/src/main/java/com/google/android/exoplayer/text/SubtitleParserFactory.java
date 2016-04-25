@@ -16,30 +16,37 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.extensions.Decoder;
 
 /**
- * A factory for {@link SubtitleParser} instances.
+ * A factory for {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer,  ParserException>}
+ * instances that will parse subtitles.
  */
 public interface SubtitleParserFactory {
 
   /**
-   * Returns whether the factory is able to instantiate a {@link SubtitleParser} for the given
+   * Returns whether the factory is able to instantiate a
+   * {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} for the given
    * {@link Format}.
    *
    * @param format The {@link Format}.
-   * @return True if the factory can instantiate a suitable {@link SubtitleParser}. False otherwise.
+   * @return True if the factory can instantiate a suitable
+   *     {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>}. False
+   *     otherwise.
    */
   boolean supportsFormat(Format format);
 
   /**
-   * Creates a {@link SubtitleParser} for the given {@link Format}.
+   * Creates a {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} for
+   * the given {@link Format}.
    *
    * @param format The {@link Format}.
-   * @return A new {@link SubtitleParser}.
+   * @return A new {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>}.
    * @throws IllegalArgumentException If the {@link Format} is not supported.
    */
-  SubtitleParser createParser(Format format);
+  Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> createParser(Format format);
 
   /**
    * Default {@link SubtitleParserFactory} implementation.
@@ -51,6 +58,7 @@ public interface SubtitleParserFactory {
    * <li>TTML ({@link com.google.android.exoplayer.text.ttml.TtmlParser})</li>
    * <li>SubRip ({@link com.google.android.exoplayer.text.subrip.SubripParser})</li>
    * <li>TX3G ({@link com.google.android.exoplayer.text.tx3g.Tx3gParser})</li>
+   * <li>Eia608 ({@link com.google.android.exoplayer.text.eia608.Eia608Parser})</li>
    * </ul>
    */
   SubtitleParserFactory DEFAULT = new SubtitleParserFactory() {
@@ -61,13 +69,14 @@ public interface SubtitleParserFactory {
     }
 
     @Override
-    public SubtitleParser createParser(Format format) {
+    public Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> createParser(
+        Format format) {
       try {
         Class<?> clazz = getParserClass(format.sampleMimeType);
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create parser for unsupported format");
         }
-        return clazz.asSubclass(SubtitleParser.class).newInstance();
+        return clazz.asSubclass(Decoder.class).newInstance();
       } catch (Exception e) {
         throw new IllegalStateException("Unexpected error instantiating parser", e);
       }
@@ -86,6 +95,8 @@ public interface SubtitleParserFactory {
             return Class.forName("com.google.android.exoplayer.text.subrip.SubripParser");
           case MimeTypes.APPLICATION_TX3G:
             return Class.forName("com.google.android.exoplayer.text.tx3g.Tx3gParser");
+          case MimeTypes.APPLICATION_EIA608:
+            return Class.forName("com.google.android.exoplayer.text.eia608.Eia608Parser");
           default:
             return null;
         }

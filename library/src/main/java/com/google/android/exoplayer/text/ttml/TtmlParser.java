@@ -17,7 +17,7 @@ package com.google.android.exoplayer.text.ttml;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.text.SubtitleParser;
+import com.google.android.exoplayer.text.SimpleSubtitleParser;
 import com.google.android.exoplayer.util.ColorParser;
 import com.google.android.exoplayer.util.ParserUtil;
 import com.google.android.exoplayer.util.Util;
@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
  * </p>
  * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
  */
-public final class TtmlParser extends SubtitleParser {
+public final class TtmlParser extends SimpleSubtitleParser {
 
   private static final String TAG = "TtmlParser";
 

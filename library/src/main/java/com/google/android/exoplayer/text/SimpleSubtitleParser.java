@@ -19,12 +19,12 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
 /**
- * Parses {@link Subtitle}s from {@link SubtitleInputBuffer}s.
+ * Base class for subtitle parsers that use their own decode thread.
  */
-public abstract class SubtitleParser extends
+public abstract class SimpleSubtitleParser extends
     SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> {
 
-  protected SubtitleParser() {
+  protected SimpleSubtitleParser() {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     setInitialInputBufferSize(1024);
   }
@@ -36,7 +36,7 @@ public abstract class SubtitleParser extends
 
   @Override
   protected final SubtitleOutputBuffer createOutputBuffer() {
-    return new SubtitleOutputBuffer(this);
+    return new SimpleSubtitleOutputBuffer(this);
   }
 
   @Override
@@ -56,6 +56,14 @@ public abstract class SubtitleParser extends
     }
   }
 
+  /**
+   * Decodes the data and converts it into a {@link Subtitle}.
+   *
+   * @param data The data to be decoded.
+   * @param size The size of the data.
+   * @return A {@link Subtitle} to rendered.
+   * @throws ParserException A parsing exception.
+   */
   protected abstract Subtitle decode(byte[] data, int size) throws ParserException;
 
 }

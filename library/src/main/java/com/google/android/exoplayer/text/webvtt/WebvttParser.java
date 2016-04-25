@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.text.SubtitleParser;
+import com.google.android.exoplayer.text.SimpleSubtitleParser;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.TextUtils;
@@ -29,7 +29,7 @@ import java.util.List;
  * <p>
  * @see <a href="http://dev.w3.org/html5/webvtt">WebVTT specification</a>
  */
-public final class WebvttParser extends SubtitleParser {
+public final class WebvttParser extends SimpleSubtitleParser {
 
   private static final int NO_EVENT_FOUND = -1;
   private static final int END_OF_FILE_FOUND = 0;

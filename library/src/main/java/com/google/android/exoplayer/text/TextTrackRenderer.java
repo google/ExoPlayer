@@ -24,6 +24,7 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.extensions.Decoder;
 
 import android.annotation.TargetApi;
 import android.os.Handler;
@@ -38,8 +39,9 @@ import java.util.List;
 /**
  * A {@link TrackRenderer} for subtitles.
  * <p>
- * Text is parsed from sample data using {@link SubtitleParser} instances obtained from a
- * {@link SubtitleParserFactory}. The actual rendering of each line of text is delegated to a
+ * Text is parsed from sample data using
+ * {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} instances obtained
+ * from a {@link SubtitleParserFactory}. The actual rendering of each line of text is delegated to a
  * {@link TextRenderer}.
  */
 @TargetApi(16)
@@ -54,7 +56,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private SubtitleParser parser;
+  private Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> parser;
   private SubtitleInputBuffer nextInputBuffer;
   private SubtitleOutputBuffer subtitle;
   private SubtitleOutputBuffer nextSubtitle;
@@ -79,7 +81,8 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
    *     normally be the looper associated with the application's main thread, which can be obtained
    *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the renderer
    *     should be invoked directly on the player's internal rendering thread.
-   * @param parserFactory A factory from which to obtain {@link SubtitleParser} instances.
+   * @param parserFactory A factory from which to obtain
+   *     {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} instances.
    */
   public TextTrackRenderer(TextRenderer textRenderer, Looper textRendererLooper,
       SubtitleParserFactory parserFactory) {
@@ -101,7 +104,6 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
   protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
     super.onEnabled(formats, joining);
     parser = parserFactory.createParser(formats[0]);
-    parser.start();
   }
 
   @Override
@@ -174,7 +176,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
     }
 
     try {
-      if (!inputStreamEnded && nextSubtitle == null) {
+      while (!inputStreamEnded) {
         if (nextInputBuffer == null) {
           nextInputBuffer = parser.dequeueInputBuffer();
           if (nextInputBuffer == null) {
@@ -193,6 +195,8 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
           }
           parser.queueInputBuffer(nextInputBuffer);
           nextInputBuffer = null;
+        } else if (result == TrackStream.NOTHING_READ) {
+          break;
         }
       }
     } catch (ParserException e) {

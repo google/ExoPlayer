@@ -132,7 +132,6 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
         notifyDecoderError(e);
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
-      decoder.start();
       codecCounters.codecInitCount++;
     }
 

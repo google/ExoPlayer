@@ -17,7 +17,7 @@ package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
-import com.google.android.exoplayer.text.SubtitleParser;
+import com.google.android.exoplayer.text.SimpleSubtitleParser;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link SubtitleParser} for Webvtt embedded in a Mp4 container file.
+ * A subtitle parser for Webvtt embedded in a Mp4 container file.
  */
-public final class Mp4WebvttParser extends SubtitleParser {
+public final class Mp4WebvttParser extends SimpleSubtitleParser {
 
   private static final int BOX_HEADER_SIZE = 8;
 

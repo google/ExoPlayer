@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.text.subrip;
 
 import com.google.android.exoplayer.text.Cue;
-import com.google.android.exoplayer.text.SubtitleParser;
+import com.google.android.exoplayer.text.SimpleSubtitleParser;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 /**
  * A simple SubRip parser.
  */
-public final class SubripParser extends SubtitleParser {
+public final class SubripParser extends SimpleSubtitleParser {
 
   private static final String TAG = "SubripParser";
 

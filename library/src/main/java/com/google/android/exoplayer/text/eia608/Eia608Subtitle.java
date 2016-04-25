@@ -13,23 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.text.tx3g;
+package com.google.android.exoplayer.text.eia608;
 
 import com.google.android.exoplayer.text.Cue;
-import com.google.android.exoplayer.text.SimpleSubtitleParser;
 import com.google.android.exoplayer.text.Subtitle;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * A subtitle parser for tx3g.
- * <p>
- * Currently only supports parsing of a single text track.
+ * A representation of an EIA-608 subtitle.
  */
-public final class Tx3gParser extends SimpleSubtitleParser {
+public final class Eia608Subtitle implements Subtitle {
+
+  private final String caption;
+
+  public Eia608Subtitle(String caption) {
+    this.caption = caption;
+  }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length) {
-    String cueText = new String(bytes, 0, length);
-    return new Tx3gSubtitle(new Cue(cueText));
+  public int getNextEventTimeIndex(long timeUs) {
+    return 0;
+  }
+
+  @Override
+  public int getEventTimeCount() {
+    return 1;
+  }
+
+  @Override
+  public long getEventTime(int index) {
+    return 0;
+  }
+
+  @Override
+  public List<Cue> getCues(long timeUs) {
+    if (caption == null || caption.isEmpty()) {
+      return Collections.<Cue>emptyList();
+    } else {
+      return Collections.singletonList(new Cue(caption));
+    }
   }
 
 }

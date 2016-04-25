@@ -15,27 +15,21 @@
  */
 package com.google.android.exoplayer.text;
 
-import com.google.android.exoplayer.DecoderInputBuffer;
-
 /**
- * An input buffer for a subtitle parser.
+ * A {@link Subtitle} output from a subtitle parser that extends {@link SimpleSubtitleParser}.
  */
-public final class SubtitleInputBuffer extends DecoderInputBuffer
-    implements Comparable<SubtitleInputBuffer> {
+public final class SimpleSubtitleOutputBuffer extends SubtitleOutputBuffer {
 
-  public long subsampleOffsetUs;
+  private SimpleSubtitleParser owner;
 
-  public SubtitleInputBuffer() {
-    super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+  public SimpleSubtitleOutputBuffer(SimpleSubtitleParser owner) {
+    super();
+    this.owner = owner;
   }
 
   @Override
-  public int compareTo(SubtitleInputBuffer other) {
-    long delta = timeUs - other.timeUs;
-    if (delta == 0) {
-      return 0;
-    }
-    return delta > 0 ? 1 : -1;
+  public final void release() {
+    owner.releaseOutputBuffer(this);
   }
 
 }

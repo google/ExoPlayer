@@ -21,17 +21,14 @@ import com.google.android.exoplayer.util.extensions.OutputBuffer;
 import java.util.List;
 
 /**
- * A {@link Subtitle} output from a {@link SubtitleParser}.
+ * Base class for a {@link Subtitle} output from a subtitle parser.
  */
-/* package */ final class SubtitleOutputBuffer extends OutputBuffer implements Subtitle {
-
-  private final SubtitleParser owner;
+public abstract class SubtitleOutputBuffer extends OutputBuffer implements Subtitle {
 
   private Subtitle subtitle;
   private long offsetUs;
 
-  public SubtitleOutputBuffer(SubtitleParser owner) {
-    this.owner = owner;
+  public SubtitleOutputBuffer() {
   }
 
   public void setOutput(long timestampUs, Subtitle subtitle, long subsampleOffsetUs) {
@@ -62,9 +59,7 @@ import java.util.List;
   }
 
   @Override
-  public void release() {
-    owner.releaseOutputBuffer(this);
-  }
+  public abstract void release();
 
   @Override
   public void clear() {

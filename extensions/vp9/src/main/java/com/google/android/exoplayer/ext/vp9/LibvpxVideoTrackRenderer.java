@@ -208,7 +208,6 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
         long startElapsedRealtimeMs = SystemClock.elapsedRealtime();
         decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
         decoder.setOutputMode(outputMode);
-        decoder.start();
         notifyDecoderInitialized(startElapsedRealtimeMs, SystemClock.elapsedRealtime());
         codecCounters.codecInitCount++;
       }

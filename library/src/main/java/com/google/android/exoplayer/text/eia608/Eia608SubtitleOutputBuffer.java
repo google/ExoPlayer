@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.text;
+package com.google.android.exoplayer.text.eia608;
 
-import com.google.android.exoplayer.DecoderInputBuffer;
+import com.google.android.exoplayer.text.Subtitle;
+import com.google.android.exoplayer.text.SubtitleOutputBuffer;
 
 /**
- * An input buffer for a subtitle parser.
+ * A {@link Subtitle} output from an {@link Eia608Parser}.
  */
-public final class SubtitleInputBuffer extends DecoderInputBuffer
-    implements Comparable<SubtitleInputBuffer> {
+public final class Eia608SubtitleOutputBuffer extends SubtitleOutputBuffer {
 
-  public long subsampleOffsetUs;
+  private Eia608Parser owner;
 
-  public SubtitleInputBuffer() {
-    super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+  public Eia608SubtitleOutputBuffer(Eia608Parser owner) {
+    super();
+    this.owner = owner;
   }
 
   @Override
-  public int compareTo(SubtitleInputBuffer other) {
-    long delta = timeUs - other.timeUs;
-    if (delta == 0) {
-      return 0;
-    }
-    return delta > 0 ? 1 : -1;
+  public final void release() {
+    owner.releaseOutputBuffer(this);
   }
 
 }
