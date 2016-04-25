@@ -56,11 +56,11 @@ public final class LongArray {
    * @param index The index.
    * @return The corresponding value.
    * @throws IndexOutOfBoundsException If the index is less than zero, or greater than or equal to
-   *     {@link #size()}
+   *     {@link #size()}.
    */
   public long get(int index) {
     if (index < 0 || index >= size) {
-      throw new IndexOutOfBoundsException("Invalid size " + index + ", size is " + size);
+      throw new IndexOutOfBoundsException("Invalid index " + index + ", size is " + size);
     }
     return values[index];
   }
