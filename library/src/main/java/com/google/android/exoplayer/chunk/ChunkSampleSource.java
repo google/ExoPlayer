@@ -207,7 +207,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   @Override
   public void continueBuffering(long positionUs) {
     downstreamPositionUs = positionUs;
-    chunkSource.continueBuffering(positionUs);
+    chunkSource.continueBuffering();
     if (!loader.isLoading()) {
       maybeStartLoading();
     }

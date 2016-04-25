@@ -84,10 +84,8 @@ public interface ChunkSource {
    * Indicates to the source that it should still be checking for updates to the stream.
    * <p>
    * This method should only be called when the source is enabled.
-   *
-   * @param playbackPositionUs The current playback position.
    */
-  void continueBuffering(long playbackPositionUs);
+  void continueBuffering();
 
   /**
    * Evaluates whether {@link MediaChunk}s should be removed from the back of the queue.

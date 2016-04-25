@@ -163,7 +163,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   @Override
-  public void continueBuffering(long playbackPositionUs) {
+  public void continueBuffering() {
     if (!currentManifest.isLive || fatalError != null) {
       return;
     }

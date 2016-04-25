@@ -159,7 +159,7 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public void continueBuffering(long playbackPositionUs) {
+  public void continueBuffering() {
     if (!currentManifest.dynamic || fatalError != null) {
       return;
     }
