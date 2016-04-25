@@ -247,7 +247,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       } else {
         // TODO[REFACTOR]: We should probably assume that we can decode at least the resolution of
         // the display, or the camera, as a sanity check?
-        decoderCapable = format.width * format.height > MediaCodecUtil.maxH264DecodableFrameSize();
+        decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
       }
     } else {
       // We don't know any better, so assume true.
