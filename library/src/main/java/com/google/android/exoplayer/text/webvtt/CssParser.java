@@ -20,7 +20,9 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.TextUtils;
 
-import java.util.Map;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Provides a CSS parser for STYLE blocks in Webvtt files. Supports only a subset of the CSS
@@ -32,9 +34,14 @@ import java.util.Map;
   private static final String PROPERTY_FONT_FAMILY = "font-family";
   private static final String PROPERTY_FONT_WEIGHT = "font-weight";
   private static final String PROPERTY_TEXT_DECORATION = "text-decoration";
-
   private static final String VALUE_BOLD = "bold";
   private static final String VALUE_UNDERLINE = "underline";
+  private static final String BLOCK_START = "{";
+  private static final String BLOCK_END = "}";
+  private static final String PROPERTY_FONT_STYLE = "font-style";
+  private static final String VALUE_ITALIC = "italic";
+
+  private static final Pattern VOICE_NAME_PATTERN = Pattern.compile("\\[voice=\"([^\"]*)\"\\]");
 
   // Temporary utility data structures.
   private final ParsableByteArray styleInput;
@@ -51,57 +58,41 @@ import java.util.Map;
    * {@code null} otherwise.
    *
    * @param input The input from which the style block should be read.
-   * @param styleMap The map that contains styles accessible by selector.
+   * @return A {@link WebvttCssStyle} that represents the parsed block.
    */
-  public void parseBlock(ParsableByteArray input, Map<String, WebvttCssStyle> styleMap) {
+  public WebvttCssStyle parseBlock(ParsableByteArray input) {
     stringBuilder.setLength(0);
     int initialInputPosition = input.getPosition();
     skipStyleBlock(input);
     styleInput.reset(input.data, input.getPosition());
     styleInput.setPosition(initialInputPosition);
     String selector = parseSelector(styleInput, stringBuilder);
-    if (selector == null) {
-      return;
+    if (selector == null || !BLOCK_START.equals(parseNextToken(styleInput, stringBuilder))) {
+      return null;
     }
-    String token = parseNextToken(styleInput, stringBuilder);
-    if (!"{".equals(token)) {
-      return;
-    }
-    if (!styleMap.containsKey(selector)) {
-      styleMap.put(selector, new WebvttCssStyle());
-    }
-    WebvttCssStyle style = styleMap.get(selector);
+    WebvttCssStyle style = new WebvttCssStyle();
+    applySelectorToStyle(style, selector);
+    String token = null;
     boolean blockEndFound = false;
     while (!blockEndFound) {
       int position = styleInput.getPosition();
       token = parseNextToken(styleInput, stringBuilder);
-      if (token == null || "}".equals(token)) {
-        blockEndFound = true;
-      } else {
+      blockEndFound = token == null || BLOCK_END.equals(token);
+      if (!blockEndFound) {
         styleInput.setPosition(position);
         parseStyleDeclaration(styleInput, style, stringBuilder);
       }
     }
-    // Only one style block may appear after a STYLE line.
+    return BLOCK_END.equals(token) ? style : null; // Check that the style block ended correctly.
   }
 
   /**
-   * Returns a string containing the selector. {@link WebvttCueParser#UNIVERSAL_CUE_ID} is the
-   * universal selector, and null means syntax error.
-   *
-   * <p>Expected inputs are:
-   * <ul>
-   * <li>::cue
-   * <li>::cue(#id)
-   * <li>::cue(elem)
-   * <li>::cue(.class)
-   * <li>::cue(elem.class)
-   * <li>::cue(v[voice="Someone"])
-   * </ul>
+   * Returns a string containing the selector. The input is expected to have the form
+   * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
    *
    * @param input From which the selector is obtained.
-   * @return A string containing the target, {@link WebvttCueParser#UNIVERSAL_CUE_ID} if the
-   *     selector is universal (targets all cues) or null if an error was encountered.
+   * @return A string containing the target, empty string if the selector is universal
+   *     (targets all cues) or null if an error was encountered.
    */
   private static String parseSelector(ParsableByteArray input, StringBuilder stringBuilder) {
     skipWhitespaceAndComments(input);
@@ -117,9 +108,9 @@ import java.util.Map;
     if (token == null) {
       return null;
     }
-    if ("{".equals(token)) {
+    if (BLOCK_START.equals(token)) {
       input.setPosition(position);
-      return WebvttCueParser.UNIVERSAL_CUE_ID;
+      return "";
     }
     String target = null;
     if ("(".equals(token)) {
@@ -166,7 +157,7 @@ import java.util.Map;
     String token = parseNextToken(input, stringBuilder);
     if (";".equals(token)) {
       // The style declaration is well formed.
-    } else if ("}".equals(token)) {
+    } else if (BLOCK_END.equals(token)) {
       // The style declaration is well formed and we can go on, but the closing bracket had to be
       // fed back.
       input.setPosition(position);
@@ -188,6 +179,10 @@ import java.util.Map;
     } else if (PROPERTY_FONT_WEIGHT.equals(property)) {
       if (VALUE_BOLD.equals(value)) {
         style.setBold(true);
+      }
+    } else if (PROPERTY_FONT_STYLE.equals(property)) {
+      if (VALUE_ITALIC.equals(value)) {
+        style.setItalic(true);
       }
     }
     // TODO: Fill remaining supported styles.
@@ -256,7 +251,7 @@ import java.util.Map;
         // Syntax error.
         return null;
       }
-      if ("}".equals(token) || ";".equals(token)) {
+      if (BLOCK_END.equals(token) || ";".equals(token)) {
         input.setPosition(position);
         expressionEndFound = true;
       } else {
@@ -305,5 +300,34 @@ import java.util.Map;
     return stringBuilder.toString();
   }
 
-}
+  /**
+   * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form
+   * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
+   */
+  private void applySelectorToStyle(WebvttCssStyle style, String selector) {
+    if ("".equals(selector)) {
+      return; // Universal selector.
+    }
+    int voiceStartPosition = selector.indexOf('[');
+    if (voiceStartPosition != -1) {
+      Matcher matcher = VOICE_NAME_PATTERN.matcher(selector.substring(voiceStartPosition));
+      if (matcher.matches()) {
+        style.setTargetVoice(matcher.group(1));
+      }
+      selector = selector.substring(0, voiceStartPosition);
+    }
+    String[] classDivision = selector.split("\\.");
+    String tagAndIdDivision = classDivision[0];
+    int idPrefixPosition = tagAndIdDivision.indexOf('#');
+    if (idPrefixPosition != -1) {
+      style.setTargetTagName(tagAndIdDivision.substring(0, idPrefixPosition));
+      style.setTargetId(tagAndIdDivision.substring(idPrefixPosition + 1)); // We discard the '#'.
+    } else {
+      style.setTargetTagName(tagAndIdDivision);
+    }
+    if (classDivision.length > 1) {
+      style.setTargetClasses(Arrays.copyOfRange(classDivision, 1, classDivision.length));
+    }
+  }
 
+}

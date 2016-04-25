@@ -19,9 +19,6 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.test.InstrumentationTestCase;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Unit test for {@link CssParser}.
  */
@@ -82,75 +79,46 @@ public final class CssParserTest extends InstrumentationTestCase {
   }
 
   public void testParseMethodSimpleInput() {
-    String styleBlock = " ::cue { color : black; background-color: PapayaWhip }";
-    // Expected style map construction.
-    Map<String, WebvttCssStyle> expectedResult = new HashMap<>();
-    expectedResult.put("", new WebvttCssStyle());
-    WebvttCssStyle style = expectedResult.get("");
-    style.setFontColor(0xFF000000);
-    style.setBackgroundColor(0xFFFFEFD5);
+    String styleBlock1 = " ::cue { color : black; background-color: PapayaWhip }";
+    WebvttCssStyle expectedStyle = new WebvttCssStyle();
+    expectedStyle.setFontColor(0xFF000000);
+    expectedStyle.setBackgroundColor(0xFFFFEFD5);
+    assertParserProduces(expectedStyle, styleBlock1);
 
-    assertCssProducesExpectedMap(expectedResult, new String[] { styleBlock });
-  }
+    String styleBlock2 = " ::cue { color : black }\n\n::cue { color : invalid }";
+    expectedStyle = new WebvttCssStyle();
+    expectedStyle.setFontColor(0xFF000000);
+    assertParserProduces(expectedStyle, styleBlock2);
 
-  public void testParseSimpleInputSeparately() {
-    String styleBlock1 = " ::cue { color : black }\n\n::cue { color : invalid }";
-    String styleBlock2 = " \n::cue {\n background-color\n:#00fFFe}";
-
-    // Expected style map construction.
-    Map<String, WebvttCssStyle> expectedResult = new HashMap<>();
-    expectedResult.put("", new WebvttCssStyle());
-    WebvttCssStyle style = expectedResult.get("");
-    style.setFontColor(0xFF000000);
-    style.setBackgroundColor(0xFF00FFFE);
-
-    assertCssProducesExpectedMap(expectedResult, new String[] { styleBlock1, styleBlock2 });
-  }
-
-  public void testDifferentSelectors() {
-    String styleBlock1 = " ::cue(\n#id ){text-decoration:underline;}";
-    String styleBlock2 = "::cue(elem ){font-family:Courier}";
-    String styleBlock3 = "::cue(.class ){font-weight: bold;}";
-
-    // Expected style map construction.
-    Map<String, WebvttCssStyle> expectedResult = new HashMap<>();
-    expectedResult.put("#id", new WebvttCssStyle().setUnderline(true));
-    expectedResult.put("elem", new WebvttCssStyle().setFontFamily("courier"));
-    expectedResult.put(".class", new WebvttCssStyle().setBold(true));
-
-    assertCssProducesExpectedMap(expectedResult, new String[] { styleBlock1, styleBlock2,
-        styleBlock3});
+    String styleBlock3 = " \n::cue {\n background-color\n:#00fFFe}";
+    expectedStyle = new WebvttCssStyle();
+    expectedStyle.setBackgroundColor(0xFF00FFFE);
+    assertParserProduces(expectedStyle, styleBlock3);
   }
 
   public void testMultiplePropertiesInBlock() {
     String styleBlock = "::cue(#id){text-decoration:underline; background-color:green;"
         + "color:red; font-family:Courier; font-weight:bold}";
-
-    // Expected style map construction.
-    Map<String, WebvttCssStyle> expectedResult = new HashMap<>();
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
-    expectedResult.put("#id", expectedStyle);
+    expectedStyle.setTargetId("id");
     expectedStyle.setUnderline(true);
     expectedStyle.setBackgroundColor(0xFF008000);
     expectedStyle.setFontColor(0xFFFF0000);
     expectedStyle.setFontFamily("courier");
     expectedStyle.setBold(true);
 
-    assertCssProducesExpectedMap(expectedResult, new String[] { styleBlock });
+    assertParserProduces(expectedStyle, styleBlock);
   }
 
   public void testRgbaColorExpression() {
     String styleBlock = "::cue(#rgb){background-color: rgba(\n10/* Ugly color */,11\t, 12\n,.1);"
         + "color:rgb(1,1,\n1)}";
-
-    // Expected style map construction.
-    Map<String, WebvttCssStyle> expectedResult = new HashMap<>();
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
-    expectedResult.put("#rgb", expectedStyle);
+    expectedStyle.setTargetId("rgb");
     expectedStyle.setBackgroundColor(0x190A0B0C);
     expectedStyle.setFontColor(0xFF010101);
 
-    assertCssProducesExpectedMap(expectedResult, new String[] { styleBlock });
+    assertParserProduces(expectedStyle, styleBlock);
   }
 
   public void testGetNextToken() {
@@ -181,20 +149,20 @@ public final class CssParserTest extends InstrumentationTestCase {
   public void testStyleScoreSystem() {
     WebvttCssStyle style = new WebvttCssStyle();
     // Universal selector.
-    assertEquals(1, style.getSpecificityScore(null, null, new String[0], null));
+    assertEquals(1, style.getSpecificityScore("", "", new String[0], ""));
     // Class match without tag match.
     style.setTargetClasses(new String[] { "class1", "class2"});
-    assertEquals(8, style.getSpecificityScore(null, null,
-        new String[] { "class1", "class2", "class3" }, null));
+    assertEquals(8, style.getSpecificityScore("", "", new String[] { "class1", "class2", "class3" },
+        ""));
     // Class and tag match
     style.setTargetTagName("b");
-    assertEquals(10, style.getSpecificityScore(null, "b",
-        new String[] { "class1", "class2", "class3" }, null));
+    assertEquals(10, style.getSpecificityScore("", "b",
+        new String[] { "class1", "class2", "class3" }, ""));
     // Class insufficiency.
-    assertEquals(0, style.getSpecificityScore(null, "b", new String[] { "class1", "class" }, null));
+    assertEquals(0, style.getSpecificityScore("", "b", new String[] { "class1", "class" }, ""));
     // Voice, classes and tag match.
     style.setTargetVoice("Manuel Cráneo");
-    assertEquals(14, style.getSpecificityScore(null, "b",
+    assertEquals(14, style.getSpecificityScore("", "b",
         new String[] { "class1", "class2", "class3" }, "Manuel Cráneo"));
     // Voice mismatch.
     assertEquals(0, style.getSpecificityScore(null, "b",
@@ -205,7 +173,7 @@ public final class CssParserTest extends InstrumentationTestCase {
         new String[] { "class1", "class2", "class3" }, "Manuel Cráneo"));
     // Id mismatch.
     assertEquals(0, style.getSpecificityScore("id1", "b",
-        new String[] { "class1", "class2", "class3" }, null));
+        new String[] { "class1", "class2", "class3" }, ""));
   }
 
   // Utility methods.
@@ -222,38 +190,25 @@ public final class CssParserTest extends InstrumentationTestCase {
     assertEquals(expectedLine, input.readLine());
   }
 
-  private void assertCssProducesExpectedMap(Map<String, WebvttCssStyle> expectedResult,
-      String[] styleBlocks){
-    Map<String, WebvttCssStyle> actualStyleMap = new HashMap<>();
-    for (String s : styleBlocks) {
-      ParsableByteArray input = new ParsableByteArray(s.getBytes());
-      parser.parseBlock(input, actualStyleMap);
+  private void assertParserProduces(WebvttCssStyle expected,
+      String styleBlock){
+    ParsableByteArray input = new ParsableByteArray(styleBlock.getBytes());
+    WebvttCssStyle actualElem = parser.parseBlock(input);
+    assertEquals(expected.hasBackgroundColor(), actualElem.hasBackgroundColor());
+    if (expected.hasBackgroundColor()) {
+      assertEquals(expected.getBackgroundColor(), actualElem.getBackgroundColor());
     }
-    assertStyleMapsAreEqual(expectedResult, actualStyleMap);
-  }
-
-  private void assertStyleMapsAreEqual(Map<String, WebvttCssStyle> expected,
-      Map<String, WebvttCssStyle> actual) {
-    assertEquals(expected.size(), actual.size());
-    for (String k : expected.keySet()) {
-      WebvttCssStyle expectedElem = expected.get(k);
-      WebvttCssStyle actualElem = actual.get(k);
-      assertEquals(expectedElem.hasBackgroundColor(), actualElem.hasBackgroundColor());
-      if (expectedElem.hasBackgroundColor()) {
-        assertEquals(expectedElem.getBackgroundColor(), actualElem.getBackgroundColor());
-      }
-      assertEquals(expectedElem.hasFontColor(), actualElem.hasFontColor());
-      if (expectedElem.hasFontColor()) {
-        assertEquals(expectedElem.getFontColor(), actualElem.getFontColor());
-      }
-      assertEquals(expectedElem.getFontFamily(), actualElem.getFontFamily());
-      assertEquals(expectedElem.getFontSize(), actualElem.getFontSize());
-      assertEquals(expectedElem.getFontSizeUnit(), actualElem.getFontSizeUnit());
-      assertEquals(expectedElem.getStyle(), actualElem.getStyle());
-      assertEquals(expectedElem.isLinethrough(), actualElem.isLinethrough());
-      assertEquals(expectedElem.isUnderline(), actualElem.isUnderline());
-      assertEquals(expectedElem.getTextAlign(), actualElem.getTextAlign());
+    assertEquals(expected.hasFontColor(), actualElem.hasFontColor());
+    if (expected.hasFontColor()) {
+      assertEquals(expected.getFontColor(), actualElem.getFontColor());
     }
+    assertEquals(expected.getFontFamily(), actualElem.getFontFamily());
+    assertEquals(expected.getFontSize(), actualElem.getFontSize());
+    assertEquals(expected.getFontSizeUnit(), actualElem.getFontSizeUnit());
+    assertEquals(expected.getStyle(), actualElem.getStyle());
+    assertEquals(expected.isLinethrough(), actualElem.isLinethrough());
+    assertEquals(expected.isUnderline(), actualElem.isUnderline());
+    assertEquals(expected.getTextAlign(), actualElem.getTextAlign());
   }
 
 }

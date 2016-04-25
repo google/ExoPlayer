@@ -124,8 +124,9 @@ import java.util.List;
   public int getSpecificityScore(String id, String tag, String[] classes, String voice) {
     if (targetId.isEmpty() && targetTag.isEmpty() && targetClasses.isEmpty()
         && targetVoice.isEmpty()) {
-      // The selector is universal. It matches with the minimum score.
-      return 1;
+      // The selector is universal. It matches with the minimum score if and only if the given
+      // element is a whole cue.
+      return tag.isEmpty() ? 1 : 0;
     }
     int score = 0;
     score = updateScoreForMatch(score, targetId, id, 0x40000000);

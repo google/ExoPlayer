@@ -26,6 +26,7 @@ import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
+  private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
   private static final String EMPTY_FILE = "webvtt/empty";
 
   public void testParseEmpty() throws IOException {
@@ -57,9 +59,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypical() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_FILE);
 
     // Test event count.
     assertEquals(4, subtitle.getEventTimeCount());
@@ -70,9 +70,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypicalWithIds() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_IDS_FILE);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_IDS_FILE);
 
     // Test event count.
     assertEquals(4, subtitle.getEventTimeCount());
@@ -83,9 +81,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypicalWithComments() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_COMMENTS_FILE);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_COMMENTS_FILE);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -96,9 +92,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   }
 
   public void testParseWithTags() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_TAGS_FILE);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_TAGS_FILE);
 
     // Test event count.
     assertEquals(8, subtitle.getEventTimeCount());
@@ -111,13 +105,9 @@ public class WebvttParserTest extends InstrumentationTestCase {
   }
 
   public void testParseWithPositioning() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_POSITIONING_FILE);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
-
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
     // Test event count.
     assertEquals(12, subtitle.getEventTimeCount());
-
     // Test cues.
     assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.", Alignment.ALIGN_NORMAL,
         Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f, Cue.ANCHOR_TYPE_START, 0.35f);
@@ -133,15 +123,13 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertCue(subtitle, 8, 7000000, 8000000, "This is the fifth subtitle.",
         Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f,
         Cue.ANCHOR_TYPE_END, 0.1f);
-  assertCue(subtitle, 10, 10000000, 11000000, "This is the sixth subtitle.",
+    assertCue(subtitle, 10, 10000000, 11000000, "This is the sixth subtitle.",
         Alignment.ALIGN_CENTER, 0.45f, Cue.LINE_TYPE_FRACTION, Cue.ANCHOR_TYPE_END, Cue.DIMEN_UNSET,
         Cue.TYPE_UNSET, 0.35f);
   }
 
   public void testParseWithBadCueHeader() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_BAD_CUE_HEADER_FILE);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BAD_CUE_HEADER_FILE);
 
     // Test event count.
     assertEquals(4, subtitle.getEventTimeCount());
@@ -150,11 +138,9 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.");
     assertCue(subtitle, 2, 4000000, 5000000, "This is the third subtitle.");
   }
-  
+
   public void testWebvttWithCssStyle() throws IOException {
-    WebvttParser parser = new WebvttParser();
-    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_CSS_STYLES);
-    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_STYLES);
 
     // Test event count.
     assertEquals(8, subtitle.getEventTimeCount());
@@ -162,15 +148,11 @@ public class WebvttParserTest extends InstrumentationTestCase {
     // Test cues.
     assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.");
     assertCue(subtitle, 2, 2345000, 3456000, "This is the second subtitle.");
-    
-    Cue cue1 = subtitle.getCues(0).get(0);
-    Cue cue2 = subtitle.getCues(2345000).get(0);
-    Cue cue3 = subtitle.getCues(20000000).get(0);
-    Cue cue4 = subtitle.getCues(25000000).get(0);
-    Spanned s1 = (Spanned) cue1.text;
-    Spanned s2 = (Spanned) cue2.text;
-    Spanned s3 = (Spanned) cue3.text;
-    Spanned s4 = (Spanned) cue4.text;
+
+    Spanned s1 = getUniqueSpanTextAt(subtitle, 0);
+    Spanned s2 = getUniqueSpanTextAt(subtitle, 2345000);
+    Spanned s3 = getUniqueSpanTextAt(subtitle, 20000000);
+    Spanned s4 = getUniqueSpanTextAt(subtitle, 25000000);
     assertEquals(1, s1.getSpans(0, s1.length(), ForegroundColorSpan.class).length);
     assertEquals(1, s1.getSpans(0, s1.length(), BackgroundColorSpan.class).length);
     assertEquals(2, s2.getSpans(0, s2.length(), ForegroundColorSpan.class).length);
@@ -178,6 +160,46 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertEquals(2, s4.getSpans(0, 16, BackgroundColorSpan.class).length);
     assertEquals(1, s4.getSpans(17, s4.length(), StyleSpan.class).length);
     assertEquals(Typeface.BOLD, s4.getSpans(17, s4.length(), StyleSpan.class)[0].getStyle());
+  }
+
+  public void testWithComplexCssSelectors() throws IOException {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
+    Spanned text = getUniqueSpanTextAt(subtitle, 0);
+    assertEquals(1, text.getSpans(30, text.length(), ForegroundColorSpan.class).length);
+    assertEquals(0xFFEE82EE,
+        text.getSpans(30, text.length(), ForegroundColorSpan.class)[0].getForegroundColor());
+    assertEquals(1, text.getSpans(30, text.length(), TypefaceSpan.class).length);
+    assertEquals("courier", text.getSpans(30, text.length(), TypefaceSpan.class)[0].getFamily());
+
+    text = getUniqueSpanTextAt(subtitle, 2000000);
+    assertEquals(1, text.getSpans(5, text.length(), TypefaceSpan.class).length);
+    assertEquals("courier", text.getSpans(5, text.length(), TypefaceSpan.class)[0].getFamily());
+
+    text = getUniqueSpanTextAt(subtitle, 2500000);
+    assertEquals(1, text.getSpans(5, text.length(), StyleSpan.class).length);
+    assertEquals(Typeface.BOLD, text.getSpans(5, text.length(), StyleSpan.class)[0].getStyle());
+    assertEquals(1, text.getSpans(5, text.length(), TypefaceSpan.class).length);
+    assertEquals("courier", text.getSpans(5, text.length(), TypefaceSpan.class)[0].getFamily());
+
+    text = getUniqueSpanTextAt(subtitle, 4000000);
+    assertEquals(0, text.getSpans(6, 22, StyleSpan.class).length);
+    assertEquals(1, text.getSpans(30, text.length(), StyleSpan.class).length);
+    assertEquals(Typeface.BOLD, text.getSpans(30, text.length(), StyleSpan.class)[0].getStyle());
+
+    text = getUniqueSpanTextAt(subtitle, 5000000);
+    assertEquals(0, text.getSpans(9, 17, StyleSpan.class).length);
+    assertEquals(1, text.getSpans(19, text.length(), StyleSpan.class).length);
+    assertEquals(Typeface.ITALIC, text.getSpans(19, text.length(), StyleSpan.class)[0].getStyle());
+  }
+
+  private WebvttSubtitle getSubtitleForTestAsset(String asset) throws IOException {
+    WebvttParser parser = new WebvttParser();
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), asset);
+    return parser.decode(bytes, bytes.length);
+  }
+
+  private Spanned getUniqueSpanTextAt(WebvttSubtitle sub, long timeUs) {
+    return (Spanned) sub.getCues(timeUs).get(0).text;
   }
 
   private static void assertCue(WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs,
