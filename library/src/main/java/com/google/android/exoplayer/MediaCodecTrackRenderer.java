@@ -798,32 +798,34 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     if (outputIndex < 0) {
       outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
-    }
-
-    if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-      processOutputFormat();
-      return true;
-    } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-      outputBuffers = codec.getOutputBuffers();
-      codecCounters.outputBuffersChangedCount++;
-      return true;
-    } else if (outputIndex < 0) {
-      if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
-          || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
-        processEndOfStream();
+      if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+        processOutputFormat();
         return true;
+      } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+        outputBuffers = codec.getOutputBuffers();
+        codecCounters.outputBuffersChangedCount++;
+        return true;
+      } else if (outputIndex < 0) {
+        if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
+            || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
+          processEndOfStream();
+          return true;
+        }
+        return false;
+      } else if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+        processEndOfStream();
+        return false;
+      } else {
+        ByteBuffer outputBuffer = outputBuffers[outputIndex];
+        outputBuffer.position(outputBufferInfo.offset);
+        outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
       }
-      return false;
-    }
-
-    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      processEndOfStream();
-      return false;
     }
 
     int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
-        outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
+        outputIndex, outputBufferInfo.flags, outputBufferInfo.presentationTimeUs,
+        decodeOnlyIndex != -1)) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
@@ -855,8 +857,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
   protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
-      MediaCodec codec, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex,
-      boolean shouldSkip) throws ExoPlaybackException;
+      MediaCodec codec, ByteBuffer buffer, int bufferIndex, int bufferFlags,
+      long bufferPresentationTimeUs, boolean shouldSkip) throws ExoPlaybackException;
 
   /**
    * Processes an end of stream signal.

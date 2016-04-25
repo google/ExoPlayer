@@ -42,7 +42,7 @@ import java.nio.ByteBuffer;
  * Before starting playback, specify the input audio format by calling one of the {@link #configure}
  * methods and {@link #initialize} the instance, optionally specifying an audio session.
  * <p>
- * Call {@link #handleBuffer(ByteBuffer, int, int, long)} to write data to play back, and
+ * Call {@link #handleBuffer(ByteBuffer, long)} to write data to play back, and
  * {@link #handleDiscontinuity()} when a buffer is skipped. Call {@link #play()} to start playing
  * back written data.
  * <p>
@@ -226,7 +226,7 @@ public final class AudioTrack {
 
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
-  private int bufferBytesRemaining;
+  private ByteBuffer currentBuffer;
 
   /**
    * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
@@ -533,23 +533,33 @@ public final class AudioTrack {
   }
 
   /**
-   * Attempts to write {@code size} bytes from {@code buffer} at {@code offset} to the audio track.
-   * Returns a bit field containing {@link #RESULT_BUFFER_CONSUMED} if the buffer can be released
-   * (due to having been written), and {@link #RESULT_POSITION_DISCONTINUITY} if the buffer was
-   * discontinuous with previously written data.
+   * Attempts to write data from a {@link ByteBuffer} to the audio track, starting from its current
+   * position and ending at its limit (exclusive). The position of the {@link ByteBuffer} is
+   * advanced by the number of bytes that were successfully written.
+   * <p>
+   * Returns a bit field containing {@link #RESULT_BUFFER_CONSUMED} if the data was written in full,
+   * and {@link #RESULT_POSITION_DISCONTINUITY} if the buffer was discontinuous with previously
+   * written data.
+   * <p>
+   * If the data was not written in full then the same {@link ByteBuffer} must be provided to
+   * subsequent calls until it has been fully consumed, except in the case of an interleaving call
+   * to {@link #configure(MediaFormat, boolean)} or {@link #reset}.
    *
    * @param buffer The buffer containing audio data to play back.
-   * @param offset The offset in the buffer from which to consume data.
-   * @param size The number of bytes to consume from {@code buffer}.
    * @param presentationTimeUs Presentation timestamp of the next buffer in microseconds.
    * @return A bit field with {@link #RESULT_BUFFER_CONSUMED} if the buffer can be released, and
    *     {@link #RESULT_POSITION_DISCONTINUITY} if the buffer was not contiguous with previously
    *     written data.
    * @throws WriteException If an error occurs writing the audio data.
    */
-  public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs)
-      throws WriteException {
-    if (size == 0) {
+  public int handleBuffer(ByteBuffer buffer, long presentationTimeUs) throws WriteException {
+    boolean isNewBuffer = currentBuffer == null;
+    Assertions.checkState(isNewBuffer || currentBuffer == buffer);
+    currentBuffer = buffer;
+
+    int bytesRemaining = buffer.remaining();
+    if (bytesRemaining == 0) {
+      currentBuffer = null;
       return RESULT_BUFFER_CONSUMED;
     }
 
@@ -570,11 +580,8 @@ public final class AudioTrack {
     }
 
     int result = 0;
-    if (bufferBytesRemaining == 0) {
-      // The previous buffer (if there was one) was fully written to the audio track. We're now
-      // seeing a new buffer for the first time.
-      bufferBytesRemaining = size;
-      buffer.position(offset);
+    if (isNewBuffer) {
+      // We're seeing this buffer for the first time.
       if (passthrough && framesPerEncodedSample == 0) {
         // If this is the first encoded sample, calculate the sample size in frames.
         framesPerEncodedSample = getFramesPerEncodedSample(encoding, buffer);
@@ -602,10 +609,12 @@ public final class AudioTrack {
       }
       if (Util.SDK_INT < 21) {
         // Copy {@code buffer} into {@code temporaryBuffer}.
-        if (temporaryBuffer == null || temporaryBuffer.length < size) {
-          temporaryBuffer = new byte[size];
+        if (temporaryBuffer == null || temporaryBuffer.length < bytesRemaining) {
+          temporaryBuffer = new byte[bytesRemaining];
         }
-        buffer.get(temporaryBuffer, 0, size);
+        int originalPosition = buffer.position();
+        buffer.get(temporaryBuffer, 0, bytesRemaining);
+        buffer.position(originalPosition);
         temporaryBufferOffset = 0;
       }
     }
@@ -617,36 +626,36 @@ public final class AudioTrack {
           (int) (submittedPcmBytes - (audioTrackUtil.getPlaybackHeadPosition() * pcmFrameSize));
       int bytesToWrite = bufferSize - bytesPending;
       if (bytesToWrite > 0) {
-        bytesToWrite = Math.min(bufferBytesRemaining, bytesToWrite);
+        bytesToWrite = Math.min(bytesRemaining, bytesToWrite);
         bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
         if (bytesWritten >= 0) {
           temporaryBufferOffset += bytesWritten;
         }
+        buffer.position(buffer.position() + bytesWritten);
       }
     } else {
-      bytesWritten = writeNonBlockingV21(audioTrack, buffer, bufferBytesRemaining);
+      bytesWritten = writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
     }
 
     if (bytesWritten < 0) {
       throw new WriteException(bytesWritten);
     }
 
-    bufferBytesRemaining -= bytesWritten;
     if (!passthrough) {
       submittedPcmBytes += bytesWritten;
     }
-    if (bufferBytesRemaining == 0) {
+    if (bytesWritten == bytesRemaining) {
       if (passthrough) {
         submittedEncodedFrames += framesPerEncodedSample;
       }
+      currentBuffer = null;
       result |= RESULT_BUFFER_CONSUMED;
     }
     return result;
   }
 
   /**
-   * Ensures that the last data passed to {@link #handleBuffer(ByteBuffer, int, int, long)} is
-   * played out in full.
+   * Ensures that the last data passed to {@link #handleBuffer(ByteBuffer, long)} is played in full.
    */
   public void handleEndOfStream() {
     if (isInitialized()) {
@@ -730,7 +739,7 @@ public final class AudioTrack {
       submittedPcmBytes = 0;
       submittedEncodedFrames = 0;
       framesPerEncodedSample = 0;
-      bufferBytesRemaining = 0;
+      currentBuffer = null;
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
       resetSyncParams();

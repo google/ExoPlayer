@@ -190,8 +190,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     }
 
     int handleBufferResult;
-    handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.data.position(),
-        outputBuffer.data.remaining(), outputBuffer.timestampUs);
+    handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timestampUs);
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {

@@ -328,9 +328,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
-      ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
-      throws ExoPlaybackException {
-    if (passthroughEnabled && (bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+      ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
+      boolean shouldSkip) throws ExoPlaybackException {
+    if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       codec.releaseOutputBuffer(bufferIndex, false);
       return true;
@@ -374,8 +374,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
     int handleBufferResult;
     try {
-      handleBufferResult = audioTrack.handleBuffer(
-          buffer, bufferInfo.offset, bufferInfo.size, bufferInfo.presentationTimeUs);
+      handleBufferResult = audioTrack.handleBuffer(buffer, bufferPresentationTimeUs);
       lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } catch (AudioTrack.WriteException e) {
       notifyAudioTrackWriteError(e);

@@ -429,7 +429,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
-      ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip) {
+      ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
+      boolean shouldSkip) {
     if (shouldSkip) {
       skipOutputBuffer(codec, bufferIndex);
       consecutiveDroppedFrameCount = 0;
@@ -452,7 +453,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
     // Compute how many microseconds it is until the buffer's presentation time.
     long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
-    long earlyUs = bufferInfo.presentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
+    long earlyUs = bufferPresentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
 
     // Compute the buffer's desired release time in nanoseconds.
     long systemTimeNs = System.nanoTime();
@@ -460,7 +461,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
     // Apply a timestamp adjustment, if there is one.
     long adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
-        bufferInfo.presentationTimeUs, unadjustedFrameReleaseTimeNs);
+        bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
     if (earlyUs < -30000) {
