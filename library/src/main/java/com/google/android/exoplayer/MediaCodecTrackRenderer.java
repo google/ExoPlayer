@@ -202,6 +202,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private long codecHotswapDeadlineMs;
   private int inputIndex;
   private int outputIndex;
+  private boolean shouldSkipOutputBuffer;
   private boolean openedDrmSession;
   private boolean codecReconfigured;
   private int codecReconfigurationState;
@@ -414,6 +415,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       inputIndex = -1;
       outputIndex = -1;
       waitingForKeys = false;
+      shouldSkipOutputBuffer = false;
       decodeOnlyPresentationTimestamps.clear();
       inputBuffers = null;
       outputBuffers = null;
@@ -487,6 +489,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     inputIndex = -1;
     outputIndex = -1;
     waitingForKeys = false;
+    shouldSkipOutputBuffer = false;
     decodeOnlyPresentationTimestamps.clear();
     if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       // Workaround framework bugs. See [Internal: b/8347958, b/8578467, b/8543366, b/23361053].
@@ -798,38 +801,42 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     if (outputIndex < 0) {
       outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
-      if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+      if (outputIndex >= 0) {
+        // We've dequeued a buffer.
+        if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+          // The dequeued buffer indicates the end of the stream. Process it immediately.
+          processEndOfStream();
+          outputIndex = -1;
+          return true;
+        } else {
+          // The dequeued buffer is a media buffer. Do some initial setup. The buffer will be
+          // processed by calling processOutputBuffer (possibly multiple times) below.
+          ByteBuffer outputBuffer = outputBuffers[outputIndex];
+          outputBuffer.position(outputBufferInfo.offset);
+          outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
+          shouldSkipOutputBuffer = shouldSkipOutputBuffer(outputBufferInfo.presentationTimeUs);
+        }
+      } else if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
         processOutputFormat();
         return true;
-      } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+      } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
         outputBuffers = codec.getOutputBuffers();
         codecCounters.outputBuffersChangedCount++;
         return true;
-      } else if (outputIndex < 0) {
+      } else /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */ {
         if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
             || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();
           return true;
         }
         return false;
-      } else if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-        processEndOfStream();
-        return false;
-      } else {
-        ByteBuffer outputBuffer = outputBuffers[outputIndex];
-        outputBuffer.position(outputBufferInfo.offset);
-        outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
       }
     }
 
-    int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
         outputIndex, outputBufferInfo.flags, outputBufferInfo.presentationTimeUs,
-        decodeOnlyIndex != -1)) {
+        shouldSkipOutputBuffer)) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
-      if (decodeOnlyIndex != -1) {
-        decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
-      }
       outputIndex = -1;
       return true;
     }
@@ -911,14 +918,17 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
   }
 
-  private int getDecodeOnlyIndex(long presentationTimeUs) {
-    final int size = decodeOnlyPresentationTimestamps.size();
+  private boolean shouldSkipOutputBuffer(long presentationTimeUs) {
+    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
+    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
+    int size = decodeOnlyPresentationTimestamps.size();
     for (int i = 0; i < size; i++) {
       if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
-        return i;
+        decodeOnlyPresentationTimestamps.remove(i);
+        return true;
       }
     }
-    return -1;
+    return false;
   }
 
   /**
