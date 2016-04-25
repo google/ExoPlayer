@@ -83,7 +83,6 @@ public final class VpxOutputBuffer extends OutputBuffer {
       yuvPlanes = new ByteBuffer[3];
     }
     // Rewrapping has to be done on every frame since the stride might have changed.
-    data.position(0);
     yuvPlanes[0] = data.slice();
     yuvPlanes[0].limit(yLength);
     data.position(yLength);
@@ -103,9 +102,10 @@ public final class VpxOutputBuffer extends OutputBuffer {
   private void initData(int size) {
     if (data == null || data.capacity() < size) {
       data = ByteBuffer.allocateDirect(size);
+    } else {
+      data.position(0);
+      data.limit(size);
     }
-    data.position(0);
-    data.limit(size);
   }
 
 }

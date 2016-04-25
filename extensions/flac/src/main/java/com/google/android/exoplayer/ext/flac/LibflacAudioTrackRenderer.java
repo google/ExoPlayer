@@ -52,7 +52,7 @@ public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
   }
   @Override
   protected int supportsFormat(Format format) {
-    return MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)
+    return isLibflacAvailable() && MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)
         ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
   }
 
