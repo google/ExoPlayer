@@ -15,9 +15,15 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Util;
+
+import android.annotation.TargetApi;
+import android.media.MediaCodecInfo.CodecCapabilities;
+
 /**
  * Contains information about a media decoder.
  */
+@TargetApi(16)
 public final class DecoderInfo {
 
   /**
@@ -29,6 +35,11 @@ public final class DecoderInfo {
   public final String name;
 
   /**
+   * {@link CodecCapabilities} for this decoder.
+   */
+  public final CodecCapabilities capabilities;
+
+  /**
    * Whether the decoder supports seamless resolution switches.
    *
    * @see android.media.MediaCodecInfo.CodecCapabilities#isFeatureSupported(String)
@@ -38,11 +49,21 @@ public final class DecoderInfo {
 
   /**
    * @param name The name of the decoder.
-   * @param adaptive Whether the decoder is adaptive.
+   * @param capabilities {@link CodecCapabilities} of the decoder.
    */
-  /* package */ DecoderInfo(String name, boolean adaptive) {
+  /* package */ DecoderInfo(String name, CodecCapabilities capabilities) {
     this.name = name;
-    this.adaptive = adaptive;
+    this.capabilities = capabilities;
+    this.adaptive = isAdaptive(capabilities);
+  }
+
+  private static boolean isAdaptive(CodecCapabilities capabilities) {
+    return capabilities != null && Util.SDK_INT >= 19 && isAdaptiveV19(capabilities);
+  }
+
+  @TargetApi(19)
+  private static boolean isAdaptiveV19(CodecCapabilities capabilities) {
+    return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
   }
 
 }
