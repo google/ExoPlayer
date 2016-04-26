@@ -21,29 +21,24 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Decoder;
 
 /**
- * A factory for {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer,  ParserException>}
- * instances that will parse subtitles.
+ * A factory for {@link Decoder} instances that will parse subtitles.
  */
 public interface SubtitleParserFactory {
 
   /**
-   * Returns whether the factory is able to instantiate a
-   * {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} for the given
+   * Returns whether the factory is able to instantiate a {@link Decoder} for the given
    * {@link Format}.
    *
    * @param format The {@link Format}.
-   * @return True if the factory can instantiate a suitable
-   *     {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>}. False
-   *     otherwise.
+   * @return True if the factory can instantiate a suitable {@link Decoder}. False otherwise.
    */
   boolean supportsFormat(Format format);
 
   /**
-   * Creates a {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} for
-   * the given {@link Format}.
+   * Creates a {@link Decoder} for the given {@link Format}.
    *
    * @param format The {@link Format}.
-   * @return A new {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>}.
+   * @return A new {@link Decoder}.
    * @throws IllegalArgumentException If the {@link Format} is not supported.
    */
   Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> createParser(Format format);
@@ -68,6 +63,7 @@ public interface SubtitleParserFactory {
       return getParserClass(format.sampleMimeType) != null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> createParser(
         Format format) {

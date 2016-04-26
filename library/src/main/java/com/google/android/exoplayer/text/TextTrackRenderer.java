@@ -39,9 +39,8 @@ import java.util.List;
 /**
  * A {@link TrackRenderer} for subtitles.
  * <p>
- * Text is parsed from sample data using
- * {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} instances obtained
- * from a {@link SubtitleParserFactory}. The actual rendering of each line of text is delegated to a
+ * Text is parsed from sample data using {@link Decoder} instances obtained from a
+ * {@link SubtitleParserFactory}. The actual rendering of each line of text is delegated to a
  * {@link TextRenderer}.
  */
 @TargetApi(16)
@@ -81,8 +80,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
    *     normally be the looper associated with the application's main thread, which can be obtained
    *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the renderer
    *     should be invoked directly on the player's internal rendering thread.
-   * @param parserFactory A factory from which to obtain
-   *     {@link Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException>} instances.
+   * @param parserFactory A factory from which to obtain {@link Decoder} instances.
    */
   public TextTrackRenderer(TextRenderer textRenderer, Looper textRendererLooper,
       SubtitleParserFactory parserFactory) {

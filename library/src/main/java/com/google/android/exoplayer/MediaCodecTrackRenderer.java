@@ -858,6 +858,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   /**
    * Processes a change in the output buffers.
    */
+  @SuppressWarnings("deprecation")
   private void processOutputBuffersChanged() {
     outputBuffers = codec.getOutputBuffers();
     codecCounters.outputBuffersChangedCount++;
