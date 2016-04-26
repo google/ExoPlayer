@@ -820,8 +820,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         processOutputFormat();
         return true;
       } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
-        outputBuffers = codec.getOutputBuffers();
-        codecCounters.outputBuffersChangedCount++;
+        processOutputBuffersChanged();
         return true;
       } else /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */ {
         if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
@@ -857,10 +856,39 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
-   * Processes the provided output buffer.
+   * Processes a change in the output buffers.
+   */
+  private void processOutputBuffersChanged() {
+    outputBuffers = codec.getOutputBuffers();
+    codecCounters.outputBuffersChangedCount++;
+  }
+
+  /**
+   * Processes an output media buffer.
+   * <p>
+   * When a new {@link ByteBuffer} is passed to this method its position and limit delineate the
+   * data to be processed. The return value indicates whether the buffer was processed in full. If
+   * true is returned then the next call to this method will receive a new buffer to be processed.
+   * If false is returned then the same buffer will be passed to the next call. An implementation of
+   * this method is free to modify the buffer and can assume that the buffer will not be externally
+   * modified between successive calls. Hence an implementation can, for example, modify the
+   * buffer's position to keep track of how much of the data it has processed.
+   * <p>
+   * Note that the first call to this method following a call to {@link #reset(long)} will always
+   * receive a new {@link ByteBuffer} to be processed.
    *
-   * @return True if the output buffer was processed (e.g. rendered or discarded) and hence is no
-   *     longer required. False otherwise.
+   * @param positionUs The current media time in microseconds, measured at the start of the
+   *     current iteration of the rendering loop.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
+   * @param codec The {@link MediaCodec} instance.
+   * @param buffer The output buffer to process.
+   * @param bufferIndex The index of the output buffer.
+   * @param bufferFlags The flags attached to the output buffer.
+   * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
+   * @param shouldSkip True if the buffer should be skipped (i.e. not rendered). False otherwise.
+   *
+   * @return Whether the output buffer was fully processed (e.g. rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
   protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
