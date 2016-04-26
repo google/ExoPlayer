@@ -82,8 +82,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean playWhenReady;
   private boolean rebuffering;
   private int state;
-  private int customMessagesSent = 0;
-  private int customMessagesProcessed = 0;
+  private int customMessagesSent;
+  private int customMessagesProcessed;
   private long lastSeekPositionMs;
   private long elapsedRealtimeUs;
 
@@ -322,8 +322,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   private void updatePositionUs() {
-    if (rendererMediaClock != null
-        && rendererMediaClockSource.getState() != TrackRenderer.STATE_DISABLED) {
+    if (rendererMediaClockSource != null && !rendererMediaClockSource.isEnded()) {
       positionUs = rendererMediaClock.getPositionUs();
       standaloneMediaClock.setPositionUs(positionUs);
     } else {
@@ -582,10 +581,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             rendererMediaClockSource = null;
           }
           ensureStopped(renderer);
-          if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-            TrackStream trackStream = renderer.disable();
-            oldStreams.add(trackStream);
-          }
+          oldStreams.add(renderer.disable());
         }
         if (newSelection != null) {
           newSelections.add(newSelection);
