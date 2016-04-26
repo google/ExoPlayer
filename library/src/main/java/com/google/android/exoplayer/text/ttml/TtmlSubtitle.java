@@ -31,9 +31,12 @@ public final class TtmlSubtitle implements Subtitle {
   private final TtmlNode root;
   private final long[] eventTimesUs;
   private final Map<String, TtmlStyle> globalStyles;
+  private final Map<String, TtmlRegion> regionMap;
 
-  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles) {
+  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles,
+      Map<String, TtmlRegion> regionMap) {
     this.root = root;
+    this.regionMap = regionMap;
     this.globalStyles = globalStyles != null
         ? Collections.unmodifiableMap(globalStyles) : Collections.<String, TtmlStyle>emptyMap();
     this.eventTimesUs = root.getEventTimesUs();
@@ -67,13 +70,7 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    CharSequence cueText = root.getText(timeUs, globalStyles);
-    if (cueText == null) {
-      return Collections.<Cue>emptyList();
-    } else {
-      Cue cue = new Cue(cueText);
-      return Collections.singletonList(cue);
-    }
+    return root.getCues(timeUs, globalStyles, regionMap);
   }
 
   /* @VisibleForTesting */
