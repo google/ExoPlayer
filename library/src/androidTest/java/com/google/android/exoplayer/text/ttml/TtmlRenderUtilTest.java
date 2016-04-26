@@ -48,7 +48,7 @@ public class TtmlRenderUtilTest extends InstrumentationTestCase {
     // inherited from s0
     assertEquals(Color.BLACK, resolved.getBackgroundColor());
     // inherited from s1
-    assertEquals(Color.RED, resolved.getColor());
+    assertEquals(Color.RED, resolved.getFontColor());
     // merged from s0 and s1
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, resolved.getStyle());
   }
@@ -101,7 +101,7 @@ public class TtmlRenderUtilTest extends InstrumentationTestCase {
     TtmlStyle s1 = new TtmlStyle();
     s1.setId("s1");
     s1.setBackgroundColor(Color.RED);
-    s1.setColor(Color.RED);
+    s1.setFontColor(Color.RED);
     s1.setItalic(true);
     globalStyles.put(s1.getId(), s1);
 

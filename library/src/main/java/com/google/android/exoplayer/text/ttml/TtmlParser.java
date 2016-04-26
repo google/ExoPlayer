@@ -1,4 +1,4 @@
-/*
+/*arse
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.text.Layout;
 import android.util.Log;
+import android.util.Pair;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -66,6 +67,7 @@ public final class TtmlParser implements SubtitleParser {
   private static final String ATTR_DURATION = "dur";
   private static final String ATTR_END = "end";
   private static final String ATTR_STYLE = "style";
+  private static final String ATTR_REGION = "region";
 
   private static final Pattern CLOCK_TIME =
       Pattern.compile("^([0-9][0-9]+):([0-9][0-9]):([0-9][0-9])"
@@ -74,6 +76,8 @@ public final class TtmlParser implements SubtitleParser {
       Pattern.compile("^([0-9]+(?:\\.[0-9]+)?)(h|m|s|ms|f|t)$");
   private static final Pattern FONT_SIZE =
       Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
+  private static final Pattern ORIGIN_COORDINATES =
+      Pattern.compile("^(\\d+\\.?\\d*?)% (\\d+\\.?\\d*?)%$");
 
   // TODO: read and apply the following attributes if specified.
   private static final int DEFAULT_FRAMERATE = 30;
@@ -85,6 +89,7 @@ public final class TtmlParser implements SubtitleParser {
   public TtmlParser() {
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
+      xmlParserFactory.setNamespaceAware(true);
     } catch (XmlPullParserException e) {
       throw new RuntimeException("Couldn't create XmlPullParserFactory instance", e);
     }
@@ -100,6 +105,8 @@ public final class TtmlParser implements SubtitleParser {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       Map<String, TtmlStyle> globalStyles = new HashMap<>();
+      Map<String, TtmlRegion> regionMap = new HashMap<>();
+      regionMap.put(TtmlNode.ANONYMOUS_REGION_ID, new TtmlRegion());
       ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, offset, length);
       xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
@@ -115,7 +122,7 @@ public final class TtmlParser implements SubtitleParser {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
             } else if (TtmlNode.TAG_HEAD.equals(name)) {
-              parseHeader(xmlParser, globalStyles);
+              parseHeader(xmlParser, globalStyles, regionMap);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent);
@@ -133,7 +140,7 @@ public final class TtmlParser implements SubtitleParser {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles);
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles, regionMap);
             }
             nodeStack.removeLast();
           }
@@ -156,13 +163,12 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   private Map<String, TtmlStyle> parseHeader(XmlPullParser xmlParser,
-      Map<String, TtmlStyle> globalStyles)
+      Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions)
       throws IOException, XmlPullParserException {
-
     do {
       xmlParser.next();
       if (ParserUtil.isStartTag(xmlParser, TtmlNode.TAG_STYLE)) {
-        String parentStyleId = xmlParser.getAttributeValue(null, ATTR_STYLE);
+        String parentStyleId = ParserUtil.getAttributeValue(xmlParser, ATTR_STYLE);
         TtmlStyle style = parseStyleAttributes(xmlParser, new TtmlStyle());
         if (parentStyleId != null) {
           String[] ids = parseStyleIds(parentStyleId);
@@ -173,9 +179,33 @@ public final class TtmlParser implements SubtitleParser {
         if (style.getId() != null) {
           globalStyles.put(style.getId(), style);
         }
+      } else if (ParserUtil.isStartTag(xmlParser, TtmlNode.TAG_REGION)) {
+        Pair<String, TtmlRegion> ttmlRegionInfo = parseRegionAttributes(xmlParser);
+        if (ttmlRegionInfo != null) {
+          globalRegions.put(ttmlRegionInfo.first, ttmlRegionInfo.second);
+        }
       }
     } while (!ParserUtil.isEndTag(xmlParser, TtmlNode.TAG_HEAD));
     return globalStyles;
+  }
+
+  private Pair<String, TtmlRegion> parseRegionAttributes(XmlPullParser xmlParser) {
+    String regionId = ParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_ID);
+    String regionOrigin = ParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_ORIGIN);
+    if (regionOrigin == null || regionId == null) {
+      return null;
+    }
+    Matcher originMatcher = ORIGIN_COORDINATES.matcher(regionOrigin);
+    if (originMatcher.matches()) {
+      try {
+        float position = Float.parseFloat(originMatcher.group(1)) / 100.f;
+        float line = Float.parseFloat(originMatcher.group(2)) / 100.f;
+        return new Pair<>(regionId, new TtmlRegion(position, line));
+      } catch (NumberFormatException e) {
+        Log.w(TAG, "Ignoring malformed region declaration: '" + regionOrigin + "'", e);
+      }
+    }
+    return null;
   }
 
   private String[] parseStyleIds(String parentStyleIds) {
@@ -185,9 +215,8 @@ public final class TtmlParser implements SubtitleParser {
   private TtmlStyle parseStyleAttributes(XmlPullParser parser, TtmlStyle style) {
     int attributeCount = parser.getAttributeCount();
     for (int i = 0; i < attributeCount; i++) {
-      String attributeName = parser.getAttributeName(i);
       String attributeValue = parser.getAttributeValue(i);
-      switch (ParserUtil.removeNamespacePrefix(attributeName)) {
+      switch (parser.getAttributeName(i)) {
         case TtmlNode.ATTR_ID:
           if (TtmlNode.TAG_STYLE.equals(parser.getName())) {
             style = createIfNull(style).setId(attributeValue);
@@ -204,7 +233,7 @@ public final class TtmlParser implements SubtitleParser {
         case TtmlNode.ATTR_TTS_COLOR:
           style = createIfNull(style);
           try {
-            style.setColor(TtmlColorParser.parseColor(attributeValue));
+            style.setFontColor(TtmlColorParser.parseColor(attributeValue));
           } catch (IllegalArgumentException e) {
             Log.w(TAG, "failed parsing color value: '" + attributeValue + "'");
           }
@@ -279,27 +308,30 @@ public final class TtmlParser implements SubtitleParser {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
+    String regionId = TtmlNode.ANONYMOUS_REGION_ID;
     String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
     TtmlStyle style = parseStyleAttributes(parser, null);
     for (int i = 0; i < attributeCount; i++) {
-      String attr = ParserUtil.removeNamespacePrefix(parser.getAttributeName(i));
+      String attr = parser.getAttributeName(i);
       String value = parser.getAttributeValue(i);
-      if (attr.equals(ATTR_BEGIN)) {
+      if (ATTR_BEGIN.equals(attr)) {
         startTime = parseTimeExpression(value,
             DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
-      } else if (attr.equals(ATTR_END)) {
+      } else if (ATTR_END.equals(attr)) {
         endTime = parseTimeExpression(value,
             DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
-      } else if (attr.equals(ATTR_DURATION)) {
+      } else if (ATTR_DURATION.equals(attr)) {
         duration = parseTimeExpression(value,
             DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
-      } else if (attr.equals(ATTR_STYLE)) {
+      } else if (ATTR_STYLE.equals(attr)) {
         // IDREFS: potentially multiple space delimited ids
         String[] ids = parseStyleIds(value);
         if (ids.length > 0) {
           styleIds = ids;
         }
+      } else if (ATTR_REGION.equals(attr)) {
+        regionId = value;
       } else {
         // Do nothing.
       }
@@ -321,7 +353,7 @@ public final class TtmlParser implements SubtitleParser {
         endTime = parent.endTimeUs;
       }
     }
-    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds);
+    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds, regionId);
   }
 
   private static boolean isSupportedTag(String tag) {
