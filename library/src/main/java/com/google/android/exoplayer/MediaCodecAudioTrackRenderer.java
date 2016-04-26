@@ -224,7 +224,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       String passthroughDecoderName = mediaCodecSelector.getPassthroughDecoderName();
       if (passthroughDecoderName != null) {
         passthroughEnabled = true;
-        return new DecoderInfo(passthroughDecoderName, false);
+        return new DecoderInfo(passthroughDecoderName, null);
       }
     }
     passthroughEnabled = false;
