@@ -81,23 +81,21 @@ public class SourceBuilder {
     ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_VIDEO,
         videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
+        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_VIDEO);
 
     // Build the audio renderer.
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
         audioDataSource, null);
     ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-        DemoPlayer.TYPE_AUDIO);
+        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_AUDIO);
 
     // Build the text renderer.
     DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource textChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
         textDataSource, null);
     ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-        DemoPlayer.TYPE_TEXT);
+        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_TEXT);
 
     return new MultiSampleSource(videoSampleSource, audioSampleSource, textSampleSource);
   }
@@ -122,22 +120,21 @@ public class SourceBuilder {
     ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         C.TRACK_TYPE_VIDEO, videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-        DemoPlayer.TYPE_VIDEO);
+        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_VIDEO);
 
     // Build the audio renderer.
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         C.TRACK_TYPE_AUDIO, audioDataSource, null);
     ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
+        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_AUDIO);
 
     // Build the text renderer.
     DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-        C.TRACK_TYPE_TEXT, textDataSource, null);
+    ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
+        textDataSource, null);
     ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
+        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_TEXT);
 
     return new MultiSampleSource(videoSampleSource, audioSampleSource, textSampleSource);
   }
@@ -156,23 +153,23 @@ public class SourceBuilder {
     PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
     DataSource defaultDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher,
-        C.TRACK_TYPE_DEFAULT, defaultDataSource, timestampAdjusterProvider,
+    HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_DEFAULT,
+        defaultDataSource, timestampAdjusterProvider,
         new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
     HlsSampleSource defaultSampleSource = new HlsSampleSource(defaultChunkSource, loadControl,
-        MUXED_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
+        MUXED_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_VIDEO);
 
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
         audioDataSource, timestampAdjusterProvider, null);
     HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
-        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
+        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_AUDIO);
 
     DataSource subtitleDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher,
-        C.TRACK_TYPE_TEXT, subtitleDataSource, timestampAdjusterProvider, null);
+    HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
+        subtitleDataSource, timestampAdjusterProvider, null);
     HlsSampleSource subtitleSampleSource = new HlsSampleSource(subtitleChunkSource, loadControl,
-        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
+        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, C.TRACK_TYPE_TEXT);
 
     return new MultiSampleSource(defaultSampleSource, audioSampleSource, subtitleSampleSource);
   }

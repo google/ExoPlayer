@@ -409,29 +409,32 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void updateButtonVisibilities() {
     retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
-    videoButton.setVisibility(haveTracks(DemoPlayer.TYPE_VIDEO) ? View.VISIBLE : View.GONE);
-    audioButton.setVisibility(haveTracks(DemoPlayer.TYPE_AUDIO) ? View.VISIBLE : View.GONE);
-    textButton.setVisibility(haveTracks(DemoPlayer.TYPE_TEXT) ? View.VISIBLE : View.GONE);
+    videoButton.setVisibility(haveTracks(DemoPlayer.RENDERER_INDEX_VIDEO) ? View.VISIBLE
+        : View.GONE);
+    audioButton.setVisibility(haveTracks(DemoPlayer.RENDERER_INDEX_AUDIO) ? View.VISIBLE
+        : View.GONE);
+    textButton.setVisibility(haveTracks(DemoPlayer.RENDERER_INDEX_TEXT) ? View.VISIBLE
+        : View.GONE);
   }
 
-  private boolean haveTracks(int type) {
+  private boolean haveTracks(int rendererIndex) {
     TrackInfo trackInfo = player == null ? null : player.getTrackInfo();
-    return trackInfo != null && trackInfo.getTrackGroups(type).length != 0;
+    return trackInfo != null && trackInfo.getTrackGroups(rendererIndex).length != 0;
   }
 
   public void showVideoPopup(@SuppressWarnings("unused") View v) {
     trackSelectionHelper.showSelectionDialog(this, R.string.video, player.getTrackInfo(),
-        DemoPlayer.TYPE_VIDEO);
+        DemoPlayer.RENDERER_INDEX_VIDEO);
   }
 
   public void showAudioPopup(@SuppressWarnings("unused") View v) {
     trackSelectionHelper.showSelectionDialog(this, R.string.audio, player.getTrackInfo(),
-        DemoPlayer.TYPE_AUDIO);
+        DemoPlayer.RENDERER_INDEX_AUDIO);
   }
 
   public void showTextPopup(@SuppressWarnings("unused") View v) {
     trackSelectionHelper.showSelectionDialog(this, R.string.text, player.getTrackInfo(),
-        DemoPlayer.TYPE_TEXT);
+        DemoPlayer.RENDERER_INDEX_TEXT);
   }
 
   private void toggleControlsVisibility()  {

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
@@ -133,10 +134,10 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   public static final int STATE_ENDED = ExoPlayer.STATE_ENDED;
 
   public static final int RENDERER_COUNT = 4;
-  public static final int TYPE_VIDEO = 0;
-  public static final int TYPE_AUDIO = 1;
-  public static final int TYPE_TEXT = 2;
-  public static final int TYPE_METADATA = 3;
+  public static final int RENDERER_INDEX_VIDEO = 0;
+  public static final int RENDERER_INDEX_AUDIO = 1;
+  public static final int RENDERER_INDEX_TEXT = 2;
+  public static final int RENDERER_INDEX_METADATA = 3;
 
   private final ExoPlayer player;
   private final DefaultTrackSelector trackSelector;
@@ -336,10 +337,10 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     if (infoListener == null) {
       return;
     }
-    if (sourceId == TYPE_VIDEO) {
+    if (sourceId == C.TRACK_TYPE_VIDEO) {
       videoFormat = format;
       infoListener.onVideoFormatEnabled(format, trigger, mediaTimeMs);
-    } else if (sourceId == TYPE_AUDIO) {
+    } else if (sourceId == C.TRACK_TYPE_AUDIO) {
       infoListener.onAudioFormatEnabled(format, trigger, mediaTimeMs);
     }
   }
