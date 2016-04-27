@@ -24,7 +24,6 @@ import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.extensions.Decoder;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -51,6 +50,55 @@ public final class Eia608Parser implements
 
   // The default number of rows to display in roll-up captions mode.
   private static final int DEFAULT_CAPTIONS_ROW_COUNT = 4;
+
+  /**
+   * Command initiating pop-on style captioning. Subsequent data should be loaded into a
+   * non-displayed memory and held there until the {@link #CTRL_END_OF_CAPTION} command is received,
+   * at which point the non-displayed memory becomes the displayed memory (and vice versa).
+   */
+  private static final byte CTRL_RESUME_CAPTION_LOADING = 0x20;
+  /**
+   * Command initiating roll-up style captioning, with the maximum of 2 rows displayed
+   * simultaneously.
+   */
+  private static final byte CTRL_ROLL_UP_CAPTIONS_2_ROWS = 0x25;
+  /**
+   * Command initiating roll-up style captioning, with the maximum of 3 rows displayed
+   * simultaneously.
+   */
+  private static final byte CTRL_ROLL_UP_CAPTIONS_3_ROWS = 0x26;
+  /**
+   * Command initiating roll-up style captioning, with the maximum of 4 rows displayed
+   * simultaneously.
+   */
+  private static final byte CTRL_ROLL_UP_CAPTIONS_4_ROWS = 0x27;
+  /**
+   * Command initiating paint-on style captioning. Subsequent data should be addressed immediately
+   * to displayed memory without need for the {@link #CTRL_RESUME_CAPTION_LOADING} command.
+   */
+  private static final byte CTRL_RESUME_DIRECT_CAPTIONING = 0x29;
+  /**
+   * Command indicating the end of a pop-on style caption. At this point the caption loaded in
+   * non-displayed memory should be swapped with the one in displayed memory. If no
+   * {@link #CTRL_RESUME_CAPTION_LOADING} command has been received, this command forces the
+   * receiver into pop-on style.
+   */
+  private static final byte CTRL_END_OF_CAPTION = 0x2F;
+
+  private static final byte CTRL_ERASE_DISPLAYED_MEMORY = 0x2C;
+  private static final byte CTRL_CARRIAGE_RETURN = 0x2D;
+  private static final byte CTRL_ERASE_NON_DISPLAYED_MEMORY = 0x2E;
+
+  private static final byte CTRL_BACKSPACE = 0x21;
+
+  private static final byte CTRL_MID_ROW_CHAN_1 = 0x11;
+  private static final byte CTRL_MID_ROW_CHAN_2 = 0x19;
+
+  private static final byte CTRL_MISC_CHAN_1 = 0x14;
+  private static final byte CTRL_MISC_CHAN_2 = 0x1C;
+
+  private static final byte CTRL_TAB_OFFSET_CHAN_1 = 0x17;
+  private static final byte CTRL_TAB_OFFSET_CHAN_2 = 0x1F;
 
   // Basic North American 608 CC char set, mostly ASCII. Indexed by (char-0x20).
   private static final int[] BASIC_CHARACTER_SET = new int[] {
@@ -125,8 +173,6 @@ public final class Eia608Parser implements
   private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
 
   private final ParsableBitArray seiBuffer;
-  private final StringBuilder textStringBuilder;
-  private final ArrayList<ClosedCaption> captions;
 
   private final StringBuilder captionStringBuilder;
 
@@ -135,7 +181,12 @@ public final class Eia608Parser implements
   private int captionMode;
   private int captionRowCount;
   private String captionString;
-  private ClosedCaptionCtrl repeatableControl;
+
+  private String lastCaptionString;
+
+  private boolean repeatableControlSet;
+  private byte repeatableControlCc1;
+  private byte repeatableControlCc2;
 
   public Eia608Parser() {
     availableInputBuffers = new LinkedList<>();
@@ -149,8 +200,6 @@ public final class Eia608Parser implements
     queuedInputBuffers = new TreeSet<>();
 
     seiBuffer = new ParsableBitArray();
-    textStringBuilder = new StringBuilder();
-    captions = new ArrayList<>();
 
     captionStringBuilder = new StringBuilder();
 
@@ -182,21 +231,28 @@ public final class Eia608Parser implements
       return null;
     }
 
-    SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+    SubtitleOutputBuffer outputBuffer = null;
     SubtitleInputBuffer inputBuffer = queuedInputBuffers.pollFirst();
 
     // TODO: investigate ways of batching multiple SubtitleInputBuffers into a single
-    // SubtitleOutputBuffer
+    // SubtitleOutputBuffer; it isn't as simple as just iterating through all of the queued input
+    // buffers until there is a change because for pop-on captions this will result in the input
+    // buffers being processed almost sequentially as they are queued, eliminating the re-ordering,
+    // resulting in the content having characters out of order
     if (inputBuffer.isEndOfStream()) {
+      outputBuffer = availableOutputBuffers.pollFirst();
       outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      return outputBuffer;
+    } else if (decode(inputBuffer)
+        && ((captionString == null && lastCaptionString != null)
+        || (captionString != null && !captionString.equals((lastCaptionString))))) {
+      lastCaptionString = captionString;
+      outputBuffer = availableOutputBuffers.pollFirst();
+      outputBuffer.setOutput(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
+      if (inputBuffer.isDecodeOnly()) {
+        outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+      }
     }
-    ClosedCaptionList captionList = decode(inputBuffer);
-    Eia608Subtitle subtitle = generateSubtitle(captionList);
-    outputBuffer.setOutput(inputBuffer.timeUs, subtitle, 0);
-    if (inputBuffer.isDecodeOnly()) {
-      outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-    }
+
     releaseInputBuffer(inputBuffer);
     return outputBuffer;
   }
@@ -217,7 +273,10 @@ public final class Eia608Parser implements
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
     captionStringBuilder.setLength(0);
     captionString = null;
-    repeatableControl = null;
+    lastCaptionString = null;
+    repeatableControlSet = false;
+    repeatableControlCc1 = 0;
+    repeatableControlCc2 = 0;
     while (!queuedInputBuffers.isEmpty()) {
       releaseInputBuffer(queuedInputBuffers.pollFirst());
     }
@@ -232,13 +291,10 @@ public final class Eia608Parser implements
     // Do nothing
   }
 
-  private ClosedCaptionList decode(SubtitleInputBuffer inputBuffer) {
+  private boolean decode(SubtitleInputBuffer inputBuffer) {
     if (inputBuffer.size < 10) {
-      return null;
+      return false;
     }
-
-    captions.clear();
-    textStringBuilder.setLength(0);
     seiBuffer.reset(inputBuffer.data.array());
 
     // country_code (8) + provider_code (16) + user_identifier (32) + user_data_type_code (8) +
@@ -247,6 +303,8 @@ public final class Eia608Parser implements
     int ccCount = seiBuffer.readBits(5);
     seiBuffer.skipBits(8);
 
+    boolean captionDataProcessed = false;
+    boolean isRepeatableControl = false;
     for (int i = 0; i < ccCount; i++) {
       seiBuffer.skipBits(5); // one_bit + reserved
       boolean ccValid = seiBuffer.readBit();
@@ -269,11 +327,14 @@ public final class Eia608Parser implements
         continue;
       }
 
+      // If we've reached this point then there is data to process; flag that work has been done.
+      captionDataProcessed = true;
+
       // Special North American character set.
       // ccData2 - P|0|1|1|X|X|X|X
       if ((ccData1 == 0x11 || ccData1 == 0x19)
           && ((ccData2 & 0x70) == 0x30)) {
-        textStringBuilder.append(getSpecialChar(ccData2));
+        captionStringBuilder.append(getSpecialChar(ccData2));
         continue;
       }
 
@@ -282,7 +343,7 @@ public final class Eia608Parser implements
       if ((ccData1 == 0x12 || ccData1 == 0x1A)
           && ((ccData2 & 0x60) == 0x20)) {
         backspace(); // Remove standard equivalent of the special extended char.
-        textStringBuilder.append(getExtendedEsFrChar(ccData2));
+        captionStringBuilder.append(getExtendedEsFrChar(ccData2));
         continue;
       }
 
@@ -291,89 +352,76 @@ public final class Eia608Parser implements
       if ((ccData1 == 0x13 || ccData1 == 0x1B)
           && ((ccData2 & 0x60) == 0x20)) {
         backspace(); // Remove standard equivalent of the special extended char.
-        textStringBuilder.append(getExtendedPtDeChar(ccData2));
+        captionStringBuilder.append(getExtendedPtDeChar(ccData2));
         continue;
       }
 
       // Control character.
       if (ccData1 < 0x20) {
-        addCtrl(ccData1, ccData2);
+        isRepeatableControl = handleCtrl(ccData1, ccData2);
         continue;
       }
 
       // Basic North American character set.
-      textStringBuilder.append(getChar(ccData1));
+      captionStringBuilder.append(getChar(ccData1));
       if (ccData2 >= 0x20) {
-        textStringBuilder.append(getChar(ccData2));
+        captionStringBuilder.append(getChar(ccData2));
       }
     }
 
-    addBufferedText();
-
-    if (captions.isEmpty()) {
-      return null;
+    if (!captionDataProcessed) {
+      return false;
     }
 
-    ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
-    captions.toArray(captionArray);
-    return new ClosedCaptionList(inputBuffer.timeUs, captionArray);
+    if (!isRepeatableControl) {
+      repeatableControlSet = false;
+    }
+    if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
+      captionString = getDisplayCaption();
+    }
+
+    return true;
   }
 
-  public Eia608Subtitle generateSubtitle(ClosedCaptionList captionList) {
-    int captionBufferSize = (captionList == null) ? 0 : captionList.captions.length;
-    if (captionBufferSize != 0) {
-      boolean isRepeatableControl = false;
-      for (ClosedCaption caption : captionList.captions) {
-        if (caption.type == ClosedCaption.TYPE_CTRL) {
-          ClosedCaptionCtrl captionCtrl = (ClosedCaptionCtrl) caption;
-          isRepeatableControl = captionBufferSize == 1 && captionCtrl.isRepeatable();
-          if (isRepeatableControl && repeatableControl != null
-              && repeatableControl.cc1 == captionCtrl.cc1
-              && repeatableControl.cc2 == captionCtrl.cc2) {
-            repeatableControl = null;
-            continue;
-          } else if (isRepeatableControl) {
-            repeatableControl = captionCtrl;
-          }
-          if (captionCtrl.isMiscCode()) {
-            handleMiscCode(captionCtrl);
-          } else if (captionCtrl.isPreambleAddressCode()) {
-            handlePreambleAddressCode();
-          }
-        } else {
-          handleText((ClosedCaptionText) caption);
-        }
-      }
-
-      if (!isRepeatableControl) {
-        repeatableControl = null;
-      }
-      if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-        captionString = getDisplayCaption();
-      }
+  private boolean handleCtrl(byte cc1, byte cc2) {
+    boolean isRepeatableControl = isRepeatable(cc1, cc2);
+    if (isRepeatableControl && repeatableControlSet
+        && repeatableControlCc1 == cc1
+        && repeatableControlCc2 == cc2) {
+      repeatableControlSet = false;
+      return true;
+    } else if (isRepeatableControl) {
+      repeatableControlSet = true;
+      repeatableControlCc1 = cc1;
+      repeatableControlCc2 = cc2;
     }
-
-    return new Eia608Subtitle(captionString);
+    if (isMiscCode(cc1, cc2)) {
+      handleMiscCode(cc2);
+    } else if (isPreambleAddressCode(cc1, cc2)) {
+      // TODO: Add better handling of this with specific positioning.
+      maybeAppendNewline();
+    }
+    return isRepeatableControl;
   }
 
-  private void handleMiscCode(ClosedCaptionCtrl caption) {
-    switch (caption.cc2) {
-      case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_2_ROWS:
+  private void handleMiscCode(byte cc2) {
+    switch (cc2) {
+      case CTRL_ROLL_UP_CAPTIONS_2_ROWS:
         captionRowCount = 2;
         setCaptionMode(CC_MODE_ROLL_UP);
         return;
-      case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_3_ROWS:
+      case CTRL_ROLL_UP_CAPTIONS_3_ROWS:
         captionRowCount = 3;
         setCaptionMode(CC_MODE_ROLL_UP);
         return;
-      case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_4_ROWS:
+      case CTRL_ROLL_UP_CAPTIONS_4_ROWS:
         captionRowCount = 4;
         setCaptionMode(CC_MODE_ROLL_UP);
         return;
-      case ClosedCaptionCtrl.RESUME_CAPTION_LOADING:
+      case CTRL_RESUME_CAPTION_LOADING:
         setCaptionMode(CC_MODE_POP_ON);
         return;
-      case ClosedCaptionCtrl.RESUME_DIRECT_CAPTIONING:
+      case CTRL_RESUME_DIRECT_CAPTIONING:
         setCaptionMode(CC_MODE_PAINT_ON);
         return;
     }
@@ -382,24 +430,24 @@ public final class Eia608Parser implements
       return;
     }
 
-    switch (caption.cc2) {
-      case ClosedCaptionCtrl.ERASE_DISPLAYED_MEMORY:
+    switch (cc2) {
+      case CTRL_ERASE_DISPLAYED_MEMORY:
         captionString = null;
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
           captionStringBuilder.setLength(0);
         }
         return;
-      case ClosedCaptionCtrl.ERASE_NON_DISPLAYED_MEMORY:
+      case CTRL_ERASE_NON_DISPLAYED_MEMORY:
         captionStringBuilder.setLength(0);
         return;
-      case ClosedCaptionCtrl.END_OF_CAPTION:
+      case CTRL_END_OF_CAPTION:
         captionString = getDisplayCaption();
         captionStringBuilder.setLength(0);
         return;
-      case ClosedCaptionCtrl.CARRIAGE_RETURN:
+      case CTRL_CARRIAGE_RETURN:
         maybeAppendNewline();
         return;
-      case ClosedCaptionCtrl.BACKSPACE:
+      case CTRL_BACKSPACE:
         if (captionStringBuilder.length() > 0) {
           captionStringBuilder.setLength(captionStringBuilder.length() - 1);
         }
@@ -407,13 +455,10 @@ public final class Eia608Parser implements
     }
   }
 
-  private void handlePreambleAddressCode() {
-    // TODO: Add better handling of this with specific positioning.
-    maybeAppendNewline();
-  }
-
-  private void handleText(ClosedCaptionText caption) {
-    captionStringBuilder.append(caption.text);
+  private void backspace() {
+    if (captionStringBuilder.length() > 0) {
+      captionStringBuilder.setLength(captionStringBuilder.length() - 1);
+    }
   }
 
   private void maybeAppendNewline() {
@@ -485,21 +530,17 @@ public final class Eia608Parser implements
     return (char) SPECIAL_PT_DE_CHARACTER_SET[index];
   }
 
-  private void addBufferedText() {
-    if (textStringBuilder.length() > 0) {
-      String textSnippet = textStringBuilder.toString();
-      captions.add(new ClosedCaptionText(textSnippet));
-      textStringBuilder.setLength(0);
-    }
+  private static boolean isMiscCode(byte cc1, byte cc2) {
+    return (cc1 == CTRL_MISC_CHAN_1 || cc1 == CTRL_MISC_CHAN_2)
+        && (cc2 >= 0x20 && cc2 <= 0x2F);
   }
 
-  private void addCtrl(byte ccData1, byte ccData2) {
-    addBufferedText();
-    captions.add(new ClosedCaptionCtrl(ccData1, ccData2));
+  private static boolean isPreambleAddressCode(byte cc1, byte cc2) {
+    return (cc1 >= 0x10 && cc1 <= 0x1F) && (cc2 >= 0x40 && cc2 <= 0x7F);
   }
 
-  private void backspace() {
-    addCtrl((byte) 0x14, ClosedCaptionCtrl.BACKSPACE);
+  private static boolean isRepeatable(byte cc1, byte cc2) {
+    return cc1 >= 0x10 && cc1 <= 0x1F;
   }
 
   /**
