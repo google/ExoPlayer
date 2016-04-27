@@ -47,14 +47,6 @@ import java.io.IOException;
   }
 
   /**
-   * Resets this {@code OggSeeker}.
-   */
-  public void reset() {
-    pageHeader.reset();
-    headerArray.reset();
-  }
-
-  /**
    * Returns a position converging to the {@code targetGranule} to which the {@link ExtractorInput}
    * has to seek and then be passed for another call until -1 is return. If -1 is returned the
    * input is at a position which is before the start of the page before the target page and at

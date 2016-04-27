@@ -116,7 +116,6 @@ import java.util.ArrayList;
         previousPacketBlockSize = vorbisIdHeader.blockSize0;
         // we're never at the first packet after seeking
         seenFirstAudioPacket = true;
-        oggSeeker.reset();
       }
     }
 
