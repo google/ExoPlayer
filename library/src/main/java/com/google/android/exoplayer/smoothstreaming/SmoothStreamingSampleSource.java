@@ -26,17 +26,23 @@ import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
+import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Base64;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -50,6 +56,7 @@ import java.util.List;
 public final class SmoothStreamingSampleSource implements SampleSource {
 
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
+  private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
   private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
   private final SmoothStreamingChunkSource[] chunkSources;
@@ -118,8 +125,24 @@ public final class SmoothStreamingSampleSource implements SampleSource {
         return false;
       } else {
         durationUs = currentManifest.durationUs;
+
+        TrackEncryptionBox[] trackEncryptionBoxes;
+        DrmInitData.Mapped drmInitData;
+        ProtectionElement protectionElement = currentManifest.protectionElement;
+        if (protectionElement != null) {
+          byte[] keyId = getProtectionElementKeyId(protectionElement.data);
+          trackEncryptionBoxes = new TrackEncryptionBox[1];
+          trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
+          drmInitData = new DrmInitData.Mapped();
+          drmInitData.put(protectionElement.uuid,
+              new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
+        } else {
+          trackEncryptionBoxes = null;
+          drmInitData = null;
+        }
+
         for (SmoothStreamingChunkSource chunkSource : chunkSources) {
-          chunkSource.init(currentManifest);
+          chunkSource.init(currentManifest, trackEncryptionBoxes, drmInitData);
         }
       }
     }
@@ -299,6 +322,28 @@ public final class SmoothStreamingSampleSource implements SampleSource {
       totalTrackGroupCount += sourceTrackGroupCount;
     }
     throw new IndexOutOfBoundsException();
+  }
+
+  private static byte[] getProtectionElementKeyId(byte[] initData) {
+    StringBuilder initDataStringBuilder = new StringBuilder();
+    for (int i = 0; i < initData.length; i += 2) {
+      initDataStringBuilder.append((char) initData[i]);
+    }
+    String initDataString = initDataStringBuilder.toString();
+    String keyIdString = initDataString.substring(
+        initDataString.indexOf("<KID>") + 5, initDataString.indexOf("</KID>"));
+    byte[] keyId = Base64.decode(keyIdString, Base64.DEFAULT);
+    swap(keyId, 0, 3);
+    swap(keyId, 1, 2);
+    swap(keyId, 4, 5);
+    swap(keyId, 6, 7);
+    return keyId;
+  }
+
+  private static void swap(byte[] data, int firstPosition, int secondPosition) {
+    byte temp = data[firstPosition];
+    data[firstPosition] = data[secondPosition];
+    data[secondPosition] = temp;
   }
 
 }

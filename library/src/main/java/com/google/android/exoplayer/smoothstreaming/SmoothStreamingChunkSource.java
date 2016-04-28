@@ -29,19 +29,15 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.Track;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,16 +49,14 @@ import java.util.List;
 // TODO[REFACTOR]: Handle multiple stream elements of the same type (at a higher level).
 public class SmoothStreamingChunkSource implements ChunkSource {
 
-  private static final int INITIALIZATION_VECTOR_SIZE = 8;
-
   private final int streamElementType;
   private final DataSource dataSource;
   private final Evaluation evaluation;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
-  private TrackEncryptionBox[] trackEncryptionBoxes;
-  private DrmInitData.Mapped drmInitData;
   private SmoothStreamingManifest currentManifest;
+  private TrackEncryptionBox[] trackEncryptionBoxes;
+  private DrmInitData drmInitData;
   private int currentManifestChunkOffset;
   private boolean needManifestRefresh;
 
@@ -104,20 +98,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
   }
 
-  public void init(SmoothStreamingManifest initialManifest) {
-    currentManifest = initialManifest;
-    ProtectionElement protectionElement = currentManifest.protectionElement;
-    if (protectionElement != null) {
-      byte[] keyId = getProtectionElementKeyId(protectionElement.data);
-      trackEncryptionBoxes = new TrackEncryptionBox[1];
-      trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      drmInitData = new DrmInitData.Mapped();
-      drmInitData.put(protectionElement.uuid,
-          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
-    } else {
-      trackEncryptionBoxes = null;
-      drmInitData = null;
-    }
+  public void init(SmoothStreamingManifest initialManifest,
+      TrackEncryptionBox[] trackEncryptionBoxes, DrmInitData drmInitData) {
+    this.currentManifest = initialManifest;
+    this.trackEncryptionBoxes = trackEncryptionBoxes;
+    this.drmInitData = drmInitData;
     initForManifest(currentManifest);
   }
 
@@ -325,28 +310,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     long sampleOffsetUs = chunkStartTimeUs;
     return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, chunkStartTimeUs,
         chunkEndTimeUs, chunkIndex, sampleOffsetUs, extractorWrapper, sampleFormat, drmInitData);
-  }
-
-  private static byte[] getProtectionElementKeyId(byte[] initData) {
-    StringBuilder initDataStringBuilder = new StringBuilder();
-    for (int i = 0; i < initData.length; i += 2) {
-      initDataStringBuilder.append((char) initData[i]);
-    }
-    String initDataString = initDataStringBuilder.toString();
-    String keyIdString = initDataString.substring(
-        initDataString.indexOf("<KID>") + 5, initDataString.indexOf("</KID>"));
-    byte[] keyId = Base64.decode(keyIdString, Base64.DEFAULT);
-    swap(keyId, 0, 3);
-    swap(keyId, 1, 2);
-    swap(keyId, 4, 5);
-    swap(keyId, 6, 7);
-    return keyId;
-  }
-
-  private static void swap(byte[] data, int firstPosition, int secondPosition) {
-    byte temp = data[firstPosition];
-    data[firstPosition] = data[secondPosition];
-    data[secondPosition] = temp;
   }
 
 }
