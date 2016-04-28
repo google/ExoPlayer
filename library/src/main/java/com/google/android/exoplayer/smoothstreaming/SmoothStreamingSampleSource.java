@@ -37,7 +37,6 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
@@ -67,7 +66,6 @@ public final class SmoothStreamingSampleSource implements SampleSource {
   private final LoadControl loadControl;
   private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
-  private boolean prepared;
   private long durationUs;
   private SmoothStreamingManifest currentManifest;
   private TrackEncryptionBox[] trackEncryptionBoxes;
@@ -102,22 +100,20 @@ public final class SmoothStreamingSampleSource implements SampleSource {
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (prepared) {
+    if (currentManifest != null) {
+      // Already prepared.
       return true;
     }
 
+    currentManifest = manifestFetcher.getManifest();
     if (currentManifest == null) {
-      currentManifest = manifestFetcher.getManifest();
-      if (currentManifest == null) {
-        manifestFetcher.maybeThrowError();
-        manifestFetcher.requestRefresh();
-        return false;
-      }
+      manifestFetcher.maybeThrowError();
+      manifestFetcher.requestRefresh();
+      return false;
     }
 
     durationUs = currentManifest.durationUs;
     buildTrackGroups(currentManifest);
-
     ProtectionElement protectionElement = currentManifest.protectionElement;
     if (protectionElement != null) {
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
@@ -127,8 +123,6 @@ public final class SmoothStreamingSampleSource implements SampleSource {
       drmInitData.put(protectionElement.uuid,
           new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
     }
-
-    prepared = true;
     return true;
   }
 
@@ -145,8 +139,6 @@ public final class SmoothStreamingSampleSource implements SampleSource {
   @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(prepared);
-
     int newEnabledSourceCount = trackStreams.length + newSelections.size() - oldStreams.size();
     SmoothStreamingChunkSource[] newChunkSources =
         new SmoothStreamingChunkSource[newEnabledSourceCount];

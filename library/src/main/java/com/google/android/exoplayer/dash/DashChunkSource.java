@@ -46,6 +46,8 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import android.os.SystemClock;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +64,7 @@ public class DashChunkSource implements ChunkSource {
   private final boolean[] adaptiveFormatBlacklistFlags;
   private final DataSource dataSource;
   private final FormatEvaluator adaptiveFormatEvaluator;
+  private final long elapsedRealtimeOffsetUs;
   private final Evaluation evaluation;
 
   private MediaPresentationDescription manifest;
@@ -77,15 +80,19 @@ public class DashChunkSource implements ChunkSource {
    * @param tracks The indices of the selected tracks within the adaptation set.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
+   * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
+   *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
+   *     as the server's unix time minus the local elapsed time. It unknown, set to 0.
    */
   public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetIndex,
       TrackGroup trackGroup, int[] tracks, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator) {
+      FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs) {
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
     this.trackGroup = trackGroup;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
+    this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
     this.evaluation = new Evaluation();
 
     Period period = manifest.getPeriod(0);
@@ -197,9 +204,7 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
-    // TODO[REFACTOR]: Bring back UTC timing element support.
-    long nowUs = System.currentTimeMillis() * 1000;
-
+    long nowUs = getNowUnixTimeUs();
     int firstAvailableSegmentNum = representationHolder.getFirstSegmentNum();
     int lastAvailableSegmentNum = representationHolder.getLastSegmentNum();
     boolean indexUnbounded = lastAvailableSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
@@ -277,6 +282,14 @@ public class DashChunkSource implements ChunkSource {
   }
 
   // Private methods.
+
+  private long getNowUnixTimeUs() {
+    if (elapsedRealtimeOffsetUs != 0) {
+      return (SystemClock.elapsedRealtime() * 1000) + elapsedRealtimeOffsetUs;
+    } else {
+      return System.currentTimeMillis() * 1000;
+    }
+  }
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
       Representation representation, ChunkExtractorWrapper extractor, DataSource dataSource,

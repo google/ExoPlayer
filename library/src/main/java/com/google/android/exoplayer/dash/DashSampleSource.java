@@ -33,17 +33,20 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
+import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
+import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
+import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -53,7 +56,9 @@ import java.util.List;
 /**
  * A {@link SampleSource} for DASH media.
  */
-public final class DashSampleSource implements SampleSource {
+public final class DashSampleSource implements SampleSource, UtcTimingCallback {
+
+  private static final String TAG = "DashSampleSource";
 
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
   private final DataSourceFactory dataSourceFactory;
@@ -63,8 +68,10 @@ public final class DashSampleSource implements SampleSource {
   private final LoadControl loadControl;
 
   private boolean prepared;
+  private boolean released;
   private long durationUs;
-  private MediaPresentationDescription currentManifest;
+  private long elapsedRealtimeOffset;
+  private MediaPresentationDescription manifest;
   private TrackGroupArray trackGroups;
   private int[] trackGroupAdaptationSetIndices;
   private boolean pendingReset;
@@ -96,20 +103,24 @@ public final class DashSampleSource implements SampleSource {
       return true;
     }
 
-    if (currentManifest == null) {
-      currentManifest = manifestFetcher.getManifest();
-      if (currentManifest == null) {
+    if (manifest == null) {
+      manifest = manifestFetcher.getManifest();
+      if (manifest == null) {
         manifestFetcher.maybeThrowError();
         manifestFetcher.requestRefresh();
         return false;
       }
+      durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.duration * 1000;
+      buildTrackGroups(manifest);
+      if (manifest.utcTiming != null) {
+        UtcTimingElementResolver.resolveTimingElement(dataSourceFactory.createDataSource(),
+            manifest.utcTiming, manifestFetcher.getManifestLoadCompleteTimestamp(), this);
+      } else {
+        prepared = true;
+      }
     }
 
-    durationUs = currentManifest.dynamic ? C.UNSET_TIME_US : currentManifest.duration * 1000;
-    buildTrackGroups(currentManifest);
-
-    prepared = true;
-    return true;
+    return prepared;
   }
 
   @Override
@@ -125,8 +136,6 @@ public final class DashSampleSource implements SampleSource {
   @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(prepared);
-
     int newEnabledSourceCount = trackStreams.length + newSelections.size() - oldStreams.size();
     DashChunkSource[] newChunkSources = new DashChunkSource[newEnabledSourceCount];
     ChunkTrackStream[] newTrackStreams = new ChunkTrackStream[newEnabledSourceCount];
@@ -161,16 +170,16 @@ public final class DashSampleSource implements SampleSource {
 
   @Override
   public void continueBuffering(long positionUs) {
-    if (currentManifest.dynamic) {
+    if (manifest.dynamic) {
       MediaPresentationDescription newManifest = manifestFetcher.getManifest();
-      if (newManifest != currentManifest) {
-        currentManifest = newManifest;
+      if (newManifest != manifest) {
+        manifest = newManifest;
         for (DashChunkSource chunkSource : chunkSources) {
           chunkSource.updateManifest(newManifest);
         }
       }
 
-      long minUpdatePeriod = currentManifest.minUpdatePeriod;
+      long minUpdatePeriod = manifest.minUpdatePeriod;
       if (minUpdatePeriod == 0) {
         // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
         // minUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is explicit
@@ -233,6 +242,28 @@ public final class DashSampleSource implements SampleSource {
     for (ChunkTrackStream trackStream : trackStreams) {
       trackStream.release();
     }
+    released = true;
+  }
+
+  // UtcTimingCallback implementation.
+
+  @Override
+  public void onTimestampResolved(UtcTimingElement utcTiming, long elapsedRealtimeOffset) {
+    if (released) {
+      return;
+    }
+    this.elapsedRealtimeOffset = elapsedRealtimeOffset;
+    prepared = true;
+  }
+
+  @Override
+  public void onTimestampError(UtcTimingElement utcTiming, IOException e) {
+    if (released) {
+      return;
+    }
+    Log.e(TAG, "Failed to resolve UtcTiming element [" + utcTiming + "]", e);
+    // Be optimistic and continue in the hope that the device clock is correct.
+    prepared = true;
   }
 
   // Internal methods.
@@ -271,13 +302,14 @@ public final class DashSampleSource implements SampleSource {
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
         ? new AdaptiveEvaluator(bandwidthMeter) : null;
     int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
-    AdaptationSet adaptationSet = currentManifest.getPeriod(0).adaptationSets.get(
+    AdaptationSet adaptationSet = manifest.getPeriod(0).adaptationSets.get(
         adaptationSetIndex);
     int adaptationSetType = adaptationSet.type;
     int bufferSize = Util.getDefaultBufferSize(adaptationSetType);
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource chunkSource = new DashChunkSource(currentManifest, adaptationSetIndex,
-        trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator);
+    DashChunkSource chunkSource = new DashChunkSource(manifest, adaptationSetIndex,
+        trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
+        elapsedRealtimeOffset);
     ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
         positionUs, eventHandler, eventListener, adaptationSetType);
     return Pair.create(chunkSource, trackStream);
