@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.mp3;
 
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.GaplessInfo;
+import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -43,15 +43,14 @@ import java.nio.charset.Charset;
    * Peeks data from the input and parses ID3 metadata.
    *
    * @param input The {@link ExtractorInput} from which data should be peeked.
-   * @return The gapless playback information, if present and non-zero. {@code null} otherwise.
+   * @param out The {@link GaplessInfoHolder} to populate.
    * @throws IOException If an error occurred peeking from the input.
    * @throws InterruptedException If the thread was interrupted.
    */
-  public static GaplessInfo parseId3(ExtractorInput input)
+  public static void parseId3(ExtractorInput input, GaplessInfoHolder out)
       throws IOException, InterruptedException {
     ParsableByteArray scratch = new ParsableByteArray(10);
     int peekedId3Bytes = 0;
-    GaplessInfo metadata = null;
     while (true) {
       input.peekFully(scratch.data, 0, 10);
       scratch.setPosition(0);
@@ -63,10 +62,10 @@ import java.nio.charset.Charset;
       int minorVersion = scratch.readUnsignedByte();
       int flags = scratch.readUnsignedByte();
       int length = scratch.readSynchSafeInt();
-      if (metadata == null && canParseMetadata(majorVersion, minorVersion, flags, length)) {
+      if (!out.hasGaplessInfo() && canParseMetadata(majorVersion, minorVersion, flags, length)) {
         byte[] frame = new byte[length];
         input.peekFully(frame, 0, length);
-        metadata = parseGaplessInfo(new ParsableByteArray(frame), majorVersion, flags);
+        parseGaplessInfo(new ParsableByteArray(frame), majorVersion, flags, out);
       } else {
         input.advancePeekPosition(length);
       }
@@ -75,7 +74,6 @@ import java.nio.charset.Charset;
     }
     input.resetPeekPosition();
     input.advancePeekPosition(peekedId3Bytes);
-    return metadata;
   }
 
   private static boolean canParseMetadata(int majorVersion, int minorVersion, int flags,
@@ -87,18 +85,19 @@ import java.nio.charset.Charset;
         && !(majorVersion == 4 && (flags & 0x0F) != 0);
   }
 
-  private static GaplessInfo parseGaplessInfo(ParsableByteArray frame, int version, int flags) {
+  private static void parseGaplessInfo(ParsableByteArray frame, int version, int flags,
+      GaplessInfoHolder out) {
     unescape(frame, version, flags);
 
     // Skip any extended header.
     frame.setPosition(0);
     if (version == 3 && (flags & 0x40) != 0) {
       if (frame.bytesLeft() < 4) {
-        return null;
+        return;
       }
       int extendedHeaderSize = frame.readUnsignedIntToInt();
       if (extendedHeaderSize > frame.bytesLeft()) {
-        return null;
+        return;
       }
       int paddingSize;
       if (extendedHeaderSize >= 6) {
@@ -107,17 +106,17 @@ import java.nio.charset.Charset;
         frame.setPosition(4);
         frame.setLimit(frame.limit() - paddingSize);
         if (frame.bytesLeft() < extendedHeaderSize) {
-          return null;
+          return;
         }
       }
       frame.skipBytes(extendedHeaderSize);
     } else if (version == 4 && (flags & 0x40) != 0) {
       if (frame.bytesLeft() < 4) {
-        return null;
+        return;
       }
       int extendedHeaderSize = frame.readSynchSafeInt();
       if (extendedHeaderSize < 6 || extendedHeaderSize > frame.bytesLeft() + 4) {
-        return null;
+        return;
       }
       frame.setPosition(extendedHeaderSize);
     }
@@ -126,14 +125,11 @@ import java.nio.charset.Charset;
     Pair<String, String> comment;
     while ((comment = findNextComment(version, frame)) != null) {
       if (comment.first.length() > 3) {
-        GaplessInfo gaplessInfo =
-            GaplessInfo.createFromComment(comment.first.substring(3), comment.second);
-        if (gaplessInfo != null) {
-          return gaplessInfo;
+        if (out.setFromComment(comment.first.substring(3), comment.second)) {
+          break;
         }
       }
     }
-    return null;
   }
 
   private static Pair<String, String> findNextComment(int majorVersion, ParsableByteArray data) {

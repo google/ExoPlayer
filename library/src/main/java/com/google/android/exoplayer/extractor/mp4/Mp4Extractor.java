@@ -21,7 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
-import com.google.android.exoplayer.extractor.GaplessInfo;
+import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -297,11 +297,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long durationUs = C.UNSET_TIME_US;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
-    GaplessInfo gaplessInfo = null;
+
+    GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      gaplessInfo = AtomParsers.parseUdta(udta, isQuickTime);
+      AtomParsers.parseUdta(udta, isQuickTime, gaplessInfoHolder);
     }
+
     for (int i = 0; i < moov.containerChildren.size(); i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type != Atom.TYPE_trak) {
@@ -316,7 +318,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
       Atom.ContainerAtom stblAtom = atom.getContainerAtomOfType(Atom.TYPE_mdia)
           .getContainerAtomOfType(Atom.TYPE_minf).getContainerAtomOfType(Atom.TYPE_stbl);
-      TrackSampleTable trackSampleTable = AtomParsers.parseStbl(track, stblAtom);
+      TrackSampleTable trackSampleTable = AtomParsers.parseStbl(track, stblAtom, gaplessInfoHolder);
       if (trackSampleTable.sampleCount == 0) {
         continue;
       }
@@ -326,8 +328,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
       Format format = track.format.copyWithMaxInputSize(maxInputSize);
-      if (gaplessInfo != null) {
-        format = format.copyWithGaplessInfo(gaplessInfo.encoderDelay, gaplessInfo.encoderPadding);
+      if (track.type == C.TRACK_TYPE_AUDIO && gaplessInfoHolder.hasGaplessInfo()) {
+        format = format.copyWithGaplessInfo(gaplessInfoHolder.encoderDelay,
+            gaplessInfoHolder.encoderPadding);
       }
       mp4Track.trackOutput.format(format);
 

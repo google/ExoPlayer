@@ -21,7 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
-import com.google.android.exoplayer.extractor.GaplessInfo;
+import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -57,6 +57,7 @@ public final class Mp3Extractor implements Extractor {
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
+  private final GaplessInfoHolder gaplessInfoHolder;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -64,7 +65,6 @@ public final class Mp3Extractor implements Extractor {
 
   private int synchronizedHeaderData;
 
-  private GaplessInfo gaplessInfo;
   private Seeker seeker;
   private long basisTimeUs;
   private long samplesRead;
@@ -87,6 +87,7 @@ public final class Mp3Extractor implements Extractor {
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
+    gaplessInfoHolder = new GaplessInfoHolder();
     basisTimeUs = -1;
   }
 
@@ -124,11 +125,10 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       setupSeeker(input);
       extractorOutput.seekMap(seeker);
-      int encoderDelay = gaplessInfo != null ? gaplessInfo.encoderDelay : Format.NO_VALUE;
-      int encoderPadding = gaplessInfo != null ? gaplessInfo.encoderPadding : Format.NO_VALUE;
       trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType,
           Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
-          synchronizedHeader.sampleRate, encoderDelay, encoderPadding, null, null));
+          synchronizedHeader.sampleRate, gaplessInfoHolder.encoderDelay,
+          gaplessInfoHolder.encoderPadding, null, null));
     }
     return readSample(input);
   }
@@ -208,7 +208,7 @@ public final class Mp3Extractor implements Extractor {
     int peekedId3Bytes = 0;
     input.resetPeekPosition();
     if (input.getPosition() == 0) {
-      gaplessInfo = Id3Util.parseId3(input);
+      Id3Util.parseId3(input, gaplessInfoHolder);
       peekedId3Bytes = (int) input.getPeekPosition();
       if (!sniffing) {
         input.skipFully(peekedId3Bytes);
@@ -289,13 +289,13 @@ public final class Mp3Extractor implements Extractor {
     int headerData = frame.readInt();
     if (headerData == XING_HEADER || headerData == INFO_HEADER) {
       seeker = XingSeeker.create(synchronizedHeader, frame, position, length);
-      if (seeker != null && gaplessInfo == null) {
+      if (seeker != null && !gaplessInfoHolder.hasGaplessInfo()) {
         // If there is a Xing header, read gapless playback metadata at a fixed offset.
         input.resetPeekPosition();
         input.advancePeekPosition(xingBase + 141);
         input.peekFully(scratch.data, 0, 3);
         scratch.setPosition(0);
-        gaplessInfo = GaplessInfo.createFromXingHeaderValue(scratch.readUnsignedInt24());
+        gaplessInfoHolder.setFromXingHeaderValue(scratch.readUnsignedInt24());
       }
       input.skipFully(synchronizedHeader.frameSize);
     } else {

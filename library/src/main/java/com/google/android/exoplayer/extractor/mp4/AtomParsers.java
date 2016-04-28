@@ -18,7 +18,7 @@ package com.google.android.exoplayer.extractor.mp4;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.extractor.GaplessInfo;
+import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
@@ -86,11 +86,12 @@ import java.util.List;
    *
    * @param track Track to which this sample table corresponds.
    * @param stblAtom stbl (sample table) atom to parse.
+   * @param gaplessInfoHolder Holder to populate with gapless playback information.
    * @return Sample table described by the stbl atom.
    * @throws ParserException If the resulting sample sequence does not contain a sync sample.
    */
-  public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
-      throws ParserException {
+  public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom,
+      GaplessInfoHolder gaplessInfoHolder) throws ParserException {
     // Array of sample sizes.
     ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
 
@@ -257,15 +258,44 @@ import java.util.List;
     Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
     Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
 
-    if (track.editListDurations == null) {
+    if (track.editListDurations == null || gaplessInfoHolder.hasGaplessInfo()) {
+      // There is no edit list, or we are ignoring it as we already have gapless metadata to apply.
+      // This implementation does not support applying both gapless metadata and an edit list.
       Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
       return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
     }
 
-    // See the BMFF spec (ISO 14496-12) subsection 8.6.6. Edit lists that truncate audio and
-    // require prerolling from a sync sample after reordering are not supported. This
-    // implementation handles simple discarding/delaying of samples. The extractor may place
-    // further restrictions on what edited streams are playable.
+    // See the BMFF spec (ISO 14496-12) subsection 8.6.6. Edit lists that require prerolling from a
+    // sync sample after reordering are not supported. Partial audio sample truncation is only
+    // supported in edit lists with one edit that removes less than one sample from the start/end of
+    // the track, for gapless audio playback. This implementation handles simple discarding/delaying
+    // of samples. The extractor may place further restrictions on what edited streams are playable.
+
+    if (track.editListDurations.length == 1 && track.type == C.TRACK_TYPE_AUDIO
+        && timestamps.length >= 2) {
+      // Handle the edit by setting gapless playback metadata, if possible. This implementation
+      // assumes that only one "roll" sample is needed, which is the case for AAC, so the start/end
+      // points of the edit must lie within the first/last samples respectively.
+      long editStartTime = track.editListMediaTimes[0];
+      long editEndTime = editStartTime + Util.scaleLargeTimestamp(track.editListDurations[0],
+          track.timescale, track.movieTimescale);
+      long lastSampleEndTime = timestampTimeUnits;
+      if (timestamps[0] <= editStartTime && editStartTime < timestamps[1]
+          && timestamps[timestamps.length - 1] < editEndTime && editEndTime <= lastSampleEndTime) {
+        long paddingTimeUnits = lastSampleEndTime - editEndTime;
+        long encoderDelay = Util.scaleLargeTimestamp(editStartTime - timestamps[0],
+            track.format.sampleRate, track.timescale);
+        long encoderPadding = Util.scaleLargeTimestamp(paddingTimeUnits,
+            track.format.sampleRate, track.timescale);
+        if ((encoderDelay != 0 || encoderPadding != 0) && encoderDelay <= Integer.MAX_VALUE
+            && encoderPadding <= Integer.MAX_VALUE) {
+          gaplessInfoHolder.encoderDelay = (int) encoderDelay;
+          gaplessInfoHolder.encoderPadding = (int) encoderPadding;
+          Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
+          return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
+        }
+      }
+    }
 
     if (track.editListDurations.length == 1 && track.editListDurations[0] == 0) {
       // The current version of the spec leaves handling of an edit with zero segment_duration in
@@ -349,13 +379,13 @@ import java.util.List;
    *
    * @param udtaAtom The udta (user data) atom to parse.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @return Gapless playback information stored in the user data, or {@code null} if not present.
+   * @param out {@link GaplessInfoHolder} to populate with gapless playback information.
    */
-  public static GaplessInfo parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
+  public static void parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime, GaplessInfoHolder out) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
       // parse one.
-      return null;
+      return;
     }
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
@@ -365,15 +395,14 @@ import java.util.List;
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
         udtaData.setLimit(udtaData.getPosition() + atomSize);
-        return parseMetaAtom(udtaData);
-      } else {
-        udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
+        parseMetaAtom(udtaData, out);
+        break;
       }
+      udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
-    return null;
   }
 
-  private static GaplessInfo parseMetaAtom(ParsableByteArray data) {
+  private static void parseMetaAtom(ParsableByteArray data, GaplessInfoHolder out) {
     data.skipBytes(Atom.FULL_HEADER_SIZE);
     ParsableByteArray ilst = new ParsableByteArray();
     while (data.bytesLeft() >= Atom.HEADER_SIZE) {
@@ -382,17 +411,16 @@ import java.util.List;
       if (atomType == Atom.TYPE_ilst) {
         ilst.reset(data.data, data.getPosition() + payloadSize);
         ilst.setPosition(data.getPosition());
-        GaplessInfo gaplessInfo = parseIlst(ilst);
-        if (gaplessInfo != null) {
-          return gaplessInfo;
+        parseIlst(ilst, out);
+        if (out.hasGaplessInfo()) {
+          return;
         }
       }
       data.skipBytes(payloadSize);
     }
-    return null;
   }
 
-  private static GaplessInfo parseIlst(ParsableByteArray ilst) {
+  private static void parseIlst(ParsableByteArray ilst, GaplessInfoHolder out) {
     while (ilst.bytesLeft() > 0) {
       int position = ilst.getPosition();
       int endPosition = position + ilst.readInt();
@@ -418,13 +446,13 @@ import java.util.List;
         }
         if (lastCommentName != null && lastCommentData != null
             && "com.apple.iTunes".equals(lastCommentMean)) {
-          return GaplessInfo.createFromComment(lastCommentName, lastCommentData);
+          out.setFromComment(lastCommentName, lastCommentData);
+          break;
         }
       } else {
         ilst.setPosition(endPosition);
       }
     }
-    return null;
   }
 
   /**
