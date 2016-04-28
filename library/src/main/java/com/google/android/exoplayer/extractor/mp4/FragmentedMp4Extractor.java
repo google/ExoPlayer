@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.DrmInitData.UuidSchemeInitDataTuple;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -39,6 +40,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -318,25 +320,25 @@ public final class FragmentedMp4Extractor implements Extractor {
     List<Atom.LeafAtom> moovLeafChildren = moov.leafChildren;
     int moovLeafChildrenSize = moovLeafChildren.size();
 
-    DrmInitData.Mapped drmInitData = null;
+    ArrayList<UuidSchemeInitDataTuple> uuidSchemeInitDataTuples = null;
     for (int i = 0; i < moovLeafChildrenSize; i++) {
       LeafAtom child = moovLeafChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        if (drmInitData == null) {
-          drmInitData = new DrmInitData.Mapped();
+        if (uuidSchemeInitDataTuples == null) {
+          uuidSchemeInitDataTuples = new ArrayList<UuidSchemeInitDataTuple>();
         }
         byte[] psshData = child.data.data;
         UUID uuid = PsshAtomUtil.parseUuid(psshData);
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
-          drmInitData.put(PsshAtomUtil.parseUuid(psshData),
-              new SchemeInitData(MimeTypes.VIDEO_MP4, psshData));
+          uuidSchemeInitDataTuples.add(new UuidSchemeInitDataTuple(uuid,
+              new SchemeInitData(MimeTypes.VIDEO_MP4, psshData)));
         }
       }
     }
-    if (drmInitData != null) {
-      extractorOutput.drmInitData(drmInitData);
+    if (uuidSchemeInitDataTuples != null) {
+      extractorOutput.drmInitData(new DrmInitData.Mapped(uuidSchemeInitDataTuples));
     }
 
     // Read declaration of track fragments in the Moov box.

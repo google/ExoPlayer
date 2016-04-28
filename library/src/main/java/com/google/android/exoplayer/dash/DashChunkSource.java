@@ -37,6 +37,7 @@ import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.UuidSchemeInitDataTuple;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
@@ -49,6 +50,7 @@ import com.google.android.exoplayer.util.Util;
 import android.os.SystemClock;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -342,17 +344,19 @@ public class DashChunkSource implements ChunkSource {
   }
 
   private static DrmInitData getDrmInitData(AdaptationSet adaptationSet) {
-    DrmInitData.Mapped drmInitData = null;
+    ArrayList<UuidSchemeInitDataTuple> uuidSchemeInitDataTuples = null;
     for (int i = 0; i < adaptationSet.contentProtections.size(); i++) {
       ContentProtection contentProtection = adaptationSet.contentProtections.get(i);
       if (contentProtection.uuid != null && contentProtection.data != null) {
-        if (drmInitData == null) {
-          drmInitData = new DrmInitData.Mapped();
+        if (uuidSchemeInitDataTuples == null) {
+          uuidSchemeInitDataTuples = new ArrayList<UuidSchemeInitDataTuple>();
         }
-        drmInitData.put(contentProtection.uuid, contentProtection.data);
+        uuidSchemeInitDataTuples.add(
+            new UuidSchemeInitDataTuple(contentProtection.uuid, contentProtection.data));
       }
     }
-    return drmInitData;
+    return uuidSchemeInitDataTuples == null ? null
+        : new DrmInitData.Mapped(uuidSchemeInitDataTuples);
   }
 
   private static long getPeriodDurationUs(MediaPresentationDescription manifest, int index) {

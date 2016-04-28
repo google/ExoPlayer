@@ -30,6 +30,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.DrmInitData.UuidSchemeInitDataTuple;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
@@ -119,9 +120,8 @@ public final class SmoothStreamingSampleSource implements SampleSource {
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
       trackEncryptionBoxes = new TrackEncryptionBox[1];
       trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      drmInitData = new DrmInitData.Mapped();
-      drmInitData.put(protectionElement.uuid,
-          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
+      drmInitData = new DrmInitData.Mapped(new UuidSchemeInitDataTuple(protectionElement.uuid,
+          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data)));
     }
     return true;
   }
