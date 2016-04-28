@@ -17,23 +17,29 @@ package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
-import com.google.android.exoplayer.chunk.ChunkSampleSource;
-import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
+import com.google.android.exoplayer.chunk.ChunkTrackStream;
+import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
+import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
+import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
+import com.google.android.exoplayer.dash.mpd.Period;
+import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -41,62 +47,47 @@ import android.os.SystemClock;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * Combines multiple {@link SampleSource} instances.
+ * A {@link SampleSource} for DASH media.
  */
 public final class DashSampleSource implements SampleSource {
 
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
-  private final DashChunkSource[] chunkSources;
-  private final ChunkSampleSource[] sources;
-  private final IdentityHashMap<TrackStream, ChunkSampleSource> trackStreamSources;
-  private final int[] selectedTrackCounts;
+  private final DataSourceFactory dataSourceFactory;
+  private final BandwidthMeter bandwidthMeter;
+  private final Handler eventHandler;
+  private final ChunkTrackStreamEventListener eventListener;
+  private final LoadControl loadControl;
 
-  private MediaPresentationDescription currentManifest;
   private boolean prepared;
-  private boolean seenFirstTrackSelection;
   private long durationUs;
+  private MediaPresentationDescription currentManifest;
   private TrackGroupArray trackGroups;
-  private ChunkSampleSource[] enabledSources;
+  private int[] trackGroupAdaptationSetIndices;
+  private boolean pendingReset;
+  private long lastSeekPositionUs;
+
+  private DashChunkSource[] chunkSources;
+  private ChunkTrackStream[] trackStreams;
 
   public DashSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      ChunkSampleSourceEventListener eventListener) {
+      ChunkTrackStreamEventListener eventListener) {
+    this.dataSourceFactory = dataSourceFactory;
+    this.bandwidthMeter = bandwidthMeter;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
+
+    loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
+    chunkSources = new DashChunkSource[0];
+    trackStreams = new ChunkTrackStream[0];
+
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
-
-    LoadControl loadControl = new DefaultLoadControl(
-        new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
-
-    // Build the video renderer.
-    DataSource videoDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource videoChunkSource = new DashChunkSource(C.TRACK_TYPE_VIDEO, videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter));
-    ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-        C.DEFAULT_VIDEO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO);
-
-    // Build the audio renderer.
-    DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource audioChunkSource = new DashChunkSource(C.TRACK_TYPE_AUDIO, audioDataSource,
-        null);
-    ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-        C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO);
-
-    // Build the text renderer.
-    DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource textChunkSource = new DashChunkSource(C.TRACK_TYPE_TEXT, textDataSource, null);
-    ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-        C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_TEXT);
-
-    chunkSources = new DashChunkSource[] {videoChunkSource, audioChunkSource, textChunkSource};
-    sources = new ChunkSampleSource[] {videoSampleSource, audioSampleSource, textSampleSource};
-    trackStreamSources = new IdentityHashMap<>();
-    selectedTrackCounts = new int[sources.length];
   }
 
   @Override
@@ -111,30 +102,12 @@ public final class DashSampleSource implements SampleSource {
         manifestFetcher.maybeThrowError();
         manifestFetcher.requestRefresh();
         return false;
-      } else {
-        durationUs = currentManifest.dynamic ? C.UNSET_TIME_US : currentManifest.duration * 1000;
-        for (DashChunkSource chunkSource : chunkSources) {
-          chunkSource.init(currentManifest);
-        }
       }
     }
 
-    for (ChunkSampleSource source : sources) {
-      source.prepare();
-    }
-    int totalTrackGroupCount = 0;
-    for (ChunkSampleSource source : sources) {
-      totalTrackGroupCount += source.getTrackGroups().length;
-    }
-    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
-    int trackGroupIndex = 0;
-    for (ChunkSampleSource source : sources) {
-      int sourceTrackGroupCount = source.getTrackGroups().length;
-      for (int j = 0; j < sourceTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = source.getTrackGroups().get(j);
-      }
-    }
-    trackGroups = new TrackGroupArray(trackGroupArray);
+    durationUs = currentManifest.dynamic ? C.UNSET_TIME_US : currentManifest.duration * 1000;
+    buildTrackGroups(currentManifest);
+
     prepared = true;
     return true;
   }
@@ -153,26 +126,37 @@ public final class DashSampleSource implements SampleSource {
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
-    // Select tracks for each source.
-    int enabledSourceCount = 0;
-    for (int i = 0; i < sources.length; i++) {
-      selectedTrackCounts[i] += selectTracks(sources[i], oldStreams, newSelections, positionUs,
-          newStreams);
-      if (selectedTrackCounts[i] > 0) {
-        enabledSourceCount++;
+
+    int newEnabledSourceCount = trackStreams.length + newSelections.size() - oldStreams.size();
+    DashChunkSource[] newChunkSources = new DashChunkSource[newEnabledSourceCount];
+    ChunkTrackStream[] newTrackStreams = new ChunkTrackStream[newEnabledSourceCount];
+    int newEnabledSourceIndex = 0;
+
+    // Iterate over currently enabled streams, either releasing them or adding them to the new list.
+    for (int i = 0; i < trackStreams.length; i++) {
+      ChunkTrackStream trackStream = trackStreams[i];
+      if (oldStreams.contains(trackStream)) {
+        chunkSources[i].release();
+        trackStream.release();
+      } else {
+        newChunkSources[newEnabledSourceIndex] = chunkSources[i];
+        newTrackStreams[newEnabledSourceIndex++] = trackStream;
       }
     }
-    // Update the enabled sources.
-    enabledSources = new ChunkSampleSource[enabledSourceCount];
-    enabledSourceCount = 0;
-    for (int i = 0; i < sources.length; i++) {
-      if (selectedTrackCounts[i] > 0) {
-        enabledSources[enabledSourceCount++] = sources[i];
-      }
+
+    // Instantiate and return new streams.
+    TrackStream[] streamsToReturn = new TrackStream[newSelections.size()];
+    for (int i = 0; i < newSelections.size(); i++) {
+      Pair<DashChunkSource, ChunkTrackStream> trackComponents =
+          buildTrackStream(newSelections.get(i), positionUs);
+      newChunkSources[newEnabledSourceIndex] = trackComponents.first;
+      newTrackStreams[newEnabledSourceIndex++] = trackComponents.second;
+      streamsToReturn[i] = trackComponents.second;
     }
-    seenFirstTrackSelection = true;
-    return newStreams;
+
+    chunkSources = newChunkSources;
+    trackStreams = newTrackStreams;
+    return streamsToReturn;
   }
 
   @Override
@@ -201,103 +185,102 @@ public final class DashSampleSource implements SampleSource {
       }
     }
 
-    for (ChunkSampleSource source : enabledSources) {
-      source.continueBuffering(positionUs);
+    for (ChunkTrackStream trackStream : trackStreams) {
+      trackStream.continueBuffering(positionUs);
     }
   }
 
   @Override
   public long readReset() {
-    long resetPositionUs = C.UNSET_TIME_US;
-    for (ChunkSampleSource source : enabledSources) {
-      long childResetPositionUs = source.readReset();
-      if (resetPositionUs == C.UNSET_TIME_US) {
-        resetPositionUs = childResetPositionUs;
-      } else if (childResetPositionUs != C.UNSET_TIME_US) {
-        resetPositionUs = Math.min(resetPositionUs, childResetPositionUs);
+    if (pendingReset) {
+      pendingReset = false;
+      for (ChunkTrackStream trackStream : trackStreams) {
+        trackStream.setReadingEnabled(true);
       }
+      return lastSeekPositionUs;
     }
-    return resetPositionUs;
+    return C.UNSET_TIME_US;
   }
 
   @Override
   public long getBufferedPositionUs() {
-    long bufferedPositionUs = durationUs != C.UNSET_TIME_US ? durationUs : Long.MAX_VALUE;
-    for (ChunkSampleSource source : enabledSources) {
-      long rendererBufferedPositionUs = source.getBufferedPositionUs();
-      if (rendererBufferedPositionUs == C.UNSET_TIME_US) {
-        return C.UNSET_TIME_US;
-      } else if (rendererBufferedPositionUs == C.END_OF_SOURCE_US) {
-        // This source is fully buffered.
-      } else {
+    long bufferedPositionUs = Long.MAX_VALUE;
+    for (ChunkTrackStream trackStream : trackStreams) {
+      long rendererBufferedPositionUs = trackStream.getBufferedPositionUs();
+      if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
     }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.UNSET_TIME_US : bufferedPositionUs;
+    return bufferedPositionUs == Long.MAX_VALUE ? C.END_OF_SOURCE_US : bufferedPositionUs;
   }
 
   @Override
   public void seekToUs(long positionUs) {
-    for (ChunkSampleSource source : enabledSources) {
-      source.seekToUs(positionUs);
+    lastSeekPositionUs = positionUs;
+    pendingReset = true;
+    for (ChunkTrackStream trackStream : trackStreams) {
+      trackStream.setReadingEnabled(false);
+      trackStream.seekToUs(positionUs);
     }
   }
 
   @Override
   public void release() {
     manifestFetcher.release();
-    for (ChunkSampleSource source : sources) {
-      source.release();
+    for (DashChunkSource chunkSource : chunkSources) {
+      chunkSource.release();
+    }
+    for (ChunkTrackStream trackStream : trackStreams) {
+      trackStream.release();
     }
   }
 
   // Internal methods.
 
-  private int selectTracks(ChunkSampleSource source, List<TrackStream> allOldStreams,
-      List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams) {
-    // Get the subset of the old streams for the source.
-    ArrayList<TrackStream> oldStreams = new ArrayList<>();
-    for (int i = 0; i < allOldStreams.size(); i++) {
-      TrackStream stream = allOldStreams.get(i);
-      if (trackStreamSources.get(stream) == source) {
-        trackStreamSources.remove(stream);
-        oldStreams.add(stream);
+  private void buildTrackGroups(MediaPresentationDescription manifest) {
+    Period period = manifest.getPeriod(0);
+    int trackGroupCount = 0;
+    trackGroupAdaptationSetIndices = new int[period.adaptationSets.size()];
+    TrackGroup[] trackGroupArray = new TrackGroup[period.adaptationSets.size()];
+    for (int i = 0; i < period.adaptationSets.size(); i++) {
+      AdaptationSet adaptationSet = period.adaptationSets.get(i);
+      int adaptationSetType = adaptationSet.type;
+      List<Representation> representations = adaptationSet.representations;
+      if (!representations.isEmpty() && (adaptationSetType == C.TRACK_TYPE_AUDIO
+          || adaptationSetType == C.TRACK_TYPE_VIDEO || adaptationSetType == C.TRACK_TYPE_TEXT)) {
+        Format[] formats = new Format[representations.size()];
+        for (int j = 0; j < formats.length; j++) {
+          formats[j] = representations.get(j).format;
+        }
+        trackGroupAdaptationSetIndices[trackGroupCount] = i;
+        boolean adaptive = adaptationSetType == C.TRACK_TYPE_VIDEO;
+        trackGroupArray[trackGroupCount++] = new TrackGroup(adaptive, formats);
       }
     }
-    // Get the subset of the new selections for the source.
-    ArrayList<TrackSelection> newSelections = new ArrayList<>();
-    int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
-    for (int i = 0; i < allNewSelections.size(); i++) {
-      TrackSelection selection = allNewSelections.get(i);
-      Pair<ChunkSampleSource, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
-      if (sourceAndGroup.first == source) {
-        newSelectionOriginalIndices[newSelections.size()] = i;
-        newSelections.add(new TrackSelection(sourceAndGroup.second, selection.getTracks()));
-      }
+    if (trackGroupCount < trackGroupArray.length) {
+      trackGroupAdaptationSetIndices = Arrays.copyOf(trackGroupAdaptationSetIndices,
+          trackGroupCount);
+      trackGroupArray = Arrays.copyOf(trackGroupArray, trackGroupCount);
     }
-    // Do nothing if nothing has changed, except during the first selection.
-    if (seenFirstTrackSelection && oldStreams.isEmpty() && newSelections.isEmpty()) {
-      return 0;
-    }
-    // Perform the selection.
-    TrackStream[] newStreams = source.selectTracks(oldStreams, newSelections, positionUs);
-    for (int j = 0; j < newStreams.length; j++) {
-      allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
-      trackStreamSources.put(newStreams[j], source);
-    }
-    return newSelections.size() - oldStreams.size();
+    trackGroups = new TrackGroupArray(trackGroupArray);
   }
 
-  private Pair<ChunkSampleSource, Integer> getSourceAndGroup(int group) {
-    int totalTrackGroupCount = 0;
-    for (ChunkSampleSource source : sources) {
-      int sourceTrackGroupCount = source.getTrackGroups().length;
-      if (group < totalTrackGroupCount + sourceTrackGroupCount) {
-        return Pair.create(source, group - totalTrackGroupCount);
-      }
-      totalTrackGroupCount += sourceTrackGroupCount;
-    }
-    throw new IndexOutOfBoundsException();
+  private Pair<DashChunkSource, ChunkTrackStream> buildTrackStream(TrackSelection selection,
+      long positionUs) {
+    int[] selectedTracks = selection.getTracks();
+    FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
+        ? new AdaptiveEvaluator(bandwidthMeter) : null;
+    int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
+    AdaptationSet adaptationSet = currentManifest.getPeriod(0).adaptationSets.get(
+        adaptationSetIndex);
+    int adaptationSetType = adaptationSet.type;
+    int bufferSize = Util.getDefaultBufferSize(adaptationSetType);
+    DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    DashChunkSource chunkSource = new DashChunkSource(currentManifest, adaptationSetIndex,
+        trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator);
+    ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
+        positionUs, eventHandler, eventListener, adaptationSetType);
+    return Pair.create(chunkSource, trackStream);
   }
 
 }

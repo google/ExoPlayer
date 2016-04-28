@@ -798,6 +798,27 @@ public final class Util {
   }
 
   /**
+   * Maps a {@link C} TRACK_TYPE_* constant to its corresponding DEFAULT_*_BUFFER_SIZE value.
+   *
+   * @param trackType The track type.
+   * @return The corresponding default buffer size in bytes.
+   */
+  public static int getDefaultBufferSize(int trackType) {
+    switch (trackType) {
+      case C.TRACK_TYPE_DEFAULT:
+        return C.DEFAULT_MUXED_BUFFER_SIZE;
+      case C.TRACK_TYPE_AUDIO:
+        return C.DEFAULT_AUDIO_BUFFER_SIZE;
+      case C.TRACK_TYPE_VIDEO:
+        return C.DEFAULT_VIDEO_BUFFER_SIZE;
+      case C.TRACK_TYPE_TEXT:
+        return C.DEFAULT_TEXT_BUFFER_SIZE;
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  /**
    * Escapes a string so that it's safe for use as a file or directory name on at least FAT32
    * filesystems. FAT32 is the most restrictive of all filesystems still commonly used today.
    *

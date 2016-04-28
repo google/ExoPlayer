@@ -46,86 +46,75 @@ import java.util.List;
 /**
  * An {@link ChunkSource} for SmoothStreaming.
  */
-// TODO[REFACTOR]: Handle multiple stream elements of the same type (at a higher level).
 public class SmoothStreamingChunkSource implements ChunkSource {
 
-  private final int streamElementType;
+  private final int elementIndex;
+  private final TrackGroup trackGroup;
+  private final ChunkExtractorWrapper[] extractorWrappers;
+  private final Format[] enabledFormats;
+  private final boolean[] adaptiveFormatBlacklistFlags;
   private final DataSource dataSource;
   private final Evaluation evaluation;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
-  private SmoothStreamingManifest currentManifest;
-  private TrackEncryptionBox[] trackEncryptionBoxes;
+  private SmoothStreamingManifest manifest;
   private DrmInitData drmInitData;
   private int currentManifestChunkOffset;
   private boolean needManifestRefresh;
 
-  // Properties of exposed tracks.
-  private int elementIndex;
-  private TrackGroup trackGroup;
-  private ChunkExtractorWrapper[] extractorWrappers;
-
-  // Properties of enabled tracks.
-  private Format[] enabledFormats;
-  private boolean[] adaptiveFormatBlacklistFlags;
-
   private IOException fatalError;
 
   /**
-   * @param streamElementType The type of stream element exposed by this source. One of
-   *     {@link C#TRACK_TYPE_VIDEO}, {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
+   * @param manifest The initial manifest.
+   * @param elementIndex The index of the stream element in the manifest.
+   * @param trackGroup The track group corresponding to the stream element.
+   * @param tracks The indices of the selected tracks within the stream element.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
+   * @param trackEncryptionBoxes Track encryption boxes for the stream.
+   * @param drmInitData Drm initialization data for the stream.
    */
-  public SmoothStreamingChunkSource(int streamElementType, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator) {
-    this.streamElementType = streamElementType;
+  public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int elementIndex,
+      TrackGroup trackGroup, int[] tracks, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes,
+      DrmInitData drmInitData) {
+    this.manifest = manifest;
+    this.elementIndex = elementIndex;
+    this.trackGroup = trackGroup;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
-    evaluation = new Evaluation();
-  }
-
-  public boolean needManifestRefresh() {
-    return needManifestRefresh;
-  }
-
-  // ChunkSource implementation.
-
-  @Override
-  public void maybeThrowError() throws IOException {
-    if (fatalError != null) {
-      throw fatalError;
-    }
-  }
-
-  public void init(SmoothStreamingManifest initialManifest,
-      TrackEncryptionBox[] trackEncryptionBoxes, DrmInitData drmInitData) {
-    this.currentManifest = initialManifest;
-    this.trackEncryptionBoxes = trackEncryptionBoxes;
     this.drmInitData = drmInitData;
-    initForManifest(currentManifest);
-  }
+    this.evaluation = new Evaluation();
 
-  @Override
-  public final TrackGroup getTracks() {
-    return trackGroup;
-  }
+    StreamElement streamElement = manifest.streamElements[elementIndex];
+    Format[] formats = streamElement.formats;
+    extractorWrappers = new ChunkExtractorWrapper[formats.length];
+    for (int j = 0; j < formats.length; j++) {
+      int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : -1;
+      Track track = new Track(j, streamElement.type, streamElement.timescale, C.UNSET_TIME_US,
+          manifest.durationUs, formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength,
+          null, null);
+      FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
+          FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+          | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track);
+      extractorWrappers[j] = new ChunkExtractorWrapper(extractor);
+    }
 
-  @Override
-  public void enable(int[] tracks) {
     enabledFormats = new Format[tracks.length];
     for (int i = 0; i < tracks.length; i++) {
       enabledFormats[i] = trackGroup.getFormat(tracks[i]);
     }
     Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
-    if (enabledFormats.length > 1) {
+    if (adaptiveFormatEvaluator != null) {
       adaptiveFormatEvaluator.enable(enabledFormats);
       adaptiveFormatBlacklistFlags = new boolean[tracks.length];
+    } else {
+      adaptiveFormatBlacklistFlags = null;
     }
   }
 
   public void updateManifest(SmoothStreamingManifest newManifest) {
-    StreamElement currentElement = currentManifest.streamElements[elementIndex];
+    StreamElement currentElement = manifest.streamElements[elementIndex];
     int currentElementChunkCount = currentElement.chunkCount;
     StreamElement newElement = newManifest.streamElements[elementIndex];
     if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
@@ -143,8 +132,27 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         currentManifestChunkOffset += currentElement.getChunkIndex(newElementStartTimeUs);
       }
     }
-    currentManifest = newManifest;
+    manifest = newManifest;
     needManifestRefresh = false;
+  }
+
+  public boolean needManifestRefresh() {
+    return needManifestRefresh;
+  }
+
+  public void release() {
+    if (adaptiveFormatEvaluator != null) {
+      adaptiveFormatEvaluator.disable();
+    }
+  }
+
+  // ChunkSource implementation.
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    if (fatalError != null) {
+      throw fatalError;
+    }
   }
 
   @Override
@@ -176,9 +184,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       return;
     }
 
-    StreamElement streamElement = currentManifest.streamElements[elementIndex];
+    StreamElement streamElement = manifest.streamElements[elementIndex];
     if (streamElement.chunkCount == 0) {
-      if (currentManifest.isLive) {
+      if (manifest.isLive) {
         needManifestRefresh = true;
       } else {
         out.endOfStream = true;
@@ -198,10 +206,10 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       }
     }
 
-    needManifestRefresh = currentManifest.isLive && chunkIndex >= streamElement.chunkCount - 1;
+    needManifestRefresh = manifest.isLive && chunkIndex >= streamElement.chunkCount - 1;
     if (chunkIndex >= streamElement.chunkCount) {
       // This is beyond the last chunk in the current manifest.
-      out.endOfStream = !currentManifest.isLive;
+      out.endOfStream = !manifest.isLive;
       return;
     }
 
@@ -231,44 +239,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     return false;
   }
 
-  @Override
-  public void disable() {
-    if (enabledFormats.length > 1) {
-      adaptiveFormatEvaluator.disable();
-    }
-    evaluation.clear();
-    fatalError = null;
-  }
-
   // Private methods.
-
-  private void initForManifest(SmoothStreamingManifest manifest) {
-    for (int i = 0; i < manifest.streamElements.length; i++) {
-      if (manifest.streamElements[i].type == streamElementType) {
-        Format[] formats = manifest.streamElements[i].formats;
-        if (formats.length > 0) {
-          // We've found an element of the desired type.
-          long timescale = manifest.streamElements[i].timescale;
-          extractorWrappers = new ChunkExtractorWrapper[formats.length];
-          for (int j = 0; j < formats.length; j++) {
-            int nalUnitLengthFieldLength = streamElementType == C.TRACK_TYPE_VIDEO ? 4 : -1;
-            Track track = new Track(j, streamElementType, timescale, C.UNSET_TIME_US,
-                manifest.durationUs, formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength,
-                null, null);
-            FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
-                FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-                | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track);
-            extractorWrappers[j] = new ChunkExtractorWrapper(extractor);
-          }
-          elementIndex = i;
-          trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, formats);
-          return;
-        }
-      }
-    }
-    extractorWrappers = null;
-    trackGroup = null;
-  }
 
   /**
    * Gets the index of a format in a track group, using referential equality.

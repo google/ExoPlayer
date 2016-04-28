@@ -20,12 +20,8 @@ import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
-import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.TrackGroup;
-import com.google.android.exoplayer.TrackGroupArray;
-import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
-import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener.EventDispatcher;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -40,10 +36,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A {@link SampleSource} that loads media in {@link Chunk}s, which are themselves obtained from a
- * {@link ChunkSource}.
+ * A {@link TrackStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  */
-public class ChunkSampleSource implements TrackStream, Loader.Callback {
+public class ChunkTrackStream implements TrackStream, Loader.Callback {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -55,17 +50,13 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
   private final DefaultTrackOutput sampleQueue;
-  private final int bufferSizeContribution;
   private final ChunkHolder nextChunkHolder;
   private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
 
-  private boolean notifyReset;
+  private boolean readingEnabled;
   private long lastPreferredQueueSizeEvaluationTimeMs;
   private Format downstreamFormat;
-
-  private TrackGroupArray trackGroups;
-  private boolean trackEnabled;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -74,30 +65,22 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
   private Chunk currentLoadable;
   private long currentLoadStartTimeMs;
   private boolean loadingFinished;
+  private boolean released;
 
   /**
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
-   */
-  public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution) {
-    this(chunkSource, loadControl, bufferSizeContribution, null, null, 0);
-  }
-
-  /**
-   * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
-   * @param loadControl Controls when the source is permitted to load data.
-   * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
+   * @param positionUs The position from which to start loading media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
-  public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler,
-      ChunkSampleSourceEventListener eventListener, int eventSourceId) {
-    this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
+  public ChunkTrackStream(ChunkSource chunkSource, LoadControl loadControl,
+      int bufferSizeContribution, long positionUs, Handler eventHandler,
+      ChunkTrackStreamEventListener eventListener, int eventSourceId) {
+    this(chunkSource, loadControl, bufferSizeContribution, positionUs, eventHandler, eventListener,
         eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
@@ -105,6 +88,7 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
+   * @param positionUs The position from which to start loading media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -112,80 +96,35 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    */
-  public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler,
-      ChunkSampleSourceEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
+  public ChunkTrackStream(ChunkSource chunkSource, LoadControl loadControl,
+      int bufferSizeContribution, long positionUs, Handler eventHandler,
+      ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
-    this.bufferSizeContribution = bufferSizeContribution;
-    loader = new Loader("Loader:ChunkSampleSource", minLoadableRetryCount);
+    loader = new Loader("Loader:ChunkTrackStream", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
     pendingResetPositionUs = C.UNSET_TIME_US;
+    readingEnabled = true;
+    downstreamPositionUs = positionUs;
+    lastSeekPositionUs = positionUs;
+    loadControl.register(this, bufferSizeContribution);
+    restartFrom(positionUs);
   }
 
-  // SampleSource implementation.
-
-  public void prepare() {
-    TrackGroup tracks = chunkSource.getTracks();
-    if (tracks != null) {
-      trackGroups = new TrackGroupArray(tracks);
-    } else {
-      trackGroups = new TrackGroupArray();
-    }
+  /**
+   * Enables or disables reading of data from {@link #readData(FormatHolder, DecoderInputBuffer)}.
+   *
+   * @param readingEnabled Whether reading should be enabled.
+   */
+  public void setReadingEnabled(boolean readingEnabled) {
+    this.readingEnabled = readingEnabled;
   }
 
-  public TrackGroupArray getTrackGroups() {
-    return trackGroups;
-  }
-
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(oldStreams.size() <= 1);
-    Assertions.checkState(newSelections.size() <= 1);
-    boolean trackWasEnabled = trackEnabled;
-    // Unselect old tracks.
-    if (!oldStreams.isEmpty()) {
-      Assertions.checkState(trackEnabled);
-      trackEnabled = false;
-      chunkSource.disable();
-    }
-    // Select new tracks.
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
-    if (!newSelections.isEmpty()) {
-      Assertions.checkState(!trackEnabled);
-      trackEnabled = true;
-      chunkSource.enable(newSelections.get(0).getTracks());
-      newStreams[0] = this;
-    }
-    // Cancel or start requests as necessary.
-    if (!trackEnabled) {
-      if (trackWasEnabled) {
-        loadControl.unregister(this);
-      }
-      if (loader.isLoading()) {
-        loader.cancelLoading();
-      } else {
-        clearState();
-        loadControl.trimAllocator();
-      }
-    } else {
-      if (!trackWasEnabled) {
-        loadControl.register(this, bufferSizeContribution);
-      }
-      downstreamFormat = null;
-      sampleQueue.needDownstreamFormat();
-      downstreamPositionUs = positionUs;
-      lastSeekPositionUs = positionUs;
-      notifyReset = false;
-      restartFrom(positionUs);
-    }
-    return newStreams;
-  }
-
+  // TODO[REFACTOR]: Find a way to get rid of this.
   public void continueBuffering(long positionUs) {
     downstreamPositionUs = positionUs;
     if (!loader.isLoading()) {
@@ -193,14 +132,12 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
     }
   }
 
-  public long readReset() {
-    if (notifyReset) {
-      notifyReset = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
-  }
-
+  /**
+   * Returns an estimate of the position up to which data is buffered.
+   *
+   * @return An estimate of the absolute position in microseconds up to which data is buffered, or
+   *     {@link C#END_OF_SOURCE_US} if the track is fully buffered.
+   */
   public long getBufferedPositionUs() {
     if (loadingFinished) {
       return C.END_OF_SOURCE_US;
@@ -218,6 +155,11 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
     }
   }
 
+  /**
+   * Seeks to the specified position in microseconds.
+   *
+   * @param positionUs The seek position in microseconds.
+   */
   public void seekToUs(long positionUs) {
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
@@ -233,16 +175,23 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
       // We failed, and need to restart.
       restartFrom(positionUs);
     }
-    // Either way, we need to send a discontinuity to the downstream components.
-    notifyReset = true;
   }
 
+  /**
+   * Releases the stream.
+   * <p>
+   * This method should be called when the stream is no longer required.
+   */
   public void release() {
-    if (trackEnabled) {
-      loadControl.unregister(this);
-      trackEnabled = false;
+    loadControl.unregister(this);
+    if (loader.isLoading()) {
+      loader.cancelLoading();
+    } else {
+      clearState();
+      loadControl.trimAllocator();
     }
     loader.release();
+    released = true;
   }
 
   // TrackStream implementation.
@@ -260,7 +209,7 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
 
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (notifyReset || isPendingReset()) {
+    if (!readingEnabled || isPendingReset()) {
       return NOTHING_READ;
     }
 
@@ -306,7 +255,7 @@ public class ChunkSampleSource implements TrackStream, Loader.Callback {
   @Override
   public void onLoadCanceled(Loadable loadable) {
     eventDispatcher.loadCanceled(currentLoadable.bytesLoaded());
-    if (trackEnabled) {
+    if (!released) {
       restartFrom(pendingResetPositionUs);
     } else {
       clearState();

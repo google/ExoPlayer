@@ -31,7 +31,7 @@ import com.google.android.exoplayer.SingleSampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioTrack;
-import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
+import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
@@ -61,7 +61,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A wrapper around {@link ExoPlayer} that provides a higher level interface.
  */
 public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.EventListener,
-    ChunkSampleSourceEventListener, ExtractorSampleSource.EventListener,
+    ChunkTrackStreamEventListener, ExtractorSampleSource.EventListener,
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,

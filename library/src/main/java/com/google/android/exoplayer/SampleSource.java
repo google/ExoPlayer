@@ -104,7 +104,7 @@ public interface SampleSource {
   long getBufferedPositionUs();
 
   /**
-   * Seeks to the specified time in microseconds.
+   * Seeks to the specified position in microseconds.
    * <p>
    * This method should only be called when at least one track is selected.
    *

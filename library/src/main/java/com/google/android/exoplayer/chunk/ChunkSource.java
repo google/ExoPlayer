@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer.chunk;
 
-import com.google.android.exoplayer.TrackGroup;
-
 import java.io.IOException;
 import java.util.List;
 
 /**
- * A provider of {@link Chunk}s for a {@link ChunkSampleSource} to load.
+ * A provider of {@link Chunk}s for a {@link ChunkTrackStream} to load.
  */
 /*
  * TODO: Share more state between this interface and {@link ChunkSampleSource}. In particular
@@ -39,25 +37,6 @@ public interface ChunkSource {
    * @throws IOException The underlying error.
    */
   void maybeThrowError() throws IOException;
-
-  /**
-   * Gets the group of tracks provided by the source.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @return The track group.
-   */
-  TrackGroup getTracks();
-
-  /**
-   * Enable the source for the specified tracks.
-   * <p>
-   * This method should only be called after the source has been prepared and when the source is
-   * disabled.
-   *
-   * @param tracks The track indices.
-   */
-  void enable(int[] tracks);
 
   /**
    * Evaluates whether {@link MediaChunk}s should be removed from the back of the queue.
@@ -88,7 +67,7 @@ public interface ChunkSource {
   void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out);
 
   /**
-   * Invoked when the {@link ChunkSampleSource} has finished loading a chunk obtained from this
+   * Invoked when the {@link ChunkTrackStream} has finished loading a chunk obtained from this
    * source.
    * <p>
    * This method should only be called when the source is enabled.
@@ -98,7 +77,7 @@ public interface ChunkSource {
   void onChunkLoadCompleted(Chunk chunk);
 
   /**
-   * Invoked when the {@link ChunkSampleSource} encounters an error loading a chunk obtained from
+   * Invoked when the {@link ChunkTrackStream} encounters an error loading a chunk obtained from
    * this source.
    * <p>
    * This method should only be called when the source is enabled.
@@ -109,12 +88,5 @@ public interface ChunkSource {
    * @return True if the load should be canceled. False otherwise.
    */
   boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e);
-
-  /**
-   * Disables the source.
-   * <p>
-   * This method should only be called when the source is enabled.
-   */
-  void disable();
 
 }

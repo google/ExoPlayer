@@ -17,7 +17,6 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.util.Util;
 
@@ -26,14 +25,14 @@ import android.os.Handler;
 import java.io.IOException;
 
 /**
- * Interface for callbacks to be notified of chunk based {@link SampleSource} events.
+ * Interface for callbacks to be notified of chunk based {@link ChunkTrackStream} events.
  */
-public interface ChunkSampleSourceEventListener {
+public interface ChunkTrackStreamEventListener {
 
   /**
    * Invoked when an upstream load is started.
    *
-   * @param sourceId The id of the reporting {@link SampleSource}.
+   * @param sourceId The id of the reporting {@link ChunkTrackStream}.
    * @param length The length of the data being loaded in bytes, or {@link C#LENGTH_UNBOUNDED} if
    *     the length of the data is not known in advance.
    * @param type The type of the data being loaded.
@@ -51,7 +50,7 @@ public interface ChunkSampleSourceEventListener {
   /**
    * Invoked when the current load operation completes.
    *
-   * @param sourceId The id of the reporting {@link SampleSource}.
+   * @param sourceId The id of the reporting {@link ChunkTrackStream}.
    * @param bytesLoaded The number of bytes that were loaded.
    * @param type The type of the loaded data.
    * @param trigger The reason for the data being loaded.
@@ -70,7 +69,7 @@ public interface ChunkSampleSourceEventListener {
   /**
    * Invoked when the current upstream load operation is canceled.
    *
-   * @param sourceId The id of the reporting {@link SampleSource}.
+   * @param sourceId The id of the reporting {@link ChunkTrackStream}.
    * @param bytesLoaded The number of bytes that were loaded prior to the cancellation.
    */
   void onLoadCanceled(int sourceId, long bytesLoaded);
@@ -78,7 +77,7 @@ public interface ChunkSampleSourceEventListener {
   /**
    * Invoked when an error occurs loading media data.
    *
-   * @param sourceId The id of the reporting {@link SampleSource}.
+   * @param sourceId The id of the reporting {@link ChunkTrackStream}.
    * @param e The cause of the failure.
    */
   void onLoadError(int sourceId, IOException e);
@@ -87,7 +86,7 @@ public interface ChunkSampleSourceEventListener {
    * Invoked when data is removed from the back of the buffer, typically so that it can be
    * re-buffered using a different representation.
    *
-   * @param sourceId The id of the reporting {@link SampleSource}.
+   * @param sourceId The id of the reporting {@link ChunkTrackStream}.
    * @param mediaStartTimeMs The media time of the start of the discarded data.
    * @param mediaEndTimeMs The media time of the end of the discarded data.
    */
@@ -97,7 +96,7 @@ public interface ChunkSampleSourceEventListener {
    * Invoked when the downstream format changes (i.e. when the format being supplied to the
    * caller of {@link TrackStream#readData} changes).
    *
-   * @param sourceId The id of the reporting {@link SampleSource}.
+   * @param sourceId The id of the reporting {@link ChunkTrackStream}.
    * @param format The format.
    * @param trigger The trigger specified in the corresponding upstream load, as specified by the
    *     {@link ChunkSource}.
@@ -106,15 +105,15 @@ public interface ChunkSampleSourceEventListener {
   void onDownstreamFormatChanged(int sourceId, Format format, int trigger, long mediaTimeMs);
 
   /**
-   * Dispatches events to a {@link ChunkSampleSourceEventListener}.
+   * Dispatches events to a {@link ChunkTrackStreamEventListener}.
    */
   final class EventDispatcher {
 
     private final Handler handler;
-    private final ChunkSampleSourceEventListener listener;
+    private final ChunkTrackStreamEventListener listener;
     private final int sourceId;
 
-    public EventDispatcher(Handler handler, ChunkSampleSourceEventListener listener, int sourceId) {
+    public EventDispatcher(Handler handler, ChunkTrackStreamEventListener listener, int sourceId) {
       this.handler = listener != null ? handler : null;
       this.listener = listener;
       this.sourceId = sourceId;

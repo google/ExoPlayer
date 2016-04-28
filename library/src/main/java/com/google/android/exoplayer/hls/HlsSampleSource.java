@@ -27,8 +27,8 @@ import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkHolder;
-import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
-import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
+import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener.EventDispatcher;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -109,7 +109,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
    */
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, Handler eventHandler,
-      ChunkSampleSourceEventListener eventListener, int eventSourceId) {
+      ChunkTrackStreamEventListener eventListener, int eventSourceId) {
     this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
         eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
@@ -127,7 +127,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
    */
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, Handler eventHandler,
-      ChunkSampleSourceEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
+      ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;

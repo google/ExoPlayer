@@ -52,52 +52,85 @@ import java.util.List;
 
 /**
  * An {@link ChunkSource} for DASH streams.
- * <p>
- * This implementation currently supports fMP4, webm, webvtt and ttml.
- * <p>
- * This implementation makes the following assumptions about multi-period manifests:
- * <ol>
- * <li>that new periods will contain the same representations as previous periods (i.e. no new or
- * missing representations) and</li>
- * <li>that representations are contiguous across multiple periods</li>
- * </ol>
  */
-// TODO: handle cases where the above assumption are false
-// TODO[REFACTOR]: Handle multiple adaptation sets of the same type (at a higher level).
 public class DashChunkSource implements ChunkSource {
 
-  private final int adaptationSetType;
+  private final int adaptationSetIndex;
+  private final TrackGroup trackGroup;
+  private final RepresentationHolder[] representationHolders;
+  private final Format[] enabledFormats;
+  private final boolean[] adaptiveFormatBlacklistFlags;
   private final DataSource dataSource;
   private final FormatEvaluator adaptiveFormatEvaluator;
   private final Evaluation evaluation;
 
-  private MediaPresentationDescription currentManifest;
+  private MediaPresentationDescription manifest;
   private DrmInitData drmInitData;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
 
-  // Properties of exposed tracks.
-  private int adaptationSetIndex;
-  private TrackGroup trackGroup;
-  private RepresentationHolder[] representationHolders;
-
-  // Properties of enabled tracks.
-  private Format[] enabledFormats;
-  private boolean[] adaptiveFormatBlacklistFlags;
-
   /**
-   * @param adaptationSetType The type of the adaptation set exposed by this source. One of
-   *     {@link C#TRACK_TYPE_AUDIO}, {@link C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_TEXT}.
+   * @param manifest The initial manifest.
+   * @param adaptationSetIndex The index of the adaptation set in the manifest.
+   * @param trackGroup The track group corresponding to the adaptation set.
+   * @param tracks The indices of the selected tracks within the adaptation set.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
-  public DashChunkSource(int adaptationSetType, DataSource dataSource,
+  public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetIndex,
+      TrackGroup trackGroup, int[] tracks, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator) {
-    this.adaptationSetType = adaptationSetType;
+    this.manifest = manifest;
+    this.adaptationSetIndex = adaptationSetIndex;
+    this.trackGroup = trackGroup;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     this.evaluation = new Evaluation();
+
+    Period period = manifest.getPeriod(0);
+    long periodDurationUs = getPeriodDurationUs(manifest, 0);
+    AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
+    drmInitData = getDrmInitData(adaptationSet);
+
+    List<Representation> representations = adaptationSet.representations;
+    representationHolders = new RepresentationHolder[representations.size()];
+    for (int i = 0; i < representations.size(); i++) {
+      Representation representation = representations.get(i);
+      representationHolders[i] = new RepresentationHolder(periodDurationUs, representation);
+    }
+    enabledFormats = new Format[tracks.length];
+    for (int i = 0; i < tracks.length; i++) {
+      enabledFormats[i] = trackGroup.getFormat(tracks[i]);
+    }
+    Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
+    if (adaptiveFormatEvaluator != null) {
+      adaptiveFormatEvaluator.enable(enabledFormats);
+      adaptiveFormatBlacklistFlags = new boolean[tracks.length];
+    } else {
+      adaptiveFormatBlacklistFlags = null;
+    }
+  }
+
+  public void updateManifest(MediaPresentationDescription newManifest) {
+    try {
+      manifest = newManifest;
+      long periodDurationUs = getPeriodDurationUs(manifest, 0);
+      List<Representation> representations = manifest.getPeriod(0).adaptationSets
+          .get(adaptationSetIndex).representations;
+      for (int i = 0; i < representationHolders.length; i++) {
+        Representation representation = representations.get(i);
+        representationHolders[i].updateRepresentation(periodDurationUs, representation);
+      }
+    } catch (BehindLiveWindowException e) {
+      fatalError = e;
+    }
+  }
+
+  public void release() {
+    if (adaptiveFormatEvaluator != null) {
+      adaptiveFormatEvaluator.disable();
+    }
   }
 
   // ChunkSource implementation.
@@ -107,33 +140,6 @@ public class DashChunkSource implements ChunkSource {
     if (fatalError != null) {
       throw fatalError;
     }
-  }
-
-  public void init(MediaPresentationDescription initialManifest) {
-    currentManifest = initialManifest;
-    initForManifest(currentManifest);
-  }
-
-  @Override
-  public final TrackGroup getTracks() {
-    return trackGroup;
-  }
-
-  @Override
-  public void enable(int[] tracks) {
-    enabledFormats = new Format[tracks.length];
-    for (int i = 0; i < tracks.length; i++) {
-      enabledFormats[i] = trackGroup.getFormat(tracks[i]);
-    }
-    Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
-    if (enabledFormats.length > 1) {
-      adaptiveFormatEvaluator.enable(enabledFormats);
-      adaptiveFormatBlacklistFlags = new boolean[tracks.length];
-    }
-  }
-
-  public void updateManifest(MediaPresentationDescription newManifest) {
-    processManifest(newManifest);
   }
 
   @Override
@@ -200,9 +206,9 @@ public class DashChunkSource implements ChunkSource {
     if (indexUnbounded) {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
-      long liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
-      if (currentManifest.timeShiftBufferDepth != -1) {
-        long bufferDepthUs = currentManifest.timeShiftBufferDepth * 1000;
+      long liveEdgeTimestampUs = nowUs - manifest.availabilityStartTime * 1000;
+      if (manifest.timeShiftBufferDepth != -1) {
+        long bufferDepthUs = manifest.timeShiftBufferDepth * 1000;
         firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
             representationHolder.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));
       }
@@ -226,7 +232,7 @@ public class DashChunkSource implements ChunkSource {
 
     if (segmentNum > lastAvailableSegmentNum) {
       // This is beyond the last chunk in the current manifest.
-      out.endOfStream = !currentManifest.dynamic;
+      out.endOfStream = !manifest.dynamic;
       return;
     }
 
@@ -270,58 +276,7 @@ public class DashChunkSource implements ChunkSource {
     return false;
   }
 
-  @Override
-  public void disable() {
-    if (enabledFormats.length > 1) {
-      adaptiveFormatEvaluator.disable();
-    }
-    evaluation.clear();
-    fatalError = null;
-    enabledFormats = null;
-  }
-
   // Private methods.
-
-  private void initForManifest(MediaPresentationDescription manifest) {
-    Period period = manifest.getPeriod(0);
-    for (int i = 0; i < period.adaptationSets.size(); i++) {
-      AdaptationSet adaptationSet = period.adaptationSets.get(i);
-      if (adaptationSet.type == adaptationSetType) {
-        adaptationSetIndex = i;
-        List<Representation> representations = adaptationSet.representations;
-        if (!representations.isEmpty()) {
-          // We've found a non-empty adaptation set of the exposed type.
-          long periodDurationUs = getPeriodDurationUs(manifest, 0);
-          representationHolders = new RepresentationHolder[representations.size()];
-          Format[] trackFormats = new Format[representations.size()];
-          for (int j = 0; j < trackFormats.length; j++) {
-            Representation representation = representations.get(j);
-            representationHolders[j] = new RepresentationHolder(periodDurationUs, representation);
-            trackFormats[j] = representation.format;
-          }
-          trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackFormats);
-          drmInitData = getDrmInitData(adaptationSet);
-          return;
-        }
-      }
-    }
-    trackGroup = null;
-  }
-
-  private void processManifest(MediaPresentationDescription newManifest) {
-    try {
-      currentManifest = newManifest;
-      long periodDurationUs = getPeriodDurationUs(currentManifest, 0);
-      List<Representation> representations = currentManifest.getPeriod(0).adaptationSets
-          .get(adaptationSetIndex).representations;
-      for (int i = 0; i < representationHolders.length; i++) {
-        Representation representation = representations.get(i);
-        representationHolders[i].updateRepresentation(periodDurationUs, representation);
-      }
-    } catch (BehindLiveWindowException e) {
-      fatalError = e;
-    }
-  }
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
       Representation representation, ChunkExtractorWrapper extractor, DataSource dataSource,
