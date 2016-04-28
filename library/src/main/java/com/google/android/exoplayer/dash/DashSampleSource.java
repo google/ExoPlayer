@@ -52,8 +52,8 @@ public final class DashSampleSource implements SampleSource {
 
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
   private final DashChunkSource[] chunkSources;
-  private final SampleSource[] sources;
-  private final IdentityHashMap<TrackStream, SampleSource> trackStreamSources;
+  private final ChunkSampleSource[] sources;
+  private final IdentityHashMap<TrackStream, ChunkSampleSource> trackStreamSources;
   private final int[] selectedTrackCounts;
 
   private MediaPresentationDescription currentManifest;
@@ -61,7 +61,7 @@ public final class DashSampleSource implements SampleSource {
   private boolean seenFirstTrackSelection;
   private long durationUs;
   private TrackGroupArray trackGroups;
-  private SampleSource[] enabledSources;
+  private ChunkSampleSource[] enabledSources;
 
   public DashSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -94,7 +94,7 @@ public final class DashSampleSource implements SampleSource {
         C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_TEXT);
 
     chunkSources = new DashChunkSource[] {videoChunkSource, audioChunkSource, textChunkSource};
-    sources = new SampleSource[] {videoSampleSource, audioSampleSource, textSampleSource};
+    sources = new ChunkSampleSource[] {videoSampleSource, audioSampleSource, textSampleSource};
     trackStreamSources = new IdentityHashMap<>();
     selectedTrackCounts = new int[sources.length];
   }
@@ -112,32 +112,23 @@ public final class DashSampleSource implements SampleSource {
         manifestFetcher.requestRefresh();
         return false;
       } else {
+        durationUs = currentManifest.dynamic ? C.UNSET_TIME_US : currentManifest.duration * 1000;
         for (DashChunkSource chunkSource : chunkSources) {
           chunkSource.init(currentManifest);
         }
       }
     }
 
-    boolean sourcesPrepared = true;
-    for (SampleSource source : sources) {
-      sourcesPrepared &= source.prepare(positionUs);
+    for (ChunkSampleSource source : sources) {
+      source.prepare();
     }
-    if (!sourcesPrepared) {
-      return false;
-    }
-    durationUs = 0;
     int totalTrackGroupCount = 0;
-    for (SampleSource source : sources) {
+    for (ChunkSampleSource source : sources) {
       totalTrackGroupCount += source.getTrackGroups().length;
-      if (durationUs != C.UNSET_TIME_US) {
-        long sourceDurationUs = source.getDurationUs();
-        durationUs = sourceDurationUs == C.UNSET_TIME_US
-            ? C.UNSET_TIME_US : Math.max(durationUs, sourceDurationUs);
-      }
     }
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
     int trackGroupIndex = 0;
-    for (SampleSource source : sources) {
+    for (ChunkSampleSource source : sources) {
       int sourceTrackGroupCount = source.getTrackGroups().length;
       for (int j = 0; j < sourceTrackGroupCount; j++) {
         trackGroupArray[trackGroupIndex++] = source.getTrackGroups().get(j);
@@ -173,7 +164,7 @@ public final class DashSampleSource implements SampleSource {
       }
     }
     // Update the enabled sources.
-    enabledSources = new SampleSource[enabledSourceCount];
+    enabledSources = new ChunkSampleSource[enabledSourceCount];
     enabledSourceCount = 0;
     for (int i = 0; i < sources.length; i++) {
       if (selectedTrackCounts[i] > 0) {
@@ -210,7 +201,7 @@ public final class DashSampleSource implements SampleSource {
       }
     }
 
-    for (SampleSource source : enabledSources) {
+    for (ChunkSampleSource source : enabledSources) {
       source.continueBuffering(positionUs);
     }
   }
@@ -218,7 +209,7 @@ public final class DashSampleSource implements SampleSource {
   @Override
   public long readReset() {
     long resetPositionUs = C.UNSET_TIME_US;
-    for (SampleSource source : enabledSources) {
+    for (ChunkSampleSource source : enabledSources) {
       long childResetPositionUs = source.readReset();
       if (resetPositionUs == C.UNSET_TIME_US) {
         resetPositionUs = childResetPositionUs;
@@ -232,7 +223,7 @@ public final class DashSampleSource implements SampleSource {
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = durationUs != C.UNSET_TIME_US ? durationUs : Long.MAX_VALUE;
-    for (SampleSource source : enabledSources) {
+    for (ChunkSampleSource source : enabledSources) {
       long rendererBufferedPositionUs = source.getBufferedPositionUs();
       if (rendererBufferedPositionUs == C.UNSET_TIME_US) {
         return C.UNSET_TIME_US;
@@ -247,7 +238,7 @@ public final class DashSampleSource implements SampleSource {
 
   @Override
   public void seekToUs(long positionUs) {
-    for (SampleSource source : enabledSources) {
+    for (ChunkSampleSource source : enabledSources) {
       source.seekToUs(positionUs);
     }
   }
@@ -255,14 +246,14 @@ public final class DashSampleSource implements SampleSource {
   @Override
   public void release() {
     manifestFetcher.release();
-    for (SampleSource source : sources) {
+    for (ChunkSampleSource source : sources) {
       source.release();
     }
   }
 
   // Internal methods.
 
-  private int selectTracks(SampleSource source, List<TrackStream> allOldStreams,
+  private int selectTracks(ChunkSampleSource source, List<TrackStream> allOldStreams,
       List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams) {
     // Get the subset of the old streams for the source.
     ArrayList<TrackStream> oldStreams = new ArrayList<>();
@@ -278,7 +269,7 @@ public final class DashSampleSource implements SampleSource {
     int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      Pair<SampleSource, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
+      Pair<ChunkSampleSource, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
       if (sourceAndGroup.first == source) {
         newSelectionOriginalIndices[newSelections.size()] = i;
         newSelections.add(new TrackSelection(sourceAndGroup.second, selection.getTracks()));
@@ -297,9 +288,9 @@ public final class DashSampleSource implements SampleSource {
     return newSelections.size() - oldStreams.size();
   }
 
-  private Pair<SampleSource, Integer> getSourceAndGroup(int group) {
+  private Pair<ChunkSampleSource, Integer> getSourceAndGroup(int group) {
     int totalTrackGroupCount = 0;
-    for (SampleSource source : sources) {
+    for (ChunkSampleSource source : sources) {
       int sourceTrackGroupCount = source.getTrackGroups().length;
       if (group < totalTrackGroupCount + sourceTrackGroupCount) {
         return Pair.create(source, group - totalTrackGroupCount);

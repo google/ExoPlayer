@@ -60,7 +60,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final Evaluation evaluation;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
-  private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
   private DrmInitData.Mapped drmInitData;
   private SmoothStreamingManifest currentManifest;
@@ -107,7 +106,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   public void init(SmoothStreamingManifest initialManifest) {
     currentManifest = initialManifest;
-    durationUs = currentManifest.durationUs;
     ProtectionElement protectionElement = currentManifest.protectionElement;
     if (protectionElement != null) {
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
@@ -121,11 +119,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       drmInitData = null;
     }
     initForManifest(currentManifest);
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs;
   }
 
   @Override
@@ -274,8 +267,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           extractorWrappers = new ChunkExtractorWrapper[formats.length];
           for (int j = 0; j < formats.length; j++) {
             int nalUnitLengthFieldLength = streamElementType == C.TRACK_TYPE_VIDEO ? 4 : -1;
-            Track track = new Track(j, streamElementType, timescale, C.UNSET_TIME_US, durationUs,
-                formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
+            Track track = new Track(j, streamElementType, timescale, C.UNSET_TIME_US,
+                manifest.durationUs, formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength,
+                null, null);
             FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
                 FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
                 | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track);

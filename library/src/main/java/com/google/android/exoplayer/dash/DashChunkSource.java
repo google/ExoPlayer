@@ -71,10 +71,6 @@ public class DashChunkSource implements ChunkSource {
   private final FormatEvaluator adaptiveFormatEvaluator;
   private final Evaluation evaluation;
 
-  // Properties of the initial manifest.
-  private boolean live;
-  private long durationUs;
-
   private MediaPresentationDescription currentManifest;
   private DrmInitData drmInitData;
 
@@ -116,11 +112,6 @@ public class DashChunkSource implements ChunkSource {
   public void init(MediaPresentationDescription initialManifest) {
     currentManifest = initialManifest;
     initForManifest(currentManifest);
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs;
   }
 
   @Override
@@ -293,9 +284,6 @@ public class DashChunkSource implements ChunkSource {
 
   private void initForManifest(MediaPresentationDescription manifest) {
     Period period = manifest.getPeriod(0);
-    live = currentManifest.dynamic;
-    durationUs = live ? C.UNSET_TIME_US : currentManifest.duration * 1000;
-
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       if (adaptationSet.type == adaptationSetType) {

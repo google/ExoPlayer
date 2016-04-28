@@ -43,7 +43,7 @@ import java.util.List;
  * A {@link SampleSource} that loads media in {@link Chunk}s, which are themselves obtained from a
  * {@link ChunkSource}.
  */
-public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Callback {
+public class ChunkSampleSource implements TrackStream, Loader.Callback {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -60,7 +60,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
 
-  private boolean prepared;
   private boolean notifyReset;
   private long lastPreferredQueueSizeEvaluationTimeMs;
   private Format downstreamFormat;
@@ -130,35 +129,21 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   // SampleSource implementation.
 
-  @Override
-  public boolean prepare(long positionUs) throws IOException {
-    if (prepared) {
-      return true;
-    }
+  public void prepare() {
     TrackGroup tracks = chunkSource.getTracks();
     if (tracks != null) {
       trackGroups = new TrackGroupArray(tracks);
     } else {
       trackGroups = new TrackGroupArray();
     }
-    prepared = true;
-    return true;
   }
 
-  @Override
-  public long getDurationUs() {
-    return chunkSource.getDurationUs();
-  }
-
-  @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
   }
 
-  @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(prepared);
     Assertions.checkState(oldStreams.size() <= 1);
     Assertions.checkState(newSelections.size() <= 1);
     boolean trackWasEnabled = trackEnabled;
@@ -201,7 +186,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     return newStreams;
   }
 
-  @Override
   public void continueBuffering(long positionUs) {
     downstreamPositionUs = positionUs;
     if (!loader.isLoading()) {
@@ -209,7 +193,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     }
   }
 
-  @Override
   public long readReset() {
     if (notifyReset) {
       notifyReset = false;
@@ -218,7 +201,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     return C.UNSET_TIME_US;
   }
 
-  @Override
   public long getBufferedPositionUs() {
     if (loadingFinished) {
       return C.END_OF_SOURCE_US;
@@ -236,7 +218,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     }
   }
 
-  @Override
   public void seekToUs(long positionUs) {
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
@@ -256,7 +237,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     notifyReset = true;
   }
 
-  @Override
   public void release() {
     if (trackEnabled) {
       loadControl.unregister(this);
