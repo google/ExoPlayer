@@ -43,7 +43,6 @@ import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
@@ -71,7 +70,6 @@ public class DashChunkSource implements ChunkSource {
   private final DataSource dataSource;
   private final FormatEvaluator adaptiveFormatEvaluator;
   private final Evaluation evaluation;
-  private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
 
   // Properties of the initial manifest.
   private boolean live;
@@ -93,15 +91,13 @@ public class DashChunkSource implements ChunkSource {
   private boolean[] adaptiveFormatBlacklistFlags;
 
   /**
-   * @param manifestFetcher A fetcher for the manifest.
    * @param adaptationSetType The type of the adaptation set exposed by this source. One of
    *     {@link C#TRACK_TYPE_AUDIO}, {@link C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
-  public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
-      int adaptationSetType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
-    this.manifestFetcher = manifestFetcher;
+  public DashChunkSource(int adaptationSetType, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator) {
     this.adaptationSetType = adaptationSetType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
@@ -114,24 +110,12 @@ public class DashChunkSource implements ChunkSource {
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
-    } else if (live) {
-      manifestFetcher.maybeThrowError();
     }
   }
 
-  @Override
-  public boolean prepare() throws IOException {
-    if (currentManifest == null) {
-      currentManifest = manifestFetcher.getManifest();
-      if (currentManifest == null) {
-        manifestFetcher.maybeThrowError();
-        manifestFetcher.requestRefresh();
-        return false;
-      } else {
-        initForManifest(currentManifest);
-      }
-    }
-    return true;
+  public void init(MediaPresentationDescription initialManifest) {
+    currentManifest = initialManifest;
+    initForManifest(currentManifest);
   }
 
   @Override
@@ -155,33 +139,10 @@ public class DashChunkSource implements ChunkSource {
       adaptiveFormatEvaluator.enable(enabledFormats);
       adaptiveFormatBlacklistFlags = new boolean[tracks.length];
     }
-    processManifest(manifestFetcher.getManifest());
   }
 
-  @Override
-  public void continueBuffering() {
-    if (!currentManifest.dynamic || fatalError != null) {
-      return;
-    }
-
-    MediaPresentationDescription newManifest = manifestFetcher.getManifest();
-    if (newManifest != null && newManifest != currentManifest) {
-      processManifest(newManifest);
-    }
-
-    // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
-    // minUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is explicit
-    // signaling in the stream, according to:
-    // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
-    long minUpdatePeriod = currentManifest.minUpdatePeriod;
-    if (minUpdatePeriod == 0) {
-      minUpdatePeriod = 5000;
-    }
-
-    if (android.os.SystemClock.elapsedRealtime()
-        > manifestFetcher.getManifestLoadStartTimestamp() + minUpdatePeriod) {
-      manifestFetcher.requestRefresh();
-    }
+  public void updateManifest(MediaPresentationDescription newManifest) {
+    processManifest(newManifest);
   }
 
   @Override

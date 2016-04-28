@@ -25,7 +25,6 @@ import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
-import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -37,6 +36,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -49,10 +49,15 @@ import java.util.List;
  */
 public final class SmoothStreamingSampleSource implements SampleSource {
 
+  private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
+
+  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
+  private final SmoothStreamingChunkSource[] chunkSources;
   private final SampleSource[] sources;
   private final IdentityHashMap<TrackStream, SampleSource> trackStreamSources;
   private final int[] selectedTrackCounts;
 
+  private SmoothStreamingManifest currentManifest;
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private long durationUs;
@@ -67,33 +72,33 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     }
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
-    // TODO[REFACTOR]: This needs releasing.
-    ManifestFetcher<SmoothStreamingManifest> manifestFetcher = new ManifestFetcher<>(uri,
-        manifestDataSource, parser);
+    manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
     LoadControl loadControl = new DefaultLoadControl(
         new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
 
     // Build the video renderer.
     DataSource videoDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-        C.TRACK_TYPE_VIDEO, videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
+    SmoothStreamingChunkSource videoChunkSource = new SmoothStreamingChunkSource(C.TRACK_TYPE_VIDEO,
+        videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         C.DEFAULT_VIDEO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO);
 
     // Build the audio renderer.
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-        C.TRACK_TYPE_AUDIO, audioDataSource, null);
+    SmoothStreamingChunkSource audioChunkSource = new SmoothStreamingChunkSource(C.TRACK_TYPE_AUDIO,
+        audioDataSource, null);
     ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO);
 
     // Build the text renderer.
     DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
+    SmoothStreamingChunkSource textChunkSource = new SmoothStreamingChunkSource(C.TRACK_TYPE_TEXT,
         textDataSource, null);
     ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
         C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_TEXT);
 
+    chunkSources = new SmoothStreamingChunkSource[] {videoChunkSource, audioChunkSource,
+        textChunkSource};
     sources = new SampleSource[] {videoSampleSource, audioSampleSource, textSampleSource};
     trackStreamSources = new IdentityHashMap<>();
     selectedTrackCounts = new int[sources.length];
@@ -104,6 +109,20 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     if (prepared) {
       return true;
     }
+
+    if (currentManifest == null) {
+      currentManifest = manifestFetcher.getManifest();
+      if (currentManifest == null) {
+        manifestFetcher.maybeThrowError();
+        manifestFetcher.requestRefresh();
+        return false;
+      } else {
+        for (SmoothStreamingChunkSource chunkSource : chunkSources) {
+          chunkSource.init(currentManifest);
+        }
+      }
+    }
+
     boolean sourcesPrepared = true;
     for (SampleSource source : sources) {
       sourcesPrepared &= source.prepare(positionUs);
@@ -172,6 +191,26 @@ public final class SmoothStreamingSampleSource implements SampleSource {
 
   @Override
   public void continueBuffering(long positionUs) {
+    if (currentManifest.isLive) {
+      SmoothStreamingManifest newManifest = manifestFetcher.getManifest();
+      if (newManifest != currentManifest) {
+        currentManifest = newManifest;
+        for (SmoothStreamingChunkSource chunkSource : chunkSources) {
+          chunkSource.updateManifest(newManifest);
+        }
+      }
+
+      if (SystemClock.elapsedRealtime()
+          > manifestFetcher.getManifestLoadStartTimestamp() + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
+        for (SmoothStreamingChunkSource chunkSource : chunkSources) {
+          if (chunkSource.needManifestRefresh()) {
+            manifestFetcher.requestRefresh();
+            break;
+          }
+        }
+      }
+    }
+
     for (SampleSource source : enabledSources) {
       source.continueBuffering(positionUs);
     }
@@ -216,6 +255,7 @@ public final class SmoothStreamingSampleSource implements SampleSource {
 
   @Override
   public void release() {
+    manifestFetcher.release();
     for (SampleSource source : sources) {
       source.release();
     }

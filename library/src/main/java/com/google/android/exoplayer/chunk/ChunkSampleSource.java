@@ -135,9 +135,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (prepared) {
       return true;
     }
-    if (!chunkSource.prepare()) {
-      return false;
-    }
     TrackGroup tracks = chunkSource.getTracks();
     if (tracks != null) {
       trackGroups = new TrackGroupArray(tracks);
@@ -207,7 +204,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   @Override
   public void continueBuffering(long positionUs) {
     downstreamPositionUs = positionUs;
-    chunkSource.continueBuffering();
     if (!loader.isLoading()) {
       maybeStartLoading();
     }

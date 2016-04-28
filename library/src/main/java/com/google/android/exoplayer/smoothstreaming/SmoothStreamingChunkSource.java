@@ -37,11 +37,9 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Prot
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -55,16 +53,13 @@ import java.util.List;
 // TODO[REFACTOR]: Handle multiple stream elements of the same type (at a higher level).
 public class SmoothStreamingChunkSource implements ChunkSource {
 
-  private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
   private final int streamElementType;
   private final DataSource dataSource;
   private final Evaluation evaluation;
-  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
-  private boolean live;
   private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
   private DrmInitData.Mapped drmInitData;
@@ -84,19 +79,21 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private IOException fatalError;
 
   /**
-   * @param manifestFetcher A fetcher for the manifest.
    * @param streamElementType The type of stream element exposed by this source. One of
    *     {@link C#TRACK_TYPE_VIDEO}, {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
-  public SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
-      int streamElementType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
-    this.manifestFetcher = manifestFetcher;
+  public SmoothStreamingChunkSource(int streamElementType, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator) {
     this.streamElementType = streamElementType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     evaluation = new Evaluation();
+  }
+
+  public boolean needManifestRefresh() {
+    return needManifestRefresh;
   }
 
   // ChunkSource implementation.
@@ -105,38 +102,25 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
-    } else if (live) {
-      manifestFetcher.maybeThrowError();
     }
   }
 
-  @Override
-  public boolean prepare() throws IOException {
-    if (currentManifest == null) {
-      currentManifest = manifestFetcher.getManifest();
-      if (currentManifest == null) {
-        manifestFetcher.maybeThrowError();
-        manifestFetcher.requestRefresh();
-        return false;
-      } else {
-        live = currentManifest.isLive;
-        durationUs = currentManifest.durationUs;
-        ProtectionElement protectionElement = currentManifest.protectionElement;
-        if (protectionElement != null) {
-          byte[] keyId = getProtectionElementKeyId(protectionElement.data);
-          trackEncryptionBoxes = new TrackEncryptionBox[1];
-          trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-          drmInitData = new DrmInitData.Mapped();
-          drmInitData.put(protectionElement.uuid,
-              new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
-        } else {
-          trackEncryptionBoxes = null;
-          drmInitData = null;
-        }
-        initForManifest(currentManifest);
-      }
+  public void init(SmoothStreamingManifest initialManifest) {
+    currentManifest = initialManifest;
+    durationUs = currentManifest.durationUs;
+    ProtectionElement protectionElement = currentManifest.protectionElement;
+    if (protectionElement != null) {
+      byte[] keyId = getProtectionElementKeyId(protectionElement.data);
+      trackEncryptionBoxes = new TrackEncryptionBox[1];
+      trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
+      drmInitData = new DrmInitData.Mapped();
+      drmInitData.put(protectionElement.uuid,
+          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
+    } else {
+      trackEncryptionBoxes = null;
+      drmInitData = null;
     }
-    return true;
+    initForManifest(currentManifest);
   }
 
   @Override
@@ -162,40 +146,27 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
   }
 
-  @Override
-  public void continueBuffering() {
-    if (!currentManifest.isLive || fatalError != null) {
-      return;
-    }
-
-    SmoothStreamingManifest newManifest = manifestFetcher.getManifest();
-    if (currentManifest != newManifest && newManifest != null) {
-      StreamElement currentElement = currentManifest.streamElements[elementIndex];
-      int currentElementChunkCount = currentElement.chunkCount;
-      StreamElement newElement = newManifest.streamElements[elementIndex];
-      if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
-        // There's no overlap between the old and new elements because at least one is empty.
+  public void updateManifest(SmoothStreamingManifest newManifest) {
+    StreamElement currentElement = currentManifest.streamElements[elementIndex];
+    int currentElementChunkCount = currentElement.chunkCount;
+    StreamElement newElement = newManifest.streamElements[elementIndex];
+    if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
+      // There's no overlap between the old and new elements because at least one is empty.
+      currentManifestChunkOffset += currentElementChunkCount;
+    } else {
+      long currentElementEndTimeUs = currentElement.getStartTimeUs(currentElementChunkCount - 1)
+          + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
+      long newElementStartTimeUs = newElement.getStartTimeUs(0);
+      if (currentElementEndTimeUs <= newElementStartTimeUs) {
+        // There's no overlap between the old and new elements.
         currentManifestChunkOffset += currentElementChunkCount;
       } else {
-        long currentElementEndTimeUs = currentElement.getStartTimeUs(currentElementChunkCount - 1)
-            + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
-        long newElementStartTimeUs = newElement.getStartTimeUs(0);
-        if (currentElementEndTimeUs <= newElementStartTimeUs) {
-          // There's no overlap between the old and new elements.
-          currentManifestChunkOffset += currentElementChunkCount;
-        } else {
-          // The new element overlaps with the old one.
-          currentManifestChunkOffset += currentElement.getChunkIndex(newElementStartTimeUs);
-        }
+        // The new element overlaps with the old one.
+        currentManifestChunkOffset += currentElement.getChunkIndex(newElementStartTimeUs);
       }
-      currentManifest = newManifest;
-      needManifestRefresh = false;
     }
-
-    if (needManifestRefresh && (SystemClock.elapsedRealtime()
-        > manifestFetcher.getManifestLoadStartTimestamp() + MINIMUM_MANIFEST_REFRESH_PERIOD_MS)) {
-      manifestFetcher.requestRefresh();
-    }
+    currentManifest = newManifest;
+    needManifestRefresh = false;
   }
 
   @Override

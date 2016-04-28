@@ -25,7 +25,6 @@ import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSampleSourceEventListener;
-import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
@@ -38,6 +37,7 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -50,10 +50,13 @@ import java.util.List;
  */
 public final class DashSampleSource implements SampleSource {
 
+  private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
+  private final DashChunkSource[] chunkSources;
   private final SampleSource[] sources;
   private final IdentityHashMap<TrackStream, SampleSource> trackStreamSources;
   private final int[] selectedTrackCounts;
 
+  private MediaPresentationDescription currentManifest;
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private long durationUs;
@@ -65,34 +68,32 @@ public final class DashSampleSource implements SampleSource {
       ChunkSampleSourceEventListener eventListener) {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
-    // TODO[REFACTOR]: This needs releasing.
-    ManifestFetcher<MediaPresentationDescription> manifestFetcher = new ManifestFetcher<>(uri,
-        manifestDataSource, parser);
+    manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
 
     LoadControl loadControl = new DefaultLoadControl(
         new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
 
     // Build the video renderer.
     DataSource videoDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_VIDEO,
-        videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
+    DashChunkSource videoChunkSource = new DashChunkSource(C.TRACK_TYPE_VIDEO, videoDataSource,
+        new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         C.DEFAULT_VIDEO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO);
 
     // Build the audio renderer.
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
-        audioDataSource, null);
+    DashChunkSource audioChunkSource = new DashChunkSource(C.TRACK_TYPE_AUDIO, audioDataSource,
+        null);
     ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO);
 
     // Build the text renderer.
     DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    ChunkSource textChunkSource = new DashChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
-        textDataSource, null);
+    DashChunkSource textChunkSource = new DashChunkSource(C.TRACK_TYPE_TEXT, textDataSource, null);
     ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
         C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_TEXT);
 
+    chunkSources = new DashChunkSource[] {videoChunkSource, audioChunkSource, textChunkSource};
     sources = new SampleSource[] {videoSampleSource, audioSampleSource, textSampleSource};
     trackStreamSources = new IdentityHashMap<>();
     selectedTrackCounts = new int[sources.length];
@@ -103,6 +104,20 @@ public final class DashSampleSource implements SampleSource {
     if (prepared) {
       return true;
     }
+
+    if (currentManifest == null) {
+      currentManifest = manifestFetcher.getManifest();
+      if (currentManifest == null) {
+        manifestFetcher.maybeThrowError();
+        manifestFetcher.requestRefresh();
+        return false;
+      } else {
+        for (DashChunkSource chunkSource : chunkSources) {
+          chunkSource.init(currentManifest);
+        }
+      }
+    }
+
     boolean sourcesPrepared = true;
     for (SampleSource source : sources) {
       sourcesPrepared &= source.prepare(positionUs);
@@ -171,6 +186,30 @@ public final class DashSampleSource implements SampleSource {
 
   @Override
   public void continueBuffering(long positionUs) {
+    if (currentManifest.dynamic) {
+      MediaPresentationDescription newManifest = manifestFetcher.getManifest();
+      if (newManifest != currentManifest) {
+        currentManifest = newManifest;
+        for (DashChunkSource chunkSource : chunkSources) {
+          chunkSource.updateManifest(newManifest);
+        }
+      }
+
+      long minUpdatePeriod = currentManifest.minUpdatePeriod;
+      if (minUpdatePeriod == 0) {
+        // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
+        // minUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is explicit
+        // signaling in the stream, according to:
+        // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
+        minUpdatePeriod = 5000;
+      }
+
+      if (SystemClock.elapsedRealtime() > manifestFetcher.getManifestLoadStartTimestamp()
+          + minUpdatePeriod) {
+        manifestFetcher.requestRefresh();
+      }
+    }
+
     for (SampleSource source : enabledSources) {
       source.continueBuffering(positionUs);
     }
@@ -215,6 +254,7 @@ public final class DashSampleSource implements SampleSource {
 
   @Override
   public void release() {
+    manifestFetcher.release();
     for (SampleSource source : sources) {
       source.release();
     }

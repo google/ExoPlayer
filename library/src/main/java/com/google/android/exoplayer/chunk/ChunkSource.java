@@ -42,16 +42,6 @@ public interface ChunkSource {
   void maybeThrowError() throws IOException;
 
   /**
-   * Prepares the source.
-   * <p>
-   * The method can be called repeatedly until the return value indicates success.
-   *
-   * @return True if the source was prepared, false otherwise.
-   * @throws IOException If an error occurs preparing the source.
-   */
-  boolean prepare() throws IOException;
-
-  /**
    * Gets the duration of the source in microseconds.
    * <p>
    * This method should only be called after the source has been prepared.
@@ -79,13 +69,6 @@ public interface ChunkSource {
    * @param tracks The track indices.
    */
   void enable(int[] tracks);
-
-  /**
-   * Indicates to the source that it should still be checking for updates to the stream.
-   * <p>
-   * This method should only be called when the source is enabled.
-   */
-  void continueBuffering();
 
   /**
    * Evaluates whether {@link MediaChunk}s should be removed from the back of the queue.
