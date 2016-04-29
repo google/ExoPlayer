@@ -91,14 +91,8 @@ public final class Eia608Parser implements
 
   private static final byte CTRL_BACKSPACE = 0x21;
 
-  private static final byte CTRL_MID_ROW_CHAN_1 = 0x11;
-  private static final byte CTRL_MID_ROW_CHAN_2 = 0x19;
-
   private static final byte CTRL_MISC_CHAN_1 = 0x14;
   private static final byte CTRL_MISC_CHAN_2 = 0x1C;
-
-  private static final byte CTRL_TAB_OFFSET_CHAN_1 = 0x17;
-  private static final byte CTRL_TAB_OFFSET_CHAN_2 = 0x1F;
 
   // Basic North American 608 CC char set, mostly ASCII. Indexed by (char-0x20).
   private static final int[] BASIC_CHARACTER_SET = new int[] {
