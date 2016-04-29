@@ -378,7 +378,7 @@ public final class Eia608Parser implements
   }
 
   private boolean handleCtrl(byte cc1, byte cc2) {
-    boolean isRepeatableControl = isRepeatable(cc1, cc2);
+    boolean isRepeatableControl = isRepeatable(cc1);
     if (isRepeatableControl && repeatableControlSet
         && repeatableControlCc1 == cc1
         && repeatableControlCc2 == cc2) {
@@ -533,7 +533,7 @@ public final class Eia608Parser implements
     return (cc1 >= 0x10 && cc1 <= 0x1F) && (cc2 >= 0x40 && cc2 <= 0x7F);
   }
 
-  private static boolean isRepeatable(byte cc1, byte cc2) {
+  private static boolean isRepeatable(byte cc1) {
     return cc1 >= 0x10 && cc1 <= 0x1F;
   }
 
