@@ -193,6 +193,8 @@ public final class AudioTrack {
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
 
+  private int encodingFallback = AudioFormat.ENCODING_PCM_16BIT;
+
   /**
    * Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}).
    */
@@ -384,7 +386,8 @@ public final class AudioTrack {
     }
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     String mimeType = format.getString(MediaFormat.KEY_MIME);
-    int encoding = passthrough ? getEncodingForMimeType(mimeType) : AudioFormat.ENCODING_PCM_16BIT;
+
+    int encoding = passthrough ? getEncodingForMimeType(mimeType) : encodingFallback;
     if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
         && this.encoding == encoding) {
       // We already have an audio track with the correct sample rate, encoding and channel config.
@@ -397,7 +400,7 @@ public final class AudioTrack {
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-    pcmFrameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
+    pcmFrameSize = getChannelByteCountForEncoding(this.encoding) * channelCount; // 2 bytes per 16 bit sample * number of channels.
 
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
@@ -974,6 +977,22 @@ public final class AudioTrack {
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
+  }
+
+  private int getChannelByteCountForEncoding(int encoding) {
+
+      switch (encoding) {
+
+        case AudioFormat.ENCODING_PCM_FLOAT:
+          return 4;
+
+        default:
+          return 2;
+      }
+  }
+
+  public void setFallbackEncoding(int encoding) {
+    encodingFallback = encoding;
   }
 
   /**
