@@ -145,7 +145,10 @@ public class HlsRendererBuilder implements RendererBuilder {
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       HlsChunkSource chunkSource = new HlsChunkSource(true /* isMaster */, dataSource, manifest,
           DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter,
-          timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+              timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE,
+              HlsChunkSource.DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
+              HlsChunkSource.DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS, mainHandler, player);
+
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
           MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
       MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,

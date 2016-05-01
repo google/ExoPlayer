@@ -15,9 +15,16 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -37,11 +44,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
-import android.net.Uri;
-import android.os.SystemClock;
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -60,7 +62,16 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   /**
    * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
    */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {}
+  public interface EventListener extends BaseChunkSampleSourceEventListener {
+    /**
+     * Invoked when the available seek range of the stream has changed.
+     *
+     * @param availableRange The range which specifies available content that can be seeked to.
+     */
+    public void onAvailableRangeChanged(TimeRange availableRange);
+  }
+
+
 
   /**
    * Adaptive switching is disabled.
@@ -158,6 +169,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private byte[] encryptionKey;
   private String encryptionIvString;
   private byte[] encryptionIv;
+  private TimeRange availableRange;
+
+  private Handler eventHandler;
+  private EventListener eventListener;
+
 
   /**
    * @param isMaster True if this is the master source for the playback. False otherwise. Each
@@ -179,7 +195,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
     this(isMaster, dataSource, playlist, trackSelector, bandwidthMeter,
         timestampAdjusterProvider, adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
-        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS, null, null);
+
   }
 
   /**
@@ -204,13 +221,15 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   public HlsChunkSource(boolean isMaster, DataSource dataSource, HlsPlaylist playlist,
       HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
       PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs, Handler eventHandler, EventListener eventListener) {
     this.isMaster = isMaster;
     this.dataSource = dataSource;
     this.trackSelector = trackSelector;
     this.bandwidthMeter = bandwidthMeter;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.adaptiveMode = adaptiveMode;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
@@ -383,7 +402,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @param out The holder to populate with the result. {@link ChunkOperationHolder#queueSize} is
    *     unused.
    */
-  public void getChunkOperation(TsChunk previousTsChunk, long playbackPositionUs,
+  public void getChunkOperation(TsChunk previousTsChunk, long seekPositionUs, long playbackPositionUs,
       ChunkOperationHolder out) {
     int nextVariantIndex;
     boolean switchingVariantSpliced;
@@ -408,7 +427,12 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     int chunkMediaSequence = 0;
     if (live) {
       if (previousTsChunk == null) {
-        chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
+        if (seekPositionUs == 0) {
+          chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
+        } else {
+          chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
+                  true) + mediaPlaylist.mediaSequence;
+        }
       } else {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
@@ -464,7 +488,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     long startTimeUs;
     if (live) {
       if (previousTsChunk == null) {
-        startTimeUs = 0;
+        startTimeUs = segment.startTimeUs;
       } else if (switchingVariantSpliced) {
         startTimeUs = previousTsChunk.startTimeUs;
       } else {
@@ -768,6 +792,23 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
     durationUs = live ? C.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
+    TimeRange newAvailableRange = new TimeRange.StaticTimeRange(0, mediaPlaylist.durationUs);
+    if (availableRange == null || !availableRange.equals(newAvailableRange)) {
+      availableRange = newAvailableRange;
+      this.notifyAvailableRangeChanged(availableRange);
+    }
+
+  }
+
+  private void notifyAvailableRangeChanged(final TimeRange seekRange) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onAvailableRangeChanged(seekRange);
+        }
+      });
+    }
   }
 
   private boolean allVariantsBlacklisted() {

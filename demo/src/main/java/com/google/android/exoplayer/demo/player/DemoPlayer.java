@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import android.media.MediaCodec.CryptoException;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Surface;
+
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -33,6 +38,7 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
@@ -42,11 +48,6 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.PlayerControl;
-
-import android.media.MediaCodec.CryptoException;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.Surface;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -59,11 +60,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * SmoothStreaming and so on).
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
-    HlsSampleSource.EventListener, ExtractorSampleSource.EventListener,
+    HlsChunkSource.EventListener, HlsSampleSource.EventListener, ExtractorSampleSource.EventListener,
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
     MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider {
+
 
   /**
    * Builds renderers for the player.
@@ -130,7 +132,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
-  }
+    void onAvailableRangeChanged(TimeRange availableRange);
+
+    }
 
   /**
    * A listener for receiving notifications of timed text.
@@ -533,6 +537,15 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     if (infoListener != null) {
       infoListener.onAvailableRangeChanged(sourceId, availableRange);
     }
+  }
+
+  @Override
+  public void onAvailableRangeChanged(TimeRange availableRange) {
+    if (infoListener != null) {
+      infoListener.onAvailableRangeChanged(availableRange);
+    }
+    playerControl.setAvailableSeekRange(availableRange);
+
   }
 
   @Override

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.os.Handler;
+import android.os.SystemClock;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaFormat;
@@ -31,9 +34,6 @@ import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-
-import android.os.Handler;
-import android.os.SystemClock;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -197,7 +197,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   @Override
   public void enable(int track, long positionUs) {
     Assertions.checkState(prepared);
+    Assertions.checkState(!trackEnabledStates[track]);
     setTrackEnabledState(track, true);
+    enabledTrackCount++;
+    trackEnabledStates[track] = true;
     downstreamMediaFormats[track] = null;
     pendingDiscontinuities[track] = false;
     downstreamFormat = null;
@@ -207,7 +210,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       loadControlRegistered = true;
     }
     // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
+    //positionUs = chunkSource.isLive() ? 0 : positionUs;
     int chunkSourceTrack = chunkSourceTrackIndices[track];
     if (chunkSourceTrack != -1 && chunkSourceTrack != chunkSource.getSelectedTrackIndex()) {
       // This is a primary track whose corresponding chunk source track is different to the one
@@ -362,7 +365,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
     // Treat all seeks into live streams as being to t=0.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
+    //positionUs = chunkSource.isLive() ? 0 : positionUs;
 
     // Ignore seeks to the current position.
     long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
@@ -702,7 +705,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    chunkSource.getChunkOperation(previousTsLoadable,
+    chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
         pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
         chunkOperationHolder);
     boolean endOfStream = chunkOperationHolder.endOfStream;
