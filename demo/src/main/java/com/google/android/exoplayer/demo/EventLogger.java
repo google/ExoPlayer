@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.demo;
 
+import android.media.MediaCodec.CryptoException;
+import android.os.SystemClock;
+import android.util.Log;
+
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.TimeRange;
@@ -22,10 +26,6 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.util.VerboseLogUtil;
-
-import android.media.MediaCodec.CryptoException;
-import android.os.SystemClock;
-import android.util.Log;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -179,9 +179,19 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   @Override
   public void onAvailableRangeChanged(int sourceId, TimeRange availableRange) {
     availableRangeValuesUs = availableRange.getCurrentBoundsUs(availableRangeValuesUs);
-    Log.d(TAG, "availableRange [" + availableRange.isStatic() + ", " + availableRangeValuesUs[0]
+    Log.d(TAG, "DASH availableRange [" + availableRange.isStatic() + ", " + availableRangeValuesUs[0]
+
         + ", " + availableRangeValuesUs[1] + "]");
   }
+
+  @Override
+  public void onAvailableRangeChanged(TimeRange availableRange) {
+    availableRangeValuesUs = availableRange.getCurrentBoundsUs(availableRangeValuesUs);
+    Log.d(TAG, "HLS - availableRange [" + availableRange.isStatic() + ", " + availableRangeValuesUs[0]
+            + ", " + availableRangeValuesUs[1] + "]");
+  }
+
+
 
   private void printInternalError(String type, Exception e) {
     Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);

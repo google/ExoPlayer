@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.ExoPlayer;
-
 import android.widget.MediaController.MediaPlayerControl;
+
+import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.TimeRange;
 
 /**
  * An implementation of {@link MediaPlayerControl} for controlling an {@link ExoPlayer} instance.
@@ -28,9 +29,12 @@ import android.widget.MediaController.MediaPlayerControl;
 public class PlayerControl implements MediaPlayerControl {
 
   private final ExoPlayer exoPlayer;
+  private final long[] seekRange;
+
 
   public PlayerControl(ExoPlayer exoPlayer) {
     this.exoPlayer = exoPlayer;
+    this.seekRange = new long[2];
   }
 
   @Override
@@ -70,14 +74,17 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getCurrentPosition() {
-    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
+    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME && seekRange[1] == 0 ? 0
         : (int) exoPlayer.getCurrentPosition();
   }
 
   @Override
   public int getDuration() {
-    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
-        : (int) exoPlayer.getDuration();
+    if (exoPlayer.getDuration() != ExoPlayer.UNKNOWN_TIME) {
+      return (int) exoPlayer.getDuration();
+    }
+    return (int) seekRange[1];
+
   }
 
   @Override
@@ -97,9 +104,22 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public void seekTo(int timeMillis) {
-    long seekPosition = exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
+    long seekPosition = exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME && seekRange[1] == 0 ? 0
         : Math.min(Math.max(0, timeMillis), getDuration());
+    if(seekPosition == 0){
+      seekPosition = 1; // fix seek 0 jumps to end of seek bar
+    }
     exoPlayer.seekTo(seekPosition);
   }
+
+  public void setAvailableSeekRange(TimeRange seekRange) {
+    if(seekRange == null){
+      this.seekRange[0] = 0;
+      this.seekRange[1] = 0;
+    }else{
+      seekRange.getCurrentBoundsMs(this.seekRange);
+    }
+  }
+
 
 }
