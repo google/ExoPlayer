@@ -203,6 +203,7 @@ public final class AudioTrack {
   private int channelConfig;
   private int encoding;
   private boolean passthrough;
+  private int pcmBitdepth;
   private int pcmFrameSize;
   private int bufferSize;
   private long bufferSizeUs;
@@ -393,6 +394,9 @@ public final class AudioTrack {
 
     reset();
 
+    this.pcmBitdepth = mimeType.equals(MimeTypes.AUDIO_RAW) &&
+        format.containsKey(com.google.android.exoplayer.MediaFormat.BitDepthKey)
+        ? format.getInteger(com.google.android.exoplayer.MediaFormat.BitDepthKey) : -1;
     this.encoding = encoding;
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
@@ -548,6 +552,8 @@ public final class AudioTrack {
    *     written data.
    * @throws WriteException If an error occurs writing the audio data.
    */
+  ByteBuffer ditherBuffer = null;
+  boolean useDitherBuffer = false;
   public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs)
       throws WriteException {
     if (size == 0) {
@@ -572,6 +578,15 @@ public final class AudioTrack {
 
     int result = 0;
     if (bufferBytesRemaining == 0) {
+
+      useDitherBuffer = false;
+      if (shouldDither24bit()) {
+        useDitherBuffer = dither24bitTo16bit(buffer, offset, size);
+        if (useDitherBuffer) {
+          size = ditherBuffer.position();
+          ditherBuffer.position(0);
+        }
+      }
       // The previous buffer (if there was one) was fully written to the audio track. We're now
       // seeing a new buffer for the first time.
       bufferBytesRemaining = size;
@@ -623,6 +638,8 @@ public final class AudioTrack {
           temporaryBufferOffset += bytesWritten;
         }
       }
+    } else if (useDitherBuffer) {
+      bytesWritten = writeNonBlockingV21(audioTrack, ditherBuffer, bufferBytesRemaining);
     } else {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, bufferBytesRemaining);
     }
@@ -642,6 +659,34 @@ public final class AudioTrack {
       result |= RESULT_BUFFER_CONSUMED;
     }
     return result;
+  }
+
+  private boolean shouldDither24bit() {
+
+    return encoding == AudioFormat.ENCODING_PCM_16BIT && pcmBitdepth == 24;
+  }
+
+  private boolean dither24bitTo16bit(ByteBuffer buffer, int offset, int size) {
+
+    if (size < 3)
+      return false;
+
+    if (ditherBuffer == null || ditherBuffer.capacity() < buffer.capacity())
+      ditherBuffer = ByteBuffer.allocateDirect(buffer.capacity());
+    ditherBuffer.position(0);
+
+    int endPosition = offset + size;
+    int offsetOrig24 = offset;
+    buffer.position(offset);
+    while (endPosition > offsetOrig24) {
+
+      buffer.position(offsetOrig24+1);
+      ditherBuffer.put(buffer.get());
+      ditherBuffer.put(buffer.get());
+      offsetOrig24 += 3;
+    }
+
+    return true;
   }
 
   /**

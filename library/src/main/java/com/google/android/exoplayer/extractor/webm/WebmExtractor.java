@@ -1301,13 +1301,13 @@ public final class WebmExtractor implements Extractor {
           if (!parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
             throw new ParserException("Non-PCM MS/ACM is unsupported");
           }
-          if (audioBitDepth != 16) {
+          if (audioBitDepth != 16 && audioBitDepth != 24) {
             throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
           }
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
-          if (audioBitDepth != 16) {
+          if (audioBitDepth != 16 && audioBitDepth != 24) {
             throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
           }
           break;
@@ -1329,7 +1329,7 @@ public final class WebmExtractor implements Extractor {
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
-        format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+        format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType, audioBitDepth,
             MediaFormat.NO_VALUE, maxInputSize, durationUs, channelCount, sampleRate,
             initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
