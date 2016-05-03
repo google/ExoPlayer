@@ -225,8 +225,8 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @return The result, which can be {@link TrackStream#NOTHING_READ},
    *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.
    */
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean loadingFinished, long decodeOnlyUntilUs) {
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean loadingFinished,
+      long decodeOnlyUntilUs) {
     switch (infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder)) {
       case TrackStream.NOTHING_READ:
         if (loadingFinished) {
@@ -643,14 +643,14 @@ public final class DefaultTrackOutput implements TrackOutput {
     public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
         Format downstreamFormat, BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
-        if (upstreamFormat != null && !upstreamFormat.equals(downstreamFormat)) {
+        if (upstreamFormat != null && upstreamFormat != downstreamFormat) {
           formatHolder.format = upstreamFormat;
           return TrackStream.FORMAT_READ;
         }
         return TrackStream.NOTHING_READ;
       }
 
-      if (!formats[relativeReadIndex].equals(downstreamFormat)) {
+      if (formats[relativeReadIndex] != downstreamFormat) {
         formatHolder.format = formats[relativeReadIndex];
         return TrackStream.FORMAT_READ;
       }
@@ -741,7 +741,10 @@ public final class DefaultTrackOutput implements TrackOutput {
     // Called by the loading thread.
 
     public synchronized void format(Format format) {
-      upstreamFormat = format;
+      // We suppress changes between equal formats so we can use referential equality in readData.
+      if (!format.equals(upstreamFormat)) {
+        upstreamFormat = format;
+      }
     }
 
     public synchronized void commitSample(long timeUs, int sampleFlags, long offset, int size,
