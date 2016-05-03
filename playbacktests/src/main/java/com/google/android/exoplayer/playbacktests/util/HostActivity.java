@@ -87,7 +87,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
   private WakeLock wakeLock;
   private WifiLock wifiLock;
-
   private SurfaceView surfaceView;
   private Handler mainHandler;
   private CheckFinishedRunnable checkFinishedRunnable;
@@ -109,14 +108,20 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void runTest(final HostedTest hostedTest, long timeoutMs) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
+
+    Assertions.checkState(this.hostedTest == null);
+    this.hostedTest = Assertions.checkNotNull(hostedTest);
+    hostedTestReleasedCondition = new ConditionVariable();
+    hostedTestInitialized = false;
+    hostedTestFinished = false;
+
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Assertions.checkState(HostActivity.this.hostedTest == null);
-        HostActivity.this.hostedTest = Assertions.checkNotNull(hostedTest);
         maybeInitializeHostedTest();
       }
     });
+
     if (hostedTestReleasedCondition.block(timeoutMs)) {
       if (hostedTestFinished) {
         Log.d(TAG, "Test finished. Checking pass conditions.");
@@ -143,7 +148,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     mainHandler = new Handler();
-    hostedTestReleasedCondition = new ConditionVariable();
     checkFinishedRunnable = new CheckFinishedRunnable();
   }
 
@@ -238,7 +242,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     public void run() {
       if (hostedTest.isFinished()) {
         hostedTestFinished = true;
-        finish();
+        maybeReleaseHostedTest();
       } else {
         mainHandler.postDelayed(this, CHECK_INTERVAL_MS);
       }
