@@ -145,8 +145,13 @@ public final class C {
   public static final int TRACK_TYPE_TEXT = 3;
 
   /**
-   * A default size in bytes for an individual allocation that forms part of a larger buffer.
+   * A type constant for metadata tracks.
    */
+  public static final int TRACK_TYPE_METADATA = 4;
+
+  /**
+  * A default size in bytes for an individual allocation that forms part of a larger buffer.
+  */
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.metadata;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
@@ -82,6 +83,11 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
         : new Handler(metadataRendererLooper, this);
     formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+  }
+
+  @Override
+  protected int getTrackType() {
+    return C.TRACK_TYPE_METADATA;
   }
 
   @Override

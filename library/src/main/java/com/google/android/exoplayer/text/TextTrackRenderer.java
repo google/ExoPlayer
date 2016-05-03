@@ -92,6 +92,11 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
+  protected int getTrackType() {
+    return C.TRACK_TYPE_TEXT;
+  }
+  
+  @Override
   protected int supportsFormat(Format format) {
     return parserFactory.supportsFormat(format) ? TrackRenderer.FORMAT_HANDLED
         : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -182,6 +183,11 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
    */
   public static String getLibvpxVersion() {
     return isLibvpxAvailable() ? VpxDecoder.getLibvpxVersion() : null;
+  }
+
+  @Override
+  protected int getTrackType() {
+    return C.TRACK_TYPE_VIDEO;
   }
 
   @Override

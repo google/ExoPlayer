@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.util.extensions;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -150,6 +151,11 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     codecCounters.ensureUpdated();
+  }
+
+  @Override
+  protected int getTrackType() {
+    return C.TRACK_TYPE_AUDIO;
   }
 
   protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,

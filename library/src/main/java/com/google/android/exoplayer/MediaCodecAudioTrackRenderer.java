@@ -182,6 +182,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
+  protected int getTrackType() {
+    return C.TRACK_TYPE_AUDIO;
+  }
+
+  @Override
   protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;

@@ -295,6 +295,15 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   // Abstract methods.
 
   /**
+   * Returns the track type that the renderer handles. For example, a video renderer will return
+   * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
+   * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
+   *
+   * @return One of the TRACK_TYPE_* constants defined in {@link C}.
+   */
+  protected abstract int getTrackType();
+
+  /**
    * Returns the extent to which the renderer supports a given format.
    * <p>
    * The returned value is the bitwise OR of two properties:
