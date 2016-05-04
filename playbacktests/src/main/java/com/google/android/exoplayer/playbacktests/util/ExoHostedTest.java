@@ -85,7 +85,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.Listener {
   // HostedTest implementation
 
   @Override
-  public final void initialize(HostActivity host, Surface surface) {
+  public final void onStart(HostActivity host, Surface surface) {
     // Build the player.
     player = ExoPlayer.Factory.newInstance(rendererCount);
     player.addListener(this);
@@ -100,7 +100,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.Listener {
   }
 
   @Override
-  public final void release() {
+  public final void onStop() {
     actionHandler.removeCallbacksAndMessages(null);
     player.release();
     player = null;
