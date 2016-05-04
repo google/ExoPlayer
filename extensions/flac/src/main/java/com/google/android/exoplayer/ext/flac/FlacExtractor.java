@@ -98,7 +98,7 @@ public final class FlacExtractor implements Extractor {
       });
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_RAW,
-              MediaFormat.NO_VALUE, streamInfo.bitRate(), streamInfo.durationUs(),
+              streamInfo.bitRate(), MediaFormat.NO_VALUE, streamInfo.durationUs(),
               streamInfo.channels, streamInfo.sampleRate, null, null);
       trackOutput.format(mediaFormat);
 
