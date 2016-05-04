@@ -57,6 +57,8 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.Surface;
 
+import junit.framework.AssertionFailedError;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -345,25 +347,29 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   // Internal.
 
   private void testDashPlayback(HostActivity activity, String testName, String manifestFileName,
-      String audioFormat, boolean includeAdditionalVideoFormats, String... videoFormats)
+      String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats)
       throws IOException {
     testDashPlayback(activity, testName, null, true, manifestFileName, audioFormat,
-        includeAdditionalVideoFormats, videoFormats);
+        canIncludeAdditionalVideoFormats, videoFormats);
   }
 
   private void testDashPlayback(HostActivity activity, String testName,
       ActionSchedule actionSchedule, boolean fullPlaybackNoSeeking, String manifestFileName,
-      String audioFormat, boolean includeAdditionalVideoFormats, String... videoFormats)
+      String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats)
       throws IOException {
     MediaPresentationDescription mpd = TestUtil.loadManifest(activity,
         MANIFEST_URL_PREFIX + manifestFileName, new MediaPresentationDescriptionParser());
     MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG);
     DashHostedTest test = new DashHostedTest(testName, mpd, metricsLogger, fullPlaybackNoSeeking,
-        audioFormat, includeAdditionalVideoFormats, videoFormats);
-    if (actionSchedule != null) {
-      test.setSchedule(actionSchedule);
-    }
+        audioFormat, canIncludeAdditionalVideoFormats, false, actionSchedule, videoFormats);
     activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+    // Rerun test exactly once if adaptive test fails due to excessive dropped buffers when playing
+    // non-CDD required formats (b/28220076).
+    if (test.needsCddLimitedRetry) {
+      test = new DashHostedTest(testName, mpd, metricsLogger, fullPlaybackNoSeeking, audioFormat,
+          false, true, actionSchedule, videoFormats);
+      activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+    }
   }
 
   private boolean shouldSkipAdaptiveTest(String mimeType) throws IOException {
@@ -392,14 +398,17 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     private final String testName;
     private final MediaPresentationDescription mpd;
-    private final MetricsLogger metricsLogger;
     private final boolean fullPlaybackNoSeeking;
-    private final boolean includeAdditionalVideoFormats;
+    private final boolean canIncludeAdditionalVideoFormats;
     private final String[] audioFormats;
     private final String[] videoFormats;
+    private final boolean isCddLimitedRetry;
 
     private CodecCounters videoCounters;
     private CodecCounters audioCounters;
+    private boolean needsCddLimitedRetry;
+    private MetricsLogger metricsLogger;
+    private TrackSelector videoTrackSelector;
 
     /**
      * @param testName The name of the test.
@@ -408,21 +417,28 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
      * @param fullPlaybackNoSeeking True if the test will play the entire source with no seeking.
      *     False otherwise.
      * @param audioFormat The audio format.
-     * @param includeAdditionalVideoFormats Whether to use video formats in addition to
+     * @param canIncludeAdditionalVideoFormats Whether to use video formats in addition to
      *     those listed in the videoFormats argument, if the device is capable of playing them.
+     * @param isCddLimitedRetry Is the test being retried after a previous failure.
      * @param videoFormats The video formats.
      */
     public DashHostedTest(String testName, MediaPresentationDescription mpd,
         MetricsLogger metricsLogger, boolean fullPlaybackNoSeeking, String audioFormat,
-        boolean includeAdditionalVideoFormats, String... videoFormats) {
+        boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry,
+        ActionSchedule actionSchedule, String... videoFormats) {
       super(RENDERER_COUNT);
+      Assertions.checkArgument(!(isCddLimitedRetry && canIncludeAdditionalVideoFormats));
       this.testName = testName;
       this.mpd = Assertions.checkNotNull(mpd);
       this.metricsLogger = metricsLogger;
       this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
       this.audioFormats = new String[] {audioFormat};
-      this.includeAdditionalVideoFormats = includeAdditionalVideoFormats;
+      this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;
+      this.isCddLimitedRetry = isCddLimitedRetry;
       this.videoFormats = videoFormats;
+      if (actionSchedule != null) {
+        setSchedule(actionSchedule);
+      }
     }
 
     @Override
@@ -435,7 +451,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Build the video renderer.
       DataSource videoDataSource = new DefaultUriDataSource(host, null, userAgent);
       TrackSelector videoTrackSelector = new TrackSelector(AdaptationSet.TYPE_VIDEO,
-          includeAdditionalVideoFormats, videoFormats);
+          canIncludeAdditionalVideoFormats, videoFormats);
       ChunkSource videoChunkSource = new DashChunkSource(mpd, videoTrackSelector, videoDataSource,
           new FormatEvaluator.RandomEvaluator(0));
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
@@ -446,6 +462,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           0, handler, logger, 50, fullPlaybackNoSeeking);
       videoCounters = videoRenderer.codecCounters;
       player.sendMessage(videoRenderer, DebugMediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
+      this.videoTrackSelector = videoTrackSelector;
 
       // Build the audio renderer.
       DataSource audioDataSource = new DefaultUriDataSource(host, null, userAgent);
@@ -475,7 +492,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         CodecCountersUtil.assertOutputFormatChangedCount(AUDIO_TAG, audioCounters, 1);
         CodecCountersUtil.assertOutputBuffersChangedLimit(AUDIO_TAG, audioCounters, 1);
 
-        if (videoFormats != null && videoFormats.length == 1) {
+        if (videoFormats.length == 1) {
           // Video is not adaptive, so the decoder output format should have changed exactly once.
           // The output buffers should have changed 0 or 1 times.
           CodecCountersUtil.assertOutputFormatChangedCount(VIDEO_TAG, videoCounters, 1);
@@ -502,15 +519,25 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
             + sourceDuration, minAllowedActualPlayingTime <= actualPlayingTime
             && actualPlayingTime <= maxAllowedActualPlayingTime);
       }
-
-      // Assert that the level of performance was acceptable.
-      // Assert that total dropped frames were within limit.
-      int droppedFrameLimit = (int) Math.ceil(MAX_DROPPED_VIDEO_FRAME_FRACTION
-          * CodecCountersUtil.getTotalOutputBuffers(videoCounters));
-      CodecCountersUtil.assertDroppedOutputBufferLimit(VIDEO_TAG, videoCounters, droppedFrameLimit);
-      // Assert that consecutive dropped frames were within limit.
-      CodecCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
-          MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
+      try {
+        int droppedFrameLimit = (int) Math.ceil(MAX_DROPPED_VIDEO_FRAME_FRACTION
+            * CodecCountersUtil.getTotalOutputBuffers(videoCounters));
+        // Assert that performance is acceptable.
+        // Assert that total dropped frames were within limit.
+        CodecCountersUtil.assertDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
+            droppedFrameLimit);
+        // Assert that consecutive dropped frames were within limit.
+        CodecCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
+            MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
+      } catch (AssertionFailedError e) {
+        // Retry limiting to CDD mandated formats (b/28220076).
+        if (videoTrackSelector.includedAdditionalVideoRepresentations) {
+          Log.e(TAG, "Too many dropped or consecutive dropped frames", e);
+          needsCddLimitedRetry = true;
+        } else {
+          throw e;
+        }
+      }
     }
 
     @Override
@@ -526,6 +553,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           videoCounters.skippedOutputBufferCount);
       metrics.putInt(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
           videoCounters.renderedOutputBufferCount);
+      metrics.putBoolean(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
 
       // Send metrics for logging.
       metricsLogger.logMetrics(metrics);
@@ -535,14 +563,16 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
       private final int adaptationSetType;
       private final String[] representationIds;
-      private final boolean includeAdditionalVideoRepresentations;
+      private final boolean canIncludeAdditionalVideoRepresentations;
 
-      private TrackSelector(int adaptationSetType, boolean includeAdditionalVideoRepresentations,
+      public boolean includedAdditionalVideoRepresentations;
+
+      private TrackSelector(int adaptationSetType, boolean canIncludeAdditionalVideoRepresentations,
           String[] representationIds) {
-        Assertions.checkState(!includeAdditionalVideoRepresentations
+        Assertions.checkState(!canIncludeAdditionalVideoRepresentations
             || adaptationSetType == AdaptationSet.TYPE_VIDEO);
         this.adaptationSetType = adaptationSetType;
-        this.includeAdditionalVideoRepresentations = includeAdditionalVideoRepresentations;
+        this.canIncludeAdditionalVideoRepresentations = canIncludeAdditionalVideoRepresentations;
         this.representationIds = representationIds;
       }
 
@@ -553,7 +583,10 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         int adaptationSetIndex = period.getAdaptationSetIndex(adaptationSetType);
         AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
         int[] representationIndices = getRepresentationIndices(adaptationSet, representationIds,
-            includeAdditionalVideoRepresentations);
+            canIncludeAdditionalVideoRepresentations);
+        if (representationIndices.length > representationIds.length) {
+          includedAdditionalVideoRepresentations = true;
+        }
         if (adaptationSetType == AdaptationSet.TYPE_VIDEO) {
           output.adaptiveTrack(manifest, periodIndex, adaptationSetIndex, representationIndices);
         }
@@ -563,7 +596,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       }
 
       private static int[] getRepresentationIndices(AdaptationSet adaptationSet,
-          String[] representationIds, boolean includeAdditionalVideoRepresentations)
+          String[] representationIds, boolean canIncludeAdditionalVideoRepresentations)
           throws IOException {
         List<Representation> availableRepresentations = adaptationSet.representations;
         List<Integer> selectedRepresentationIndices = new ArrayList<>();
@@ -584,7 +617,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         }
 
         // Select additional video representations, if supported by the device.
-        if (includeAdditionalVideoRepresentations) {
+        if (canIncludeAdditionalVideoRepresentations) {
            int[] supportedVideoRepresentationIndices = VideoFormatSelectorUtil.selectVideoFormats(
                availableRepresentations, null, false, true, -1, -1);
            for (int i = 0; i < supportedVideoRepresentationIndices.length; i++) {

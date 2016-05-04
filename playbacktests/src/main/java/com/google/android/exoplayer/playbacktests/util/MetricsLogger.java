@@ -28,6 +28,7 @@ public interface MetricsLogger {
   String KEY_FRAMES_SKIPPED_COUNT = "Frames Skipped (Count)";
   String KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT = "Maximum Consecutive Frames Dropped";
   String KEY_TEST_NAME = "Test Name";
+  String KEY_IS_CDD_LIMITED_RETRY = "Is CDD limited retry";
 
   /**
    * Logs the metrics provided from a test.
