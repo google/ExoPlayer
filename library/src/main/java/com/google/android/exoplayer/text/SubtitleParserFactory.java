@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Decoder;
 
@@ -41,7 +40,7 @@ public interface SubtitleParserFactory {
    * @return A new {@link Decoder}.
    * @throws IllegalArgumentException If the {@link Format} is not supported.
    */
-  Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> createParser(Format format);
+  SubtitleParser createParser(Format format);
 
   /**
    * Default {@link SubtitleParserFactory} implementation.
@@ -63,16 +62,14 @@ public interface SubtitleParserFactory {
       return getParserClass(format.sampleMimeType) != null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> createParser(
-        Format format) {
+    public SubtitleParser createParser(Format format) {
       try {
         Class<?> clazz = getParserClass(format.sampleMimeType);
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create parser for unsupported format");
         }
-        return clazz.asSubclass(Decoder.class).newInstance();
+        return clazz.asSubclass(SubtitleParser.class).newInstance();
       } catch (Exception e) {
         throw new IllegalStateException("Unexpected error instantiating parser", e);
       }

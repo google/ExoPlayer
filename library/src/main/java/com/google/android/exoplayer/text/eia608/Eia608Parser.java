@@ -19,10 +19,12 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.SubtitleInputBuffer;
 import com.google.android.exoplayer.text.SubtitleOutputBuffer;
+import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
-import com.google.android.exoplayer.util.extensions.Decoder;
+
+import android.text.TextUtils;
 
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -31,8 +33,7 @@ import java.util.TreeSet;
  * Facilitates the extraction and parsing of EIA-608 (a.k.a. "line 21 captions" and "CEA-608")
  * Closed Captions from the SEI data block from H.264.
  */
-public final class Eia608Parser implements
-    Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> {
+public final class Eia608Parser implements SubtitleParser {
 
   private static final int NUM_INPUT_BUFFERS = 10;
   private static final int NUM_OUTPUT_BUFFERS = 2;
@@ -170,6 +171,8 @@ public final class Eia608Parser implements
 
   private final StringBuilder captionStringBuilder;
 
+  private long playbackPositionUs;
+
   private SubtitleInputBuffer dequeuedInputBuffer;
 
   private int captionMode;
@@ -202,6 +205,11 @@ public final class Eia608Parser implements
   }
 
   @Override
+  public void setPositionUs(long positionUs) {
+    playbackPositionUs = positionUs;
+  }
+
+  @Override
   public SubtitleInputBuffer dequeueInputBuffer() throws ParserException {
     Assertions.checkState(dequeuedInputBuffer == null);
     if (availableInputBuffers.isEmpty()) {
@@ -221,34 +229,43 @@ public final class Eia608Parser implements
 
   @Override
   public SubtitleOutputBuffer dequeueOutputBuffer() throws ParserException {
-    if (queuedInputBuffers.isEmpty() || availableOutputBuffers.isEmpty()) {
+    if (availableOutputBuffers.isEmpty()) {
       return null;
     }
 
-    SubtitleOutputBuffer outputBuffer = null;
-    SubtitleInputBuffer inputBuffer = queuedInputBuffers.pollFirst();
+    // iterate through all available input buffers whose timestamps are less than or equal
+    // to the current playback position; processing input buffers for future content should
+    // be deferred until they would be applicable
+    while (!queuedInputBuffers.isEmpty()
+        && queuedInputBuffers.first().timeUs <= playbackPositionUs) {
+      SubtitleInputBuffer inputBuffer = queuedInputBuffers.pollFirst();
 
-    // TODO: investigate ways of batching multiple SubtitleInputBuffers into a single
-    // SubtitleOutputBuffer; it isn't as simple as just iterating through all of the queued input
-    // buffers until there is a change because for pop-on captions this will result in the input
-    // buffers being processed almost sequentially as they are queued, eliminating the re-ordering,
-    // resulting in the content having characters out of order
-    if (inputBuffer.isEndOfStream()) {
-      outputBuffer = availableOutputBuffers.pollFirst();
-      outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-    } else if (decode(inputBuffer)
-        && ((captionString == null && lastCaptionString != null)
-        || (captionString != null && !captionString.equals((lastCaptionString))))) {
-      lastCaptionString = captionString;
-      outputBuffer = availableOutputBuffers.pollFirst();
-      outputBuffer.setOutput(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
-      if (inputBuffer.isDecodeOnly()) {
-        outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+      // If the input buffer indicates we've reached the end of the stream, we can
+      // return immediately with an output buffer propagating that
+      if (inputBuffer.isEndOfStream()) {
+        SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+        outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        releaseInputBuffer(inputBuffer);
+        return outputBuffer;
       }
+
+      decode(inputBuffer);
+
+      // check if we have any caption updates to report
+      if (!TextUtils.equals(captionString, lastCaptionString)) {
+        lastCaptionString = captionString;
+        if (!inputBuffer.isDecodeOnly()) {
+          SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+          outputBuffer.setOutput(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
+          releaseInputBuffer(inputBuffer);
+          return outputBuffer;
+        }
+      }
+
+      releaseInputBuffer(inputBuffer);
     }
 
-    releaseInputBuffer(inputBuffer);
-    return outputBuffer;
+    return null;
   }
 
   private void releaseInputBuffer(SubtitleInputBuffer inputBuffer) {
@@ -265,6 +282,7 @@ public final class Eia608Parser implements
   public void flush() {
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
+    playbackPositionUs = 0;
     captionStringBuilder.setLength(0);
     captionString = null;
     lastCaptionString = null;
@@ -285,9 +303,9 @@ public final class Eia608Parser implements
     // Do nothing
   }
 
-  private boolean decode(SubtitleInputBuffer inputBuffer) {
+  private void decode(SubtitleInputBuffer inputBuffer) {
     if (inputBuffer.size < 10) {
-      return false;
+      return;
     }
     seiBuffer.reset(inputBuffer.data.array());
 
@@ -363,18 +381,14 @@ public final class Eia608Parser implements
       }
     }
 
-    if (!captionDataProcessed) {
-      return false;
+    if (captionDataProcessed) {
+      if (!isRepeatableControl) {
+        repeatableControlSet = false;
+      }
+      if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
+        captionString = getDisplayCaption();
+      }
     }
-
-    if (!isRepeatableControl) {
-      repeatableControlSet = false;
-    }
-    if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-      captionString = getDisplayCaption();
-    }
-
-    return true;
   }
 
   private boolean handleCtrl(byte cc1, byte cc2) {

@@ -22,11 +22,17 @@ import com.google.android.exoplayer.util.extensions.SimpleDecoder;
  * Base class for subtitle parsers that use their own decode thread.
  */
 public abstract class SimpleSubtitleParser extends
-    SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> {
+    SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> implements
+    SubtitleParser {
 
   protected SimpleSubtitleParser() {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     setInitialInputBufferSize(1024);
+  }
+
+  @Override
+  public void setPositionUs(long timeUs) {
+    // Do nothing
   }
 
   @Override

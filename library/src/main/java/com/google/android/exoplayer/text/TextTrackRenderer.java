@@ -55,7 +55,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> parser;
+  private SubtitleParser parser;
   private SubtitleInputBuffer nextInputBuffer;
   private SubtitleOutputBuffer subtitle;
   private SubtitleOutputBuffer nextSubtitle;
@@ -133,6 +133,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
     }
 
     if (nextSubtitle == null) {
+      parser.setPositionUs(positionUs);
       try {
         nextSubtitle = parser.dequeueOutputBuffer();
       } catch (IOException e) {
