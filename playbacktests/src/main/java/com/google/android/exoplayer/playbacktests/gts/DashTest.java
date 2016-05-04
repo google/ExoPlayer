@@ -419,7 +419,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
      * @param audioFormat The audio format.
      * @param canIncludeAdditionalVideoFormats Whether to use video formats in addition to
      *     those listed in the videoFormats argument, if the device is capable of playing them.
-     * @param isCddLimitedRetry Is the test being retried after a previous failure.
+     * @param isCddLimitedRetry Whether this is a CDD limited retry following a previous failure.
      * @param videoFormats The video formats.
      */
     public DashHostedTest(String testName, MediaPresentationDescription mpd,
@@ -450,7 +450,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
       // Build the video renderer.
       DataSource videoDataSource = new DefaultUriDataSource(host, null, userAgent);
-      TrackSelector videoTrackSelector = new TrackSelector(AdaptationSet.TYPE_VIDEO,
+      videoTrackSelector = new TrackSelector(AdaptationSet.TYPE_VIDEO,
           canIncludeAdditionalVideoFormats, videoFormats);
       ChunkSource videoChunkSource = new DashChunkSource(mpd, videoTrackSelector, videoDataSource,
           new FormatEvaluator.RandomEvaluator(0));
@@ -462,7 +462,6 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           0, handler, logger, 50, fullPlaybackNoSeeking);
       videoCounters = videoRenderer.codecCounters;
       player.sendMessage(videoRenderer, DebugMediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
-      this.videoTrackSelector = videoTrackSelector;
 
       // Build the audio renderer.
       DataSource audioDataSource = new DefaultUriDataSource(host, null, userAgent);
@@ -530,9 +529,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         CodecCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
             MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
       } catch (AssertionFailedError e) {
-        // Retry limiting to CDD mandated formats (b/28220076).
         if (videoTrackSelector.includedAdditionalVideoRepresentations) {
-          Log.e(TAG, "Too many dropped or consecutive dropped frames", e);
+          // Retry limiting to CDD mandated formats (b/28220076).
+          Log.e(TAG, "Too many dropped or consecutive dropped frames.", e);
           needsCddLimitedRetry = true;
         } else {
           throw e;
