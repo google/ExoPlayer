@@ -71,7 +71,7 @@ public class DrmInitDataTest extends TestCase {
     MoreAsserts.assertNotEqual(drmInitData, testInitData);
 
     // Different data in one of the tuples should affect equality.
-    testInitData = new DrmInitData(DATA_1, DATA_1);
+    testInitData = new DrmInitData(DATA_1, DATA_UNIVERSAL);
     MoreAsserts.assertNotEqual(drmInitData, testInitData);
   }
 
