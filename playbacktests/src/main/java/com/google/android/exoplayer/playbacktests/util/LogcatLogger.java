@@ -140,7 +140,7 @@ public final class LogcatLogger implements ExoPlayer.Listener,
   @Override
   public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger,
       Format format, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-      long loadDurationMs) {}
+      long loadDurationMs, byte[] rawResponse) {}
 
   @Override
   public void onLoadCanceled(int sourceId, long bytesLoaded) {}

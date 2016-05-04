@@ -59,9 +59,10 @@ public interface BaseChunkSampleSourceEventListener {
    *     initialization data.
    * @param elapsedRealtimeMs {@code elapsedRealtime} timestamp of when the load finished.
    * @param loadDurationMs Amount of time taken to load the data.
+   * @param rawResponse If the download was an HLS manifest, contains the raw data
    */
    void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-       long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
+       long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, byte[] rawResponse);
 
   /**
    * Invoked when the current upstream load operation is canceled.
