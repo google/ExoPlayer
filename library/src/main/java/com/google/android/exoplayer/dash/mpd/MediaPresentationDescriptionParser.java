@@ -22,7 +22,7 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -314,29 +314,29 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected ContentProtection parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
-    UUID uuid = null;
-    SchemeInitData data = null;
+    SchemeData schemeData = null;
     boolean seenPsshElement = false;
     do {
       xpp.next();
       // The cenc:pssh element is defined in 23001-7:2015.
       if (ParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
         seenPsshElement = true;
-        data = new SchemeInitData(MimeTypes.VIDEO_MP4,
-            Base64.decode(xpp.getText(), Base64.DEFAULT));
-        uuid = PsshAtomUtil.parseUuid(data.data);
+        byte[] data = Base64.decode(xpp.getText(), Base64.DEFAULT);
+        UUID uuid = PsshAtomUtil.parseUuid(data);
+        if (uuid != null) {
+          schemeData = new SchemeData(uuid, MimeTypes.VIDEO_MP4, data);
+        }
       }
     } while (!ParserUtil.isEndTag(xpp, "ContentProtection"));
-    if (seenPsshElement && uuid == null) {
+    if (seenPsshElement && schemeData == null) {
       Log.w(TAG, "Skipped unsupported ContentProtection element");
       return null;
     }
-    return buildContentProtection(schemeIdUri, uuid, data);
+    return buildContentProtection(schemeIdUri, schemeData);
   }
 
-  protected ContentProtection buildContentProtection(String schemeIdUri, UUID uuid,
-      SchemeInitData data) {
-    return new ContentProtection(schemeIdUri, uuid, data);
+  protected ContentProtection buildContentProtection(String schemeIdUri, SchemeData schemeData) {
+    return new ContentProtection(schemeIdUri, schemeData);
   }
 
   /**

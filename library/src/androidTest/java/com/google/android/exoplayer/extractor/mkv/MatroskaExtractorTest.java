@@ -21,7 +21,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.mkv.StreamBuilder.ContentEncodingSettings;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
@@ -237,10 +237,10 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
     assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
     DrmInitData drmInitData = extractorOutput.drmInitData;
     assertNotNull(drmInitData);
-    SchemeInitData widevineInitData = drmInitData.get(WIDEVINE_UUID);
+    SchemeData widevineInitData = drmInitData.get(WIDEVINE_UUID);
     assertEquals(MimeTypes.VIDEO_WEBM, widevineInitData.mimeType);
     android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, widevineInitData.data);
-    SchemeInitData zeroInitData = drmInitData.get(ZERO_UUID);
+    SchemeData zeroInitData = drmInitData.get(ZERO_UUID);
     assertEquals(MimeTypes.VIDEO_WEBM, zeroInitData.mimeType);
     android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, zeroInitData.data);
   }

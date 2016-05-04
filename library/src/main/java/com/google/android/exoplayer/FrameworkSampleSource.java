@@ -16,8 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
-import com.google.android.exoplayer.drm.DrmInitData.UuidSchemeInitDataTuple;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Assertions;
@@ -287,15 +286,13 @@ public final class FrameworkSampleSource implements SampleSource {
     if (psshInfo == null || psshInfo.isEmpty()) {
       return null;
     }
-    UuidSchemeInitDataTuple[] uuidSchemeInitDataTuples =
-        new UuidSchemeInitDataTuple[psshInfo.size()];
+    SchemeData[] schemeDatas = new SchemeData[psshInfo.size()];
     int count = 0;
     for (UUID uuid : psshInfo.keySet()) {
       byte[] psshAtom = PsshAtomUtil.buildPsshAtom(uuid, psshInfo.get(uuid));
-      SchemeInitData schemeData = new SchemeInitData(MimeTypes.VIDEO_MP4, psshAtom);
-      uuidSchemeInitDataTuples[count++] = new UuidSchemeInitDataTuple(uuid, schemeData);
+      schemeDatas[count++] = new SchemeData(uuid, MimeTypes.VIDEO_MP4, psshAtom);
     }
-    return new DrmInitData.Mapped(uuidSchemeInitDataTuples);
+    return new DrmInitData(schemeDatas);
   }
 
   private void seekToUsInternal(long positionUs, boolean force) {

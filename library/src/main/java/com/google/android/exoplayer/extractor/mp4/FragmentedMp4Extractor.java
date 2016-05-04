@@ -18,8 +18,7 @@ package com.google.android.exoplayer.extractor.mp4;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
-import com.google.android.exoplayer.drm.DrmInitData.UuidSchemeInitDataTuple;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -320,25 +319,24 @@ public final class FragmentedMp4Extractor implements Extractor {
     List<Atom.LeafAtom> moovLeafChildren = moov.leafChildren;
     int moovLeafChildrenSize = moovLeafChildren.size();
 
-    ArrayList<UuidSchemeInitDataTuple> uuidSchemeInitDataTuples = null;
+    ArrayList<SchemeData> schemeDatas = null;
     for (int i = 0; i < moovLeafChildrenSize; i++) {
       LeafAtom child = moovLeafChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        if (uuidSchemeInitDataTuples == null) {
-          uuidSchemeInitDataTuples = new ArrayList<UuidSchemeInitDataTuple>();
+        if (schemeDatas == null) {
+          schemeDatas = new ArrayList<SchemeData>();
         }
         byte[] psshData = child.data.data;
         UUID uuid = PsshAtomUtil.parseUuid(psshData);
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
-          uuidSchemeInitDataTuples.add(new UuidSchemeInitDataTuple(uuid,
-              new SchemeInitData(MimeTypes.VIDEO_MP4, psshData)));
+          schemeDatas.add(new SchemeData(uuid, MimeTypes.VIDEO_MP4, psshData));
         }
       }
     }
-    if (uuidSchemeInitDataTuples != null) {
-      extractorOutput.drmInitData(new DrmInitData.Mapped(uuidSchemeInitDataTuples));
+    if (schemeDatas != null) {
+      extractorOutput.drmInitData(new DrmInitData(schemeDatas));
     }
 
     // Read declaration of track fragments in the Moov box.

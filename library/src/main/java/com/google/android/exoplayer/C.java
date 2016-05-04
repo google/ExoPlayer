@@ -20,6 +20,8 @@ import com.google.android.exoplayer.util.Util;
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 
+import java.util.UUID;
+
 /**
  * Defines constants that are generally useful throughout the library.
  */
@@ -174,6 +176,12 @@ public final class C {
    */
   public static final int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
       + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
+
+  /**
+   * The Nil UUID as defined by
+   * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
+   */
+  public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   private C() {}
 

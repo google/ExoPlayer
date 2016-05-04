@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.drm;
 
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -104,7 +104,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private int state;
   private MediaCrypto mediaCrypto;
   private Exception lastException;
-  private SchemeInitData schemeInitData;
+  private SchemeData schemeData;
   private byte[] sessionId;
 
   /**
@@ -273,19 +273,19 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       requestHandlerThread.start();
       postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
     }
-    if (schemeInitData == null) {
-      schemeInitData = drmInitData.get(uuid);
-      if (schemeInitData == null) {
+    if (schemeData == null) {
+      schemeData = drmInitData.get(uuid);
+      if (schemeData == null) {
         onError(new IllegalStateException("Media does not support uuid: " + uuid));
         return;
       }
       if (Util.SDK_INT < 21) {
         // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
-        byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeInitData.data, WIDEVINE_UUID);
+        byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeData.data, WIDEVINE_UUID);
         if (psshData == null) {
           // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
         } else {
-          schemeInitData = new SchemeInitData(schemeInitData.mimeType, psshData);
+          schemeData = new SchemeData(WIDEVINE_UUID, schemeData.mimeType, psshData);
         }
       }
     }
@@ -306,7 +306,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     postRequestHandler = null;
     requestHandlerThread.quit();
     requestHandlerThread = null;
-    schemeInitData = null;
+    schemeData = null;
     mediaCrypto = null;
     lastException = null;
     if (sessionId != null) {
@@ -368,7 +368,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private void postKeyRequest() {
     KeyRequest keyRequest;
     try {
-      keyRequest = mediaDrm.getKeyRequest(sessionId, schemeInitData.data, schemeInitData.mimeType,
+      keyRequest = mediaDrm.getKeyRequest(sessionId, schemeData.data, schemeData.mimeType,
           MediaDrm.KEY_TYPE_STREAMING, optionalKeyRequestParameters);
       postRequestHandler.obtainMessage(MSG_KEYS, keyRequest).sendToTarget();
     } catch (NotProvisionedException e) {

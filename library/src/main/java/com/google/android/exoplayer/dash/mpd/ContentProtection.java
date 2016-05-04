@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import java.util.UUID;
 
 /**
  * Represents a ContentProtection tag in an AdaptationSet.
@@ -32,24 +30,17 @@ public class ContentProtection {
   public final String schemeUriId;
 
   /**
-   * The UUID of the protection scheme. May be null.
-   */
-  public final UUID uuid;
-
-  /**
    * Protection scheme specific initialization data. May be null.
    */
-  public final SchemeInitData data;
+  public final SchemeData schemeData;
 
   /**
    * @param schemeUriId Identifies the content protection scheme.
-   * @param uuid The UUID of the protection scheme, if known. May be null.
-   * @param data Protection scheme specific initialization data. May be null.
+   * @param schemeData Protection scheme specific initialization data. May be null.
    */
-  public ContentProtection(String schemeUriId, UUID uuid, SchemeInitData data) {
+  public ContentProtection(String schemeUriId, SchemeData schemeData) {
     this.schemeUriId = Assertions.checkNotNull(schemeUriId);
-    this.uuid = uuid;
-    this.data = data;
+    this.schemeData = schemeData;
   }
 
   @Override
@@ -62,17 +53,12 @@ public class ContentProtection {
     }
 
     ContentProtection other = (ContentProtection) obj;
-    return schemeUriId.equals(other.schemeUriId)
-        && Util.areEqual(uuid, other.uuid)
-        && Util.areEqual(data, other.data);
+    return schemeUriId.equals(other.schemeUriId) && Util.areEqual(schemeData, other.schemeData);
   }
 
   @Override
   public int hashCode() {
-    int hashCode = schemeUriId.hashCode();
-    hashCode = (31 * hashCode) + (uuid != null ? uuid.hashCode() : 0);
-    hashCode = (31 * hashCode) + (data != null ? data.hashCode() : 0);
-    return hashCode;
+    return (31 * schemeUriId.hashCode()) + (schemeData != null ? schemeData.hashCode() : 0);
   }
 
 }

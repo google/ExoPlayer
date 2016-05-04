@@ -15,119 +15,103 @@
  */
 package com.google.android.exoplayer.drm;
 
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Encapsulates DRM initialization data for possibly multiple DRM schemes.
  */
-public interface DrmInitData {
+public final class DrmInitData implements Comparator<SchemeData> {
 
-  /**
-   * Retrieves initialization data for a given DRM scheme, specified by its UUID.
-   *
-   * @param schemeUuid The DRM scheme's UUID.
-   * @return The initialization data for the scheme, or null if the scheme is not supported.
-   */
-  SchemeInitData get(UUID schemeUuid);
+  private final SchemeData[] schemeDatas;
 
-  /**
-   * A {@link DrmInitData} implementation that maps UUID onto scheme specific data.
-   */
-  final class Mapped implements DrmInitData {
+  // Lazily initialized hashcode.
+  private int hashCode;
 
-    private final UuidSchemeInitDataTuple[] schemeDatas;
+  public DrmInitData(List<SchemeData> schemeDatas) {
+    this(false, schemeDatas.toArray(new SchemeData[schemeDatas.size()]));
+  }
 
-    // Lazily initialized hashcode.
-    private int hashCode;
+  public DrmInitData(SchemeData... schemeDatas) {
+    this(true, schemeDatas);
+  }
 
-    public Mapped(UuidSchemeInitDataTuple... schemeDatas) {
-      this.schemeDatas = schemeDatas.clone();
-      Arrays.sort(this.schemeDatas); // Required for correct equals and hashcode implementations.
+  private DrmInitData(boolean cloneSchemeDatas, SchemeData... schemeDatas) {
+    if (cloneSchemeDatas) {
+      schemeDatas = schemeDatas.clone();
     }
-
-    public Mapped(List<UuidSchemeInitDataTuple> schemeDatas) {
-      this.schemeDatas = schemeDatas.toArray(new UuidSchemeInitDataTuple[schemeDatas.size()]);
-      Arrays.sort(this.schemeDatas); // Required for correct equals and hashcode implementations.
-    }
-
-    @Override
-    public SchemeInitData get(UUID schemeUuid) {
-      for (UuidSchemeInitDataTuple schemeData : schemeDatas) {
-        if (schemeUuid.equals(schemeData.uuid)) {
-          return schemeData.data;
-        }
+    // Sorting ensures that universal scheme data(i.e. data that applies to all schemes) is matched
+    // last. It's also required by the equals and hashcode implementations.
+    Arrays.sort(schemeDatas, this);
+    // Check for no duplicates.
+    for (int i = 1; i < schemeDatas.length; i++) {
+      if (schemeDatas[i - 1].uuid.equals(schemeDatas[i].uuid)) {
+        throw new IllegalArgumentException("Duplicate data for uuid: " + schemeDatas[i].uuid);
       }
-      return null;
     }
-
-    @Override
-    public int hashCode() {
-      if (hashCode == 0) {
-        hashCode = Arrays.hashCode(schemeDatas);
-      }
-      return hashCode;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-      return Arrays.equals(schemeDatas, ((Mapped) obj).schemeDatas);
-    }
-
+    this.schemeDatas = schemeDatas;
   }
 
   /**
-   * A {@link DrmInitData} implementation that returns the same data for all schemes.
+   * Retrieves data for a given DRM scheme, specified by its UUID.
+   *
+   * @param uuid The DRM scheme's UUID.
+   * @return The initialization data for the scheme, or null if the scheme is not supported.
    */
-  final class Universal implements DrmInitData {
-
-    private final SchemeInitData data;
-
-    public Universal(SchemeInitData data) {
-      this.data = data;
-    }
-
-    @Override
-    public SchemeInitData get(UUID schemeUuid) {
-      return data;
-    }
-
-    @Override
-    public int hashCode() {
-      return data == null ? 0 : data.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
+  public SchemeData get(UUID uuid) {
+    for (SchemeData schemeData : schemeDatas) {
+      if (schemeData.matches(uuid)) {
+        return schemeData;
       }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-      return Util.areEqual(data, ((Universal) obj).data);
     }
+    return null;
+  }
 
+  @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      hashCode = Arrays.hashCode(schemeDatas);
+    }
+    return hashCode;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    return Arrays.equals(schemeDatas, ((DrmInitData) obj).schemeDatas);
+  }
+
+  @Override
+  public int compare(SchemeData first, SchemeData second) {
+    return C.UUID_NIL.equals(first.uuid) ? (C.UUID_NIL.equals(second.uuid) ? 0 : 1)
+        : first.uuid.compareTo(second.uuid);
   }
 
   /**
    * Scheme initialization data.
    */
-  final class SchemeInitData {
+  public static final class SchemeData {
 
     // Lazily initialized hashcode.
     private int hashCode;
 
+    /**
+     * The {@link UUID} of the DRM scheme, or {@link C#UUID_NIL} if the data is universal (i.e.
+     * applies to all schemes).
+     */
+    private final UUID uuid;
     /**
      * The mimeType of {@link #data}.
      */
@@ -138,71 +122,49 @@ public interface DrmInitData {
     public final byte[] data;
 
     /**
+     * @param uuid The {@link UUID} of the DRM scheme, or {@link C#UUID_NIL} if the data is
+     *     universal (i.e. applies to all schemes).
      * @param mimeType The mimeType of the initialization data.
      * @param data The initialization data.
      */
-    public SchemeInitData(String mimeType, byte[] data) {
+    public SchemeData(UUID uuid, String mimeType, byte[] data) {
+      this.uuid = Assertions.checkNotNull(uuid);
       this.mimeType = Assertions.checkNotNull(mimeType);
       this.data = Assertions.checkNotNull(data);
     }
 
+    /**
+     * Returns whether this initialization data applies to the specified scheme.
+     *
+     * @param schemeUuid The scheme {@link UUID}.
+     * @return True if this initialization data applies to the specified scheme. False otherwise.
+     */
+    public boolean matches(UUID schemeUuid) {
+      return C.UUID_NIL.equals(uuid) || schemeUuid.equals(uuid);
+    }
+
     @Override
     public boolean equals(Object obj) {
-      if (!(obj instanceof SchemeInitData)) {
+      if (!(obj instanceof SchemeData)) {
         return false;
       }
       if (obj == this) {
         return true;
       }
-      SchemeInitData other = (SchemeInitData) obj;
-      return mimeType.equals(other.mimeType) && Arrays.equals(data, other.data);
+      SchemeData other = (SchemeData) obj;
+      return mimeType.equals(other.mimeType) && Util.areEqual(uuid, other.uuid)
+          && Arrays.equals(data, other.data);
     }
 
     @Override
     public int hashCode() {
       if (hashCode == 0) {
-        hashCode = mimeType.hashCode() + 31 * Arrays.hashCode(data);
+        int result = ((uuid == null) ? 0 : uuid.hashCode());
+        result = 31 * result + mimeType.hashCode();
+        result = 31 * result + Arrays.hashCode(data);
+        hashCode = result;
       }
       return hashCode;
-    }
-
-  }
-
-  /**
-   * A tuple consisting of a {@link UUID} and a {@link SchemeInitData}.
-   * <p>
-   * Implements {@link Comparable} based on {@link UUID} ordering.
-   */
-  final class UuidSchemeInitDataTuple implements Comparable<UuidSchemeInitDataTuple> {
-
-    public final UUID uuid;
-    public final SchemeInitData data;
-
-    public UuidSchemeInitDataTuple(UUID uuid, SchemeInitData data) {
-      this.uuid = Assertions.checkNotNull(uuid);
-      this.data = Assertions.checkNotNull(data);
-    }
-
-    @Override
-    public int compareTo(UuidSchemeInitDataTuple another) {
-      return uuid.compareTo(another.uuid);
-    }
-
-    @Override
-    public int hashCode() {
-      return uuid.hashCode() + 31 * data.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-      UuidSchemeInitDataTuple other = (UuidSchemeInitDataTuple) obj;
-      return Util.areEqual(uuid, other.uuid) && Util.areEqual(data, other.data);
     }
 
   }
