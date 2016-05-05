@@ -96,12 +96,13 @@ import java.util.List;
     ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
 
     // Entries are byte offsets of chunks.
-    ParsableByteArray chunkOffsets;
+    boolean chunkOffsetsAreLongs = false;
     Atom.LeafAtom chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stco);
     if (chunkOffsetsAtom == null) {
+      chunkOffsetsAreLongs = true;
       chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_co64);
     }
-    chunkOffsets = chunkOffsetsAtom.data;
+    ParsableByteArray chunkOffsets = chunkOffsetsAtom.data;
     // Entries are (chunk number, number of samples per chunk, sample description index).
     ParsableByteArray stsc = stblAtom.getLeafAtomOfType(Atom.TYPE_stsc).data;
     // Entries are (number of samples, timestamp delta between those samples).
@@ -117,33 +118,12 @@ import java.util.List;
     stsz.setPosition(Atom.FULL_HEADER_SIZE);
     int fixedSampleSize = stsz.readUnsignedIntToInt();
     int sampleCount = stsz.readUnsignedIntToInt();
-
-    long[] offsets = new long[sampleCount];
-    int[] sizes = new int[sampleCount];
-    int maximumSize = 0;
-    long[] timestamps = new long[sampleCount];
-    int[] flags = new int[sampleCount];
     if (sampleCount == 0) {
-      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
+      return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
     }
 
-    // Prepare to read chunk offsets.
-    chunkOffsets.setPosition(Atom.FULL_HEADER_SIZE);
-    int chunkCount = chunkOffsets.readUnsignedIntToInt();
-
-    stsc.setPosition(Atom.FULL_HEADER_SIZE);
-    int remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt() - 1;
-    Assertions.checkState(stsc.readInt() == 1, "stsc first chunk must be 1");
-    int samplesPerChunk = stsc.readUnsignedIntToInt();
-    stsc.skipBytes(4); // Skip the sample description index.
-    int nextSamplesPerChunkChangeChunkIndex = -1;
-    if (remainingSamplesPerChunkChanges > 0) {
-      // Store the chunk index when the samples-per-chunk will next change.
-      nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
-    }
-
-    int chunkIndex = 0;
-    int remainingSamplesInChunk = samplesPerChunk;
+    // Prepare to read chunk information.
+    ChunkIterator chunkIterator = new ChunkIterator(stsc, chunkOffsets, chunkOffsetsAreLongs);
 
     // Prepare to read sample timestamps.
     stts.setPosition(Atom.FULL_HEADER_SIZE);
@@ -168,95 +148,101 @@ import java.util.List;
       nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
     }
 
-    // Calculate the chunk offsets
-    long offsetBytes;
-    if (chunkOffsetsAtom.type == Atom.TYPE_stco) {
-      offsetBytes = chunkOffsets.readUnsignedInt();
-    } else {
-      offsetBytes = chunkOffsets.readUnsignedLongToLong();
-    }
+    // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
+    boolean isRechunkable = fixedSampleSize != 0
+        && MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
+        && remainingTimestampDeltaChanges == 0 && remainingTimestampOffsetChanges == 0
+        && remainingSynchronizationSamples == 0;
 
+    long[] offsets;
+    int[] sizes;
+    int maximumSize = 0;
+    long[] timestamps;
+    int[] flags;
     long timestampTimeUnits = 0;
-    for (int i = 0; i < sampleCount; i++) {
-      // Add on the timestamp offset if ctts is present.
-      if (ctts != null) {
-        while (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
-          remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
-          // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
-          // version 0 ctts boxes, however some streams violate the spec and use signed integers
-          // instead. It's safe to always parse sample offsets as signed integers here, because
-          // unsigned integers will still be parsed correctly (unless their top bit is set, which is
-          // never true in practice because sample offsets are always small).
-          timestampOffset = ctts.readInt();
-          remainingTimestampOffsetChanges--;
+
+    if (!isRechunkable) {
+      offsets = new long[sampleCount];
+      sizes = new int[sampleCount];
+      timestamps = new long[sampleCount];
+      flags = new int[sampleCount];
+      long offset = 0;
+      int remainingSamplesInChunk = 0;
+
+      for (int i = 0; i < sampleCount; i++) {
+        // Advance to the next chunk if necessary.
+        while (remainingSamplesInChunk == 0) {
+          Assertions.checkState(chunkIterator.moveNext());
+          offset = chunkIterator.offset;
+          remainingSamplesInChunk = chunkIterator.numSamples;
         }
-        remainingSamplesAtTimestampOffset--;
-      }
 
-      offsets[i] = offsetBytes;
-      sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
-      if (sizes[i] > maximumSize) {
-        maximumSize = sizes[i];
-      }
-      timestamps[i] = timestampTimeUnits + timestampOffset;
-
-      // All samples are synchronization samples if the stss is not present.
-      flags[i] = stss == null ? C.BUFFER_FLAG_KEY_FRAME : 0;
-      if (i == nextSynchronizationSampleIndex) {
-        flags[i] = C.BUFFER_FLAG_KEY_FRAME;
-        remainingSynchronizationSamples--;
-        if (remainingSynchronizationSamples > 0) {
-          nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+        // Add on the timestamp offset if ctts is present.
+        if (ctts != null) {
+          while (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
+            remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
+            // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers
+            // in version 0 ctts boxes, however some streams violate the spec and use signed
+            // integers instead. It's safe to always parse sample offsets as signed integers here,
+            // because unsigned integers will still be parsed correctly (unless their top bit is
+            // set, which is never true in practice because sample offsets are always small).
+            timestampOffset = ctts.readInt();
+            remainingTimestampOffsetChanges--;
+          }
+          remainingSamplesAtTimestampOffset--;
         }
-      }
 
-      // Add on the duration of this sample.
-      timestampTimeUnits += timestampDeltaInTimeUnits;
-      remainingSamplesAtTimestampDelta--;
-      if (remainingSamplesAtTimestampDelta == 0 && remainingTimestampDeltaChanges > 0) {
-        remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
-        timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
-        remainingTimestampDeltaChanges--;
-      }
+        offsets[i] = offset;
+        sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+        if (sizes[i] > maximumSize) {
+          maximumSize = sizes[i];
+        }
+        timestamps[i] = timestampTimeUnits + timestampOffset;
 
-      // If we're at the last sample in this chunk, move to the next chunk.
-      remainingSamplesInChunk--;
-      if (remainingSamplesInChunk == 0) {
-        chunkIndex++;
-        if (chunkIndex < chunkCount) {
-          if (chunkOffsetsAtom.type == Atom.TYPE_stco) {
-            offsetBytes = chunkOffsets.readUnsignedInt();
-          } else {
-            offsetBytes = chunkOffsets.readUnsignedLongToLong();
+        // All samples are synchronization samples if the stss is not present.
+        flags[i] = stss == null ? C.BUFFER_FLAG_KEY_FRAME : 0;
+        if (i == nextSynchronizationSampleIndex) {
+          flags[i] = C.BUFFER_FLAG_KEY_FRAME;
+          remainingSynchronizationSamples--;
+          if (remainingSynchronizationSamples > 0) {
+            nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
           }
         }
 
-        // Change the samples-per-chunk if required.
-        if (chunkIndex == nextSamplesPerChunkChangeChunkIndex) {
-          samplesPerChunk = stsc.readUnsignedIntToInt();
-          stsc.skipBytes(4); // Skip the sample description index.
-          remainingSamplesPerChunkChanges--;
-          if (remainingSamplesPerChunkChanges > 0) {
-            nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
-          }
+        // Add on the duration of this sample.
+        timestampTimeUnits += timestampDeltaInTimeUnits;
+        remainingSamplesAtTimestampDelta--;
+        if (remainingSamplesAtTimestampDelta == 0 && remainingTimestampDeltaChanges > 0) {
+          remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
+          timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
+          remainingTimestampDeltaChanges--;
         }
 
-        // Expect samplesPerChunk samples in the following chunk, if it's before the end.
-        if (chunkIndex < chunkCount) {
-          remainingSamplesInChunk = samplesPerChunk;
-        }
-      } else {
-        // The next sample follows the current one.
-        offsetBytes += sizes[i];
+        offset += sizes[i];
+        remainingSamplesInChunk--;
       }
+
+      // Check all the expected samples have been seen.
+      Assertions.checkArgument(remainingSynchronizationSamples == 0);
+      Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
+      Assertions.checkArgument(remainingSamplesInChunk == 0);
+      Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
+      Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
+    } else {
+      long[] chunkOffsetsBytes = new long[chunkIterator.length];
+      int[] chunkSampleCounts = new int[chunkIterator.length];
+      while (chunkIterator.moveNext()) {
+        chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
+        chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
+      }
+      FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
+          fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
+      offsets = rechunkedResults.offsets;
+      sizes = rechunkedResults.sizes;
+      maximumSize = rechunkedResults.maximumSize;
+      timestamps = rechunkedResults.timestamps;
+      flags = rechunkedResults.flags;
     }
-
-    // Check all the expected samples have been seen.
-    Assertions.checkArgument(remainingSynchronizationSamples == 0);
-    Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
-    Assertions.checkArgument(remainingSamplesInChunk == 0);
-    Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
-    Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
 
     if (track.editListDurations == null || gaplessInfoHolder.hasGaplessInfo()) {
       // There is no edit list, or we are ignoring it as we already have gapless metadata to apply.
@@ -1066,6 +1052,51 @@ import java.util.List;
 
   private AtomParsers() {
     // Prevent instantiation.
+  }
+
+  private static final class ChunkIterator {
+
+    public final int length;
+
+    public int index;
+    public int numSamples;
+    public long offset;
+
+    private final boolean chunkOffsetsAreLongs;
+    private final ParsableByteArray chunkOffsets;
+    private final ParsableByteArray stsc;
+
+    private int nextSamplesPerChunkChangeIndex;
+    private int remainingSamplesPerChunkChanges;
+
+    public ChunkIterator(ParsableByteArray stsc, ParsableByteArray chunkOffsets,
+        boolean chunkOffsetsAreLongs) {
+      this.stsc = stsc;
+      this.chunkOffsets = chunkOffsets;
+      this.chunkOffsetsAreLongs = chunkOffsetsAreLongs;
+      chunkOffsets.setPosition(Atom.FULL_HEADER_SIZE);
+      length = chunkOffsets.readUnsignedIntToInt();
+      stsc.setPosition(Atom.FULL_HEADER_SIZE);
+      remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt();
+      Assertions.checkState(stsc.readInt() == 1, "first_chunk must be 1");
+      index = -1;
+    }
+
+    public boolean moveNext() {
+      if (++index == length) {
+        return false;
+      }
+      offset = chunkOffsetsAreLongs ? chunkOffsets.readUnsignedLongToLong()
+          : chunkOffsets.readUnsignedInt();
+      if (index == nextSamplesPerChunkChangeIndex) {
+        numSamples = stsc.readUnsignedIntToInt();
+        stsc.skipBytes(4); // Skip sample_description_index
+        nextSamplesPerChunkChangeIndex = --remainingSamplesPerChunkChanges > 0
+            ? (stsc.readUnsignedIntToInt() - 1) : -1;
+      }
+      return true;
+    }
+
   }
 
   /**
