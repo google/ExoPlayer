@@ -203,6 +203,8 @@ public final class AudioTrack {
   private int channelConfig;
   private int encoding;
   private boolean passthrough;
+  private int channelCount;
+  private int configuredSpecifiedBufferSize;
   private int pcmBitdepth;
   private int pcmFrameSize;
   private int bufferSize;
@@ -228,6 +230,9 @@ public final class AudioTrack {
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
   private int bufferBytesRemaining;
+
+  ByteBuffer pcmConvertBuffer = null;
+  boolean usePCMConvertBuffer = false;
 
   /**
    * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
@@ -353,7 +358,8 @@ public final class AudioTrack {
    *     size inferred from the format.
    */
   public void configure(MediaFormat format, boolean passthrough, int specifiedBufferSize) {
-    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+    channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+    configuredSpecifiedBufferSize = specifiedBufferSize;
     int channelConfig;
     switch (channelCount) {
       case 1:
@@ -387,7 +393,7 @@ public final class AudioTrack {
     String mimeType = format.getString(MediaFormat.KEY_MIME);
     int encoding = passthrough ? getEncodingForMimeType(mimeType) : AudioFormat.ENCODING_PCM_16BIT;
     if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
-        && this.encoding == encoding) {
+            && this.encoding == encoding) {
       // We already have an audio track with the correct sample rate, encoding and channel config.
       return;
     }
@@ -397,14 +403,57 @@ public final class AudioTrack {
     this.pcmBitdepth = mimeType.equals(MimeTypes.AUDIO_RAW) &&
         format.containsKey(com.google.android.exoplayer.MediaFormat.BitDepthKey)
         ? format.getInteger(com.google.android.exoplayer.MediaFormat.BitDepthKey) : -1;
-    this.encoding = encoding;
+    if (encoding == AudioFormat.ENCODING_PCM_16BIT && pcmBitdepth != -1) {
+
+      switch (pcmBitdepth) {
+
+        case 8:
+          if (audioCapabilities.supportsEncoding(AudioFormat.ENCODING_PCM_8BIT))
+            encoding = AudioFormat.ENCODING_PCM_8BIT;
+          break;
+        case 24:
+          /*  TODO - write 24 - 32bit float conversion for <= two channel only
+          if (Util.SDK_INT >= 21 && channelCount > 2)
+              && audioCapabilities.supportsEncoding(AudioFormat.ENCODING_PCM_FLOAT))
+            encoding = AudioFormat.ENCODING_PCM_FLOAT;*/
+          break;
+        case 32:
+          // must be 32bit float
+          if (Util.SDK_INT >= 21 && audioCapabilities.supportsEncoding(AudioFormat.ENCODING_PCM_FLOAT))
+            encoding = AudioFormat.ENCODING_PCM_FLOAT;
+        default:
+          // don't do anything for 16bit
+          break;
+      }
+    }
+
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-    pcmFrameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
 
-    if (specifiedBufferSize != 0) {
-      bufferSize = specifiedBufferSize;
+    configureFrameAndBufferSizes(encoding);
+  }
+
+  private int getPCMBytesPerChannel(int encoding) {
+
+    switch (encoding) {
+
+      case AudioFormat.ENCODING_PCM_8BIT:
+        return 1; // 1 bytes per 8 bit sample
+      case AudioFormat.ENCODING_PCM_FLOAT:
+        return 4; // 4 bytes per 32 bit sample
+      default:
+        return 2; // 2 bytes per 16 bit sample
+    }
+  }
+
+  private void configureFrameAndBufferSizes(int encoding) {
+
+    this.encoding = encoding;
+    pcmFrameSize = getPCMBytesPerChannel(encoding) * channelCount; // PCM BPC * number of channels.
+
+    if (configuredSpecifiedBufferSize != 0) {
+      bufferSize = configuredSpecifiedBufferSize;
     } else if (passthrough) {
       // TODO: Set the minimum buffer size using getMinBufferSize when it takes the encoding into
       // account. [Internal: b/25181305]
@@ -455,14 +504,7 @@ public final class AudioTrack {
     // initialization of the audio track to fail.
     releasingConditionVariable.block();
 
-    if (sessionId == SESSION_ID_NOT_SET) {
-      audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig, encoding,
-          bufferSize, android.media.AudioTrack.MODE_STREAM);
-    } else {
-      // Re-attach to the same audio session.
-      audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig, encoding,
-          bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
-    }
+    createAudioTrack(sessionId);
     checkAudioTrackInitialized();
 
     sessionId = audioTrack.getAudioSessionId();
@@ -489,6 +531,36 @@ public final class AudioTrack {
     setAudioTrackVolume();
 
     return sessionId;
+  }
+
+  private void createAudioTrack(int sessionId) throws IllegalArgumentException {
+
+    try {
+      if (sessionId == SESSION_ID_NOT_SET) {
+        audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig, encoding,
+                bufferSize, android.media.AudioTrack.MODE_STREAM);
+      } else {
+        // Re-attach to the same audio session.
+        audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig, encoding,
+                bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
+      }
+    }
+    catch (IllegalArgumentException e) {
+
+      switch(encoding) {
+
+        case AudioFormat.ENCODING_PCM_8BIT:
+        case AudioFormat.ENCODING_PCM_FLOAT:
+          // if we tried to create 8 or 32 bit tracks when they aren't supported
+          // reset to 16bit and try again
+          configureFrameAndBufferSizes(AudioFormat.ENCODING_PCM_16BIT);
+          createAudioTrack(sessionId);
+          break;
+        default:
+          throw e;
+      }
+
+    }
   }
 
   /**
@@ -552,8 +624,6 @@ public final class AudioTrack {
    *     written data.
    * @throws WriteException If an error occurs writing the audio data.
    */
-  ByteBuffer ditherBuffer = null;
-  boolean useDitherBuffer = false;
   public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs)
       throws WriteException {
     if (size == 0) {
@@ -579,12 +649,12 @@ public final class AudioTrack {
     int result = 0;
     if (bufferBytesRemaining == 0) {
 
-      useDitherBuffer = false;
-      if (shouldDither24bit()) {
-        useDitherBuffer = dither24bitTo16bit(buffer, offset, size);
-        if (useDitherBuffer) {
-          size = ditherBuffer.position();
-          ditherBuffer.position(0);
+      usePCMConvertBuffer = false;
+      if (shouldConvertPCMInput()) {
+        usePCMConvertBuffer = convertPCMInput(buffer, offset, size);
+        if (usePCMConvertBuffer) {
+          size = pcmConvertBuffer.position();
+          pcmConvertBuffer.position(0);
         }
       }
       // The previous buffer (if there was one) was fully written to the audio track. We're now
@@ -638,8 +708,8 @@ public final class AudioTrack {
           temporaryBufferOffset += bytesWritten;
         }
       }
-    } else if (useDitherBuffer) {
-      bytesWritten = writeNonBlockingV21(audioTrack, ditherBuffer, bufferBytesRemaining);
+    } else if (usePCMConvertBuffer) {
+      bytesWritten = writeNonBlockingV21(audioTrack, pcmConvertBuffer, bufferBytesRemaining);
     } else {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, bufferBytesRemaining);
     }
@@ -661,29 +731,56 @@ public final class AudioTrack {
     return result;
   }
 
-  private boolean shouldDither24bit() {
+  private boolean shouldConvertPCMInput() {
 
-    return encoding == AudioFormat.ENCODING_PCM_16BIT && pcmBitdepth == 24;
+    return (encoding == AudioFormat.ENCODING_PCM_16BIT && (pcmBitdepth == 24 || pcmBitdepth == 8));
+        //||(Util.SDK_INT >= 21 && encoding == AudioFormat.ENCODING_PCM_FLOAT && pcmBitdepth == 24);
   }
 
-  private boolean dither24bitTo16bit(ByteBuffer buffer, int offset, int size) {
+  private boolean convertPCMInput(ByteBuffer buffer, int offset, int size) {
 
-    if (size < 3)
+    if (pcmBitdepth == 24 && size < 3)
       return false;
 
-    if (ditherBuffer == null || ditherBuffer.capacity() < buffer.capacity())
-      ditherBuffer = ByteBuffer.allocateDirect(buffer.capacity());
-    ditherBuffer.position(0);
+    // if we are upconverting to 32 bit from 24 bit increase the buffer by 1/3
+    // if we are upconverting to 16bit from 8 bit double the buffer
+    // else we are downconverting to 16 from 24 bit make the buffer 2/3
+    int getMinBufferSize = encoding == AudioFormat.ENCODING_PCM_FLOAT ? (buffer.capacity() * 4)/3
+                           : pcmBitdepth == 8 ? buffer.capacity() * 2 : (buffer.capacity() * 2)/3;
+    if (pcmConvertBuffer == null || pcmConvertBuffer.capacity() < getMinBufferSize) {
+      pcmConvertBuffer = ByteBuffer.allocateDirect(getMinBufferSize);
+    }
+    pcmConvertBuffer.position(0);
 
     int endPosition = offset + size;
-    int offsetOrig24 = offset;
     buffer.position(offset);
-    while (endPosition > offsetOrig24) {
 
-      buffer.position(offsetOrig24+1);
-      ditherBuffer.put(buffer.get());
-      ditherBuffer.put(buffer.get());
-      offsetOrig24 += 3;
+    // these conversions are little endian to little endian
+    /*if (encoding == AudioFormat.ENCODING_PCM_FLOAT) {
+      // 24->32 bit
+    }
+    else*/
+    if (pcmBitdepth == 8) {
+      // 8->16 bit, 8bit is an unsigned byte from 0-255, get back to -128,128 and then upconvert
+      final byte empty = 0;
+      int byte8;
+      while (endPosition > offset) {
+
+        byte8 = ((int)buffer.get()) - 128;
+        pcmConvertBuffer.put(empty);
+        pcmConvertBuffer.put((byte)(byte8 & 0xff));
+        ++offset;
+      }
+    }
+    else {
+      // 24->16 bit, drop the lowest byte to downconvert
+      int offsetOrig24 = offset;
+      while (endPosition > offsetOrig24) {
+        buffer.position(offsetOrig24 + 1);
+        pcmConvertBuffer.put(buffer.get());
+        pcmConvertBuffer.put(buffer.get());
+        offsetOrig24 += 3;
+      }
     }
 
     return true;
