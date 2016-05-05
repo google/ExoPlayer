@@ -26,7 +26,10 @@ import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A utility class for querying the available codecs.
@@ -50,12 +53,15 @@ public final class MediaCodecUtil {
 
   private static final String TAG = "MediaCodecUtil";
 
-  private static final HashMap<CodecKey, DecoderInfo> codecs = new HashMap<>();
+  private static final HashMap<CodecKey, List<DecoderInfo>> decoderInfosCache = new HashMap<>();
+
+  // Lazily initialized.
+  private static int maxH264DecodableFrameSize = -1;
 
   private MediaCodecUtil() {}
 
   /**
-   * Optional call to pre-populate cached decoder information for a given mime type.
+   * Optional call to warm the codec cache for a given mime type.
    * <p>
    * Calling this method may speed up subsequent calls to {@link #getDecoderInfo(String, boolean)}.
    *
@@ -63,9 +69,9 @@ public final class MediaCodecUtil {
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
    */
-  public static synchronized void warmDecoderInfoCache(String mimeType, boolean secure) {
+  public static void warmDecoderInfoCache(String mimeType, boolean secure) {
     try {
-      getDecoderInfo(mimeType, secure);
+      getDecoderInfos(mimeType, secure);
     } catch (DecoderQueryException e) {
       // Codec warming is best effort, so we can swallow the exception.
       Log.e(TAG, "Codec warming failed", e);
@@ -73,85 +79,89 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns a {@link DecoderInfo} describing the most suitable decoder for a given mime type.
+   * Returns information about the decoder that will be used for a given mime type.
    *
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return Information about the decoder, or null if no suitable decoder exists.
+   * @return Information about the decoder that will be used, or null if no decoder exists.
    */
-  public static synchronized DecoderInfo getDecoderInfo(String mimeType, boolean secure)
+  public static DecoderInfo getDecoderInfo(String mimeType, boolean secure)
+      throws DecoderQueryException {
+    List<DecoderInfo> decoderInfos = getDecoderInfos(mimeType, secure);
+    return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
+  }
+
+  /**
+   * Returns all {@link DecoderInfo}s for the given mime type, in the order given by
+   * {@link MediaCodecList}.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoder is required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   * @return A list of all @{link DecoderInfo}s for the given mime type,
+   */
+  public static synchronized List<DecoderInfo> getDecoderInfos(String mimeType, boolean secure)
       throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
-    if (codecs.containsKey(key)) {
-      return codecs.get(key);
+    List<DecoderInfo> decoderInfos = decoderInfosCache.get(key);
+    if (decoderInfos != null) {
+      return decoderInfos;
     }
     MediaCodecListCompat mediaCodecList = Util.SDK_INT >= 21
         ? new MediaCodecListCompatV21(secure) : new MediaCodecListCompatV16();
-    DecoderInfo info = getDecoderInfo(key, mediaCodecList);
-    if (secure && info == null && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
+    decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
+    if (secure && decoderInfos.isEmpty() && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
       // Some devices don't list secure decoders on API level 21 [Internal: b/18678462]. Try the
       // legacy path. We also try this path on API levels 22 and 23 as a defensive measure.
       // TODO: Verify that the issue cannot occur on API levels 22 and 23, and tighten this block
       // to execute on API level 21 only if confirmed.
       mediaCodecList = new MediaCodecListCompatV16();
-      info = getDecoderInfo(key, mediaCodecList);
-      if (info != null) {
+      decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
+      if (!decoderInfos.isEmpty()) {
         Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
-            + ". Assuming: " + info.name);
+            + ". Assuming: " + decoderInfos.get(0).name);
       }
     }
-    return info;
+    decoderInfos = Collections.unmodifiableList(decoderInfos);
+    decoderInfosCache.put(key, decoderInfos);
+    return decoderInfos;
   }
 
-  private static DecoderInfo getDecoderInfo(CodecKey key, MediaCodecListCompat mediaCodecList)
-      throws DecoderQueryException {
+  private static List<DecoderInfo> getDecoderInfosInternal(
+      CodecKey key, MediaCodecListCompat mediaCodecList) throws DecoderQueryException {
     try {
-      return getDecoderInfoInternal(key, mediaCodecList);
+      List<DecoderInfo> decoderInfos = new ArrayList<>();
+      String mimeType = key.mimeType;
+      int numberOfCodecs = mediaCodecList.getCodecCount();
+      boolean secureDecodersExplicit = mediaCodecList.secureDecodersExplicit();
+      // Note: MediaCodecList is sorted by the framework such that the best decoders come first.
+      for (int i = 0; i < numberOfCodecs; i++) {
+        MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
+        String codecName = codecInfo.getName();
+        if (isCodecUsableDecoder(codecInfo, codecName, secureDecodersExplicit)) {
+          for (String supportedType : codecInfo.getSupportedTypes()) {
+            if (supportedType.equalsIgnoreCase(mimeType)) {
+              CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
+              boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
+              if ((secureDecodersExplicit && key.secure == secure)
+                  || (!secureDecodersExplicit && !key.secure)) {
+                decoderInfos.add(new DecoderInfo(codecName, capabilities));
+              } else if (!secureDecodersExplicit && secure) {
+                decoderInfos.add(new DecoderInfo(codecName + ".secure", capabilities));
+                // It only makes sense to have one synthesized secure decoder, return immediately.
+                return decoderInfos;
+              }
+            }
+          }
+        }
+      }
+      return decoderInfos;
     } catch (Exception e) {
       // If the underlying mediaserver is in a bad state, we may catch an IllegalStateException
       // or an IllegalArgumentException here.
       throw new DecoderQueryException(e);
     }
-  }
-
-  private static DecoderInfo getDecoderInfoInternal(CodecKey key,
-      MediaCodecListCompat mediaCodecList) {
-    String mimeType = key.mimeType;
-    int numberOfCodecs = mediaCodecList.getCodecCount();
-    boolean secureDecodersExplicit = mediaCodecList.secureDecodersExplicit();
-    // Note: MediaCodecList is sorted by the framework such that the best decoders come first.
-    for (int i = 0; i < numberOfCodecs; i++) {
-      MediaCodecInfo info = mediaCodecList.getCodecInfoAt(i);
-      String codecName = info.getName();
-      if (isCodecUsableDecoder(info, codecName, secureDecodersExplicit)) {
-        String[] supportedTypes = info.getSupportedTypes();
-        for (String supportedType : supportedTypes) {
-          if (supportedType.equalsIgnoreCase(mimeType)) {
-            CodecCapabilities capabilities = info.getCapabilitiesForType(supportedType);
-            boolean secure = mediaCodecList.isSecurePlaybackSupported(key.mimeType, capabilities);
-            if (!secureDecodersExplicit) {
-              // Cache variants for both insecure and (if we think it's supported) secure playback.
-              codecs.put(key.secure ? new CodecKey(mimeType, false) : key,
-                  new DecoderInfo(codecName, capabilities));
-              if (secure) {
-                codecs.put(key.secure ? key : new CodecKey(mimeType, true),
-                    new DecoderInfo(codecName + ".secure", capabilities));
-              }
-            } else {
-              // Only cache this variant. If both insecure and secure decoders are available, they
-              // should both be listed separately.
-              codecs.put(key.secure == secure ? key : new CodecKey(mimeType, secure),
-                  new DecoderInfo(codecName, capabilities));
-            }
-            if (codecs.containsKey(key)) {
-              return codecs.get(key);
-            }
-          }
-        }
-      }
-    }
-    return null;
   }
 
   /**
@@ -213,47 +223,21 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Whether the default H264 decoder supports the specified profile at the specified level.
-   *
-   * @param profile A profile constant from {@link CodecProfileLevel}.
-   * @param level A profile level from {@link CodecProfileLevel}.
-   * @return Whether the specified profile is supported at the specified level.
-   */
-  public static boolean isH264ProfileSupported(int profile, int level)
-      throws DecoderQueryException {
-    DecoderInfo info = getDecoderInfo(MimeTypes.VIDEO_H264, false);
-    if (info == null) {
-      return false;
-    }
-
-    CodecProfileLevel[] profileLevels = info.getProfileLevels();
-    for (CodecProfileLevel profileLevel : profileLevels) {
-      if (profileLevel.profile == profile && profileLevel.level >= level) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
    * Returns the maximum frame size supported by the default H264 decoder.
    *
    * @return The maximum frame size for an H264 stream that can be decoded on the device.
    */
   public static int maxH264DecodableFrameSize() throws DecoderQueryException {
-    DecoderInfo info = getDecoderInfo(MimeTypes.VIDEO_H264, false);
-    if (info == null) {
-      return 0;
+    if (maxH264DecodableFrameSize == -1) {
+      int result = 0;
+      DecoderInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false);
+      if (decoderInfo != null) {
+        for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
+          result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
+        }
+      }
+      maxH264DecodableFrameSize = result;
     }
-
-    int maxH264DecodableFrameSize = 0;
-    CodecProfileLevel[] profileLevels = info.getProfileLevels();
-    for (CodecProfileLevel profileLevel : profileLevels) {
-      maxH264DecodableFrameSize = Math.max(avcLevelToMaxFrameSize(profileLevel.level),
-          maxH264DecodableFrameSize);
-    }
-
     return maxH264DecodableFrameSize;
   }
 
