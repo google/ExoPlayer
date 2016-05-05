@@ -94,14 +94,12 @@ public final class VideoFormatSelectorUtil {
       int viewportWidth, int viewportHeight) throws DecoderQueryException {
     int maxVideoPixelsToRetain = Integer.MAX_VALUE;
     ArrayList<Integer> selectedIndexList = new ArrayList<>();
-    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
 
     // First pass to filter out formats that individually fail to meet the selection criteria.
     int formatWrapperCount = formatWrappers.size();
     for (int i = 0; i < formatWrapperCount; i++) {
       Format format = formatWrappers.get(i).getFormat();
-      if (isFormatPlayable(format, allowedContainerMimeTypes, filterHdFormats,
-          maxDecodableFrameSize)) {
+      if (isFormatPlayable(format, allowedContainerMimeTypes, filterHdFormats)) {
         // Select the format for now. It may still be filtered in the second pass below.
         selectedIndexList.add(i);
         // Keep track of the number of pixels of the selected format whose resolution is the
@@ -141,7 +139,7 @@ public final class VideoFormatSelectorUtil {
    * whether HD formats should be filtered and a maximum decodable frame size in pixels.
    */
   private static boolean isFormatPlayable(Format format, String[] allowedContainerMimeTypes,
-      boolean filterHdFormats, int maxDecodableFrameSize) throws DecoderQueryException {
+      boolean filterHdFormats) throws DecoderQueryException {
     if (allowedContainerMimeTypes != null
         && !Util.contains(allowedContainerMimeTypes, format.mimeType)) {
       // Filtering format based on its container mime type.
@@ -167,7 +165,7 @@ public final class VideoFormatSelectorUtil {
         }
       }
       // Assume the video is H.264.
-      if (format.width * format.height > maxDecodableFrameSize) {
+      if (format.width * format.height > MediaCodecUtil.maxH264DecodableFrameSize()) {
         // Filtering format because it exceeds the maximum decodable frame size.
         return false;
       }

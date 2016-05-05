@@ -204,7 +204,7 @@ import java.util.TreeSet;
       for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
         nodeStartsByRegion.put(entry.getKey(), entry.getValue().length());
       }
-      for (int i = 0; i < getChildCount(); ++i) {
+      for (int i = 0; i < getChildCount(); i++) {
         getChild(i).traverseForText(timeUs, descendsPNode || isPNode, resolvedRegionId,
             regionOutputs);
       }

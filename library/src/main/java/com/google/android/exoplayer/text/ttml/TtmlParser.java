@@ -125,7 +125,7 @@ public final class TtmlParser implements SubtitleParser {
               parseHeader(xmlParser, globalStyles, regionMap);
             } else {
               try {
-                TtmlNode node = parseNode(xmlParser, parent);
+                TtmlNode node = parseNode(xmlParser, parent, regionMap);
                 nodeStack.addLast(node);
                 if (parent != null) {
                   parent.addChild(node);
@@ -304,7 +304,8 @@ public final class TtmlParser implements SubtitleParser {
     return style == null ? new TtmlStyle() : style;
   }
 
-  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {
+  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent,
+      Map<String, TtmlRegion> regionMap) throws ParserException {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
@@ -330,7 +331,9 @@ public final class TtmlParser implements SubtitleParser {
         if (ids.length > 0) {
           styleIds = ids;
         }
-      } else if (ATTR_REGION.equals(attr)) {
+      } else if (ATTR_REGION.equals(attr) && regionMap.containsKey(value)) {
+        // If the region has not been correctly declared or does not define a position, we use the
+        // anonymous region.
         regionId = value;
       } else {
         // Do nothing.

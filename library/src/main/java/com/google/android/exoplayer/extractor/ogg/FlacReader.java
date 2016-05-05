@@ -69,7 +69,7 @@ import java.util.List;
       List<byte[]> initializationData = Collections.singletonList(metadata);
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_FLAC,
-          MediaFormat.NO_VALUE, streamInfo.bitRate(), streamInfo.durationUs(),
+          streamInfo.bitRate(), MediaFormat.NO_VALUE, streamInfo.durationUs(),
           streamInfo.channels, streamInfo.sampleRate, initializationData, null);
       trackOutput.format(mediaFormat);
 
