@@ -66,19 +66,14 @@ import java.io.IOException;
       return null;
     }
 
-    // If a bext chunk is present, skip it. Otherwise we expect a format chunk.
+    // Skip chunks until we find the format chunk.
     chunkHeader = ChunkHeader.peek(input, scratch);
-    if (chunkHeader.id == Util.getIntegerCodeForString("bext")) {
+    while (chunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
       input.advancePeekPosition((int) chunkHeader.size);
       chunkHeader = ChunkHeader.peek(input, scratch);
     }
 
-    if (chunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
-      throw new ParserException(
-          "Expected format chunk; found: " + chunkHeader.id);
-    }
     Assertions.checkState(chunkHeader.size >= 16);
-
     input.peekFully(scratch.data, 0, 16);
     scratch.setPosition(0);
     int type = scratch.readLittleEndianUnsignedShort();
@@ -90,11 +85,8 @@ import java.io.IOException;
 
     int expectedBlockAlignment = numChannels * bitsPerSample / 8;
     if (blockAlignment != expectedBlockAlignment) {
-      throw new ParserException(
-          "Expected WAV block alignment of: "
-              + expectedBlockAlignment
-              + "; got: "
-              + blockAlignment);
+      throw new ParserException("Expected block alignment: " + expectedBlockAlignment + "; got: "
+          + blockAlignment);
     }
     if (bitsPerSample != 16) {
       Log.e(TAG, "Only 16-bit WAVs are supported; got: " + bitsPerSample);
