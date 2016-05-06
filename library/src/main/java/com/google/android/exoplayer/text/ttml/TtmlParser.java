@@ -17,6 +17,7 @@ package com.google.android.exoplayer.text.ttml;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParserUtil;
@@ -74,9 +75,8 @@ public final class TtmlParser implements SubtitleParser {
           + "(?:(\\.[0-9]+)|:([0-9][0-9])(?:\\.([0-9]+))?)?$");
   private static final Pattern OFFSET_TIME =
       Pattern.compile("^([0-9]+(?:\\.[0-9]+)?)(h|m|s|ms|f|t)$");
-  private static final Pattern FONT_SIZE =
-      Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
-  private static final Pattern ORIGIN_COORDINATES =
+  private static final Pattern FONT_SIZE = Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
+  private static final Pattern PERCENTAGE_COORDINATES =
       Pattern.compile("^(\\d+\\.?\\d*?)% (\\d+\\.?\\d*?)%$");
 
   // TODO: read and apply the following attributes if specified.
@@ -189,23 +189,42 @@ public final class TtmlParser implements SubtitleParser {
     return globalStyles;
   }
 
+  /**
+   * Parses a region declaration. Supports origin and extent definition but only when defined in
+   * terms of percentage of the viewport. Regions that do not correctly declare origin are ignored.
+   */
   private Pair<String, TtmlRegion> parseRegionAttributes(XmlPullParser xmlParser) {
     String regionId = ParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_ID);
     String regionOrigin = ParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_ORIGIN);
+    String regionExtent = ParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_EXTENT);
     if (regionOrigin == null || regionId == null) {
       return null;
     }
-    Matcher originMatcher = ORIGIN_COORDINATES.matcher(regionOrigin);
+    float position = Cue.DIMEN_UNSET;
+    float line = Cue.DIMEN_UNSET;
+    Matcher originMatcher = PERCENTAGE_COORDINATES.matcher(regionOrigin);
     if (originMatcher.matches()) {
       try {
-        float position = Float.parseFloat(originMatcher.group(1)) / 100.f;
-        float line = Float.parseFloat(originMatcher.group(2)) / 100.f;
-        return new Pair<>(regionId, new TtmlRegion(position, line));
+        position = Float.parseFloat(originMatcher.group(1)) / 100.f;
+        line = Float.parseFloat(originMatcher.group(2)) / 100.f;
       } catch (NumberFormatException e) {
-        Log.w(TAG, "Ignoring malformed region declaration: '" + regionOrigin + "'", e);
+        Log.w(TAG, "Ignoring region with malformed origin: '" + regionOrigin + "'", e);
+        position = Cue.DIMEN_UNSET;
       }
     }
-    return null;
+    float width = Cue.DIMEN_UNSET;
+    if (regionExtent != null) {
+      Matcher extentMatcher = PERCENTAGE_COORDINATES.matcher(regionExtent);
+      if (extentMatcher.matches()) {
+        try {
+          width = Float.parseFloat(extentMatcher.group(1)) / 100.f;
+        } catch (NumberFormatException e) {
+          Log.w(TAG, "Ignoring malformed region extent: '" + regionExtent + "'", e);
+        }
+      }
+    }
+    return position != Cue.DIMEN_UNSET ? new Pair<>(regionId, new TtmlRegion(position, line, width))
+        : null;
   }
 
   private String[] parseStyleIds(String parentStyleIds) {
@@ -387,10 +406,11 @@ public final class TtmlParser implements SubtitleParser {
       matcher = FONT_SIZE.matcher(expression);
     } else if (expressions.length == 2){
       matcher = FONT_SIZE.matcher(expressions[1]);
-      Log.w(TAG, "multiple values in fontSize attribute. Picking the second "
-          + "value for vertical font size and ignoring the first.");
+      Log.w(TAG, "Multiple values in fontSize attribute. Picking the second value for vertical font"
+          + " size and ignoring the first.");
     } else {
-      throw new ParserException();
+      throw new ParserException("Invalid number of entries for fontSize: " + expressions.length
+          + ".");
     }
 
     if (matcher.matches()) {
@@ -406,11 +426,11 @@ public final class TtmlParser implements SubtitleParser {
           out.setFontSizeUnit(TtmlStyle.FONT_SIZE_UNIT_PERCENT);
           break;
         default:
-          throw new ParserException();
+          throw new ParserException("Invalid unit for fontSize: '" + unit + "'.");
       }
       out.setFontSize(Float.valueOf(matcher.group(1)));
     } else {
-      throw new ParserException();
+      throw new ParserException("Invalid expression for fontSize: '" + expression + "'.");
     }
   }
 

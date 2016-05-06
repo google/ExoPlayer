@@ -24,14 +24,16 @@ import com.google.android.exoplayer.text.Cue;
 
   public final float position;
   public final float line;
+  public final float width;
 
   public TtmlRegion() {
-    this(Cue.DIMEN_UNSET, Cue.DIMEN_UNSET);
+    this(Cue.DIMEN_UNSET, Cue.DIMEN_UNSET, Cue.DIMEN_UNSET);
   }
 
-  public TtmlRegion(float position, float line) {
+  public TtmlRegion(float position, float line, float width) {
     this.position = position;
     this.line = line;
+    this.width = width;
   }
 
 }
