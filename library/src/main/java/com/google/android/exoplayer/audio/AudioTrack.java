@@ -1005,8 +1005,8 @@ public final class AudioTrack {
       case C.ENCODING_PCM_24BIT:
         // 24->16 bit resampling. Drop the least significant byte.
         for (int i = offset; i < limit; i += 3) {
-          resampledBuffer.put(buffer.get(i));
           resampledBuffer.put(buffer.get(i + 1));
+          resampledBuffer.put(buffer.get(i + 2));
         }
         break;
       default:
