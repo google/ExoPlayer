@@ -24,6 +24,7 @@ import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -742,7 +743,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     public synchronized void format(Format format) {
       // We suppress changes between equal formats so we can use referential equality in readData.
-      if (!format.equals(upstreamFormat)) {
+      if (!Util.areEqual(format, upstreamFormat)) {
         upstreamFormat = format;
       }
     }
