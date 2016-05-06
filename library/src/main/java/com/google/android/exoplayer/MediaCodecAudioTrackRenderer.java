@@ -237,7 +237,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat) {
     boolean passthrough = passthroughMediaFormat != null;
-    audioTrack.configure(passthrough ? passthroughMediaFormat : outputFormat, passthrough);
+    String mimeType = passthrough
+        ? passthroughMediaFormat.getString(android.media.MediaFormat.KEY_MIME)
+        : MimeTypes.AUDIO_RAW;
+    android.media.MediaFormat format = passthrough ? passthroughMediaFormat : outputFormat;
+    int channelCount = format.getInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT);
+    int sampleRate = format.getInteger(android.media.MediaFormat.KEY_SAMPLE_RATE);
+    audioTrack.configure(mimeType, channelCount, sampleRate);
   }
 
   /**

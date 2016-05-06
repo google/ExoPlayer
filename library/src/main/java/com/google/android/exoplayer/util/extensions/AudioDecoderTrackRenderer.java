@@ -27,6 +27,7 @@ import com.google.android.exoplayer.MediaClock;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.audio.AudioTrack;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 
@@ -291,7 +292,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     int result = readSource(formatHolder, null);
     if (result == TrackStream.FORMAT_READ) {
       format = formatHolder.format;
-      audioTrack.configure(format.getFrameworkMediaFormatV16(), false);
+      audioTrack.configure(MimeTypes.AUDIO_RAW, format.channelCount, format.sampleRate);
       return true;
     }
     return false;

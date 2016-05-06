@@ -26,7 +26,6 @@ import android.annotation.TargetApi;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTimestamp;
-import android.media.MediaFormat;
 import android.media.PlaybackParams;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
@@ -57,7 +56,6 @@ import java.nio.ByteBuffer;
  * <p>
  * Call {@link #release()} when the instance will no longer be used.
  */
-@TargetApi(16)
 public final class AudioTrack {
 
   /**
@@ -333,26 +331,27 @@ public final class AudioTrack {
   }
 
   /**
-   * Configures (or reconfigures) the audio track to play back media in {@code format}, inferring a
-   * buffer size from the format.
+   * Configures (or reconfigures) the audio track, inferring a suitable buffer size automatically.
    *
-   * @param format Specifies the channel count and sample rate to play back.
-   * @param passthrough Whether to play back using a passthrough encoding.
+   * @param mimeType The mime type.
+   * @param channelCount The number of channels.
+   * @param sampleRate The sample rate in Hz.
    */
-  public void configure(MediaFormat format, boolean passthrough) {
-    configure(format, passthrough, 0);
+  public void configure(String mimeType, int channelCount, int sampleRate) {
+    configure(mimeType, channelCount, sampleRate, 0);
   }
 
   /**
-   * Configures (or reconfigures) the audio track to play back media in {@code format}.
+   * Configures (or reconfigures) the audio track.
    *
-   * @param format Specifies the channel count and sample rate to play back.
-   * @param passthrough Whether to play back using a passthrough encoding.
-   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
-   *     size inferred from the format.
+   * @param mimeType The mime type.
+   * @param channelCount The number of channels.
+   * @param sampleRate The sample rate in Hz.
+   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
+   *     suitable buffer size automatically.
    */
-  public void configure(MediaFormat format, boolean passthrough, int specifiedBufferSize) {
-    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+  public void configure(String mimeType, int channelCount, int sampleRate,
+      int specifiedBufferSize) {
     int channelConfig;
     switch (channelCount) {
       case 1:
@@ -382,8 +381,7 @@ public final class AudioTrack {
       default:
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
-    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-    String mimeType = format.getString(MediaFormat.KEY_MIME);
+    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     int encoding = passthrough ? getEncodingForMimeType(mimeType) : AudioFormat.ENCODING_PCM_16BIT;
     if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
         && this.encoding == encoding) {
@@ -543,7 +541,7 @@ public final class AudioTrack {
    * <p>
    * If the data was not written in full then the same {@link ByteBuffer} must be provided to
    * subsequent calls until it has been fully consumed, except in the case of an interleaving call
-   * to {@link #configure(MediaFormat, boolean)} or {@link #reset}.
+   * to {@link #configure} or {@link #reset}.
    *
    * @param buffer The buffer containing audio data to play back.
    * @param presentationTimeUs Presentation timestamp of the next buffer in microseconds.
