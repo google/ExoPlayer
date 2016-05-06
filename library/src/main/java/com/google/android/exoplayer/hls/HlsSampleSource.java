@@ -307,12 +307,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       mediaChunks.removeFirst();
     }
     HlsMediaChunk currentChunk = mediaChunks.getFirst();
-    Format currentFormat = currentChunk.format;
-    if (downstreamFormat == null || !downstreamFormat.equals(currentFormat)) {
-      eventDispatcher.downstreamFormatChanged(currentFormat, currentChunk.trigger,
+    Format format = currentChunk.format;
+    if (!format.equals(downstreamFormat)) {
+      eventDispatcher.downstreamFormatChanged(format, currentChunk.trigger,
           currentChunk.startTimeUs);
-      downstreamFormat = currentFormat;
     }
+    downstreamFormat = format;
 
     return sampleQueues[group].readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }

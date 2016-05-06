@@ -218,12 +218,13 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
       mediaChunks.removeFirst();
     }
     BaseMediaChunk currentChunk = mediaChunks.getFirst();
-    Format currentFormat = currentChunk.format;
-    if (downstreamFormat == null || !downstreamFormat.equals(currentFormat)) {
-      eventDispatcher.downstreamFormatChanged(currentFormat, currentChunk.trigger,
+
+    Format format = currentChunk.format;
+    if (!format.equals(downstreamFormat)) {
+      eventDispatcher.downstreamFormatChanged(format, currentChunk.trigger,
           currentChunk.startTimeUs);
-      downstreamFormat = currentFormat;
     }
+    downstreamFormat = format;
 
     int result = sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
     if (result == FORMAT_READ) {
