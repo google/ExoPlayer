@@ -8,7 +8,7 @@
         <layout>
             <region xml:id="region1" ttm:origin="10% 10%" extent="20% 20%"/>
             <region xml:id="region2" ttm:origin="40% 40%" extent="20% 20%"/>
-            <region xml:id="region3" ttm:origin="10% 80%" extent="10% 10%"/>
+            <region xml:id="region3" ttm:origin="10% 80%"/>
             <region xml:id="region4" ttm:origin="60% 10%" extent="20% 20%"/>
             <region xml:id="ultimate" ttm:origin="45% 45%" extent="35% 35%"/>
         </layout>
