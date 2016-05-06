@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.wav;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.util.Assertions;
@@ -88,8 +89,10 @@ import java.io.IOException;
       throw new ParserException("Expected block alignment: " + expectedBlockAlignment + "; got: "
           + blockAlignment);
     }
-    if (bitsPerSample != 16) {
-      Log.e(TAG, "Only 16-bit WAVs are supported; got: " + bitsPerSample);
+
+    int encoding = Util.getPcmEncoding(bitsPerSample);
+    if (encoding == C.ENCODING_INVALID) {
+      Log.e(TAG, "Unsupported WAV bit depth: " + bitsPerSample);
       return null;
     }
 
@@ -101,8 +104,8 @@ import java.io.IOException;
     // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
     input.advancePeekPosition((int) chunkHeader.size - 16);
 
-    return new WavHeader(
-        numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample);
+    return new WavHeader(numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment,
+        bitsPerSample, encoding);
   }
 
   /**

@@ -910,10 +910,14 @@ import java.util.List;
       return;
     }
 
+    // TODO: Determine the correct PCM encoding.
+    int pcmEncoding = MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT
+        : MediaFormat.NO_VALUE;
+
     out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
         MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
-        language);
+        language, pcmEncoding);
   }
 
   /** Returns the position of the esds box within a parent, or -1 if no esds box is found */

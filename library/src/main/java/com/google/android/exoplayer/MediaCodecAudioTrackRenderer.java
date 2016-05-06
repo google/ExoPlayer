@@ -91,6 +91,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   private boolean passthroughEnabled;
   private android.media.MediaFormat passthroughMediaFormat;
+  private int pcmEncoding;
   private int audioSessionId;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
@@ -265,9 +266,24 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
+  protected void onInputFormatChanged(MediaFormatHolder holder) throws ExoPlaybackException {
+    super.onInputFormatChanged(holder);
+    // If the input format is anything other than PCM then we assume that the audio decoder will
+    // output 16-bit PCM.
+    pcmEncoding = MimeTypes.AUDIO_RAW.equals(holder.format.mimeType) ? holder.format.pcmEncoding
+        : C.ENCODING_PCM_16BIT;
+  }
+
+  @Override
   protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat) {
     boolean passthrough = passthroughMediaFormat != null;
-    audioTrack.configure(passthrough ? passthroughMediaFormat : outputFormat, passthrough);
+    String mimeType = passthrough
+        ? passthroughMediaFormat.getString(android.media.MediaFormat.KEY_MIME)
+        : MimeTypes.AUDIO_RAW;
+    android.media.MediaFormat format = passthrough ? passthroughMediaFormat : outputFormat;
+    int channelCount = format.getInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT);
+    int sampleRate = format.getInteger(android.media.MediaFormat.KEY_SAMPLE_RATE);
+    audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding);
   }
 
   /**

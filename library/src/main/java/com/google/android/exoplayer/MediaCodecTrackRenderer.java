@@ -935,9 +935,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (codecNeedsMonoChannelCountWorkaround) {
       format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-
-    if (this.format.bitdepth > 0)
-      format.setInteger(MediaFormat.BitDepthKey, this.format.bitdepth);
     onOutputFormatChanged(codec, format);
     codecCounters.outputFormatChangedCount++;
   }
