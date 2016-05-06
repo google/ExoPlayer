@@ -357,6 +357,7 @@ public final class MediaFormat {
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
       result = 31 * result + (language == null ? 0 : language.hashCode());
+      result = 31 * result + (int) subsampleOffsetUs;
       for (int i = 0; i < initializationData.size(); i++) {
         result = 31 * result + Arrays.hashCode(initializationData.get(i));
       }
@@ -375,14 +376,14 @@ public final class MediaFormat {
     }
     MediaFormat other = (MediaFormat) obj;
     if (adaptive != other.adaptive || bitrate != other.bitrate || maxInputSize != other.maxInputSize
-        || width != other.width || height != other.height
+        || durationUs != other.durationUs || width != other.width || height != other.height
         || rotationDegrees != other.rotationDegrees
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
         || maxWidth != other.maxWidth || maxHeight != other.maxHeight
         || encoderDelay != other.encoderDelay || encoderPadding != other.encoderPadding
         || channelCount != other.channelCount || sampleRate != other.sampleRate
-        || !Util.areEqual(trackId, other.trackId) || !Util.areEqual(language, other.language)
-        || !Util.areEqual(mimeType, other.mimeType)
+        || subsampleOffsetUs != other.subsampleOffsetUs || !Util.areEqual(trackId, other.trackId)
+        || !Util.areEqual(language, other.language) || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()) {
       return false;
     }
