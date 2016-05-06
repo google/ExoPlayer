@@ -301,7 +301,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @return One of the TRACK_TYPE_* constants defined in {@link C}.
    */
-  protected abstract int getTrackType();
+  public abstract int getTrackType();
 
   /**
    * Returns the extent to which the renderer supports a given format.

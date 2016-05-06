@@ -44,33 +44,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    * Interface definition for a callback to be notified of {@link MediaCodecAudioTrackRenderer}
    * events.
    */
-  public interface EventListener extends MediaCodecTrackRenderer.EventListener {
-
-    /**
-     * Invoked when an {@link AudioTrack} fails to initialize.
-     *
-     * @param e The corresponding exception.
-     */
-    void onAudioTrackInitializationError(AudioTrack.InitializationException e);
-
-    /**
-     * Invoked when an {@link AudioTrack} write fails.
-     *
-     * @param e The corresponding exception.
-     */
-    void onAudioTrackWriteError(AudioTrack.WriteException e);
-
-    /**
-     * Invoked when an {@link AudioTrack} underrun occurs.
-     *
-     * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
-     * @param bufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds, if it is
-     *     configured for PCM output. -1 if it is configured for passthrough output, as the buffered
-     *     media can have a variable bitrate so the duration may be unknown.
-     * @param elapsedSinceLastFeedMs The time since the {@link AudioTrack} was last fed data.
-     */
-    void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
-
+  public interface EventListener extends MediaCodecTrackRenderer.EventListener,
+      AudioTrackRendererEventListener {
+    // No extra methods
   }
 
   /**
@@ -182,7 +158,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected int getTrackType() {
+  public int getTrackType() {
     return C.TRACK_TYPE_AUDIO;
   }
 
@@ -281,6 +257,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
+  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+    super.onEnabled(formats, joining);
+    notifyAudioCodecCounters();
+  }
+
+  @Override
   protected void onStarted() {
     super.onStarted();
     audioTrack.play();
@@ -290,6 +272,16 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   protected void onStopped() {
     audioTrack.pause();
     super.onStopped();
+  }
+
+  @Override
+  protected void onDisabled() {
+    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    try {
+      audioTrack.release();
+    } finally {
+      super.onDisabled();
+    }
   }
 
   @Override
@@ -311,16 +303,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       allowPositionDiscontinuity = false;
     }
     return currentPositionUs;
-  }
-
-  @Override
-  protected void onDisabled() {
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    try {
-      audioTrack.release();
-    } finally {
-      super.onDisabled();
-    }
   }
 
   @Override
@@ -455,6 +437,17 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
         @Override
         public void run() {
           eventListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+        }
+      });
+    }
+  }
+
+  private void notifyAudioCodecCounters() {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onAudioCodecCounters(codecCounters);
         }
       });
     }

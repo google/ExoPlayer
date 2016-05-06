@@ -18,7 +18,6 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
@@ -182,7 +181,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onDecoderInitializationError(DecoderInitializationException e) {
+  public void onDecoderInitializationError(Exception e) {
     printInternalError("decoderInitializationError", e);
   }
 

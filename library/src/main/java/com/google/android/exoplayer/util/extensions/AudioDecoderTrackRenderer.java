@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.util.extensions;
 
+import com.google.android.exoplayer.AudioTrackRendererEventListener;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DecoderInputBuffer;
@@ -37,34 +38,6 @@ import java.util.List;
 public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements MediaClock {
 
   /**
-   * Interface definition for a callback to be notified of {@link AudioDecoderTrackRenderer} events.
-   */
-  public interface EventListener {
-
-    /**
-     * Invoked when the {@link AudioTrack} fails to initialize.
-     *
-     * @param e The corresponding exception.
-     */
-    void onAudioTrackInitializationError(AudioTrack.InitializationException e);
-
-    /**
-     * Invoked when an {@link AudioTrack} write fails.
-     *
-     * @param e The corresponding exception.
-     */
-    void onAudioTrackWriteError(AudioTrack.WriteException e);
-
-    /**
-     * Invoked when decoding fails.
-     *
-     * @param e The corresponding exception.
-     */
-    void onDecoderError(AudioDecoderException e);
-
-  }
-
-  /**
    * The type of a message that can be passed to an instance of this class via
    * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
@@ -74,7 +47,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   public final CodecCounters codecCounters = new CodecCounters();
 
   private final Handler eventHandler;
-  private final EventListener eventListener;
+  private final AudioTrackRendererEventListener eventListener;
   private final FormatHolder formatHolder;
 
   private Format format;
@@ -100,7 +73,8 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public AudioDecoderTrackRenderer(Handler eventHandler, EventListener eventListener) {
+  public AudioDecoderTrackRenderer(Handler eventHandler,
+      AudioTrackRendererEventListener eventListener) {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
@@ -130,7 +104,6 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       try {
         decoder = createDecoder(format.initializationData);
       } catch (AudioDecoderException e) {
-        notifyDecoderError(e);
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       codecCounters.codecInitCount++;
@@ -147,14 +120,13 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       notifyAudioTrackWriteError(e);
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     } catch (AudioDecoderException e) {
-      notifyDecoderError(e);
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     codecCounters.ensureUpdated();
   }
 
   @Override
-  protected int getTrackType() {
+  public int getTrackType() {
     return C.TRACK_TYPE_AUDIO;
   }
 
@@ -283,6 +255,11 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   }
 
   @Override
+  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+    notifyAudioCodecCounters();
+  }
+
+  @Override
   protected void onStarted() {
     audioTrack.play();
   }
@@ -351,12 +328,12 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     }
   }
 
-  private void notifyDecoderError(final AudioDecoderException e) {
+  private void notifyAudioCodecCounters() {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onDecoderError(e);
+          eventListener.onAudioCodecCounters(codecCounters);
         }
       });
     }

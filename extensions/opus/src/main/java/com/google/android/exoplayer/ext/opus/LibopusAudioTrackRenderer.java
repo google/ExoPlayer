@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
+import com.google.android.exoplayer.AudioTrackRendererEventListener;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.AudioDecoderTrackRenderer;
@@ -54,7 +55,8 @@ public final class LibopusAudioTrackRenderer extends AudioDecoderTrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public LibopusAudioTrackRenderer(Handler eventHandler, EventListener eventListener) {
+  public LibopusAudioTrackRenderer(Handler eventHandler,
+      AudioTrackRendererEventListener eventListener) {
     super(eventHandler, eventListener);
   }
 

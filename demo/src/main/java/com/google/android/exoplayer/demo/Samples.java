@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * Holds statically defined sample definitions.
  */
-/* package */ class Samples {
+/* package */ final class Samples {
 
   public static class Sample {
 
@@ -31,17 +31,29 @@ import java.util.Locale;
     public final String provider;
     public final String uri;
     public final int type;
+    public final boolean useExtensionDecoders;
 
     public Sample(String name, String uri, int type) {
-      this(name, name.toLowerCase(Locale.US).replaceAll("\\s", ""), "", uri, type);
+      this(name, uri, type, false);
+    }
+
+    public Sample(String name, String uri, int type, boolean useExtensionDecoders) {
+      this(name, name.toLowerCase(Locale.US).replaceAll("\\s", ""), "", uri, type,
+          useExtensionDecoders);
     }
 
     public Sample(String name, String contentId, String provider, String uri, int type) {
+      this(name, contentId, provider, uri, type, false);
+    }
+
+    public Sample(String name, String contentId, String provider, String uri, int type,
+        boolean useExtensionDecoders) {
       this.name = name;
       this.contentId = contentId;
       this.provider = provider;
       this.uri = uri;
       this.type = type;
+      this.useExtensionDecoders = useExtensionDecoders;
     }
 
   }
@@ -248,6 +260,21 @@ import java.util.Locale;
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", Util.TYPE_OTHER),
     new Sample("Big Buck Bunny (FLV Video)",
         "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0", Util.TYPE_OTHER),
+  };
+
+  public static final Sample[] VP9_EXTENSION_SAMPLES = new Sample[] {
+    new Sample("Google Glass DASH - VP9 Only",
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9.mpd",
+        Util.TYPE_DASH, true),
+    new Sample("Google Glass DASH - VP9 and Vorbis",
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_vorbis.mpd",
+        Util.TYPE_DASH, true),
+  };
+
+  public static final Sample[] VP9_OPUS_EXTENSION_SAMPLES = new Sample[] {
+    new Sample("Google Glass DASH - VP9 and Opus",
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd",
+        Util.TYPE_DASH, true),
   };
 
   private Samples() {}

@@ -44,14 +44,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   /**
    * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.
    */
-  public interface EventListener {
-
-    /**
-     * Invoked when a decoder fails to initialize.
-     *
-     * @param e The corresponding exception.
-     */
-    void onDecoderInitializationError(DecoderInitializationException e);
+  public interface EventListener extends TrackRendererEventListener {
 
     /**
      * Invoked when a decoder operation raises a {@link CryptoException}.
@@ -59,17 +52,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
      * @param e The corresponding exception.
      */
     void onCryptoError(CryptoException e);
-
-    /**
-     * Invoked when a decoder is successfully created.
-     *
-     * @param decoderName The decoder that was configured and created.
-     * @param elapsedRealtimeMs {@code elapsedRealtime} timestamp of when the initialization
-     *    finished.
-     * @param initializationDurationMs Amount of time taken to initialize the decoder.
-     */
-    void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
-        long initializationDurationMs);
 
   }
 

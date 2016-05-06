@@ -16,12 +16,14 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.SourceBuilder;
 import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
@@ -58,6 +60,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.accessibility.CaptioningManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +80,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public static final String CONTENT_ID_EXTRA = "content_id";
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String PROVIDER_EXTRA = "provider";
+  public static final String USE_EXTENSION_DECODERS = "use_extension_decoders";
 
   // For use when launching the demo app using adb.
   private static final String CONTENT_EXT_EXTRA = "type";
@@ -84,6 +88,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private static final String TAG = "PlayerActivity";
 
   private static final CookieManager defaultCookieManager;
+
   static {
     defaultCookieManager = new CookieManager();
     defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
@@ -91,16 +96,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private EventLogger eventLogger;
   private MediaController mediaController;
-  private View debugRootView;
+  private LinearLayout debugRootView;
   private View shutterView;
   private AspectRatioFrameLayout videoFrame;
   private SurfaceView surfaceView;
   private TextView debugTextView;
   private TextView playerStateTextView;
   private SubtitleLayout subtitleLayout;
-  private Button videoButton;
-  private Button audioButton;
-  private Button textButton;
   private Button retryButton;
 
   private DataSourceFactory dataSourceFactory;
@@ -141,7 +143,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     });
 
     shutterView = findViewById(R.id.shutter);
-    debugRootView = findViewById(R.id.controls_root);
+    debugRootView = (LinearLayout) findViewById(R.id.controls_root);
 
     videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
@@ -155,9 +157,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     mediaController.setAnchorView(root);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
-    videoButton = (Button) findViewById(R.id.video_controls);
-    audioButton = (Button) findViewById(R.id.audio_controls);
-    textButton = (Button) findViewById(R.id.text_controls);
 
     CookieHandler currentHandler = CookieHandler.getDefault();
     if (currentHandler != defaultCookieManager) {
@@ -212,6 +211,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onClick(View view) {
     if (view == retryButton) {
       initializePlayer();
+    } else if (view.getParent() == debugRootView) {
+      trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
+          player.getTrackInfo(), (int) view.getTag());
     }
   }
 
@@ -277,7 +279,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void initializePlayer() {
     if (player == null) {
-      player = new DemoPlayer(this);
+      boolean useExtensionDecoders = getIntent().getBooleanExtra(USE_EXTENSION_DECODERS, false);
+      player = new DemoPlayer(this, useExtensionDecoders);
       player.addListener(this);
       player.setCaptionListener(this);
       player.setMetadataListener(this);
@@ -408,33 +411,34 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // User controls
 
   private void updateButtonVisibilities() {
+    debugRootView.removeAllViews();
+
     retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
-    videoButton.setVisibility(haveTracks(DemoPlayer.RENDERER_INDEX_VIDEO) ? View.VISIBLE
-        : View.GONE);
-    audioButton.setVisibility(haveTracks(DemoPlayer.RENDERER_INDEX_AUDIO) ? View.VISIBLE
-        : View.GONE);
-    textButton.setVisibility(haveTracks(DemoPlayer.RENDERER_INDEX_TEXT) ? View.VISIBLE
-        : View.GONE);
-  }
+    debugRootView.addView(retryButton);
 
-  private boolean haveTracks(int rendererIndex) {
-    TrackInfo trackInfo = player == null ? null : player.getTrackInfo();
-    return trackInfo != null && trackInfo.getTrackGroups(rendererIndex).length != 0;
-  }
+    TrackInfo trackInfo;
+    if (player == null || (trackInfo = player.getTrackInfo()) == null) {
+      return;
+    }
 
-  public void showVideoPopup(@SuppressWarnings("unused") View v) {
-    trackSelectionHelper.showSelectionDialog(this, R.string.video, player.getTrackInfo(),
-        DemoPlayer.RENDERER_INDEX_VIDEO);
-  }
-
-  public void showAudioPopup(@SuppressWarnings("unused") View v) {
-    trackSelectionHelper.showSelectionDialog(this, R.string.audio, player.getTrackInfo(),
-        DemoPlayer.RENDERER_INDEX_AUDIO);
-  }
-
-  public void showTextPopup(@SuppressWarnings("unused") View v) {
-    trackSelectionHelper.showSelectionDialog(this, R.string.text, player.getTrackInfo(),
-        DemoPlayer.RENDERER_INDEX_TEXT);
+    int rendererCount = trackInfo.rendererCount;
+    for (int i = 0; i < rendererCount; i++) {
+      TrackGroupArray trackGroups = trackInfo.getTrackGroups(i);
+      if (trackGroups.length != 0) {
+        Button button = new Button(this);
+        int label;
+        switch (player.getRendererType(i)) {
+          case C.TRACK_TYPE_AUDIO: label = R.string.audio; break;
+          case C.TRACK_TYPE_VIDEO: label = R.string.video; break;
+          case C.TRACK_TYPE_TEXT: label = R.string.text; break;
+          default: continue;
+        }
+        button.setText(label);
+        button.setTag(i);
+        button.setOnClickListener(this);
+        debugRootView.addView(button);
+      }
+    }
   }
 
   private void toggleControlsVisibility()  {

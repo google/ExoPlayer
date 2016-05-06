@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
-import android.view.TextureView;
 
 import java.nio.ByteBuffer;
 
@@ -45,48 +44,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * Interface definition for a callback to be notified of {@link MediaCodecVideoTrackRenderer}
    * events.
    */
-  public interface EventListener extends MediaCodecTrackRenderer.EventListener {
-
-    /**
-     * Invoked to report the number of frames dropped by the renderer. Dropped frames are reported
-     * whenever the renderer is stopped having dropped frames, and optionally, whenever the count
-     * reaches a specified threshold whilst the renderer is started.
-     *
-     * @param count The number of dropped frames.
-     * @param elapsed The duration in milliseconds over which the frames were dropped. This
-     *     duration is timed from when the renderer was started or from when dropped frames were
-     *     last reported (whichever was more recent), and not from when the first of the reported
-     *     drops occurred.
-     */
-    void onDroppedFrames(int count, long elapsed);
-
-    /**
-     * Invoked each time there's a change in the size of the video being rendered.
-     *
-     * @param width The video width in pixels.
-     * @param height The video height in pixels.
-     * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
-     *     rotation in degrees that the application should apply for the video for it to be rendered
-     *     in the correct orientation. This value will always be zero on API levels 21 and above,
-     *     since the renderer will apply all necessary rotations internally. On earlier API levels
-     *     this is not possible. Applications that use {@link TextureView} can apply the rotation by
-     *     calling {@link TextureView#setTransform}. Applications that do not expect to encounter
-     *     rotated videos can safely ignore this parameter.
-     * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case
-     *     of square pixels this will be equal to 1.0. Different values are indicative of anamorphic
-     *     content.
-     */
-    void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-        float pixelWidthHeightRatio);
-
-    /**
-     * Invoked when a frame is rendered to a surface for the first time following that surface
-     * having been set as the target for the renderer.
-     *
-     * @param surface The surface to which a first frame has been rendered.
-     */
-    void onDrawnToSurface(Surface surface);
-
+  public interface EventListener extends MediaCodecTrackRenderer.EventListener,
+      VideoTrackRendererEventListener {
+    // No extra methods
   }
 
   private static final String TAG = "MediaCodecVideoTrackRenderer";
@@ -97,13 +57,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private static final String KEY_CROP_RIGHT = "crop-right";
   private static final String KEY_CROP_BOTTOM = "crop-bottom";
   private static final String KEY_CROP_TOP = "crop-top";
-
-  /**
-   * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
-   * should be the target {@link Surface}, or null.
-   */
-  public static final int MSG_SET_SURFACE = 1;
 
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventListener eventListener;
@@ -221,7 +174,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected int getTrackType() {
+  public int getTrackType() {
     return C.TRACK_TYPE_VIDEO;
   }
 
@@ -285,6 +238,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       joiningDeadlineMs = SystemClock.elapsedRealtime() + allowedJoiningTimeMs;
     }
     frameReleaseTimeHelper.enable();
+    notifyVideoCodecCounters();
   }
 
   @Override
@@ -343,7 +297,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_SURFACE) {
+    if (messageType == C.MSG_SET_SURFACE) {
       setSurface((Surface) message);
     } else {
       super.handleMessage(messageType, message);
@@ -684,6 +638,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
     // also lose sync [Internal: b/26453592].
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
+  }
+
+  private void notifyVideoCodecCounters() {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onVideoCodecCounters(codecCounters);
+        }
+      });
+    }
   }
 
 }

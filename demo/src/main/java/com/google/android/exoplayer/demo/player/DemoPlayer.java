@@ -24,11 +24,11 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
-import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SingleSampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.VideoTrackRendererEventListener;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
@@ -51,9 +51,12 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCodec.CryptoException;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -91,7 +94,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     void onAudioTrackInitializationError(AudioTrack.InitializationException e);
     void onAudioTrackWriteError(AudioTrack.WriteException e);
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
-    void onDecoderInitializationError(DecoderInitializationException e);
+    void onDecoderInitializationError(Exception e);
     void onCryptoError(CryptoException e);
     void onLoadError(int sourceId, IOException e);
     void onDrmSessionManagerError(Exception e);
@@ -133,16 +136,12 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   public static final int STATE_READY = ExoPlayer.STATE_READY;
   public static final int STATE_ENDED = ExoPlayer.STATE_ENDED;
 
-  public static final int RENDERER_COUNT = 4;
-  public static final int RENDERER_INDEX_VIDEO = 0;
-  public static final int RENDERER_INDEX_AUDIO = 1;
-  public static final int RENDERER_INDEX_TEXT = 2;
-  public static final int RENDERER_INDEX_METADATA = 3;
+  private static final String TAG = "DemoPlayer";
 
   private final ExoPlayer player;
   private final DefaultTrackSelector trackSelector;
   private final BandwidthMeter bandwidthMeter;
-  private final MediaCodecVideoTrackRenderer videoRenderer;
+  private final TrackRenderer[] renderers;
   private final PlayerControl playerControl;
   private final Handler mainHandler;
   private final CopyOnWriteArrayList<Listener> listeners;
@@ -155,23 +154,20 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   private Id3MetadataListener id3MetadataListener;
   private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
+  private CodecCounters videoCodecCounters;
 
-  public DemoPlayer(Context context) {
+  public DemoPlayer(Context context, boolean useExtensionDecoders) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
     listeners = new CopyOnWriteArrayList<>();
 
     // Build the renderers.
-    videoRenderer = new MediaCodecVideoTrackRenderer(context, MediaCodecSelector.DEFAULT,
-        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, this, 50);
-    TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(MediaCodecSelector.DEFAULT, null,
-        true, mainHandler, this, AudioCapabilities.getCapabilities(context),
-        AudioManager.STREAM_MUSIC);
-    TrackRenderer textRenderer = new TextTrackRenderer(this, mainHandler.getLooper());
-    MetadataTrackRenderer<List<Id3Frame>> id3Renderer = new MetadataTrackRenderer<>(new Id3Parser(),
-        this, mainHandler.getLooper());
-    TrackRenderer[] renderers = new TrackRenderer[] {videoRenderer, audioRenderer, textRenderer,
-        id3Renderer};
+    ArrayList<TrackRenderer> renderersList = new ArrayList<>();
+    buildRenderers(context, renderersList);
+    if (useExtensionDecoders) {
+      buildExtensionRenderers(renderersList);
+    }
+    renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
     // Build the player and associated objects.
     trackSelector = new DefaultTrackSelector(mainHandler, this);
@@ -263,7 +259,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
 
   @Override
   public CodecCounters getCodecCounters() {
-    return videoRenderer.codecCounters;
+    return videoCodecCounters;
   }
 
   @Override
@@ -358,7 +354,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onDecoderInitializationError(DecoderInitializationException e) {
+  public void onDecoderInitializationError(Exception e) {
     if (internalErrorListener != null) {
       internalErrorListener.onDecoderInitializationError(e);
     }
@@ -383,6 +379,11 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     if (internalErrorListener != null) {
       internalErrorListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
+  }
+
+  @Override
+  public void onAudioCodecCounters(CodecCounters counters) {
+    // do nothing
   }
 
   @Override
@@ -432,6 +433,11 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
+  public void onVideoCodecCounters(CodecCounters counters) {
+    this.videoCodecCounters = counters;
+  }
+
+  @Override
   public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
       long mediaStartTimeMs, long mediaEndTimeMs) {
     if (infoListener != null) {
@@ -459,14 +465,70 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     // Do nothing.
   }
 
+  public int getRendererType(int index) {
+    return renderers[index].getTrackType();
+  }
+
   private void pushSurface(boolean blockForSurfacePush) {
-    if (blockForSurfacePush) {
-      player.blockingSendMessage(
-          videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
-    } else {
-      player.sendMessage(
-          videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
+    for (TrackRenderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
+        if (blockForSurfacePush) {
+          player.blockingSendMessage(renderer, C.MSG_SET_SURFACE, surface);
+        } else {
+          player.sendMessage(renderer, C.MSG_SET_SURFACE, surface);
+        }
+      }
     }
   }
 
+  private void buildRenderers(Context context, ArrayList<TrackRenderer> renderersList) {
+    MediaCodecVideoTrackRenderer videoRenderer =
+        new MediaCodecVideoTrackRenderer(context, MediaCodecSelector.DEFAULT,
+            MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, this, 50);
+    renderersList.add(videoRenderer);
+
+    TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(MediaCodecSelector.DEFAULT, null,
+        true, mainHandler, this, AudioCapabilities.getCapabilities(context),
+        AudioManager.STREAM_MUSIC);
+    renderersList.add(audioRenderer);
+
+    TrackRenderer textRenderer = new TextTrackRenderer(this, mainHandler.getLooper());
+    renderersList.add(textRenderer);
+
+    MetadataTrackRenderer<List<Id3Frame>> id3Renderer = new MetadataTrackRenderer<>(new Id3Parser(),
+        this, mainHandler.getLooper());
+    renderersList.add(id3Renderer);
+  }
+
+  private void buildExtensionRenderers(ArrayList<TrackRenderer> renderersList) {
+    // Load extension renderers using reflection so that demo app doesn't depend on them.
+    // Class.forName(<class name>) appears for each renderer so that automated tools like proguard
+    // can detect the use of reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
+    try {
+      Class<?> clazz =
+          Class.forName("com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer");
+      Constructor<?> constructor = clazz.getConstructor(boolean.class, Handler.class,
+          VideoTrackRendererEventListener.class, int.class);
+      Object renderer = constructor.newInstance(true, mainHandler, this, 50);
+      renderersList.add(0, (TrackRenderer) renderer);
+    } catch (Exception e) {
+      Log.i(TAG, "can't load LibvpxVideoTrackRenderer.");
+    }
+
+    try {
+      Class<?> clazz =
+          Class.forName("com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer");
+      renderersList.add(1, (TrackRenderer) clazz.newInstance());
+    } catch (Exception e) {
+      Log.i(TAG, "can't load LibopusAudioTrackRenderer.");
+    }
+
+    try {
+      Class<?> clazz =
+          Class.forName("com.google.android.exoplayer.ext.flac.LibflacAudioTrackRenderer");
+      renderersList.add(2, (TrackRenderer) clazz.newInstance());
+    } catch (Exception e) {
+      Log.i(TAG, "can't load LibflacAudioTrackRenderer.");
+    }
+  }
 }

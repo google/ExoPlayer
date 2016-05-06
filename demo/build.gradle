@@ -26,13 +26,25 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+        debug {
+            jniDebuggable = true
+            debuggable = true
+        }
     }
 
     lintOptions {
         abortOnError false
     }
+
+    productFlavors {
+        demo
+        demo_ext
+    }
 }
 
 dependencies {
     compile project(':library')
+    demo_extCompile project(path: ':extension-opus')
+    demo_extCompile project(path: ':extension-flac')
+    demo_extCompile project(path: ':extension-vp9')
 }

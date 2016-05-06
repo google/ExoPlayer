@@ -86,7 +86,7 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
   }
 
   @Override
-  protected int getTrackType() {
+  public int getTrackType() {
     return C.TRACK_TYPE_METADATA;
   }
 

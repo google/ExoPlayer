@@ -19,6 +19,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.media.AudioFormat;
 import android.media.MediaCodec;
+import android.view.Surface;
 
 import java.util.UUID;
 
@@ -182,6 +183,13 @@ public final class C {
    * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
    */
   public static final UUID UUID_NIL = new UUID(0L, 0L);
+
+  /**
+   * The type of a message that can be passed to an video {@link TrackRenderer} via
+   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * should be the target {@link Surface}, or null.
+   */
+  public static final int MSG_SET_SURFACE = 1;
 
   private C() {}
 

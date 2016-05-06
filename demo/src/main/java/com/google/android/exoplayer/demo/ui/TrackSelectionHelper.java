@@ -68,11 +68,11 @@ public class TrackSelectionHelper implements View.OnClickListener, DialogInterfa
    * Shows the selection dialog for a given renderer.
    *
    * @param activity The parent activity.
-   * @param titleId The dialog's title.
+   * @param title The dialog's title.
    * @param trackInfo The current track information.
    * @param rendererIndex The index of the renderer.
    */
-  public void showSelectionDialog(Activity activity, int titleId, TrackInfo trackInfo,
+  public void showSelectionDialog(Activity activity, CharSequence title, TrackInfo trackInfo,
       int rendererIndex) {
     this.trackInfo = trackInfo;
     this.rendererIndex = rendererIndex;
@@ -88,7 +88,7 @@ public class TrackSelectionHelper implements View.OnClickListener, DialogInterfa
         ? trackInfo.getTrackSelection(rendererIndex) : null;
 
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-    builder.setTitle(titleId)
+    builder.setTitle(title)
         .setView(buildView(LayoutInflater.from(builder.getContext())))
         .setPositiveButton(android.R.string.ok, this)
         .setNegativeButton(android.R.string.cancel, null)

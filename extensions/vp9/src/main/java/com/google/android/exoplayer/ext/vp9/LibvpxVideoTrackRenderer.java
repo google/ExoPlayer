@@ -24,6 +24,7 @@ import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
+import com.google.android.exoplayer.VideoTrackRendererEventListener;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.graphics.Bitmap;
@@ -37,67 +38,6 @@ import android.view.Surface;
  */
 public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
-  /**
-   * Interface definition for a callback to be notified of {@link LibvpxVideoTrackRenderer} events.
-   */
-  public interface EventListener {
-
-    /**
-     * Invoked to report the number of frames dropped by the renderer. Dropped frames are reported
-     * whenever the renderer is stopped having dropped frames, and optionally, whenever the count
-     * reaches a specified threshold whilst the renderer is started.
-     *
-     * @param count The number of dropped frames.
-     * @param elapsed The duration in milliseconds over which the frames were dropped. This
-     *     duration is timed from when the renderer was started or from when dropped frames were
-     *     last reported (whichever was more recent), and not from when the first of the reported
-     *     drops occurred.
-     */
-    void onDroppedFrames(int count, long elapsed);
-
-    /**
-     * Invoked each time there's a change in the size of the video being rendered.
-     *
-     * @param width The video width in pixels.
-     * @param height The video height in pixels.
-     */
-    void onVideoSizeChanged(int width, int height);
-
-    /**
-     * Invoked when a frame is rendered to a surface for the first time following that surface
-     * having been set as the target for the renderer.
-     *
-     * @param surface The surface to which a first frame has been rendered.
-     */
-    void onDrawnToSurface(Surface surface);
-
-    /**
-     * Invoked when one of the following happens: libvpx initialization failure, decoder error,
-     * renderer error.
-     *
-     * @param e The corresponding exception.
-     */
-    void onDecoderError(VpxDecoderException e);
-
-    /**
-     * Invoked when a decoder is successfully created.
-     *
-     * @param decoderName The decoder that was configured and created.
-     * @param elapsedRealtimeMs {@code elapsedRealtime} timestamp of when the initialization
-     *    finished.
-     * @param initializationDurationMs Amount of time taken to initialize the decoder.
-     */
-    void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
-        long initializationDurationMs);
-
-  }
-
-  /**
-   * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
-   * should be the target {@link Surface}, or null.
-   */
-  public static final int MSG_SET_SURFACE = 1;
   /**
    * The type of a message that can be passed to an instance of this class via
    * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
@@ -117,7 +57,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   private final boolean scaleToFit;
   private final Handler eventHandler;
-  private final EventListener eventListener;
+  private final VideoTrackRendererEventListener eventListener;
   private final int maxDroppedFrameCountToNotify;
   private final FormatHolder formatHolder;
 
@@ -157,10 +97,10 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
+   *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
    */
   public LibvpxVideoTrackRenderer(boolean scaleToFit, Handler eventHandler,
-      EventListener eventListener, int maxDroppedFrameCountToNotify) {
+      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     this.scaleToFit = scaleToFit;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
@@ -186,7 +126,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected int getTrackType() {
+  public int getTrackType() {
     return C.TRACK_TYPE_VIDEO;
   }
 
@@ -220,7 +160,6 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       while (processOutputBuffer(positionUs)) {}
       while (feedInputBuffer()) {}
     } catch (VpxDecoderException e) {
-      notifyDecoderError(e);
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     codecCounters.ensureUpdated();
@@ -381,6 +320,11 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
+  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+    notifyVideoCodecCounters();
+  }
+
+  @Override
   protected void onStarted() {
     droppedFrameCount = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
@@ -418,7 +362,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_SURFACE) {
+    if (messageType == C.MSG_SET_SURFACE) {
       setSurface((Surface) message);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
       setOutputBufferRenderer((VpxOutputBufferRenderer) message);
@@ -462,7 +406,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
         eventHandler.post(new Runnable()  {
           @Override
           public void run() {
-            eventListener.onVideoSizeChanged(outputBuffer.width, outputBuffer.height);
+            eventListener.onVideoSizeChanged(outputBuffer.width, outputBuffer.height, 0, 1);
           }
         });
       }
@@ -496,17 +440,6 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void notifyDecoderError(final VpxDecoderException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDecoderError(e);
-        }
-      });
-    }
-  }
-
   private void notifyDecoderInitialized(
       final long startElapsedRealtimeMs, final long finishElapsedRealtimeMs) {
     if (eventHandler != null && eventListener != null) {
@@ -515,6 +448,17 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
         public void run() {
           eventListener.onDecoderInitialized("libvpx" + getLibvpxVersion(),
               finishElapsedRealtimeMs, finishElapsedRealtimeMs - startElapsedRealtimeMs);
+        }
+      });
+    }
+  }
+
+  private void notifyVideoCodecCounters() {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onVideoCodecCounters(codecCounters);
         }
       });
     }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.flac;
 
+import com.google.android.exoplayer.AudioTrackRendererEventListener;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.AudioDecoderTrackRenderer;
@@ -47,7 +48,7 @@ public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public LibflacAudioTrackRenderer(Handler eventHandler,
-      AudioDecoderTrackRenderer.EventListener eventListener) {
+      AudioTrackRendererEventListener eventListener) {
     super(eventHandler, eventListener);
   }
   @Override

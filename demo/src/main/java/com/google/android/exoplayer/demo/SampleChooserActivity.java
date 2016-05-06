@@ -75,6 +75,11 @@ public class SampleChooserActivity extends Activity {
     group = new SampleGroup("Misc");
     group.addAll(Samples.MISC);
     sampleGroups.add(group);
+    group = new SampleGroup("Extensions");
+    group.addAll(Samples.VP9_EXTENSION_SAMPLES);
+    group.addAll(Samples.VP9_OPUS_EXTENSION_SAMPLES);
+    sampleGroups.add(group);
+
     ExpandableListView sampleList = (ExpandableListView) findViewById(R.id.sample_list);
     sampleList.setAdapter(new SampleAdapter(this, sampleGroups));
     sampleList.setOnChildClickListener(new OnChildClickListener() {
@@ -92,7 +97,8 @@ public class SampleChooserActivity extends Activity {
         .setData(Uri.parse(sample.uri))
         .putExtra(PlayerActivity.CONTENT_ID_EXTRA, sample.contentId)
         .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type)
-        .putExtra(PlayerActivity.PROVIDER_EXTRA, sample.provider);
+        .putExtra(PlayerActivity.PROVIDER_EXTRA, sample.provider)
+        .putExtra(PlayerActivity.USE_EXTENSION_DECODERS, sample.useExtensionDecoders);
     startActivity(mpdIntent);
   }
 

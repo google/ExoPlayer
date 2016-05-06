@@ -70,30 +70,6 @@
         android:orientation="horizontal"
         android:visibility="gone">
 
-      <Button android:id="@+id/video_controls"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/video"
-          style="@style/DemoButton"
-          android:visibility="gone"
-          android:onClick="showVideoPopup"/>
-
-      <Button android:id="@+id/audio_controls"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/audio"
-          style="@style/DemoButton"
-          android:visibility="gone"
-          android:onClick="showAudioPopup"/>
-
-      <Button android:id="@+id/text_controls"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/text"
-          style="@style/DemoButton"
-          android:visibility="gone"
-          android:onClick="showTextPopup"/>
-
       <Button android:id="@+id/retry_button"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
