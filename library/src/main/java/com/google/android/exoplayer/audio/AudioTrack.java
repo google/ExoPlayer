@@ -1014,6 +1014,7 @@ public final class AudioTrack {
         throw new IllegalStateException();
     }
 
+    resampledBuffer.position(0);
     return resampledBuffer;
   }
 
