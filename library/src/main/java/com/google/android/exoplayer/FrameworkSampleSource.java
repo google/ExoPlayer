@@ -326,10 +326,12 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     }
     long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
+    int pcmEncoding = MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT
+        : MediaFormat.NO_VALUE;
     MediaFormat mediaFormat = new MediaFormat(null, mimeType, MediaFormat.NO_VALUE, maxInputSize,
         durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE, channelCount, sampleRate,
         language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData, false,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, encoderDelay, encoderPadding);
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, pcmEncoding, encoderDelay, encoderPadding);
     mediaFormat.setFrameworkFormatV16(format);
     return mediaFormat;
   }
