@@ -37,7 +37,7 @@ import android.text.Layout;
   public static final int FONT_SIZE_UNIT_PERCENT = 3;
 
   private static final int OFF = 0;
-  private static final int  ON = 1;
+  private static final int ON = 1;
 
   private String fontFamily;
   private int fontColor;
@@ -113,9 +113,9 @@ import android.text.Layout;
     return fontColor;
   }
 
-  public TtmlStyle setFontColor(int color) {
+  public TtmlStyle setFontColor(int fontColor) {
     Assertions.checkState(inheritableStyle == null);
-    this.fontColor = color;
+    this.fontColor = fontColor;
     hasFontColor = true;
     return this;
   }
@@ -232,8 +232,8 @@ import android.text.Layout;
     return this;
   }
 
-  public TtmlStyle setFontSizeUnit(int unit) {
-    this.fontSizeUnit = unit;
+  public TtmlStyle setFontSizeUnit(int fontSizeUnit) {
+    this.fontSizeUnit = fontSizeUnit;
     return this;
   }
 

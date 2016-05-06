@@ -46,8 +46,8 @@ import java.util.Map;
     } else if (style == null && styleIds.length > 1) {
       // Only multiple referential styles present.
       TtmlStyle chainedStyle = new TtmlStyle();
-      for (int i = 0; i < styleIds.length; i++) {
-        chainedStyle.chain(globalStyles.get(styleIds[i]));
+      for (String id : styleIds) {
+        chainedStyle.chain(globalStyles.get(id));
       }
       return chainedStyle;
     } else if (style != null && styleIds != null && styleIds.length == 1) {
@@ -55,8 +55,8 @@ import java.util.Map;
       return style.chain(globalStyles.get(styleIds[0]));
     } else if (style != null && styleIds != null && styleIds.length > 1) {
       // Merge multiple referential styles into inline style.
-      for (int i = 0; i < styleIds.length; i++) {
-        style.chain(globalStyles.get(styleIds[i]));
+      for (String id : styleIds) {
+        style.chain(globalStyles.get(id));
       }
       return style;
     }

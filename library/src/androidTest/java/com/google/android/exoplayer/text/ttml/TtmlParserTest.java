@@ -157,10 +157,13 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("lorem", ttmlCue.text.toString());
     assertEquals(10.f / 100.f, ttmlCue.position);
     assertEquals(10.f / 100.f, ttmlCue.line);
+    assertEquals(20.f / 100.f, ttmlCue.size);
+
     ttmlCue = output.get(1);
     assertEquals("amet", ttmlCue.text.toString());
     assertEquals(60.f / 100.f, ttmlCue.position);
     assertEquals(10.f / 100.f, ttmlCue.line);
+    assertEquals(20.f / 100.f, ttmlCue.size);
 
     output = subtitle.getCues(5000000);
     assertEquals(1, output.size());
@@ -168,6 +171,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("ipsum", ttmlCue.text.toString());
     assertEquals(40.f / 100.f, ttmlCue.position);
     assertEquals(40.f / 100.f, ttmlCue.line);
+    assertEquals(20.f / 100.f, ttmlCue.size);
 
     output = subtitle.getCues(9000000);
     assertEquals(1, output.size());
@@ -175,6 +179,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("dolor", ttmlCue.text.toString());
     assertEquals(10.f / 100.f, ttmlCue.position);
     assertEquals(80.f / 100.f, ttmlCue.line);
+    assertEquals(Cue.DIMEN_UNSET, ttmlCue.size);
 
     output = subtitle.getCues(21000000);
     assertEquals(1, output.size());
@@ -182,6 +187,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("She first said this", ttmlCue.text.toString());
     assertEquals(45.f / 100.f, ttmlCue.position);
     assertEquals(45.f / 100.f, ttmlCue.line);
+    assertEquals(35.f / 100.f, ttmlCue.size);
     output = subtitle.getCues(25000000);
     ttmlCue = output.get(0);
     assertEquals("She first said this\nThen this", ttmlCue.text.toString());
