@@ -101,12 +101,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare(MediaSource mediaSource) {
-    prepare(mediaSource, true);
+    prepare(mediaSource, true, true);
   }
 
   @Override
-  public void prepare(MediaSource mediaSource, boolean resetPosition) {
-    timeline = null;
+  public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetTimeline) {
+    if (resetTimeline && (timeline != null || manifest != null)) {
+      timeline = null;
+      manifest = null;
+      for (EventListener listener : listeners) {
+        listener.onTimelineChanged(null, null);
+      }
+    }
     internalPlayer.prepare(mediaSource, resetPosition);
   }
 
