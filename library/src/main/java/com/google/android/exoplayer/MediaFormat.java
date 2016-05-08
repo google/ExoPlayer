@@ -15,14 +15,17 @@
  */
 package com.google.android.exoplayer;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +33,7 @@ import java.util.List;
 /**
  * Defines the format of an elementary media stream.
  */
-public final class MediaFormat {
+public final class MediaFormat implements Parcelable {
 
   public static final int NO_VALUE = -1;
 
@@ -212,6 +215,29 @@ public final class MediaFormat {
   public static MediaFormat createId3Format() {
     return createFormatForMimeType(null, MimeTypes.APPLICATION_ID3, MediaFormat.NO_VALUE,
         C.UNKNOWN_TIME_US);
+  }
+
+  /* package */ MediaFormat(Parcel in) {
+    trackId = in.readString();
+    mimeType = in.readString();
+    bitrate = in.readInt();
+    maxInputSize = in.readInt();
+    durationUs = in.readLong();
+    initializationData = new ArrayList<>();
+    in.readList(initializationData, List.class.getClassLoader());
+    adaptive = in.readInt() == 1;
+    width = in.readInt();
+    height = in.readInt();
+    maxWidth = in.readInt();
+    maxHeight = in.readInt();
+    rotationDegrees = in.readInt();
+    pixelWidthHeightRatio = in.readFloat();
+    channelCount = in.readInt();
+    sampleRate = in.readInt();
+    encoderDelay = in.readInt();
+    encoderPadding = in.readInt();
+    language = in.readString();
+    subsampleOffsetUs = in.readLong();
   }
 
   /* package */ MediaFormat(String trackId, String mimeType, int bitrate, int maxInputSize,
@@ -427,4 +453,41 @@ public final class MediaFormat {
     }
   }
 
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(trackId);
+    dest.writeString(mimeType);
+    dest.writeInt(bitrate);
+    dest.writeInt(maxInputSize);
+    dest.writeLong(durationUs);
+    dest.writeList(initializationData);
+    dest.writeInt(adaptive ? 1 : 0);
+    dest.writeInt(width);
+    dest.writeInt(height);
+    dest.writeInt(maxWidth);
+    dest.writeInt(maxHeight);
+    dest.writeInt(rotationDegrees);
+    dest.writeFloat(pixelWidthHeightRatio);
+    dest.writeInt(channelCount);
+    dest.writeInt(sampleRate);
+    dest.writeInt(encoderDelay);
+    dest.writeInt(encoderPadding);
+    dest.writeString(language);
+    dest.writeLong(subsampleOffsetUs);
+  }
+
+  public static final Creator<MediaFormat> CREATOR = new Creator<MediaFormat>() {
+    public MediaFormat createFromParcel(Parcel in) {
+      return new MediaFormat(in);
+    }
+
+    public MediaFormat[] newArray(int size) {
+      return new MediaFormat[size];
+    }
+  };
 }
