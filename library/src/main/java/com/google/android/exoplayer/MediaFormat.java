@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -223,21 +223,22 @@ public final class MediaFormat implements Parcelable {
     bitrate = in.readInt();
     maxInputSize = in.readInt();
     durationUs = in.readLong();
-    initializationData = new ArrayList<>();
-    in.readList(initializationData, List.class.getClassLoader());
-    adaptive = in.readInt() == 1;
     width = in.readInt();
     height = in.readInt();
-    maxWidth = in.readInt();
-    maxHeight = in.readInt();
     rotationDegrees = in.readInt();
     pixelWidthHeightRatio = in.readFloat();
     channelCount = in.readInt();
     sampleRate = in.readInt();
-    encoderDelay = in.readInt();
-    encoderPadding = in.readInt();
     language = in.readString();
     subsampleOffsetUs = in.readLong();
+    initializationData = new ArrayList<byte[]>();
+    in.readList(initializationData, List.class.getClassLoader());
+    adaptive = in.readInt() == 1;
+    maxWidth = in.readInt();
+    maxHeight = in.readInt();
+    pcmEncoding = in.readInt();
+    encoderDelay = in.readInt();
+    encoderPadding = in.readInt();
   }
 
   /* package */ MediaFormat(String trackId, String mimeType, int bitrate, int maxInputSize,
@@ -465,20 +466,21 @@ public final class MediaFormat implements Parcelable {
     dest.writeInt(bitrate);
     dest.writeInt(maxInputSize);
     dest.writeLong(durationUs);
-    dest.writeList(initializationData);
-    dest.writeInt(adaptive ? 1 : 0);
     dest.writeInt(width);
     dest.writeInt(height);
-    dest.writeInt(maxWidth);
-    dest.writeInt(maxHeight);
     dest.writeInt(rotationDegrees);
     dest.writeFloat(pixelWidthHeightRatio);
     dest.writeInt(channelCount);
     dest.writeInt(sampleRate);
-    dest.writeInt(encoderDelay);
-    dest.writeInt(encoderPadding);
     dest.writeString(language);
     dest.writeLong(subsampleOffsetUs);
+    dest.writeList(initializationData);
+    dest.writeInt(adaptive ? 1 : 0);
+    dest.writeInt(maxWidth);
+    dest.writeInt(maxHeight);
+    dest.writeInt(pcmEncoding);
+    dest.writeInt(encoderDelay);
+    dest.writeInt(encoderPadding);
   }
 
   public static final Creator<MediaFormat> CREATOR = new Creator<MediaFormat>() {
