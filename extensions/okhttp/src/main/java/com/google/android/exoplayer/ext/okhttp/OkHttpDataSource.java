@@ -161,7 +161,7 @@ public class OkHttpDataSource implements HttpDataSource {
       responseByteStream = response.body().byteStream();
     } catch (IOException e) {
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
-          dataSpec);
+          dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
     int responseCode = response.code();
@@ -206,7 +206,7 @@ public class OkHttpDataSource implements HttpDataSource {
       skipInternal();
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
-      throw new HttpDataSourceException(e, dataSpec);
+      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_READ);
     }
   }
 
