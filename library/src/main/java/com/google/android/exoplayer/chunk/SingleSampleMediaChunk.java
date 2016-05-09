@@ -17,7 +17,6 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -33,7 +32,6 @@ import java.io.IOException;
 public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   private final Format sampleFormat;
-  private final DrmInitData sampleDrmInitData;
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
@@ -47,25 +45,16 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    * @param sampleFormat The format of the sample.
-   * @param sampleDrmInitData The {@link DrmInitData} for the sample. Null if the sample is not drm
-   *     protected.
    */
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger,
-      Format format, long startTimeUs, long endTimeUs, int chunkIndex, Format sampleFormat,
-      DrmInitData sampleDrmInitData) {
+      Format format, long startTimeUs, long endTimeUs, int chunkIndex, Format sampleFormat) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
     this.sampleFormat = sampleFormat;
-    this.sampleDrmInitData = sampleDrmInitData;
   }
 
   @Override
   public long bytesLoaded() {
     return bytesLoaded;
-  }
-
-  @Override
-  public DrmInitData getDrmInitData() {
-    return sampleDrmInitData;
   }
 
   // Loadable implementation.

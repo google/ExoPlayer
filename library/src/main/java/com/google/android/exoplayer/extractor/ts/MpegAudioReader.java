@@ -163,7 +163,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     if (!hasOutputFormat) {
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
       Format format = Format.createAudioSampleFormat(null, header.mimeType, Format.NO_VALUE,
-          MpegAudioHeader.MAX_FRAME_SIZE_BYTES, header.channels, header.sampleRate, null, null);
+          MpegAudioHeader.MAX_FRAME_SIZE_BYTES, header.channels, header.sampleRate, null, null,
+          null);
       output.format(format);
       hasOutputFormat = true;
     }

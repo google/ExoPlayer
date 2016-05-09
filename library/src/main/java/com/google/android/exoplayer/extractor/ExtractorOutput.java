@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.extractor;
 
-import com.google.android.exoplayer.drm.DrmInitData;
-
 /**
  * Receives stream level data extracted by an {@link Extractor}.
  */
@@ -44,12 +42,5 @@ public interface ExtractorOutput {
    * @param seekMap The extracted {@link SeekMap}.
    */
   void seekMap(SeekMap seekMap);
-
-  /**
-   * Invoked when {@link DrmInitData} has been extracted from the stream.
-   *
-   * @param drmInitData The extracted {@link DrmInitData}.
-   */
-  void drmInitData(DrmInitData drmInitData);
 
 }

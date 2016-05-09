@@ -24,7 +24,6 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -211,7 +210,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private volatile boolean tracksBuilt;
   private volatile SeekMap seekMap;
-  private volatile DrmInitData drmInitData;
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
@@ -471,12 +469,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.NOTHING_READ;
     }
 
-    int result = sampleQueues[track].readData(formatHolder, buffer, loadingFinished,
-        lastSeekPositionUs);
-    if (result == TrackStream.FORMAT_READ) {
-      formatHolder.drmInitData = drmInitData;
-    }
-    return result;
+    return sampleQueues[track].readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }
 
   // Loader.Callback implementation.
@@ -528,11 +521,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public void seekMap(SeekMap seekMap) {
     this.seekMap = seekMap;
-  }
-
-  @Override
-  public void drmInitData(DrmInitData drmInitData) {
-    this.drmInitData = drmInitData;
   }
 
   // Internal methods.

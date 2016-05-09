@@ -162,9 +162,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    */
   private void parseHeader() {
     if (format == null) {
-      format = isEac3
-          ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, null)
-          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, null);
+      format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, null, null)
+          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, null, null);
       output.format(format);
     }
     sampleSize = isEac3 ? Ac3Util.parseEAc3SyncframeSize(headerScratchBits.data)

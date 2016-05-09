@@ -226,11 +226,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
     }
     downstreamFormat = format;
 
-    int result = sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
-    if (result == FORMAT_READ) {
-      formatHolder.drmInitData = currentChunk.getDrmInitData();
-    }
-    return result;
+    return sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }
 
   // Loader.Callback implementation.

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.mp4;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
@@ -49,10 +50,12 @@ import java.util.List;
    *
    * @param trak Atom to parse.
    * @param mvhd Movie header atom, used to get the timescale.
+   * @param drmInitData {@link DrmInitData} to be included in the format.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
-  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, boolean isQuickTime) {
+  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd,
+      DrmInitData drmInitData, boolean isQuickTime) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
@@ -73,7 +76,7 @@ import java.util.List;
 
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
-        tkhdData.rotationDegrees, mdhdData.second, isQuickTime);
+        tkhdData.rotationDegrees, mdhdData.second, drmInitData, isQuickTime);
     Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
     return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
@@ -560,11 +563,12 @@ import java.util.List;
    * @param trackId The track's identifier in its container.
    * @param rotationDegrees The rotation of the track in degrees.
    * @param language The language of the track.
+   * @param drmInitData {@link DrmInitData} to be included in the format.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return An object containing the parsed data.
    */
   private static StsdData parseStsd(ParsableByteArray stsd, int trackId, int rotationDegrees,
-      String language, boolean isQuickTime) {
+      String language, DrmInitData drmInitData, boolean isQuickTime) {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     StsdData out = new StsdData(numberOfEntries);
@@ -578,7 +582,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
           || childAtomType == Atom.TYPE_s263) {
         parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, trackId, rotationDegrees,
-            out, i);
+            drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
@@ -586,19 +590,19 @@ import java.util.List;
           || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb
           || childAtomType == Atom.TYPE_lpcm || childAtomType == Atom.TYPE_sowt) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
-            language, isQuickTime, out, i);
+            language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language);
+            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TX3G, Format.NO_VALUE, language);
+            MimeTypes.APPLICATION_TX3G, Format.NO_VALUE, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_wvtt) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_MP4VTT, Format.NO_VALUE, language);
+            MimeTypes.APPLICATION_MP4VTT, Format.NO_VALUE, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_stpp) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language,
+            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language, drmInitData,
             0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -607,7 +611,7 @@ import java.util.List;
   }
 
   private static void parseVideoSampleEntry(ParsableByteArray parent, int position, int size,
-      int trackId, int rotationDegrees, StsdData out, int entryIndex) {
+      int trackId, int rotationDegrees, DrmInitData drmInitData, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -671,7 +675,7 @@ import java.util.List;
 
     out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
         Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
-        rotationDegrees, pixelWidthHeightRatio);
+        rotationDegrees, pixelWidthHeightRatio, drmInitData);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -830,7 +834,8 @@ import java.util.List;
   }
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int size, int trackId, String language, boolean isQuickTime, StsdData out, int entryIndex) {
+      int size, int trackId, String language, boolean isQuickTime, DrmInitData drmInitData,
+      StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     int quickTimeSoundDescriptionVersion = 0;
@@ -922,17 +927,20 @@ import java.util.List;
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
         parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
-        out.format = Ac3Util.parseAc3AnnexFFormat(parent, Integer.toString(trackId), language);
+        out.format = Ac3Util.parseAc3AnnexFFormat(parent, Integer.toString(trackId), language,
+            drmInitData);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
-        out.format = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId), language);
+        out.format = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId), language,
+            drmInitData);
         return;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, language);
+            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, language,
+            drmInitData);
         return;
       }
       childAtomPosition += childAtomSize;
@@ -946,7 +954,7 @@ import java.util.List;
     out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
         Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
-        language);
+        language, drmInitData);
   }
 
   /** Returns the position of the esds box within a parent, or -1 if no esds box is found */

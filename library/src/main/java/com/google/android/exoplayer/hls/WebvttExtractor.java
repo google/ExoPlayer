@@ -166,7 +166,7 @@ import java.util.regex.Pattern;
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0);
     trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.TEXT_VTT, Format.NO_VALUE,
-        language, subsampleOffsetUs));
+        language, null, subsampleOffsetUs));
     output.endTracks();
     return trackOutput;
   }

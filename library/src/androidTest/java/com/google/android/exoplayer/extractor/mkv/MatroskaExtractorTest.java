@@ -67,7 +67,6 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
   private static final byte SECOND_AUDIO_TRACK_NUMBER = 0x05;
 
   private static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
-  private static final UUID ZERO_UUID = new UUID(0, 0);
   private static final String MATROSKA_DOC_TYPE = "matroska";
   private static final String WEBM_DOC_TYPE = "webm";
 
@@ -234,15 +233,8 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
 
     assertTracksEnded();
     assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertDrmInitData(VIDEO_TRACK_NUMBER);
     assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
-    DrmInitData drmInitData = extractorOutput.drmInitData;
-    assertNotNull(drmInitData);
-    SchemeData widevineInitData = drmInitData.get(WIDEVINE_UUID);
-    assertEquals(MimeTypes.VIDEO_WEBM, widevineInitData.mimeType);
-    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, widevineInitData.data);
-    SchemeData zeroInitData = drmInitData.get(ZERO_UUID);
-    assertEquals(MimeTypes.VIDEO_WEBM, zeroInitData.mimeType);
-    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, zeroInitData.data);
   }
 
   public void testPrepareThreeCuePoints() throws IOException, InterruptedException {
@@ -753,6 +745,17 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
       assertEquals(TEST_VORBIS_INFO_SIZE, format.initializationData.get(0).length);
       assertEquals(TEST_VORBIS_BOOKS_SIZE, format.initializationData.get(1).length);
     }
+  }
+
+  private void assertDrmInitData(int trackNumber) {
+    DrmInitData drmInitData = getTrackOutput(trackNumber).format.drmInitData;
+    assertNotNull(drmInitData);
+    SchemeData widevineInitData = drmInitData.get(WIDEVINE_UUID);
+    assertEquals(MimeTypes.VIDEO_WEBM, widevineInitData.mimeType);
+    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, widevineInitData.data);
+    SchemeData zeroInitData = drmInitData.get(C.UUID_NIL);
+    assertEquals(MimeTypes.VIDEO_WEBM, zeroInitData.mimeType);
+    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, zeroInitData.data);
   }
 
   private void assertSeekMap(int timecodeScale, int cuePointCount) {

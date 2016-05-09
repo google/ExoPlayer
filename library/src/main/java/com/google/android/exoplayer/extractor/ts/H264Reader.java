@@ -171,7 +171,7 @@ import java.util.List;
           NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
           output.format(Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, Format.NO_VALUE,
               Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE, initializationData,
-              Format.NO_VALUE, spsData.pixelWidthAspectRatio));
+              Format.NO_VALUE, spsData.pixelWidthAspectRatio, null));
           hasOutputFormat = true;
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);

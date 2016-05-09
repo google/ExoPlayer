@@ -31,13 +31,11 @@ import com.google.android.exoplayer.chunk.InitializationChunk;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
-import com.google.android.exoplayer.dash.mpd.ContentProtection;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
@@ -50,7 +48,6 @@ import com.google.android.exoplayer.util.Util;
 import android.os.SystemClock;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,7 +67,6 @@ public class DashChunkSource implements ChunkSource {
   private final Evaluation evaluation;
 
   private MediaPresentationDescription manifest;
-  private DrmInitData drmInitData;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
@@ -100,7 +96,6 @@ public class DashChunkSource implements ChunkSource {
     Period period = manifest.getPeriod(0);
     long periodDurationUs = getPeriodDurationUs(manifest, 0);
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
-    drmInitData = getDrmInitData(adaptationSet);
 
     List<Representation> representations = adaptationSet.representations;
     representationHolders = new RepresentationHolder[representations.size()];
@@ -257,7 +252,7 @@ public class DashChunkSource implements ChunkSource {
           representationHolders[getTrackIndex(initializationChunk.format)];
       Format sampleFormat = initializationChunk.getSampleFormat();
       if (sampleFormat != null) {
-        representationHolder.sampleFormat = sampleFormat;
+        representationHolder.setSampleFormat(sampleFormat);
       }
       // The null check avoids overwriting an index obtained from the manifest with one obtained
       // from the stream. If the manifest defines an index then the stream shouldn't, but in cases
@@ -268,11 +263,6 @@ public class DashChunkSource implements ChunkSource {
           representationHolder.segmentIndex = new DashWrappingSegmentIndex((ChunkIndex) seekMap,
               initializationChunk.dataSpec.uri.toString());
         }
-      }
-      // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
-      // obtained from the stream, as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-      if (drmInitData == null) {
-        drmInitData = initializationChunk.getDrmInitData();
       }
     }
   }
@@ -324,12 +314,12 @@ public class DashChunkSource implements ChunkSource {
 
     if (representationHolder.extractorWrapper == null) {
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, trackFormat,
-          startTimeUs, endTimeUs, segmentNum, trackFormat, null);
+          startTimeUs, endTimeUs, segmentNum, trackFormat);
     } else {
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, trackFormat, startTimeUs,
           endTimeUs, segmentNum, sampleOffsetUs, representationHolder.extractorWrapper,
-          sampleFormat, drmInitData);
+          sampleFormat);
     }
   }
 
@@ -341,20 +331,6 @@ public class DashChunkSource implements ChunkSource {
     }
     // Should never happen.
     throw new IllegalStateException("Invalid format: " + format);
-  }
-
-  private static DrmInitData getDrmInitData(AdaptationSet adaptationSet) {
-    ArrayList<SchemeData> schemeDatas = null;
-    for (int i = 0; i < adaptationSet.contentProtections.size(); i++) {
-      ContentProtection contentProtection = adaptationSet.contentProtections.get(i);
-      if (contentProtection.schemeData != null) {
-        if (schemeDatas == null) {
-          schemeDatas = new ArrayList<SchemeData>();
-        }
-        schemeDatas.add(contentProtection.schemeData);
-      }
-    }
-    return schemeDatas == null ? null : new DrmInitData(schemeDatas);
   }
 
   private static long getPeriodDurationUs(MediaPresentationDescription manifest, int index) {
@@ -385,8 +361,18 @@ public class DashChunkSource implements ChunkSource {
       String containerMimeType = representation.format.containerMimeType;
       extractorWrapper = mimeTypeIsRawText(containerMimeType) ? null : new ChunkExtractorWrapper(
           mimeTypeIsWebm(containerMimeType) ? new MatroskaExtractor()
-              : new FragmentedMp4Extractor());
+              : new FragmentedMp4Extractor(), representation.format.drmInitData);
       segmentIndex = representation.getIndex();
+    }
+
+    public void setSampleFormat(Format sampleFormat) {
+      DrmInitData manifestDrmInitData = representation.format.drmInitData;
+      if (manifestDrmInitData != null) {
+        // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
+        // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
+        sampleFormat = sampleFormat.copyWithDrmInitData(manifestDrmInitData);
+      }
+      this.sampleFormat = sampleFormat;
     }
 
     public void updateRepresentation(long newPeriodDurationUs, Representation newRepresentation)

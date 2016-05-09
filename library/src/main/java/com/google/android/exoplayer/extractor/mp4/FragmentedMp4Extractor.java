@@ -335,9 +335,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         }
       }
     }
-    if (schemeDatas != null) {
-      extractorOutput.drmInitData(new DrmInitData(schemeDatas));
-    }
+    DrmInitData drmInitData = schemeDatas == null ? null : new DrmInitData(schemeDatas);
 
     // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
@@ -357,7 +355,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < moovContainerChildrenSize; i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
-        Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
+        Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd),
+            drmInitData, false);
         if (track != null) {
           tracks.put(track.id, track);
         }

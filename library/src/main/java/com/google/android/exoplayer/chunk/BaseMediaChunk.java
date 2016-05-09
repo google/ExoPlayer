@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -63,13 +62,6 @@ public abstract class BaseMediaChunk extends MediaChunk {
   public final int getFirstSampleIndex() {
     return firstSampleIndex;
   }
-
-  /**
-   * Gets the {@link DrmInitData} corresponding to the chunk.
-   *
-   * @return The {@link DrmInitData} corresponding to this chunk.
-   */
-  public abstract DrmInitData getDrmInitData();
 
   /**
    * Returns the track output most recently passed to {@link #init(DefaultTrackOutput)}.

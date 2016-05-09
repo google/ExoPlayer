@@ -128,7 +128,7 @@ public final class Mp3Extractor implements Extractor {
       trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType,
           Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
           synchronizedHeader.sampleRate, gaplessInfoHolder.encoderDelay,
-          gaplessInfoHolder.encoderPadding, null, null));
+          gaplessInfoHolder.encoderPadding, null, null, null));
     }
     return readSample(input);
   }

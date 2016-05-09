@@ -18,6 +18,8 @@ package com.google.android.exoplayer.smoothstreaming;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
@@ -375,6 +377,15 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     public Object build() {
       StreamElement[] streamElementArray = new StreamElement[streamElements.size()];
       streamElements.toArray(streamElementArray);
+      if (protectionElement != null) {
+        DrmInitData drmInitData = new DrmInitData(new SchemeData(protectionElement.uuid,
+            MimeTypes.VIDEO_MP4, protectionElement.data));
+        for (StreamElement streamElement : streamElementArray) {
+          for (int i = 0; i < streamElement.formats.length; i++) {
+            streamElement.formats[i] = streamElement.formats[i].copyWithDrmInitData(drmInitData);
+          }
+        }
+      }
       return new SmoothStreamingManifest(majorVersion, minorVersion, timescale, duration,
           dvrWindowLength, lookAheadCount, isLive, protectionElement, streamElementArray);
     }

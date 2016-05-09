@@ -68,7 +68,7 @@ import java.util.List;
       List<byte[]> initializationData = Collections.singletonList(metadata);
       trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_FLAC,
           streamInfo.bitRate(), Format.NO_VALUE, streamInfo.channels, streamInfo.sampleRate,
-          initializationData, null));
+          initializationData, null, null));
     } else if (data[0] == AUDIO_PACKET_TYPE) {
       if (!firstAudioPacketProcessed) {
         if (seekTable != null) {

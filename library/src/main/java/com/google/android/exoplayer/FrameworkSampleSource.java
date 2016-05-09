@@ -136,12 +136,13 @@ public final class FrameworkSampleSource implements SampleSource {
     }
     trackStates = new int[extractor.getTrackCount()];
     TrackGroup[] trackArray = new TrackGroup[trackStates.length];
+    DrmInitData drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
     for (int i = 0; i < trackStates.length; i++) {
       MediaFormat format = extractor.getTrackFormat(i);
       if (format.containsKey(MediaFormat.KEY_DURATION)) {
         durationUs = Math.max(durationUs, format.getLong(MediaFormat.KEY_DURATION));
       }
-      trackArray[i] = new TrackGroup(createFormat(i, format));
+      trackArray[i] = new TrackGroup(createFormat(i, format, drmInitData));
     }
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
@@ -244,7 +245,6 @@ public final class FrameworkSampleSource implements SampleSource {
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
       formatHolder.format = tracks.get(track).getFormat(0);
-      formatHolder.drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return TrackStream.FORMAT_READ;
     }
@@ -307,7 +307,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @SuppressLint("InlinedApi")
-  private static Format createFormat(int index, MediaFormat mediaFormat) {
+  private static Format createFormat(int index, MediaFormat mediaFormat, DrmInitData drmInitData) {
     String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
     String language = getOptionalStringV16(mediaFormat, MediaFormat.KEY_LANGUAGE);
     int maxInputSize = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE);
@@ -336,7 +336,7 @@ public final class FrameworkSampleSource implements SampleSource {
     Format format = new Format(Integer.toString(index), null, mimeType, Format.NO_VALUE,
         maxInputSize, width, height, frameRate, rotationDegrees, Format.NO_VALUE, channelCount,
         sampleRate, encoderDelay, encoderPadding, language, Format.OFFSET_SAMPLE_RELATIVE,
-        initializationData, false);
+        initializationData, drmInitData, false);
     format.setFrameworkMediaFormatV16(mediaFormat);
     return format;
   }

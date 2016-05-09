@@ -155,7 +155,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   private void parseHeader() {
     byte[] frameData = headerScratchBytes.data;
     if (format == null) {
-      format = DtsUtil.parseDtsFormat(frameData, null, null);
+      format = DtsUtil.parseDtsFormat(frameData, null, null, null);
       output.format(format);
     }
     sampleSize = DtsUtil.getDtsFrameSize(frameData);

@@ -220,8 +220,7 @@ public final class MatroskaExtractor implements Extractor {
   // The track corresponding to the current TrackEntry element, or null.
   private Track currentTrack;
 
-  // Whether drm init data has been sent to the output.
-  private boolean sentDrmInitData;
+  // Whether a seek map has been sent to the output.
   private boolean sentSeekMap;
 
   // Master seek entry related elements.
@@ -483,11 +482,8 @@ public final class MatroskaExtractor implements Extractor {
           if (currentTrack.encryptionKeyId == null) {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
-          if (!sentDrmInitData) {
-            extractorOutput.drmInitData(new DrmInitData(
-                new SchemeData(C.UUID_NIL, MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId)));
-            sentDrmInitData = true;
-          }
+          currentTrack.drmInitData = new DrmInitData(
+              new SchemeData(C.UUID_NIL, MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
         }
         return;
       case ID_CONTENT_ENCODINGS:
@@ -1182,6 +1178,7 @@ public final class MatroskaExtractor implements Extractor {
     public byte[] sampleStrippedBytes;
     public byte[] encryptionKeyId;
     public byte[] codecPrivate;
+    public DrmInitData drmInitData;
 
     // Video elements.
     public int width = Format.NO_VALUE;
@@ -1323,7 +1320,8 @@ public final class MatroskaExtractor implements Extractor {
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
         format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, maxInputSize, channelCount, sampleRate, initializationData, language);
+            Format.NO_VALUE, maxInputSize, channelCount, sampleRate, initializationData, language,
+            drmInitData);
       } else if (MimeTypes.isVideo(mimeType)) {
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
           displayWidth = displayWidth == Format.NO_VALUE ? width : displayWidth;
@@ -1335,14 +1333,14 @@ public final class MatroskaExtractor implements Extractor {
         }
         format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
             Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData,
-            Format.NO_VALUE, pixelWidthHeightRatio);
+            Format.NO_VALUE, pixelWidthHeightRatio, drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
-            language);
+            language, drmInitData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
         format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, initializationData, language);
+            Format.NO_VALUE, initializationData, language, drmInitData);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }

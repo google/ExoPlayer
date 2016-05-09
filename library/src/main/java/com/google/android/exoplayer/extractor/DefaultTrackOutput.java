@@ -637,6 +637,8 @@ public final class DefaultTrackOutput implements TrackOutput {
      *     buffer is stored in {@code extrasHolder}, along with an encryption id if present and the
      *     absolute position of the first byte that may still be required after the current sample
      *     has been read.
+     * @param downstreamFormat The current downstream {@link Format}. If the format of the next
+     *     sample is different to the current downstream format then a format will be read.
      * @param extrasHolder The holder into which extra sample information should be written.
      * @return The result, which can be {@link TrackStream#NOTHING_READ},
      *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.

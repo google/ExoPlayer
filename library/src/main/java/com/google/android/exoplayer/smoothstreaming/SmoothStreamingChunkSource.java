@@ -28,7 +28,6 @@ import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.Track;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
@@ -58,7 +57,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final FormatEvaluator adaptiveFormatEvaluator;
 
   private SmoothStreamingManifest manifest;
-  private DrmInitData drmInitData;
   private int currentManifestChunkOffset;
   private boolean needManifestRefresh;
 
@@ -72,18 +70,15 @@ public class SmoothStreamingChunkSource implements ChunkSource {
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param trackEncryptionBoxes Track encryption boxes for the stream.
-   * @param drmInitData Drm initialization data for the stream.
    */
   public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int elementIndex,
       TrackGroup trackGroup, int[] tracks, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes,
-      DrmInitData drmInitData) {
+      FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes) {
     this.manifest = manifest;
     this.elementIndex = elementIndex;
     this.trackGroup = trackGroup;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
-    this.drmInitData = drmInitData;
     this.evaluation = new Evaluation();
 
     StreamElement streamElement = manifest.streamElements[elementIndex];
@@ -97,7 +92,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
           | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track);
-      extractorWrappers[j] = new ChunkExtractorWrapper(extractor);
+      extractorWrappers[j] = new ChunkExtractorWrapper(extractor, formats[j].drmInitData);
     }
 
     enabledFormats = new Format[tracks.length];
@@ -224,8 +219,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
     out.chunk = newMediaChunk(selectedFormat, dataSource, uri, null, currentAbsoluteChunkIndex,
-        chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, extractorWrapper, drmInitData,
-        selectedFormat);
+        chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, extractorWrapper);
   }
 
   @Override
@@ -274,13 +268,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   private static MediaChunk newMediaChunk(Format format, DataSource dataSource, Uri uri,
       String cacheKey, int chunkIndex, long chunkStartTimeUs, long chunkEndTimeUs, int trigger,
-      ChunkExtractorWrapper extractorWrapper, DrmInitData drmInitData, Format sampleFormat) {
+      ChunkExtractorWrapper extractorWrapper) {
     DataSpec dataSpec = new DataSpec(uri, 0, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;
     return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, chunkStartTimeUs,
-        chunkEndTimeUs, chunkIndex, sampleOffsetUs, extractorWrapper, sampleFormat, drmInitData);
+        chunkEndTimeUs, chunkIndex, sampleOffsetUs, extractorWrapper, format);
   }
 
 }

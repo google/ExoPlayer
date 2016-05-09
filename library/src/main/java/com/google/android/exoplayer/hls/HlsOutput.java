@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -114,11 +113,6 @@ import android.util.SparseArray;
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    // Do nothing.
-  }
-
-  @Override
-  public void drmInitData(DrmInitData drmInitData) {
     // Do nothing.
   }
 

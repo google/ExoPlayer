@@ -28,26 +28,11 @@ public class AdaptationSet {
   public final int type;
 
   public final List<Representation> representations;
-  public final List<ContentProtection> contentProtections;
 
-  public AdaptationSet(int id, int type, List<Representation> representations,
-      List<ContentProtection> contentProtections) {
+  public AdaptationSet(int id, int type, List<Representation> representations) {
     this.id = id;
     this.type = type;
     this.representations = Collections.unmodifiableList(representations);
-    if (contentProtections == null) {
-      this.contentProtections = Collections.emptyList();
-    } else {
-      this.contentProtections = Collections.unmodifiableList(contentProtections);
-    }
-  }
-
-  public AdaptationSet(int id, int type, List<Representation> representations) {
-    this(id, type, representations, null);
-  }
-
-  public boolean hasContentProtection() {
-    return !contentProtections.isEmpty();
   }
 
 }

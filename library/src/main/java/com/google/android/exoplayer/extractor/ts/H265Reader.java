@@ -309,7 +309,7 @@ import java.util.Collections;
 
     return Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H265, Format.NO_VALUE,
         Format.NO_VALUE, picWidthInLumaSamples, picHeightInLumaSamples, Format.NO_VALUE,
-        Collections.singletonList(csd), Format.NO_VALUE, pixelWidthHeightRatio);
+        Collections.singletonList(csd), Format.NO_VALUE, pixelWidthHeightRatio, null);
   }
 
   /**

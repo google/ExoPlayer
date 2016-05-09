@@ -45,14 +45,11 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
      */
     void seekMap(SeekMap seekMap);
 
-    /**
-     * @see ExtractorOutput#drmInitData(DrmInitData)
-     */
-    void drmInitData(DrmInitData drmInitData);
-
   }
 
   private final Extractor extractor;
+  private final DrmInitData drmInitData;
+
   private boolean extractorInitialized;
   private SingleTrackMetadataOutput metadataOutput;
   private TrackOutput trackOutput;
@@ -62,9 +59,12 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   /**
    * @param extractor The extractor to wrap.
+   * @param drmInitData {@link DrmInitData} that should be added to any format extracted from the
+   *     stream. If set, overrides any {@link DrmInitData} extracted from the stream.
    */
-  public ChunkExtractorWrapper(Extractor extractor) {
+  public ChunkExtractorWrapper(Extractor extractor, DrmInitData drmInitData) {
     this.extractor = extractor;
+    this.drmInitData = drmInitData;
   }
 
   /**
@@ -118,15 +118,13 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
     metadataOutput.seekMap(seekMap);
   }
 
-  @Override
-  public void drmInitData(DrmInitData drmInitData) {
-    metadataOutput.drmInitData(drmInitData);
-  }
-
   // TrackOutput implementation.
 
   @Override
   public void format(Format format) {
+    if (drmInitData != null) {
+      format = format.copyWithDrmInitData(drmInitData);
+    }
     trackOutput.format(format);
   }
 

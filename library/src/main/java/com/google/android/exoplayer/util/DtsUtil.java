@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.drm.DrmInitData;
 
 import java.nio.ByteBuffer;
 
@@ -54,9 +55,11 @@ public final class DtsUtil {
    * @param frame The DTS frame to parse.
    * @param trackId The track identifier to set on the format, or null.
    * @param language The language to set on the format.
+   * @param drmInitData {@link DrmInitData} to be included in the format.
    * @return The DTS format parsed from data in the header.
    */
-  public static Format parseDtsFormat(byte[] frame, String trackId, String language) {
+  public static Format parseDtsFormat(byte[] frame, String trackId, String language,
+      DrmInitData drmInitData) {
     ParsableBitArray frameBits = SCRATCH_BITS;
     frameBits.reset(frame);
     frameBits.skipBits(4 * 8 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
@@ -70,7 +73,7 @@ public final class DtsUtil {
     frameBits.skipBits(10); // MIX, DYNF, TIMEF, AUXF, HDCD, EXT_AUDIO_ID, EXT_AUDIO, ASPF
     channelCount += frameBits.readBits(2) > 0 ? 1 : 0; // LFF
     return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_DTS, bitrate, Format.NO_VALUE,
-        channelCount, sampleRate, null, language);
+        channelCount, sampleRate, null, language, drmInitData);
   }
 
   /**

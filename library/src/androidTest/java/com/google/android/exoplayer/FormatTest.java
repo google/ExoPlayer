@@ -46,17 +46,17 @@ public final class FormatTest extends TestCase {
     initData.add(initData2);
 
     testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(
-        null, "video/xyz", 5000, 102400, 1280, 720, 30, initData));
+        null, "video/xyz", 5000, 102400, 1280, 720, 30, initData, null));
     testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(
-        null, "video/xyz", 5000, Format.NO_VALUE, 1280, 720, 30, null));
+        null, "video/xyz", 5000, Format.NO_VALUE, 1280, 720, 30, null, null));
     testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(
-        null, "audio/xyz", 500, 128, 5, 44100, initData, null));
+        null, "audio/xyz", 500, 128, 5, 44100, initData, null, null));
     testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(
-        null, "audio/xyz", 500, Format.NO_VALUE, 5, 44100, null, null));
+        null, "audio/xyz", 500, Format.NO_VALUE, 5, 44100, null, null, null));
     testConversionToFrameworkMediaFormatV16(
-        Format.createTextSampleFormat(null, "text/xyz", Format.NO_VALUE, "eng"));
+        Format.createTextSampleFormat(null, "text/xyz", Format.NO_VALUE, "eng", null));
     testConversionToFrameworkMediaFormatV16(
-        Format.createTextSampleFormat(null, "text/xyz", Format.NO_VALUE, null));
+        Format.createTextSampleFormat(null, "text/xyz", Format.NO_VALUE, null, null));
   }
 
   @SuppressLint("InlinedApi")

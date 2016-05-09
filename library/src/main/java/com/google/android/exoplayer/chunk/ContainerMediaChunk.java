@@ -17,7 +17,6 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
@@ -38,7 +37,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
   private final long sampleOffsetUs;
   private final Format sampleFormat;
 
-  private volatile DrmInitData drmInitData;
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
 
@@ -54,17 +52,14 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param sampleFormat The {@link Format} of the samples in the chunk, if known. May be null if
    *     the data is known to define its own sample format.
-   * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
-   *     protected. May also be null if the data is known to define its own initialization data.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, Format sampleFormat, DrmInitData drmInitData) {
+      ChunkExtractorWrapper extractorWrapper, Format sampleFormat) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.sampleFormat = sampleFormat;
-    this.drmInitData = drmInitData;
   }
 
   @Override
@@ -72,21 +67,11 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
     return bytesLoaded;
   }
 
-  @Override
-  public final DrmInitData getDrmInitData() {
-    return drmInitData;
-  }
-
   // SingleTrackMetadataOutput implementation.
 
   @Override
   public final void seekMap(SeekMap seekMap) {
     // Do nothing.
-  }
-
-  @Override
-  public final void drmInitData(DrmInitData drmInitData) {
-    this.drmInitData = drmInitData;
   }
 
   // Loadable implementation.

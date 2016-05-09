@@ -84,7 +84,8 @@ import java.util.Collections;
   public AdtsReader(TrackOutput output, TrackOutput id3Output) {
     super(output);
     this.id3Output = id3Output;
-    id3Output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, Format.NO_VALUE));
+    id3Output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, Format.NO_VALUE,
+        null));
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
@@ -275,7 +276,7 @@ import java.util.Collections;
 
       Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, Format.NO_VALUE,
           Format.NO_VALUE, audioParams.second, audioParams.first,
-          Collections.singletonList(audioSpecificConfig), null);
+          Collections.singletonList(audioSpecificConfig), null, null);
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.
       sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / format.sampleRate;

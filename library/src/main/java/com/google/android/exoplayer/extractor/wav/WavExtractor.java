@@ -74,7 +74,7 @@ public final class WavExtractor implements Extractor, SeekMap {
       }
       Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW,
           wavHeader.getBitrate(), MAX_INPUT_SIZE, wavHeader.getNumChannels(),
-          wavHeader.getSampleRateHz(), null, null);
+          wavHeader.getSampleRateHz(), null, null, null);
       trackOutput.format(format);
       bytesPerFrame = wavHeader.getBytesPerFrame();
     }

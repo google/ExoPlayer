@@ -16,7 +16,6 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.NalUnitUtil;
@@ -171,7 +170,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected final Handler eventHandler;
 
   private Format format;
-  private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
   private boolean codecNeedsDiscardToSpsWorkaround;
@@ -286,13 +284,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     String mimeType = format.sampleMimeType;
     MediaCrypto mediaCrypto = null;
     boolean requiresSecureDecoder = false;
-    if (drmInitData != null) {
+    if (format.drmInitData != null) {
       if (drmSessionManager == null) {
         throw ExoPlaybackException.createForRenderer(
             new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
       }
       if (!openedDrmSession) {
-        drmSessionManager.open(drmInitData);
+        drmSessionManager.open(format.drmInitData);
         openedDrmSession = true;
       }
       int drmSessionState = drmSessionManager.getState();
@@ -376,7 +374,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void onDisabled() {
     format = null;
-    drmInitData = null;
     try {
       releaseCodec();
     } finally {
@@ -665,7 +662,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format oldFormat = format;
     format = formatHolder.format;
-    drmInitData = formatHolder.drmInitData;
     if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;

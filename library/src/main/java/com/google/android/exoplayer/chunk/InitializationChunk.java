@@ -17,7 +17,6 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -42,7 +41,6 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   // has completed. These variables do not need to be volatile, since a memory barrier must occur
   // for the reading thread to know that loading has completed.
   private Format sampleFormat;
-  private DrmInitData drmInitData;
   private SeekMap seekMap;
 
   private volatile int bytesLoaded;
@@ -78,15 +76,6 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   }
 
   /**
-   * Returns a {@link DrmInitData} parsed from the chunk, or null.
-   * <p>
-   * Should be called after loading has completed.
-   */
-  public DrmInitData getDrmInitData() {
-    return drmInitData;
-  }
-
-  /**
    * Returns a {@link SeekMap} parsed from the chunk, or null.
    * <p>
    * Should be called after loading has completed.
@@ -100,11 +89,6 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   @Override
   public void seekMap(SeekMap seekMap) {
     this.seekMap = seekMap;
-  }
-
-  @Override
-  public void drmInitData(DrmInitData drmInitData) {
-    this.drmInitData = drmInitData;
   }
 
   // TrackOutput implementation.

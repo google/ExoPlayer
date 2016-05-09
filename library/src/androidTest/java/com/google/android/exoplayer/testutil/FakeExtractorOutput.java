@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.testutil;
 
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
 
@@ -36,7 +35,6 @@ public final class FakeExtractorOutput implements ExtractorOutput {
   public int numberOfTracks;
   public boolean tracksEnded;
   public SeekMap seekMap;
-  public DrmInitData drmInitData;
 
   public FakeExtractorOutput() {
     this(false);
@@ -70,11 +68,6 @@ public final class FakeExtractorOutput implements ExtractorOutput {
     this.seekMap = seekMap;
   }
 
-  @Override
-  public void drmInitData(DrmInitData drmInitData) {
-    this.drmInitData = drmInitData;
-  }
-
   public void assertEquals(FakeExtractorOutput expected) {
     Assert.assertEquals(expected.numberOfTracks, numberOfTracks);
     Assert.assertEquals(expected.tracksEnded, tracksEnded);
@@ -86,13 +79,6 @@ public final class FakeExtractorOutput implements ExtractorOutput {
       Assert.assertEquals(expected.seekMap.getClass(), seekMap.getClass());
       Assert.assertEquals(expected.seekMap.isSeekable(), seekMap.isSeekable());
       Assert.assertEquals(expected.seekMap.getPosition(0), seekMap.getPosition(0));
-    }
-    if (expected.drmInitData == null) {
-      Assert.assertNull(drmInitData);
-    } else {
-      // TODO: Bulk up this check if possible.
-      Assert.assertNotNull(drmInitData);
-      Assert.assertEquals(expected.drmInitData.getClass(), drmInitData.getClass());
     }
     for (int i = 0; i < numberOfTracks; i++) {
       Assert.assertEquals(expected.trackOutputs.keyAt(i), trackOutputs.keyAt(i));

@@ -28,8 +28,6 @@ import com.google.android.exoplayer.chunk.ChunkTrackStream;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
-import com.google.android.exoplayer.drm.DrmInitData;
-import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
@@ -38,7 +36,6 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.ManifestFetcher;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -69,7 +66,6 @@ public final class SmoothStreamingSampleSource implements SampleSource {
   private long durationUs;
   private SmoothStreamingManifest currentManifest;
   private TrackEncryptionBox[] trackEncryptionBoxes;
-  private DrmInitData drmInitData;
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
   private boolean pendingReset;
@@ -117,10 +113,8 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     ProtectionElement protectionElement = currentManifest.protectionElement;
     if (protectionElement != null) {
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
-      trackEncryptionBoxes = new TrackEncryptionBox[1];
-      trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      drmInitData = new DrmInitData(
-          new SchemeData(protectionElement.uuid, MimeTypes.VIDEO_MP4, protectionElement.data));
+      trackEncryptionBoxes = new TrackEncryptionBox[] {
+          new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId)};
     }
     return true;
   }
@@ -279,7 +273,7 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(currentManifest,
         streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
-        adaptiveEvaluator, trackEncryptionBoxes, drmInitData);
+        adaptiveEvaluator, trackEncryptionBoxes);
     ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
         positionUs, eventHandler, eventListener, streamElementType);
     return Pair.create(chunkSource, trackStream);

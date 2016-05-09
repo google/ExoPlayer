@@ -22,6 +22,7 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.upstream.UriLoadable;
@@ -46,8 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -234,9 +233,9 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     int audioChannels = -1;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", -1);
     String language = xpp.getAttributeValue(null, "lang");
+    ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
+    List<RepresentationInfo> representationInfos = new ArrayList<>();
 
-    ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
-    List<Representation> representations = new ArrayList<>();
     boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
@@ -246,20 +245,19 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
           seenFirstBaseUrl = true;
         }
       } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
-        ContentProtection contentProtection = parseContentProtection(xpp);
+        SchemeData contentProtection = parseContentProtection(xpp);
         if (contentProtection != null) {
-          contentProtectionsBuilder.addAdaptationSetProtection(contentProtection);
+          drmSchemeDatas.add(contentProtection);
         }
       } else if (ParserUtil.isStartTag(xpp, "ContentComponent")) {
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (ParserUtil.isStartTag(xpp, "Representation")) {
-        Representation representation = parseRepresentation(xpp, baseUrl, mimeType, codecs, width,
-            height, frameRate, audioChannels, audioSamplingRate, language, segmentBase,
-            contentProtectionsBuilder);
-        contentProtectionsBuilder.endRepresentation();
-        contentType = checkContentTypeConsistency(contentType, getContentType(representation));
-        representations.add(representation);
+        RepresentationInfo representationInfo = parseRepresentation(xpp, baseUrl, mimeType, codecs,
+            width, height, frameRate, audioChannels, audioSamplingRate, language, segmentBase);
+        contentType = checkContentTypeConsistency(contentType,
+            getContentType(representationInfo.format));
+        representationInfos.add(representationInfo);
       } else if (ParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
@@ -273,12 +271,18 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       }
     } while (!ParserUtil.isEndTag(xpp, "AdaptationSet"));
 
-    return buildAdaptationSet(id, contentType, representations, contentProtectionsBuilder.build());
+    List<Representation> representations = new ArrayList<>(representationInfos.size());
+    for (int i = 0; i < representationInfos.size(); i++) {
+      representations.add(buildRepresentation(representationInfos.get(i), contentId,
+          drmSchemeDatas));
+    }
+
+    return buildAdaptationSet(id, contentType, representations);
   }
 
   protected AdaptationSet buildAdaptationSet(int id, int contentType,
-      List<Representation> representations, List<ContentProtection> contentProtections) {
-    return new AdaptationSet(id, contentType, representations, contentProtections);
+      List<Representation> representations) {
+    return new AdaptationSet(id, contentType, representations);
   }
 
   protected int parseContentType(XmlPullParser xpp) {
@@ -290,8 +294,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         : C.TRACK_TYPE_UNKNOWN;
   }
 
-  protected int getContentType(Representation representation) {
-    String sampleMimeType = representation.format.sampleMimeType;
+  protected int getContentType(Format format) {
+    String sampleMimeType = format.sampleMimeType;
     if (TextUtils.isEmpty(sampleMimeType)) {
       return C.TRACK_TYPE_UNKNOWN;
     } else if (MimeTypes.isVideo(sampleMimeType)) {
@@ -305,15 +309,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   /**
-   * Parses a {@link ContentProtection} element.
+   * Parses a ContentProtection element.
    *
    * @throws XmlPullParserException If an error occurs parsing the element.
    * @throws IOException If an error occurs reading the element.
-   * @return The parsed {@link ContentProtection} element, or null if the element is unsupported.
+   * @return {@link SchemeData} parsed from the ContentProtection element, or null if the element is
+   *     unsupported.
    **/
-  protected ContentProtection parseContentProtection(XmlPullParser xpp)
+  protected SchemeData parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     SchemeData schemeData = null;
     boolean seenPsshElement = false;
     do {
@@ -332,11 +336,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       Log.w(TAG, "Skipped unsupported ContentProtection element");
       return null;
     }
-    return buildContentProtection(schemeIdUri, schemeData);
-  }
-
-  protected ContentProtection buildContentProtection(String schemeIdUri, SchemeData schemeData) {
-    return new ContentProtection(schemeIdUri, schemeData);
+    return schemeData;
   }
 
   /**
@@ -353,11 +353,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // Representation parsing.
 
-  protected Representation parseRepresentation(XmlPullParser xpp, String baseUrl,
+  protected RepresentationInfo parseRepresentation(XmlPullParser xpp, String baseUrl,
       String adaptationSetMimeType, String adaptationSetCodecs, int adaptationSetWidth,
       int adaptationSetHeight, float adaptationSetFrameRate, int adaptationSetAudioChannels,
-      int adaptationSetAudioSamplingRate, String adaptationSetLanguage, SegmentBase segmentBase,
-      ContentProtectionsBuilder contentProtectionsBuilder)
+      int adaptationSetAudioSamplingRate, String adaptationSetLanguage, SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth");
@@ -369,6 +368,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     float frameRate = parseFrameRate(xpp, adaptationSetFrameRate);
     int audioChannels = adaptationSetAudioChannels;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", adaptationSetAudioSamplingRate);
+    ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -387,17 +387,18 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
-        ContentProtection contentProtection = parseContentProtection(xpp);
+        SchemeData contentProtection = parseContentProtection(xpp);
         if (contentProtection != null) {
-          contentProtectionsBuilder.addAdaptationSetProtection(contentProtection);
+          drmSchemeDatas.add(contentProtection);
         }
       }
     } while (!ParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, adaptationSetLanguage, codecs);
-    return buildRepresentation(contentId, -1, format,
-        segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
+    segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl);
+
+    return new RepresentationInfo(format, segmentBase, drmSchemeDatas);
   }
 
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
@@ -422,9 +423,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
   }
 
-  protected Representation buildRepresentation(String contentId, int revisionId, Format format,
-      SegmentBase segmentBase) {
-    return Representation.newInstance(contentId, revisionId, format, segmentBase);
+  protected Representation buildRepresentation(RepresentationInfo representationInfo,
+      String contentId, ArrayList<SchemeData> extraDrmSchemeDatas) {
+    Format format = representationInfo.format;
+    ArrayList<SchemeData> drmSchemeDatas = representationInfo.drmSchemeDatas;
+    drmSchemeDatas.addAll(extraDrmSchemeDatas);
+    if (!drmSchemeDatas.isEmpty()) {
+      format = format.copyWithDrmInitData(new DrmInitData(drmSchemeDatas));
+    }
+    return Representation.newInstance(contentId, -1, format, representationInfo.segmentBase);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
@@ -772,118 +779,17 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return value == null ? defaultValue : value;
   }
 
-  /**
-   * Builds a list of {@link ContentProtection} elements for an {@link AdaptationSet}.
-   * <p>
-   * If child Representation elements contain ContentProtection elements, then it is required that
-   * they all define the same ones. If they do, the ContentProtection elements are bubbled up to the
-   * AdaptationSet. Child Representation elements defining different ContentProtection elements is
-   * considered an error.
-   */
-  protected static final class ContentProtectionsBuilder implements Comparator<ContentProtection> {
+  private static final class RepresentationInfo {
 
-    private ArrayList<ContentProtection> adaptationSetProtections;
-    private ArrayList<ContentProtection> representationProtections;
-    private ArrayList<ContentProtection> currentRepresentationProtections;
+    public final Format format;
+    public final SegmentBase segmentBase;
+    public final ArrayList<SchemeData> drmSchemeDatas;
 
-    private boolean representationProtectionsSet;
-
-    /**
-     * Adds a {@link ContentProtection} found in the AdaptationSet element.
-     *
-     * @param contentProtection The {@link ContentProtection} to add.
-     */
-    public void addAdaptationSetProtection(ContentProtection contentProtection) {
-      if (adaptationSetProtections == null) {
-        adaptationSetProtections = new ArrayList<>();
-      }
-      maybeAddContentProtection(adaptationSetProtections, contentProtection);
-    }
-
-    /**
-     * Adds a {@link ContentProtection} found in a child Representation element.
-     *
-     * @param contentProtection The {@link ContentProtection} to add.
-     */
-    public void addRepresentationProtection(ContentProtection contentProtection) {
-      if (currentRepresentationProtections == null) {
-        currentRepresentationProtections = new ArrayList<>();
-      }
-      maybeAddContentProtection(currentRepresentationProtections, contentProtection);
-    }
-
-    /**
-     * Should be invoked after processing each child Representation element, in order to apply
-     * consistency checks.
-     */
-    public void endRepresentation() {
-      if (!representationProtectionsSet) {
-        if (currentRepresentationProtections != null) {
-          Collections.sort(currentRepresentationProtections, this);
-        }
-        representationProtections = currentRepresentationProtections;
-        representationProtectionsSet = true;
-      } else {
-        // Assert that each Representation element defines the same ContentProtection elements.
-        if (currentRepresentationProtections == null) {
-          Assertions.checkState(representationProtections == null);
-        } else {
-          Collections.sort(currentRepresentationProtections, this);
-          Assertions.checkState(currentRepresentationProtections.equals(representationProtections));
-        }
-      }
-      currentRepresentationProtections = null;
-    }
-
-    /**
-     * Returns the final list of consistent {@link ContentProtection} elements.
-     */
-    public ArrayList<ContentProtection> build() {
-      if (adaptationSetProtections == null) {
-        return representationProtections;
-      } else if (representationProtections == null) {
-        return adaptationSetProtections;
-      } else {
-        // Bubble up ContentProtection elements found in the child Representation elements.
-        for (int i = 0; i < representationProtections.size(); i++) {
-          maybeAddContentProtection(adaptationSetProtections, representationProtections.get(i));
-        }
-        return adaptationSetProtections;
-      }
-    }
-
-    /**
-     * Checks a ContentProtection for consistency with the given list, adding it if necessary.
-     * <ul>
-     * <li>If the new ContentProtection matches another in the list, it's consistent and is not
-     *     added to the list.
-     * <li>If the new ContentProtection has the same schemeUriId as another ContentProtection in the
-     *     list, but its other attributes do not match, then it's inconsistent and an
-     *     {@link IllegalStateException} is thrown.
-     * <li>Else the new ContentProtection has a unique schemeUriId, it's consistent and is added.
-     * </ul>
-     *
-     * @param contentProtections The list of ContentProtection elements currently known.
-     * @param contentProtection The ContentProtection to add.
-     */
-    private void maybeAddContentProtection(List<ContentProtection> contentProtections,
-        ContentProtection contentProtection) {
-      if (!contentProtections.contains(contentProtection)) {
-        for (int i = 0; i < contentProtections.size(); i++) {
-          // If contains returned false (no complete match), but find a matching schemeUriId, then
-          // the MPD contains inconsistent ContentProtection data.
-          Assertions.checkState(
-              !contentProtections.get(i).schemeUriId.equals(contentProtection.schemeUriId));
-        }
-        contentProtections.add(contentProtection);
-      }
-    }
-
-    // Comparator implementation.
-
-    @Override
-    public int compare(ContentProtection first, ContentProtection second) {
-      return first.schemeUriId.compareTo(second.schemeUriId);
+    public RepresentationInfo(Format format, SegmentBase segmentBase,
+        ArrayList<SchemeData> drmSchemeDatas) {
+      this.format = format;
+      this.segmentBase = segmentBase;
+      this.drmSchemeDatas = drmSchemeDatas;
     }
 
   }

@@ -96,7 +96,7 @@ import java.util.List;
       Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264,
           Format.NO_VALUE, Format.NO_VALUE, avcData.width, avcData.height,
           Format.NO_VALUE, avcData.initializationData, Format.NO_VALUE,
-          avcData.pixelWidthAspectRatio);
+          avcData.pixelWidthAspectRatio, null);
       output.format(format);
       hasOutputFormat = true;
     } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {
