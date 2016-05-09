@@ -626,17 +626,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       }
     });
 
-    int defaultVariantIndex = 0;
+    int defaultVariantIndex = computeDefaultVariantIndex(playlist, variants, bandwidthMeter);
     int maxWidth = -1;
     int maxHeight = -1;
 
-    int minOriginalVariantIndex = Integer.MAX_VALUE;
     for (int i = 0; i < variants.length; i++) {
-      int originalVariantIndex = playlist.variants.indexOf(variants[i]);
-      if (originalVariantIndex < minOriginalVariantIndex) {
-        minOriginalVariantIndex = originalVariantIndex;
-        defaultVariantIndex = i;
-      }
       Format variantFormat = variants[i].format;
       maxWidth = Math.max(variantFormat.width, maxWidth);
       maxHeight = Math.max(variantFormat.height, maxHeight);
@@ -653,6 +647,21 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     tracks.add(new ExposedTrack(variant));
   }
 
+  protected int computeDefaultVariantIndex(HlsMasterPlaylist playlist, Variant[] variants, BandwidthMeter bandwidthMeter) {
+    int defaultVariantIndex = 0;
+    int minOriginalVariantIndex = Integer.MAX_VALUE;
+
+    for (int i = 0; i < variants.length; i++) {
+      int originalVariantIndex = playlist.variants.indexOf(variants[i]);
+      if (originalVariantIndex < minOriginalVariantIndex) {
+        minOriginalVariantIndex = originalVariantIndex;
+        defaultVariantIndex = i;
+      }
+    }
+
+    return  defaultVariantIndex;
+  }
+  
   // Private methods.
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
