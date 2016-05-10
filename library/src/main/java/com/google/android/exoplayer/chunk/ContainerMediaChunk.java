@@ -158,7 +158,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
         // Set the target to ourselves.
         extractorWrapper.init(this);
       }
-      // Load and parse the initialization data.
+      // Load and parse the sample data.
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {

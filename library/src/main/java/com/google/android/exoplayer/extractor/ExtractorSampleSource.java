@@ -52,7 +52,7 @@ import java.util.List;
  * <li>MP4, including M4A ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
  * <li>fMP4 ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
  * <li>Matroska and WebM ({@link com.google.android.exoplayer.extractor.webm.WebmExtractor})</li>
- * <li>Ogg Vorbis ({@link com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor}</li>
+ * <li>Ogg Vorbis/FLAC ({@link com.google.android.exoplayer.extractor.ogg.OggExtractor}</li>
  * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
  * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
  * <li>MPEG TS ({@link com.google.android.exoplayer.extractor.ts.TsExtractor})</li>
@@ -172,7 +172,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     }
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor")
+          Class.forName("com.google.android.exoplayer.extractor.ogg.OggExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.

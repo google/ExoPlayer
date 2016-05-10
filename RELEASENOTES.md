@@ -1,5 +1,14 @@
 # Release notes #
 
+### r1.5.8 ###
+
+* HLS: Fix handling of HTTP redirects.
+* Audio: Minor adjustment to improve A/V sync.
+* OGG: Support FLAC in OGG.
+* TTML: Support regions.
+* WAV/PCM: Support 8, 24 and 32-bit WAV and PCM audio.
+* Misc bug fixes and performance optimizations.
+
 ### r1.5.7 ###
 
 * OGG: Support added for OGG.
@@ -96,6 +105,7 @@
 * TTML: Improved handling of whitespace.
 * DASH: Support Mpd.Location element.
 * Add option to TsExtractor to allow non-IDR keyframes.
+* Added MulticastDataSource for connecting to multicast streams.
 * (WorkInProgress) - First steps to supporting seeking in DASH DVR window.
 * (WorkInProgress) - First steps to supporting styled + positioned subtitles.
 * Misc bug fixes.

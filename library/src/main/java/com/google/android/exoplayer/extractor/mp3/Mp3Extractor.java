@@ -67,7 +67,7 @@ public final class Mp3Extractor implements Extractor {
   private GaplessInfo gaplessInfo;
   private Seeker seeker;
   private long basisTimeUs;
-  private int samplesRead;
+  private long samplesRead;
   private int sampleBytesRemaining;
 
   /**

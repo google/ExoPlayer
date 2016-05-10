@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.wav;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.util.Assertions;
@@ -53,8 +54,8 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(16);
 
     // Attempt to read the RIFF chunk.
-    ChunkHeader riffChunkHeader = ChunkHeader.peek(input, scratch);
-    if (riffChunkHeader.id != Util.getIntegerCodeForString("RIFF")) {
+    ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
+    if (chunkHeader.id != Util.getIntegerCodeForString("RIFF")) {
       return null;
     }
 
@@ -66,14 +67,14 @@ import java.io.IOException;
       return null;
     }
 
-    // Attempt to read the format chunk.
-    ChunkHeader formatChunkHeader = ChunkHeader.peek(input, scratch);
-    if (formatChunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
-      throw new ParserException(
-          "Second chunk in RIFF WAV should be format; got: " + formatChunkHeader.id);
+    // Skip chunks until we find the format chunk.
+    chunkHeader = ChunkHeader.peek(input, scratch);
+    while (chunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
+      input.advancePeekPosition((int) chunkHeader.size);
+      chunkHeader = ChunkHeader.peek(input, scratch);
     }
-    Assertions.checkState(formatChunkHeader.size >= 16);
 
+    Assertions.checkState(chunkHeader.size >= 16);
     input.peekFully(scratch.data, 0, 16);
     scratch.setPosition(0);
     int type = scratch.readLittleEndianUnsignedShort();
@@ -85,14 +86,13 @@ import java.io.IOException;
 
     int expectedBlockAlignment = numChannels * bitsPerSample / 8;
     if (blockAlignment != expectedBlockAlignment) {
-      throw new ParserException(
-          "Expected WAV block alignment of: "
-              + expectedBlockAlignment
-              + "; got: "
-              + blockAlignment);
+      throw new ParserException("Expected block alignment: " + expectedBlockAlignment + "; got: "
+          + blockAlignment);
     }
-    if (bitsPerSample != 16) {
-      Log.e(TAG, "Only 16-bit WAVs are supported; got: " + bitsPerSample);
+
+    int encoding = Util.getPcmEncoding(bitsPerSample);
+    if (encoding == C.ENCODING_INVALID) {
+      Log.e(TAG, "Unsupported WAV bit depth: " + bitsPerSample);
       return null;
     }
 
@@ -102,10 +102,10 @@ import java.io.IOException;
     }
 
     // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
-    input.advancePeekPosition((int) formatChunkHeader.size - 16);
+    input.advancePeekPosition((int) chunkHeader.size - 16);
 
-    return new WavHeader(
-        numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample);
+    return new WavHeader(numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment,
+        bitsPerSample, encoding);
   }
 
   /**
@@ -125,6 +125,9 @@ import java.io.IOException;
       throws IOException, InterruptedException, ParserException {
     Assertions.checkNotNull(input);
     Assertions.checkNotNull(wavHeader);
+
+    // Make sure the peek position is set to the read position before we peek the first header.
+    input.resetPeekPosition();
 
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we hit the data header.

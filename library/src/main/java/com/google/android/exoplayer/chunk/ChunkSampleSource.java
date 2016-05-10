@@ -249,11 +249,11 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
       currentChunk = mediaChunks.getFirst();
     }
 
-    if (downstreamFormat == null || !downstreamFormat.equals(currentChunk.format)) {
-      notifyDownstreamFormatChanged(currentChunk.format, currentChunk.trigger,
-          currentChunk.startTimeUs);
-      downstreamFormat = currentChunk.format;
+    Format format = currentChunk.format;
+    if (!format.equals(downstreamFormat)) {
+      notifyDownstreamFormatChanged(format, currentChunk.trigger, currentChunk.startTimeUs);
     }
+    downstreamFormat = format;
 
     if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
@@ -263,6 +263,11 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
         downstreamMediaFormat = mediaFormat;
         return FORMAT_READ;
       }
+      // If mediaFormat and downstreamMediaFormat are equal but different objects then the equality
+      // check above will have been expensive, comparing the fields in each format. We update
+      // downstreamMediaFormat here so that referential equality can be cheaply established during
+      // subsequent calls.
+      downstreamMediaFormat = mediaFormat;
     }
 
     if (!haveSamples) {

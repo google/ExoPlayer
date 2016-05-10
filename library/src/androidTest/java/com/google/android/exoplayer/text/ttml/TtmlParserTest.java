@@ -41,32 +41,22 @@ import java.util.Map;
  */
 public final class TtmlParserTest extends InstrumentationTestCase {
 
-  private static final String INLINE_ATTRIBUTES_TTML_FILE =
-      "ttml/inline_style_attributes.xml";
-  private static final String INHERIT_STYLE_TTML_FILE =
-      "ttml/inherit_style.xml";
+  private static final String INLINE_ATTRIBUTES_TTML_FILE = "ttml/inline_style_attributes.xml";
+  private static final String INHERIT_STYLE_TTML_FILE = "ttml/inherit_style.xml";
   private static final String INHERIT_STYLE_OVERRIDE_TTML_FILE =
       "ttml/inherit_and_override_style.xml";
   private static final String INHERIT_GLOBAL_AND_PARENT_TTML_FILE =
       "ttml/inherit_global_and_parent.xml";
   private static final String INHERIT_MULTIPLE_STYLES_TTML_FILE =
       "ttml/inherit_multiple_styles.xml";
-  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE =
-      "ttml/chain_multiple_styles.xml";
+  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE = "ttml/chain_multiple_styles.xml";
+  private static final String MULTIPLE_REGIONS_TTML_FILE = "ttml/multiple_regions.xml";
   private static final String NO_UNDERLINE_LINETHROUGH_TTML_FILE =
       "ttml/no_underline_linethrough.xml";
-  private static final String NAMESPACE_CONFUSION_TTML_FILE =
-      "ttml/namespace_confusion.xml";
-  private static final String NAMESPACE_NOT_DECLARED_TTML_FILE =
-      "ttml/namespace_not_declared.xml";
-  private static final String FONT_SIZE_TTML_FILE =
-      "ttml/font_size.xml";
-  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE =
-      "ttml/font_size_no_unit.xml";
-  private static final String FONT_SIZE_INVALID_TTML_FILE =
-      "ttml/font_size_invalid.xml";
-  private static final String FONT_SIZE_EMPTY_TTML_FILE =
-      "ttml/font_size_empty.xml";
+  private static final String FONT_SIZE_TTML_FILE = "ttml/font_size.xml";
+  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "ttml/font_size_no_unit.xml";
+  private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
+  private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -77,7 +67,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
     TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
     TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-    assertEquals(TtmlColorParser.parseColor("yellow"), firstPStyle.getColor());
+    assertEquals(TtmlColorParser.parseColor("yellow"), firstPStyle.getFontColor());
     assertEquals(TtmlColorParser.parseColor("blue"), firstPStyle.getBackgroundColor());
     assertEquals("serif", firstPStyle.getFontFamily());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, firstPStyle.getStyle());
@@ -92,29 +82,28 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   }
 
   /**
-   * regression test for devices on JellyBean where some named colors are not correctly defined
+   * Regression test for devices on JellyBean where some named colors are not correctly defined
    * on framework level. Tests that <i>lime</i> resolves to <code>#FF00FF00</code> not
    * <code>#00FF00</code>.
    *
-   * See: https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/
-   *          graphics/java/android/graphics/Color.java#L414
-   *      https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/
-   *          graphics/java/android/graphics/Color.java#L414
-   *
+   * @see <a href="https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414">
+   *     JellyBean Color</a>
+   *     <a href="https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414">
+   *     Kitkat Color</a>
    * @throws IOException thrown if reading subtitle file fails.
    */
   public void testLime() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
-    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
-        TtmlColorParser.CYAN, TtmlColorParser.LIME, false, true, null);
+    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, TtmlColorParser.CYAN,
+        TtmlColorParser.LIME, false, true, null);
   }
 
   public void testInheritGlobalStyle() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
-    assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC,
-        TtmlColorParser.BLUE, TtmlColorParser.YELLOW, true, false, null);
+    assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, TtmlColorParser.BLUE,
+        TtmlColorParser.YELLOW, true, false, null);
   }
 
   public void testInheritGlobalStyleOverriddenByInlineAttributes() throws IOException {
@@ -131,11 +120,10 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
-    assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_NORMAL,
-        TtmlColorParser.RED, TtmlColorParser.parseColor("lime"), false, true,
-        Layout.Alignment.ALIGN_CENTER);
-    assertSpans(subtitle, 20, "text 2", "serif", TtmlStyle.STYLE_BOLD_ITALIC,
-        TtmlColorParser.BLUE, TtmlColorParser.YELLOW, true, true, Layout.Alignment.ALIGN_CENTER);
+    assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_NORMAL, TtmlColorParser.RED,
+        TtmlColorParser.parseColor("lime"), false, true, Layout.Alignment.ALIGN_CENTER);
+    assertSpans(subtitle, 20, "text 2", "serif", TtmlStyle.STYLE_BOLD_ITALIC, TtmlColorParser.BLUE,
+        TtmlColorParser.YELLOW, true, true, Layout.Alignment.ALIGN_CENTER);
   }
 
   public void testInheritMultipleStyles() throws IOException {
@@ -149,7 +137,6 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   public void testInheritMultipleStylesWithoutLocalAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
-
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC,
         TtmlColorParser.BLUE, TtmlColorParser.BLACK, false, true, null);
 
@@ -158,9 +145,58 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   public void testMergeMultipleStylesWithParentStyle() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
-
     assertSpans(subtitle, 30, "text 2.5", "sansSerifInline", TtmlStyle.STYLE_ITALIC,
         TtmlColorParser.RED, TtmlColorParser.YELLOW, true, true, null);
+  }
+
+  public void testMultipleRegions() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_REGIONS_TTML_FILE);
+    List<Cue> output = subtitle.getCues(1000000);
+    assertEquals(2, output.size());
+    Cue ttmlCue = output.get(0);
+    assertEquals("lorem", ttmlCue.text.toString());
+    assertEquals(10.f / 100.f, ttmlCue.position);
+    assertEquals(10.f / 100.f, ttmlCue.line);
+    assertEquals(20.f / 100.f, ttmlCue.size);
+
+    ttmlCue = output.get(1);
+    assertEquals("amet", ttmlCue.text.toString());
+    assertEquals(60.f / 100.f, ttmlCue.position);
+    assertEquals(10.f / 100.f, ttmlCue.line);
+    assertEquals(20.f / 100.f, ttmlCue.size);
+
+    output = subtitle.getCues(5000000);
+    assertEquals(1, output.size());
+    ttmlCue = output.get(0);
+    assertEquals("ipsum", ttmlCue.text.toString());
+    assertEquals(40.f / 100.f, ttmlCue.position);
+    assertEquals(40.f / 100.f, ttmlCue.line);
+    assertEquals(20.f / 100.f, ttmlCue.size);
+
+    output = subtitle.getCues(9000000);
+    assertEquals(1, output.size());
+    ttmlCue = output.get(0);
+    assertEquals("dolor", ttmlCue.text.toString());
+    assertEquals(10.f / 100.f, ttmlCue.position);
+    assertEquals(80.f / 100.f, ttmlCue.line);
+    assertEquals(Cue.DIMEN_UNSET, ttmlCue.size);
+
+    output = subtitle.getCues(21000000);
+    assertEquals(1, output.size());
+    ttmlCue = output.get(0);
+    assertEquals("She first said this", ttmlCue.text.toString());
+    assertEquals(45.f / 100.f, ttmlCue.position);
+    assertEquals(45.f / 100.f, ttmlCue.line);
+    assertEquals(35.f / 100.f, ttmlCue.size);
+    output = subtitle.getCues(25000000);
+    ttmlCue = output.get(0);
+    assertEquals("She first said this\nThen this", ttmlCue.text.toString());
+    output = subtitle.getCues(29000000);
+    assertEquals(1, output.size());
+    ttmlCue = output.get(0);
+    assertEquals("She first said this\nThen this\nFinally this", ttmlCue.text.toString());
+    assertEquals(45.f / 100.f, ttmlCue.position);
+    assertEquals(45.f / 100.f, ttmlCue.line);
   }
 
   public void testEmptyStyleAttribute() throws IOException {
@@ -206,13 +242,13 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlStyle style = globalStyles.get("s2");
     assertEquals("serif", style.getFontFamily());
     assertEquals(TtmlColorParser.RED, style.getBackgroundColor());
-    assertEquals(TtmlColorParser.BLACK, style.getColor());
+    assertEquals(TtmlColorParser.BLACK, style.getFontColor());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, style.getStyle());
     assertTrue(style.isLinethrough());
 
     style = globalStyles.get("s3");
     // only difference: color must be RED
-    assertEquals(TtmlColorParser.RED, style.getColor());
+    assertEquals(TtmlColorParser.RED, style.getFontColor());
     assertEquals("serif", style.getFontFamily());
     assertEquals(TtmlColorParser.RED, style.getBackgroundColor());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, style.getStyle());
@@ -242,43 +278,6 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
     assertFalse("noLineThrough from inline attribute expected in second pNode",
         style.isLinethrough());
-  }
-
-  public void testNamspaceConfusionDoesNotHurt() throws IOException {
-    TtmlSubtitle subtitle = getSubtitle(NAMESPACE_CONFUSION_TTML_FILE);
-    assertEquals(2, subtitle.getEventTimeCount());
-
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
-
-    assertNotNull(style);
-    assertEquals(TtmlColorParser.BLACK, style.getBackgroundColor());
-    assertEquals(TtmlColorParser.YELLOW, style.getColor());
-    assertEquals(TtmlStyle.STYLE_ITALIC, style.getStyle());
-    assertEquals("sansSerif", style.getFontFamily());
-    assertFalse(style.isUnderline());
-    assertTrue(style.isLinethrough());
-
-  }
-
-  public void testNamespaceNotDeclared() throws IOException {
-    TtmlSubtitle subtitle = getSubtitle(NAMESPACE_NOT_DECLARED_TTML_FILE);
-    assertEquals(2, subtitle.getEventTimeCount());
-
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
-
-    assertNotNull(style);
-    assertEquals(TtmlColorParser.BLACK, style.getBackgroundColor());
-    assertEquals(TtmlColorParser.YELLOW, style.getColor());
-    assertEquals(TtmlStyle.STYLE_ITALIC, style.getStyle());
-    assertEquals("sansSerif", style.getFontFamily());
-    assertFalse(style.isUnderline());
-    assertTrue(style.isLinethrough());
   }
 
   public void testFontSizeSpans() throws IOException {

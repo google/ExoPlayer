@@ -28,6 +28,7 @@ import com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderException;
 import com.google.android.exoplayer.ext.vp9.VpxVideoSurfaceView;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.extractor.ogg.OggExtractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
@@ -141,7 +142,7 @@ public class PlayerActivity extends Activity implements
         contentUri,
         new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
         new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
-        new WebmExtractor(), new FlacExtractor());
+        new WebmExtractor(), new FlacExtractor(), new OggExtractor());
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {

@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
-import com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor.VorbisSetup;
+import com.google.android.exoplayer.extractor.ogg.VorbisReader.VorbisSetup;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
-import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import junit.framework.TestCase;
@@ -26,57 +25,24 @@ import junit.framework.TestCase;
 import java.io.IOException;
 
 /**
- * Unit test for {@link OggVorbisExtractor}.
+ * Unit test for {@link VorbisReader}.
  */
-public final class OggVorbisExtractorTest extends TestCase {
+public final class VorbisReaderTest extends TestCase {
 
-  private OggVorbisExtractor extractor;
+  private VorbisReader extractor;
   private ParsableByteArray scratch;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    extractor = new OggVorbisExtractor();
+    extractor = new VorbisReader();
     scratch = new ParsableByteArray(new byte[255 * 255], 0);
-  }
-
-  public void testSniff() throws Exception {
-    byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
-        TestUtil.createByteArray(120, 120),  // Laces
-        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
-    assertTrue(sniff(createInput(data)));
-  }
-
-  public void testSniffFailsOpusFile() throws Exception {
-    byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x00),
-        new byte[]{'O', 'p', 'u', 's'});
-    assertFalse(sniff(createInput(data)));
-  }
-
-  public void testSniffFailsInvalidOggHeader() throws Exception {
-    byte[] data = TestData.buildOggHeader(0x00, 0, 1000, 0x00);
-    assertFalse(sniff(createInput(data)));
-  }
-
-  public void testSniffInvalidVorbisHeader() throws Exception {
-    byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
-        TestUtil.createByteArray(120, 120),  // Laces
-        new byte[]{0x01, 'X', 'o', 'r', 'b', 'i', 's'});
-    assertFalse(sniff(createInput(data)));
-  }
-
-  public void testSniffFailsEOF() throws Exception {
-    byte[] data = TestData.buildOggHeader(0x02, 0, 1000, 0x00);
-    assertFalse(sniff(createInput(data)));
   }
 
   public void testAppendNumberOfSamples() throws Exception {
     ParsableByteArray buffer = new ParsableByteArray(4);
     buffer.setLimit(0);
-    OggVorbisExtractor.appendNumberOfSamples(buffer, 0x01234567);
+    VorbisReader.appendNumberOfSamples(buffer, 0x01234567);
     assertEquals(4, buffer.limit());
     assertEquals(0x67, buffer.data[0]);
     assertEquals(0x45, buffer.data[1]);
@@ -86,7 +52,7 @@ public final class OggVorbisExtractorTest extends TestCase {
 
   public void testReadSetupHeadersWithIOExceptions() throws IOException, InterruptedException {
     byte[] data = TestData.getVorbisHeaderPages();
-    OggVorbisExtractor.VorbisSetup vorbisSetup = readSetupHeaders(createInput(data));
+    VorbisReader.VorbisSetup vorbisSetup = readSetupHeaders(createInput(data));
 
     assertNotNull(vorbisSetup.idHeader);
     assertNotNull(vorbisSetup.commentHeader);
@@ -120,16 +86,6 @@ public final class OggVorbisExtractorTest extends TestCase {
   private static FakeExtractorInput createInput(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
         .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
-  }
-
-  private boolean sniff(FakeExtractorInput input) throws InterruptedException, IOException {
-    while (true) {
-      try {
-        return extractor.sniff(input);
-      } catch (SimulatedIOException e) {
-        // Ignore.
-      }
-    }
   }
 
   private VorbisSetup readSetupHeaders(FakeExtractorInput input)

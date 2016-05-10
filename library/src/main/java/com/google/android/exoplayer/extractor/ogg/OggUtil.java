@@ -29,6 +29,8 @@ import java.io.IOException;
  */
 /* package */ final class OggUtil {
 
+  public static final int PAGE_HEADER_SIZE = 27;
+
   private static final int TYPE_OGGS = Util.getIntegerCodeForString("OggS");
 
   /**
@@ -86,7 +88,7 @@ import java.io.IOException;
    *
    * @param input the {@link ExtractorInput} to read from.
    * @param header the {@link PageHeader} to read from.
-   * @param scratch a scratch array temporary use.
+   * @param scratch a scratch array temporary use. Its size should be at least PAGE_HEADER_SIZE
    * @param quite if {@code true} no Exceptions are thrown but {@code false} is return if something
    *     goes wrong.
    * @return {@code true} if the read was successful. {@code false} if the end of the
@@ -100,8 +102,8 @@ import java.io.IOException;
     scratch.reset();
     header.reset();
     boolean hasEnoughBytes = input.getLength() == C.LENGTH_UNBOUNDED
-        || input.getLength() - input.getPeekPosition() >= 27;
-    if (!hasEnoughBytes || !input.peekFully(scratch.data, 0, 27, true)) {
+        || input.getLength() - input.getPeekPosition() >= PAGE_HEADER_SIZE;
+    if (!hasEnoughBytes || !input.peekFully(scratch.data, 0, PAGE_HEADER_SIZE, true)) {
       if (quite) {
         return false;
       } else {
@@ -134,7 +136,7 @@ import java.io.IOException;
 
     scratch.reset();
     // calculate total size of header including laces
-    header.headerSize = 27 + header.pageSegmentCount;
+    header.headerSize = PAGE_HEADER_SIZE + header.pageSegmentCount;
     input.peekFully(scratch.data, 0, header.pageSegmentCount);
     for (int i = 0; i < header.pageSegmentCount; i++) {
       header.laces[i] = scratch.readUnsignedByte();

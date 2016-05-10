@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.flac;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -343,7 +344,8 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     int result = readSource(positionUs, formatHolder, null);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
-      audioTrack.configure(format.getFrameworkMediaFormatV16(), false);
+      audioTrack.configure(MimeTypes.AUDIO_RAW, format.channelCount, format.sampleRate,
+          C.ENCODING_PCM_16BIT);
       return true;
     }
     return false;

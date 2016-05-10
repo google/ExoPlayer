@@ -20,14 +20,12 @@ import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.ArraySet;
-
 import junit.framework.TestCase;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Unit test for {@link Mp4WebvttParser}.
@@ -139,7 +137,7 @@ public final class Mp4WebvttParserTest extends TestCase {
     List<Cue> subtitleCues = sub.getCues(0);
     assertEquals(expectedCues.length, subtitleCues.size());
     for (int i = 0; i < subtitleCues.size(); i++) {
-      Set<String> differences = getCueDifferences(subtitleCues.get(i), expectedCues[i]);
+      List<String> differences = getCueDifferences(subtitleCues.get(i), expectedCues[i]);
       assertTrue("Cues at position " + i + " are not equal. Different fields are "
           + Arrays.toString(differences.toArray()), differences.isEmpty());
     }
@@ -150,10 +148,10 @@ public final class Mp4WebvttParserTest extends TestCase {
    *
    * @return a set that contains the names of the different fields.
    */
-  private static Set<String> getCueDifferences(Cue aCue, Cue anotherCue) {
+  private static List<String> getCueDifferences(Cue aCue, Cue anotherCue) {
     assertNotNull(aCue);
     assertNotNull(anotherCue);
-    Set<String> differences = new ArraySet<>();
+    List<String> differences = new ArrayList<>();
     if (aCue.line != anotherCue.line) {
       differences.add("line: " + aCue.line + " | " + anotherCue.line);
     }

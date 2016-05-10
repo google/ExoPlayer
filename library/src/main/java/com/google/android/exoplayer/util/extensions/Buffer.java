@@ -25,13 +25,9 @@ public abstract class Buffer {
    */
   public static final int FLAG_END_OF_STREAM = 1;
   /**
-   * Flag for non-empty input buffers which signals that the decoder must be reset before decoding.
-   */
-  public static final int FLAG_RESET = 2;
-  /**
    * Flag for non-empty input/output buffers that should only be decoded (not rendered).
    */
-  public static final int FLAG_DECODE_ONLY = 4;
+  public static final int FLAG_DECODE_ONLY = 2;
 
   private int flags;
 

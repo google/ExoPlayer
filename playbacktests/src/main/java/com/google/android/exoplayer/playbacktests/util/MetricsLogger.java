@@ -16,40 +16,64 @@
 package com.google.android.exoplayer.playbacktests.util;
 
 import android.app.Instrumentation;
-import android.os.Bundle;
 
 /**
  * Metric Logging interface for ExoPlayer playback tests.
  */
 public interface MetricsLogger {
 
-  String KEY_FRAMES_DROPPED_COUNT = "Frames Dropped (Count)";
-  String KEY_FRAMES_RENDERED_COUNT = "Frames Rendered (Count)";
-  String KEY_FRAMES_SKIPPED_COUNT = "Frames Skipped (Count)";
-  String KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT = "Maximum Consecutive Frames Dropped";
-  String KEY_TEST_NAME = "Test Name";
+  String KEY_FRAMES_DROPPED_COUNT = "frames_dropped_count";
+  String KEY_FRAMES_RENDERED_COUNT = "frames_rendered_count";
+  String KEY_FRAMES_SKIPPED_COUNT = "frames_skipped_count";
+  String KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT = "maximum_consecutive_frames_dropped_count";
+  String KEY_TEST_NAME = "test_name";
 
   /**
-   * Logs the metrics provided from a test.
+   * Logs an int metric provided from a test.
    *
-   * @param metrics The {@link Bundle} of metrics to be logged.
+   * @param key The key of the metric to be logged.
+   * @param value The value of the metric to be logged.
    */
-  void logMetrics(Bundle metrics);
+  void logMetric(String key, int value);
 
   /**
-   * A factory for instantiating MetricsLogger instances.
+   * Logs a double metric provided from a test.
+   *
+   * @param key The key of the metric to be logged.
+   * @param value The value of the metric to be logged.
+   */
+  void logMetric(String key, double value);
+
+  /**
+   * Logs a string metric provided from a test.
+   *
+   * @param key The key of the metric to be logged.
+   * @param value The value of the metric to be logged.
+   */
+  void logMetric(String key, String value);
+
+  /**
+   * Closes the logger.
+   */
+  void close();
+
+  /**
+   * A factory for instantiating {@link MetricsLogger} instances.
    */
   final class Factory {
 
     private Factory() {}
 
     /**
-     * Obtains a new instance of MetricsLogger.
+     * Obtains a new instance of {@link MetricsLogger}.
      *
      * @param instrumentation The test instrumentation.
      * @param tag The tag to be used for logcat logs.
+     * @param reportName The name of the report log.
+     * @param streamName The name of the stream of metrics.
      */
-    public static MetricsLogger createDefault(Instrumentation instrumentation, String tag) {
+    public static MetricsLogger createDefault(Instrumentation instrumentation, String tag,
+        String reportName, String streamName) {
       return new LogcatMetricsLogger(tag);
     }
   }
