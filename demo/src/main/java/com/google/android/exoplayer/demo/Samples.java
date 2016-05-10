@@ -258,6 +258,9 @@ import java.util.Locale;
         "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg", Util.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", Util.TYPE_OTHER),
+    new Sample("Google Glass DASH - VP9 and Opus",
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd",
+        Util.TYPE_DASH),
     new Sample("Big Buck Bunny (FLV Video)",
         "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0", Util.TYPE_OTHER),
   };
