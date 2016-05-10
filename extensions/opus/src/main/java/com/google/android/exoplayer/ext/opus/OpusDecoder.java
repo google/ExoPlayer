@@ -117,9 +117,9 @@ import java.util.List;
         throw new OpusDecoderException("Invalid Codec Delay or Seek Preroll");
       }
       long codecDelayNs =
-          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.nativeOrder()).getLong();
       long seekPreRollNs =
-          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.nativeOrder()).getLong();
       headerSkipSamples = nsToSamples(codecDelayNs);
       headerSeekPreRollSamples = nsToSamples(seekPreRollNs);
     } else {
