@@ -182,7 +182,7 @@ public final class MediaCodecUtil {
             || "MP3Decoder".equals(name)) {
       return false;
     }
-    if (Util.SDK_INT == 16 && "OMX.SEC.MP3.Decoder".equals(name)) {
+    if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
       return false;
     }
 
