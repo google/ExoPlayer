@@ -231,8 +231,8 @@ public final class MediaFormat implements Parcelable {
     sampleRate = in.readInt();
     language = in.readString();
     subsampleOffsetUs = in.readLong();
-    initializationData = new ArrayList<byte[]>();
-    in.readList(initializationData, List.class.getClassLoader());
+    initializationData = new ArrayList<>();
+    in.readList(initializationData, null);
     adaptive = in.readInt() == 1;
     maxWidth = in.readInt();
     maxHeight = in.readInt();
@@ -454,6 +454,8 @@ public final class MediaFormat implements Parcelable {
     }
   }
 
+  // Parcelable implementation.
+
   @Override
   public int describeContents() {
     return 0;
@@ -484,12 +486,17 @@ public final class MediaFormat implements Parcelable {
   }
 
   public static final Creator<MediaFormat> CREATOR = new Creator<MediaFormat>() {
+
+    @Override
     public MediaFormat createFromParcel(Parcel in) {
       return new MediaFormat(in);
     }
 
+    @Override
     public MediaFormat[] newArray(int size) {
       return new MediaFormat[size];
     }
+
   };
+
 }
