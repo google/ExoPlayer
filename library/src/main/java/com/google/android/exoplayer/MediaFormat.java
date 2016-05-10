@@ -124,8 +124,8 @@ public final class MediaFormat implements Parcelable {
   public final int sampleRate;
   /**
    * The encoding for PCM audio streams. If {@link #mimeType} is {@link MimeTypes#AUDIO_RAW} then
-   * one of {@link C#ENCODING_PCM_8BIT}, {@link C#ENCODING_PCM_16BIT} and
-   * {@link C#ENCODING_PCM_24BIT}. Set to {@link #NO_VALUE} for other media types.
+   * one of {@link C#ENCODING_PCM_8BIT}, {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT}
+   * and {@link C#ENCODING_PCM_32BIT}. Set to {@link #NO_VALUE} for other media types.
    */
   public final int pcmEncoding;
   /**

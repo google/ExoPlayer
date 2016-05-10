@@ -79,6 +79,11 @@ public final class C {
   public static final int ENCODING_PCM_24BIT = 0x80000000;
 
   /**
+   * PCM encoding with 32 bits per sample.
+   */
+  public static final int ENCODING_PCM_32BIT = 0x40000000;
+
+  /**
    * @see AudioFormat#ENCODING_AC3
    */
   @SuppressWarnings("InlinedApi")
