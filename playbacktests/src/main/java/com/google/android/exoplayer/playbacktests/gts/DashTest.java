@@ -51,7 +51,6 @@ import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
-import android.os.Bundle;
 import android.os.Handler;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -69,6 +68,7 @@ import java.util.List;
 public final class DashTest extends ActivityInstrumentationTestCase2<HostActivity> {
 
   private static final String TAG = "DashTest";
+  private static final String REPORT_NAME = "GtsExoPlayerTestCases";
 
   private static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
@@ -188,8 +188,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH264Fixed";
-    testDashPlayback(getActivity(), testName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+    String streamName = "test_h264_fixed";
+    testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
         H264_CDD_FIXED);
   }
 
@@ -198,8 +198,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH264Adaptive";
-    testDashPlayback(getActivity(), testName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+    String streamName = "test_h264_adaptive";
+    testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
         ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
@@ -208,8 +208,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH264AdaptiveWithSeeking";
-    testDashPlayback(getActivity(), testName, SEEKING_SCHEDULE, false, H264_MANIFEST,
+    String streamName = "test_h264_adaptive_with_seeking";
+    testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false, H264_MANIFEST,
         AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
@@ -218,8 +218,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH264AdaptiveWithRendererDisabling";
-    testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false, H264_MANIFEST,
+    String streamName = "test_h264_adaptive_with_renderer_disabling";
+    testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false, H264_MANIFEST,
         AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
@@ -230,8 +230,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH265Fixed";
-    testDashPlayback(getActivity(), testName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+    String streamName = "test_h265_fixed";
+    testDashPlayback(getActivity(), streamName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
         H265_CDD_FIXED);
   }
 
@@ -240,8 +240,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH265Adaptive";
-    testDashPlayback(getActivity(), testName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+    String streamName = "test_h265_adaptive";
+    testDashPlayback(getActivity(), streamName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
         ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
   }
 
@@ -250,8 +250,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH265AdaptiveWithSeeking";
-    testDashPlayback(getActivity(), testName, SEEKING_SCHEDULE, false, H265_MANIFEST,
+    String streamName = "test_h265_adaptive_with_seeking";
+    testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false, H265_MANIFEST,
         AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
   }
 
@@ -260,8 +260,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testH265AdaptiveWithRendererDisabling";
-    testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false,
+    String streamName = "test_h265_adaptive_with_renderer_disabling";
+    testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
         H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
         H265_CDD_ADAPTIVE);
     }
@@ -273,8 +273,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testVp9Fixed360p";
-    testDashPlayback(getActivity(), testName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, false,
+    String streamName = "test_vp9_fixed_360p";
+    testDashPlayback(getActivity(), streamName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, false,
         VP9_CDD_FIXED);
   }
 
@@ -283,8 +283,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testVp9Adaptive";
-    testDashPlayback(getActivity(), testName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
+    String streamName = "test_vp9_adaptive";
+    testDashPlayback(getActivity(), streamName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
         ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
   }
 
@@ -293,8 +293,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testVp9AdaptiveWithSeeking";
-    testDashPlayback(getActivity(), testName, SEEKING_SCHEDULE, false, VP9_MANIFEST,
+    String streamName = "test_vp9_adaptive_with_seeking";
+    testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false, VP9_MANIFEST,
         VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
   }
 
@@ -303,8 +303,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "testVp9AdaptiveWithRendererDisabling";
-    testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false,
+    String streamName = "test_vp9_adaptive_with_renderer_disabling";
+    testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
         VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
         VP9_CDD_ADAPTIVE);
   }
@@ -317,9 +317,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "test23FpsH264Fixed";
-    testDashPlayback(getActivity(), testName, H264_23_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-        H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID);
+    String streamName = "test_23fps_h264_fixed";
+    testDashPlayback(getActivity(), streamName, H264_23_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        false, H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // 24 fps.
@@ -328,9 +328,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "test24FpsH264Fixed";
-    testDashPlayback(getActivity(), testName, H264_24_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-        H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID);
+    String streamName = "test_24fps_h264_fixed";
+    testDashPlayback(getActivity(), streamName, H264_24_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        false, H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // 29.97 fps.
@@ -339,34 +339,37 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    String testName = "test29FpsH264Fixed";
-    testDashPlayback(getActivity(), testName, H264_29_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-        H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
+    String streamName = "test_29fps_h264_fixed";
+    testDashPlayback(getActivity(), streamName, H264_29_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        false, H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // Internal.
 
-  private void testDashPlayback(HostActivity activity, String testName, String manifestFileName,
+  private void testDashPlayback(HostActivity activity, String streamName, String manifestFileName,
       String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats)
       throws IOException {
-    testDashPlayback(activity, testName, null, true, manifestFileName, audioFormat,
+    testDashPlayback(activity, streamName, null, true, manifestFileName, audioFormat,
         canIncludeAdditionalVideoFormats, videoFormats);
   }
 
-  private void testDashPlayback(HostActivity activity, String testName,
+  private void testDashPlayback(HostActivity activity, String streamName,
       ActionSchedule actionSchedule, boolean fullPlaybackNoSeeking, String manifestFileName,
       String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats)
       throws IOException {
     MediaPresentationDescription mpd = TestUtil.loadManifest(activity,
         MANIFEST_URL_PREFIX + manifestFileName, new MediaPresentationDescriptionParser());
-    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG);
-    DashHostedTest test = new DashHostedTest(testName, mpd, metricsLogger, fullPlaybackNoSeeking,
+    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG,
+        REPORT_NAME, streamName);
+    DashHostedTest test = new DashHostedTest(streamName, mpd, metricsLogger, fullPlaybackNoSeeking,
         audioFormat, canIncludeAdditionalVideoFormats, false, actionSchedule, videoFormats);
     activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
-    // Rerun test exactly once if adaptive test fails due to excessive dropped buffers when playing
+    // Retry test exactly once if adaptive test fails due to excessive dropped buffers when playing
     // non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
-      test = new DashHostedTest(testName, mpd, metricsLogger, fullPlaybackNoSeeking, audioFormat,
+      metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG, REPORT_NAME,
+          streamName + "_cdd_limited_retry");
+      test = new DashHostedTest(streamName, mpd, metricsLogger, fullPlaybackNoSeeking, audioFormat,
           false, true, actionSchedule, videoFormats);
       activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
     }
@@ -396,22 +399,21 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     private static final int VIDEO_EVENT_ID = 0;
     private static final int AUDIO_EVENT_ID = 1;
 
-    private final String testName;
+    private final String streamName;
     private final MediaPresentationDescription mpd;
+    private final MetricsLogger metricsLogger;
     private final boolean fullPlaybackNoSeeking;
     private final boolean canIncludeAdditionalVideoFormats;
     private final String[] audioFormats;
     private final String[] videoFormats;
-    private final boolean isCddLimitedRetry;
 
     private CodecCounters videoCounters;
     private CodecCounters audioCounters;
     private boolean needsCddLimitedRetry;
-    private MetricsLogger metricsLogger;
     private TrackSelector videoTrackSelector;
 
     /**
-     * @param testName The name of the test.
+     * @param streamName The name of the test stream for metric logging.
      * @param mpd The manifest.
      * @param metricsLogger Logger to log metrics from the test.
      * @param fullPlaybackNoSeeking True if the test will play the entire source with no seeking.
@@ -422,19 +424,18 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
      * @param isCddLimitedRetry Whether this is a CDD limited retry following a previous failure.
      * @param videoFormats The video formats.
      */
-    public DashHostedTest(String testName, MediaPresentationDescription mpd,
+    public DashHostedTest(String streamName, MediaPresentationDescription mpd,
         MetricsLogger metricsLogger, boolean fullPlaybackNoSeeking, String audioFormat,
         boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry,
         ActionSchedule actionSchedule, String... videoFormats) {
       super(RENDERER_COUNT);
       Assertions.checkArgument(!(isCddLimitedRetry && canIncludeAdditionalVideoFormats));
-      this.testName = testName;
+      this.streamName = streamName;
       this.mpd = Assertions.checkNotNull(mpd);
       this.metricsLogger = metricsLogger;
       this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
       this.audioFormats = new String[] {audioFormat};
       this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;
-      this.isCddLimitedRetry = isCddLimitedRetry;
       this.videoFormats = videoFormats;
       if (actionSchedule != null) {
         setSchedule(actionSchedule);
@@ -541,21 +542,17 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     @Override
     protected void logMetrics() {
-      // Create Bundle of metrics from the test.
-      Bundle metrics = new Bundle();
-      metrics.putString(MetricsLogger.KEY_TEST_NAME, testName);
-      metrics.putInt(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
+      // Log metrics from the test.
+      metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
+      metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
           videoCounters.droppedOutputBufferCount);
-      metrics.putInt(MetricsLogger.KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT,
+      metricsLogger.logMetric(MetricsLogger.KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT,
           videoCounters.maxConsecutiveDroppedOutputBufferCount);
-      metrics.putInt(MetricsLogger.KEY_FRAMES_SKIPPED_COUNT,
+      metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_SKIPPED_COUNT,
           videoCounters.skippedOutputBufferCount);
-      metrics.putInt(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
+      metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
           videoCounters.renderedOutputBufferCount);
-      metrics.putBoolean(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
-
-      // Send metrics for logging.
-      metricsLogger.logMetrics(metrics);
+      metricsLogger.close();
     }
 
     private static final class TrackSelector implements DashTrackSelector {
