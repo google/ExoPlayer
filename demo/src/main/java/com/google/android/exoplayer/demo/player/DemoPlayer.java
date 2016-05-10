@@ -163,10 +163,10 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
 
     // Build the renderers.
     ArrayList<TrackRenderer> renderersList = new ArrayList<>();
-    buildRenderers(context, renderersList);
     if (useExtensionDecoders) {
       buildExtensionRenderers(renderersList);
     }
+    buildRenderers(context, renderersList);
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
     // Build the player and associated objects.
@@ -509,8 +509,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
           Class.forName("com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer");
       Constructor<?> constructor = clazz.getConstructor(boolean.class, Handler.class,
           VideoTrackRendererEventListener.class, int.class);
-      Object renderer = constructor.newInstance(true, mainHandler, this, 50);
-      renderersList.add(0, (TrackRenderer) renderer);
+      renderersList.add((TrackRenderer) constructor.newInstance(true, mainHandler, this, 50));
     } catch (Exception e) {
       Log.i(TAG, "can't load LibvpxVideoTrackRenderer.");
     }
@@ -518,7 +517,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     try {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer");
-      renderersList.add(1, (TrackRenderer) clazz.newInstance());
+      renderersList.add((TrackRenderer) clazz.newInstance());
     } catch (Exception e) {
       Log.i(TAG, "can't load LibopusAudioTrackRenderer.");
     }
@@ -526,7 +525,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     try {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer.ext.flac.LibflacAudioTrackRenderer");
-      renderersList.add(2, (TrackRenderer) clazz.newInstance());
+      renderersList.add((TrackRenderer) clazz.newInstance());
     } catch (Exception e) {
       Log.i(TAG, "can't load LibflacAudioTrackRenderer.");
     }
