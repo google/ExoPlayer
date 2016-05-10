@@ -1,6 +1,13 @@
 # Release notes #
 
-### Current dev branch ###
+### r1.5.8 ###
+
+* HLS: Fix handling of HTTP redirects.
+* Audio: Minor adjustment to improve A/V sync.
+* OGG: Support FLAC in OGG.
+* TTML: Support regions.
+* WAV/PCM: Support 8, 24 and 32-bit WAV and PCM audio.
+* Misc bug fixes and performance optimizations.
 
 ### r1.5.7 ###
 
