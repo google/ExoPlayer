@@ -1265,9 +1265,9 @@ public final class WebmExtractor implements Extractor {
           initializationData = new ArrayList<>(3);
           initializationData.add(codecPrivate);
           initializationData.add(
-              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(codecDelayNs).array());
+              ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(codecDelayNs).array());
           initializationData.add(
-              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(seekPreRollNs).array());
+              ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(seekPreRollNs).array());
           break;
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
