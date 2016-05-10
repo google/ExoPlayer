@@ -38,20 +38,19 @@ public class OggExtractor implements Extractor {
       ParsableByteArray scratch = new ParsableByteArray(new byte[OggUtil.PAGE_HEADER_SIZE], 0);
       OggUtil.PageHeader header = new OggUtil.PageHeader();
       if (!OggUtil.populatePageHeader(input, header, scratch, true)
-          || (header.type & 0x02) != 0x02 || header.bodySize < 7) {
+          || (header.type & 0x02) != 0x02) {
         return false;
       }
-      scratch.reset();
-      input.peekFully(scratch.data, 0, 7);
-      if (FlacReader.verifyBitstreamType(scratch)) {
+      input.peekFully(scratch.data, 0, header.bodySize);
+      scratch.setLimit(header.bodySize);
+      if (FlacReader.verifyBitstreamType(resetPosition(scratch))) {
         streamReader = new FlacReader();
+      } else if (VorbisReader.verifyBitstreamType(resetPosition(scratch))) {
+        streamReader = new VorbisReader();
+      } else if (OpusReader.verifyBitstreamType(resetPosition(scratch))) {
+        streamReader = new OpusReader();
       } else {
-        scratch.reset();
-        if (VorbisReader.verifyBitstreamType(scratch)) {
-          streamReader = new VorbisReader();
-        } else {
-          return false;
-        }
+        return false;
       }
       return true;
     } catch (ParserException e) {
@@ -83,4 +82,15 @@ public class OggExtractor implements Extractor {
       throws IOException, InterruptedException {
     return streamReader.read(input, seekPosition);
   }
+
+  //@VisibleForTesting
+  /* package */ StreamReader getStreamReader() {
+    return streamReader;
+  }
+
+  private static ParsableByteArray resetPosition(ParsableByteArray scratch) {
+    scratch.setPosition(0);
+    return scratch;
+  }
+
 }

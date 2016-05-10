@@ -51,7 +51,7 @@ import java.util.ArrayList;
   private long totalSamples;
   private long durationUs;
 
-  /* package */ static boolean verifyBitstreamType(ParsableByteArray data) {
+  public static boolean verifyBitstreamType(ParsableByteArray data) {
     try {
       return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, data, true);
     } catch (ParserException e) {

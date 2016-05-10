@@ -46,8 +46,8 @@ import java.util.List;
 
   private boolean firstAudioPacketProcessed;
 
-  /* package */ static boolean verifyBitstreamType(ParsableByteArray data) {
-    return data.readUnsignedByte() == 0x7F && // packet type
+  public static boolean verifyBitstreamType(ParsableByteArray data) {
+    return data.bytesLeft() >= 5 && data.readUnsignedByte() == 0x7F && // packet type
         data.readUnsignedInt() == 0x464C4143; // ASCII signature "FLAC"
   }
 

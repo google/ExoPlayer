@@ -76,8 +76,7 @@ public class SampleChooserActivity extends Activity {
     group.addAll(Samples.MISC);
     sampleGroups.add(group);
     group = new SampleGroup("Extensions");
-    group.addAll(Samples.VP9_EXTENSION_SAMPLES);
-    group.addAll(Samples.VP9_OPUS_EXTENSION_SAMPLES);
+    group.addAll(Samples.EXTENSION);
     sampleGroups.add(group);
 
     ExpandableListView sampleList = (ExpandableListView) findViewById(R.id.sample_list);

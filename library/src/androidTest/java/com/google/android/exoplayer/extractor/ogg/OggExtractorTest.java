@@ -38,17 +38,17 @@ public final class OggExtractorTest extends TestCase {
 
   public void testSniffVorbis() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
-        TestUtil.createByteArray(120, 120),  // Laces
+        TestData.buildOggHeader(0x02, 0, 1000, 1),
+        TestUtil.createByteArray(7),  // Laces
         new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     assertTrue(sniff(createInput(data)));
   }
 
   public void testSniffFlac() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
-        TestUtil.createByteArray(120, 120),  // Laces
-        new byte[]{0x7F, 'F', 'L', 'A', 'C', ' ', ' '});
+        TestData.buildOggHeader(0x02, 0, 1000, 1),
+        TestUtil.createByteArray(5),  // Laces
+        new byte[]{0x7F, 'F', 'L', 'A', 'C'});
     assertTrue(sniff(createInput(data)));
   }
 
@@ -66,8 +66,8 @@ public final class OggExtractorTest extends TestCase {
 
   public void testSniffInvalidHeader() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
-        TestUtil.createByteArray(120, 120),  // Laces
+        TestData.buildOggHeader(0x02, 0, 1000, 1),
+        TestUtil.createByteArray(7),  // Laces
         new byte[]{0x7F, 'X', 'o', 'r', 'b', 'i', 's'});
     assertFalse(sniff(createInput(data)));
   }

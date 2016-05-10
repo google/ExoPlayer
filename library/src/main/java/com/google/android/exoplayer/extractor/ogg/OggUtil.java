@@ -87,7 +87,7 @@ import java.io.IOException;
    * as argument.
    *
    * @param input the {@link ExtractorInput} to read from.
-   * @param header the {@link PageHeader} to read from.
+   * @param header the {@link PageHeader} to be populated.
    * @param scratch a scratch array temporary use. Its size should be at least PAGE_HEADER_SIZE
    * @param quite if {@code true} no Exceptions are thrown but {@code false} is return if something
    *     goes wrong.

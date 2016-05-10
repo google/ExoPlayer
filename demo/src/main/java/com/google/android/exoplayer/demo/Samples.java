@@ -262,16 +262,13 @@ import java.util.Locale;
         "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0", Util.TYPE_OTHER),
   };
 
-  public static final Sample[] VP9_EXTENSION_SAMPLES = new Sample[] {
+  public static final Sample[] EXTENSION = new Sample[] {
     new Sample("Google Glass DASH - VP9 Only",
         "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9.mpd",
         Util.TYPE_DASH, true),
     new Sample("Google Glass DASH - VP9 and Vorbis",
         "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_vorbis.mpd",
         Util.TYPE_DASH, true),
-  };
-
-  public static final Sample[] VP9_OPUS_EXTENSION_SAMPLES = new Sample[] {
     new Sample("Google Glass DASH - VP9 and Opus",
         "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd",
         Util.TYPE_DASH, true),
