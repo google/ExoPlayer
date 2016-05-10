@@ -732,13 +732,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
       int keyCode = event.getKeyCode();
-      if (playerControl.canSeekForward() && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+      if (playerControl.canSeekForward() && (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
+          || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
           playerControl.seekTo(playerControl.getCurrentPosition() + 15000); // milliseconds
           show();
         }
         return true;
-      } else if (playerControl.canSeekBackward() && keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+      } else if (playerControl.canSeekBackward() && (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
+          || keyCode == KeyEvent.KEYCODE_DPAD_LEFT)) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
           playerControl.seekTo(playerControl.getCurrentPosition() - 5000); // milliseconds
           show();
