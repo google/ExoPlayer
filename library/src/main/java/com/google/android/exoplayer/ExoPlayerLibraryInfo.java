@@ -31,6 +31,7 @@ public final class ExoPlayerLibraryInfo {
    * Three digits are used for each component of {@link #VERSION}. For example "1.2.3" has the
    * corresponding integer version 001002003.
    */
+  // TODO[RELEASE]: This needs to not be octal when it gets bumped to 2.x!
   public static final int VERSION_INT = 001005004;
 
   /**
