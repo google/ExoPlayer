@@ -34,6 +34,8 @@ import java.util.ArrayList;
  */
 /* package */ final class VorbisReader extends StreamReader implements SeekMap {
 
+  private static final long LARGEST_EXPECTED_PAGE_SIZE = 8000;
+
   private VorbisSetup vorbisSetup;
   private int previousPacketBlockSize;
   private long elapsedSamples;
@@ -78,7 +80,7 @@ import java.util.ArrayList;
         extractorOutput.seekMap(this);
         if (inputLength != C.LENGTH_UNBOUNDED) {
           // seek to the end just before the last page of stream to get the duration
-          seekPosition.position = input.getLength() - 8000;
+          seekPosition.position = Math.max(0, input.getLength() - LARGEST_EXPECTED_PAGE_SIZE);
           return Extractor.RESULT_SEEK;
         }
       }
