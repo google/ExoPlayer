@@ -28,16 +28,16 @@ media APIs. The open source project contains both the ExoPlayer library and a de
 This guide describes the ExoPlayer library and its use. It refers to code in the demo app throughout
 in order provide concrete examples. The guide touches on the pros and cons of using ExoPlayer. It
 shows how to use ExoPlayer to play DASH, SmoothStreaming and HLS adaptive streams, as well as
-formats such as MP3, M4A, MP4, WebM, MPEG-TS and AAC. It also discusses ExoPlayer events, messages,
-customization and DRM support.
+formats such as FMP4, MP4, M4A, MKV, WebM, MP3, AAC, MPEG-TS, MPEG-PS, OGG, FLV and WAV. It also
+discusses ExoPlayer events, messages, customization and DRM support.
 
 ## Pros and cons ##
 
 ExoPlayer has a number of advantages over Android's built in MediaPlayer:
 
 * Support for Dynamic Adaptive Streaming over HTTP (DASH) and SmoothStreaming, neither of which are
-  are supported by MediaPlayer (it also supports HTTP Live Streaming (HLS), MP4, MP3, WebM, M4A,
-  MPEG-TS and AAC).
+  are supported by MediaPlayer (it also supports HTTP Live Streaming (HLS), FMP4, MP4, M4A, MKV,
+  WebM, MP3, AAC, MPEG-TS, MPEG-PS, OGG, FLV and WAV).
 * Support for advanced HLS features, such as correct handling of `#EXT-X-DISCONTINUITY` tags.
 * The ability to customize and extend the player to suit your use case. ExoPlayer is designed
   specifically with this in mind, and allows many components to be replaced with custom
@@ -121,7 +121,8 @@ instances to be injected into their constructors. A `SampleSource` object provid
 information and media samples to be rendered. The ExoPlayer library provides several concrete
 `SampleSource` implementations for different use cases:
 
-* `ExtractorSampleSource` &ndash; For formats such as MP3, M4A, MP4, WebM, MPEG-TS and AAC.
+* `ExtractorSampleSource` &ndash; For formats such as FMP4, MP4, M4A, MKV, WebM, MP3, AAC, MPEG-TS,
+  MPEG-PS, OGG, FLV and WAV.
 * `ChunkSampleSource` &ndash; For DASH and SmoothStreaming playbacks.
 * `HlsSampleSource` &ndash; For HLS playbacks.
 
@@ -141,9 +142,9 @@ The most commonly used implementations are:
 ## Traditional media playbacks ##
 
 The Exoplayer library provides `ExtractorSampleSource` to play traditional media formats, including
-MP3, M4A, MP4, WebM, MPEG-TS and AAC. The diagram in Figure 1 shows the object model for an
-ExoPlayer built to play MP4 streams. The following code shows how the `TrackRenderer` instances are
-constructed.
+FMP4, MP4, M4A, MKV, WebM, MP3, AAC, MPEG-TS, MPEG-PS, OGG, FLV and WAV. The diagram in Figure 1
+shows the object model for an ExoPlayer built to play MP4 streams. The following code shows how the
+`TrackRenderer` instances are constructed.
 
 {% highlight java %}
 Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
