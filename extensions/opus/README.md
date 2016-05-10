@@ -34,7 +34,7 @@ NDK_PATH="<path to Android NDK>"
 
 ```
 cd "${OPUS_EXT_PATH}/jni" && \
-git clone git://git.opus-codec.org/opus.git libopus
+git clone https://git.xiph.org/opus.git libopus
 ```
 
 * Run the script to convert arm assembly to NDK compatible format:
