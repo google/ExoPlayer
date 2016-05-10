@@ -117,9 +117,9 @@ import java.util.List;
         throw new OpusDecoderException("Invalid Codec Delay or Seek Preroll");
       }
       long codecDelayNs =
-          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.nativeOrder()).getLong();
       long seekPreRollNs =
-          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.nativeOrder()).getLong();
       headerSkipSamples = nsToSamples(codecDelayNs);
       headerSeekPreRollSamples = nsToSamples(seekPreRollNs);
     } else {
@@ -150,8 +150,9 @@ import java.util.List;
   }
 
   @Override
-  public OpusDecoderException decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer) {
-    if (inputBuffer.getFlag(Buffer.FLAG_RESET)) {
+  public OpusDecoderException decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer,
+      boolean reset) {
+    if (reset) {
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
       // any other time, skip number of samples as specified by seek preroll.

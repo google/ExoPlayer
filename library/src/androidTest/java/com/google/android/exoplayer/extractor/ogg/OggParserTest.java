@@ -31,19 +31,19 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Unit test for {@link OggReader}.
+ * Unit test for {@link OggParser}.
  */
-public final class OggReaderTest extends TestCase {
+public final class OggParserTest extends TestCase {
 
   private Random random;
-  private OggReader oggReader;
+  private OggParser oggParser;
   private ParsableByteArray scratch;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     random = new Random(0);
-    oggReader = new OggReader();
+    oggParser = new OggParser();
     scratch = new ParsableByteArray(new byte[255 * 255], 0);
   }
 
@@ -72,37 +72,37 @@ public final class OggReaderTest extends TestCase {
             fourthPacket), true);
 
     assertReadPacket(input, firstPacket);
-    assertTrue((oggReader.getPageHeader().type & 0x02) == 0x02);
-    assertFalse((oggReader.getPageHeader().type & 0x04) == 0x04);
-    assertEquals(0x02, oggReader.getPageHeader().type);
-    assertEquals(27 + 1, oggReader.getPageHeader().headerSize);
-    assertEquals(8, oggReader.getPageHeader().bodySize);
-    assertEquals(0x00, oggReader.getPageHeader().revision);
-    assertEquals(1, oggReader.getPageHeader().pageSegmentCount);
-    assertEquals(1000, oggReader.getPageHeader().pageSequenceNumber);
-    assertEquals(4096, oggReader.getPageHeader().streamSerialNumber);
-    assertEquals(0, oggReader.getPageHeader().granulePosition);
+    assertTrue((oggParser.getPageHeader().type & 0x02) == 0x02);
+    assertFalse((oggParser.getPageHeader().type & 0x04) == 0x04);
+    assertEquals(0x02, oggParser.getPageHeader().type);
+    assertEquals(27 + 1, oggParser.getPageHeader().headerSize);
+    assertEquals(8, oggParser.getPageHeader().bodySize);
+    assertEquals(0x00, oggParser.getPageHeader().revision);
+    assertEquals(1, oggParser.getPageHeader().pageSegmentCount);
+    assertEquals(1000, oggParser.getPageHeader().pageSequenceNumber);
+    assertEquals(4096, oggParser.getPageHeader().streamSerialNumber);
+    assertEquals(0, oggParser.getPageHeader().granulePosition);
 
     assertReadPacket(input, secondPacket);
-    assertFalse((oggReader.getPageHeader().type & 0x02) == 0x02);
-    assertFalse((oggReader.getPageHeader().type & 0x04) == 0x04);
-    assertEquals(0, oggReader.getPageHeader().type);
-    assertEquals(27 + 2, oggReader.getPageHeader().headerSize);
-    assertEquals(255 + 17, oggReader.getPageHeader().bodySize);
-    assertEquals(2, oggReader.getPageHeader().pageSegmentCount);
-    assertEquals(1001, oggReader.getPageHeader().pageSequenceNumber);
-    assertEquals(16, oggReader.getPageHeader().granulePosition);
+    assertFalse((oggParser.getPageHeader().type & 0x02) == 0x02);
+    assertFalse((oggParser.getPageHeader().type & 0x04) == 0x04);
+    assertEquals(0, oggParser.getPageHeader().type);
+    assertEquals(27 + 2, oggParser.getPageHeader().headerSize);
+    assertEquals(255 + 17, oggParser.getPageHeader().bodySize);
+    assertEquals(2, oggParser.getPageHeader().pageSegmentCount);
+    assertEquals(1001, oggParser.getPageHeader().pageSequenceNumber);
+    assertEquals(16, oggParser.getPageHeader().granulePosition);
 
     assertReadPacket(input, thirdPacket);
-    assertFalse((oggReader.getPageHeader().type & 0x02) == 0x02);
-    assertTrue((oggReader.getPageHeader().type & 0x04) == 0x04);
-    assertEquals(4, oggReader.getPageHeader().type);
-    assertEquals(27 + 4, oggReader.getPageHeader().headerSize);
-    assertEquals(255 + 1 + 255 + 16, oggReader.getPageHeader().bodySize);
-    assertEquals(4, oggReader.getPageHeader().pageSegmentCount);
+    assertFalse((oggParser.getPageHeader().type & 0x02) == 0x02);
+    assertTrue((oggParser.getPageHeader().type & 0x04) == 0x04);
+    assertEquals(4, oggParser.getPageHeader().type);
+    assertEquals(27 + 4, oggParser.getPageHeader().headerSize);
+    assertEquals(255 + 1 + 255 + 16, oggParser.getPageHeader().bodySize);
+    assertEquals(4, oggParser.getPageHeader().pageSegmentCount);
     // Page 1002 is empty, so current page is 1003.
-    assertEquals(1003, oggReader.getPageHeader().pageSequenceNumber);
-    assertEquals(128, oggReader.getPageHeader().granulePosition);
+    assertEquals(1003, oggParser.getPageHeader().pageSequenceNumber);
+    assertEquals(128, oggParser.getPageHeader().granulePosition);
 
     assertReadPacket(input, fourthPacket);
 
@@ -140,9 +140,9 @@ public final class OggReaderTest extends TestCase {
             Arrays.copyOfRange(firstPacket, 510, 510 + 8)), true);
 
     assertReadPacket(input, firstPacket);
-    assertTrue((oggReader.getPageHeader().type & 0x04) == 0x04);
-    assertFalse((oggReader.getPageHeader().type & 0x02) == 0x02);
-    assertEquals(1001, oggReader.getPageHeader().pageSequenceNumber);
+    assertTrue((oggParser.getPageHeader().type & 0x04) == 0x04);
+    assertFalse((oggParser.getPageHeader().type & 0x02) == 0x02);
+    assertEquals(1001, oggParser.getPageHeader().pageSequenceNumber);
 
     assertReadEof(input);
   }
@@ -170,9 +170,9 @@ public final class OggReaderTest extends TestCase {
             Arrays.copyOfRange(firstPacket, 510 + 255 + 255, 510 + 255 + 255 + 8)), true);
 
     assertReadPacket(input, firstPacket);
-    assertTrue((oggReader.getPageHeader().type & 0x04) == 0x04);
-    assertFalse((oggReader.getPageHeader().type & 0x02) == 0x02);
-    assertEquals(1003, oggReader.getPageHeader().pageSequenceNumber);
+    assertTrue((oggParser.getPageHeader().type & 0x04) == 0x04);
+    assertFalse((oggParser.getPageHeader().type & 0x02) == 0x02);
+    assertEquals(1003, oggParser.getPageHeader().pageSequenceNumber);
 
     assertReadEof(input);
   }
@@ -281,7 +281,7 @@ public final class OggReaderTest extends TestCase {
       long elapsedSamplesExpected) throws IOException, InterruptedException {
     while (true) {
       try {
-        assertEquals(elapsedSamplesExpected, oggReader.skipToPageOfGranule(input, granule));
+        assertEquals(elapsedSamplesExpected, oggParser.skipToPageOfGranule(input, granule));
         return;
       } catch (FakeExtractorInput.SimulatedIOException e) {
         input.resetPeekPosition();
@@ -330,7 +330,7 @@ public final class OggReaderTest extends TestCase {
       throws IOException, InterruptedException {
     while (true) {
       try {
-        assertEquals(expected, oggReader.readGranuleOfLastPage(input));
+        assertEquals(expected, oggParser.readGranuleOfLastPage(input));
         break;
       } catch (FakeExtractorInput.SimulatedIOException e) {
         // ignored
@@ -355,7 +355,7 @@ public final class OggReaderTest extends TestCase {
       throws InterruptedException, IOException {
     while (true) {
       try {
-        return oggReader.readPacket(input, scratch);
+        return oggParser.readPacket(input, scratch);
       } catch (FakeExtractorInput.SimulatedIOException e) {
         // Ignore.
       }

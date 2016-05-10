@@ -38,29 +38,29 @@ import java.util.Map;
   public static TtmlStyle resolveStyle(TtmlStyle style, String[] styleIds,
       Map<String, TtmlStyle> globalStyles) {
     if (style == null && styleIds == null) {
-      // no styles at all
+      // No styles at all.
       return null;
     } else if (style == null && styleIds.length == 1) {
-      // only one single referential style present
+      // Only one single referential style present.
       return globalStyles.get(styleIds[0]);
     } else if (style == null && styleIds.length > 1) {
-      // only multiple referential styles present
+      // Only multiple referential styles present.
       TtmlStyle chainedStyle = new TtmlStyle();
-      for (int i = 0; i < styleIds.length; i++) {
-        chainedStyle.chain(globalStyles.get(styleIds[i]));
+      for (String id : styleIds) {
+        chainedStyle.chain(globalStyles.get(id));
       }
       return chainedStyle;
     } else if (style != null && styleIds != null && styleIds.length == 1) {
-      // merge a single referential style into inline style
+      // Merge a single referential style into inline style.
       return style.chain(globalStyles.get(styleIds[0]));
     } else if (style != null && styleIds != null && styleIds.length > 1) {
-      // merge multiple referential styles into inline style
-      for (int i = 0; i < styleIds.length; i++) {
-        style.chain(globalStyles.get(styleIds[i]));
+      // Merge multiple referential styles into inline style.
+      for (String id : styleIds) {
+        style.chain(globalStyles.get(id));
       }
       return style;
     }
-    // only inline styles available
+    // Only inline styles available.
     return style;
   }
 
@@ -77,11 +77,11 @@ import java.util.Map;
     if (style.isUnderline()) {
       builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    if (style.hasColorSpecified()) {
-      builder.setSpan(new ForegroundColorSpan(style.getColor()), start, end,
+    if (style.hasFontColor()) {
+      builder.setSpan(new ForegroundColorSpan(style.getFontColor()), start, end,
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    if (style.hasBackgroundColorSpecified()) {
+    if (style.hasBackgroundColor()) {
       builder.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }

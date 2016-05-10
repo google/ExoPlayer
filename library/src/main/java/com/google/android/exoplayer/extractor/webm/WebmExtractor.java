@@ -1217,6 +1217,7 @@ public final class WebmExtractor implements Extractor {
         throws ParserException {
       String mimeType;
       int maxInputSize = MediaFormat.NO_VALUE;
+      int pcmEncoding = MediaFormat.NO_VALUE;
       List<byte[]> initializationData = null;
       switch (codecId) {
         case CODEC_ID_VP8:
@@ -1264,9 +1265,9 @@ public final class WebmExtractor implements Extractor {
           initializationData = new ArrayList<>(3);
           initializationData.add(codecPrivate);
           initializationData.add(
-              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(codecDelayNs).array());
+              ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(codecDelayNs).array());
           initializationData.add(
-              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(seekPreRollNs).array());
+              ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(seekPreRollNs).array());
           break;
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
@@ -1301,13 +1302,15 @@ public final class WebmExtractor implements Extractor {
           if (!parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
             throw new ParserException("Non-PCM MS/ACM is unsupported");
           }
-          if (audioBitDepth != 16) {
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+          if (pcmEncoding == C.ENCODING_INVALID) {
             throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
           }
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
-          if (audioBitDepth != 16) {
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+          if (pcmEncoding == C.ENCODING_INVALID) {
             throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
           }
           break;
@@ -1331,7 +1334,7 @@ public final class WebmExtractor implements Extractor {
       if (MimeTypes.isAudio(mimeType)) {
         format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
             MediaFormat.NO_VALUE, maxInputSize, durationUs, channelCount, sampleRate,
-            initializationData, language);
+            initializationData, language, pcmEncoding);
       } else if (MimeTypes.isVideo(mimeType)) {
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
           displayWidth = displayWidth == MediaFormat.NO_VALUE ? width : displayWidth;

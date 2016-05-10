@@ -90,7 +90,8 @@ public final class WavExtractor implements Extractor, SeekMap {
               wavHeader.getNumChannels(),
               wavHeader.getSampleRateHz(),
               null,
-              null));
+              null,
+              wavHeader.getEncoding()));
       extractorOutput.seekMap(this);
     }
 

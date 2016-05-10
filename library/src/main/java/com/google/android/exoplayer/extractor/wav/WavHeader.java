@@ -30,6 +30,9 @@ import com.google.android.exoplayer.C;
   private final int blockAlignment;
   /** Bits per sample for the audio data. */
   private final int bitsPerSample;
+  /** The pcm encoding */
+  private final int encoding;
+
   /** Offset to the start of sample data. */
   private long dataStartPosition;
   /** Total size in bytes of the sample data. */
@@ -40,12 +43,14 @@ import com.google.android.exoplayer.C;
       int sampleRateHz,
       int averageBytesPerSecond,
       int blockAlignment,
-      int bitsPerSample) {
+      int bitsPerSample,
+      int encoding) {
     this.numChannels = numChannels;
     this.sampleRateHz = sampleRateHz;
     this.averageBytesPerSecond = averageBytesPerSecond;
     this.blockAlignment = blockAlignment;
     this.bitsPerSample = bitsPerSample;
+    this.encoding = encoding;
   }
 
   /** Returns the duration in microseconds of this WAV. */
@@ -110,4 +115,10 @@ import com.google.android.exoplayer.C;
     this.dataStartPosition = dataStartPosition;
     this.dataSize = dataSize;
   }
+
+  /** Returns the PCM encoding. **/
+  public int getEncoding() {
+    return encoding;
+  }
+
 }

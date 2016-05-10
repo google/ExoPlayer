@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.ext.flac;
+package com.google.android.exoplayer.util;
 
 /**
- * Holder for flac stream info.
+ * Holder for FLAC stream info.
  */
-/* package */ final class FlacStreamInfo {
+public final class FlacStreamInfo {
+
   public final int minBlockSize;
   public final int maxBlockSize;
   public final int minFrameSize;
@@ -27,6 +28,28 @@ package com.google.android.exoplayer.ext.flac;
   public final int channels;
   public final int bitsPerSample;
   public final long totalSamples;
+
+  /**
+   * Constructs a FlacStreamInfo parsing the given binary FLAC stream info metadata structure.
+   *
+   * @param data An array holding FLAC stream info metadata structure
+   * @param offset Offset of the structure in the array
+   * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
+   *     METADATA_BLOCK_STREAMINFO</a>
+   */
+  public FlacStreamInfo(byte[] data, int offset) {
+    ParsableBitArray scratch = new ParsableBitArray(data);
+    scratch.setPosition(offset * 8);
+    this.minBlockSize = scratch.readBits(16);
+    this.maxBlockSize = scratch.readBits(16);
+    this.minFrameSize = scratch.readBits(24);
+    this.maxFrameSize = scratch.readBits(24);
+    this.sampleRate = scratch.readBits(20);
+    this.channels = scratch.readBits(3) + 1;
+    this.bitsPerSample = scratch.readBits(5) + 1;
+    this.totalSamples = scratch.readBits(36);
+    // Remaining 16 bytes is md5 value
+  }
 
   public FlacStreamInfo(int minBlockSize, int maxBlockSize, int minFrameSize, int maxFrameSize,
       int sampleRate, int channels, int bitsPerSample, long totalSamples) {
@@ -51,4 +74,5 @@ package com.google.android.exoplayer.ext.flac;
   public long durationUs() {
     return (totalSamples * 1000000L) / sampleRate;
   }
+
 }
