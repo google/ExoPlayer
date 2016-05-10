@@ -1207,6 +1207,7 @@ public final class MatroskaExtractor implements Extractor {
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
       String mimeType;
       int maxInputSize = Format.NO_VALUE;
+      int pcmEncoding = Format.NO_VALUE;
       List<byte[]> initializationData = null;
       switch (codecId) {
         case CODEC_ID_VP8:
@@ -1291,13 +1292,15 @@ public final class MatroskaExtractor implements Extractor {
           if (!parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
             throw new ParserException("Non-PCM MS/ACM is unsupported");
           }
-          if (audioBitDepth != 16) {
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+          if (pcmEncoding == C.ENCODING_INVALID) {
             throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
           }
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
-          if (audioBitDepth != 16) {
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+          if (pcmEncoding == C.ENCODING_INVALID) {
             throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
           }
           break;
@@ -1320,8 +1323,8 @@ public final class MatroskaExtractor implements Extractor {
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
         format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, maxInputSize, channelCount, sampleRate, initializationData, language,
-            drmInitData);
+            Format.NO_VALUE, maxInputSize, channelCount, sampleRate, pcmEncoding,
+            initializationData, drmInitData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
           displayWidth = displayWidth == Format.NO_VALUE ? width : displayWidth;

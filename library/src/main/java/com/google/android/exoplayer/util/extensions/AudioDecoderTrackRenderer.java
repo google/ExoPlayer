@@ -292,7 +292,8 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     int result = readSource(formatHolder, null);
     if (result == TrackStream.FORMAT_READ) {
       format = formatHolder.format;
-      audioTrack.configure(MimeTypes.AUDIO_RAW, format.channelCount, format.sampleRate);
+      audioTrack.configure(MimeTypes.AUDIO_RAW, format.channelCount, format.sampleRate,
+          C.ENCODING_PCM_16BIT);
       return true;
     }
     return false;

@@ -939,8 +939,8 @@ import java.util.List;
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, language,
-            drmInitData);
+            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData,
+            language);
         return;
       }
       childAtomPosition += childAtomSize;
@@ -951,10 +951,13 @@ import java.util.List;
       return;
     }
 
+    // TODO: Determine the correct PCM encoding.
+    int pcmEncoding = MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT : Format.NO_VALUE;
+
     out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-        Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate,
+        Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
         initializationData == null ? null : Collections.singletonList(initializationData),
-        language, drmInitData);
+        drmInitData, language);
   }
 
   /** Returns the position of the esds box within a parent, or -1 if no esds box is found */
