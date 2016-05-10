@@ -112,12 +112,9 @@ import java.io.IOException;
     Assertions.checkArgument(input.getLength() != C.LENGTH_UNBOUNDED); // never read forever!
     OggUtil.skipToNextPage(input);
     pageHeader.reset();
-    while ((pageHeader.type & 0x04) != 0x04) {
-      if (pageHeader.bodySize > 0) {
-        input.skipFully(pageHeader.bodySize);
-      }
+    while ((pageHeader.type & 0x04) != 0x04 && input.getPosition() < input.getLength()) {
       OggUtil.populatePageHeader(input, pageHeader, headerArray, false);
-      input.skipFully(pageHeader.headerSize);
+      input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
     }
     return pageHeader.granulePosition;
   }
