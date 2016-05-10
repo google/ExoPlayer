@@ -357,7 +357,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       ActionSchedule actionSchedule, boolean fullPlaybackNoSeeking, String manifestFileName,
       String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats)
       throws IOException {
-    MediaPresentationDescription mpd = TestUtil.loadManifest(activity,
+    MediaPresentationDescription mpd = TestUtil.loadManifest(activity, TAG,
         MANIFEST_URL_PREFIX + manifestFileName, new MediaPresentationDescriptionParser());
     MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG,
         REPORT_NAME, streamName);
@@ -460,7 +460,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           MIN_LOADABLE_RETRY_COUNT);
       DebugMediaCodecVideoTrackRenderer videoRenderer = new DebugMediaCodecVideoTrackRenderer(host,
           videoSampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-          0, handler, logger, 50, fullPlaybackNoSeeking);
+          0, handler, logger, 50);
       videoCounters = videoRenderer.codecCounters;
       player.sendMessage(videoRenderer, DebugMediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
 

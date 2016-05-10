@@ -525,7 +525,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
   }
 
-  private void flushCodec() throws ExoPlaybackException {
+  protected void flushCodec() throws ExoPlaybackException {
     codecHotswapTimeMs = -1;
     inputIndex = -1;
     outputIndex = -1;

@@ -23,13 +23,17 @@ import com.google.android.exoplayer.util.Util;
 
 import android.content.Context;
 import android.os.ConditionVariable;
+import android.util.Log;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
 /**
  * Utility methods for ExoPlayer playback tests.
  */
 public final class TestUtil {
+
+  private static final int MANIFEST_LOAD_MAX_RETRY_COUNT = 5;
 
   private TestUtil() {}
 
@@ -47,19 +51,39 @@ public final class TestUtil {
    * Loads a manifest.
    *
    * @param context A context.
+   * @param tag A tag to use for logging.
    * @param url The manifest url.
    * @param parser A suitable parser for the manifest.
    * @return The parser manifest.
    * @throws IOException If an error occurs loading the manifest.
    */
-  public static <T> T loadManifest(Context context, String url, UriLoadable.Parser<T> parser)
-      throws IOException {
+  public static <T> T loadManifest(Context context, String tag, String url,
+      UriLoadable.Parser<T> parser) throws IOException {
     String userAgent = getUserAgent(context);
-    DefaultUriDataSource manifestDataSource = new DefaultUriDataSource(context, userAgent);
-    ManifestFetcher<T> manifestFetcher = new ManifestFetcher<>(url, manifestDataSource, parser);
-    SyncManifestCallback<T> callback = new SyncManifestCallback<>();
-    manifestFetcher.singleLoad(context.getMainLooper(), callback);
-    return callback.getResult();
+    int retryCount = 0;
+    while (true) {
+      try {
+        DefaultUriDataSource manifestDataSource = new DefaultUriDataSource(context, userAgent);
+        ManifestFetcher<T> manifestFetcher = new ManifestFetcher<>(url, manifestDataSource, parser);
+        SyncManifestCallback<T> callback = new SyncManifestCallback<>();
+        manifestFetcher.singleLoad(context.getMainLooper(), callback);
+        return callback.getResult();
+      } catch (IOException e) {
+        if (retryCount++ < MANIFEST_LOAD_MAX_RETRY_COUNT) {
+          // Sleep, then try again.
+          Log.e(tag, "Failed to load manifest", e);
+          try {
+            Thread.sleep(5000);
+          } catch (InterruptedException e2) {
+            // Never happens.
+            throw new InterruptedIOException();
+          }
+        } else {
+          // Give up.
+          throw e;
+        }
+      }
+    }
   }
 
   /**
