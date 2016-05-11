@@ -275,6 +275,9 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       return false;
     }
 
+    if (inputBuffer.sampleHolder.isDecodeOnly()) {
+      inputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+    }
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
