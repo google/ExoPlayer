@@ -454,7 +454,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   /* package */ boolean isReady(int track) {
     return loadingFinished || (!isPendingReset() && !sampleQueues[track].isEmpty());
-
   }
 
   /* package */ void maybeThrowError() throws IOException {
