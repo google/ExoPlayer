@@ -99,7 +99,8 @@ public final class MediaCodecUtil {
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A list of all @{link DecoderInfo}s for the given mime type,
+   * @return A list of all @{link DecoderInfo}s for the given mime type, in the order given by
+   *     {@link MediaCodecList}.
    */
   public static synchronized List<DecoderInfo> getDecoderInfos(String mimeType, boolean secure)
       throws DecoderQueryException {
