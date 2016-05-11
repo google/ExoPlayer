@@ -24,18 +24,24 @@ import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializatio
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroupArray;
+import com.google.android.exoplayer.dash.DashSampleSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
-import com.google.android.exoplayer.demo.player.SourceBuilder;
 import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.hls.HlsSource;
 import com.google.android.exoplayer.metadata.id3.GeobFrame;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.metadata.id3.PrivFrame;
 import com.google.android.exoplayer.metadata.id3.TxxxFrame;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingSampleSource;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
+import com.google.android.exoplayer.upstream.Allocator;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.Util;
@@ -260,18 +266,25 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   // Internal methods
 
+  @SuppressWarnings("unused")
   private SampleSource buildSource(Uri uri, String id, String provider, int type) {
     switch (type) {
       case Util.TYPE_SS:
-        return SourceBuilder.buildSmoothStreamingSource(player, dataSourceFactory, uri,
-            new SmoothStreamingTestMediaDrmCallback());
+        // TODO: Bring back DRM support. new SmoothStreamingTestMediaDrmCallback()
+        return new SmoothStreamingSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
+            player.getMainHandler(), player);
       case Util.TYPE_DASH:
-        return SourceBuilder.buildDashSource(player, dataSourceFactory, uri,
-            new WidevineTestMediaDrmCallback(id, provider));
+        // TODO: Bring back DRM support. new WidevineTestMediaDrmCallback(id, provider)
+        return new DashSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
+            player.getMainHandler(), player);
       case Util.TYPE_HLS:
-        return SourceBuilder.buildHlsSource(player, dataSourceFactory, uri);
+        return new HlsSource(uri, dataSourceFactory, player.getBandwidthMeter(),
+            player.getMainHandler(), player);
       case Util.TYPE_OTHER:
-        return SourceBuilder.buildExtractorSource(player, dataSourceFactory, uri);
+        Allocator allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
+        DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
+        return new ExtractorSampleSource(uri, dataSource, allocator,
+            C.DEFAULT_MUXED_BUFFER_SIZE, player.getMainHandler(), player, 0);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

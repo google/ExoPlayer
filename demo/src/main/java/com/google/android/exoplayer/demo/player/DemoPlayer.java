@@ -279,7 +279,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     return player.getPlayWhenReady();
   }
 
-  /* package */ Handler getMainHandler() {
+  public Handler getMainHandler() {
     return mainHandler;
   }
 

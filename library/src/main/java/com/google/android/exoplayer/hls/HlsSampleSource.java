@@ -45,7 +45,7 @@ import java.util.List;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public final class HlsSampleSource implements SampleSource, Loader.Callback {
+public final class HlsSampleSource implements Loader.Callback {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -139,9 +139,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     pendingResetPositionUs = C.UNSET_TIME_US;
   }
 
-  // SampleSource implementation.
-
-  @Override
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
@@ -173,17 +170,14 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return false;
   }
 
-  @Override
   public long getDurationUs() {
     return chunkSource.getDurationUs();
   }
 
-  @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
   }
 
-  @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
@@ -233,7 +227,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return newStreams;
   }
 
-  @Override
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
     discardSamplesForDisabledTracks();
@@ -242,7 +235,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  @Override
   public long readReset() {
     if (notifyReset) {
       notifyReset = false;
@@ -251,7 +243,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return C.UNSET_TIME_US;
   }
 
-  @Override
   public long getBufferedPositionUs() {
     if (loadingFinished) {
       return C.END_OF_SOURCE_US;
@@ -273,12 +264,10 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  @Override
   public void seekToUs(long positionUs) {
     seekToInternal(positionUs);
   }
 
-  @Override
   public void release() {
     if (enabledTrackCount > 0) {
       loadControl.unregister(this);
