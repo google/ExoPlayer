@@ -46,7 +46,7 @@ public final class PtsTimestampAdjusterProvider {
   public PtsTimestampAdjuster getAdjuster(boolean isMasterSource, int discontinuitySequence,
       long startTimeUs) {
     PtsTimestampAdjuster adjuster = ptsTimestampAdjusters.get(discontinuitySequence);
-    if (isMasterSource && adjuster == null) {
+    if (isMasterSource && (adjuster == null || adjuster.firstSampleTimestampUs != startTimeUs)) {
       adjuster = new PtsTimestampAdjuster(startTimeUs);
       ptsTimestampAdjusters.put(discontinuitySequence, adjuster);
     }
