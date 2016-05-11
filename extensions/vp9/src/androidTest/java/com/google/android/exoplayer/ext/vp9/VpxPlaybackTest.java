@@ -19,6 +19,7 @@ import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
@@ -99,7 +100,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
           new DefaultDataSource(context, null, Util.getUserAgent(context, "ExoPlayerExtVP9Test"),
               false),
           new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
-          new MatroskaExtractor());
+          new Extractor[] {new MatroskaExtractor()});
       player.sendMessage(videoRenderer, LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context));
       player.setSource(sampleSource);

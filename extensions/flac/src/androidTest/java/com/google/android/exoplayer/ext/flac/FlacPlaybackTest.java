@@ -19,6 +19,7 @@ import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
@@ -83,7 +84,7 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
           new DefaultDataSource(context, null, Util.getUserAgent(context, "ExoPlayerExtFlacTest"),
               false),
           new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
-          new MatroskaExtractor());
+          new Extractor[] {new MatroskaExtractor()});
       player.setSource(sampleSource);
       player.setPlayWhenReady(true);
       Looper.loop();

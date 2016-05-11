@@ -283,8 +283,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       case Util.TYPE_OTHER:
         Allocator allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
         DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
-        return new ExtractorSampleSource(uri, dataSource, allocator,
-            C.DEFAULT_MUXED_BUFFER_SIZE, player.getMainHandler(), player, 0);
+        return new ExtractorSampleSource(uri, dataSource, allocator, C.DEFAULT_MUXED_BUFFER_SIZE,
+            player.getMainHandler(), player, 0, ExtractorSampleSource.newDefaultExtractors());
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }
