@@ -645,7 +645,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     tracks.add(new ExposedTrack(variant));
   }
 
-  protected int computeDefaultVariantIndex(HlsMasterPlaylist playlist, Variant[] variants, BandwidthMeter bandwidthMeter) {
+  protected int computeDefaultVariantIndex(HlsMasterPlaylist playlist, Variant[] variants,
+      BandwidthMeter bandwidthMeter) {
     int defaultVariantIndex = 0;
     int minOriginalVariantIndex = Integer.MAX_VALUE;
 
