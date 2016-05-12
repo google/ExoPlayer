@@ -170,7 +170,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     if (!MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderName() != null) {
+    if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | FORMAT_HANDLED;
     }
     // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
@@ -194,10 +194,10 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, Format format,
       boolean requiresSecureDecoder) throws DecoderQueryException {
     if (allowPassthrough(format.sampleMimeType)) {
-      String passthroughDecoderName = mediaCodecSelector.getPassthroughDecoderName();
-      if (passthroughDecoderName != null) {
+      DecoderInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
+      if (passthroughDecoderInfo != null) {
         passthroughEnabled = true;
-        return new DecoderInfo(passthroughDecoderName);
+        return passthroughDecoderInfo;
       }
     }
     passthroughEnabled = false;

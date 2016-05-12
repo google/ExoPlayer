@@ -52,6 +52,8 @@ public final class MediaCodecUtil {
   }
 
   private static final String TAG = "MediaCodecUtil";
+  private static final DecoderInfo PASSTHROUGH_DECODER_INFO =
+      new DecoderInfo("OMX.google.raw.decoder", null);
 
   private static final HashMap<CodecKey, List<DecoderInfo>> decoderInfosCache = new HashMap<>();
 
@@ -79,12 +81,22 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns information about the decoder that will be used for a given mime type.
+   * Returns information about a decoder suitable for audio passthrough.
+   **
+   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   */
+  public static DecoderInfo getPassthroughDecoderInfo() {
+    // TODO: Return null if the raw decoder doesn't exist.
+    return PASSTHROUGH_DECODER_INFO;
+  }
+
+  /**
+   * Returns information about the preferred decoder for a given mime type.
    *
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return Information about the decoder that will be used, or null if no decoder exists.
+   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
    */
   public static DecoderInfo getDecoderInfo(String mimeType, boolean secure)
       throws DecoderQueryException {
