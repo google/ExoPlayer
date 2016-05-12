@@ -58,9 +58,8 @@ public interface TrackStream {
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
-   *     end of the stream. If the caller requires the sample data then it must ensure that
-   *     {@link DecoderInputBuffer#data} references a valid buffer. If the end of the stream has
-   *     been reached, the {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     end of the stream. If the end of the stream has been reached, the
+   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
    * @return The result, which can be {@link #NOTHING_READ}, {@link #FORMAT_READ} or
    *     {@link #BUFFER_READ}.
    */

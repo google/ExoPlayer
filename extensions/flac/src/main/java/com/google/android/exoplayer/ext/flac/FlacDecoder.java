@@ -77,18 +77,14 @@ import java.util.List;
     if (reset) {
       decoder.flush();
     }
-    ByteBuffer data = inputBuffer.data;
-    outputBuffer.timestampUs = inputBuffer.timeUs;
-    data.limit(data.position());
-    data.position(data.position() - inputBuffer.size);
-    outputBuffer.init(maxOutputBufferSize);
-    decoder.setData(data);
-    int result = decoder.decodeSample(outputBuffer.data);
+    decoder.setData(inputBuffer.data);
+    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, maxOutputBufferSize);
+    int result = decoder.decodeSample(outputData);
     if (result < 0) {
       return new FlacDecoderException("Frame decoding failed");
     }
-    outputBuffer.data.position(0);
-    outputBuffer.data.limit(result);
+    outputData.position(0);
+    outputData.limit(result);
     return null;
   }
 

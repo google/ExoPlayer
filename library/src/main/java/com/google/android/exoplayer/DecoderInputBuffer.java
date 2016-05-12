@@ -50,11 +50,6 @@ public class DecoderInputBuffer extends Buffer {
   public ByteBuffer data;
 
   /**
-   * The size of the data in bytes.
-   */
-  public int size;
-
-  /**
    * The time at which the sample should be presented.
    */
   public long timeUs;
@@ -112,6 +107,15 @@ public class DecoderInputBuffer extends Buffer {
    */
   public final boolean isEncrypted() {
     return getFlag(C.BUFFER_FLAG_ENCRYPTED);
+  }
+
+  /**
+   * Flips {@link #data} in preparation for being queued to a decoder.
+   *
+   * @see java.nio.Buffer#flip()
+   */
+  public final void flip() {
+    data.flip();
   }
 
   @Override

@@ -95,7 +95,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
   public int getTrackType() {
     return C.TRACK_TYPE_TEXT;
   }
-  
+
   @Override
   protected int supportsFormat(Format format) {
     return parserFactory.supportsFormat(format) ? TrackRenderer.FORMAT_HANDLED
@@ -197,6 +197,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
           } else {
             nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
           }
+          nextInputBuffer.flip();
           parser.queueInputBuffer(nextInputBuffer);
           nextInputBuffer = null;
         } else if (result == TrackStream.NOTHING_READ) {

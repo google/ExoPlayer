@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 /**
  * Output buffer containing video frame data, populated by {@link VpxDecoder}.
  */
-public final class VpxOutputBuffer extends OutputBuffer {
+/* package */ final class VpxOutputBuffer extends OutputBuffer {
 
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;
@@ -44,7 +44,7 @@ public final class VpxOutputBuffer extends OutputBuffer {
   public int[] yuvStrides;
   public int colorspace;
 
-  /* package */ VpxOutputBuffer(VpxDecoder owner) {
+  public VpxOutputBuffer(VpxDecoder owner) {
     this.owner = owner;
   }
 
@@ -54,9 +54,21 @@ public final class VpxOutputBuffer extends OutputBuffer {
   }
 
   /**
+   * Initializes the buffer.
+   *
+   * @param timestampUs The presentation timestamp for the buffer, in microseconds.
+   * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE},
+   *     {@link VpxDecoder#OUTPUT_MODE_RGB} and {@link VpxDecoder#OUTPUT_MODE_YUV}.
+   */
+  public void init(long timestampUs, int mode) {
+    this.timestampUs = timestampUs;
+    this.mode = mode;
+  }
+
+  /**
    * Resizes the buffer based on the given dimensions. Called via JNI after decoding completes.
    */
-  /* package */ void initForRgbFrame(int width, int height) {
+  public void initForRgbFrame(int width, int height) {
     this.width = width;
     this.height = height;
     this.yuvPlanes = null;
@@ -68,7 +80,7 @@ public final class VpxOutputBuffer extends OutputBuffer {
   /**
    * Resizes the buffer based on the given stride. Called via JNI after decoding completes.
    */
-  /* package */ void initForYuvFrame(int width, int height, int yStride, int uvStride,
+  public void initForYuvFrame(int width, int height, int yStride, int uvStride,
       int colorspace) {
     this.width = width;
     this.height = height;

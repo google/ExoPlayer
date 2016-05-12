@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 /* package */ final class VpxDecoder extends
     SimpleDecoder<DecoderInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
-  public static final int OUTPUT_MODE_UNKNOWN = -1;
+  public static final int OUTPUT_MODE_NONE = -1;
   public static final int OUTPUT_MODE_YUV = 0;
   public static final int OUTPUT_MODE_RGB = 1;
 
@@ -77,8 +77,8 @@ import java.nio.ByteBuffer;
   /**
    * Sets the output mode for frames rendered by the decoder.
    *
-   * @param outputMode The output mode to use, which must be one of the {@code OUTPUT_MODE_*}
-   *     constants in {@link VpxDecoder}.
+   * @param outputMode The output mode. One of {@link #OUTPUT_MODE_NONE}, {@link #OUTPUT_MODE_RGB}
+   *     and {@link #OUTPUT_MODE_YUV}.
    */
   public void setOutputMode(int outputMode) {
     this.outputMode = outputMode;
@@ -102,12 +102,12 @@ import java.nio.ByteBuffer;
   @Override
   protected VpxDecoderException decode(DecoderInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
       boolean reset) {
-    outputBuffer.timestampUs = inputBuffer.timeUs;
-    inputBuffer.data.position(inputBuffer.data.position() - inputBuffer.size);
-    if (vpxDecode(vpxDecContext, inputBuffer.data, inputBuffer.size) != 0) {
+    ByteBuffer inputData = inputBuffer.data;
+    int inputSize = inputData.limit();
+    if (vpxDecode(vpxDecContext, inputData, inputSize) != 0) {
       return new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
     }
-    outputBuffer.mode = outputMode;
+    outputBuffer.init(inputBuffer.timeUs, outputMode);
     if (vpxGetFrame(vpxDecContext, outputBuffer) != 0) {
       outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }

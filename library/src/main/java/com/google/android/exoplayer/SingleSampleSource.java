@@ -203,9 +203,8 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
       return NOTHING_READ;
     } else {
       buffer.timeUs = 0;
-      buffer.size = sampleSize;
       buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
-      buffer.ensureSpaceForWrite(buffer.size);
+      buffer.ensureSpaceForWrite(sampleSize);
       buffer.data.put(sampleData, 0, sampleSize);
       streamState = STREAM_STATE_END_OF_STREAM;
       return BUFFER_READ;

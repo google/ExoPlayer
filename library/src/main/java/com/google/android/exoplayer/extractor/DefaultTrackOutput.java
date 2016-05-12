@@ -217,9 +217,8 @@ public final class DefaultTrackOutput implements TrackOutput {
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
-   *     end of the stream. If the caller requires the sample data then it must ensure that
-   *     {@link DecoderInputBuffer#data} references a valid buffer. If the end of the stream has
-   *     been reached, the {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     end of the stream. If the end of the stream has been reached, the
+   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
@@ -247,8 +246,8 @@ public final class DefaultTrackOutput implements TrackOutput {
           readEncryptionData(buffer, extrasHolder);
         }
         // Write the sample data into the holder.
-        buffer.ensureSpaceForWrite(buffer.size);
-        readData(extrasHolder.offset, buffer.data, buffer.size);
+        buffer.ensureSpaceForWrite(extrasHolder.size);
+        readData(extrasHolder.offset, buffer.data, extrasHolder.size);
         // Advance the read head.
         dropDownstreamTo(extrasHolder.nextOffset);
         return TrackStream.BUFFER_READ;
@@ -261,7 +260,7 @@ public final class DefaultTrackOutput implements TrackOutput {
    * Reads encryption data for the current sample.
    * <p>
    * The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and
-   * {@link DecoderInputBuffer#size} is adjusted to subtract the number of bytes that were read. The
+   * {@link BufferExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The
    * same value is added to {@link BufferExtrasHolder#offset}.
    *
    * @param buffer The buffer into which the encryption data should be written.
@@ -316,7 +315,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       }
     } else {
       clearDataSizes[0] = 0;
-      encryptedDataSizes[0] = buffer.size - (int) (offset - extrasHolder.offset);
+      encryptedDataSizes[0] = extrasHolder.size - (int) (offset - extrasHolder.offset);
     }
 
     // Populate the cryptoInfo.
@@ -326,7 +325,7 @@ public final class DefaultTrackOutput implements TrackOutput {
     // Adjust the offset and size to take into account the bytes read.
     int bytesRead = (int) (offset - extrasHolder.offset);
     extrasHolder.offset += bytesRead;
-    buffer.size -= bytesRead;
+    extrasHolder.size -= bytesRead;
   }
 
   /**
@@ -633,10 +632,10 @@ public final class DefaultTrackOutput implements TrackOutput {
      * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
      * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
      *     end of the stream. If a sample is read then the buffer is populated with information
-     *     about the sample, but not its data. The absolute position of the data in the rolling
-     *     buffer is stored in {@code extrasHolder}, along with an encryption id if present and the
-     *     absolute position of the first byte that may still be required after the current sample
-     *     has been read.
+     *     about the sample, but not its data. The size and absolute position of the data in the
+     *     rolling buffer is stored in {@code extrasHolder}, along with an encryption id if present
+     *     and the absolute position of the first byte that may still be required after the current
+     *     sample has been read.
      * @param downstreamFormat The current downstream {@link Format}. If the format of the next
      *     sample is different to the current downstream format then a format will be read.
      * @param extrasHolder The holder into which extra sample information should be written.
@@ -659,8 +658,8 @@ public final class DefaultTrackOutput implements TrackOutput {
       }
 
       buffer.timeUs = timesUs[relativeReadIndex];
-      buffer.size = sizes[relativeReadIndex];
       buffer.setFlags(flags[relativeReadIndex]);
+      extrasHolder.size = sizes[relativeReadIndex];
       extrasHolder.offset = offsets[relativeReadIndex];
       extrasHolder.encryptionKeyId = encryptionKeys[relativeReadIndex];
 
@@ -674,7 +673,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       }
 
       extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
-          : extrasHolder.offset + buffer.size;
+          : extrasHolder.offset + extrasHolder.size;
       return TrackStream.BUFFER_READ;
     }
 
@@ -830,6 +829,7 @@ public final class DefaultTrackOutput implements TrackOutput {
    */
   private static final class BufferExtrasHolder {
 
+    public int size;
     public long offset;
     public long nextOffset;
     public byte[] encryptionKeyId;

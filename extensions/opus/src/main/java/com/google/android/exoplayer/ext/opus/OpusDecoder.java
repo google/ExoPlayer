@@ -149,34 +149,31 @@ import java.util.List;
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
       // any other time, skip number of samples as specified by seek preroll.
-      skipSamples =
-          (inputBuffer.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
+      skipSamples = (inputBuffer.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
     }
-    outputBuffer.timestampUs = inputBuffer.timeUs;
-    inputBuffer.data.position(inputBuffer.data.position() - inputBuffer.size);
-    int requiredOutputBufferSize =
-        opusGetRequiredOutputBufferSize(inputBuffer.data, inputBuffer.size, SAMPLE_RATE);
-    if (requiredOutputBufferSize < 0) {
+    ByteBuffer inputData = inputBuffer.data;
+    int inputSize = inputData.limit();
+    int outputSize = opusGetRequiredOutputBufferSize(inputData, inputSize, SAMPLE_RATE);
+    if (outputSize < 0) {
       return new OpusDecoderException("Error when computing required output buffer size.");
     }
-    outputBuffer.init(requiredOutputBufferSize);
-    int result = opusDecode(nativeDecoderContext, inputBuffer.data, inputBuffer.size,
-        outputBuffer.data, outputBuffer.data.capacity());
+    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputSize);
+    int result = opusDecode(nativeDecoderContext, inputData, inputSize, outputData, outputSize);
     if (result < 0) {
       return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
     }
-    outputBuffer.data.position(0);
-    outputBuffer.data.limit(result);
+    outputData.position(0);
+    outputData.limit(result);
     if (skipSamples > 0) {
       int bytesPerSample = channelCount * 2;
       int skipBytes = skipSamples * bytesPerSample;
       if (result <= skipBytes) {
         skipSamples -= result / bytesPerSample;
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-        outputBuffer.data.position(result);
+        outputData.position(result);
       } else {
         skipSamples = 0;
-        outputBuffer.data.position(skipBytes);
+        outputData.position(skipBytes);
       }
     }
     return null;

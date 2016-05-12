@@ -26,6 +26,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.TextUtils;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -304,11 +305,13 @@ public final class Eia608Parser implements SubtitleParser {
   }
 
   private void decode(SubtitleInputBuffer inputBuffer) {
-    if (inputBuffer.size < 10) {
+    ByteBuffer inputData = inputBuffer.data;
+    int inputSize = inputData.limit();
+    if (inputSize < 10) {
       return;
     }
-    seiBuffer.reset(inputBuffer.data.array());
 
+    seiBuffer.reset(inputData.array(), inputSize);
     // country_code (8) + provider_code (16) + user_identifier (32) + user_data_type_code (8) +
     // reserved (1) + process_cc_data_flag (1) + zero_bit (1)
     seiBuffer.skipBits(67);

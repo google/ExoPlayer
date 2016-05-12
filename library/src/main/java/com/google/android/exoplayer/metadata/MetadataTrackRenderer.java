@@ -30,6 +30,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * A {@link TrackRenderer} for metadata embedded in a media stream.
@@ -113,7 +114,9 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
         } else {
           pendingMetadataTimestamp = buffer.timeUs;
           try {
-            pendingMetadata = metadataParser.parse(buffer.data.array(), buffer.size);
+            buffer.flip();
+            ByteBuffer bufferData = buffer.data;
+            pendingMetadata = metadataParser.parse(bufferData.array(), bufferData.limit());
           } catch (IOException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
           }

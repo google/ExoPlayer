@@ -250,13 +250,10 @@ public final class FrameworkSampleSource implements SampleSource {
     }
     int extractorTrackIndex = extractor.getSampleTrackIndex();
     if (extractorTrackIndex == track) {
-      if (buffer.data != null) {
-        int offset = buffer.data.position();
-        buffer.size = extractor.readSampleData(buffer.data, offset);
-        buffer.data.position(offset + buffer.size);
-      } else {
-        buffer.size = 0;
-      }
+      ByteBuffer bufferData = buffer.data;
+      int offset = bufferData.position();
+      int size = extractor.readSampleData(bufferData, offset);
+      bufferData.position(offset + size);
       buffer.timeUs = extractor.getSampleTime();
       int flags = extractor.getSampleFlags();
       if ((flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {

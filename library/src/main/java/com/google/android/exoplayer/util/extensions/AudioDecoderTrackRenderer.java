@@ -207,6 +207,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       inputStreamEnded = true;
     }
 
+    inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;

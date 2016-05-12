@@ -108,7 +108,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     previousWidth = -1;
     previousHeight = -1;
     formatHolder = new FormatHolder();
-    outputMode = VpxDecoder.OUTPUT_MODE_UNKNOWN;
+    outputMode = VpxDecoder.OUTPUT_MODE_NONE;
   }
 
   /**
@@ -281,6 +281,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
     }
+    inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
@@ -377,7 +378,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
     this.surface = surface;
     outputBufferRenderer = null;
-    outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_UNKNOWN;
+    outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
     }
@@ -390,8 +391,8 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
     this.outputBufferRenderer = outputBufferRenderer;
     surface = null;
-    outputMode = (outputBufferRenderer != null)
-        ? VpxDecoder.OUTPUT_MODE_YUV : VpxDecoder.OUTPUT_MODE_UNKNOWN;
+    outputMode = (outputBufferRenderer != null) ? VpxDecoder.OUTPUT_MODE_YUV
+        : VpxDecoder.OUTPUT_MODE_NONE;
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
     }

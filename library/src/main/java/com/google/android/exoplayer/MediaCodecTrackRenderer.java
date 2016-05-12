@@ -527,6 +527,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     int result;
+    int adaptiveReconfigurationBytes = 0;
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = TrackStream.BUFFER_READ;
@@ -540,6 +541,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
+      adaptiveReconfigurationBytes = buffer.data.position();
       result = readSource(formatHolder, buffer);
     }
 
@@ -598,21 +600,20 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecNeedsDiscardToSpsWorkaround = false;
     }
     try {
-      int bufferSize = buffer.data.position();
-      int adaptiveReconfigurationBytes = bufferSize - buffer.size;
       long presentationTimeUs = buffer.timeUs;
       if (buffer.isDecodeOnly()) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
       }
 
-      onQueuedInputBuffer(presentationTimeUs, buffer.data, bufferSize, bufferEncrypted);
+      buffer.flip();
+      onQueueInputBuffer(buffer);
 
       if (bufferEncrypted) {
         MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(buffer,
             adaptiveReconfigurationBytes);
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
-        codec.queueInputBuffer(inputIndex, 0, bufferSize, presentationTimeUs, 0);
+        codec.queueInputBuffer(inputIndex, 0, buffer.data.limit(), presentationTimeUs, 0);
       }
       inputIndex = -1;
       codecReceivedBuffers = true;
@@ -705,13 +706,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * <p>
    * The default implementation is a no-op.
    *
-   * @param presentationTimeUs The timestamp associated with the input buffer.
    * @param buffer The buffer to be queued.
-   * @param bufferSize The size of the sample data stored in the buffer.
-   * @param bufferEncrypted Whether the buffer is encrypted.
    */
-  protected void onQueuedInputBuffer(long presentationTimeUs, ByteBuffer buffer, int bufferSize,
-      boolean bufferEncrypted) {
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
     // Do nothing.
   }
 
