@@ -125,6 +125,9 @@ import java.io.IOException;
     Assertions.checkNotNull(input);
     Assertions.checkNotNull(wavHeader);
 
+    // Make sure the peek position is set to the read position before we peek the first header.
+    input.resetPeekPosition();
+
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we hit the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
