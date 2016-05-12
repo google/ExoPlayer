@@ -341,7 +341,8 @@ public final class AudioTrack {
    * @param channelCount The number of channels.
    * @param sampleRate The sample rate in Hz.
    * @param pcmEncoding For PCM formats, the encoding used. One of {@link C#ENCODING_PCM_16BIT},
-   *     {@link C#ENCODING_PCM_16BIT} and {@link C#ENCODING_PCM_24BIT}.
+   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
+   *     {@link C#ENCODING_PCM_32BIT}.
    */
   public void configure(String mimeType, int channelCount, int sampleRate, int pcmEncoding) {
     configure(mimeType, channelCount, sampleRate, pcmEncoding, 0);
@@ -354,7 +355,8 @@ public final class AudioTrack {
    * @param channelCount The number of channels.
    * @param sampleRate The sample rate in Hz.
    * @param pcmEncoding For PCM formats, the encoding used. One of {@link C#ENCODING_PCM_16BIT},
-   *     {@link C#ENCODING_PCM_16BIT} and {@link C#ENCODING_PCM_24BIT}.
+   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
+   *     {@link C#ENCODING_PCM_32BIT}.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
    *     suitable buffer size automatically.
    */
@@ -395,7 +397,7 @@ public final class AudioTrack {
     if (passthrough) {
       sourceEncoding = getEncodingForMimeType(mimeType);
     } else if (pcmEncoding == C.ENCODING_PCM_8BIT || pcmEncoding == C.ENCODING_PCM_16BIT
-        || pcmEncoding == C.ENCODING_PCM_24BIT) {
+        || pcmEncoding == C.ENCODING_PCM_24BIT || pcmEncoding == C.ENCODING_PCM_32BIT) {
       sourceEncoding = pcmEncoding;
     } else {
       throw new IllegalArgumentException("Unsupported PCM encoding: " + pcmEncoding);
@@ -711,7 +713,6 @@ public final class AudioTrack {
     audioTrackUtil.setPlaybackParameters(playbackParams);
   }
 
-
   /**
    * Sets the playback volume.
    */
@@ -991,6 +992,9 @@ public final class AudioTrack {
       case C.ENCODING_PCM_24BIT:
         resampledSize = (size / 3) * 2;
         break;
+      case C.ENCODING_PCM_32BIT:
+        resampledSize = size / 2;
+        break;
       default:
         // Never happens.
         throw new IllegalStateException();
@@ -1017,6 +1021,13 @@ public final class AudioTrack {
         for (int i = offset; i < limit; i += 3) {
           resampledBuffer.put(buffer.get(i + 1));
           resampledBuffer.put(buffer.get(i + 2));
+        }
+        break;
+      case C.ENCODING_PCM_32BIT:
+        // 32->16 bit resampling. Drop the two least significant bytes.
+        for (int i = offset; i < limit; i += 4) {
+          resampledBuffer.put(buffer.get(i + 2));
+          resampledBuffer.put(buffer.get(i + 3));
         }
         break;
       default:
