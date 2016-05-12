@@ -53,7 +53,7 @@ public final class MediaCodecUtil {
 
   private static final String TAG = "MediaCodecUtil";
   private static final DecoderInfo PASSTHROUGH_DECODER_INFO =
-      new DecoderInfo("OMX.google.raw.decoder", null);
+      new DecoderInfo("OMX.google.raw.decoder");
 
   private static final HashMap<CodecKey, List<DecoderInfo>> decoderInfosCache = new HashMap<>();
 
