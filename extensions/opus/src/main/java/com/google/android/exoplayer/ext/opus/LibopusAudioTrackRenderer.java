@@ -17,8 +17,8 @@ package com.google.android.exoplayer.ext.opus;
 
 import com.google.android.exoplayer.AudioTrackRendererEventListener;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.extensions.AudioDecoderTrackRenderer;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.extensions.AudioDecoderTrackRenderer;
 
 import android.os.Handler;
 

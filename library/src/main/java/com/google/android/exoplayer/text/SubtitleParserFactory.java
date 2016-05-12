@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.extensions.Decoder;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.extensions.Decoder;
 
 /**
  * A factory for {@link Decoder} instances that will parse subtitles.

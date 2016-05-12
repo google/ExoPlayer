@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.util.extensions;
+package com.google.android.exoplayer.extensions;
 
 import com.google.android.exoplayer.util.Buffer;
 

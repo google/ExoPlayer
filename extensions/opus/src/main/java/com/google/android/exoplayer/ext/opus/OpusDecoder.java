@@ -17,8 +17,8 @@ package com.google.android.exoplayer.ext.opus;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
-import com.google.android.exoplayer.util.extensions.SimpleDecoder;
-import com.google.android.exoplayer.util.extensions.SimpleOutputBuffer;
+import com.google.android.exoplayer.extensions.SimpleDecoder;
+import com.google.android.exoplayer.extensions.SimpleOutputBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

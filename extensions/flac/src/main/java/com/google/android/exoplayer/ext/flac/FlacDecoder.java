@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.ext.flac;
 
 import com.google.android.exoplayer.DecoderInputBuffer;
+import com.google.android.exoplayer.extensions.SimpleDecoder;
+import com.google.android.exoplayer.extensions.SimpleOutputBuffer;
 import com.google.android.exoplayer.util.FlacStreamInfo;
-import com.google.android.exoplayer.util.extensions.SimpleDecoder;
-import com.google.android.exoplayer.util.extensions.SimpleOutputBuffer;
 
 import java.nio.ByteBuffer;
 import java.util.List;

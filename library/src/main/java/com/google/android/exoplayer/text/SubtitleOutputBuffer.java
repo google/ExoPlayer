@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.util.extensions.OutputBuffer;
+import com.google.android.exoplayer.extensions.OutputBuffer;
 
 import java.util.List;
 

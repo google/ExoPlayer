@@ -22,9 +22,9 @@ import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
+import com.google.android.exoplayer.extensions.Decoder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.extensions.Decoder;
 
 import android.annotation.TargetApi;
 import android.os.Handler;

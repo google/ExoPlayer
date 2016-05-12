@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
-import com.google.android.exoplayer.util.extensions.OutputBuffer;
+import com.google.android.exoplayer.extensions.OutputBuffer;
 
 import java.nio.ByteBuffer;
 

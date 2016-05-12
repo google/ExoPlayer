@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.util.extensions.Decoder;
+import com.google.android.exoplayer.extensions.Decoder;
 
 /**
  * Parses {@link Subtitle}s from {@link SubtitleInputBuffer}s.

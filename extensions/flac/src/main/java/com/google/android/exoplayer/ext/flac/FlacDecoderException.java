@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.ext.flac;
 
-import com.google.android.exoplayer.util.extensions.AudioDecoderException;
+import com.google.android.exoplayer.extensions.AudioDecoderException;
 
 /**
  * Thrown when an Flac decoder error occurs.

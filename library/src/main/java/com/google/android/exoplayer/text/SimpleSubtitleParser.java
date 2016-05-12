@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.util.extensions.SimpleDecoder;
+import com.google.android.exoplayer.extensions.SimpleDecoder;
 
 import java.nio.ByteBuffer;
 
