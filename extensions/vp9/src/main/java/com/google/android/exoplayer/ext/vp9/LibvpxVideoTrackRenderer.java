@@ -133,7 +133,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   @Override
   protected int supportsFormat(Format format) {
     return isLibvpxAvailable() && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
-        ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+        ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override
