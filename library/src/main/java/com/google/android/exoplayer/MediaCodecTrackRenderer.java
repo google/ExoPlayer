@@ -827,7 +827,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
     onOutputFormatChanged(codec, format);
-    codecCounters.outputFormatChangedCount++;
   }
 
   /**
@@ -836,7 +835,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @SuppressWarnings("deprecation")
   private void processOutputBuffersChanged() {
     outputBuffers = codec.getOutputBuffers();
-    codecCounters.outputBuffersChangedCount++;
   }
 
   /**

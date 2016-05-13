@@ -28,6 +28,11 @@ public abstract class OutputBuffer extends Buffer {
   public long timestampUs;
 
   /**
+   * The number of buffers immediately prior to this one that were skipped in the {@link Decoder}.
+   */
+  public int skippedOutputBufferCount;
+
+  /**
    * Releases the output buffer for reuse. Must be called when the buffer is no longer needed.
    */
   public abstract void release();

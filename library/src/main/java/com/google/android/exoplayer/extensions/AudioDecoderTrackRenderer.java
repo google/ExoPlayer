@@ -164,6 +164,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       if (outputBuffer == null) {
         return false;
       }
+      codecCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
     }
 
     if (outputBuffer.isEndOfStream()) {

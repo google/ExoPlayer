@@ -24,14 +24,40 @@ package com.google.android.exoplayer;
  */
 public final class CodecCounters {
 
+  /**
+   * The number of times the codec has been initialized.
+   */
   public int codecInitCount;
+  /**
+   * The number of times the codec has been released.
+   */
   public int codecReleaseCount;
+  /**
+   * The number of queued input buffers.
+   */
   public int inputBufferCount;
-  public int outputFormatChangedCount;
-  public int outputBuffersChangedCount;
+  /**
+   * The number of rendered output buffers.
+   */
   public int renderedOutputBufferCount;
+  /**
+   * The number of skipped output buffers.
+   * <p>
+   * A skipped output buffer is an output buffer that was deliberately not rendered.
+   */
   public int skippedOutputBufferCount;
+  /**
+   * The number of dropped output buffers.
+   * <p>
+   * A dropped output buffer is an output buffer that was supposed to be rendered, but was instead
+   * dropped because it could not be rendered in time.
+   */
   public int droppedOutputBufferCount;
+  /**
+   * The maximum number of dropped output buffers without an interleaving rendered output buffer.
+   * <p>
+   * Skipped output buffers are ignored for the purposes of calculating this value.
+   */
   public int maxConsecutiveDroppedOutputBufferCount;
 
   /**
@@ -46,15 +72,13 @@ public final class CodecCounters {
 
   public String getDebugString() {
     ensureUpdated();
-    return "cic:" + codecInitCount
-        + " crc:" + codecReleaseCount
-        + " ibc:" + inputBufferCount
-        + " ofc:" + outputFormatChangedCount
-        + " obc:" + outputBuffersChangedCount
-        + " ren:" + renderedOutputBufferCount
-        + " sob:" + skippedOutputBufferCount
-        + " dob:" + droppedOutputBufferCount
-        + " mcdob:" + maxConsecutiveDroppedOutputBufferCount;
+    return "ic:" + codecInitCount
+        + " rc:" + codecReleaseCount
+        + " ib:" + inputBufferCount
+        + " rb:" + renderedOutputBufferCount
+        + " sb:" + skippedOutputBufferCount
+        + " db:" + droppedOutputBufferCount
+        + " mcdb:" + maxConsecutiveDroppedOutputBufferCount;
   }
 
 }

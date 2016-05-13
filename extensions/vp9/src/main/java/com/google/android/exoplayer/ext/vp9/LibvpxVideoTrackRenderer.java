@@ -79,8 +79,9 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   private int previousWidth;
   private int previousHeight;
 
-  private int droppedFrameCount;
   private long droppedFrameAccumulationStartTimeMs;
+  private int droppedFrameCount;
+  private int consecutiveDroppedFrameCount;
 
   /**
    * @param scaleToFit Boolean that indicates if video frames should be scaled to fit when
@@ -183,6 +184,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       if (outputBuffer == null) {
         return false;
       }
+      codecCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
     }
 
     if (nextOutputBuffer == null) {
@@ -202,6 +204,9 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       // Drop frame if we are too late.
       codecCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
+      consecutiveDroppedFrameCount++;
+      codecCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(consecutiveDroppedFrameCount,
+          codecCounters.maxConsecutiveDroppedOutputBufferCount);
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
         notifyAndResetDroppedFrameCount();
       }
@@ -227,6 +232,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   private void renderBuffer() {
     codecCounters.renderedOutputBufferCount++;
+    consecutiveDroppedFrameCount = 0;
     notifyIfVideoSizeChanged(outputBuffer.width, outputBuffer.height);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
       renderRgbFrame(outputBuffer, scaleToFit);
@@ -320,6 +326,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;
+    consecutiveDroppedFrameCount = 0;
     if (decoder != null) {
       flushDecoder();
     }

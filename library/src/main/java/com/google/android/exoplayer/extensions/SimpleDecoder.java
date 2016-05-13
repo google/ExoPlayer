@@ -56,6 +56,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
   private E exception;
   private boolean flushed;
   private boolean released;
+  private int skippedOutputBufferCount;
 
   /**
    * @param inputBuffers An array of nulls that will be used to store references to input buffers.
@@ -148,6 +149,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
   public final void flush() {
     synchronized (lock) {
       flushed = true;
+      skippedOutputBufferCount = 0;
       if (dequeuedInputBuffer != null) {
         releaseInputBufferInternal(dequeuedInputBuffer);
         dequeuedInputBuffer = null;
@@ -242,12 +244,14 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
     }
 
     synchronized (lock) {
-      if (flushed || outputBuffer.isDecodeOnly()) {
-        // If a flush occurred while decoding or the buffer was only for decoding (not presentation)
-        // then make the output buffer available again rather than queueing it to be consumed.
+      if (flushed) {
+        releaseOutputBufferInternal(outputBuffer);
+      } else if (outputBuffer.isDecodeOnly()) {
+        skippedOutputBufferCount++;
         releaseOutputBufferInternal(outputBuffer);
       } else {
-        // Queue the decoded output buffer to be consumed.
+        outputBuffer.skippedOutputBufferCount = skippedOutputBufferCount;
+        skippedOutputBufferCount = 0;
         queuedOutputBuffers.addLast(outputBuffer);
       }
       // Make the input buffer available again.
@@ -287,8 +291,9 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    * @param inputBuffer The buffer to decode.
    * @param outputBuffer The output buffer to store decoded data. The flag
    *     {@link C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on
-   *     {@code inputBuffer}, but the decoder may set/unset the flag if required. If the flag is set
-   *     after this method returns, any output will not be presented.
+   *     {@code inputBuffer}, but may be set/unset as required. If the flag is set when the call
+   *     returns then the output buffer will not be made available to dequeue. The output buffer
+   *     may not have been populated in this case.
    * @param reset True if the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */

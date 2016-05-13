@@ -392,7 +392,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       boolean shouldSkip) {
     if (shouldSkip) {
       skipOutputBuffer(codec, bufferIndex);
-      consecutiveDroppedFrameCount = 0;
       return true;
     }
 
@@ -402,7 +401,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       } else {
         renderOutputBuffer(codec, bufferIndex);
       }
-      consecutiveDroppedFrameCount = 0;
       return true;
     }
 
@@ -433,7 +431,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
         renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
-        consecutiveDroppedFrameCount = 0;
         return true;
       }
     } else {
@@ -450,7 +447,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
           }
         }
         renderOutputBuffer(codec, bufferIndex);
-        consecutiveDroppedFrameCount = 0;
         return true;
       }
     }
@@ -486,6 +482,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     codec.releaseOutputBuffer(bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
+    consecutiveDroppedFrameCount = 0;
     renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
   }
@@ -497,6 +494,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
+    consecutiveDroppedFrameCount = 0;
     renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
   }
