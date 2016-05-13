@@ -22,8 +22,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 
-import java.util.List;
-
 /**
  * Decodes and renders audio using the native Opus decoder.
  */
@@ -67,9 +65,9 @@ public final class LibopusAudioTrackRenderer extends AudioDecoderTrackRenderer {
   }
 
   @Override
-  protected OpusDecoder createDecoder(List<byte[]> initializationData) throws OpusDecoderException {
+  protected OpusDecoder createDecoder(Format format) throws OpusDecoderException {
     return new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        initializationData);
+        format.initializationData);
   }
 
 }

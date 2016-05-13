@@ -31,8 +31,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 
-import java.util.List;
-
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
@@ -103,7 +101,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     // If we don't have a decoder yet, we need to instantiate one.
     if (decoder == null) {
       try {
-        decoder = createDecoder(format.initializationData);
+        decoder = createDecoder(format);
       } catch (AudioDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
@@ -132,8 +130,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   }
 
   protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-      ? extends AudioDecoderException> createDecoder(List<byte[]> initializationData)
-      throws AudioDecoderException;
+      ? extends AudioDecoderException> createDecoder(Format format) throws AudioDecoderException;
 
   private void renderBuffer() throws AudioDecoderException, AudioTrack.InitializationException,
       AudioTrack.WriteException {

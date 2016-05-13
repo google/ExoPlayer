@@ -22,8 +22,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 
-import java.util.List;
-
 /**
  * Decodes and renders audio using the native Flac decoder.
  */
@@ -58,8 +56,8 @@ public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
   }
 
   @Override
-  protected FlacDecoder createDecoder(List<byte[]> initializationData) throws FlacDecoderException {
-    return new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, initializationData);
+  protected FlacDecoder createDecoder(Format format) throws FlacDecoderException {
+    return new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.initializationData);
   }
 
 }
