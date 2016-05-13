@@ -40,6 +40,7 @@ public final class Mp4WebvttParser extends SimpleSubtitleParser {
   private final WebvttCue.Builder builder;
 
   public Mp4WebvttParser() {
+    super("Mp4WebvttParser");
     sampleData = new ParsableByteArray();
     builder = new WebvttCue.Builder();
   }

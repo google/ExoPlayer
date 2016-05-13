@@ -25,6 +25,13 @@ package com.google.android.exoplayer.extensions;
 public interface Decoder<I, O, E extends Exception> {
 
   /**
+   * Returns the name of the decoder.
+   *
+   * @return The name of the decoder.
+   */
+  String getName();
+
+  /**
    * Dequeues the next input buffer to be filled and queued to the decoder.
    *
    * @return The input buffer, which will have been cleared, or null if a buffer isn't available.

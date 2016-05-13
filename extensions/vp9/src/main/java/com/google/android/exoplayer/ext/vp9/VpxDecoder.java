@@ -74,6 +74,11 @@ import java.nio.ByteBuffer;
     setInitialInputBufferSize(initialInputBufferSize);
   }
 
+  @Override
+  public String getName() {
+    return "libvpx" + getLibvpxVersion();
+  }
+
   /**
    * Sets the output mode for frames rendered by the decoder.
    *

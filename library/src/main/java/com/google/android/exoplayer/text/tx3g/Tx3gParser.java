@@ -26,6 +26,10 @@ import com.google.android.exoplayer.text.Subtitle;
  */
 public final class Tx3gParser extends SimpleSubtitleParser {
 
+  public Tx3gParser() {
+    super("Tx3gParser");
+  }
+
   @Override
   protected Subtitle decode(byte[] bytes, int length) {
     String cueText = new String(bytes, 0, length);

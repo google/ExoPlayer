@@ -206,6 +206,11 @@ public final class Eia608Parser implements SubtitleParser {
   }
 
   @Override
+  public String getName() {
+    return "Eia608Parser";
+  }
+
+  @Override
   public void setPositionUs(long positionUs) {
     playbackPositionUs = positionUs;
   }

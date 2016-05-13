@@ -43,6 +43,7 @@ public final class SubripParser extends SimpleSubtitleParser {
   private final StringBuilder textBuilder;
 
   public SubripParser() {
+    super("SubripParser");
     textBuilder = new StringBuilder();
   }
 

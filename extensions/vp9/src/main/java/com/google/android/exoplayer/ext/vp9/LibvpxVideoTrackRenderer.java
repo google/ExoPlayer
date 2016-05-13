@@ -151,13 +151,15 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     try {
       if (decoder == null) {
         // If we don't have a decoder yet, we need to instantiate one.
-        long startElapsedRealtimeMs = SystemClock.elapsedRealtime();
+        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
         decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
         decoder.setOutputMode(outputMode);
-        notifyDecoderInitialized(startElapsedRealtimeMs, SystemClock.elapsedRealtime());
+        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+        notifyDecoderInitialized(decoder.getName(), codecInitializedTimestamp,
+            codecInitializedTimestamp - codecInitializingTimestamp);
         codecCounters.codecInitCount++;
       }
-      while (processOutputBuffer(positionUs)) {}
+      while (drainOutputBuffer(positionUs)) {}
       while (feedInputBuffer()) {}
     } catch (VpxDecoderException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
@@ -165,8 +167,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     codecCounters.ensureUpdated();
   }
 
-  private boolean processOutputBuffer(long positionUs)
-      throws VpxDecoderException {
+  private boolean drainOutputBuffer(long positionUs) throws VpxDecoderException {
     if (outputStreamEnded) {
       return false;
     }
@@ -226,7 +227,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   private void renderBuffer() {
     codecCounters.renderedOutputBufferCount++;
-    notifyIfVideoSizeChanged(outputBuffer);
+    notifyIfVideoSizeChanged(outputBuffer.width, outputBuffer.height);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
       renderRgbFrame(outputBuffer, scaleToFit);
       if (!drawnToSurface) {
@@ -280,9 +281,13 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
+      decoder.queueInputBuffer(inputBuffer);
+      inputBuffer = null;
+      return false;
     }
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
+    codecCounters.inputBufferCount++;
     inputBuffer = null;
     return true;
   }
@@ -398,16 +403,16 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void notifyIfVideoSizeChanged(final VpxOutputBuffer outputBuffer) {
-    if (previousWidth == -1 || previousHeight == -1
-        || previousWidth != outputBuffer.width || previousHeight != outputBuffer.height) {
-      previousWidth = outputBuffer.width;
-      previousHeight = outputBuffer.height;
+  private void notifyIfVideoSizeChanged(final int width, final int height) {
+    if (previousWidth == -1 || previousHeight == -1 || previousWidth != width
+        || previousHeight != height) {
+      previousWidth = width;
+      previousHeight = height;
       if (eventHandler != null && eventListener != null) {
         eventHandler.post(new Runnable()  {
           @Override
           public void run() {
-            eventListener.onVideoSizeChanged(outputBuffer.width, outputBuffer.height, 0, 1);
+            eventListener.onVideoSizeChanged(width, height, 0, 1);
           }
         });
       }
@@ -441,14 +446,14 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void notifyDecoderInitialized(
-      final long startElapsedRealtimeMs, final long finishElapsedRealtimeMs) {
+  private void notifyDecoderInitialized(final String decoderName,
+      final long initializedTimestamp, final long initializationDuration) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onDecoderInitialized("libvpx" + getLibvpxVersion(),
-              finishElapsedRealtimeMs, finishElapsedRealtimeMs - startElapsedRealtimeMs);
+          eventListener.onDecoderInitialized(decoderName, initializedTimestamp,
+              initializationDuration);
         }
       });
     }

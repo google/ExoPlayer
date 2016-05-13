@@ -27,9 +27,17 @@ public abstract class SimpleSubtitleParser extends
     SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> implements
     SubtitleParser {
 
-  protected SimpleSubtitleParser() {
+  private final String name;
+
+  protected SimpleSubtitleParser(String name) {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
+    this.name = name;
     setInitialInputBufferSize(1024);
+  }
+
+  @Override
+  public final String getName() {
+    return name;
   }
 
   @Override

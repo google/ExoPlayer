@@ -62,6 +62,11 @@ import java.util.List;
   }
 
   @Override
+  public String getName() {
+    return "libflac";
+  }
+
+  @Override
   public DecoderInputBuffer createInputBuffer() {
     return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }

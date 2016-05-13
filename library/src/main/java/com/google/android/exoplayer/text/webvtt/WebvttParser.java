@@ -46,6 +46,7 @@ public final class WebvttParser extends SimpleSubtitleParser {
   private final List<WebvttCssStyle> definedStyles;
 
   public WebvttParser() {
+    super("WebvttParser");
     cueParser = new WebvttCueParser();
     parsableWebvttData = new ParsableByteArray();
     webvttCueBuilder = new WebvttCue.Builder();

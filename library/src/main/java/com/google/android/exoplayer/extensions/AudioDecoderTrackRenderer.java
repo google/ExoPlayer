@@ -30,6 +30,7 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
+import android.os.SystemClock;
 
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
@@ -62,6 +63,9 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
   private final AudioTrack audioTrack;
   private int audioSessionId;
+
+  private boolean audioTrackHasData;
+  private long lastFeedElapsedRealtimeMs;
 
   public AudioDecoderTrackRenderer() {
     this(null, null);
@@ -101,16 +105,20 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     // If we don't have a decoder yet, we need to instantiate one.
     if (decoder == null) {
       try {
+        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
         decoder = createDecoder(inputFormat);
+        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+        notifyDecoderInitialized(decoder.getName(), codecInitializedTimestamp,
+            codecInitializedTimestamp - codecInitializingTimestamp);
+        codecCounters.codecInitCount++;
       } catch (AudioDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
-      codecCounters.codecInitCount++;
     }
 
     // Rendering loop.
     try {
-      renderBuffer();
+      while (drainOutputBuffer()) {}
       while (feedInputBuffer()) {}
     } catch (AudioTrack.InitializationException e) {
       notifyAudioTrackInitializationError(e);
@@ -145,16 +153,16 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
         null, null, null);
   }
 
-  private void renderBuffer() throws AudioDecoderException, AudioTrack.InitializationException,
-      AudioTrack.WriteException {
+  private boolean drainOutputBuffer() throws AudioDecoderException,
+      AudioTrack.InitializationException, AudioTrack.WriteException {
     if (outputStreamEnded) {
-      return;
+      return false;
     }
 
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
-        return;
+        return false;
       }
     }
 
@@ -163,7 +171,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       audioTrack.handleEndOfStream();
       outputBuffer.release();
       outputBuffer = null;
-      return;
+      return false;
     }
 
     if (!audioTrack.isInitialized()) {
@@ -174,14 +182,26 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
         audioTrack.initialize(audioSessionId);
       } else {
         audioSessionId = audioTrack.initialize();
+        onAudioSessionId(audioSessionId);
       }
+      audioTrackHasData = false;
       if (getState() == TrackRenderer.STATE_STARTED) {
         audioTrack.play();
       }
+    } else {
+      // Check for AudioTrack underrun.
+      boolean audioTrackHadData = audioTrackHasData;
+      audioTrackHasData = audioTrack.hasPendingData();
+      if (audioTrackHadData && !audioTrackHasData && getState() == TrackRenderer.STATE_STARTED) {
+        long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
+        long bufferSizeUs = audioTrack.getBufferSizeUs();
+        long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;
+        notifyAudioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs, elapsedSinceLastFeedMs);
+      }
     }
 
-    int handleBufferResult;
-    handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timestampUs);
+    int handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timestampUs);
+    lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
@@ -193,7 +213,10 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       codecCounters.renderedOutputBufferCount++;
       outputBuffer.release();
       outputBuffer = null;
+      return true;
     }
+
+    return false;
   }
 
   private boolean feedInputBuffer() throws AudioDecoderException {
@@ -218,10 +241,13 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     }
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
+      decoder.queueInputBuffer(inputBuffer);
+      inputBuffer = null;
+      return false;
     }
-
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
+    codecCounters.inputBufferCount++;
     inputBuffer = null;
     return true;
   }
@@ -267,6 +293,19 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     if (decoder != null) {
       flushDecoder();
     }
+  }
+
+  /**
+   * Invoked when the audio session id becomes known. Once the id is known it will not change
+   * (and hence this method will not be invoked again) unless the renderer is disabled and then
+   * subsequently re-enabled.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param audioSessionId The audio session id.
+   */
+  protected void onAudioSessionId(int audioSessionId) {
+    // Do nothing.
   }
 
   @Override
@@ -320,6 +359,19 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     }
   }
 
+  private void notifyDecoderInitialized(final String decoderName,
+      final long initializedTimestamp, final long initializationDuration) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onDecoderInitialized(decoderName, initializedTimestamp,
+              initializationDuration);
+        }
+      });
+    }
+  }
+
   private void notifyAudioTrackInitializationError(final AudioTrack.InitializationException e) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
@@ -337,6 +389,18 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
         @Override
         public void run() {
           eventListener.onAudioTrackWriteError(e);
+        }
+      });
+    }
+  }
+
+  private void notifyAudioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
+      final long elapsedSinceLastFeedMs) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
         }
       });
     }

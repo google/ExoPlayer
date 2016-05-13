@@ -87,6 +87,7 @@ public final class TtmlParser extends SimpleSubtitleParser {
   private final XmlPullParserFactory xmlParserFactory;
 
   public TtmlParser() {
+    super("TtmlParser");
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
       xmlParserFactory.setNamespaceAware(true);
