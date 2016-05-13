@@ -49,7 +49,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   private final AudioTrackRendererEventListener eventListener;
   private final FormatHolder formatHolder;
 
-  private Format format;
+  private Format inputFormat;
   private SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
       ? extends AudioDecoderException> decoder;
   private DecoderInputBuffer inputBuffer;
@@ -93,7 +93,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     }
 
     // Try and read a format if we don't have one already.
-    if (format == null && !readFormat()) {
+    if (inputFormat == null && !readFormat()) {
       // We can't make progress without one.
       return;
     }
@@ -101,7 +101,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     // If we don't have a decoder yet, we need to instantiate one.
     if (decoder == null) {
       try {
-        decoder = createDecoder(format);
+        decoder = createDecoder(inputFormat);
       } catch (AudioDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
@@ -132,6 +132,19 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
       ? extends AudioDecoderException> createDecoder(Format format) throws AudioDecoderException;
 
+  /**
+   * Returns the format of audio buffers output by the decoder. Will not be called until the first
+   * output buffer has been dequeued, so the decoder may use input data to determine the format.
+   * <p>
+   * The default implementation returns a 16-bit PCM format with the same channel count and sample
+   * rate as the input.
+   */
+  protected Format getOutputFormat() {
+    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, Format.NO_VALUE,
+        Format.NO_VALUE, inputFormat.channelCount, inputFormat.sampleRate, C.ENCODING_PCM_16BIT,
+        null, null, null);
+  }
+
   private void renderBuffer() throws AudioDecoderException, AudioTrack.InitializationException,
       AudioTrack.WriteException {
     if (outputStreamEnded) {
@@ -154,6 +167,9 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     }
 
     if (!audioTrack.isInitialized()) {
+      Format outputFormat = getOutputFormat();
+      audioTrack.configure(outputFormat.sampleMimeType, outputFormat.channelCount,
+          outputFormat.sampleRate, outputFormat.pcmEncoding);
       if (audioSessionId != AudioTrack.SESSION_ID_NOT_SET) {
         audioTrack.initialize(audioSessionId);
       } else {
@@ -197,7 +213,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       return false;
     }
     if (result == TrackStream.FORMAT_READ) {
-      format = formatHolder.format;
+      inputFormat = formatHolder.format;
       return true;
     }
     if (inputBuffer.isEndOfStream()) {
@@ -227,7 +243,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   @Override
   protected boolean isReady() {
     return audioTrack.hasPendingData()
-        || (format != null && (isSourceReady() || outputBuffer != null));
+        || (inputFormat != null && (isSourceReady() || outputBuffer != null));
   }
 
   @Override
@@ -272,7 +288,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   protected void onDisabled() {
     inputBuffer = null;
     outputBuffer = null;
-    format = null;
+    inputFormat = null;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
       if (decoder != null) {
@@ -289,9 +305,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   private boolean readFormat() {
     int result = readSource(formatHolder, null);
     if (result == TrackStream.FORMAT_READ) {
-      format = formatHolder.format;
-      audioTrack.configure(MimeTypes.AUDIO_RAW, format.channelCount, format.sampleRate,
-          C.ENCODING_PCM_16BIT);
+      inputFormat = formatHolder.format;
       return true;
     }
     return false;
