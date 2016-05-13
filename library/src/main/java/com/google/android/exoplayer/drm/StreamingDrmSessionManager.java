@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.drm;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Util;
@@ -66,19 +67,6 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   /**
-   * UUID for the Widevine DRM scheme.
-   */
-  public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
-
-  /**
-   * UUID for the PlayReady DRM scheme.
-   * <p>
-   * Note that PlayReady is unsupported by most Android devices, with the exception of Android TV
-   * devices, which do provide support.
-   */
-  public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
-
-  /**
    * The key to use when passing CustomData to a PlayReady instance in an optional parameter map.
    */
   public static final String PLAYREADY_CUSTOM_DATA_KEY = "PRCustomData";
@@ -123,7 +111,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   public static StreamingDrmSessionManager newWidevineInstance(Looper playbackLooper,
       MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
       Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
-    return new StreamingDrmSessionManager(WIDEVINE_UUID, playbackLooper, callback,
+    return new StreamingDrmSessionManager(C.WIDEVINE_UUID, playbackLooper, callback,
         optionalKeyRequestParameters, eventHandler, eventListener);
   }
 
@@ -152,7 +140,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     } else {
       optionalKeyRequestParameters = null;
     }
-    return new StreamingDrmSessionManager(PLAYREADY_UUID, playbackLooper, callback,
+    return new StreamingDrmSessionManager(C.PLAYREADY_UUID, playbackLooper, callback,
         optionalKeyRequestParameters, eventHandler, eventListener);
   }
 
@@ -281,11 +269,11 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       }
       if (Util.SDK_INT < 21) {
         // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
-        byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeData.data, WIDEVINE_UUID);
+        byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeData.data, C.WIDEVINE_UUID);
         if (psshData == null) {
           // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
         } else {
-          schemeData = new SchemeData(WIDEVINE_UUID, schemeData.mimeType, psshData);
+          schemeData = new SchemeData(C.WIDEVINE_UUID, schemeData.mimeType, psshData);
         }
       }
     }

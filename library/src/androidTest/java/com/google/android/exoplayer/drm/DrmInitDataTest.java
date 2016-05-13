@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.drm;
 
-import static com.google.android.exoplayer.drm.StreamingDrmSessionManager.PLAYREADY_UUID;
-import static com.google.android.exoplayer.drm.StreamingDrmSessionManager.WIDEVINE_UUID;
+import static com.google.android.exoplayer.C.PLAYREADY_UUID;
+import static com.google.android.exoplayer.C.WIDEVINE_UUID;
 import static com.google.android.exoplayer.util.MimeTypes.VIDEO_MP4;
 
 import com.google.android.exoplayer.C;
