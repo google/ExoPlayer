@@ -40,11 +40,6 @@ import java.util.List;
  */
 public class ChunkTrackStream implements TrackStream, Loader.Callback {
 
-  /**
-   * The default minimum number of times to retry loading data prior to failing.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
-
   private final Loader loader;
   private final ChunkSource chunkSource;
   private final LinkedList<BaseMediaChunk> mediaChunks;
@@ -66,23 +61,6 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
   private long currentLoadStartTimeMs;
   private boolean loadingFinished;
   private boolean released;
-
-  /**
-   * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
-   * @param loadControl Controls when the source is permitted to load data.
-   * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
-   * @param positionUs The position from which to start loading media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   */
-  public ChunkTrackStream(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, long positionUs, Handler eventHandler,
-      ChunkTrackStreamEventListener eventListener, int eventSourceId) {
-    this(chunkSource, loadControl, bufferSizeContribution, positionUs, eventHandler, eventListener,
-        eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
-  }
 
   /**
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.

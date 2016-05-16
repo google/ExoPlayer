@@ -53,6 +53,12 @@ import java.util.List;
  */
 public final class SmoothStreamingSampleSource implements SampleSource {
 
+  /**
+   * The minimum number of times to retry loading data prior to failing.
+   */
+  // TODO: Use this for manifest loads as well.
+  private static final int MIN_LOADABLE_RETRY_COUNT = 3;
+
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
@@ -275,7 +281,7 @@ public final class SmoothStreamingSampleSource implements SampleSource {
         streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
     ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
-        positionUs, eventHandler, eventListener, streamElementType);
+        positionUs, eventHandler, eventListener, streamElementType, MIN_LOADABLE_RETRY_COUNT);
     return Pair.create(chunkSource, trackStream);
   }
 

@@ -60,6 +60,12 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
 
   private static final String TAG = "DashSampleSource";
 
+  /**
+   * The minimum number of times to retry loading data prior to failing.
+   */
+  // TODO: Use this for manifest loads as well.
+  private static final int MIN_LOADABLE_RETRY_COUNT = 3;
+
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
@@ -311,7 +317,7 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
     ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
-        positionUs, eventHandler, eventListener, adaptationSetType);
+        positionUs, eventHandler, eventListener, adaptationSetType, MIN_LOADABLE_RETRY_COUNT);
     return Pair.create(chunkSource, trackStream);
   }
 
