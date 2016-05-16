@@ -376,7 +376,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       // preventing the renderer from making progress, if such an error exists.
       boolean rendererReadyOrEnded = isReadyOrEnded(renderer);
       if (!rendererReadyOrEnded) {
-        renderer.maybeThrowError();
+        renderer.maybeThrowStreamError();
       }
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded;
     }

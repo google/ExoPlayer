@@ -165,16 +165,16 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * Enable the renderer to consume from the specified {@link TrackStream}.
    *
    * @param formats The enabled formats.
-   * @param trackStream The track stream from which the renderer should consume.
+   * @param stream The track stream from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void enable(Format[] formats, TrackStream trackStream, long positionUs,
+  /* package */ final void enable(Format[] formats, TrackStream stream, long positionUs,
       boolean joining) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
-    stream = trackStream;
+    this.stream = stream;
     onEnabled(formats, joining);
     reset(positionUs);
   }
@@ -261,8 +261,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   // Methods to be called by subclasses.
 
   /**
-   * Throws an error that's preventing the renderer from making progress or buffering more data at
-   * this point in time.
+   * Throws an error that's preventing the renderer from reading from its {@link TrackStream}. Does
+   * nothing if no such error exists.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}.
@@ -270,7 +270,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws IOException An error that's preventing the renderer from making progress or buffering
    *     more data.
    */
-  protected final void maybeThrowError() throws IOException {
+  protected final void maybeThrowStreamError() throws IOException {
     stream.maybeThrowError();
   }
 

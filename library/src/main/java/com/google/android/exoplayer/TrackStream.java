@@ -46,8 +46,7 @@ public interface TrackStream {
   boolean isReady();
 
   /**
-   * If there's an underlying error preventing data from being read, it's thrown by this method.
-   * If not, this method does nothing.
+   * Throws an error that's preventing data from being read. Does nothing if no such error exists.
    *
    * @throws IOException The underlying error.
    */
