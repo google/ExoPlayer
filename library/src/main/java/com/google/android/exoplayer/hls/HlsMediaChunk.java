@@ -59,9 +59,9 @@ import java.io.IOException;
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param extractor The extractor to parse samples from the data.
    * @param extractorNeedsInit Whether the extractor needs initializing with the target
-   *     {@link HlsOutput}.
+   *     {@link HlsTrackStreamWrapper}.
    * @param shouldSpliceIn Whether the samples parsed from this chunk should be spliced into any
-   *     samples already queued to the {@link HlsOutput}.
+   *     samples already queued to the {@link HlsTrackStreamWrapper}.
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
@@ -80,12 +80,12 @@ import java.io.IOException;
   }
 
   /**
-   * Initializes the chunk for loading, setting the {@link HlsOutput} that will receive samples as
-   * they are loaded.
+   * Initializes the chunk for loading, setting the {@link HlsTrackStreamWrapper} that will receive
+   * samples as they are loaded.
    *
    * @param output The output that will receive the loaded samples.
    */
-  public void init(HlsOutput output) {
+  public void init(HlsTrackStreamWrapper output) {
     if (shouldSpliceIn) {
       output.splice();
     }

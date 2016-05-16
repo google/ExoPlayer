@@ -29,7 +29,7 @@ import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.hls.HlsSource;
+import com.google.android.exoplayer.hls.HlsSampleSource2;
 import com.google.android.exoplayer.metadata.id3.GeobFrame;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.metadata.id3.PrivFrame;
@@ -278,7 +278,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return new DashSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
             player.getMainHandler(), player);
       case Util.TYPE_HLS:
-        return new HlsSource(uri, dataSourceFactory, player.getBandwidthMeter(),
+        return new HlsSampleSource2(uri, dataSourceFactory, player.getBandwidthMeter(),
             player.getMainHandler(), player);
       case Util.TYPE_OTHER:
         Allocator allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);

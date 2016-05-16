@@ -46,21 +46,22 @@ import java.util.List;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public final class HlsSource implements SampleSource {
+public final class HlsSampleSource2 implements SampleSource {
 
   private final ManifestFetcher<HlsPlaylist> manifestFetcher;
-  private final HlsSampleSource[] sources;
-  private final IdentityHashMap<TrackStream, HlsSampleSource> trackStreamSources;
+  private final HlsTrackStreamWrapper[] trackStreamWrappers;
+  private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final int[] selectedTrackCounts;
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private long durationUs;
   private TrackGroupArray trackGroups;
-  private HlsSampleSource[] enabledSources;
+  private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
 
-  public HlsSource(Uri uri, DataSourceFactory dataSourceFactory, BandwidthMeter bandwidthMeter,
-      Handler eventHandler, ChunkTrackStreamEventListener eventListener) {
+  public HlsSampleSource2(Uri uri, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter, Handler eventHandler,
+      ChunkTrackStreamEventListener eventListener) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
     DataSource manifestDataSource = dataSourceFactory.createDataSource();
     manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
@@ -73,23 +74,25 @@ public final class HlsSource implements SampleSource {
     HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_DEFAULT,
         defaultDataSource, timestampAdjusterProvider,
         new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
-    HlsSampleSource defaultSampleSource = new HlsSampleSource(defaultChunkSource, loadControl,
-        C.DEFAULT_MUXED_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO);
+    HlsTrackStreamWrapper defaultTrackStreamWrapper = new HlsTrackStreamWrapper(defaultChunkSource,
+        loadControl, C.DEFAULT_MUXED_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO);
 
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
         audioDataSource, timestampAdjusterProvider, null);
-    HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
-        C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO);
+    HlsTrackStreamWrapper audioTrackStreamWrapper = new HlsTrackStreamWrapper(audioChunkSource,
+        loadControl, C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO);
 
     DataSource subtitleDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
         subtitleDataSource, timestampAdjusterProvider, null);
-    HlsSampleSource subtitleSampleSource = new HlsSampleSource(subtitleChunkSource, loadControl,
-        C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_TEXT);
+    HlsTrackStreamWrapper subtitleTrackStreamWrapper = new HlsTrackStreamWrapper(
+        subtitleChunkSource, loadControl, C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener,
+        C.TRACK_TYPE_TEXT);
 
-    sources = new HlsSampleSource[] {defaultSampleSource, audioSampleSource, subtitleSampleSource};
-    selectedTrackCounts = new int[sources.length];
+    trackStreamWrappers = new HlsTrackStreamWrapper[] {defaultTrackStreamWrapper,
+        audioTrackStreamWrapper, subtitleTrackStreamWrapper};
+    selectedTrackCounts = new int[trackStreamWrappers.length];
     trackStreamSources = new IdentityHashMap<>();
   }
 
@@ -98,29 +101,29 @@ public final class HlsSource implements SampleSource {
     if (prepared) {
       return true;
     }
-    boolean sourcesPrepared = true;
-    for (HlsSampleSource source : sources) {
-      sourcesPrepared &= source.prepare(positionUs);
+    boolean trackStreamWrappersPrepared = true;
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      trackStreamWrappersPrepared &= trackStreamWrapper.prepare(positionUs);
     }
-    if (!sourcesPrepared) {
+    if (!trackStreamWrappersPrepared) {
       return false;
     }
     durationUs = 0;
     int totalTrackGroupCount = 0;
-    for (HlsSampleSource source : sources) {
-      totalTrackGroupCount += source.getTrackGroups().length;
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      totalTrackGroupCount += trackStreamWrapper.getTrackGroups().length;
       if (durationUs != C.UNSET_TIME_US) {
-        long sourceDurationUs = source.getDurationUs();
-        durationUs = sourceDurationUs == C.UNSET_TIME_US
-            ? C.UNSET_TIME_US : Math.max(durationUs, sourceDurationUs);
+        long wrapperDurationUs = trackStreamWrapper.getDurationUs();
+        durationUs = wrapperDurationUs == C.UNSET_TIME_US
+            ? C.UNSET_TIME_US : Math.max(durationUs, wrapperDurationUs);
       }
     }
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
     int trackGroupIndex = 0;
-    for (HlsSampleSource source : sources) {
-      int sourceTrackGroupCount = source.getTrackGroups().length;
-      for (int j = 0; j < sourceTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = source.getTrackGroups().get(j);
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      int wrapperTrackGroupCount = trackStreamWrapper.getTrackGroups().length;
+      for (int j = 0; j < wrapperTrackGroupCount; j++) {
+        trackGroupArray[trackGroupIndex++] = trackStreamWrapper.getTrackGroups().get(j);
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
@@ -143,21 +146,21 @@ public final class HlsSource implements SampleSource {
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
-    // Select tracks for each source.
-    int enabledSourceCount = 0;
-    for (int i = 0; i < sources.length; i++) {
-      selectedTrackCounts[i] += selectTracks(sources[i], oldStreams, newSelections, positionUs,
-          newStreams);
+    // Select tracks for each wrapper.
+    int enabledTrackStreamWrapperCount = 0;
+    for (int i = 0; i < trackStreamWrappers.length; i++) {
+      selectedTrackCounts[i] += selectTracks(trackStreamWrappers[i], oldStreams, newSelections,
+          positionUs, newStreams);
       if (selectedTrackCounts[i] > 0) {
-        enabledSourceCount++;
+        enabledTrackStreamWrapperCount++;
       }
     }
-    // Update the enabled sources.
-    enabledSources = new HlsSampleSource[enabledSourceCount];
-    enabledSourceCount = 0;
-    for (int i = 0; i < sources.length; i++) {
+    // Update the enabled wrappers.
+    enabledTrackStreamWrappers = new HlsTrackStreamWrapper[enabledTrackStreamWrapperCount];
+    enabledTrackStreamWrapperCount = 0;
+    for (int i = 0; i < trackStreamWrappers.length; i++) {
       if (selectedTrackCounts[i] > 0) {
-        enabledSources[enabledSourceCount++] = sources[i];
+        enabledTrackStreamWrappers[enabledTrackStreamWrapperCount++] = trackStreamWrappers[i];
       }
     }
     seenFirstTrackSelection = true;
@@ -166,16 +169,16 @@ public final class HlsSource implements SampleSource {
 
   @Override
   public void continueBuffering(long positionUs) {
-    for (HlsSampleSource source : enabledSources) {
-      source.continueBuffering(positionUs);
+    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
+      trackStreamWrapper.continueBuffering(positionUs);
     }
   }
 
   @Override
   public long readReset() {
     long resetPositionUs = C.UNSET_TIME_US;
-    for (HlsSampleSource source : enabledSources) {
-      long childResetPositionUs = source.readReset();
+    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
+      long childResetPositionUs = trackStreamWrapper.readReset();
       if (resetPositionUs == C.UNSET_TIME_US) {
         resetPositionUs = childResetPositionUs;
       } else if (childResetPositionUs != C.UNSET_TIME_US) {
@@ -188,12 +191,12 @@ public final class HlsSource implements SampleSource {
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = durationUs != C.UNSET_TIME_US ? durationUs : Long.MAX_VALUE;
-    for (HlsSampleSource source : enabledSources) {
-      long rendererBufferedPositionUs = source.getBufferedPositionUs();
+    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
+      long rendererBufferedPositionUs = trackStreamWrapper.getBufferedPositionUs();
       if (rendererBufferedPositionUs == C.UNSET_TIME_US) {
         return C.UNSET_TIME_US;
       } else if (rendererBufferedPositionUs == C.END_OF_SOURCE_US) {
-        // This source is fully buffered.
+        // This wrapper is fully buffered.
       } else {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
@@ -203,39 +206,40 @@ public final class HlsSource implements SampleSource {
 
   @Override
   public void seekToUs(long positionUs) {
-    for (HlsSampleSource source : enabledSources) {
-      source.seekToUs(positionUs);
+    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
+      trackStreamWrapper.seekToUs(positionUs);
     }
   }
 
   @Override
   public void release() {
     manifestFetcher.release();
-    for (HlsSampleSource source : sources) {
-      source.release();
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      trackStreamWrapper.release();
     }
   }
 
   // Internal methods.
 
-  private int selectTracks(HlsSampleSource source, List<TrackStream> allOldStreams,
-      List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams) {
+  private int selectTracks(HlsTrackStreamWrapper trackStreamWrapper,
+      List<TrackStream> allOldStreams, List<TrackSelection> allNewSelections, long positionUs,
+      TrackStream[] allNewStreams) {
     // Get the subset of the old streams for the source.
     ArrayList<TrackStream> oldStreams = new ArrayList<>();
     for (int i = 0; i < allOldStreams.size(); i++) {
       TrackStream stream = allOldStreams.get(i);
-      if (trackStreamSources.get(stream) == source) {
+      if (trackStreamSources.get(stream) == trackStreamWrapper) {
         trackStreamSources.remove(stream);
         oldStreams.add(stream);
       }
     }
-    // Get the subset of the new selections for the source.
+    // Get the subset of the new selections for the wrapper.
     ArrayList<TrackSelection> newSelections = new ArrayList<>();
     int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      Pair<HlsSampleSource, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
-      if (sourceAndGroup.first == source) {
+      Pair<HlsTrackStreamWrapper, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
+      if (sourceAndGroup.first == trackStreamWrapper) {
         newSelectionOriginalIndices[newSelections.size()] = i;
         newSelections.add(new TrackSelection(sourceAndGroup.second, selection.getTracks()));
       }
@@ -245,20 +249,21 @@ public final class HlsSource implements SampleSource {
       return 0;
     }
     // Perform the selection.
-    TrackStream[] newStreams = source.selectTracks(oldStreams, newSelections, positionUs);
+    TrackStream[] newStreams = trackStreamWrapper.selectTracks(oldStreams, newSelections,
+        positionUs);
     for (int j = 0; j < newStreams.length; j++) {
       allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
-      trackStreamSources.put(newStreams[j], source);
+      trackStreamSources.put(newStreams[j], trackStreamWrapper);
     }
     return newSelections.size() - oldStreams.size();
   }
 
-  private Pair<HlsSampleSource, Integer> getSourceAndGroup(int group) {
+  private Pair<HlsTrackStreamWrapper, Integer> getSourceAndGroup(int group) {
     int totalTrackGroupCount = 0;
-    for (HlsSampleSource source : sources) {
-      int sourceTrackGroupCount = source.getTrackGroups().length;
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      int sourceTrackGroupCount = trackStreamWrapper.getTrackGroups().length;
       if (group < totalTrackGroupCount + sourceTrackGroupCount) {
-        return Pair.create(source, group - totalTrackGroupCount);
+        return Pair.create(trackStreamWrapper, group - totalTrackGroupCount);
       }
       totalTrackGroupCount += sourceTrackGroupCount;
     }

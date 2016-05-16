@@ -20,7 +20,6 @@ import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
-import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
@@ -30,6 +29,8 @@ import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener.EventDispatcher;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
+import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -37,15 +38,17 @@ import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A {@link SampleSource} for HLS streams.
+ * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
+ * {@link TrackStream}s from which the loaded media can be consumed.
  */
-public final class HlsSampleSource implements Loader.Callback {
+/* package */ final class HlsTrackStreamWrapper implements Loader.Callback, ExtractorOutput {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -59,18 +62,19 @@ public final class HlsSampleSource implements Loader.Callback {
 
   private final Loader loader;
   private final HlsChunkSource chunkSource;
+  private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final LinkedList<HlsMediaChunk> mediaChunks;
-  private final HlsOutput output;
   private final int bufferSizeContribution;
   private final ChunkHolder nextChunkHolder;
   private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
 
+  private volatile boolean sampleQueuesBuilt;
+
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private boolean notifyReset;
   private int enabledTrackCount;
-  private DefaultTrackOutput[] sampleQueues;
   private Format downstreamFormat;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
@@ -93,7 +97,7 @@ public final class HlsSampleSource implements Loader.Callback {
    * @param loadControl Controls when the source is permitted to load data.
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
    */
-  public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
+  public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution) {
     this(chunkSource, loadControl, bufferSizeContribution, null, null, 0);
   }
@@ -107,7 +111,7 @@ public final class HlsSampleSource implements Loader.Callback {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
-  public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
+  public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener, int eventSourceId) {
     this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
@@ -125,7 +129,7 @@ public final class HlsSampleSource implements Loader.Callback {
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    */
-  public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
+  public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
@@ -134,8 +138,8 @@ public final class HlsSampleSource implements Loader.Callback {
     loader = new Loader("Loader:HLS", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
+    sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
-    output = new HlsOutput(loadControl.getAllocator());
     pendingResetPositionUs = C.UNSET_TIME_US;
   }
 
@@ -151,11 +155,20 @@ public final class HlsSampleSource implements Loader.Callback {
       prepared = true;
       return true;
     }
-    if (output.prepare()) {
-      sampleQueues = output.getTrackOutputs();
-      buildTracks();
-      prepared = true;
-      return true;
+    if (sampleQueuesBuilt) {
+      boolean canBuildTracks = true;
+      int sampleQueueCount = sampleQueues.size();
+      for (int i = 0; i < sampleQueueCount; i++) {
+        if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
+          canBuildTracks = false;
+          break;
+        }
+      }
+      if (canBuildTracks) {
+        buildTracks();
+        prepared = true;
+        return true;
+      }
     }
     // We're not prepared.
     maybeThrowError();
@@ -195,7 +208,7 @@ public final class HlsSampleSource implements Loader.Callback {
       int group = selection.group;
       int[] tracks = selection.getTracks();
       setTrackGroupEnabledState(group, true);
-      sampleQueues[group].needDownstreamFormat();
+      sampleQueues.valueAt(group).needDownstreamFormat();
       if (group == primaryTrackGroupIndex) {
         primaryTracksDeselected |= chunkSource.selectTracks(tracks);
       }
@@ -256,9 +269,10 @@ public final class HlsSampleSource implements Loader.Callback {
       if (lastCompletedMediaChunk != null) {
         bufferedPositionUs = Math.max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
       }
-      for (DefaultTrackOutput sampleQueue : sampleQueues) {
+      int sampleQueueCount = sampleQueues.size();
+      for (int i = 0; i < sampleQueueCount; i++) {
         bufferedPositionUs = Math.max(bufferedPositionUs,
-            sampleQueue.getLargestQueuedTimestampUs());
+            sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
       }
       return bufferedPositionUs;
     }
@@ -279,7 +293,7 @@ public final class HlsSampleSource implements Loader.Callback {
   // TrackStream implementation.
 
   /* package */ boolean isReady(int group) {
-    return loadingFinished || (!isPendingReset() && !sampleQueues[group].isEmpty());
+    return loadingFinished || (!isPendingReset() && !sampleQueues.valueAt(group).isEmpty());
   }
 
   /* package */ void maybeThrowError() throws IOException {
@@ -303,7 +317,8 @@ public final class HlsSampleSource implements Loader.Callback {
     }
     downstreamFormat = format;
 
-    return sampleQueues[group].readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
+    return sampleQueues.valueAt(group).readData(formatHolder, buffer, loadingFinished,
+        lastSeekPositionUs);
   }
 
   // Loader.Callback implementation.
@@ -361,11 +376,44 @@ public final class HlsSampleSource implements Loader.Callback {
     }
   }
 
+  // Called by the consuming thread, but only when there is no loading thread.
+
+  /**
+   * Indicates to all track outputs that they should splice in subsequently queued samples.
+   */
+  public void splice() {
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      sampleQueues.valueAt(i).splice();
+    }
+  }
+
+  // ExtractorOutput implementation. Called by the loading thread.
+
+  @Override
+  public DefaultTrackOutput track(int id) {
+    if (sampleQueues.indexOfKey(id) >= 0) {
+      return sampleQueues.get(id);
+    }
+    DefaultTrackOutput trackOutput = new DefaultTrackOutput(loadControl.getAllocator());
+    sampleQueues.put(id, trackOutput);
+    return trackOutput;
+  }
+
+  @Override
+  public void endTracks() {
+    sampleQueuesBuilt = true;
+  }
+
+  @Override
+  public void seekMap(SeekMap seekMap) {
+    // Do nothing.
+  }
+
   // Internal methods.
 
   /**
-   * Builds tracks that are exposed by this {@link HlsSampleSource} instance, as well as internal
-   * data-structures required for operation.
+   * Builds tracks that are exposed by this {@link HlsTrackStreamWrapper} instance, as well as
+   * internal data-structures required for operation.
    * <p>
    * Tracks in HLS are complicated. A HLS master playlist contains a number of "variants". Each
    * variant stream typically contains muxed video, audio and (possibly) additional audio, metadata
@@ -378,7 +426,7 @@ public final class HlsSampleSource implements Loader.Callback {
    * adaptive track defined to span all variants and a track for each individual variant. The
    * adaptive track is initially selected. The extractor is then prepared to discover the tracks
    * inside of each variant stream. The two sets of tracks are then combined by this method to
-   * create a third set, which is the set exposed by this {@link HlsSampleSource}:
+   * create a third set, which is the set exposed by this {@link HlsTrackStreamWrapper}:
    * <ul>
    * <li>The extractor tracks are inspected to infer a "primary" track type. If a video track is
    * present then it is always the primary type. If not, audio is the primary type if present.
@@ -397,9 +445,9 @@ public final class HlsSampleSource implements Loader.Callback {
     // of the single track of this type.
     int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
     int primaryExtractorTrackIndex = -1;
-    int extractorTrackCount = sampleQueues.length;
+    int extractorTrackCount = sampleQueues.size();
     for (int i = 0; i < extractorTrackCount; i++) {
-      String sampleMimeType = sampleQueues[i].getUpstreamFormat().sampleMimeType;
+      String sampleMimeType = sampleQueues.valueAt(i).getUpstreamFormat().sampleMimeType;
       int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = PRIMARY_TYPE_VIDEO;
@@ -430,7 +478,7 @@ public final class HlsSampleSource implements Loader.Callback {
     // Construct the set of exposed track groups.
     TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];
     for (int i = 0; i < extractorTrackCount; i++) {
-      Format sampleFormat = sampleQueues[i].getUpstreamFormat();
+      Format sampleFormat = sampleQueues.valueAt(i).getUpstreamFormat();
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
@@ -498,9 +546,10 @@ public final class HlsSampleSource implements Loader.Callback {
     // before for such tracks. For ID3 we probably explicitly don't want the keyframe before, even
     // if we do have it, since it might be quite a long way behind the seek position. We probably
     // only want to output ID3 buffers whose timestamps are greater than or equal to positionUs.
-    for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
+    int sampleQueueCount = sampleQueues.size();
+    for (int i = 0; seekInsideBuffer && i < sampleQueueCount; i++) {
       if (groupEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
+        seekInsideBuffer = sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
       }
     }
     if (seekInsideBuffer) {
@@ -515,12 +564,12 @@ public final class HlsSampleSource implements Loader.Callback {
   }
 
   private void discardSamplesForDisabledTracks() {
-    if (!output.prepare()) {
+    if (!prepared) {
       return;
     }
     for (int i = 0; i < groupEnabledStates.length; i++) {
       if (!groupEnabledStates[i]) {
-        sampleQueues[i].skipAllSamples();
+        sampleQueues.valueAt(i).skipAllSamples();
       }
     }
   }
@@ -537,7 +586,9 @@ public final class HlsSampleSource implements Loader.Callback {
   }
 
   private void clearState() {
-    output.clear();
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      sampleQueues.valueAt(i).clear();
+    }
     mediaChunks.clear();
     clearCurrentLoadable();
   }
@@ -577,7 +628,7 @@ public final class HlsSampleSource implements Loader.Callback {
     if (isMediaChunk(currentLoadable)) {
       pendingResetPositionUs = C.UNSET_TIME_US;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) currentLoadable;
-      mediaChunk.init(output);
+      mediaChunk.init(this);
       mediaChunks.addLast(mediaChunk);
       eventDispatcher.loadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
           mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
@@ -622,17 +673,17 @@ public final class HlsSampleSource implements Loader.Callback {
 
     @Override
     public boolean isReady() {
-      return HlsSampleSource.this.isReady(group);
+      return HlsTrackStreamWrapper.this.isReady(group);
     }
 
     @Override
     public void maybeThrowError() throws IOException {
-      HlsSampleSource.this.maybeThrowError();
+      HlsTrackStreamWrapper.this.maybeThrowError();
     }
 
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      return HlsSampleSource.this.readData(group, formatHolder, buffer);
+      return HlsTrackStreamWrapper.this.readData(group, formatHolder, buffer);
     }
 
   }
