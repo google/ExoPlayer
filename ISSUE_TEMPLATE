@@ -1,0 +1,17 @@
+Please search the existing issues before filing a new one, including issues that
+are closed. When filing a new issue please include all of the following, unless
+you're certain that they're not useful for the particular issue being reported.
+
+- A description of the issue.
+- Steps describing how the issue can be reproduced, ideally in the ExoPlayer
+  demo app.
+- A link to content that reproduces the issue. If you don't wish to post it
+  publicly, please submit the issue, then email the link to
+  dev.exoplayer@gmail.com including the issue number in the subject line.
+- The version of ExoPlayer being used.
+- The device(s) and version(s) of Android on which the issue can be reproduced,
+  and how easily it reproduces. If possible, please test on multiple devices and
+  Android versions.
+- A bug report taken from the device just after the issue occurs, attached as a
+  file. A bug report can be captured using "adb bugreport". Output from "adb
+  logcat" or a log snippet is not sufficient.
