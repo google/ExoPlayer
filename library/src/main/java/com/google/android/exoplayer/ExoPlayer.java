@@ -31,7 +31,7 @@ import android.os.Looper;
  * <a name="Assumptions"></a>
  * <h3>Assumptions and player construction</h3>
  *
- * <p>The implementation is designed make no assumptions about (and hence impose no restrictions
+ * <p>The implementation is designed to make no assumptions about (and hence impose no restrictions
  * on) the type of the media being played, how and where it is stored, or how it is rendered.
  * Rather than implementing the loading and rendering of media directly, {@link ExoPlayer} instead
  * delegates this work to one or more {@link TrackRenderer}s, which are injected when the player
