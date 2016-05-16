@@ -363,14 +363,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     return codec == null && format != null;
   }
 
-  protected final boolean codecInitialized() {
-    return codec != null;
-  }
-
-  protected final boolean haveFormat() {
-    return format != null;
-  }
-
   @Override
   protected void onDisabled() {
     format = null;

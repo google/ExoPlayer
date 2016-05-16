@@ -49,7 +49,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     // No extra methods
   }
 
-  private static final String TAG = "MediaCodecVideoTrackRenderer";
+  private static final String TAG = "MediaCodecVideoRenderer";
 
   // TODO: Use MediaFormat constants if these get exposed through the API. See
   // [Internal: b/14127601].
