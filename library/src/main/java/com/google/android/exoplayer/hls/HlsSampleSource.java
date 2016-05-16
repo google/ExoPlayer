@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public final class HlsSampleSource2 implements SampleSource {
+public final class HlsSampleSource implements SampleSource {
 
   private final ManifestFetcher<HlsPlaylist> manifestFetcher;
   private final HlsTrackStreamWrapper[] trackStreamWrappers;
@@ -59,7 +59,7 @@ public final class HlsSampleSource2 implements SampleSource {
   private TrackGroupArray trackGroups;
   private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
 
-  public HlsSampleSource2(Uri uri, DataSourceFactory dataSourceFactory,
+  public HlsSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener) {
     HlsPlaylistParser parser = new HlsPlaylistParser();
