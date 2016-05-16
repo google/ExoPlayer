@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import static com.google.android.exoplayer.drm.StreamingDrmSessionManager.WIDEVINE_UUID;
+import static com.google.android.exoplayer.C.WIDEVINE_UUID;
 import static com.google.android.exoplayer.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer.util.MimeTypes.VIDEO_WEBM;
 
@@ -27,8 +27,8 @@ import com.google.android.exoplayer.util.Util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaFormat;
-
 import android.os.Parcel;
+
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
