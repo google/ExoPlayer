@@ -22,8 +22,11 @@ import com.google.android.exoplayer.util.Util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaFormat;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +35,7 @@ import java.util.List;
 /**
  * Representation of a media format.
  */
-public final class Format {
+public final class Format implements Parcelable {
 
   /**
    * Sorts {@link Format} objects in order of decreasing bandwidth.
@@ -302,6 +305,33 @@ public final class Format {
     this.requiresSecureDecryption = requiresSecureDecryption;
   }
 
+  /* package */ Format(Parcel in) {
+    id = in.readString();
+    containerMimeType = in.readString();
+    sampleMimeType = in.readString();
+    bitrate = in.readInt();
+    maxInputSize = in.readInt();
+    width = in.readInt();
+    height = in.readInt();
+    frameRate = in.readFloat();
+    rotationDegrees = in.readInt();
+    pixelWidthHeightRatio = in.readFloat();
+    channelCount = in.readInt();
+    sampleRate = in.readInt();
+    pcmEncoding = in.readInt();
+    encoderDelay = in.readInt();
+    encoderPadding = in.readInt();
+    language = in.readString();
+    subsampleOffsetUs = in.readLong();
+    int initializationDataSize = in.readInt();
+    initializationData = new ArrayList<>(initializationDataSize);
+    for (int i = 0; i < initializationDataSize; i++) {
+      initializationData.add(in.createByteArray());
+    }
+    drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
+    requiresSecureDecryption = in.readInt() == 1;
+  }
+
   public Format copyWithMaxInputSize(int maxInputSize) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
@@ -455,5 +485,54 @@ public final class Format {
       format.setFloat(key, value);
     }
   }
+
+  // Parcelable implementation.
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(id);
+    dest.writeString(containerMimeType);
+    dest.writeString(sampleMimeType);
+    dest.writeInt(bitrate);
+    dest.writeInt(maxInputSize);
+    dest.writeInt(width);
+    dest.writeInt(height);
+    dest.writeFloat(frameRate);
+    dest.writeInt(rotationDegrees);
+    dest.writeFloat(pixelWidthHeightRatio);
+    dest.writeInt(channelCount);
+    dest.writeInt(sampleRate);
+    dest.writeInt(pcmEncoding);
+    dest.writeInt(encoderDelay);
+    dest.writeInt(encoderPadding);
+    dest.writeString(language);
+    dest.writeLong(subsampleOffsetUs);
+    int initializationDataSize = initializationData.size();
+    dest.writeInt(initializationDataSize);
+    for (int i = 0; i < initializationDataSize; i++) {
+      dest.writeByteArray(initializationData.get(i));
+    }
+    dest.writeParcelable(drmInitData, 0);
+    dest.writeInt(requiresSecureDecryption ? 1 : 0);
+  }
+
+  public static final Creator<Format> CREATOR = new Creator<Format>() {
+
+    @Override
+    public Format createFromParcel(Parcel in) {
+      return new Format(in);
+    }
+
+    @Override
+    public Format[] newArray(int size) {
+      return new Format[size];
+    }
+
+  };
 
 }

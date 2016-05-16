@@ -15,17 +15,26 @@
  */
 package com.google.android.exoplayer;
 
+import static com.google.android.exoplayer.drm.StreamingDrmSessionManager.WIDEVINE_UUID;
+import static com.google.android.exoplayer.util.MimeTypes.VIDEO_MP4;
+import static com.google.android.exoplayer.util.MimeTypes.VIDEO_WEBM;
+
+import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaFormat;
 
+import android.os.Parcel;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,30 +42,55 @@ import java.util.List;
  */
 public final class FormatTest extends TestCase {
 
+  private static final List<byte[]> INIT_DATA;
+  static {
+    byte[] initData1 = new byte[] {1, 2, 3};
+    byte[] initData2 = new byte[] {4, 5, 6};
+    List<byte[]> initData = new ArrayList<>();
+    initData.add(initData1);
+    initData.add(initData2);
+    INIT_DATA = Collections.unmodifiableList(initData);
+  }
+
+  public void testParcelable() {
+    DrmInitData.SchemeData DRM_DATA_1 = new DrmInitData.SchemeData(WIDEVINE_UUID, VIDEO_MP4,
+        TestUtil.buildTestData(128, 1 /* data seed */));
+    DrmInitData.SchemeData DRM_DATA_2 = new DrmInitData.SchemeData(C.UUID_NIL, VIDEO_WEBM,
+        TestUtil.buildTestData(128, 1 /* data seed */));
+    DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
+
+    Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, 1024, 2048,
+        1920, 1080, 24, 90, 2, 6, 44100, C.ENCODING_PCM_24BIT, 1001, 1002, "und",
+        Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData, false);
+
+    Parcel parcel = Parcel.obtain();
+    formatToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
+    assertEquals(formatToParcel, formatFromParcel);
+
+    parcel.recycle();
+  }
+
   public void testConversionToFrameworkMediaFormat() {
     if (Util.SDK_INT < 16) {
       // Test doesn't apply.
       return;
     }
 
-    byte[] initData1 = new byte[] {1, 2, 3};
-    byte[] initData2 = new byte[] {4, 5, 6};
-    List<byte[]> initData = new ArrayList<>();
-    initData.add(initData1);
-    initData.add(initData2);
-
-    testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(
-        null, "video/xyz", 5000, 102400, 1280, 720, 30, initData, null));
-    testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(
-        null, "video/xyz", 5000, Format.NO_VALUE, 1280, 720, 30, null, null));
-    testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(
-        null, "audio/xyz", 500, 128, 5, 44100, initData, null, null));
-    testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(
-        null, "audio/xyz", 500, Format.NO_VALUE, 5, 44100, null, null, null));
-    testConversionToFrameworkMediaFormatV16(
-        Format.createTextSampleFormat(null, "text/xyz", Format.NO_VALUE, "eng", null));
-    testConversionToFrameworkMediaFormatV16(
-        Format.createTextSampleFormat(null, "text/xyz", Format.NO_VALUE, null, null));
+    testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(null, "video/xyz", 5000,
+        102400, 1280, 720, 30, INIT_DATA, null));
+    testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(null, "video/xyz", 5000,
+        Format.NO_VALUE, 1280, 720, 30, null, null));
+    testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", 500,
+        128, 5, 44100, INIT_DATA, null, null));
+    testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", 500,
+        Format.NO_VALUE, 5, 44100, null, null, null));
+    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz",
+        Format.NO_VALUE, "eng", null));
+    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz",
+        Format.NO_VALUE, null, null));
   }
 
   @SuppressLint("InlinedApi")

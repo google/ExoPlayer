@@ -23,6 +23,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.testutil.TestUtil;
 
+import android.os.Parcel;
 import android.test.MoreAsserts;
 
 import junit.framework.TestCase;
@@ -42,6 +43,19 @@ public class DrmInitDataTest extends TestCase {
       new SchemeData(PLAYREADY_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 2 /* data seed */));
   private static final SchemeData DATA_UNIVERSAL =
       new SchemeData(C.UUID_NIL, VIDEO_MP4, TestUtil.buildTestData(128, 3 /* data seed */));
+
+  public void testParcelable() {
+    DrmInitData drmInitDataToParcel = new DrmInitData(DATA_1, DATA_2);
+
+    Parcel parcel = Parcel.obtain();
+    drmInitDataToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    DrmInitData drmInitDataFromParcel = DrmInitData.CREATOR.createFromParcel(parcel);
+    assertEquals(drmInitDataToParcel, drmInitDataFromParcel);
+
+    parcel.recycle();
+  }
 
   public void testEquals() {
     DrmInitData drmInitData = new DrmInitData(DATA_1, DATA_2);

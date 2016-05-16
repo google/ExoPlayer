@@ -20,6 +20,9 @@ import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -28,7 +31,7 @@ import java.util.UUID;
 /**
  * Encapsulates DRM initialization data for possibly multiple DRM schemes.
  */
-public final class DrmInitData implements Comparator<SchemeData> {
+public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
 
   private final SchemeData[] schemeDatas;
 
@@ -57,6 +60,10 @@ public final class DrmInitData implements Comparator<SchemeData> {
       }
     }
     this.schemeDatas = schemeDatas;
+  }
+
+  /* package */ DrmInitData(Parcel in) {
+    schemeDatas = in.createTypedArray(SchemeData.CREATOR);
   }
 
   /**
@@ -99,10 +106,37 @@ public final class DrmInitData implements Comparator<SchemeData> {
         : first.uuid.compareTo(second.uuid);
   }
 
+  // Parcelable implementation.
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeTypedArray(schemeDatas, 0);
+  }
+
+  public static final Parcelable.Creator<DrmInitData> CREATOR =
+      new Parcelable.Creator<DrmInitData>() {
+
+    @Override
+    public DrmInitData createFromParcel(Parcel in) {
+      return new DrmInitData(in);
+    }
+
+    @Override
+    public DrmInitData[] newArray(int size) {
+      return new DrmInitData[size];
+    }
+
+  };
+
   /**
    * Scheme initialization data.
    */
-  public static final class SchemeData {
+  public static final class SchemeData implements Parcelable {
 
     // Lazily initialized hashcode.
     private int hashCode;
@@ -133,6 +167,12 @@ public final class DrmInitData implements Comparator<SchemeData> {
       this.data = Assertions.checkNotNull(data);
     }
 
+    /* package */ SchemeData(Parcel in) {
+      uuid = new UUID(in.readLong(), in.readLong());
+      mimeType = in.readString();
+      data = in.createByteArray();
+    }
+
     /**
      * Returns whether this initialization data applies to the specified scheme.
      *
@@ -159,13 +199,43 @@ public final class DrmInitData implements Comparator<SchemeData> {
     @Override
     public int hashCode() {
       if (hashCode == 0) {
-        int result = ((uuid == null) ? 0 : uuid.hashCode());
+        int result = uuid.hashCode();
         result = 31 * result + mimeType.hashCode();
         result = 31 * result + Arrays.hashCode(data);
         hashCode = result;
       }
       return hashCode;
     }
+
+    // Parcelable implementation.
+
+    @Override
+    public int describeContents() {
+      return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+      dest.writeLong(uuid.getMostSignificantBits());
+      dest.writeLong(uuid.getLeastSignificantBits());
+      dest.writeString(mimeType);
+      dest.writeByteArray(data);
+    }
+
+    public static final Parcelable.Creator<SchemeData> CREATOR =
+        new Parcelable.Creator<SchemeData>() {
+
+      @Override
+      public SchemeData createFromParcel(Parcel in) {
+        return new SchemeData(in);
+      }
+
+      @Override
+      public SchemeData[] newArray(int size) {
+        return new SchemeData[size];
+      }
+
+    };
 
   }
 
