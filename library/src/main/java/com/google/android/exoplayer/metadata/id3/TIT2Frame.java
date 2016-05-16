@@ -20,13 +20,13 @@ package com.google.android.exoplayer.metadata.id3;
  */
 public class TIT2Frame extends Id3Frame {
 
-    public static final String ID = "TIT2";
+  public static final String ID = "TIT2";
 
-    public final String description;
+  public final String description;
 
-    public TIT2Frame(String data) {
-        super(ID);
-        this.description = data;
-    }
+  public TIT2Frame(String data) {
+    super(ID);
+    this.description = data;
+  }
 
 }
