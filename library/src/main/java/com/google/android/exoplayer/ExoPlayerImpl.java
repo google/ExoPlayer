@@ -71,11 +71,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public Looper getPlaybackLooper() {
-    return internalPlayer.getPlaybackLooper();
-  }
-
-  @Override
   public void addListener(Listener listener) {
     listeners.add(listener);
   }

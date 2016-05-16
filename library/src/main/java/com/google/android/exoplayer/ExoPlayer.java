@@ -225,13 +225,6 @@ public interface ExoPlayer {
   long UNKNOWN_TIME = -1;
 
   /**
-   * Gets the {@link Looper} associated with the playback thread.
-   *
-   * @return The {@link Looper} associated with the playback thread.
-   */
-  Looper getPlaybackLooper();
-
-  /**
    * Register a listener to receive events from the player. The listener's methods will be invoked
    * on the thread that was used to construct the player.
    *

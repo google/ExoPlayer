@@ -17,6 +17,7 @@ package com.google.android.exoplayer.drm;
 
 import android.annotation.TargetApi;
 import android.media.MediaCrypto;
+import android.os.Looper;
 
 /**
  * Manages a DRM session.
@@ -33,8 +34,8 @@ public interface DrmSessionManager {
    */
   int STATE_CLOSED = 1;
   /**
-   * The session is being opened (i.e. {@link #open(DrmInitData)} has been called, but the session
-   * is not yet open).
+   * The session is being opened (i.e. {@link #open(Looper, DrmInitData)} has been called, but the
+   * session is not yet open).
    */
   int STATE_OPENING = 2;
   /**
@@ -49,9 +50,10 @@ public interface DrmSessionManager {
   /**
    * Opens the session, possibly asynchronously.
    *
+   * @param playbackLooper The looper associated with the media playback thread.
    * @param drmInitData DRM initialization data.
    */
-  void open(DrmInitData drmInitData);
+  void open(Looper playbackLooper, DrmInitData drmInitData);
 
   /**
    * Closes the session.

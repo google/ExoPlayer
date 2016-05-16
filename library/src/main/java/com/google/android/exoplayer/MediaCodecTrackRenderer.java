@@ -28,6 +28,7 @@ import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 
 import java.nio.ByteBuffer;
@@ -290,7 +291,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
             new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
       }
       if (!openedDrmSession) {
-        drmSessionManager.open(format.drmInitData);
+        drmSessionManager.open(Looper.myLooper(), format.drmInitData);
         openedDrmSession = true;
       }
       int drmSessionState = drmSessionManager.getState();

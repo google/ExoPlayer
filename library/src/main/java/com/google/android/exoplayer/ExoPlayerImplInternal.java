@@ -23,7 +23,6 @@ import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
@@ -119,10 +118,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = new Handler(internalPlaybackThread.getLooper(), this);
-  }
-
-  public Looper getPlaybackLooper() {
-    return internalPlaybackThread.getLooper();
   }
 
   public long getCurrentPosition() {
