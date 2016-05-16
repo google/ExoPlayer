@@ -198,7 +198,13 @@ public final class MediaCodecUtil {
             || "MP3Decoder".equals(name)) {
       return false;
     }
+    // Work around https://github.com/google/ExoPlayer/issues/398
     if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
+      return false;
+    }
+    // Work around https://github.com/google/ExoPlayer/issues/1528
+    if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
+        && "a70".equals(Util.DEVICE)) {
       return false;
     }
 
