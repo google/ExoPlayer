@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -92,7 +93,8 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     public void run() {
       Looper.prepare();
       LibvpxVideoTrackRenderer videoRenderer = new LibvpxVideoTrackRenderer(true);
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null, null);
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null, null,
+          new DefaultTrackSelectionPolicy());
       player = ExoPlayer.Factory.newInstance(new TrackRenderer[] {videoRenderer}, trackSelector);
       player.addListener(this);
       ExtractorSampleSource sampleSource = new ExtractorSampleSource(

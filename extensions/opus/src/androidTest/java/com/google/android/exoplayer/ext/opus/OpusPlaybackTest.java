@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
+import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -76,7 +77,8 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     public void run() {
       Looper.prepare();
       LibopusAudioTrackRenderer audioRenderer = new LibopusAudioTrackRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null, null);
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null, null,
+          new DefaultTrackSelectionPolicy());
       player = ExoPlayer.Factory.newInstance(new TrackRenderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       ExtractorSampleSource sampleSource = new ExtractorSampleSource(

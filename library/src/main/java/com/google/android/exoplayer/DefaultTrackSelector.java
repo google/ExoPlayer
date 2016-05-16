@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
@@ -29,7 +30,8 @@ import java.util.Map;
 /**
  * A {@link TrackSelector} suitable for a wide range of use cases.
  */
-public class DefaultTrackSelector extends TrackSelector {
+public class DefaultTrackSelector extends TrackSelector implements
+    TrackSelectionPolicy.InvalidationListener{
 
   /**
    * Interface definition for a callback to be notified of {@link DefaultTrackSelector} events.
@@ -49,6 +51,7 @@ public class DefaultTrackSelector extends TrackSelector {
   private final EventListener eventListener;
   private final SparseArray<Map<TrackGroupArray, TrackSelection>> trackSelectionOverrides;
   private final SparseBooleanArray rendererDisabledFlags;
+  private final TrackSelectionPolicy trackSelectionPolicy;
 
   private TrackInfo activeTrackInfo;
 
@@ -56,12 +59,16 @@ public class DefaultTrackSelector extends TrackSelector {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param trackSelectionPolicy Defines the policy for track selection.
    */
-  public DefaultTrackSelector(Handler eventHandler, EventListener eventListener) {
+  public DefaultTrackSelector(Handler eventHandler, EventListener eventListener,
+      TrackSelectionPolicy trackSelectionPolicy) {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     trackSelectionOverrides = new SparseArray<>();
     rendererDisabledFlags = new SparseBooleanArray();
+    this.trackSelectionPolicy = Assertions.checkNotNull(trackSelectionPolicy);
+    this.trackSelectionPolicy.init(this);
   }
 
   /**
@@ -189,6 +196,14 @@ public class DefaultTrackSelector extends TrackSelector {
     invalidate();
   }
 
+  /**
+   * Invoked when the {@link TrackSelectionPolicy} has changed.
+   */
+  @Override
+  public void invalidatePolicySelections() {
+    invalidate();
+  }
+
   // TrackSelector implementation.
 
   @Override
@@ -244,12 +259,21 @@ public class DefaultTrackSelector extends TrackSelector {
     TrackGroupArray unassociatedTrackGroupArray = new TrackGroupArray(
         Arrays.copyOf(rendererTrackGroups[renderers.length], unassociatedTrackGroupCount));
 
-    // Make a track selection for each renderer.
-    TrackSelection[] rendererTrackSelections = new TrackSelection[renderers.length];
+    TrackSelection[] rendererTrackSelections = trackSelectionPolicy.selectTracks(renderers,
+        rendererTrackGroupArrays, rendererFormatSupports);
+
+    // Apply track disabling and overriding.
     for (int i = 0; i < renderers.length; i++) {
-      rendererTrackSelections[i] = rendererDisabledFlags.get(i) ? null
-          : selectTracksForRenderer(rendererTrackGroupArrays[i], rendererFormatSupports[i],
-              trackSelectionOverrides.get(i));
+      if (rendererDisabledFlags.get(i)) {
+        rendererTrackSelections[i] = null;
+      } else {
+        Map<TrackGroupArray, TrackSelection> override = trackSelectionOverrides.get(i);
+        TrackSelection overrideSelection = override == null ? null
+            : override.get(rendererTrackGroupArrays[i]);
+        if (overrideSelection != null) {
+          rendererTrackSelections[i] = overrideSelection;
+        }
+      }
     }
 
     // The track selections above index into the track group arrays associated to each renderer,
@@ -347,27 +371,6 @@ public class DefaultTrackSelector extends TrackSelector {
       mixedMimeTypeAdaptationSupport[i] = renderers[i].supportsMixedMimeTypeAdaptation();
     }
     return mixedMimeTypeAdaptationSupport;
-  }
-
-  private static TrackSelection selectTracksForRenderer(TrackGroupArray trackGroups,
-      int[][] formatSupport, Map<TrackGroupArray, TrackSelection> overrides) {
-    if (overrides != null && overrides.containsKey(trackGroups)) {
-      return overrides.get(trackGroups);
-    }
-
-    // TODO[REFACTOR]: Implement real default selection logic here.
-    for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-      TrackGroup trackGroup = trackGroups.get(groupIndex);
-      int[] trackFormatSupport = formatSupport[groupIndex];
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        if ((trackFormatSupport[trackIndex] & TrackRenderer.FORMAT_SUPPORT_MASK)
-            == TrackRenderer.FORMAT_HANDLED) {
-          return new TrackSelection(groupIndex, trackIndex);
-        }
-      }
-    }
-
-    return null;
   }
 
   /**

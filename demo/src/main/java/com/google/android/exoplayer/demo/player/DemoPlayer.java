@@ -17,6 +17,7 @@ package com.google.android.exoplayer.demo.player;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
+import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -170,7 +171,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
     // Build the player and associated objects.
-    trackSelector = new DefaultTrackSelector(mainHandler, this);
+    trackSelector = new DefaultTrackSelector(mainHandler, this, new DefaultTrackSelectionPolicy());
     player = ExoPlayer.Factory.newInstance(renderers, trackSelector, 1000, 5000);
     player.addListener(this);
     playerControl = new PlayerControl(player);
