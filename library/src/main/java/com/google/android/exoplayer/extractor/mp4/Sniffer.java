@@ -28,9 +28,18 @@ import java.io.IOException;
  */
 /* package */ final class Sniffer {
 
+  /**
+   * The maximum number of bytes to peek when sniffing.
+   */
+  private static final int SEARCH_LENGTH = 4 * 1024;
+
   private static final int[] COMPATIBLE_BRANDS = new int[] {
       Util.getIntegerCodeForString("isom"),
       Util.getIntegerCodeForString("iso2"),
+      Util.getIntegerCodeForString("iso3"),
+      Util.getIntegerCodeForString("iso4"),
+      Util.getIntegerCodeForString("iso5"),
+      Util.getIntegerCodeForString("iso6"),
       Util.getIntegerCodeForString("avc1"),
       Util.getIntegerCodeForString("hvc1"),
       Util.getIntegerCodeForString("hev1"),
@@ -62,7 +71,7 @@ import java.io.IOException;
    */
   public static boolean sniffFragmented(ExtractorInput input)
       throws IOException, InterruptedException {
-    return sniffInternal(input, 4 * 1024, true);
+    return sniffInternal(input, true);
   }
 
   /**
@@ -76,19 +85,19 @@ import java.io.IOException;
    */
   public static boolean sniffUnfragmented(ExtractorInput input)
       throws IOException, InterruptedException {
-    return sniffInternal(input, 128, false);
+    return sniffInternal(input, false);
   }
 
-  private static boolean sniffInternal(ExtractorInput input, int searchLength, boolean fragmented)
+  private static boolean sniffInternal(ExtractorInput input, boolean fragmented)
       throws IOException, InterruptedException {
     long inputLength = input.getLength();
-    int bytesToSearch = (int) (inputLength == C.LENGTH_UNBOUNDED || inputLength > searchLength
-        ? searchLength : inputLength);
+    int bytesToSearch = (int) (inputLength == C.LENGTH_UNBOUNDED || inputLength > SEARCH_LENGTH
+        ? SEARCH_LENGTH : inputLength);
 
     ParsableByteArray buffer = new ParsableByteArray(64);
     int bytesSearched = 0;
     boolean foundGoodFileType = false;
-    boolean foundFragment = false;
+    boolean isFragmented = false;
     while (bytesSearched < bytesToSearch) {
       // Read an atom header.
       int headerSize = Atom.HEADER_SIZE;
@@ -97,48 +106,64 @@ import java.io.IOException;
       long atomSize = buffer.readUnsignedInt();
       int atomType = buffer.readInt();
       if (atomSize == Atom.LONG_SIZE_PREFIX) {
-        input.peekFully(buffer.data, headerSize, Atom.LONG_HEADER_SIZE - headerSize);
         headerSize = Atom.LONG_HEADER_SIZE;
-        atomSize = buffer.readLong();
+        input.peekFully(buffer.data, Atom.HEADER_SIZE, Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE);
+        atomSize = buffer.readUnsignedLongToLong();
       }
-      // Check the atom size is large enough to include its header.
+
       if (atomSize < headerSize) {
+        // The file is invalid because the atom size is too small for its header.
         return false;
       }
-      int atomDataSize = (int) atomSize - headerSize;
+      bytesSearched += headerSize;
+
+      if (atomType == Atom.TYPE_moov) {
+        // Check for an mvex atom inside the moov atom to identify whether the file is fragmented.
+        continue;
+      }
+
+      if (atomType == Atom.TYPE_moof || atomType == Atom.TYPE_mvex) {
+        // The movie is fragmented. Stop searching as we must have read any ftyp atom already.
+        isFragmented = true;
+        break;
+      }
+
+      if (bytesSearched + atomSize - headerSize >= bytesToSearch) {
+        // Stop searching as peeking this atom would exceed the search limit.
+        break;
+      }
+
+      int atomDataSize = (int) (atomSize - headerSize);
+      bytesSearched += atomDataSize;
       if (atomType == Atom.TYPE_ftyp) {
+        // Parse the atom and check the file type/brand is compatible with the extractors.
         if (atomDataSize < 8) {
           return false;
         }
-        int compatibleBrandsCount = (atomDataSize - 8) / 4;
-        input.peekFully(buffer.data, 0, 4 * (compatibleBrandsCount + 2));
-        for (int i = 0; i < compatibleBrandsCount + 2; i++) {
+        if (buffer.capacity() < atomDataSize) {
+          buffer.reset(new byte[atomDataSize], atomDataSize);
+        }
+        input.peekFully(buffer.data, 0, atomDataSize);
+        int brandsCount = atomDataSize / 4;
+        for (int i = 0; i < brandsCount; i++) {
           if (i == 1) {
             // This index refers to the minorVersion, not a brand, so skip it.
-            continue;
-          }
-          if (isCompatibleBrand(buffer.readInt())) {
+            buffer.skipBytes(4);
+          } else if (isCompatibleBrand(buffer.readInt())) {
             foundGoodFileType = true;
             break;
           }
         }
-        // There is only one ftyp box, so reject the file if the file type in this box was invalid.
         if (!foundGoodFileType) {
+          // The types were not compatible and there is only one ftyp atom, so reject the file.
           return false;
         }
-      } else if (atomType == Atom.TYPE_moof) {
-        foundFragment = true;
-        break;
       } else if (atomDataSize != 0) {
-        // Stop searching if reading this atom would exceed the search limit.
-        if (bytesSearched + atomSize >= bytesToSearch) {
-          break;
-        }
+        // Skip the atom.
         input.advancePeekPosition(atomDataSize);
       }
-      bytesSearched += atomSize;
     }
-    return foundGoodFileType && fragmented == foundFragment;
+    return foundGoodFileType && fragmented == isFragmented;
   }
 
   /**
