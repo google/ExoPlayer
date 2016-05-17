@@ -31,6 +31,6 @@ public interface SubtitleParser extends
    *
    * @param positionUs The current playback position in microseconds.
    */
-  public void setPositionUs(long positionUs);
+  void setPositionUs(long positionUs);
 
 }

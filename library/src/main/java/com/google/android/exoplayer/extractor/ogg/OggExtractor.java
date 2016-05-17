@@ -54,10 +54,8 @@ public class OggExtractor implements Extractor {
       }
       return true;
     } catch (ParserException e) {
-      // does not happen
-    } finally {
+      return false;
     }
-    return false;
   }
 
   @Override

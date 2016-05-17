@@ -324,7 +324,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       LeafAtom child = moovLeafChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
         if (schemeDatas == null) {
-          schemeDatas = new ArrayList<SchemeData>();
+          schemeDatas = new ArrayList<>();
         }
         byte[] psshData = child.data.data;
         UUID uuid = PsshAtomUtil.parseUuid(psshData);

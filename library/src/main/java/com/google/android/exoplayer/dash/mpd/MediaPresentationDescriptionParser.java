@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
 public class MediaPresentationDescriptionParser extends DefaultHandler
     implements UriLoadable.Parser<MediaPresentationDescription> {
 
-  private static final String TAG = "MediaPresentationDescriptionParser";
+  private static final String TAG = "MpdParser";
 
   private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))?");
 

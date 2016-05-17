@@ -50,7 +50,7 @@ public final class Eia608Subtitle implements Subtitle {
   @Override
   public List<Cue> getCues(long timeUs) {
     if (caption == null || caption.isEmpty()) {
-      return Collections.<Cue>emptyList();
+      return Collections.emptyList();
     } else {
       return Collections.singletonList(new Cue(caption));
     }

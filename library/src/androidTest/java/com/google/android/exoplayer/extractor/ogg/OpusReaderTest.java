@@ -42,7 +42,6 @@ public final class OpusReaderTest extends InstrumentationTestCase {
   private static final String TEST_FILE = "asset:///ogg/bear.opus";
 
   private OggExtractor extractor;
-  private OpusReader opusReader;
   private FakeExtractorOutput extractorOutput;
   private DefaultExtractorInput extractorInput;
 
@@ -60,8 +59,6 @@ public final class OpusReaderTest extends InstrumentationTestCase {
     extractor = new OggExtractor();
     assertTrue(extractor.sniff(extractorInput));
     extractorInput.resetPeekPosition();
-
-    opusReader = (OpusReader) extractor.getStreamReader();
 
     extractorOutput = new FakeExtractorOutput();
     extractor.init(extractorOutput);
