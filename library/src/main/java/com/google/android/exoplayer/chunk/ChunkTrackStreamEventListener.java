@@ -18,6 +18,7 @@ package com.google.android.exoplayer.chunk;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.TrackStream;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
@@ -114,7 +115,7 @@ public interface ChunkTrackStreamEventListener {
     private final int sourceId;
 
     public EventDispatcher(Handler handler, ChunkTrackStreamEventListener listener, int sourceId) {
-      this.handler = listener != null ? handler : null;
+      this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
       this.sourceId = sourceId;
     }

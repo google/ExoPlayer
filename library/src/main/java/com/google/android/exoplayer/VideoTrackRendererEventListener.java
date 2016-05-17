@@ -15,14 +15,35 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Surface;
 import android.view.TextureView;
 
 /**
- * Optional interface definition for a callback to be notified of video {@link TrackRenderer}
- * events.
+ * Interface definition for a callback to be notified of video {@link TrackRenderer} events.
  */
-public interface VideoTrackRendererEventListener extends TrackRendererEventListener {
+public interface VideoTrackRendererEventListener {
+
+  /**
+   * Invoked to pass the codec counters when the renderer is enabled.
+   *
+   * @param counters CodecCounters object used by the renderer.
+   */
+  void onVideoCodecCounters(CodecCounters counters);
+
+  /**
+   * Invoked when a decoder is created.
+   *
+   * @param decoderName The decoder that was created.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
+   * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
+   */
+  void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs,
+      long initializationDurationMs);
 
   /**
    * Invoked to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -30,12 +51,12 @@ public interface VideoTrackRendererEventListener extends TrackRendererEventListe
    * reaches a specified threshold whilst the renderer is started.
    *
    * @param count The number of dropped frames.
-   * @param elapsed The duration in milliseconds over which the frames were dropped. This
+   * @param elapsedMs The duration in milliseconds over which the frames were dropped. This
    *     duration is timed from when the renderer was started or from when dropped frames were
    *     last reported (whichever was more recent), and not from when the first of the reported
    *     drops occurred.
    */
-  void onDroppedFrames(int count, long elapsed);
+  void onDroppedFrames(int count, long elapsedMs);
 
   /**
    * Invoked each time there's a change in the size of the video being rendered.
@@ -65,10 +86,77 @@ public interface VideoTrackRendererEventListener extends TrackRendererEventListe
   void onDrawnToSurface(Surface surface);
 
   /**
-   * Invoked to pass the codec counters when the renderer is enabled.
-   *
-   * @param counters CodecCounters object used by the renderer.
+   * Dispatches events to a {@link VideoTrackRendererEventListener}.
    */
-  void onVideoCodecCounters(CodecCounters counters);
+  final class EventDispatcher {
+
+    private final Handler handler;
+    private final VideoTrackRendererEventListener listener;
+
+    public EventDispatcher(Handler handler, VideoTrackRendererEventListener listener) {
+      this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
+      this.listener = listener;
+    }
+
+    public void codecCounters(final CodecCounters codecCounters) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onVideoCodecCounters(codecCounters);
+          }
+        });
+      }
+    }
+
+    public void decoderInitialized(final String decoderName,
+        final long initializedTimestampMs, final long initializationDurationMs) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onVideoDecoderInitialized(decoderName, initializedTimestampMs,
+                initializationDurationMs);
+          }
+        });
+      }
+    }
+
+    public void droppedFrameCount(final int droppedFrameCount, final long elapsedMs) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onDroppedFrames(droppedFrameCount, elapsedMs);
+          }
+        });
+      }
+    }
+
+    public void videoSizeChanged(final int width, final int height,
+        final int unappliedRotationDegrees, final float pixelWidthHeightRatio) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
+                pixelWidthHeightRatio);
+          }
+        });
+      }
+    }
+
+    public void drawnToSurface(final Surface surface) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onDrawnToSurface(surface);
+          }
+        });
+      }
+    }
+
+  }
 
 }

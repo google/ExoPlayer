@@ -22,10 +22,8 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackSelection;
-import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 
-import android.media.MediaCodec.CryptoException;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -129,6 +127,28 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   // DemoPlayer.InfoListener
 
   @Override
+  public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+      long initializationDurationMs) {
+    Log.d(TAG, "audioDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
+  }
+
+  @Override
+  public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+      long initializationDurationMs) {
+    Log.d(TAG, "videoDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
+  }
+
+  @Override
+  public void onAudioFormatEnabled(Format format, int trigger, long mediaTimeMs) {
+    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + format.id + ", " + trigger + "]");
+  }
+
+  @Override
+  public void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs) {
+    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + format.id + ", " + trigger + "]");
+  }
+
+  @Override
   public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
     Log.d(TAG, "bandwidth [" + getSessionTimeString() + ", " + bytes + ", "
         + getTimeString(elapsedMs) + ", " + bitrateEstimate + "]");
@@ -151,18 +171,6 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     // Do nothing.
   }
 
-  @Override
-  public void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs) {
-    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + format.id + ", "
-        + Integer.toString(trigger) + "]");
-  }
-
-  @Override
-  public void onAudioFormatEnabled(Format format, int trigger, long mediaTimeMs) {
-    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + format.id + ", "
-        + Integer.toString(trigger) + "]");
-  }
-
   // DemoPlayer.InternalErrorListener
 
   @Override
@@ -171,45 +179,14 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onRendererInitializationError(Exception e) {
-    printInternalError("rendererInitError", e);
-  }
-
-  @Override
   public void onDrmSessionManagerError(Exception e) {
     printInternalError("drmSessionManagerError", e);
-  }
-
-  @Override
-  public void onDecoderInitializationError(Exception e) {
-    printInternalError("decoderInitializationError", e);
-  }
-
-  @Override
-  public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
-    printInternalError("audioTrackInitializationError", e);
-  }
-
-  @Override
-  public void onAudioTrackWriteError(AudioTrack.WriteException e) {
-    printInternalError("audioTrackWriteError", e);
   }
 
   @Override
   public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     printInternalError("audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
         + elapsedSinceLastFeedMs + "]", null);
-  }
-
-  @Override
-  public void onCryptoError(CryptoException e) {
-    printInternalError("cryptoError", e);
-  }
-
-  @Override
-  public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
-      long initializationDurationMs) {
-    Log.d(TAG, "decoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
   }
 
   private void printInternalError(String type, Exception e) {

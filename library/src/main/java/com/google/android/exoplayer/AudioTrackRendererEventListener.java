@@ -16,25 +16,33 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.audio.AudioTrack;
+import com.google.android.exoplayer.util.Assertions;
+
+import android.os.Handler;
+import android.os.SystemClock;
 
 /**
- * Optional interface definition for a callback to be notified of audio {@link TrackRenderer}
- * events.
+ * Interface definition for a callback to be notified of audio {@link TrackRenderer} events.
  */
-public interface AudioTrackRendererEventListener extends TrackRendererEventListener {
-  /**
-   * Invoked when an {@link AudioTrack} fails to initialize.
-   *
-   * @param e The corresponding exception.
-   */
-  void onAudioTrackInitializationError(AudioTrack.InitializationException e);
+public interface AudioTrackRendererEventListener {
 
   /**
-   * Invoked when an {@link AudioTrack} write fails.
+   * Invoked to pass the codec counters when the renderer is enabled.
    *
-   * @param e The corresponding exception.
+   * @param counters CodecCounters object used by the renderer.
    */
-  void onAudioTrackWriteError(AudioTrack.WriteException e);
+  void onAudioCodecCounters(CodecCounters counters);
+
+  /**
+   * Invoked when a decoder is created.
+   *
+   * @param decoderName The decoder that was created.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
+   * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
+   */
+  void onAudioDecoderInitialized(String decoderName, long initializedTimestampMs,
+      long initializationDurationMs);
 
   /**
    * Invoked when an {@link AudioTrack} underrun occurs.
@@ -48,9 +56,54 @@ public interface AudioTrackRendererEventListener extends TrackRendererEventListe
   void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
   /**
-   * Invoked to pass the codec counters when the renderer is enabled.
-   *
-   * @param counters CodecCounters object used by the renderer.
+   * Dispatches events to a {@link AudioTrackRendererEventListener}.
    */
-  void onAudioCodecCounters(CodecCounters counters);
+  final class EventDispatcher {
+
+    private final Handler handler;
+    private final AudioTrackRendererEventListener listener;
+
+    public EventDispatcher(Handler handler, AudioTrackRendererEventListener listener) {
+      this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
+      this.listener = listener;
+    }
+
+    public void codecCounters(final CodecCounters codecCounters) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onAudioCodecCounters(codecCounters);
+          }
+        });
+      }
+    }
+
+    public void decoderInitialized(final String decoderName,
+        final long initializedTimestampMs, final long initializationDurationMs) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onAudioDecoderInitialized(decoderName, initializedTimestampMs,
+                initializationDurationMs);
+          }
+        });
+      }
+    }
+
+    public void audioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
+        final long elapsedSinceLastFeedMs) {
+      if (listener != null) {
+        handler.post(new Runnable()  {
+          @Override
+          public void run() {
+            listener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+          }
+        });
+      }
+    }
+
+  }
+
 }

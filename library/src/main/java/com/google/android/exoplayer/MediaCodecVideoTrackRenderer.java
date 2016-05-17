@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.VideoTrackRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
@@ -40,15 +41,6 @@ import java.nio.ByteBuffer;
 @TargetApi(16)
 public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
-  /**
-   * Interface definition for a callback to be notified of {@link MediaCodecVideoTrackRenderer}
-   * events.
-   */
-  public interface EventListener extends MediaCodecTrackRenderer.EventListener,
-      VideoTrackRendererEventListener {
-    // No extra methods
-  }
-
   private static final String TAG = "MediaCodecVideoRenderer";
 
   // TODO: Use MediaFormat constants if these get exposed through the API. See
@@ -59,7 +51,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private static final String KEY_CROP_TOP = "crop-top";
 
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
-  private final EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
   private final int videoScalingMode;
   private final int maxDroppedFrameCountToNotify;
@@ -122,11 +114,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
+   *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode, long allowedJoiningTimeMs, Handler eventHandler,
-      EventListener eventListener, int maxDroppedFrameCountToNotify) {
+      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     this(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
         eventHandler, eventListener, maxDroppedFrameCountToNotify);
   }
@@ -142,26 +134,25 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    *     content is not required.
    * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
    *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
+   *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode, long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
-    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
-        eventListener);
-    this.frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
+      boolean playClearSamplesWithoutKeys, Handler eventHandler,
+      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
-    this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
+    frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
     joiningDeadlineMs = -1;
     currentWidth = -1;
@@ -227,8 +218,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         adaptiveMaxWidth = Math.max(adaptiveMaxWidth, format.width);
         adaptiveMaxHeight = Math.max(adaptiveMaxHeight, format.height);
       }
-      if (adaptiveMaxWidth == Format.NO_VALUE
-          || adaptiveMaxHeight == Format.NO_VALUE) {
+      if (adaptiveMaxWidth == Format.NO_VALUE || adaptiveMaxHeight == Format.NO_VALUE) {
         Log.w(TAG, "Maximum dimensions unknown. Assuming 1920x1080.");
         adaptiveMaxWidth = 1920;
         adaptiveMaxHeight = 1080;
@@ -238,7 +228,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       joiningDeadlineMs = SystemClock.elapsedRealtime() + allowedJoiningTimeMs;
     }
     frameReleaseTimeHelper.enable();
-    notifyVideoCodecCounters();
+    eventDispatcher.codecCounters(codecCounters);
   }
 
   @Override
@@ -330,6 +320,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
     codec.configure(getFrameworkMediaFormat(format), surface, crypto, 0);
+  }
+
+  @Override
+  protected void onCodecInitialized(String name, long initializedTimestampMs,
+      long initializationDurationMs) {
+    eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
   }
 
   @Override
@@ -559,65 +555,34 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     return frameworkMediaFormat;
   }
 
-  private void maybeNotifyVideoSizeChanged() {
-    if (eventHandler == null || eventListener == null
-        || (lastReportedWidth == currentWidth && lastReportedHeight == currentHeight
-        && lastReportedUnappliedRotationDegrees == currentUnappliedRotationDegrees
-        && lastReportedPixelWidthHeightRatio == currentPixelWidthHeightRatio)) {
-      return;
+  private void maybeNotifyDrawnToSurface() {
+    if (!reportedDrawnToSurface) {
+      eventDispatcher.drawnToSurface(surface);
+      reportedDrawnToSurface = true;
     }
-    // Make final copies to ensure the runnable reports the correct values.
-    final int currentWidth = this.currentWidth;
-    final int currentHeight = this.currentHeight;
-    final int currentUnappliedRotationDegrees = this.currentUnappliedRotationDegrees;
-    final float currentPixelWidthHeightRatio = this.currentPixelWidthHeightRatio;
-    eventHandler.post(new Runnable()  {
-      @Override
-      public void run() {
-        eventListener.onVideoSizeChanged(currentWidth, currentHeight,
-            currentUnappliedRotationDegrees, currentPixelWidthHeightRatio);
-      }
-    });
-    // Update the last reported values.
-    lastReportedWidth = currentWidth;
-    lastReportedHeight = currentHeight;
-    lastReportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
-    lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
   }
 
-  private void maybeNotifyDrawnToSurface() {
-    if (eventHandler == null || eventListener == null || reportedDrawnToSurface) {
-      return;
+  private void maybeNotifyVideoSizeChanged() {
+    if (lastReportedWidth != currentWidth || lastReportedHeight != currentHeight
+        || lastReportedUnappliedRotationDegrees != currentUnappliedRotationDegrees
+        || lastReportedPixelWidthHeightRatio != currentPixelWidthHeightRatio) {
+      eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
+          currentPixelWidthHeightRatio);
+      lastReportedWidth = currentWidth;
+      lastReportedHeight = currentHeight;
+      lastReportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
+      lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
     }
-    // Make a final copy to ensure the runnable reports the correct surface.
-    final Surface surface = this.surface;
-    eventHandler.post(new Runnable()  {
-      @Override
-      public void run() {
-        eventListener.onDrawnToSurface(surface);
-      }
-    });
-    // Record that we have reported that the surface has been drawn to.
-    reportedDrawnToSurface = true;
   }
 
   private void maybeNotifyDroppedFrameCount() {
-    if (eventHandler == null || eventListener == null || droppedFrameCount == 0) {
-      return;
+    if (droppedFrameCount > 0) {
+      long now = SystemClock.elapsedRealtime();
+      long elapsedMs = now - droppedFrameAccumulationStartTimeMs;
+      eventDispatcher.droppedFrameCount(droppedFrameCount, elapsedMs);
+      droppedFrameCount = 0;
+      droppedFrameAccumulationStartTimeMs = now;
     }
-    long now = SystemClock.elapsedRealtime();
-    // Make final copies to ensure the runnable reports the correct values.
-    final int countToNotify = droppedFrameCount;
-    final long elapsedToNotify = now - droppedFrameAccumulationStartTimeMs;
-    eventHandler.post(new Runnable()  {
-      @Override
-      public void run() {
-        eventListener.onDroppedFrames(countToNotify, elapsedToNotify);
-      }
-    });
-    // Reset the dropped frame tracking.
-    droppedFrameCount = 0;
-    droppedFrameAccumulationStartTimeMs = now;
   }
 
   /**
@@ -636,17 +601,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
     // also lose sync [Internal: b/26453592].
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
-  }
-
-  private void notifyVideoCodecCounters() {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onVideoCodecCounters(codecCounters);
-        }
-      });
-    }
   }
 
 }

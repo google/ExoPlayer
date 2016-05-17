@@ -27,7 +27,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 
@@ -40,20 +39,6 @@ import java.util.List;
  */
 @TargetApi(16)
 public abstract class MediaCodecTrackRenderer extends TrackRenderer {
-
-  /**
-   * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.
-   */
-  public interface EventListener extends TrackRendererEventListener {
-
-    /**
-     * Invoked when a decoder operation raises a {@link CryptoException}.
-     *
-     * @param e The corresponding exception.
-     */
-    void onCryptoError(CryptoException e);
-
-  }
 
   /**
    * Thrown when a failure occurs instantiating a decoder.
@@ -167,8 +152,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private final FormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
-  private final EventListener eventListener;
-  protected final Handler eventHandler;
 
   private Format format;
   private MediaCodec codec;
@@ -204,19 +187,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecTrackRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, EventListener eventListener) {
+      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
     codecCounters = new CodecCounters();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new FormatHolder();
@@ -311,13 +288,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     try {
       decoderInfo = getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
     } catch (DecoderQueryException e) {
-      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
-          requiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
+      throwDecoderInitError(new DecoderInitializationException(format, e, requiresSecureDecoder,
+          DecoderInitializationException.DECODER_QUERY_ERROR));
     }
 
     if (decoderInfo == null) {
-      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, null,
-          requiresSecureDecoder, DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
+      throwDecoderInitError(new DecoderInitializationException(format, null, requiresSecureDecoder,
+          DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
     }
 
     String codecName = decoderInfo.name;
@@ -339,13 +316,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codec.start();
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      notifyDecoderInitialized(codecName, codecInitializedTimestamp,
+      onCodecInitialized(codecName, codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
     } catch (Exception e) {
-      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
-          requiresSecureDecoder, codecName));
+      throwDecoderInitError(new DecoderInitializationException(format, e, requiresSecureDecoder,
+          codecName));
     }
     codecHotswapDeadlineMs = getState() == TrackRenderer.STATE_STARTED
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;
@@ -354,9 +331,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecCounters.codecInitCount++;
   }
 
-  private void notifyAndThrowDecoderInitError(DecoderInitializationException e)
+  private void throwDecoderInitError(DecoderInitializationException e)
       throws ExoPlaybackException {
-    notifyDecoderInitializationError(e);
     throw ExoPlaybackException.createForRenderer(e, getIndex());
   }
 
@@ -575,7 +551,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
           inputIndex = -1;
         }
       } catch (CryptoException e) {
-        notifyCryptoError(e);
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       return false;
@@ -613,7 +588,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecCounters.inputBufferCount++;
     } catch (CryptoException e) {
-      notifyCryptoError(e);
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     return true;
@@ -645,6 +619,21 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
     return drmManagerState != DrmSessionManager.STATE_OPENED_WITH_KEYS
         && (bufferEncrypted || !playClearSamplesWithoutKeys);
+  }
+
+  /**
+   * Invoked when a {@link MediaCodec} has been created and configured.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param name The name of the codec that was initialized.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
+   * @param initializationDurationMs The time taken to initialize the codec in milliseconds.
+   */
+  protected void onCodecInitialized(String name, long initializedTimestampMs,
+      long initializationDurationMs) {
+    // Do nothing.
   }
 
   /**
@@ -875,41 +864,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     } else {
       outputStreamEnded = true;
       onOutputStreamEnded();
-    }
-  }
-
-  private void notifyDecoderInitializationError(final DecoderInitializationException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDecoderInitializationError(e);
-        }
-      });
-    }
-  }
-
-  private void notifyCryptoError(final CryptoException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onCryptoError(e);
-        }
-      });
-    }
-  }
-
-  private void notifyDecoderInitialized(final String decoderName,
-      final long initializedTimestamp, final long initializationDuration) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onDecoderInitialized(decoderName, initializedTimestamp,
-              initializationDuration);
-        }
-      });
     }
   }
 

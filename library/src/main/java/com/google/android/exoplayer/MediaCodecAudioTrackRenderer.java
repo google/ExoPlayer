@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.AudioTrackRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioTrack;
@@ -41,15 +42,6 @@ import java.nio.ByteBuffer;
 public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implements MediaClock {
 
   /**
-   * Interface definition for a callback to be notified of {@link MediaCodecAudioTrackRenderer}
-   * events.
-   */
-  public interface EventListener extends MediaCodecTrackRenderer.EventListener,
-      AudioTrackRendererEventListener {
-    // No extra methods
-  }
-
-  /**
    * The type of a message that can be passed to an instance of this class via
    * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
@@ -65,7 +57,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 2;
 
-  private final EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final AudioTrack audioTrack;
 
   private boolean passthroughEnabled;
@@ -107,7 +99,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector, Handler eventHandler,
-      EventListener eventListener) {
+      AudioTrackRendererEventListener eventListener) {
     this(mediaCodecSelector, null, true, eventHandler, eventListener);
   }
 
@@ -126,7 +118,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    */
   public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, EventListener eventListener) {
+      Handler eventHandler, AudioTrackRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener, null, AudioManager.STREAM_MUSIC);
   }
@@ -149,13 +141,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    */
   public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, EventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType) {
-    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
-        eventListener);
-    this.eventListener = eventListener;
-    this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    this.audioTrack = new AudioTrack(audioCapabilities, streamType);
+      Handler eventHandler, AudioTrackRendererEventListener eventListener,
+      AudioCapabilities audioCapabilities, int streamType) {
+    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
+    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    audioTrack = new AudioTrack(audioCapabilities, streamType);
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
   @Override
@@ -236,6 +227,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
+  protected void onCodecInitialized(String name, long initializedTimestampMs,
+      long initializationDurationMs) {
+    eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
+  }
+
+  @Override
   protected void onInputFormatChanged(FormatHolder holder) throws ExoPlaybackException {
     super.onInputFormatChanged(holder);
     // If the input format is anything other than PCM then we assume that the audio decoder will
@@ -275,7 +272,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
     super.onEnabled(formats, joining);
-    notifyAudioCodecCounters();
+    eventDispatcher.codecCounters(codecCounters);
   }
 
   @Override
@@ -357,7 +354,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
         }
         audioTrackHasData = false;
       } catch (AudioTrack.InitializationException e) {
-        notifyAudioTrackInitializationError(e);
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       if (getState() == TrackRenderer.STATE_STARTED) {
@@ -371,7 +367,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
         long bufferSizeUs = audioTrack.getBufferSizeUs();
         long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;
-        notifyAudioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs, elapsedSinceLastFeedMs);
+        eventDispatcher.audioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs,
+            elapsedSinceLastFeedMs);
       }
     }
 
@@ -380,7 +377,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       handleBufferResult = audioTrack.handleBuffer(buffer, bufferPresentationTimeUs);
       lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } catch (AudioTrack.WriteException e) {
-      notifyAudioTrackWriteError(e);
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
 
@@ -421,51 +417,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       default:
         super.handleMessage(messageType, message);
         break;
-    }
-  }
-
-  private void notifyAudioTrackInitializationError(final AudioTrack.InitializationException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onAudioTrackInitializationError(e);
-        }
-      });
-    }
-  }
-
-  private void notifyAudioTrackWriteError(final AudioTrack.WriteException e) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onAudioTrackWriteError(e);
-        }
-      });
-    }
-  }
-
-  private void notifyAudioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
-      final long elapsedSinceLastFeedMs) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
-        }
-      });
-    }
-  }
-
-  private void notifyAudioCodecCounters() {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onAudioCodecCounters(codecCounters);
-        }
-      });
     }
   }
 

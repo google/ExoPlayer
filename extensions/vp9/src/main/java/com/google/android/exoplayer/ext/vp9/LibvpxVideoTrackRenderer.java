@@ -25,6 +25,7 @@ import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.VideoTrackRendererEventListener;
+import com.google.android.exoplayer.VideoTrackRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.graphics.Bitmap;
@@ -56,8 +57,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   public final CodecCounters codecCounters = new CodecCounters();
 
   private final boolean scaleToFit;
-  private final Handler eventHandler;
-  private final VideoTrackRendererEventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final int maxDroppedFrameCountToNotify;
   private final FormatHolder formatHolder;
 
@@ -103,12 +103,11 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   public LibvpxVideoTrackRenderer(boolean scaleToFit, Handler eventHandler,
       VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     this.scaleToFit = scaleToFit;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
     previousWidth = -1;
     previousHeight = -1;
     formatHolder = new FormatHolder();
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
   }
 
@@ -156,7 +155,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
         decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
         decoder.setOutputMode(outputMode);
         long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-        notifyDecoderInitialized(decoder.getName(), codecInitializedTimestamp,
+        eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
             codecInitializedTimestamp - codecInitializingTimestamp);
         codecCounters.codecInitCount++;
       }
@@ -208,7 +207,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       codecCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(consecutiveDroppedFrameCount,
           codecCounters.maxConsecutiveDroppedOutputBufferCount);
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
-        notifyAndResetDroppedFrameCount();
+        maybeNotifyDroppedFrameCount();
       }
       outputBuffer.release();
       outputBuffer = null;
@@ -233,12 +232,12 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   private void renderBuffer() {
     codecCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    notifyIfVideoSizeChanged(outputBuffer.width, outputBuffer.height);
+    maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
       renderRgbFrame(outputBuffer, scaleToFit);
       if (!drawnToSurface) {
         drawnToSurface = true;
-        notifyDrawnToSurface(surface);
+        eventDispatcher.drawnToSurface(surface);
       }
       outputBuffer.release();
     } else if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null) {
@@ -334,7 +333,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
-    notifyVideoCodecCounters();
+    eventDispatcher.codecCounters(codecCounters);
   }
 
   @Override
@@ -345,7 +344,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onStopped() {
-    notifyAndResetDroppedFrameCount();
+    maybeNotifyDroppedFrameCount();
   }
 
   @Override
@@ -410,70 +409,21 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void notifyIfVideoSizeChanged(final int width, final int height) {
-    if (previousWidth == -1 || previousHeight == -1 || previousWidth != width
-        || previousHeight != height) {
+  private void maybeNotifyVideoSizeChanged(final int width, final int height) {
+    if (previousWidth != width || previousHeight != height) {
       previousWidth = width;
       previousHeight = height;
-      if (eventHandler != null && eventListener != null) {
-        eventHandler.post(new Runnable()  {
-          @Override
-          public void run() {
-            eventListener.onVideoSizeChanged(width, height, 0, 1);
-          }
-        });
-      }
+      eventDispatcher.videoSizeChanged(width, height, 0, 1);
     }
   }
 
-  private void notifyAndResetDroppedFrameCount() {
-    if (eventHandler != null && eventListener != null && droppedFrameCount > 0) {
+  private void maybeNotifyDroppedFrameCount() {
+    if (droppedFrameCount > 0) {
       long now = SystemClock.elapsedRealtime();
-      final int countToNotify = droppedFrameCount;
-      final long elapsedToNotify = now - droppedFrameAccumulationStartTimeMs;
+      long elapsedMs = now - droppedFrameAccumulationStartTimeMs;
+      eventDispatcher.droppedFrameCount(droppedFrameCount, elapsedMs);
       droppedFrameCount = 0;
       droppedFrameAccumulationStartTimeMs = now;
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDroppedFrames(countToNotify, elapsedToNotify);
-        }
-      });
-    }
-  }
-
-  private void notifyDrawnToSurface(final Surface surface) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDrawnToSurface(surface);
-        }
-      });
-    }
-  }
-
-  private void notifyDecoderInitialized(final String decoderName,
-      final long initializedTimestamp, final long initializationDuration) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onDecoderInitialized(decoderName, initializedTimestamp,
-              initializationDuration);
-        }
-      });
-    }
-  }
-
-  private void notifyVideoCodecCounters() {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onVideoCodecCounters(codecCounters);
-        }
-      });
     }
   }
 

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import com.google.android.exoplayer.AudioTrackRendererEventListener;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
@@ -31,7 +32,6 @@ import com.google.android.exoplayer.SingleSampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.VideoTrackRendererEventListener;
 import com.google.android.exoplayer.audio.AudioCapabilities;
-import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
@@ -50,7 +50,6 @@ import com.google.android.exoplayer.util.PlayerControl;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaCodec;
-import android.media.MediaCodec.CryptoException;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
@@ -67,7 +66,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.EventListener,
     ChunkTrackStreamEventListener, ExtractorSampleSource.EventListener,
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
-    MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
+    VideoTrackRendererEventListener, AudioTrackRendererEventListener,
     StreamingDrmSessionManager.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,
     DebugTextViewHelper.Provider {
 
@@ -91,12 +90,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
    * will be invoked.
    */
   public interface InternalErrorListener {
-    void onRendererInitializationError(Exception e);
-    void onAudioTrackInitializationError(AudioTrack.InitializationException e);
-    void onAudioTrackWriteError(AudioTrack.WriteException e);
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
-    void onDecoderInitializationError(Exception e);
-    void onCryptoError(CryptoException e);
     void onLoadError(int sourceId, IOException e);
     void onDrmSessionManagerError(Exception e);
   }
@@ -105,16 +99,18 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
    * A listener for debugging information.
    */
   public interface InfoListener {
-    void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs);
+    void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+        long initializationDurationMs);
+    void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+        long initializationDurationMs);
     void onAudioFormatEnabled(Format format, int trigger, long mediaTimeMs);
+    void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs);
     void onDroppedFrames(int count, long elapsed);
     void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate);
     void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
         long mediaStartTimeMs, long mediaEndTimeMs);
     void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
         long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
-    void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
-        long initializationDurationMs);
   }
 
   /**
@@ -355,27 +351,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onDecoderInitializationError(Exception e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onDecoderInitializationError(e);
-    }
-  }
-
-  @Override
-  public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onAudioTrackInitializationError(e);
-    }
-  }
-
-  @Override
-  public void onAudioTrackWriteError(AudioTrack.WriteException e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onAudioTrackWriteError(e);
-    }
-  }
-
-  @Override
   public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     if (internalErrorListener != null) {
       internalErrorListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
@@ -388,17 +363,11 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onCryptoError(CryptoException e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onCryptoError(e);
-    }
-  }
-
-  @Override
-  public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+  public void onAudioDecoderInitialized(String decoderName, long initializedTimestampMs,
       long initializationDurationMs) {
     if (infoListener != null) {
-      infoListener.onDecoderInitialized(decoderName, elapsedRealtimeMs, initializationDurationMs);
+      infoListener.onAudioDecoderInitialized(decoderName, initializedTimestampMs,
+          initializationDurationMs);
     }
   }
 
@@ -436,6 +405,15 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   @Override
   public void onVideoCodecCounters(CodecCounters counters) {
     this.videoCodecCounters = counters;
+  }
+
+  @Override
+  public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs,
+      long initializationDurationMs) {
+    if (infoListener != null) {
+      infoListener.onVideoDecoderInitialized(decoderName, initializedTimestampMs,
+          initializationDurationMs);
+    }
   }
 
   @Override
