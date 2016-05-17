@@ -144,7 +144,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   protected Format getOutputFormat() {
     return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, Format.NO_VALUE,
         Format.NO_VALUE, inputFormat.channelCount, inputFormat.sampleRate, C.ENCODING_PCM_16BIT,
-        null, null, null);
+        null, null, 0, null);
   }
 
   private boolean drainOutputBuffer() throws AudioDecoderException,

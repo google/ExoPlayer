@@ -34,7 +34,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   public SeiReader(TrackOutput output) {
     this.output = output;
     output.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_EIA608, Format.NO_VALUE,
-        null, null));
+        0, null, null));
   }
 
   public void consume(long pesTimeUs, ParsableByteArray seiBuffer) {

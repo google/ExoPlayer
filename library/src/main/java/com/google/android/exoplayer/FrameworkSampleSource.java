@@ -333,7 +333,7 @@ public final class FrameworkSampleSource implements SampleSource {
     int pcmEncoding = MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT : Format.NO_VALUE;
     Format format = new Format(Integer.toString(index), null, mimeType, Format.NO_VALUE,
         maxInputSize, width, height, frameRate, rotationDegrees, Format.NO_VALUE, channelCount,
-        sampleRate, pcmEncoding, encoderDelay, encoderPadding, language,
+        sampleRate, pcmEncoding, encoderDelay, encoderPadding, 0, language,
         Format.OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData, false);
     format.setFrameworkMediaFormatV16(mediaFormat);
     return format;

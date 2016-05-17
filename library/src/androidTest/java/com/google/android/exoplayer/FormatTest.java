@@ -60,7 +60,7 @@ public final class FormatTest extends TestCase {
     DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
 
     Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, 1024, 2048,
-        1920, 1080, 24, 90, 2, 6, 44100, C.ENCODING_PCM_24BIT, 1001, 1002, "und",
+        1920, 1080, 24, 90, 2, 6, 44100, C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und",
         Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData, false);
 
     Parcel parcel = Parcel.obtain();
@@ -84,13 +84,13 @@ public final class FormatTest extends TestCase {
     testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(null, "video/xyz", 5000,
         Format.NO_VALUE, 1280, 720, 30, null, null));
     testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", 500,
-        128, 5, 44100, INIT_DATA, null, null));
+        128, 5, 44100, INIT_DATA, null, 0, null));
     testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", 500,
-        Format.NO_VALUE, 5, 44100, null, null, null));
+        Format.NO_VALUE, 5, 44100, null, null, 0, null));
     testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz",
-        Format.NO_VALUE, "eng", null));
+        Format.NO_VALUE, 0, "eng", null));
     testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz",
-        Format.NO_VALUE, null, null));
+        Format.NO_VALUE, 0, null, null));
   }
 
   @SuppressLint("InlinedApi")

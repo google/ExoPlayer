@@ -106,7 +106,7 @@ public final class FlacExtractor implements Extractor {
 
       Format mediaFormat = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW,
           streamInfo.bitRate(), Format.NO_VALUE, streamInfo.channels, streamInfo.sampleRate,
-          C.ENCODING_PCM_16BIT, null, null, null);
+          C.ENCODING_PCM_16BIT, null, null, 0, null);
       trackOutput.format(mediaFormat);
 
       outputBuffer = new ParsableByteArray(streamInfo.maxDecodedFrameSize());
@@ -120,8 +120,8 @@ public final class FlacExtractor implements Extractor {
     }
     trackOutput.sampleData(outputBuffer, size);
 
-    trackOutput
-        .sampleMetadata(decoder.getLastSampleTimestamp(), C.BUFFER_FLAG_KEY_FRAME, size, 0, null);
+    trackOutput.sampleMetadata(decoder.getLastSampleTimestamp(), C.BUFFER_FLAG_KEY_FRAME, size, 0,
+        null);
 
     return decoder.isEndOfData() ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }

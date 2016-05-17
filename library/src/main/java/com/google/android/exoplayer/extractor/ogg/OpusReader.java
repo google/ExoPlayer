@@ -74,7 +74,7 @@ import java.util.List;
         List<byte[]> initializationData = Collections.singletonList(metadata);
         trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS,
             Format.NO_VALUE, Format.NO_VALUE, channelCount, SAMPLE_RATE,
-            initializationData, null, null));
+            initializationData, null, 0, null));
         state = STATE_READ_TAGS;
       } break;
       case STATE_READ_TAGS:

@@ -411,9 +411,9 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
             width, height, frameRate, null);
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
-            audioChannels, audioSamplingRate, null, language);
+            audioChannels, audioSamplingRate, null, 0, language);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
-        return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+        return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, bitrate, 0,
             language);
       } else {
         return Format.createContainerFormat(id, containerMimeType, sampleMimeType, bitrate);

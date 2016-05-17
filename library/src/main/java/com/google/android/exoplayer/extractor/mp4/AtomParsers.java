@@ -602,16 +602,16 @@ import java.util.List;
             language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language, drmInitData);
+            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, 0, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TX3G, Format.NO_VALUE, language, drmInitData);
+            MimeTypes.APPLICATION_TX3G, Format.NO_VALUE, 0, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_wvtt) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_MP4VTT, Format.NO_VALUE, language, drmInitData);
+            MimeTypes.APPLICATION_MP4VTT, Format.NO_VALUE, 0, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_stpp) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language, drmInitData,
+            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, 0, language, drmInitData,
             0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -948,7 +948,7 @@ import java.util.List;
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData,
+            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0,
             language);
         return;
       }
@@ -966,7 +966,7 @@ import java.util.List;
     out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
         Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
         initializationData == null ? null : Collections.singletonList(initializationData),
-        drmInitData, language);
+        drmInitData, 0, language);
   }
 
   /** Returns the position of the esds box within a parent, or -1 if no esds box is found */

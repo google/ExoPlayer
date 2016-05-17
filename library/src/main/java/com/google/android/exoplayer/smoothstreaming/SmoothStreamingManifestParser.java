@@ -641,11 +641,11 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
             parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, bitrate,
-            channels, samplingRate, codecSpecificData, language);
+            channels, samplingRate, codecSpecificData, 0, language);
       } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
-            bitrate, language);
+            bitrate, 0, language);
       } else {
         format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
             bitrate);

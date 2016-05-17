@@ -1324,7 +1324,7 @@ public final class MatroskaExtractor implements Extractor {
       if (MimeTypes.isAudio(mimeType)) {
         format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
             Format.NO_VALUE, maxInputSize, channelCount, sampleRate, pcmEncoding,
-            initializationData, drmInitData, language);
+            initializationData, drmInitData, 0, language);
       } else if (MimeTypes.isVideo(mimeType)) {
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
           displayWidth = displayWidth == Format.NO_VALUE ? width : displayWidth;
@@ -1339,7 +1339,7 @@ public final class MatroskaExtractor implements Extractor {
             Format.NO_VALUE, pixelWidthHeightRatio, drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
-            language, drmInitData);
+            0, language, drmInitData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
         format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType,

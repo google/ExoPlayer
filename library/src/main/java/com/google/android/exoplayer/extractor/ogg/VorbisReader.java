@@ -96,7 +96,7 @@ import java.util.ArrayList;
       trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_VORBIS,
           this.vorbisSetup.idHeader.bitrateNominal, OggParser.OGG_MAX_SEGMENT_SIZE * 255,
           this.vorbisSetup.idHeader.channels, (int) this.vorbisSetup.idHeader.sampleRate,
-          codecInitialisationData, null, null));
+          codecInitialisationData, null, 0, null));
 
       if (inputLength != C.LENGTH_UNBOUNDED) {
         oggSeeker.setup(inputLength - audioStartPosition, totalSamples);
