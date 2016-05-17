@@ -163,6 +163,10 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   @Override
   public void seek() {
+    int trackCount = trackBundles.size();
+    for (int i = 0; i < trackCount; i++) {
+      trackBundles.valueAt(i).reset();
+    }
     containerAtoms.clear();
     enterReadingAtomHeaderState();
   }
@@ -340,12 +344,15 @@ public final class FragmentedMp4Extractor implements Extractor {
     // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     SparseArray<DefaultSampleValues> defaultSampleValuesArray = new SparseArray<>();
+    long duration = -1;
     int mvexChildrenSize = mvex.leafChildren.size();
     for (int i = 0; i < mvexChildrenSize; i++) {
       Atom.LeafAtom atom = mvex.leafChildren.get(i);
       if (atom.type == Atom.TYPE_trex) {
         Pair<Integer, DefaultSampleValues> trexData = parseTrex(atom.data);
         defaultSampleValuesArray.put(trexData.first, trexData.second);
+      } else if (atom.type == Atom.TYPE_mehd) {
+        duration = parseMehd(atom.data);
       }
     }
 
@@ -355,7 +362,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < moovContainerChildrenSize; i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
-        Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
+        Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), duration,
+            false);
         if (track != null) {
           tracks.put(track.id, track);
         }
@@ -399,6 +407,16 @@ public final class FragmentedMp4Extractor implements Extractor {
         defaultSampleDuration, defaultSampleSize, defaultSampleFlags));
   }
 
+  /**
+   * Parses an mehd atom (defined in 14496-12).
+   */
+  private static long parseMehd(ParsableByteArray mehd) {
+    mehd.setPosition(Atom.HEADER_SIZE);
+    int fullAtom = mehd.readInt();
+    int version = Atom.parseFullAtomVersion(fullAtom);
+    return version == 0 ? mehd.readUnsignedInt() : mehd.readUnsignedLongToLong();
+  }
+
   private static void parseMoof(ContainerAtom moof, SparseArray<TrackBundle> trackBundleArray,
       int flags, byte[] extendedTypeScratch) throws ParserException {
     int moofContainerChildrenSize = moof.containerChildren.size();
@@ -424,15 +442,13 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (trackBundle == null) {
       return;
     }
+
     TrackFragment fragment = trackBundle.fragment;
-    trackBundle.currentSampleIndex = 0;
-    fragment.reset();
+    long decodeTime = fragment.nextFragmentDecodeTime;
+    trackBundle.reset();
 
     LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
-    long decodeTime;
-    if (tfdtAtom == null || (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) != 0) {
-      decodeTime = 0;
-    } else {
+    if (tfdtAtom != null && (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) == 0) {
       decodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
     }
 
@@ -658,6 +674,7 @@ public final class FragmentedMp4Extractor implements Extractor {
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
       cumulativeTime += sampleDuration;
     }
+    fragment.nextFragmentDecodeTime = cumulativeTime;
   }
 
   private static void parseUuid(ParsableByteArray uuid, TrackFragment out,
@@ -958,7 +975,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_tfhd || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_trex
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_pssh || atom == Atom.TYPE_saiz
         || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid
-        || atom == Atom.TYPE_elst;
+        || atom == Atom.TYPE_elst || atom == Atom.TYPE_mehd;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */
@@ -989,6 +1006,10 @@ public final class FragmentedMp4Extractor implements Extractor {
       this.track = Assertions.checkNotNull(track);
       this.defaultSampleValues = Assertions.checkNotNull(defaultSampleValues);
       output.format(track.mediaFormat);
+      reset();
+    }
+
+    public void reset() {
       fragment.reset();
       currentSampleIndex = 0;
     }

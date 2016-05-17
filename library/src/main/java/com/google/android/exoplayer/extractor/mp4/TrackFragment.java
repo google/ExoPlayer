@@ -80,15 +80,20 @@ import java.io.IOException;
    * Whether {@link #sampleEncryptionData} needs populating with the actual encryption data.
    */
   public boolean sampleEncryptionDataNeedsFill;
+  /**
+   * The absolute decode time of the start of the next fragment.
+   */
+  public long nextFragmentDecodeTime;
 
   /**
    * Resets the fragment.
    * <p>
-   * The {@link #length} is set to 0, and both {@link #definesEncryptionData} and
-   * {@link #sampleEncryptionDataNeedsFill} is set to false.
+   * {@link #length} and {@link #nextFragmentDecodeTime} are set to 0, and both
+   * {@link #definesEncryptionData} and {@link #sampleEncryptionDataNeedsFill} is set to false.
    */
   public void reset() {
     length = 0;
+    nextFragmentDecodeTime = 0;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
   }
