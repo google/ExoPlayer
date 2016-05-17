@@ -50,11 +50,13 @@ import java.util.List;
    *
    * @param trak Atom to parse.
    * @param mvhd Movie header atom, used to get the timescale.
+   * @param duration The duration in units of the timescale declared in the mvhd atom, or -1 if the
+   *     duration should be parsed from the tkhd atom.
    * @param drmInitData {@link DrmInitData} to be included in the format.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
-  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd,
+  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, long duration,
       DrmInitData drmInitData, boolean isQuickTime) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
@@ -63,7 +65,9 @@ import java.util.List;
     }
 
     TkhdData tkhdData = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
-    long duration = tkhdData.duration;
+    if (duration == -1) {
+      duration = tkhdData.duration;
+    }
     long movieTimescale = parseMvhd(mvhd.data);
     long durationUs;
     if (duration == -1) {
@@ -490,6 +494,11 @@ import java.util.List;
       duration = -1;
     } else {
       duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
+      if (duration == 0) {
+        // 0 duration normally indicates that the file is fully fragmented (i.e. all of the media
+        // samples are in fragments). Treat as unknown.
+        duration = -1;
+      }
     }
 
     tkhd.skipBytes(16);
