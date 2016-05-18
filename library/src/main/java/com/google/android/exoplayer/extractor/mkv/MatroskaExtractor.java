@@ -114,6 +114,8 @@ public final class MatroskaExtractor implements Extractor {
   private static final int ID_TRACK_ENTRY = 0xAE;
   private static final int ID_TRACK_NUMBER = 0xD7;
   private static final int ID_TRACK_TYPE = 0x83;
+  private static final int ID_FLAG_DEFAULT = 0x88;
+  private static final int ID_FLAG_FORCED = 0x55AA;
   private static final int ID_DEFAULT_DURATION = 0x23E383;
   private static final int ID_CODEC_ID = 0x86;
   private static final int ID_CODEC_PRIVATE = 0x63A2;
@@ -349,6 +351,8 @@ public final class MatroskaExtractor implements Extractor {
       case ID_DISPLAY_UNIT:
       case ID_TRACK_NUMBER:
       case ID_TRACK_TYPE:
+      case ID_FLAG_DEFAULT:
+      case ID_FLAG_FORCED:
       case ID_DEFAULT_DURATION:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
@@ -550,6 +554,12 @@ public final class MatroskaExtractor implements Extractor {
         return;
       case ID_TRACK_NUMBER:
         currentTrack.number = (int) value;
+        return;
+      case ID_FLAG_DEFAULT:
+        currentTrack.flagForced = value == 1;
+        return;
+      case ID_FLAG_FORCED:
+        currentTrack.flagDefault = value == 1;
         return;
       case ID_TRACK_TYPE:
         currentTrack.type = (int) value;
@@ -1195,6 +1205,8 @@ public final class MatroskaExtractor implements Extractor {
     public long seekPreRollNs = 0;
 
     // Text elements.
+    public boolean flagForced;
+    public boolean flagDefault = true;
     private String language = "eng";
 
     // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
@@ -1319,12 +1331,15 @@ public final class MatroskaExtractor implements Extractor {
       }
 
       Format format;
+      int selectionFlags = 0;
+      selectionFlags |= flagDefault ? Format.SELECTION_FLAG_DEFAULT : 0;
+      selectionFlags |= flagForced ? Format.SELECTION_FLAG_FORCED : 0;
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
         format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
             Format.NO_VALUE, maxInputSize, channelCount, sampleRate, pcmEncoding,
-            initializationData, drmInitData, 0, language);
+            initializationData, drmInitData, selectionFlags, language);
       } else if (MimeTypes.isVideo(mimeType)) {
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
           displayWidth = displayWidth == Format.NO_VALUE ? width : displayWidth;
@@ -1339,7 +1354,7 @@ public final class MatroskaExtractor implements Extractor {
             Format.NO_VALUE, pixelWidthHeightRatio, drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
-            0, language, drmInitData);
+            selectionFlags, language, drmInitData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
         format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType,
