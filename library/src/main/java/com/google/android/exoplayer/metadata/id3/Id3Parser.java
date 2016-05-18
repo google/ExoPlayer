@@ -107,6 +107,41 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
         System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
             objectDataSize);
         id3Frames.add(new GeobFrame(mimeType, filename, description, objectData));
+
+      } else if (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C') {
+        // Check frame ID == APIC
+        int encoding = id3Data.readUnsignedByte();
+        String charset = getCharsetName(encoding);
+
+        byte[] frame = new byte[frameSize - 1];
+        id3Data.readBytes(frame, 0, frameSize - 1);
+
+        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
+        String mimeType = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
+        byte pictureType = frame[firstZeroIndex+1];
+
+        int descriptionStartIndex = firstZeroIndex + 2;
+        int descriptionEndIndex = indexOfEOS(frame, descriptionStartIndex, encoding);
+        String description = new String(frame, descriptionStartIndex,
+                descriptionEndIndex - descriptionStartIndex, charset);
+
+        int objectDataSize = frameSize - 1 /* encoding byte */ - descriptionEndIndex
+                - delimiterLength(encoding);
+        byte[] objectData = new byte[objectDataSize];
+        System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
+                objectDataSize);
+        id3Frames.add(new ApicFrame(mimeType, pictureType, description, objectData));
+      } else if (frameId0 == 'T' && frameId1 == 'I' && frameId2 == 'T' && frameId3 == '2') {
+        // Check frame ID == TIT2
+        int encoding = id3Data.readUnsignedByte();
+        String charset = getCharsetName(encoding);
+
+        byte[] frame = new byte[frameSize - 1];
+        id3Data.readBytes(frame, 0, frameSize - 1);
+
+        String description = new String(frame, 0, indexOfEOS(frame, 0, encoding), charset);
+
+        id3Frames.add(new Tit2Frame(description));
       } else {
         String type = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];

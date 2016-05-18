@@ -41,4 +41,43 @@ public class Id3ParserTest extends TestCase {
     }
   }
 
+  public void testParseApicFrames() {
+    byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 45, 65, 80, 73, 67, 0, 0, 0, 35, 0, 0,
+        3, 105, 109, 97, 103, 101, 47, 106, 112, 101, 103, 0,
+        16, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    Id3Parser parser = new Id3Parser();
+    try {
+      List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
+      assertNotNull(id3Frames);
+      assertEquals(1, id3Frames.size());
+      ApicFrame apicFrame = (ApicFrame) id3Frames.get(0);
+      assertEquals("image/jpeg", apicFrame.mimeType);
+      assertEquals(16, apicFrame.pictureType);
+      assertEquals("Hello World", apicFrame.description);
+      assertEquals(10, apicFrame.pictureData.length);
+      byte[] dataArray = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+      for (int i=0; i<apicFrame.pictureData.length; i++) {
+        assertEquals(dataArray[i], apicFrame.pictureData[i]);
+      }
+    } catch (Exception exception) {
+      fail(exception.getMessage());
+    }
+  }
+
+  public void testParseTit2Frames() {
+    byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 23, 84, 73, 84, 50, 0, 0, 0, 13, 0, 0,
+        3, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0};
+    Id3Parser parser = new Id3Parser();
+    try {
+      List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
+      assertNotNull(id3Frames);
+      assertEquals(1, id3Frames.size());
+      Tit2Frame tit2Frame = (Tit2Frame) id3Frames.get(0);
+      assertEquals("Hello World", tit2Frame.description);
+    } catch (Exception exception) {
+      fail(exception.getMessage());
+    }
+  }
+
 }
