@@ -16,17 +16,23 @@
 package com.google.android.exoplayer.metadata.id3;
 
 /**
- * TIT2 (Title/songname/content description) ID3 frame.
+ * APIC (Attached Picture) ID3 frame.
  */
-public class TIT2Frame extends Id3Frame {
+public final class ApicFrame extends Id3Frame {
+  public static final String ID = "APIC";
 
-  public static final String ID = "TIT2";
-
+  public final String mimeType;
+  public final byte pictureType;
   public final String description;
+  public final byte[] pictureData;
 
-  public TIT2Frame(String data) {
+  public ApicFrame(String mimeType, byte pictureType, String description, byte[] pictureData) {
     super(ID);
-    this.description = data;
+    this.mimeType = mimeType;
+    this.pictureType = pictureType;
+    this.description = description;
+    this.pictureData = pictureData;
   }
+
 
 }
