@@ -73,8 +73,9 @@ public class Id3ParserTest extends TestCase {
       List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
       assertNotNull(id3Frames);
       assertEquals(1, id3Frames.size());
-      Tit2Frame tit2Frame = (Tit2Frame) id3Frames.get(0);
-      assertEquals("Hello World", tit2Frame.description);
+      TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frames.get(0);
+      assertEquals("TIT2", textInformationFrame.id);
+      assertEquals("Hello World", textInformationFrame.description);
     } catch (Exception exception) {
       fail(exception.getMessage());
     }

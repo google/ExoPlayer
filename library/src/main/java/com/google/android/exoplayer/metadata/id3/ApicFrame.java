@@ -19,20 +19,20 @@ package com.google.android.exoplayer.metadata.id3;
  * APIC (Attached Picture) ID3 frame.
  */
 public final class ApicFrame extends Id3Frame {
+
   public static final String ID = "APIC";
 
   public final String mimeType;
-  public final byte pictureType;
   public final String description;
+  public final int pictureType;
   public final byte[] pictureData;
 
-  public ApicFrame(String mimeType, byte pictureType, String description, byte[] pictureData) {
+  public ApicFrame(String mimeType, String description, int pictureType, byte[] pictureData) {
     super(ID);
     this.mimeType = mimeType;
-    this.pictureType = pictureType;
     this.description = description;
+    this.pictureType = pictureType;
     this.pictureData = pictureData;
   }
-
 
 }

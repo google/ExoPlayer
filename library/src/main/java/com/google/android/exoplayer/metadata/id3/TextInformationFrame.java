@@ -16,17 +16,15 @@
 package com.google.android.exoplayer.metadata.id3;
 
 /**
- * TIT2 (Title/songname/content description) ID3 frame.
+ * Text information ("T000" - "TZZZ", excluding "TXXX") ID3 frame.
  */
-public final class Tit2Frame extends Id3Frame {
-
-  public static final String ID = "TIT2";
+public final class TextInformationFrame extends Id3Frame {
 
   public final String description;
 
-  public Tit2Frame(String data) {
-    super(ID);
-    this.description = data;
+  public TextInformationFrame(String id, String description) {
+    super(id);
+    this.description = description;
   }
 
 }
