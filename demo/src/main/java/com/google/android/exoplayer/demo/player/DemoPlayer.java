@@ -33,6 +33,7 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
@@ -59,7 +60,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * SmoothStreaming and so on).
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
-    HlsSampleSource.EventListener, ExtractorSampleSource.EventListener,
+    HlsSampleSource.EventListener, HlsChunkSource.EventListener, ExtractorSampleSource.EventListener,
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
@@ -571,6 +572,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   @Override
   public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
     // Do nothing.
+  }
+
+  @Override
+  public void onManifestLoadCompleted(byte[] rawResponse)
+  {
+    // Do nothing
   }
 
   private void maybeReportPlayerState() {
