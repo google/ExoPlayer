@@ -43,8 +43,7 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
   }
 
   @Override
-  public List<Id3Frame> parse(byte[] data, int size) throws UnsupportedEncodingException,
-      ParserException {
+  public List<Id3Frame> parse(byte[] data, int size) throws ParserException {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
     int id3Size = parseId3Header(id3Data);
@@ -55,7 +54,6 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
       int frameId2 = id3Data.readUnsignedByte();
       int frameId3 = id3Data.readUnsignedByte();
       int frameSize = id3Data.readSynchSafeInt();
-
       if (frameSize <= 1) {
         break;
       }
@@ -63,24 +61,28 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
       // Skip frame flags.
       id3Data.skipBytes(2);
 
-      Id3Frame frame;
-      if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
-        frame = parseTxxxFrame(id3Data, frameSize);
-      } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
-        frame = parsePrivFrame(id3Data, frameSize);
-      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
-        frame = parseGeobFrame(id3Data, frameSize);
-      } else if (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C') {
-        frame = parseApicFrame(id3Data, frameSize);
-      } else if (frameId0 == 'T') {
-        String id = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
-        frame = parseTextInformationFrame(id3Data, frameSize, id);
-      } else {
-        String id = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
-        frame = parseBinaryFrame(id3Data, frameSize, id);
+      try {
+        Id3Frame frame;
+        if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
+          frame = parseTxxxFrame(id3Data, frameSize);
+        } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
+          frame = parsePrivFrame(id3Data, frameSize);
+        } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
+          frame = parseGeobFrame(id3Data, frameSize);
+        } else if (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C') {
+          frame = parseApicFrame(id3Data, frameSize);
+        } else if (frameId0 == 'T') {
+          String id = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
+          frame = parseTextInformationFrame(id3Data, frameSize, id);
+        } else {
+          String id = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
+          frame = parseBinaryFrame(id3Data, frameSize, id);
+        }
+        id3Frames.add(frame);
+        id3Size -= frameSize + 10 /* header size */;
+      } catch (UnsupportedEncodingException e) {
+        throw new ParserException(e);
       }
-      id3Frames.add(frame);
-      id3Size -= frameSize + 10 /* header size */;
     }
 
     return Collections.unmodifiableList(id3Frames);
