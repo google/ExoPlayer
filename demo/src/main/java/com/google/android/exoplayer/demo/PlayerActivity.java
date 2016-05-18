@@ -30,9 +30,12 @@ import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
+import com.google.android.exoplayer.metadata.id3.ApicFrame;
+import com.google.android.exoplayer.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer.metadata.id3.GeobFrame;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.metadata.id3.PrivFrame;
+import com.google.android.exoplayer.metadata.id3.Tit2Frame;
 import com.google.android.exoplayer.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
@@ -646,6 +649,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         GeobFrame geobFrame = (GeobFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
             geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
+      } else if (id3Frame instanceof ApicFrame){
+        ApicFrame apicFrame = (ApicFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, description=%s",
+                apicFrame.id, apicFrame.mimeType, apicFrame.description));
+      } else if (id3Frame instanceof Tit2Frame){
+        Tit2Frame tit2Frame = (Tit2Frame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s", tit2Frame.id, tit2Frame.description));
       } else {
         Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
       }
