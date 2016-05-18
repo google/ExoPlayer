@@ -632,7 +632,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
         @Override
         public void run() {
           eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs);
+              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs, null);
         }
       });
     }

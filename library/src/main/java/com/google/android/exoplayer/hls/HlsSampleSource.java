@@ -26,6 +26,7 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
+import com.google.android.exoplayer.chunk.DataChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -429,10 +430,15 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       previousTsLoadable = currentTsLoadable;
       notifyLoadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
           currentTsLoadable.trigger, currentTsLoadable.format, currentTsLoadable.startTimeUs,
-          currentTsLoadable.endTimeUs, now, loadDurationMs);
+          currentTsLoadable.endTimeUs, now, loadDurationMs, null);
     } else {
+      byte[] rawResponse = null;
+      if (currentLoadable instanceof DataChunk && currentLoadable.type == Chunk.TYPE_MANIFEST) {
+        DataChunk dataChunk = (DataChunk) currentLoadable;
+        rawResponse = Arrays.copyOf(dataChunk.getDataHolder(), (int) dataChunk.bytesLoaded());
+      }
       notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
-          currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
+          currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs, rawResponse);
     }
     clearCurrentLoadable();
     maybeStartLoading();
@@ -791,13 +797,13 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
   private void notifyLoadCompleted(final long bytesLoaded, final int type, final int trigger,
       final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs,
-      final long elapsedRealtimeMs, final long loadDurationMs) {
+      final long elapsedRealtimeMs, final long loadDurationMs, final byte[] rawResponse) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
           eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs);
+              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs, rawResponse);
         }
       });
     }

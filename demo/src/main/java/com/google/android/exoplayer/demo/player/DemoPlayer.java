@@ -126,7 +126,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
         long mediaStartTimeMs, long mediaEndTimeMs);
     void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
+        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, byte[] rawResponse);
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
@@ -556,10 +556,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-      long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
+      long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, byte[] rawResponse) {
     if (infoListener != null) {
       infoListener.onLoadCompleted(sourceId, bytesLoaded, type, trigger, format, mediaStartTimeMs,
-          mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs);
+          mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, rawResponse);
     }
   }
 
