@@ -327,6 +327,8 @@ public final class MediaCodecUtil {
         for (CodecProfileLevel profileLevel : decoderInfo.capabilities.profileLevels) {
           result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
         }
+        // We assume support for at least 360p.
+        result = Math.max(result, 480 * 360);
       }
       maxH264DecodableFrameSize = result;
     }
