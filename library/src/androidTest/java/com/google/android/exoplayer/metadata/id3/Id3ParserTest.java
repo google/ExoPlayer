@@ -33,7 +33,6 @@ public class Id3ParserTest extends TestCase {
         54, 52, 95, 115, 116, 97, 114, 116, 0};
     Id3Parser parser = new Id3Parser();
     List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
-    assertNotNull(id3Frames);
     assertEquals(1, id3Frames.size());
     TxxxFrame txxxFrame = (TxxxFrame) id3Frames.get(0);
     assertEquals("", txxxFrame.description);
@@ -46,7 +45,6 @@ public class Id3ParserTest extends TestCase {
         111, 114, 108, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     Id3Parser parser = new Id3Parser();
     List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
-    assertNotNull(id3Frames);
     assertEquals(1, id3Frames.size());
     ApicFrame apicFrame = (ApicFrame) id3Frames.get(0);
     assertEquals("image/jpeg", apicFrame.mimeType);
@@ -61,7 +59,6 @@ public class Id3ParserTest extends TestCase {
         3, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0};
     Id3Parser parser = new Id3Parser();
     List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
-    assertNotNull(id3Frames);
     assertEquals(1, id3Frames.size());
     TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frames.get(0);
     assertEquals("TIT2", textInformationFrame.id);
