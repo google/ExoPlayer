@@ -92,13 +92,13 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void onSampleSelected(Sample sample) {
-    Intent mpdIntent = new Intent(this, PlayerActivity.class)
+    Intent intent = new Intent(this, PlayerActivity.class)
         .setData(Uri.parse(sample.uri))
         .putExtra(PlayerActivity.CONTENT_ID_EXTRA, sample.contentId)
         .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type)
         .putExtra(PlayerActivity.PROVIDER_EXTRA, sample.provider)
         .putExtra(PlayerActivity.USE_EXTENSION_DECODERS, sample.useExtensionDecoders);
-    startActivity(mpdIntent);
+    startActivity(intent);
   }
 
   private static final class SampleAdapter extends BaseExpandableListAdapter {
