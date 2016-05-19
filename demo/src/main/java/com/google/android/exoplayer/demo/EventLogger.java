@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
+import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.TrackGroup;
@@ -65,7 +66,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onError(Exception e) {
+  public void onError(ExoPlaybackException e) {
     Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
   }
 

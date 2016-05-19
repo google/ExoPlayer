@@ -33,6 +33,8 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.VideoTrackRendererEventListener;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
+import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
@@ -75,7 +77,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
    */
   public interface Listener {
     void onStateChanged(boolean playWhenReady, int playbackState);
-    void onError(Exception e);
+    void onError(ExoPlaybackException e);
     void onTracksChanged(TrackInfo trackInfo);
     void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio);
@@ -86,8 +88,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
    * <p>
    * These errors are not visible to the user, and hence this listener is provided for
    * informational purposes only. Note however that an internal error may cause a fatal
-   * error if the player fails to recover. If this happens, {@link Listener#onError(Exception)}
-   * will be invoked.
+   * error if the player fails to recover. If this happens,
+   * {@link Listener#onError(ExoPlaybackException)} will be invoked.
    */
   public interface InternalErrorListener {
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
@@ -153,7 +155,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   private InfoListener infoListener;
   private CodecCounters videoCodecCounters;
 
-  public DemoPlayer(Context context, boolean useExtensionDecoders) {
+  public DemoPlayer(Context context, MediaDrmCallback drmCallback, boolean useExtensionDecoders) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
     listeners = new CopyOnWriteArrayList<>();
@@ -163,7 +165,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     if (useExtensionDecoders) {
       buildExtensionRenderers(renderersList);
     }
-    buildRenderers(context, renderersList);
+    buildRenderers(context, drmCallback, renderersList);
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
     // Build the player and associated objects.
@@ -460,14 +462,18 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     }
   }
 
-  private void buildRenderers(Context context, ArrayList<TrackRenderer> renderersList) {
-    MediaCodecVideoTrackRenderer videoRenderer =
-        new MediaCodecVideoTrackRenderer(context, MediaCodecSelector.DEFAULT,
-            MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, this, 50);
+  private void buildRenderers(Context context, MediaDrmCallback drmCallback,
+      ArrayList<TrackRenderer> renderersList) {
+    DrmSessionManager drmSessionManager = drmCallback == null ? null
+        : new StreamingDrmSessionManager(drmCallback, null, mainHandler, this);
+
+    MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
+        MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
+        drmSessionManager, false, mainHandler, this, 50);
     renderersList.add(videoRenderer);
 
-    TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(MediaCodecSelector.DEFAULT, null,
-        true, mainHandler, this, AudioCapabilities.getCapabilities(context),
+    TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(MediaCodecSelector.DEFAULT,
+        drmSessionManager, true, mainHandler, this, AudioCapabilities.getCapabilities(context),
         AudioManager.STREAM_MUSIC);
     renderersList.add(audioRenderer);
 

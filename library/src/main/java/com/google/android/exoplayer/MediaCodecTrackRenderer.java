@@ -266,6 +266,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       if (drmSessionManager == null) {
         throw ExoPlaybackException.createForRenderer(
             new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+      } else if (drmSessionManager.getState() == DrmSessionManager.STATE_ERROR) {
+        throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
       }
       if (!openedDrmSession) {
         drmSessionManager.open(Looper.myLooper(), format.drmInitData);

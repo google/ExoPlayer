@@ -27,6 +27,13 @@ import java.util.UUID;
 public interface MediaDrmCallback {
 
   /**
+   * Returns the {@link UUID} of the DRM scheme that this callback supports.
+   *
+   * @return The DRM scheme {@link UUID}.
+   */
+  UUID getUuid();
+
+  /**
    * Executes a provisioning request.
    *
    * @param uuid The UUID of the content protection scheme.
