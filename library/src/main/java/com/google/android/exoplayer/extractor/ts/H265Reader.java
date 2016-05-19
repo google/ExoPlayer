@@ -150,14 +150,15 @@ import java.util.Collections;
   }
 
   private void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
-    if (!hasOutputFormat) {
+    if (hasOutputFormat) {
+      sampleReader.startNalUnit(position, offset, nalUnitType, pesTimeUs);
+    } else {
       vps.startNalUnit(nalUnitType);
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
     }
     prefixSei.startNalUnit(nalUnitType);
     suffixSei.startNalUnit(nalUnitType);
-    sampleReader.startNalUnit(position, offset, nalUnitType, pesTimeUs);
   }
 
   private void nalUnitData(byte[] dataArray, int offset, int limit) {
@@ -393,10 +394,12 @@ import java.util.Collections;
     private int nalUnitBytesRead;
     private long nalUnitTimeUs;
     private boolean lookingForFirstSliceFlag;
-    private boolean firstSliceFlag;
+    private boolean isFirstSlice;
+    private boolean isFirstParameterSet;
 
     // Per sample state that gets reset at the start of each sample.
     private boolean readingSample;
+    private boolean writingParameterSets;
     private long samplePosition;
     private long sampleTimeUs;
     private boolean sampleIsKeyframe;
@@ -407,20 +410,32 @@ import java.util.Collections;
 
     public void reset() {
       lookingForFirstSliceFlag = false;
-      firstSliceFlag = false;
+      isFirstSlice = false;
+      isFirstParameterSet = false;
       readingSample = false;
+      writingParameterSets = false;
     }
 
     public void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
-      firstSliceFlag = false;
+      isFirstSlice = false;
+      isFirstParameterSet = false;
       nalUnitTimeUs = pesTimeUs;
       nalUnitBytesRead = 0;
       nalUnitStartPosition = position;
-      // Flush the previous sample when reading a non-VCL NAL unit.
-      if (nalUnitType >= VPS_NUT && readingSample) {
-        outputSample(offset);
-        readingSample = false;
+
+      if (nalUnitType >= VPS_NUT) {
+        if (!writingParameterSets && readingSample) {
+          // This is a non-VCL NAL unit, so flush the previous sample.
+          outputSample(offset);
+          readingSample = false;
+        }
+        if (nalUnitType <= PPS_NUT) {
+          // This sample will have parameter sets at the start.
+          isFirstParameterSet = !writingParameterSets;
+          writingParameterSets = true;
+        }
       }
+
       // Look for the flag if this NAL unit contains a slice_segment_layer_rbsp.
       nalUnitHasKeyframeData = (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT);
       lookingForFirstSliceFlag = nalUnitHasKeyframeData || nalUnitType <= RASL_R;
@@ -430,7 +445,7 @@ import java.util.Collections;
       if (lookingForFirstSliceFlag) {
         int headerOffset = offset + FIRST_SLICE_FLAG_OFFSET - nalUnitBytesRead;
         if (headerOffset < limit) {
-          firstSliceFlag = (data[headerOffset] & 0x80) != 0;
+          isFirstSlice = (data[headerOffset] & 0x80) != 0;
           lookingForFirstSliceFlag = false;
         } else {
           nalUnitBytesRead += limit - offset;
@@ -439,9 +454,14 @@ import java.util.Collections;
     }
 
     public void endNalUnit(long position, int offset) {
-      if (firstSliceFlag) {
-        // If the NAL unit ending is the start of a new sample, output the previous one.
+      if (writingParameterSets && isFirstSlice) {
+        // This sample has parameter sets. Reset the key-frame flag based on the first slice.
+        sampleIsKeyframe = nalUnitHasKeyframeData;
+        writingParameterSets = false;
+      } else if (isFirstParameterSet || isFirstSlice) {
+        // This NAL unit is at the start of a new sample (access unit).
         if (readingSample) {
+          // Output the sample ending before this NAL unit.
           int nalUnitLength = (int) (position - nalUnitStartPosition);
           outputSample(offset + nalUnitLength);
         }
