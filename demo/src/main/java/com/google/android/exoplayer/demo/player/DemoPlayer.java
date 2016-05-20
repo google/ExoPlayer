@@ -60,7 +60,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * SmoothStreaming and so on).
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
-    HlsSampleSource.EventListener, HlsChunkSource.EventListener, ExtractorSampleSource.EventListener,
+    HlsSampleSource.EventListener, ExtractorSampleSource.EventListener,
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
@@ -572,12 +572,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   @Override
   public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
     // Do nothing.
-  }
-
-  @Override
-  public void onManifestLoadCompleted(byte[] rawResponse)
-  {
-    // Do nothing
   }
 
   private void maybeReportPlayerState() {
