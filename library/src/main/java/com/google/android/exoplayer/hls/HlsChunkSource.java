@@ -64,10 +64,12 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   public interface EventListener extends BaseChunkSampleSourceEventListener {
 
     /**
-     * Invoked when an HLS manifest is loaded
-     * @param rawResponse The raw data of the HLS manifest
+     * Invoked when a media playlist has been loaded.
+    *
+     * @param rawResponse The raw data of the media playlist
      */
-    void onManifestLoadCompleted(byte[] rawResponse);
+    void onMediaPlaylistLoadCompleted(byte[] rawResponse);
+
   }
 
   /**
@@ -601,7 +603,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         eventHandler.post(new Runnable()  {
           @Override
           public void run() {
-            eventListener.onManifestLoadCompleted(rawResponse);
+            eventListener.onMediaPlaylistLoadCompleted(rawResponse);
           }
         });
       }
@@ -896,8 +898,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     private final HlsPlaylistParser playlistParser;
     private final String playlistUrl;
 
-    private HlsMediaPlaylist result;
     private byte[] rawResponse;
+    private HlsMediaPlaylist result;
 
     public MediaPlaylistChunk(DataSource dataSource, DataSpec dataSpec, byte[] scratchSpace,
         HlsPlaylistParser playlistParser, int variantIndex, String playlistUrl) {
@@ -910,18 +912,19 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
 
     @Override
     protected void consume(byte[] data, int limit) throws IOException {
-      result = (HlsMediaPlaylist) playlistParser.parse(playlistUrl,
-          new ByteArrayInputStream(data, 0, limit));
       rawResponse = Arrays.copyOf(data, limit);
+      result = (HlsMediaPlaylist) playlistParser.parse(playlistUrl,
+          new ByteArrayInputStream(rawResponse));
+    }
+
+    public byte[] getRawResponse() {
+      return rawResponse;
     }
 
     public HlsMediaPlaylist getResult() {
       return result;
     }
 
-    public byte[] getRawResponse() {
-      return rawResponse;
-    }
   }
 
   private static final class EncryptionKeyChunk extends DataChunk {
