@@ -47,9 +47,14 @@ import java.util.List;
         data.readUnsignedInt() == 0x464C4143; // ASCII signature "FLAC"
   }
 
+  //@VisibleForTesting
+  public static boolean isAudioPacket(byte[] data) {
+    return data[0] == AUDIO_PACKET_TYPE;
+  }
+
   @Override
   protected long preparePayload(ParsableByteArray packet) {
-    if (packet.data[0] != AUDIO_PACKET_TYPE) {
+    if (!isAudioPacket(packet.data)) {
       return -1;
     }
     return getFlacFrameBlockSize(packet);
@@ -71,7 +76,7 @@ import java.util.List;
       Assertions.checkArgument(flacOggSeeker == null);
       flacOggSeeker = new FlacOggSeeker();
       flacOggSeeker.parseSeekTable(packet);
-    } else if (data[0] == AUDIO_PACKET_TYPE) {
+    } else if (isAudioPacket(data)) {
       if (flacOggSeeker != null) {
         flacOggSeeker.setFirstFrameOffset(position);
         setupData.oggSeeker = flacOggSeeker;
@@ -96,11 +101,9 @@ import java.util.List;
         // skip the sample number
         packet.skipBytes(FRAME_HEADER_SAMPLE_NUMBER_OFFSET);
         packet.readUtf8EncodedLong();
-        if (blockSizeCode == 6) {
-          return packet.readUnsignedByte() + 1;
-        } else {
-          return packet.readUnsignedShort() + 1;
-        }
+        int value = blockSizeCode == 6 ? packet.readUnsignedByte() : packet.readUnsignedShort();
+        packet.setPosition(0);
+        return value + 1;
       case 8:
       case 9:
       case 10:

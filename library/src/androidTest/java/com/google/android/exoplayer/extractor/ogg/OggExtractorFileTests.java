@@ -43,10 +43,20 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
   }
 
   public void testFlac() throws Exception {
-    parseFile(FLAC_TEST_FILE, false, false, false, MimeTypes.AUDIO_FLAC, 2741000, 33);
-    parseFile(FLAC_TEST_FILE, false, true, false, MimeTypes.AUDIO_FLAC, 2741000, 33);
-    parseFile(FLAC_TEST_FILE, true, false, true, MimeTypes.AUDIO_FLAC, 2741000, 33);
-    parseFile(FLAC_TEST_FILE, true, true, true, MimeTypes.AUDIO_FLAC, 2741000, 33);
+    testFlac(false, false, false);
+    testFlac(false, true, false);
+    testFlac(true, false, true);
+    testFlac(true, true, true);
+  }
+
+  private void testFlac(boolean simulateIOErrors, boolean simulateUnknownLength,
+      boolean simulatePartialReads) throws Exception {
+    FakeTrackOutput trackOutput = parseFile(FLAC_TEST_FILE, simulateIOErrors, simulateUnknownLength,
+        simulatePartialReads, MimeTypes.AUDIO_FLAC, 2741000, 33);
+    for (int i = 0; i < 33; i++) {
+      byte[] sampleData = trackOutput.getSampleData(i);
+      assertTrue(FlacReader.isAudioPacket(sampleData));
+    }
   }
 
   public void testFlacNoSeektable() throws Exception {
@@ -56,10 +66,9 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
     parseFile(FLAC_NS_TEST_FILE, true, true, true, MimeTypes.AUDIO_FLAC, C.UNSET_TIME_US, 33);
   }
 
-  private void parseFile(String testFile, boolean simulateIOErrors, boolean simulateUnknownLength,
-      boolean simulatePartialReads, String expectedMimeType, long expectedDuration,
-      int expectedSampleCount)
-      throws Exception {
+  private FakeTrackOutput parseFile(String testFile, boolean simulateIOErrors,
+      boolean simulateUnknownLength, boolean simulatePartialReads, String expectedMimeType,
+      long expectedDuration, int expectedSampleCount) throws Exception {
     byte[] fileData = TestUtil.getByteArray(getInstrumentation(), testFile);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
         .setSimulateIOErrors(simulateIOErrors)
@@ -89,6 +98,7 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
     assertEquals(expectedDuration != C.UNSET_TIME_US, seekMap.isSeekable());
 
     trackOutput.assertSampleCount(expectedSampleCount);
+    return trackOutput;
   }
 
 }

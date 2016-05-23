@@ -21,7 +21,6 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.test.MoreAsserts;
-
 import junit.framework.Assert;
 
 import java.io.IOException;
@@ -86,8 +85,7 @@ public final class FakeTrackOutput implements TrackOutput {
   }
 
   public void assertSample(int index, byte[] data, long timeUs, int flags, byte[] encryptionKey) {
-    byte[] actualData = Arrays.copyOfRange(sampleData, sampleStartOffsets.get(index),
-        sampleEndOffsets.get(index));
+    byte[] actualData = getSampleData(index);
     MoreAsserts.assertEquals(data, actualData);
     Assert.assertEquals(timeUs, (long) sampleTimesUs.get(index));
     Assert.assertEquals(flags, (int) sampleFlags.get(index));
@@ -97,6 +95,11 @@ public final class FakeTrackOutput implements TrackOutput {
     } else {
       MoreAsserts.assertEquals(encryptionKey, sampleEncryptionKey);
     }
+  }
+
+  public byte[] getSampleData(int index) {
+    return Arrays.copyOfRange(sampleData, sampleStartOffsets.get(index),
+        sampleEndOffsets.get(index));
   }
 
   public void assertEquals(FakeTrackOutput expected) {
