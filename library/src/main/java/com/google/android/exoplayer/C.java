@@ -44,6 +44,11 @@ public interface C {
   long MICROS_PER_SECOND = 1000000L;
 
   /**
+   * The number of nanoseconds in one second.
+   */
+  public static final long NANOS_PER_SECOND = 1000000000L;
+
+  /**
    * Represents an unbounded length of data.
    */
   int LENGTH_UNBOUNDED = -1;

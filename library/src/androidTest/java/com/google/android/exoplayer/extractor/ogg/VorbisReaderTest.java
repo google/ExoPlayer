@@ -30,13 +30,18 @@ import java.io.IOException;
 public final class VorbisReaderTest extends TestCase {
 
   private VorbisReader extractor;
-  private ParsableByteArray scratch;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     extractor = new VorbisReader();
-    scratch = new ParsableByteArray(new byte[255 * 255], 0);
+  }
+
+  public void testReadBits() throws Exception {
+    assertEquals(0, VorbisReader.readBits((byte) 0x00, 2, 2));
+    assertEquals(1, VorbisReader.readBits((byte) 0x02, 1, 1));
+    assertEquals(15, VorbisReader.readBits((byte) 0xF0, 4, 4));
+    assertEquals(1, VorbisReader.readBits((byte) 0x80, 1, 7));
   }
 
   public void testAppendNumberOfSamples() throws Exception {
@@ -90,9 +95,16 @@ public final class VorbisReaderTest extends TestCase {
 
   private VorbisSetup readSetupHeaders(FakeExtractorInput input)
       throws IOException, InterruptedException {
+    OggPacket oggPacket = new OggPacket();
     while (true) {
       try {
-        return extractor.readSetupHeaders(input, scratch);
+        if (!oggPacket.populate(input)) {
+          fail();
+        }
+        VorbisSetup vorbisSetup = extractor.readSetupHeaders(oggPacket.getPayload());
+        if (vorbisSetup != null) {
+          return vorbisSetup;
+        }
       } catch (SimulatedIOException e) {
         // Ignore.
       }

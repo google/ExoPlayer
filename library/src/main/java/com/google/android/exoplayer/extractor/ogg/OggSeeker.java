@@ -15,65 +15,45 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.extractor.SeekMap;
 
 import java.io.IOException;
 
 /**
- * Used to seek in an Ogg stream.
+ * Used to seek in an Ogg stream. OggSeeker implementation may do direct seeking or progressive
+ * seeking. OggSeeker works together with a {@link SeekMap} instance to capture the queried position
+ * and start the seeking with an initial estimated position.
  */
-/* package */ final class OggSeeker {
-
-  private static final int MATCH_RANGE = 72000;
-
-  private final OggUtil.PageHeader pageHeader = new OggUtil.PageHeader();
-  private final ParsableByteArray headerArray = new ParsableByteArray(27 + 255);
-  private long audioDataLength = C.LENGTH_UNBOUNDED;
-  private long totalSamples;
+/* package */ interface OggSeeker {
 
   /**
-   * Setup the seeker with the data it needs to to an educated guess of seeking positions.
-   *
-   * @param audioDataLength the length of the audio data (total bytes - header bytes).
-   * @param totalSamples the total number of samples of audio data.
+   * @return a SeekMap instance which returns an initial estimated position for progressive seeking
+   *     or the final position for direct seeking. Returns null if {@link #read} hasn't returned -1
+   *     yet.
    */
-  public void setup(long audioDataLength, long totalSamples) {
-    Assertions.checkArgument(audioDataLength > 0 && totalSamples > 0);
-    this.audioDataLength = audioDataLength;
-    this.totalSamples = totalSamples;
-  }
+  SeekMap createSeekMap();
 
   /**
-   * Returns a position converging to the {@code targetGranule} to which the {@link ExtractorInput}
-   * has to seek and then be passed for another call until -1 is return. If -1 is returned the
-   * input is at a position which is before the start of the page before the target page and at
-   * which it is sensible to just skip pages to the target granule and pre-roll instead of doing
-   * another seek request.
+   * Initializes a seek operation.
    *
-   * @param targetGranule the target granule position to seek to.
+   * @return The granule position targeted by the seek.
+   */
+  long startSeek();
+
+  /**
+   * Reads data from the {@link ExtractorInput} to build the {@link SeekMap} or to continue a
+   * progressive seek.
+   * <p/>
+   * If more data is required or if the position of the input needs to be modified then a position
+   * from which data should be provided is returned. Else a negative value is returned. If a seek
+   * has been completed then the value returned is -(currentGranule + 2). Else -1 is returned.
+   *
    * @param input the {@link ExtractorInput} to read from.
-   * @return the position to seek the {@link ExtractorInput} to for a next call or -1 if it's close
-   *    enough to skip to the target page.
+   * @return the non-negative position to seek the {@link ExtractorInput} to or -1 seeking not
+   *     necessary or at the end of seeking a negative number < -1 which is -(currentGranule + 2).
    * @throws IOException thrown if reading from the input fails.
    * @throws InterruptedException thrown if interrupted while reading from the input.
    */
-  public long getNextSeekPosition(long targetGranule, ExtractorInput input)
-      throws IOException, InterruptedException {
-    Assertions.checkState(audioDataLength != C.LENGTH_UNBOUNDED && totalSamples != 0);
-    OggUtil.populatePageHeader(input, pageHeader, headerArray, false);
-    long granuleDistance = targetGranule - pageHeader.granulePosition;
-    if (granuleDistance <= 0 || granuleDistance > MATCH_RANGE) {
-      // estimated position too high or too low
-      long offset = (pageHeader.bodySize + pageHeader.headerSize)
-          * (granuleDistance <= 0 ? 2 : 1);
-      return input.getPosition() - offset + (granuleDistance * audioDataLength / totalSamples);
-    }
-    // position accepted (below target granule and within MATCH_RANGE)
-    input.resetPeekPosition();
-    return -1;
-  }
-
+  long read(ExtractorInput input) throws IOException, InterruptedException;
 }

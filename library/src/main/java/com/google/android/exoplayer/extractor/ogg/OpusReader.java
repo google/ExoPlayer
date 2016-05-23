@@ -17,16 +17,14 @@ package com.google.android.exoplayer.extractor.ogg;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.extractor.Extractor;
-import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.PositionHolder;
-import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,19 +32,16 @@ import java.util.List;
  */
 /* package */ final class OpusReader extends StreamReader {
 
+  private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
+
   /**
    * Opus streams are always decoded at 48000 Hz.
    */
   private static final int SAMPLE_RATE = 48000;
 
   private static final byte[] OPUS_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
-
-  private static final int STATE_READ_HEADER = 0;
-  private static final int STATE_READ_TAGS = 1;
-  private static final int STATE_READ_AUDIO = 2;
-
-  private int state = STATE_READ_HEADER;
-  private long timeUs;
+  private boolean headerRead;
+  private boolean tagsSkipped;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     if (data.bytesLeft() < OPUS_SIGNATURE.length) {
@@ -58,42 +53,48 @@ import java.util.List;
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
-    if (!oggParser.readPacket(input, scratch)) {
-      return Extractor.RESULT_END_OF_INPUT;
-    }
-
-    byte[] data = scratch.data;
-    int dataSize = scratch.limit();
-
-    switch (state) {
-      case STATE_READ_HEADER: {
-        byte[] metadata = Arrays.copyOfRange(data, 0, dataSize);
-        int channelCount = metadata[9] & 0xFF;
-        List<byte[]> initializationData = Collections.singletonList(metadata);
-        trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS,
-            Format.NO_VALUE, Format.NO_VALUE, channelCount, SAMPLE_RATE,
-            initializationData, null, 0, null));
-        state = STATE_READ_TAGS;
-      } break;
-      case STATE_READ_TAGS:
-        // skip this packet
-        state = STATE_READ_AUDIO;
-        extractorOutput.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
-        break;
-      case STATE_READ_AUDIO:
-        trackOutput.sampleData(scratch, dataSize);
-        trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, dataSize, 0, null);
-        timeUs += getPacketDuration(data);
-        break;
-    }
-
-    scratch.reset();
-    return Extractor.RESULT_CONTINUE;
+  protected long preparePayload(ParsableByteArray packet) {
+    return convertTimeToGranule(getPacketDurationUs(packet.data));
   }
 
-  private long getPacketDuration(byte[] packet) {
+  @Override
+  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
+      throws IOException, InterruptedException {
+    if (!headerRead) {
+      byte[] metadata = Arrays.copyOf(packet.data, packet.limit());
+      int channelCount = metadata[9] & 0xFF;
+      int preskip = ((metadata[11] & 0xFF) << 8) | (metadata[10] & 0xFF);
+
+      List<byte[]> initializationData = new ArrayList<>(3);
+      initializationData.add(metadata);
+      putNativeOrderLong(initializationData, preskip);
+      putNativeOrderLong(initializationData, DEFAULT_SEEK_PRE_ROLL_SAMPLES);
+
+      setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS, Format.NO_VALUE,
+          Format.NO_VALUE, channelCount, SAMPLE_RATE, initializationData, null, 0, "und");
+      headerRead = true;
+    } else if (!tagsSkipped) {
+      // Skip tags packet
+      tagsSkipped = true;
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  private void putNativeOrderLong(List<byte[]> initializationData, int samples) {
+    long ns = (samples * C.NANOS_PER_SECOND) / SAMPLE_RATE;
+    byte[] array = ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(ns).array();
+    initializationData.add(array);
+  }
+
+  /**
+   * Returns the duration of the given audio packet.
+   *
+   * @param packet Contains audio data.
+   * @return Returns the duration of the given audio packet.
+   */
+  private long getPacketDurationUs(byte[] packet) {
     int toc = packet[0] & 0xFF;
     int frames;
     switch (toc & 0x3) {

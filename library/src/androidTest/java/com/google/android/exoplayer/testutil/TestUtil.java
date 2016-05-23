@@ -17,12 +17,12 @@ package com.google.android.exoplayer.testutil;
 
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.app.Instrumentation;
 import android.test.InstrumentationTestCase;
-
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
@@ -36,17 +36,41 @@ public class TestUtil {
 
   private TestUtil() {}
 
+  public static boolean sniffTestData(Extractor extractor, byte[] data)
+      throws IOException, InterruptedException {
+    return sniffTestData(extractor, newExtractorInput(data));
+  }
+
+  public static boolean sniffTestData(Extractor extractor, FakeExtractorInput input)
+      throws IOException, InterruptedException {
+    while (true) {
+      try {
+        return extractor.sniff(input);
+      } catch (SimulatedIOException e) {
+        // Ignore.
+      }
+    }
+  }
+
   public static void consumeTestData(Extractor extractor, byte[] data)
       throws IOException, InterruptedException {
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
+    consumeTestData(extractor, newExtractorInput(data));
+  }
+
+  public static void consumeTestData(Extractor extractor, FakeExtractorInput input)
+      throws IOException, InterruptedException {
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
-      readResult = extractor.read(input, seekPositionHolder);
-      if (readResult == Extractor.RESULT_SEEK) {
-        long seekPosition = seekPositionHolder.position;
-        Assertions.checkState(0 < seekPosition && seekPosition <= Integer.MAX_VALUE);
-        input.setPosition((int) seekPosition);
+      try {
+        readResult = extractor.read(input, seekPositionHolder);
+        if (readResult == Extractor.RESULT_SEEK) {
+          long seekPosition = seekPositionHolder.position;
+          Assertions.checkState(0 <= seekPosition && seekPosition <= Integer.MAX_VALUE);
+          input.setPosition((int) seekPosition);
+        }
+      } catch (SimulatedIOException e) {
+        // Ignore.
       }
     }
   }
@@ -105,6 +129,10 @@ public class TestUtil {
       throws IOException {
     InputStream is = instrumentation.getContext().getResources().getAssets().open(fileName);
     return Util.toByteArray(is);
+  }
+
+  private static FakeExtractorInput newExtractorInput(byte[] data) {
+    return new FakeExtractorInput.Builder().setData(data).build();
   }
 
 }

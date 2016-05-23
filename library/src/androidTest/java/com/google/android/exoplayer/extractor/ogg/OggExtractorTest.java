@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.extractor.ogg;
 
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
-import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer.testutil.TestUtil;
 
 import junit.framework.TestCase;
@@ -40,56 +39,48 @@ public final class OggExtractorTest extends TestCase {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 1),
         TestUtil.createByteArray(7),  // Laces
-        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
-    assertTrue(sniff(createInput(data)));
+        new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    assertTrue(sniff(data));
   }
 
   public void testSniffFlac() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 1),
         TestUtil.createByteArray(5),  // Laces
-        new byte[]{0x7F, 'F', 'L', 'A', 'C'});
-    assertTrue(sniff(createInput(data)));
+        new byte[] {0x7F, 'F', 'L', 'A', 'C'});
+    assertTrue(sniff(data));
   }
 
   public void testSniffFailsOpusFile() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 0x00),
-        new byte[]{'O', 'p', 'u', 's'});
-    assertFalse(sniff(createInput(data)));
+        new byte[] {'O', 'p', 'u', 's'});
+    assertFalse(sniff(data));
   }
 
   public void testSniffFailsInvalidOggHeader() throws Exception {
     byte[] data = TestData.buildOggHeader(0x00, 0, 1000, 0x00);
-    assertFalse(sniff(createInput(data)));
+    assertFalse(sniff(data));
   }
 
   public void testSniffInvalidHeader() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 1),
         TestUtil.createByteArray(7),  // Laces
-        new byte[]{0x7F, 'X', 'o', 'r', 'b', 'i', 's'});
-    assertFalse(sniff(createInput(data)));
+        new byte[] {0x7F, 'X', 'o', 'r', 'b', 'i', 's'});
+    assertFalse(sniff(data));
   }
 
   public void testSniffFailsEOF() throws Exception {
     byte[] data = TestData.buildOggHeader(0x02, 0, 1000, 0x00);
-    assertFalse(sniff(createInput(data)));
+    assertFalse(sniff(data));
   }
 
-  private static FakeExtractorInput createInput(byte[] data) {
-    return new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
-        .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
-  }
-
-  private boolean sniff(FakeExtractorInput input) throws InterruptedException, IOException {
-    while (true) {
-      try {
-        return extractor.sniff(input);
-      } catch (SimulatedIOException e) {
-        // Ignore.
-      }
-    }
+  private boolean sniff(byte[] data) throws InterruptedException, IOException {
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data)
+        .setSimulateIOErrors(true).setSimulateUnknownLength(true).setSimulatePartialReads(true)
+        .build();
+    return TestUtil.sniffTestData(extractor, input);
   }
 
 }

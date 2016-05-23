@@ -30,19 +30,22 @@ import java.io.IOException;
  */
 public class OggExtractor implements Extractor {
 
+  private static final int MAX_VERIFICATION_BYTES = 8;
+  
   private StreamReader streamReader;
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     try {
-      ParsableByteArray scratch = new ParsableByteArray(new byte[OggUtil.PAGE_HEADER_SIZE], 0);
-      OggUtil.PageHeader header = new OggUtil.PageHeader();
-      if (!OggUtil.populatePageHeader(input, header, scratch, true)
-          || (header.type & 0x02) != 0x02) {
+      OggPageHeader header = new OggPageHeader();
+      if (!header.populate(input, true) || (header.type & 0x02) != 0x02) {
         return false;
       }
-      input.peekFully(scratch.data, 0, header.bodySize);
-      scratch.setLimit(header.bodySize);
+
+      int length = Math.min(header.bodySize, MAX_VERIFICATION_BYTES);
+      ParsableByteArray scratch = new ParsableByteArray(length);
+      input.peekFully(scratch.data, 0, length);
+
       if (FlacReader.verifyBitstreamType(resetPosition(scratch))) {
         streamReader = new FlacReader();
       } else if (VorbisReader.verifyBitstreamType(resetPosition(scratch))) {
@@ -62,6 +65,7 @@ public class OggExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     TrackOutput trackOutput = output.track(0);
     output.endTracks();
+    // TODO: fix the case if sniff() isn't called
     streamReader.init(output, trackOutput);
   }
 
