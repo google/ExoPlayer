@@ -306,7 +306,6 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         segmentByterangeLength = C.LENGTH_UNBOUNDED;
       } else if (line.equals(ENDLIST_TAG)) {
         live = false;
-        break;
       }
     }
     return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live,
