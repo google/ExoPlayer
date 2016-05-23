@@ -51,3 +51,6 @@ extensions/opus/src/main/jni/libopus
 
 # FLAC extension
 extensions/flac/src/main/jni/flac
+
+# FFmpeg extension
+extensions/ffmpeg/src/main/jni/ffmpeg

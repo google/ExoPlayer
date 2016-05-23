@@ -495,24 +495,37 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
       Constructor<?> constructor = clazz.getConstructor(boolean.class, Handler.class,
           VideoTrackRendererEventListener.class, int.class);
       renderersList.add((TrackRenderer) constructor.newInstance(true, mainHandler, this, 50));
+      Log.i(TAG, "Loaded LibvpxVideoTrackRenderer.");
     } catch (Exception e) {
-      Log.i(TAG, "can't load LibvpxVideoTrackRenderer.");
+      // Expected if the app was built without the extension.
     }
 
     try {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer");
       renderersList.add((TrackRenderer) clazz.newInstance());
+      Log.i(TAG, "Loaded LibopusAudioTrackRenderer.");
     } catch (Exception e) {
-      Log.i(TAG, "can't load LibopusAudioTrackRenderer.");
+      // Expected if the app was built without the extension.
     }
 
     try {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer.ext.flac.LibflacAudioTrackRenderer");
       renderersList.add((TrackRenderer) clazz.newInstance());
+      Log.i(TAG, "Loaded LibflacAudioTrackRenderer.");
     } catch (Exception e) {
-      Log.i(TAG, "can't load LibflacAudioTrackRenderer.");
+      // Expected if the app was built without the extension.
+    }
+
+    try {
+      Class<?> clazz =
+          Class.forName("com.google.android.exoplayer.ext.ffmpeg.FfmpegAudioTrackRenderer");
+      renderersList.add((TrackRenderer) clazz.newInstance());
+      Log.i(TAG, "Loaded FfmpegAudioTrackRenderer.");
+    } catch (Exception e) {
+      // Expected if the app was built without the extension.
     }
   }
+
 }

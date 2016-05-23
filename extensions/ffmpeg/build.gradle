@@ -11,24 +11,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion '23.0.1'
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 9
         targetSdkVersion 23
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-        debug {
-            jniDebuggable = true
-            debuggable = true
         }
     }
 
@@ -36,16 +33,12 @@ android {
         abortOnError false
     }
 
-    productFlavors {
-        demo
-        demo_ext
+    sourceSets.main {
+        jniLibs.srcDir 'src/main/libs'
+        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }
 }
 
 dependencies {
     compile project(':library')
-    demo_extCompile project(path: ':extension-ffmpeg')
-    demo_extCompile project(path: ':extension-flac')
-    demo_extCompile project(path: ':extension-opus')
-    demo_extCompile project(path: ':extension-vp9')
 }
