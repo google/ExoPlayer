@@ -233,12 +233,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onInputFormatChanged(FormatHolder holder) throws ExoPlaybackException {
-    super.onInputFormatChanged(holder);
+  protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+    super.onInputFormatChanged(newFormat);
+    eventDispatcher.inputFormatChanged(newFormat);
     // If the input format is anything other than PCM then we assume that the audio decoder will
     // output 16-bit PCM.
-    pcmEncoding = MimeTypes.AUDIO_RAW.equals(holder.format.sampleMimeType)
-        ? holder.format.pcmEncoding : C.ENCODING_PCM_16BIT;
+    pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
+        : C.ENCODING_PCM_16BIT;
   }
 
   @Override

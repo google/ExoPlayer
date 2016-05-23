@@ -28,15 +28,10 @@ import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.SingleSampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.VideoTrackRendererEventListener;
 import com.google.android.exoplayer.audio.AudioCapabilities;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.drm.DrmSessionManager;
-import com.google.android.exoplayer.drm.MediaDrmCallback;
-import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
@@ -56,7 +51,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,11 +60,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A wrapper around {@link ExoPlayer} that provides a higher level interface.
  */
 public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.EventListener,
-    ChunkTrackStreamEventListener, ExtractorSampleSource.EventListener,
-    SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
-    VideoTrackRendererEventListener, AudioTrackRendererEventListener,
-    StreamingDrmSessionManager.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,
-    DebugTextViewHelper.Provider {
+    VideoTrackRendererEventListener, AudioTrackRendererEventListener, TextRenderer,
+    MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider {
 
   /**
    * A listener for core events.
@@ -84,20 +75,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   /**
-   * A listener for internal errors.
-   * <p>
-   * These errors are not visible to the user, and hence this listener is provided for
-   * informational purposes only. Note however that an internal error may cause a fatal
-   * error if the player fails to recover. If this happens,
-   * {@link Listener#onError(ExoPlaybackException)} will be invoked.
-   */
-  public interface InternalErrorListener {
-    void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
-    void onLoadError(int sourceId, IOException e);
-    void onDrmSessionManagerError(Exception e);
-  }
-
-  /**
    * A listener for debugging information.
    */
   public interface InfoListener {
@@ -105,14 +82,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
         long initializationDurationMs);
     void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
-    void onAudioFormatEnabled(Format format, int trigger, long mediaTimeMs);
-    void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs);
     void onDroppedFrames(int count, long elapsed);
-    void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate);
-    void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-        long mediaStartTimeMs, long mediaEndTimeMs);
-    void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
+    void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
   }
 
   /**
@@ -128,12 +99,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   public interface Id3MetadataListener {
     void onId3Metadata(List<Id3Frame> id3Frames);
   }
-
-  // Constants pulled into this class for convenience.
-  public static final int STATE_IDLE = ExoPlayer.STATE_IDLE;
-  public static final int STATE_BUFFERING = ExoPlayer.STATE_BUFFERING;
-  public static final int STATE_READY = ExoPlayer.STATE_READY;
-  public static final int STATE_ENDED = ExoPlayer.STATE_ENDED;
 
   private static final String TAG = "DemoPlayer";
 
@@ -151,11 +116,11 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
 
   private CaptionListener captionListener;
   private Id3MetadataListener id3MetadataListener;
-  private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
   private CodecCounters videoCodecCounters;
 
-  public DemoPlayer(Context context, MediaDrmCallback drmCallback, boolean useExtensionDecoders) {
+  public DemoPlayer(Context context, DrmSessionManager drmSessionManager,
+      boolean useExtensionDecoders) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
     listeners = new CopyOnWriteArrayList<>();
@@ -165,7 +130,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     if (useExtensionDecoders) {
       buildExtensionRenderers(renderersList);
     }
-    buildRenderers(context, drmCallback, renderersList);
+    buildRenderers(context, drmSessionManager, renderersList);
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
     // Build the player and associated objects.
@@ -191,10 +156,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     listeners.remove(listener);
   }
 
-  public void setInternalErrorListener(InternalErrorListener listener) {
-    internalErrorListener = listener;
-  }
-
   public void setInfoListener(InfoListener listener) {
     infoListener = listener;
   }
@@ -210,10 +171,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   public void setSurface(Surface surface) {
     this.surface = surface;
     pushSurface(false);
-  }
-
-  public Surface getSurface() {
-    return surface;
   }
 
   public void blockingClearSurface() {
@@ -278,10 +235,6 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     return player.getPlayWhenReady();
   }
 
-  public Handler getMainHandler() {
-    return mainHandler;
-  }
-
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
     for (Listener listener : listeners) {
@@ -320,48 +273,15 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
-    if (infoListener != null) {
-      infoListener.onBandwidthSample(elapsedMs, bytes, bitrateEstimate);
-    }
-  }
-
-  @Override
-  public void onDownstreamFormatChanged(int sourceId, Format format, int trigger,
-      long mediaTimeMs) {
-    if (infoListener == null) {
-      return;
-    }
-    if (sourceId == C.TRACK_TYPE_VIDEO) {
-      videoFormat = format;
-      infoListener.onVideoFormatEnabled(format, trigger, mediaTimeMs);
-    } else if (sourceId == C.TRACK_TYPE_AUDIO) {
-      infoListener.onAudioFormatEnabled(format, trigger, mediaTimeMs);
-    }
-  }
-
-  @Override
-  public void onDrmKeysLoaded() {
-    // Do nothing.
-  }
-
-  @Override
-  public void onDrmSessionManagerError(Exception e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onDrmSessionManagerError(e);
-    }
-  }
-
-  @Override
   public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+    if (infoListener != null) {
+      infoListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
   }
 
   @Override
   public void onAudioCodecCounters(CodecCounters counters) {
-    // do nothing
+    // Do nothing.
   }
 
   @Override
@@ -374,10 +294,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onLoadError(int sourceId, IOException e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onLoadError(sourceId, e);
-    }
+  public void onAudioInputFormatChanged(Format format) {
+    // Do nothing.
   }
 
   @Override
@@ -419,31 +337,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-      long mediaStartTimeMs, long mediaEndTimeMs) {
-    if (infoListener != null) {
-      infoListener.onLoadStarted(sourceId, length, type, trigger, format, mediaStartTimeMs,
-          mediaEndTimeMs);
-    }
-  }
-
-  @Override
-  public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-      long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
-    if (infoListener != null) {
-      infoListener.onLoadCompleted(sourceId, bytesLoaded, type, trigger, format, mediaStartTimeMs,
-          mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs);
-    }
-  }
-
-  @Override
-  public void onLoadCanceled(int sourceId, long bytesLoaded) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
-    // Do nothing.
+  public void onVideoInputFormatChanged(Format format) {
+    videoFormat = format;
   }
 
   public int getRendererType(int index) {
@@ -462,11 +357,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     }
   }
 
-  private void buildRenderers(Context context, MediaDrmCallback drmCallback,
+  private void buildRenderers(Context context, DrmSessionManager drmSessionManager,
       ArrayList<TrackRenderer> renderersList) {
-    DrmSessionManager drmSessionManager = drmCallback == null ? null
-        : new StreamingDrmSessionManager(drmCallback, null, mainHandler, this);
-
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
         MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
         drmSessionManager, false, mainHandler, this, 50);

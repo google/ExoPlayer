@@ -329,12 +329,13 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onInputFormatChanged(FormatHolder holder) throws ExoPlaybackException {
-    super.onInputFormatChanged(holder);
-    pendingPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == Format.NO_VALUE ? 1
-        : holder.format.pixelWidthHeightRatio;
-    pendingRotationDegrees = holder.format.rotationDegrees == Format.NO_VALUE ? 0
-        : holder.format.rotationDegrees;
+  protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+    super.onInputFormatChanged(newFormat);
+    eventDispatcher.inputFormatChanged(newFormat);
+    pendingPixelWidthHeightRatio = newFormat.pixelWidthHeightRatio == Format.NO_VALUE ? 1
+        : newFormat.pixelWidthHeightRatio;
+    pendingRotationDegrees = newFormat.rotationDegrees == Format.NO_VALUE ? 0
+        : newFormat.rotationDegrees;
   }
 
   /**

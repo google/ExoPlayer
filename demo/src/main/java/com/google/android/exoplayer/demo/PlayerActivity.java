@@ -27,7 +27,8 @@ import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.dash.DashSampleSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
-import com.google.android.exoplayer.drm.MediaDrmCallback;
+import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
@@ -55,6 +56,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -76,6 +78,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
@@ -84,9 +87,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener {
 
   // For use within demo app code.
-  public static final String CONTENT_ID_EXTRA = "content_id";
   public static final String CONTENT_TYPE_EXTRA = "content_type";
-  public static final String PROVIDER_EXTRA = "provider";
+  public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
+  public static final String DRM_CONTENT_ID_EXTRA = "drm_content_id";
+  public static final String DRM_PROVIDER_EXTRA = "drm_provider";
   public static final String USE_EXTENSION_DECODERS = "use_extension_decoders";
 
   // For use when launching the demo app using adb.
@@ -101,8 +105,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
+  private Handler mainHandler;
   private EventLogger eventLogger;
   private MediaController mediaController;
+  private View rootView;
   private LinearLayout debugRootView;
   private View shutterView;
   private AspectRatioFrameLayout videoFrame;
@@ -127,10 +133,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     super.onCreate(savedInstanceState);
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     dataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
+    mainHandler = new Handler();
 
     setContentView(R.layout.player_activity);
-    View root = findViewById(R.id.root);
-    root.setOnTouchListener(new OnTouchListener() {
+    rootView = findViewById(R.id.root);
+    rootView.setOnTouchListener(new OnTouchListener() {
       @Override
       public boolean onTouch(View view, MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -141,7 +148,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return true;
       }
     });
-    root.setOnKeyListener(new OnKeyListener() {
+    rootView.setOnKeyListener(new OnKeyListener() {
       @Override
       public boolean onKey(View v, int keyCode, KeyEvent event) {
         return keyCode != KeyEvent.KEYCODE_BACK && keyCode != KeyEvent.KEYCODE_ESCAPE
@@ -161,7 +168,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
 
     mediaController = new KeyCompatibleMediaController(this);
-    mediaController.setAnchorView(root);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
 
@@ -273,27 +279,36 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     int type = intent.getIntExtra(CONTENT_TYPE_EXTRA,
         inferContentType(uri, intent.getStringExtra(CONTENT_EXT_EXTRA)));
     if (player == null) {
-      String id = intent.getStringExtra(CONTENT_ID_EXTRA);
-      String provider = intent.getStringExtra(PROVIDER_EXTRA);
+      UUID drmSchemeUuid = (UUID) intent.getSerializableExtra(DRM_SCHEME_UUID_EXTRA);
+      DrmSessionManager drmSessionManager = null;
+      if (drmSchemeUuid != null) {
+        String drmContentId = intent.getStringExtra(DRM_CONTENT_ID_EXTRA);
+        String drmProvider = intent.getStringExtra(DRM_PROVIDER_EXTRA);
+        try {
+          drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmContentId, drmProvider);
+        } catch (UnsupportedDrmException e) {
+          onUnsupportedDrmError(e);
+          return;
+        }
+      }
       boolean useExtensionDecoders = intent.getBooleanExtra(USE_EXTENSION_DECODERS, false);
-      player = new DemoPlayer(this, buildDrmCallback(type, id, provider), useExtensionDecoders);
+      eventLogger = new EventLogger();
+      eventLogger.startSession();
+      player = new DemoPlayer(this, drmSessionManager, useExtensionDecoders);
       player.addListener(this);
+      player.addListener(eventLogger);
+      player.setInfoListener(eventLogger);
       player.setCaptionListener(this);
       player.setMetadataListener(this);
       player.seekTo(playerPosition);
-      trackSelectionHelper = new TrackSelectionHelper(player.getTrackSelector());
-      playerNeedsSource = true;
-      mediaController.setMediaPlayer(player.getPlayerControl());
-      mediaController.setEnabled(true);
-      eventLogger = new EventLogger();
-      eventLogger.startSession();
-      player.addListener(eventLogger);
-      player.setInfoListener(eventLogger);
-      player.setInternalErrorListener(eventLogger);
       player.setSurface(surfaceView.getHolder().getSurface());
       player.setPlayWhenReady(true);
+      trackSelectionHelper = new TrackSelectionHelper(player.getTrackSelector());
+      mediaController.setMediaPlayer(player.getPlayerControl());
+      mediaController.setAnchorView(rootView);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
+      playerNeedsSource = true;
     }
     if (playerNeedsSource) {
       if (maybeRequestPermission(uri)) {
@@ -306,36 +321,45 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
-  private MediaDrmCallback buildDrmCallback(int type, String id, String provider) {
+  private DrmSessionManager buildDrmSessionManager(UUID uuid, String id, String provider)
+      throws UnsupportedDrmException {
     if (Util.SDK_INT < 18) {
       return null;
     }
-    switch (type) {
-      case Util.TYPE_SS:
-        return new SmoothStreamingTestMediaDrmCallback();
-      case Util.TYPE_DASH:
-        return new WidevineTestMediaDrmCallback(id, provider);
-      default:
-        return null;
+    if (C.PLAYREADY_UUID.equals(uuid)) {
+      return StreamingDrmSessionManager.newPlayReadyInstance(
+          new SmoothStreamingTestMediaDrmCallback(), null, mainHandler, eventLogger);
+    } else if (C.WIDEVINE_UUID.equals(uuid)) {
+      return StreamingDrmSessionManager.newWidevineInstance(
+          new WidevineTestMediaDrmCallback(id, provider), null, mainHandler, eventLogger);
+    } else {
+      throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
     }
+  }
+
+  private void onUnsupportedDrmError(UnsupportedDrmException e) {
+    String errorString = getString(Util.SDK_INT < 18 ? R.string.error_drm_not_supported
+        : e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
+        ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown);
+    Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
   }
 
   private SampleSource buildSource(int type, Uri uri) {
     switch (type) {
       case Util.TYPE_SS:
         return new SmoothStreamingSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
-            player.getMainHandler(), player);
+            mainHandler, eventLogger);
       case Util.TYPE_DASH:
-        return new DashSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
-            player.getMainHandler(), player);
+        return new DashSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), mainHandler,
+            eventLogger);
       case Util.TYPE_HLS:
-        return new HlsSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
-            player.getMainHandler(), player);
+        return new HlsSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), mainHandler,
+            eventLogger);
       case Util.TYPE_OTHER:
         Allocator allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
         DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
         return new ExtractorSampleSource(uri, dataSource, allocator, C.DEFAULT_MUXED_BUFFER_SIZE,
-            player.getMainHandler(), player, 0, ExtractorSampleSource.newDefaultExtractors());
+            mainHandler, eventLogger, 0, ExtractorSampleSource.newDefaultExtractors());
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }
@@ -411,12 +435,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
           errorString = getString(R.string.error_instantiating_decoder,
               decoderInitializationException.decoderName);
         }
-      } else if (cause instanceof UnsupportedDrmException) {
-        // Special case DRM failures.
-        UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) cause;
-        errorString = getString(Util.SDK_INT < 18 ? R.string.error_drm_not_supported
-            : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-            ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown);
       }
     }
     if (errorString != null) {

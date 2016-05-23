@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -23,7 +24,10 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackSelection;
+import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
+import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,7 +40,8 @@ import java.util.Locale;
  * Logs player events using {@link Log}.
  */
 public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener,
-    DemoPlayer.InternalErrorListener {
+    ChunkTrackStreamEventListener, ExtractorSampleSource.EventListener,
+    StreamingDrmSessionManager.EventListener {
 
   private static final String TAG = "EventLogger";
   private static final NumberFormat TIME_FORMAT;
@@ -140,29 +145,43 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onAudioFormatEnabled(Format format, int trigger, long mediaTimeMs) {
-    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + format.id + ", " + trigger + "]");
-  }
-
-  @Override
-  public void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs) {
-    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + format.id + ", " + trigger + "]");
-  }
-
-  @Override
-  public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
-    Log.d(TAG, "bandwidth [" + getSessionTimeString() + ", " + bytes + ", "
-        + getTimeString(elapsedMs) + ", " + bitrateEstimate + "]");
-  }
-
-  @Override
   public void onDroppedFrames(int count, long elapsed) {
     Log.d(TAG, "droppedFrames [" + getSessionTimeString() + ", " + count + "]");
   }
 
   @Override
+  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    printInternalError("audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
+        + elapsedSinceLastFeedMs + "]", null);
+  }
+
+  // StreamingDrmSessionManager.EventListener
+
+  @Override
+  public void onDrmSessionManagerError(Exception e) {
+    printInternalError("drmSessionManagerError", e);
+  }
+
+  @Override
+  public void onDrmKeysLoaded() {
+    Log.d(TAG, "drmKeysLoaded [" + getSessionTimeString() + "]");
+  }
+
+  // SampleSource listeners
+
+  @Override
   public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
       long mediaStartTimeMs, long mediaEndTimeMs) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onLoadError(int sourceId, IOException e) {
+    printInternalError("loadError", e);
+  }
+
+  @Override
+  public void onLoadCanceled(int sourceId, long bytesLoaded) {
     // Do nothing.
   }
 
@@ -172,23 +191,20 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     // Do nothing.
   }
 
-  // DemoPlayer.InternalErrorListener
-
   @Override
-  public void onLoadError(int sourceId, IOException e) {
-    printInternalError("loadError", e);
+  public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
+    // Do nothing.
   }
 
   @Override
-  public void onDrmSessionManagerError(Exception e) {
-    printInternalError("drmSessionManagerError", e);
+  public void onDownstreamFormatChanged(int sourceId, Format format, int trigger,
+      long mediaTimeMs) {
+    if (sourceId == C.TRACK_TYPE_VIDEO) {
+      Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + format.id + "]");
+    }
   }
 
-  @Override
-  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    printInternalError("audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
-        + elapsedSinceLastFeedMs + "]", null);
-  }
+  // Internal methods
 
   private void printInternalError(String type, Exception e) {
     Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);

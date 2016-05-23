@@ -45,6 +45,13 @@ public interface AudioTrackRendererEventListener {
       long initializationDurationMs);
 
   /**
+   * Invoked when the format of the media being consumed by the renderer changes.
+   *
+   * @param format The new format.
+   */
+  void onAudioInputFormatChanged(Format format);
+
+  /**
    * Invoked when an {@link AudioTrack} underrun occurs.
    *
    * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
@@ -87,6 +94,17 @@ public interface AudioTrackRendererEventListener {
           public void run() {
             listener.onAudioDecoderInitialized(decoderName, initializedTimestampMs,
                 initializationDurationMs);
+          }
+        });
+      }
+    }
+
+    public void inputFormatChanged(final Format format) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onAudioInputFormatChanged(format);
           }
         });
       }

@@ -46,6 +46,13 @@ public interface VideoTrackRendererEventListener {
       long initializationDurationMs);
 
   /**
+   * Invoked when the format of the media being consumed by the renderer changes.
+   *
+   * @param format The new format.
+   */
+  void onVideoInputFormatChanged(Format format);
+
+  /**
    * Invoked to report the number of frames dropped by the renderer. Dropped frames are reported
    * whenever the renderer is stopped having dropped frames, and optionally, whenever the count
    * reaches a specified threshold whilst the renderer is started.
@@ -117,6 +124,17 @@ public interface VideoTrackRendererEventListener {
           public void run() {
             listener.onVideoDecoderInitialized(decoderName, initializedTimestampMs,
                 initializationDurationMs);
+          }
+        });
+      }
+    }
+
+    public void inputFormatChanged(final Format format) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onVideoInputFormatChanged(format);
           }
         });
       }

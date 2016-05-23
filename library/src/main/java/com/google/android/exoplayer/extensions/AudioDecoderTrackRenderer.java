@@ -232,7 +232,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       return false;
     }
     if (result == TrackStream.FORMAT_READ) {
-      inputFormat = formatHolder.format;
+      onInputFormatChanged(formatHolder.format);
       return true;
     }
     if (inputBuffer.isEndOfStream()) {
@@ -340,10 +340,15 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   private boolean readFormat() {
     int result = readSource(formatHolder, null);
     if (result == TrackStream.FORMAT_READ) {
-      inputFormat = formatHolder.format;
+      onInputFormatChanged(formatHolder.format);
       return true;
     }
     return false;
+  }
+
+  private void onInputFormatChanged(Format newFormat) {
+    inputFormat = newFormat;
+    eventDispatcher.inputFormatChanged(newFormat);
   }
 
   @Override

@@ -281,7 +281,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       return false;
     }
     if (result == TrackStream.FORMAT_READ) {
-      format = formatHolder.format;
+      onInputFormatChanged(formatHolder.format);
       return true;
     }
     if (inputBuffer.isEndOfStream()) {
@@ -366,10 +366,15 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   private boolean readFormat() {
     int result = readSource(formatHolder, null);
     if (result == TrackStream.FORMAT_READ) {
-      format = formatHolder.format;
+      onInputFormatChanged(formatHolder.format);
       return true;
     }
     return false;
+  }
+
+  private void onInputFormatChanged(Format newFormat) {
+    format = newFormat;
+    eventDispatcher.inputFormatChanged(format);
   }
 
   @Override

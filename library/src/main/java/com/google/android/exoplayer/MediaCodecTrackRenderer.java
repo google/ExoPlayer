@@ -430,7 +430,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private void readFormat() throws ExoPlaybackException {
     int result = readSource(formatHolder, null);
     if (result == TrackStream.FORMAT_READ) {
-      onInputFormatChanged(formatHolder);
+      onInputFormatChanged(formatHolder.format);
     }
   }
 
@@ -526,7 +526,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         buffer.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
-      onInputFormatChanged(formatHolder);
+      onInputFormatChanged(formatHolder.format);
       return true;
     }
 
@@ -641,12 +641,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   /**
    * Invoked when a new format is read from the upstream {@link SampleSource}.
    *
-   * @param formatHolder Holds the new format.
+   * @param newFormat The new format.
    * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.
    */
-  protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
+  protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     Format oldFormat = format;
-    format = formatHolder.format;
+    format = newFormat;
     if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;

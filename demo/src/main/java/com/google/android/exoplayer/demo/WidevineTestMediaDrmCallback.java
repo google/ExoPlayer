@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.util.Util;
 
@@ -41,11 +40,6 @@ public final class WidevineTestMediaDrmCallback implements MediaDrmCallback {
   public WidevineTestMediaDrmCallback(String contentId, String provider) {
     String params = "?video_id=" + contentId + "&provider=" + provider;
     defaultUri = WIDEVINE_GTS_DEFAULT_BASE_URI + params;
-  }
-
-  @Override
-  public UUID getUuid() {
-    return C.WIDEVINE_UUID;
   }
 
   @Override

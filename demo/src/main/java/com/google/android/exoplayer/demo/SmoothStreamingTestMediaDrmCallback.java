@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.util.Util;
@@ -45,11 +44,6 @@ public final class SmoothStreamingTestMediaDrmCallback implements MediaDrmCallba
     keyRequestProperties.put("SOAPAction",
         "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");
     KEY_REQUEST_PROPERTIES = keyRequestProperties;
-  }
-
-  @Override
-  public UUID getUuid() {
-    return C.PLAYREADY_UUID;
   }
 
   @Override
