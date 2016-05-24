@@ -26,11 +26,12 @@ import android.util.SparseBooleanArray;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * A {@link TrackSelector} suitable for a wide range of use cases.
  */
-public class DefaultTrackSelector extends TrackSelector implements
+public final class DefaultTrackSelector extends TrackSelector implements
     TrackSelectionPolicy.InvalidationListener{
 
   /**
@@ -48,7 +49,7 @@ public class DefaultTrackSelector extends TrackSelector implements
   }
 
   private final Handler eventHandler;
-  private final EventListener eventListener;
+  private final CopyOnWriteArraySet<EventListener> listeners;
   private final SparseArray<Map<TrackGroupArray, TrackSelection>> trackSelectionOverrides;
   private final SparseBooleanArray rendererDisabledFlags;
   private final TrackSelectionPolicy trackSelectionPolicy;
@@ -56,19 +57,37 @@ public class DefaultTrackSelector extends TrackSelector implements
   private TrackInfo activeTrackInfo;
 
   /**
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param trackSelectionPolicy Defines the policy for track selection.
+   * @param eventHandler A handler to use when delivering events to listeners added via
+   *     {@link #addListener(EventListener)}.
    */
-  public DefaultTrackSelector(Handler eventHandler, EventListener eventListener,
-      TrackSelectionPolicy trackSelectionPolicy) {
+  public DefaultTrackSelector(TrackSelectionPolicy trackSelectionPolicy, Handler eventHandler) {
+    this.trackSelectionPolicy = Assertions.checkNotNull(trackSelectionPolicy);
     this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.listeners = new CopyOnWriteArraySet<>();
     trackSelectionOverrides = new SparseArray<>();
     rendererDisabledFlags = new SparseBooleanArray();
-    this.trackSelectionPolicy = Assertions.checkNotNull(trackSelectionPolicy);
-    this.trackSelectionPolicy.init(this);
+    trackSelectionPolicy.init(this);
+  }
+
+  /**
+   * Register a listener to receive events from the selector. The listener's methods will be invoked
+   * using the {@link Handler} that was passed to the constructor.
+   *
+   * @param listener The listener to register.
+   */
+  public void addListener(EventListener listener) {
+    Assertions.checkState(eventHandler != null);
+    listeners.add(listener);
+  }
+
+  /**
+   * Unregister a listener. The listener will no longer receive events from the selector.
+   *
+   * @param listener The listener to unregister.
+   */
+  public void removeListener(EventListener listener) {
+    listeners.remove(listener);
   }
 
   /**
@@ -391,11 +410,13 @@ public class DefaultTrackSelector extends TrackSelector implements
   }
 
   private void notifyTrackInfoChanged(final TrackInfo trackInfo) {
-    if (eventHandler != null && eventListener != null) {
+    if (eventHandler != null) {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onTracksChanged(trackInfo);
+          for (EventListener listener : listeners) {
+            listener.onTracksChanged(trackInfo);
+          }
         }
       });
     }

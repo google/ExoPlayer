@@ -306,7 +306,8 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
   @Override
   protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
-    eventDispatcher.codecCounters(codecCounters);
+    codecCounters.reset();
+    eventDispatcher.enabled(codecCounters);
   }
 
   @Override
@@ -321,6 +322,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
   @Override
   protected void onDisabled() {
+    eventDispatcher.disabled();
     inputBuffer = null;
     outputBuffer = null;
     inputFormat = null;

@@ -19,6 +19,7 @@ import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.ExoPlayerFactory;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
@@ -73,7 +74,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
   }
 
-  private static class TestPlaybackThread extends Thread implements ExoPlayer.Listener {
+  private static class TestPlaybackThread extends Thread implements ExoPlayer.EventListener {
 
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 16;
@@ -93,9 +94,9 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     public void run() {
       Looper.prepare();
       LibvpxVideoTrackRenderer videoRenderer = new LibvpxVideoTrackRenderer(true);
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null, null,
-          new DefaultTrackSelectionPolicy());
-      player = ExoPlayer.Factory.newInstance(new TrackRenderer[] {videoRenderer}, trackSelector);
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector(
+          new DefaultTrackSelectionPolicy(), null);
+      player = ExoPlayerFactory.newInstance(new TrackRenderer[] {videoRenderer}, trackSelector);
       player.addListener(this);
       ExtractorSampleSource sampleSource = new ExtractorSampleSource(
           uri,

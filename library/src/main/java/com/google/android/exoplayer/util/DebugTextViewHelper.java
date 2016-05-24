@@ -16,54 +16,33 @@
 package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.CodecCounters;
+import com.google.android.exoplayer.ExoPlaybackException;
+import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 
 import android.widget.TextView;
 
 /**
- * A helper class for periodically updating debug information displayed by a {@link TextView}.
+ * A helper class for periodically updating a {@link TextView} with debug information obtained from
+ * a {@link SimpleExoPlayer}.
  */
-public final class DebugTextViewHelper implements Runnable {
-
-  /**
-   * Provides debug information about an ongoing playback.
-   */
-  public interface Provider {
-
-    /**
-     * Returns the current playback position, in milliseconds.
-     */
-    long getCurrentPosition();
-
-    /**
-     * Returns a format whose information should be displayed, or null.
-     */
-    Format getFormat();
-
-    /**
-     * Returns a {@link BandwidthMeter} whose estimate should be displayed, or null.
-     */
-    BandwidthMeter getBandwidthMeter();
-
-    /**
-     * Returns a {@link CodecCounters} whose information should be displayed, or null.
-     */
-    CodecCounters getCodecCounters();
-
-  }
+public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListener {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
+  private final SimpleExoPlayer player;
   private final TextView textView;
-  private final Provider debuggable;
+
+  private boolean started;
 
   /**
-   * @param debuggable The {@link Provider} from which debug information should be obtained.
+   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained.
    * @param textView The {@link TextView} that should be updated to display the information.
    */
-  public DebugTextViewHelper(Provider debuggable, TextView textView) {
-    this.debuggable = debuggable;
+  public DebugTextViewHelper(SimpleExoPlayer player, TextView textView) {
+    this.player = player;
     this.textView = textView;
   }
 
@@ -73,7 +52,11 @@ public final class DebugTextViewHelper implements Runnable {
    * Should be called from the application's main thread.
    */
   public void start() {
-    stop();
+    if (started) {
+      return;
+    }
+    started = true;
+    player.addListener(this);
     run();
   }
 
@@ -83,43 +66,101 @@ public final class DebugTextViewHelper implements Runnable {
    * Should be called from the application's main thread.
    */
   public void stop() {
+    if (!started) {
+      return;
+    }
+    started = false;
+    player.removeListener(this);
     textView.removeCallbacks(this);
   }
 
   @Override
   public void run() {
-    textView.setText(getRenderString());
+    updateTextView();
     textView.postDelayed(this, REFRESH_INTERVAL_MS);
   }
 
-  private String getRenderString() {
-    return getTimeString() + " " + getQualityString() + " " + getBandwidthString() + " "
-        + getVideoCodecCountersString();
+  private void updateTextView() {
+    textView.setText(getPlayerStateString() + getBandwidthString() + getVideoString()
+        + getAudioString());
   }
 
-  private String getTimeString() {
-    return "ms(" + debuggable.getCurrentPosition() + ")";
-  }
-
-  private String getQualityString() {
-    Format format = debuggable.getFormat();
-    return format == null ? "id:? br:? h:?"
-        : "id:" + format.id + " br:" + format.bitrate + " h:" + format.height;
+  public String getPlayerStateString() {
+    String text = "playWhenReady:" + player.getPlayWhenReady() + " playbackState:";
+    switch(player.getPlaybackState()) {
+      case ExoPlayer.STATE_BUFFERING:
+        text += "buffering";
+        break;
+      case ExoPlayer.STATE_ENDED:
+        text += "ended";
+        break;
+      case ExoPlayer.STATE_IDLE:
+        text += "idle";
+        break;
+      case ExoPlayer.STATE_READY:
+        text += "ready";
+        break;
+      default:
+        text += "unknown";
+        break;
+    }
+    return text;
   }
 
   private String getBandwidthString() {
-    BandwidthMeter bandwidthMeter = debuggable.getBandwidthMeter();
+    BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
     if (bandwidthMeter == null
         || bandwidthMeter.getBitrateEstimate() == BandwidthMeter.NO_ESTIMATE) {
-      return "bw:?";
+      return " bw:?";
     } else {
-      return "bw:" + (bandwidthMeter.getBitrateEstimate() / 1000);
+      return " bw:" + (bandwidthMeter.getBitrateEstimate() / 1000);
     }
   }
 
-  private String getVideoCodecCountersString() {
-    CodecCounters codecCounters = debuggable.getCodecCounters();
-    return codecCounters == null ? "" : codecCounters.getDebugString();
+  private String getVideoString() {
+    Format format = player.getVideoFormat();
+    if (format == null) {
+      return "";
+    }
+    return "\n" + format.sampleMimeType + "(r:" + format.width + "x" + format.height
+        + getCodecCounterBufferCountString(player.getVideoCodecCounters()) + ")";
+  }
+
+  private String getAudioString() {
+    Format format = player.getAudioFormat();
+    if (format == null) {
+      return "";
+    }
+    return "\n" + format.sampleMimeType + "(hz:" + format.sampleRate + " ch:" + format.channelCount
+        + getCodecCounterBufferCountString(player.getAudioCodecCounters()) + ")";
+  }
+
+  private static String getCodecCounterBufferCountString(CodecCounters counters) {
+    if (counters == null) {
+      return "";
+    }
+    counters.ensureUpdated();
+    return " rb:" + counters.renderedOutputBufferCount
+        + " sb:" + counters.skippedOutputBufferCount
+        + " db:" + counters.droppedOutputBufferCount
+        + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
+  }
+
+  // ExoPlayer.EventListener implementation
+
+  @Override
+  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    updateTextView();
+  }
+
+  @Override
+  public void onPlayWhenReadyCommitted() {
+    // Do nothing.
+  }
+
+  @Override
+  public void onPlayerError(ExoPlaybackException error) {
+    // Do nothing.
   }
 
 }

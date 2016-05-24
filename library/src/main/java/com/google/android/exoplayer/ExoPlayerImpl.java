@@ -34,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
-  private final CopyOnWriteArraySet<Listener> listeners;
+  private final CopyOnWriteArraySet<EventListener> listeners;
 
   private boolean playWhenReady;
   private int playbackState;
@@ -71,12 +71,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void addListener(Listener listener) {
+  public void addListener(EventListener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(Listener listener) {
+  public void removeListener(EventListener listener) {
     listeners.remove(listener);
   }
 
@@ -96,7 +96,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       this.playWhenReady = playWhenReady;
       pendingPlayWhenReadyAcks++;
       internalPlayer.setPlayWhenReady(playWhenReady);
-      for (Listener listener : listeners) {
+      for (EventListener listener : listeners) {
         listener.onPlayerStateChanged(playWhenReady, playbackState);
       }
     }
@@ -166,7 +166,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     switch (msg.what) {
       case ExoPlayerImplInternal.MSG_STATE_CHANGED: {
         playbackState = msg.arg1;
-        for (Listener listener : listeners) {
+        for (EventListener listener : listeners) {
           listener.onPlayerStateChanged(playWhenReady, playbackState);
         }
         break;
@@ -174,7 +174,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SET_PLAY_WHEN_READY_ACK: {
         pendingPlayWhenReadyAcks--;
         if (pendingPlayWhenReadyAcks == 0) {
-          for (Listener listener : listeners) {
+          for (EventListener listener : listeners) {
             listener.onPlayWhenReadyCommitted();
           }
         }
@@ -182,7 +182,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_ERROR: {
         ExoPlaybackException exception = (ExoPlaybackException) msg.obj;
-        for (Listener listener : listeners) {
+        for (EventListener listener : listeners) {
           listener.onPlayerError(exception);
         }
         break;

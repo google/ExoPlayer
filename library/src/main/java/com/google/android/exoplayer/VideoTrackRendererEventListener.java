@@ -28,11 +28,11 @@ import android.view.TextureView;
 public interface VideoTrackRendererEventListener {
 
   /**
-   * Invoked to pass the codec counters when the renderer is enabled.
+   * Invoked when the renderer is enabled.
    *
-   * @param counters CodecCounters object used by the renderer.
+   * @param counters {@link CodecCounters} that will be updated by the renderer.
    */
-  void onVideoCodecCounters(CodecCounters counters);
+  void onVideoEnabled(CodecCounters counters);
 
   /**
    * Invoked when a decoder is created.
@@ -93,6 +93,11 @@ public interface VideoTrackRendererEventListener {
   void onDrawnToSurface(Surface surface);
 
   /**
+   * Invoked when the renderer is disabled.
+   */
+  void onVideoDisabled();
+
+  /**
    * Dispatches events to a {@link VideoTrackRendererEventListener}.
    */
   final class EventDispatcher {
@@ -105,12 +110,12 @@ public interface VideoTrackRendererEventListener {
       this.listener = listener;
     }
 
-    public void codecCounters(final CodecCounters codecCounters) {
+    public void enabled(final CodecCounters codecCounters) {
       if (listener != null) {
         handler.post(new Runnable() {
           @Override
           public void run() {
-            listener.onVideoCodecCounters(codecCounters);
+            listener.onVideoEnabled(codecCounters);
           }
         });
       }
@@ -170,6 +175,17 @@ public interface VideoTrackRendererEventListener {
           @Override
           public void run() {
             listener.onDrawnToSurface(surface);
+          }
+        });
+      }
+    }
+
+    public void disabled() {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onVideoDisabled();
           }
         });
       }

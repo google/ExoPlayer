@@ -16,16 +16,17 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
-import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 
@@ -39,9 +40,9 @@ import java.util.Locale;
 /**
  * Logs player events using {@link Log}.
  */
-public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener,
+public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.DebugListener,
     ChunkTrackStreamEventListener, ExtractorSampleSource.EventListener,
-    StreamingDrmSessionManager.EventListener {
+    StreamingDrmSessionManager.EventListener, DefaultTrackSelector.EventListener {
 
   private static final String TAG = "EventLogger";
   private static final NumberFormat TIME_FORMAT;
@@ -62,25 +63,25 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     Log.d(TAG, "end [" + getSessionTimeString() + "]");
   }
 
-  // DemoPlayer.Listener
+  // ExoPlayer.EventListener
 
   @Override
-  public void onStateChanged(boolean playWhenReady, int state) {
+  public void onPlayerStateChanged(boolean playWhenReady, int state) {
     Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", "
         + getStateString(state) + "]");
   }
 
   @Override
-  public void onError(ExoPlaybackException e) {
-    Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
+  public void onPlayWhenReadyCommitted() {
+    // Do nothing.
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-      float pixelWidthHeightRatio) {
-    Log.d(TAG, "videoSizeChanged [" + width + ", " + height + ", " + unappliedRotationDegrees
-        + ", " + pixelWidthHeightRatio + "]");
+  public void onPlayerError(ExoPlaybackException e) {
+    Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
   }
+
+  // DefaultTrackSelector.EventListener
 
   @Override
   public void onTracksChanged(TrackInfo trackInfo) {
@@ -130,7 +131,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     Log.d(TAG, "]");
   }
 
-  // DemoPlayer.InfoListener
+  // SimpleExoPlayer.DebugListener
 
   @Override
   public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,

@@ -333,7 +333,8 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
-    eventDispatcher.codecCounters(codecCounters);
+    codecCounters.reset();
+    eventDispatcher.enabled(codecCounters);
   }
 
   @Override
@@ -360,6 +361,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       }
     } finally {
       super.onDisabled();
+      eventDispatcher.disabled();
     }
   }
 

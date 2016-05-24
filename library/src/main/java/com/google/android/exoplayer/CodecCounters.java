@@ -70,15 +70,17 @@ public final class CodecCounters {
     // call this method.
   }
 
-  public String getDebugString() {
-    ensureUpdated();
-    return "ic:" + codecInitCount
-        + " rc:" + codecReleaseCount
-        + " ib:" + inputBufferCount
-        + " rb:" + renderedOutputBufferCount
-        + " sb:" + skippedOutputBufferCount
-        + " db:" + droppedOutputBufferCount
-        + " mcdb:" + maxConsecutiveDroppedOutputBufferCount;
+  /**
+   * Resets all counters to zero.
+   */
+  public void reset() {
+    codecInitCount = 0;
+    codecReleaseCount = 0;
+    inputBufferCount = 0;
+    renderedOutputBufferCount = 0;
+    skippedOutputBufferCount = 0;
+    droppedOutputBufferCount = 0;
+    maxConsecutiveDroppedOutputBufferCount = 0;
   }
 
 }

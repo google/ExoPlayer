@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import android.os.Looper;
-
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as
  * the ability to buffer media, play, pause and seek.
@@ -62,8 +60,8 @@ import android.os.Looper;
  * discouraged, however if an application does wish to do this then it may do so provided that it
  * ensures accesses are synchronized.
  * </li>
- * <li>Registered {@link Listener}s are invoked on the thread that created the {@link ExoPlayer}
- * instance.</li>
+ * <li>Registered {@link EventListener}s are invoked on the thread that created the
+ * {@link ExoPlayer} instance.</li>
  * <li>An internal playback thread is responsible for managing playback and invoking the
  * {@link TrackRenderer}s in order to load and play the media.</li>
  * <li>{@link TrackRenderer} implementations (or any upstream components that they depend on) may
@@ -94,62 +92,10 @@ import android.os.Looper;
 public interface ExoPlayer {
 
   /**
-   * A factory for instantiating ExoPlayer instances.
-   */
-  final class Factory {
-
-    /**
-     * The default minimum duration of data that must be buffered for playback to start or resume
-     * following a user action such as a seek.
-     */
-    public static final int DEFAULT_MIN_BUFFER_MS = 2500;
-
-    /**
-     * The default minimum duration of data that must be buffered for playback to resume
-     * after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
-     * not due to a user action such as starting playback or seeking).
-     */
-    public static final int DEFAULT_MIN_REBUFFER_MS = 5000;
-
-    private Factory() {}
-
-    /**
-     * Obtains an {@link ExoPlayer} instance.
-     * <p>
-     * Must be invoked from a thread that has an associated {@link Looper}.
-     *
-     * @param renderers The {@link TrackRenderer}s that will be used by the instance.
-     * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-     * @param minBufferMs A minimum duration of data that must be buffered for playback to start
-     *     or resume following a user action such as a seek.
-     * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
-     *     after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
-     *     not due to a user action such as starting playback or seeking).
-     */
-    public static ExoPlayer newInstance(TrackRenderer[] renderers, TrackSelector trackSelector,
-        int minBufferMs, int minRebufferMs) {
-      return new ExoPlayerImpl(renderers, trackSelector, minBufferMs, minRebufferMs);
-    }
-
-    /**
-     * Obtains an {@link ExoPlayer} instance.
-     * <p>
-     * Must be invoked from a thread that has an associated {@link Looper}.
-     *
-     * @param renderers The {@link TrackRenderer}s that will be used by the instance.
-     * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-     */
-    public static ExoPlayer newInstance(TrackRenderer[] renderers, TrackSelector trackSelector) {
-      return new ExoPlayerImpl(renderers, trackSelector, DEFAULT_MIN_BUFFER_MS,
-          DEFAULT_MIN_REBUFFER_MS);
-    }
-
-  }
-
-  /**
    * Interface definition for a callback to be notified of changes in player state.
    */
-  interface Listener {
+  interface EventListener {
+
     /**
      * Invoked when the value returned from either {@link ExoPlayer#getPlayWhenReady()} or
      * {@link ExoPlayer#getPlaybackState()} changes.
@@ -159,6 +105,7 @@ public interface ExoPlayer {
      *     interface.
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
+
     /**
      * Invoked when the current value of {@link ExoPlayer#getPlayWhenReady()} has been reflected
      * by the internal playback thread.
@@ -169,6 +116,7 @@ public interface ExoPlayer {
      * has been reflected.
      */
     void onPlayWhenReadyCommitted();
+
     /**
      * Invoked when an error occurs. The playback state will transition to
      * {@link ExoPlayer#STATE_IDLE} immediately after this method is invoked. The player instance
@@ -178,6 +126,7 @@ public interface ExoPlayer {
      * @param error The error.
      */
     void onPlayerError(ExoPlaybackException error);
+
   }
 
   /**
@@ -230,14 +179,14 @@ public interface ExoPlayer {
    *
    * @param listener The listener to register.
    */
-  void addListener(Listener listener);
+  void addListener(EventListener listener);
 
   /**
    * Unregister a listener. The listener will no longer receive events from the player.
    *
    * @param listener The listener to unregister.
    */
-  void removeListener(Listener listener);
+  void removeListener(EventListener listener);
 
   /**
    * Returns the current state of the player.

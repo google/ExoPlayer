@@ -17,15 +17,18 @@ package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
+import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.ExoPlayerFactory;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.dash.DashSampleSource;
-import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
@@ -46,6 +49,7 @@ import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
+import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
 
 import android.Manifest.permission;
@@ -61,6 +65,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -81,10 +86,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * An activity that plays media using {@link DemoPlayer}.
+ * An activity that plays media using {@link SimpleExoPlayer}.
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener {
+    ExoPlayer.EventListener, SimpleExoPlayer.VideoListener, SimpleExoPlayer.CaptionListener,
+    SimpleExoPlayer.Id3MetadataListener, DefaultTrackSelector.EventListener {
 
   // For use within demo app code.
   public static final String CONTENT_TYPE_EXTRA = "content_type";
@@ -114,12 +120,12 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private AspectRatioFrameLayout videoFrame;
   private SurfaceView surfaceView;
   private TextView debugTextView;
-  private TextView playerStateTextView;
   private SubtitleLayout subtitleLayout;
   private Button retryButton;
 
   private DataSourceFactory dataSourceFactory;
-  private DemoPlayer player;
+  private SimpleExoPlayer player;
+  private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsSource;
@@ -163,10 +169,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
-
-    playerStateTextView = (TextView) findViewById(R.id.player_state_view);
     subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
-
     mediaController = new KeyCompatibleMediaController(this);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
@@ -226,7 +229,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       initializePlayer();
     } else if (view.getParent() == debugRootView) {
       trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
-          player.getTrackInfo(), (int) view.getTag());
+          trackSelector.getTrackInfo(), (int) view.getTag());
     }
   }
 
@@ -279,6 +282,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     int type = intent.getIntExtra(CONTENT_TYPE_EXTRA,
         inferContentType(uri, intent.getStringExtra(CONTENT_EXT_EXTRA)));
     if (player == null) {
+      boolean useExtensionDecoders = intent.getBooleanExtra(USE_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = (UUID) intent.getSerializableExtra(DRM_SCHEME_UUID_EXTRA);
       DrmSessionManager drmSessionManager = null;
       if (drmSchemeUuid != null) {
@@ -291,20 +295,24 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
           return;
         }
       }
-      boolean useExtensionDecoders = intent.getBooleanExtra(USE_EXTENSION_DECODERS, false);
       eventLogger = new EventLogger();
       eventLogger.startSession();
-      player = new DemoPlayer(this, drmSessionManager, useExtensionDecoders);
+      trackSelector = new DefaultTrackSelector(new DefaultTrackSelectionPolicy(), mainHandler);
+      trackSelector.addListener(this);
+      trackSelector.addListener(eventLogger);
+      trackSelectionHelper = new TrackSelectionHelper(trackSelector);
+      player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, drmSessionManager,
+          useExtensionDecoders);
       player.addListener(this);
       player.addListener(eventLogger);
-      player.setInfoListener(eventLogger);
+      player.setDebugListener(eventLogger);
+      player.setVideoListener(this);
       player.setCaptionListener(this);
       player.setMetadataListener(this);
       player.seekTo(playerPosition);
       player.setSurface(surfaceView.getHolder().getSurface());
       player.setPlayWhenReady(true);
-      trackSelectionHelper = new TrackSelectionHelper(player.getTrackSelector());
-      mediaController.setMediaPlayer(player.getPlayerControl());
+      mediaController.setMediaPlayer(new PlayerControl(player));
       mediaController.setAnchorView(rootView);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
@@ -373,47 +381,30 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       playerPosition = player.getCurrentPosition();
       player.release();
       player = null;
+      trackSelector = null;
+      trackSelectionHelper = null;
       eventLogger.endSession();
       eventLogger = null;
     }
   }
 
-  // DemoPlayer.Listener implementation
+  // ExoPlayer.EventListener implementation
 
   @Override
-  public void onTracksChanged(TrackInfo trackSet) {
-    updateButtonVisibilities();
-  }
-
-  @Override
-  public void onStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     if (playbackState == ExoPlayer.STATE_ENDED) {
       showControls();
     }
-    String text = "playWhenReady=" + playWhenReady + ", playbackState=";
-    switch(playbackState) {
-      case ExoPlayer.STATE_BUFFERING:
-        text += "buffering";
-        break;
-      case ExoPlayer.STATE_ENDED:
-        text += "ended";
-        break;
-      case ExoPlayer.STATE_IDLE:
-        text += "idle";
-        break;
-      case ExoPlayer.STATE_READY:
-        text += "ready";
-        break;
-      default:
-        text += "unknown";
-        break;
-    }
-    playerStateTextView.setText(text);
     updateButtonVisibilities();
   }
 
   @Override
-  public void onError(ExoPlaybackException e) {
+  public void onPlayWhenReadyCommitted() {
+    // Do nothing.
+  }
+
+  @Override
+  public void onPlayerError(ExoPlaybackException e) {
     String errorString = null;
     if (e.type == ExoPlaybackException.TYPE_RENDERER) {
       Exception cause = e.getRendererException();
@@ -445,12 +436,25 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     showControls();
   }
 
+  // SimpleExoPlayer.VideoListener implementation
+
   @Override
   public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
       float pixelWidthAspectRatio) {
-    shutterView.setVisibility(View.GONE);
     videoFrame.setAspectRatio(
         height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
+  }
+
+  @Override
+  public void onDrawnToSurface(Surface surface) {
+    shutterView.setVisibility(View.GONE);
+  }
+
+  // DefaultTrackSelector.EventListener implementation
+
+  @Override
+  public void onTracksChanged(TrackInfo trackSet) {
+    updateButtonVisibilities();
   }
 
   // User controls
@@ -461,8 +465,12 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
     debugRootView.addView(retryButton);
 
-    TrackInfo trackInfo;
-    if (player == null || (trackInfo = player.getTrackInfo()) == null) {
+    if (player == null) {
+      return;
+    }
+
+    TrackInfo trackInfo = trackSelector.getTrackInfo();
+    if (trackInfo == null) {
       return;
     }
 
@@ -500,14 +508,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     debugRootView.setVisibility(View.VISIBLE);
   }
 
-  // DemoPlayer.CaptionListener implementation
+  // SimpleExoPlayer.CaptionListener implementation
 
   @Override
   public void onCues(List<Cue> cues) {
     subtitleLayout.setCues(cues);
   }
 
-  // DemoPlayer.MetadataListener implementation
+  // SimpleExoPlayer.MetadataListener implementation
 
   @Override
   public void onId3Metadata(List<Id3Frame> id3Frames) {

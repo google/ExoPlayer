@@ -48,14 +48,6 @@
       android:background="#88000000"
       android:orientation="vertical">
 
-    <TextView android:id="@+id/player_state_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:textSize="10sp"
-        tools:ignore="SmallSp"/>
-
     <TextView android:id="@+id/debug_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

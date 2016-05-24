@@ -27,11 +27,11 @@ import android.os.SystemClock;
 public interface AudioTrackRendererEventListener {
 
   /**
-   * Invoked to pass the codec counters when the renderer is enabled.
+   * Invoked when the renderer is enabled.
    *
-   * @param counters CodecCounters object used by the renderer.
+   * @param counters {@link CodecCounters} that will be updated by the renderer.
    */
-  void onAudioCodecCounters(CodecCounters counters);
+  void onAudioEnabled(CodecCounters counters);
 
   /**
    * Invoked when a decoder is created.
@@ -63,6 +63,11 @@ public interface AudioTrackRendererEventListener {
   void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
   /**
+   * Invoked when the renderer is disabled.
+   */
+  void onAudioDisabled();
+
+  /**
    * Dispatches events to a {@link AudioTrackRendererEventListener}.
    */
   final class EventDispatcher {
@@ -75,12 +80,12 @@ public interface AudioTrackRendererEventListener {
       this.listener = listener;
     }
 
-    public void codecCounters(final CodecCounters codecCounters) {
+    public void enabled(final CodecCounters codecCounters) {
       if (listener != null) {
         handler.post(new Runnable() {
           @Override
           public void run() {
-            listener.onAudioCodecCounters(codecCounters);
+            listener.onAudioEnabled(codecCounters);
           }
         });
       }
@@ -117,6 +122,17 @@ public interface AudioTrackRendererEventListener {
           @Override
           public void run() {
             listener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+          }
+        });
+      }
+    }
+
+    public void disabled() {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onAudioDisabled();
           }
         });
       }

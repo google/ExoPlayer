@@ -272,8 +272,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+    codecCounters.reset();
+    eventDispatcher.enabled(codecCounters);
     super.onEnabled(formats, joining);
-    eventDispatcher.codecCounters(codecCounters);
   }
 
   @Override
@@ -290,6 +291,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected void onDisabled() {
+    eventDispatcher.disabled();
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
       audioTrack.release();
