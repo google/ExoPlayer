@@ -354,6 +354,19 @@ public interface ExoPlayer {
   public void stop();
 
   /**
+   * Sets the specified output gain value on all channels of this track.
+   * <p>Gain values are clamped to the closed interval [0.0, 1.0]
+   * A value of 0.0 results in zero gain (silence), and
+   * a value of 1.0 means unity gain (signal unchanged).
+   * The default value is 1.0 meaning unity gain.
+   * <p>The word "volume" in the API name is historical; this is actually a linear gain.
+   * Sited from {@link android.media.AudioTrack#setVolume(float)}
+   *
+   * @param gain output gain for all channels.
+   */
+  public void setVolume(float gain);
+
+  /**
    * Releases the player. This method must be called when the player is no longer required.
    * <p>
    * The player must not be used after calling this method.
