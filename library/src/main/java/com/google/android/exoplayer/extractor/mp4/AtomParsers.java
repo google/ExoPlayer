@@ -589,9 +589,10 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
-          || childAtomType == Atom.TYPE_s263) {
-        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, trackId, rotationDegrees,
-            drmInitData, out, i);
+          || childAtomType == Atom.TYPE_s263 || childAtomType == Atom.TYPE_vp08
+          || childAtomType == Atom.TYPE_vp09) {
+        parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
+            rotationDegrees, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
@@ -619,8 +620,9 @@ import java.util.List;
     return out;
   }
 
-  private static void parseVideoSampleEntry(ParsableByteArray parent, int position, int size,
-      int trackId, int rotationDegrees, DrmInitData drmInitData, StsdData out, int entryIndex) {
+  private static void parseVideoSampleEntry(ParsableByteArray parent, int atomType, int position,
+      int size, int trackId, int rotationDegrees, DrmInitData drmInitData, StsdData out,
+      int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -673,6 +675,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
         pixelWidthHeightRatioFromPasp = true;
+      } else if (childAtomType == Atom.TYPE_vpcC) {
+        Assertions.checkState(mimeType == null);
+        mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
       }
       childPosition += childAtomSize;
     }

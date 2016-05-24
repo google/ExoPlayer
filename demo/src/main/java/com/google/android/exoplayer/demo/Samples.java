@@ -271,6 +271,8 @@ import java.util.UUID;
         "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg", Util.TYPE_OTHER),
     Sample.newSample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", Util.TYPE_OTHER),
+    Sample.newSample("Google Glass (VP9 in MP4/ISO-BMFF)",
+        "http://demos.webmproject.org/exoplayer/glass.mp4", Util.TYPE_OTHER),
     Sample.newSample("Google Glass DASH - VP9 and Opus",
         "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd",
         Util.TYPE_DASH),
