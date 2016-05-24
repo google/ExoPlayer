@@ -65,10 +65,10 @@
         tools:ignore="SmallSp"/>
 
     <LinearLayout android:id="@+id/controls_root"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:visibility="gone">
 
       <Button android:id="@+id/video_controls"
           android:layout_width="wrap_content"
@@ -107,6 +107,32 @@
           android:text="@string/retry"
           android:visibility="gone"
           style="@style/DemoButton"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/volume_controls_root"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:visibility="gone">
+
+      <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/volume"
+                android:id="@+id/textView"/>
+
+      <SeekBar android:id="@+id/volume_control"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:max="20"
+               android:layout_weight="1"/>
+
+      <TextView android:id="@+id/volume_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="1.0"/>
 
     </LinearLayout>
 

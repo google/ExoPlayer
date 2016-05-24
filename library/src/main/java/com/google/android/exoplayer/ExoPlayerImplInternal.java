@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private static final int MSG_DO_SOME_WORK = 7;
   private static final int MSG_SET_RENDERER_SELECTED_TRACK = 8;
   private static final int MSG_CUSTOM = 9;
+  private static final int MSG_SET_VOLUME = 10;
 
   private static final int PREPARE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -86,6 +87,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private int customMessagesProcessed = 0;
   private long lastSeekPositionMs;
   private long elapsedRealtimeUs;
+  private float volume = 1.0f;
 
   private volatile long durationUs;
   private volatile long positionUs;
@@ -150,6 +152,13 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void stop() {
     handler.sendEmptyMessage(MSG_STOP);
   }
+
+  public void setVolume(float gain) {
+    volume = gain;
+    handler.obtainMessage(MSG_SET_VOLUME, volume).sendToTarget();
+  }
+
+  public float getVolume() { return volume; }
 
   public void setRendererSelectedTrack(int rendererIndex, int trackIndex) {
     handler.obtainMessage(MSG_SET_RENDERER_SELECTED_TRACK, rendererIndex, trackIndex)
@@ -219,6 +228,10 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
         case MSG_STOP: {
           stopInternal();
+          return true;
+        }
+        case MSG_SET_VOLUME: {
+          setVolumeInternal((float)msg.obj);
           return true;
         }
         case MSG_RELEASE: {
@@ -527,6 +540,15 @@ import java.util.concurrent.atomic.AtomicInteger;
   private void stopInternal() {
     resetInternal();
     setState(ExoPlayer.STATE_IDLE);
+  }
+
+  private void setVolumeInternal(float gain) {
+    for (int i = 0; i < enabledRenderers.size(); i++) {
+      TrackRenderer renderer = enabledRenderers.get(i);
+      if (renderer instanceof MediaCodecAudioTrackRenderer) {
+        sendMessage(renderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, gain);
+      }
+    }
   }
 
   private void releaseInternal() {

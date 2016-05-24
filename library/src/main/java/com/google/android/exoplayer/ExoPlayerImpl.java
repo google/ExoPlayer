@@ -152,6 +152,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void setVolume(float gain) {
+    internalPlayer.setVolume(Math.max(0f, Math.min(gain, 1.0f)));
+  }
+
+  @Override
+  public float getVolume() { return internalPlayer.getVolume(); }
+
+  @Override
   public void release() {
     internalPlayer.release();
     eventHandler.removeCallbacksAndMessages(null);

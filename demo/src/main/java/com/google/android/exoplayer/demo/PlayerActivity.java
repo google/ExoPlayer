@@ -69,6 +69,7 @@ import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -107,6 +108,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private MediaController mediaController;
   private View debugRootView;
   private View shutterView;
+  private View volumeRootView;
   private AspectRatioFrameLayout videoFrame;
   private SurfaceView surfaceView;
   private TextView debugTextView;
@@ -116,6 +118,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private Button audioButton;
   private Button textButton;
   private Button retryButton;
+  private SeekBar volumeControl;
+  private TextView volumeValue;
 
   private DemoPlayer player;
   private DebugTextViewHelper debugViewHelper;
@@ -163,7 +167,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
-
+    volumeRootView = findViewById(R.id.volume_controls_root);
+    
     videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
@@ -179,6 +184,28 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     videoButton = (Button) findViewById(R.id.video_controls);
     audioButton = (Button) findViewById(R.id.audio_controls);
     textButton = (Button) findViewById(R.id.text_controls);
+    volumeControl = (SeekBar) findViewById(R.id.volume_control);
+    volumeValue = (TextView) findViewById(R.id.volume_value);
+
+    volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      @Override
+      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (player != null) {
+          player.setVolume(progress / (float)seekBar.getMax());
+          volumeValue.setText(String.format("%.2f", player.getVolume()));
+        }
+      }
+
+      @Override
+      public void onStartTrackingTouch(SeekBar seekBar) {
+
+      }
+
+      @Override
+      public void onStopTrackingTouch(SeekBar seekBar) {
+
+      }
+    });
 
     CookieHandler currentHandler = CookieHandler.getDefault();
     if (currentHandler != defaultCookieManager) {
@@ -467,6 +494,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     videoButton.setVisibility(haveTracks(DemoPlayer.TYPE_VIDEO) ? View.VISIBLE : View.GONE);
     audioButton.setVisibility(haveTracks(DemoPlayer.TYPE_AUDIO) ? View.VISIBLE : View.GONE);
     textButton.setVisibility(haveTracks(DemoPlayer.TYPE_TEXT) ? View.VISIBLE : View.GONE);
+
+    volumeValue.setText(Float.toString(player.getVolume()));
+    volumeControl.setProgress((int)(player.getVolume() * volumeControl.getMax()));
   }
 
   private boolean haveTracks(int type) {
@@ -615,6 +645,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (mediaController.isShowing()) {
       mediaController.hide();
       debugRootView.setVisibility(View.GONE);
+      volumeRootView.setVisibility(View.GONE);
     } else {
       showControls();
     }
@@ -623,6 +654,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private void showControls() {
     mediaController.show(0);
     debugRootView.setVisibility(View.VISIBLE);
+    volumeRootView.setVisibility(View.VISIBLE);
   }
 
   // DemoPlayer.CaptionListener implementation

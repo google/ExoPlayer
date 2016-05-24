@@ -21,6 +21,8 @@
 
   <string name="enable_background_audio">Play in background</string>
 
+  <string name="volume">Volume</string>
+
   <string name="video">Video</string>
 
   <string name="audio">Audio</string>
