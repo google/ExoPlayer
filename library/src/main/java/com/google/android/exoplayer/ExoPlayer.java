@@ -354,7 +354,7 @@ public interface ExoPlayer {
   public void stop();
 
   /**
-   * Sets the specified output gain value on all channels of this track.
+   * Sets the specified output gain value on all channels of audio track.
    * <p>Gain values are clamped to the closed interval [0.0, 1.0]
    * A value of 0.0 results in zero gain (silence), and
    * a value of 1.0 means unity gain (signal unchanged).
@@ -365,6 +365,18 @@ public interface ExoPlayer {
    * @param gain output gain for all channels.
    */
   public void setVolume(float gain);
+
+  /**
+   * Gets the specified output gain value on all channels of audio track.
+   * <p>Gain values are clamped to the closed interval [0.0, 1.0]
+   * A value of 0.0 results in zero gain (silence), and
+   * a value of 1.0 means unity gain (signal unchanged).
+   * The default value is 1.0 meaning unity gain.
+   * <p>The word "volume" in the API name is historical; this is actually a linear gain.
+   *
+   * @return output gain for all audio track channels
+   */
+  public float getVolume();
 
   /**
    * Releases the player. This method must be called when the player is no longer required.

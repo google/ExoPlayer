@@ -87,6 +87,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private int customMessagesProcessed = 0;
   private long lastSeekPositionMs;
   private long elapsedRealtimeUs;
+  private float volume;
 
   private volatile long durationUs;
   private volatile long positionUs;
@@ -153,8 +154,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   public void setVolume(float gain) {
-    handler.obtainMessage(MSG_SET_VOLUME, gain).sendToTarget();
+    volume = gain;
+    handler.obtainMessage(MSG_SET_VOLUME, volume).sendToTarget();
   }
+
+  public float getVolume() { return volume; }
 
   public void setRendererSelectedTrack(int rendererIndex, int trackIndex) {
     handler.obtainMessage(MSG_SET_RENDERER_SELECTED_TRACK, rendererIndex, trackIndex)
