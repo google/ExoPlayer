@@ -600,4 +600,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
+  public float getVolume() {
+    return player.getVolume();
+  }
+
+  public void setVolume(float gain) {
+    player.setVolume(gain);
+  }
 }

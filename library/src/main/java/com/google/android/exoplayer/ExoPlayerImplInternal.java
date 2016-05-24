@@ -87,7 +87,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private int customMessagesProcessed = 0;
   private long lastSeekPositionMs;
   private long elapsedRealtimeUs;
-  private float volume;
+  private float volume = 1.0f;
 
   private volatile long durationUs;
   private volatile long positionUs;
@@ -231,7 +231,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           return true;
         }
         case MSG_SET_VOLUME: {
-          setVolumeInternal(msg.arg1);
+          setVolumeInternal((float)msg.obj);
           return true;
         }
         case MSG_RELEASE: {
