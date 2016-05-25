@@ -553,7 +553,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void surfaceDestroyed(SurfaceHolder holder) {
     if (player != null) {
-      player.blockingClearSurface();
+      player.setSurface(null);
     }
   }
 

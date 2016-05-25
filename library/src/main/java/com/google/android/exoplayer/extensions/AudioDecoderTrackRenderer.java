@@ -21,7 +21,6 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.MediaClock;
@@ -30,6 +29,7 @@ import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
 
+import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.SystemClock;
 
@@ -37,13 +37,6 @@ import android.os.SystemClock;
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
 public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements MediaClock {
-
-  /**
-   * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
-   * should be a {@link Float} with 0 being silence and 1 being unity gain.
-   */
-  public static final int MSG_SET_VOLUME = 1;
 
   public final CodecCounters codecCounters = new CodecCounters();
 
@@ -355,10 +348,16 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_VOLUME) {
-      audioTrack.setVolume((Float) message);
-    } else {
-      super.handleMessage(messageType, message);
+    switch (messageType) {
+      case C.MSG_SET_VOLUME:
+        audioTrack.setVolume((Float) message);
+        break;
+      case C.MSG_SET_PLAYBACK_PARAMS:
+        audioTrack.setPlaybackParams((PlaybackParams) message);
+        break;
+      default:
+        super.handleMessage(messageType, message);
+        break;
     }
   }
 

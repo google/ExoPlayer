@@ -27,6 +27,7 @@ import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaCodec;
@@ -43,6 +44,7 @@ import java.util.List;
  * <p>
  * Instances of this class can be obtained from {@link ExoPlayerFactory}.
  */
+@TargetApi(16)
 public final class SimpleExoPlayer implements ExoPlayer {
 
   /**
@@ -88,7 +90,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private final ComponentListener componentListener;
   private final Handler mainHandler;
 
-  private Surface surface;
   private Format videoFormat;
   private Format audioFormat;
 
@@ -144,16 +145,29 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * @param surface The {@link Surface}.
    */
   public void setSurface(Surface surface) {
-    this.surface = surface;
-    pushSurface(false);
+    for (TrackRenderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
+        if (surface == null) {
+          // Block to ensure that the surface is not accessed after the method returns.
+          player.blockingSendMessage(renderer, C.MSG_SET_SURFACE, null);
+        } else {
+          player.sendMessage(renderer, C.MSG_SET_SURFACE, surface);
+        }
+      }
+    }
   }
 
   /**
-   * Clears the {@link Surface} onto which video will be rendered.
+   * Sets the audio volume, with 0 being silence and 1 being unity gain.
+   *
+   * @param volume The volume.
    */
-  public void blockingClearSurface() {
-    surface = null;
-    pushSurface(true);
+  public void setVolume(float volume) {
+    for (TrackRenderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player.sendMessage(renderer, C.MSG_SET_VOLUME, volume);
+      }
+    }
   }
 
   /**
@@ -278,7 +292,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   @Override
   public void release() {
-    surface = null;
     player.release();
   }
 
@@ -313,18 +326,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   // Internal methods.
-
-  private void pushSurface(boolean blockForSurfacePush) {
-    for (TrackRenderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        if (blockForSurfacePush) {
-          player.blockingSendMessage(renderer, C.MSG_SET_SURFACE, surface);
-        } else {
-          player.sendMessage(renderer, C.MSG_SET_SURFACE, surface);
-        }
-      }
-    }
-  }
 
   private void buildRenderers(Context context, DrmSessionManager drmSessionManager,
       ArrayList<TrackRenderer> renderersList) {

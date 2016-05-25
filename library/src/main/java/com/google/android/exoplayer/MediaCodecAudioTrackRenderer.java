@@ -41,22 +41,6 @@ import java.nio.ByteBuffer;
 @TargetApi(16)
 public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implements MediaClock {
 
-  /**
-   * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
-   * should be a {@link Float} with 0 being silence and 1 being unity gain.
-   */
-  public static final int MSG_SET_VOLUME = 1;
-
-  /**
-   * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
-   * should be a {@link android.media.PlaybackParams}, which will be used to configure the
-   * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
-   * caller after it has been passed
-   */
-  public static final int MSG_SET_PLAYBACK_PARAMS = 2;
-
   private final EventDispatcher eventDispatcher;
   private final AudioTrack audioTrack;
 
@@ -411,10 +395,10 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     switch (messageType) {
-      case MSG_SET_VOLUME:
+      case C.MSG_SET_VOLUME:
         audioTrack.setVolume((Float) message);
         break;
-      case MSG_SET_PLAYBACK_PARAMS:
+      case C.MSG_SET_PLAYBACK_PARAMS:
         audioTrack.setPlaybackParams((PlaybackParams) message);
         break;
       default:
