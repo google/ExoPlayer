@@ -39,7 +39,7 @@ For example, to fetch and build for armv7a:
 cd "${FFMPEG_EXT_PATH}/jni" && \
 git clone git://source.ffmpeg.org/ffmpeg ffmpeg && cd ffmpeg && \
 ./configure \
-    --prefix=../../jniLibs/armeabi-v7a \
+    --libdir=android-libs/armeabi-v7a \
     --arch=arm \
     --cpu=armv7-a \
     --cross-prefix="${NDK_PATH}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-" \
