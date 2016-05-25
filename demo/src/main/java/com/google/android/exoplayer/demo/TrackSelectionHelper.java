@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.ui;
+package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
@@ -22,7 +22,6 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackSelection;
-import com.google.android.exoplayer.demo.R;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.SuppressLint;

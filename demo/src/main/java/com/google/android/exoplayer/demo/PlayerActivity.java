@@ -29,7 +29,6 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.dash.DashSampleSource;
-import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;

@@ -38,6 +38,18 @@
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="http"/>
+        <data android:scheme="https"/>
+        <data android:scheme="content"/>
+        <data android:scheme="asset"/>
+        <data android:scheme="file"/>
+        <data android:host="*"/>
+        <data android:pathPattern=".*\\.exolist\\.json"/>
+      </intent-filter>
     </activity>
 
     <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
