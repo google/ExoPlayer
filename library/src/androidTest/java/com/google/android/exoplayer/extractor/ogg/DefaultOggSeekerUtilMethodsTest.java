@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
-import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.TestUtil;
@@ -32,7 +31,6 @@ import java.util.Random;
 public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   private Random random = new Random(0);
-  private DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, 100, new FlacReader());
   
   public void testSkipToNextPage() throws Exception {
     FakeExtractorInput extractorInput = TestData.createInput(
@@ -45,17 +43,6 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
     assertEquals(4000, extractorInput.getPosition());
   }
 
-  public void testSkipToNextPageUnbounded() throws Exception {
-    FakeExtractorInput extractorInput = TestData.createInput(
-        TestUtil.joinByteArrays(
-            TestUtil.buildTestData(4000, random),
-            new byte[]{'O', 'g', 'g', 'S'},
-            TestUtil.buildTestData(4000, random)
-        ), true);
-    skipToNextPage(extractorInput);
-    assertEquals(4000, extractorInput.getPosition());
-  }
-
   public void testSkipToNextPageOverlap() throws Exception {
     FakeExtractorInput extractorInput = TestData.createInput(
         TestUtil.joinByteArrays(
@@ -63,17 +50,6 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
             new byte[]{'O', 'g', 'g', 'S'},
             TestUtil.buildTestData(4000, random)
         ), false);
-    skipToNextPage(extractorInput);
-    assertEquals(2046, extractorInput.getPosition());
-  }
-
-  public void testSkipToNextPageOverlapUnbounded() throws Exception {
-    FakeExtractorInput extractorInput = TestData.createInput(
-        TestUtil.joinByteArrays(
-            TestUtil.buildTestData(2046, random),
-            new byte[]{'O', 'g', 'g', 'S'},
-            TestUtil.buildTestData(4000, random)
-        ), true);
     skipToNextPage(extractorInput);
     assertEquals(2046, extractorInput.getPosition());
   }
@@ -100,9 +76,11 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   private static void skipToNextPage(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
+    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, extractorInput.getLength(),
+        new FlacReader());
     while (true) {
       try {
-        DefaultOggSeeker.skipToNextPage(extractorInput);
+        oggSeeker.skipToNextPage(extractorInput);
         break;
       } catch (FakeExtractorInput.SimulatedIOException e) { /* ignored */ }
     }
@@ -110,17 +88,17 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   public void testSkipToPageOfGranule() throws IOException, InterruptedException {
     byte[] packet = TestUtil.buildTestData(3 * 254, random);
-    FakeExtractorInput input = TestData.createInput(
-        TestUtil.joinByteArrays(
-            TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet,
-            TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet,
-            TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet), false);
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet,
+        TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet,
+        TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
 
     // expect to be granule of the previous page returned as elapsedSamples
     skipToPageOfGranule(input, 54000, 40000);
@@ -130,17 +108,17 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   public void testSkipToPageOfGranulePreciseMatch() throws IOException, InterruptedException {
     byte[] packet = TestUtil.buildTestData(3 * 254, random);
-    FakeExtractorInput input = TestData.createInput(
-        TestUtil.joinByteArrays(
-            TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet,
-            TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet,
-            TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet), false);
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet,
+        TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet,
+        TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
 
     skipToPageOfGranule(input, 40000, 20000);
     // expect to be at the start of the second page
@@ -149,32 +127,28 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   public void testSkipToPageOfGranuleAfterTargetPage() throws IOException, InterruptedException {
     byte[] packet = TestUtil.buildTestData(3 * 254, random);
-    FakeExtractorInput input = TestData.createInput(
-        TestUtil.joinByteArrays(
-            TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet,
-            TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet,
-            TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
-            TestUtil.createByteArray(254, 254, 254), // Laces.
-            packet), false);
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet,
+        TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet,
+        TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
+        TestUtil.createByteArray(254, 254, 254), // Laces.
+        packet);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
 
-    try {
-      skipToPageOfGranule(input, 10000, 20000);
-      fail();
-    } catch (ParserException e) {
-      // ignored
-    }
+    skipToPageOfGranule(input, 10000, -1);
     assertEquals(0, input.getPosition());
   }
 
   private void skipToPageOfGranule(ExtractorInput input, long granule,
       long elapsedSamplesExpected) throws IOException, InterruptedException {
+    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader());
     while (true) {
       try {
-        assertEquals(elapsedSamplesExpected, oggSeeker.skipToPageOfGranule(input, granule));
+        assertEquals(elapsedSamplesExpected, oggSeeker.skipToPageOfGranule(input, granule, -1));
         return;
       } catch (FakeExtractorInput.SimulatedIOException e) {
         input.resetPeekPosition();
@@ -221,6 +195,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   private void assertReadGranuleOfLastPage(FakeExtractorInput input, int expected)
       throws IOException, InterruptedException {
+    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader());
     while (true) {
       try {
         assertEquals(expected, oggSeeker.readGranuleOfLastPage(input));
