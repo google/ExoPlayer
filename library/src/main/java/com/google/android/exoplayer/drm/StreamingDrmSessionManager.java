@@ -41,11 +41,10 @@ import java.util.HashMap;
 import java.util.UUID;
 
 /**
- * A base class for {@link DrmSessionManager} implementations that support streaming playbacks
- * using {@link MediaDrm}.
+ * A {@link DrmSessionManager} that supports streaming playbacks using {@link MediaDrm}.
  */
 @TargetApi(18)
-public class StreamingDrmSessionManager implements DrmSessionManager {
+public class StreamingDrmSessionManager implements DrmSessionManager, DrmSession {
 
   /**
    * Interface definition for a callback to be notified of {@link StreamingDrmSessionManager}
@@ -172,32 +171,6 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     state = STATE_CLOSED;
   }
 
-  @Override
-  public final int getState() {
-    return state;
-  }
-
-  @Override
-  public final MediaCrypto getMediaCrypto() {
-    if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
-      throw new IllegalStateException();
-    }
-    return mediaCrypto;
-  }
-
-  @Override
-  public boolean requiresSecureDecoderComponent(String mimeType) {
-    if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
-      throw new IllegalStateException();
-    }
-    return mediaCrypto.requiresSecureDecoderComponent(mimeType);
-  }
-
-  @Override
-  public final Exception getError() {
-    return state == STATE_ERROR ? lastException : null;
-  }
-
   /**
    * Provides access to {@link MediaDrm#getPropertyString(String)}.
    * <p>
@@ -246,11 +219,13 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     mediaDrm.setPropertyByteArray(key, value);
   }
 
+  // DrmSessionManager implementation.
+
   @Override
-  public void open(Looper playbackLooper, DrmInitData drmInitData) {
+  public DrmSession acquireSession(Looper playbackLooper, DrmInitData drmInitData) {
     Assertions.checkState(this.playbackLooper == null || this.playbackLooper == playbackLooper);
     if (++openCount != 1) {
-      return;
+      return this;
     }
 
     if (this.playbackLooper == null) {
@@ -266,7 +241,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     schemeData = drmInitData.get(uuid);
     if (schemeData == null) {
       onError(new IllegalStateException("Media does not support uuid: " + uuid));
-      return;
+      return this;
     }
     if (Util.SDK_INT < 21) {
       // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
@@ -279,10 +254,11 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     }
     state = STATE_OPENING;
     openInternal(true);
+    return this;
   }
 
   @Override
-  public void close() {
+  public void releaseSession(DrmSession session) {
     if (--openCount != 0) {
       return;
     }
@@ -302,6 +278,36 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       sessionId = null;
     }
   }
+
+  // DrmSession implementation.
+
+  @Override
+  public final int getState() {
+    return state;
+  }
+
+  @Override
+  public final MediaCrypto getMediaCrypto() {
+    if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
+      throw new IllegalStateException();
+    }
+    return mediaCrypto;
+  }
+
+  @Override
+  public boolean requiresSecureDecoderComponent(String mimeType) {
+    if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
+      throw new IllegalStateException();
+    }
+    return mediaCrypto.requiresSecureDecoderComponent(mimeType);
+  }
+
+  @Override
+  public final Exception getError() {
+    return state == STATE_ERROR ? lastException : null;
+  }
+
+  // Internal methods.
 
   private void openInternal(boolean allowProvisioning) {
     try {

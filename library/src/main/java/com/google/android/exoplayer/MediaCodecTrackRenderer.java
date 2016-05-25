@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.drm.DrmSession;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.NalUnitUtil;
@@ -155,6 +156,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   private Format format;
   private MediaCodec codec;
+  private DrmSession drmSession;
   private boolean codecIsAdaptive;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
@@ -167,7 +169,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private int inputIndex;
   private int outputIndex;
   private boolean shouldSkipOutputBuffer;
-  private boolean openedDrmSession;
   private boolean codecReconfigured;
   private int codecReconfigurationState;
   private int codecReinitializationState;
@@ -266,20 +267,17 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       if (drmSessionManager == null) {
         throw ExoPlaybackException.createForRenderer(
             new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-      } else if (drmSessionManager.getState() == DrmSessionManager.STATE_ERROR) {
-        throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
       }
-      if (!openedDrmSession) {
-        drmSessionManager.open(Looper.myLooper(), format.drmInitData);
-        openedDrmSession = true;
+      if (drmSession == null) {
+        drmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
       }
-      int drmSessionState = drmSessionManager.getState();
-      if (drmSessionState == DrmSessionManager.STATE_ERROR) {
-        throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
-      } else if (drmSessionState == DrmSessionManager.STATE_OPENED
-          || drmSessionState == DrmSessionManager.STATE_OPENED_WITH_KEYS) {
-        mediaCrypto = drmSessionManager.getMediaCrypto();
-        requiresSecureDecoder = drmSessionManager.requiresSecureDecoderComponent(mimeType);
+      int drmSessionState = drmSession.getState();
+      if (drmSessionState == DrmSession.STATE_ERROR) {
+        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      } else if (drmSessionState == DrmSession.STATE_OPENED
+          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
+        mediaCrypto = drmSession.getMediaCrypto();
+        requiresSecureDecoder = drmSession.requiresSecureDecoderComponent(mimeType);
       } else {
         // The drm session isn't open yet.
         return;
@@ -349,9 +347,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       releaseCodec();
     } finally {
       try {
-        if (openedDrmSession) {
-          drmSessionManager.close();
-          openedDrmSession = false;
+        if (drmSession != null) {
+          drmSessionManager.releaseSession(drmSession);
+          drmSession = null;
         }
       } finally {
         super.onDisabled();
@@ -612,14 +610,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (!openedDrmSession) {
+    if (drmSession == null) {
       return false;
     }
-    int drmManagerState = drmSessionManager.getState();
-    if (drmManagerState == DrmSessionManager.STATE_ERROR) {
-      throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
+    int drmSessionState = drmSession.getState();
+    if (drmSessionState == DrmSession.STATE_ERROR) {
+      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
     }
-    return drmManagerState != DrmSessionManager.STATE_OPENED_WITH_KEYS
+    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS
         && (bufferEncrypted || !playClearSamplesWithoutKeys);
   }
 
