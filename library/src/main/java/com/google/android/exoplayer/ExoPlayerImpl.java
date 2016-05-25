@@ -129,13 +129,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void sendMessage(ExoPlayerComponent target, int messageType, Object message) {
-    internalPlayer.sendMessage(target, messageType, message);
+  public void sendMessages(ExoPlayerMessage... messages) {
+    internalPlayer.sendMessages(messages);
   }
 
   @Override
-  public void blockingSendMessage(ExoPlayerComponent target, int messageType, Object message) {
-    internalPlayer.blockingSendMessage(target, messageType, message);
+  public void blockingSendMessages(ExoPlayerMessage... messages) {
+    internalPlayer.blockingSendMessages(messages);
   }
 
   @Override

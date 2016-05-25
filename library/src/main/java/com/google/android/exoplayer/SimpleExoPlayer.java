@@ -89,6 +89,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private final TrackRenderer[] renderers;
   private final ComponentListener componentListener;
   private final Handler mainHandler;
+  private final int videoRendererCount;
+  private final int audioRendererCount;
 
   private Format videoFormat;
   private Format audioFormat;
@@ -114,6 +116,22 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
     buildRenderers(context, drmSessionManager, renderersList);
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
+
+    // Obtain counts of video and audio renderers.
+    int videoRendererCount = 0;
+    int audioRendererCount = 0;
+    for (TrackRenderer renderer : renderers) {
+      switch (renderer.getTrackType()) {
+        case C.TRACK_TYPE_VIDEO:
+          videoRendererCount++;
+          break;
+        case C.TRACK_TYPE_AUDIO:
+          audioRendererCount++;
+          break;
+      }
+    }
+    this.videoRendererCount = videoRendererCount;
+    this.audioRendererCount = audioRendererCount;
 
     // Build the player and associated objects.
     player = new ExoPlayerImpl(renderers, trackSelector, minBufferMs, minRebufferMs);
@@ -145,15 +163,18 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * @param surface The {@link Surface}.
    */
   public void setSurface(Surface surface) {
+    ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
+    int count = 0;
     for (TrackRenderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        if (surface == null) {
-          // Block to ensure that the surface is not accessed after the method returns.
-          player.blockingSendMessage(renderer, C.MSG_SET_SURFACE, null);
-        } else {
-          player.sendMessage(renderer, C.MSG_SET_SURFACE, surface);
-        }
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SURFACE, surface);
       }
+    }
+    if (surface == null) {
+      // Block to ensure that the surface is not accessed after the method returns.
+      player.blockingSendMessages(messages);
+    } else {
+      player.sendMessages(messages);
     }
   }
 
@@ -163,11 +184,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * @param volume The volume.
    */
   public void setVolume(float volume) {
+    ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
+    int count = 0;
     for (TrackRenderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player.sendMessage(renderer, C.MSG_SET_VOLUME, volume);
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_VOLUME, volume);
       }
     }
+    player.sendMessages(messages);
   }
 
   /**
@@ -296,13 +320,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void sendMessage(ExoPlayerComponent target, int messageType, Object message) {
-    player.sendMessage(target, messageType, message);
+  public void sendMessages(ExoPlayerMessage... messages) {
+    player.sendMessages(messages);
   }
 
   @Override
-  public void blockingSendMessage(ExoPlayerComponent target, int messageType, Object message) {
-    player.blockingSendMessage(target, messageType, message);
+  public void blockingSendMessages(ExoPlayerMessage... messages) {
+    player.blockingSendMessages(messages);
   }
 
   @Override

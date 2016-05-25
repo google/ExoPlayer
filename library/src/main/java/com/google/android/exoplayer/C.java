@@ -231,25 +231,30 @@ public interface C {
 
   /**
    * The type of a message that can be passed to a video {@link TrackRenderer} via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be the target {@link Surface}, or null.
    */
   int MSG_SET_SURFACE = 1;
 
   /**
    * The type of a message that can be passed to an audio {@link TrackRenderer} via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   int MSG_SET_VOLUME = 2;
 
   /**
    * The type of a message that can be passed to an audio {@link TrackRenderer} via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link android.media.PlaybackParams}, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
    * caller after it has been passed
    */
   int MSG_SET_PLAYBACK_PARAMS = 3;
+
+  /**
+   * A minimum value for custom {@link TrackRenderer} message types.
+   */
+  int MSG_CUSTOM_BASE = 10000;
 
 }

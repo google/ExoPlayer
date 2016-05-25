@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
+import com.google.android.exoplayer.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
@@ -154,19 +154,22 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler.sendEmptyMessage(MSG_STOP);
   }
 
-  public void sendMessage(ExoPlayerComponent target, int messageType, Object message) {
+  public void sendMessages(ExoPlayerMessage... messages) {
+    if (released) {
+      Log.w(TAG, "Ignoring messages sent after release.");
+      return;
+    }
     customMessagesSent++;
-    handler.obtainMessage(MSG_CUSTOM, messageType, 0, Pair.create(target, message)).sendToTarget();
+    handler.obtainMessage(MSG_CUSTOM, messages).sendToTarget();
   }
 
-  public synchronized void blockingSendMessage(ExoPlayerComponent target, int messageType,
-      Object message) {
+  public synchronized void blockingSendMessages(ExoPlayerMessage... messages) {
     if (released) {
-      Log.w(TAG, "Sent message(" + messageType + ") after release. Message ignored.");
+      Log.w(TAG, "Ignoring messages sent after release.");
       return;
     }
     int messageNumber = customMessagesSent++;
-    handler.obtainMessage(MSG_CUSTOM, messageType, 0, Pair.create(target, message)).sendToTarget();
+    handler.obtainMessage(MSG_CUSTOM, messages).sendToTarget();
     while (customMessagesProcessed <= messageNumber) {
       try {
         wait();
@@ -225,7 +228,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           return true;
         }
         case MSG_CUSTOM: {
-          sendMessageInternal(msg.arg1, msg.obj);
+          sendMessagesInternal((ExoPlayerMessage[]) msg.obj);
           return true;
         }
         case MSG_TRACK_SELECTION_INVALIDATED: {
@@ -517,12 +520,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private <T> void sendMessageInternal(int what, Object obj)
-      throws ExoPlaybackException {
+  private void sendMessagesInternal(ExoPlayerMessage[] messages) throws ExoPlaybackException {
     try {
-      @SuppressWarnings("unchecked")
-      Pair<ExoPlayerComponent, Object> targetAndMessage = (Pair<ExoPlayerComponent, Object>) obj;
-      targetAndMessage.first.handleMessage(what, targetAndMessage.second);
+      for (ExoPlayerMessage message : messages) {
+        message.target.handleMessage(message.messageType, message.message);
+      }
       if (preparedSource) {
         // The message may have caused something to change that now requires us to do work.
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);

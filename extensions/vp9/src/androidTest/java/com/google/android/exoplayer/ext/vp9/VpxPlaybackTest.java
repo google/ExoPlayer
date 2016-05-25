@@ -104,8 +104,9 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
               false),
           new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
           new Extractor[] {new MatroskaExtractor()});
-      player.sendMessage(videoRenderer, LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
-          new VpxVideoSurfaceView(context));
+      player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
+          LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
+          new VpxVideoSurfaceView(context)));
       player.setSource(sampleSource);
       player.setPlayWhenReady(true);
       Looper.loop();

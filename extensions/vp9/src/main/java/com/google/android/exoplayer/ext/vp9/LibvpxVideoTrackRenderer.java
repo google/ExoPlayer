@@ -41,10 +41,10 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   /**
    * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be the target {@link VpxOutputBufferRenderer}, or null.
    */
-  public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = 2;
+  public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
   /**
    * The number of input buffers and the number of output buffers. The track renderer may limit the

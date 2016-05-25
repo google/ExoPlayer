@@ -132,8 +132,8 @@ public interface ExoPlayer {
   /**
    * A component of an {@link ExoPlayer} that can receive messages on the playback thread.
    * <p>
-   * Messages can be delivered to a component via {@link ExoPlayer#sendMessage} and
-   * {@link ExoPlayer#blockingSendMessage}.
+   * Messages can be delivered to a component via {@link ExoPlayer#sendMessages} and
+   * {@link ExoPlayer#blockingSendMessages}.
    */
   interface ExoPlayerComponent {
 
@@ -145,6 +145,28 @@ public interface ExoPlayer {
      * @throws ExoPlaybackException If an error occurred whilst handling the message.
      */
     void handleMessage(int messageType, Object message) throws ExoPlaybackException;
+
+  }
+
+  /**
+   * Defines a message and a target {@link ExoPlayerComponent} to receive it.
+   */
+  final class ExoPlayerMessage {
+
+    public final ExoPlayerComponent target;
+    public final int messageType;
+    public final Object message;
+
+    /**
+     * @param target The target of the message.
+     * @param messageType An integer identifying the type of message.
+     * @param message The message object.
+     */
+    public ExoPlayerMessage(ExoPlayerComponent target, int messageType, Object message) {
+      this.target = target;
+      this.messageType = messageType;
+      this.message = message;
+    }
 
   }
 
@@ -256,25 +278,21 @@ public interface ExoPlayer {
   void release();
 
   /**
-   * Sends a message to a specified component. The message is delivered to the component on the
-   * playback thread. If the component throws a {@link ExoPlaybackException}, then it is
-   * propagated out of the player as an error.
+   * Sends messages to their target components. The messages are delivered on the playback thread.
+   * If a component throws an {@link ExoPlaybackException} then it is propagated out of the player
+   * as an error.
    *
-   * @param target The target to which the message should be delivered.
-   * @param messageType An integer that can be used to identify the type of the message.
-   * @param message The message object.
+   * @param messages The messages to be sent.
    */
-  void sendMessage(ExoPlayerComponent target, int messageType, Object message);
+  void sendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Blocking variant of {@link #sendMessage(ExoPlayerComponent, int, Object)} that does not return
-   * until after the message has been delivered.
+   * Variant of {@link #sendMessages(ExoPlayerMessage...)} that blocks until after the messages have
+   * been delivered.
    *
-   * @param target The target to which the message should be delivered.
-   * @param messageType An integer that can be used to identify the type of the message.
-   * @param message The message object.
+   * @param messages The messages to be sent.
    */
-  void blockingSendMessage(ExoPlayerComponent target, int messageType, Object message);
+  void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
    * Gets the duration of the track in milliseconds.
