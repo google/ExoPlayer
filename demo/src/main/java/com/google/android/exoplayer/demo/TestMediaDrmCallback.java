@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.drm.MediaDrmCallback;
-import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -30,20 +29,38 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Demo {@link StreamingDrmSessionManager} for smooth streaming test content.
+ * A {@link MediaDrmCallback} for test content.
  */
 @TargetApi(18)
-public final class SmoothStreamingTestMediaDrmCallback implements MediaDrmCallback {
+/* package */ final class TestMediaDrmCallback implements MediaDrmCallback {
 
-  private static final String PLAYREADY_TEST_DEFAULT_URI =
+  private static final String WIDEVINE_BASE_URL = "https://proxy.uat.widevine.com/proxy";
+  private static final String PLAYREADY_BASE_URL =
       "http://playready.directtaps.net/pr/svc/rightsmanager.asmx";
-  private static final Map<String, String> KEY_REQUEST_PROPERTIES;
+  private static final Map<String, String> PLAYREADY_KEY_REQUEST_PROPERTIES;
   static {
     HashMap<String, String> keyRequestProperties = new HashMap<>();
     keyRequestProperties.put("Content-Type", "text/xml");
     keyRequestProperties.put("SOAPAction",
         "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");
-    KEY_REQUEST_PROPERTIES = keyRequestProperties;
+    PLAYREADY_KEY_REQUEST_PROPERTIES = keyRequestProperties;
+  }
+
+  private final String defaultUrl;
+  private final Map<String, String> keyRequestProperties;
+
+  public static TestMediaDrmCallback newWidevineInstance(String contentId, String provider) {
+    String defaultUrl = WIDEVINE_BASE_URL + "?video_id=" + contentId + "&provider=" + provider;
+    return new TestMediaDrmCallback(defaultUrl, null);
+  }
+
+  public static TestMediaDrmCallback newPlayReadyInstance() {
+    return new TestMediaDrmCallback(PLAYREADY_BASE_URL, PLAYREADY_KEY_REQUEST_PROPERTIES);
+  }
+
+  private TestMediaDrmCallback(String defaultUrl, Map<String, String> keyRequestProperties) {
+    this.defaultUrl = defaultUrl;
+    this.keyRequestProperties = keyRequestProperties;
   }
 
   @Override
@@ -56,9 +73,9 @@ public final class SmoothStreamingTestMediaDrmCallback implements MediaDrmCallba
   public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
     String url = request.getDefaultUrl();
     if (TextUtils.isEmpty(url)) {
-      url = PLAYREADY_TEST_DEFAULT_URI;
+      url = defaultUrl;
     }
-    return Util.executePost(url, request.getData(), KEY_REQUEST_PROPERTIES);
+    return Util.executePost(url, request.getData(), keyRequestProperties);
   }
 
 }

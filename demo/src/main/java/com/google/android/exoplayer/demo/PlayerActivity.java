@@ -335,10 +335,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
     if (C.PLAYREADY_UUID.equals(uuid)) {
       return StreamingDrmSessionManager.newPlayReadyInstance(
-          new SmoothStreamingTestMediaDrmCallback(), null, mainHandler, eventLogger);
+          TestMediaDrmCallback.newPlayReadyInstance(), null, mainHandler, eventLogger);
     } else if (C.WIDEVINE_UUID.equals(uuid)) {
       return StreamingDrmSessionManager.newWidevineInstance(
-          new WidevineTestMediaDrmCallback(id, provider), null, mainHandler, eventLogger);
+          TestMediaDrmCallback.newWidevineInstance(id, provider), null, mainHandler, eventLogger);
     } else {
       throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
     }
