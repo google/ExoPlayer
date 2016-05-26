@@ -31,8 +31,8 @@ import java.util.List;
 /**
  * A {@link SampleSource} that loads the data at a given {@link Uri} as a single sample.
  */
-public final class SingleSampleSource implements SampleSource, TrackStream, Loader.Callback,
-    Loadable {
+public final class SingleSampleSource implements SampleSource, TrackStream,
+    Loader.Callback<SingleSampleSource>, Loadable {
 
   /**
    * Interface definition for a callback to be notified of {@link SingleSampleSource} events.
@@ -65,7 +65,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   private final Uri uri;
   private final DataSource dataSource;
-  private final Loader loader;
+  private final Loader<SingleSampleSource> loader;
   private final Format format;
   private final long durationUs;
   private final TrackGroupArray tracks;
@@ -99,7 +99,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    loader = new Loader("Loader:SingleSampleSource", minLoadableRetryCount);
+    loader = new Loader<>("Loader:SingleSampleSource", minLoadableRetryCount);
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
@@ -214,17 +214,17 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Loadable loadable) {
+  public void onLoadCompleted(SingleSampleSource loadable, long elapsedMs) {
     loadingFinished = true;
   }
 
   @Override
-  public void onLoadCanceled(Loadable loadable) {
+  public void onLoadCanceled(SingleSampleSource loadable, long elapsedMs) {
     maybeStartLoading();
   }
 
   @Override
-  public int onLoadError(Loadable loadable, IOException e) {
+  public int onLoadError(SingleSampleSource loadable, long elapsedMs, IOException e) {
     notifyLoadError(e);
     return Loader.RETRY;
   }

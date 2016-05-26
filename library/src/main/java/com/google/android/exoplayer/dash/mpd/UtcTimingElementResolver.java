@@ -18,7 +18,6 @@ package com.google.android.exoplayer.dash.mpd;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -39,7 +38,7 @@ import java.util.concurrent.CancellationException;
 /**
  * Resolves a {@link UtcTimingElement}.
  */
-public final class UtcTimingElementResolver implements Loader.Callback {
+public final class UtcTimingElementResolver implements Loader.Callback<UriLoadable<Long>> {
 
   /**
    * Callback for timing element resolution.
@@ -70,8 +69,7 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   private final long timingElementElapsedRealtime;
   private final UtcTimingCallback callback;
 
-  private Loader singleUseLoader;
-  private UriLoadable<Long> singleUseLoadable;
+  private Loader<UriLoadable<Long>> singleUseLoader;
 
   /**
    * Resolves a {@link UtcTimingElement}.
@@ -123,25 +121,26 @@ public final class UtcTimingElementResolver implements Loader.Callback {
   }
 
   private void resolveHttp(UriLoadable.Parser<Long> parser) {
-    singleUseLoader = new Loader("utctiming", 0);
-    singleUseLoadable = new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser);
-    singleUseLoader.startLoading(singleUseLoadable, this);
+    singleUseLoader = new Loader<>("Loader:UtcTiming", 0);
+    singleUseLoader.startLoading(
+        new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser), this);
   }
 
   @Override
-  public void onLoadCanceled(Loadable loadable) {
-    onLoadError(loadable, new IOException("Load cancelled", new CancellationException()));
-  }
-
-  @Override
-  public void onLoadCompleted(Loadable loadable) {
+  public void onLoadCompleted(UriLoadable<Long> loadable, long elapsedMs) {
     releaseLoader();
-    long elapsedRealtimeOffset = singleUseLoadable.getResult() - SystemClock.elapsedRealtime();
+    long elapsedRealtimeOffset = loadable.getResult() - SystemClock.elapsedRealtime();
     callback.onTimestampResolved(timingElement, elapsedRealtimeOffset);
   }
 
   @Override
-  public int onLoadError(Loadable loadable, IOException exception) {
+  public void onLoadCanceled(UriLoadable<Long> loadable, long elapsedMs) {
+    onLoadError(loadable, elapsedMs,
+        new IOException("Load cancelled", new CancellationException()));
+  }
+
+  @Override
+  public int onLoadError(UriLoadable<Long> loadable, long elapsedMs, IOException exception) {
     releaseLoader();
     callback.onTimestampError(timingElement, exception);
     return Loader.DONT_RETRY;

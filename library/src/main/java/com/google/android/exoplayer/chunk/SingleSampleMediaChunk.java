@@ -35,6 +35,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
+  private volatile boolean loadCompleted;
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
@@ -50,6 +51,11 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       Format format, long startTimeUs, long endTimeUs, int chunkIndex, Format sampleFormat) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
     this.sampleFormat = sampleFormat;
+  }
+
+  @Override
+  public boolean isLoadCompleted() {
+    return loadCompleted;
   }
 
   @Override
@@ -93,6 +99,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
     } finally {
       dataSource.close();
     }
+    loadCompleted = true;
   }
 
 }

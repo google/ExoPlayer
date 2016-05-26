@@ -67,7 +67,8 @@ import java.util.List;
  * constructor. When reading a new stream, the first {@link Extractor} that returns {@code true}
  * from {@link Extractor#sniff(ExtractorInput)} will be used.
  */
-public final class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loader.Callback {
+public final class ExtractorSampleSource implements SampleSource, ExtractorOutput,
+    Loader.Callback<Loadable> {
 
   /**
    * Interface definition for a callback to be notified of {@link ExtractorSampleSource} events.
@@ -111,7 +112,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Lazily initialized default extractor classes in priority order.
   private static List<Class<? extends Extractor>> defaultExtractorClasses;
 
-  private final Loader loader;
+  private final Loader<Loadable> loader;
   private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
@@ -139,7 +140,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private long pendingResetPositionUs;
 
   private ExtractingLoadable loadable;
-  private IOException fatalException;
   private int extractedSamplesCountAtStartOfLoad;
   private boolean loadingFinished;
 
@@ -233,7 +233,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // Assume on-demand until we know otherwise.
     int initialMinRetryCount = minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
         ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND : minLoadableRetryCount;
-    loader = new Loader("Loader:ExtractorSampleSource", initialMinRetryCount);
+    loader = new Loader<>("Loader:ExtractorSampleSource", initialMinRetryCount);
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
@@ -476,9 +476,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    if (fatalException != null) {
-      throw fatalException;
-    }
     loader.maybeThrowError();
   }
 
@@ -493,12 +490,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Loadable loadable) {
+  public void onLoadCompleted(Loadable loadable, long elapsedMs) {
     loadingFinished = true;
   }
 
   @Override
-  public void onLoadCanceled(Loadable loadable) {
+  public void onLoadCanceled(Loadable loadable, long elapsedMs) {
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     } else {
@@ -508,11 +505,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public int onLoadError(Loadable ignored, IOException e) {
+  public int onLoadError(Loadable loadable, long elapsedMs, IOException e) {
     notifyLoadError(e);
     if (isLoadableExceptionFatal(e)) {
-      fatalException = e;
-      return Loader.DONT_RETRY;
+      return Loader.DONT_RETRY_FATAL;
     }
     int extractedSamplesCount = getExtractedSamplesCount();
     boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
@@ -640,7 +636,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private void clearState() {
     clearSampleQueues();
     loadable = null;
-    fatalException = null;
   }
 
   private void clearSampleQueues() {

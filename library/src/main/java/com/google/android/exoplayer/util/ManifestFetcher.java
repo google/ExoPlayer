@@ -17,7 +17,6 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.upstream.UriLoadable;
 
 import android.net.Uri;
@@ -32,7 +31,7 @@ import java.io.IOException;
  *
  * @param <T> The type of manifest.
  */
-public class ManifestFetcher<T> implements Loader.Callback {
+public class ManifestFetcher<T> implements Loader.Callback<UriLoadable<T>> {
 
   /**
    * Thrown when an error occurs trying to fetch a manifest.
@@ -69,7 +68,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   }
 
-  private final Loader loader;
+  private final Loader<UriLoadable<T>> loader;
   private final UriLoadable.Parser<T> parser;
   private final DataSource dataSource;
   private final Handler eventHandler;
@@ -77,7 +76,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private volatile Uri manifestUri;
 
-  private UriLoadable<T> currentLoadable;
   private long currentLoadStartTimestamp;
 
   private volatile T manifest;
@@ -108,7 +106,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     this.dataSource = dataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    loader = new Loader("Loader:ManifestFetcher", 1);
+    loader = new Loader<>("Loader:ManifestFetcher", 1);
   }
 
   /**
@@ -174,9 +172,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
     if (loader.isLoading()) {
       return;
     }
-    currentLoadable = new UriLoadable<>(manifestUri, dataSource, parser);
     currentLoadStartTimestamp = SystemClock.elapsedRealtime();
-    loader.startLoading(currentLoadable, this);
+    loader.startLoading(new UriLoadable<>(manifestUri, dataSource, parser), this);
     notifyManifestRefreshStarted();
   }
 
@@ -192,8 +189,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
   // Loadable.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Loadable loadable) {
-    manifest = currentLoadable.getResult();
+  public void onLoadCompleted(UriLoadable<T> loadable, long elapsedMs) {
+    manifest = loadable.getResult();
     manifestLoadStartTimestamp = currentLoadStartTimestamp;
     manifestLoadCompleteTimestamp = SystemClock.elapsedRealtime();
     if (manifest instanceof RedirectingManifest) {
@@ -207,12 +204,12 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   @Override
-  public void onLoadCanceled(Loadable loadable) {
+  public void onLoadCanceled(UriLoadable<T> loadable, long elapsedMs) {
     // Do nothing.
   }
 
   @Override
-  public int onLoadError(Loadable loadable, IOException exception) {
+  public int onLoadError(UriLoadable<T> loadable, long elapsedMs, IOException exception) {
     notifyManifestError(new ManifestIOException(exception));
     return Loader.RETRY;
   }

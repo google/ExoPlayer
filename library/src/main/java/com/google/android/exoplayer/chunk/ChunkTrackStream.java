@@ -24,7 +24,6 @@ import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener.EventDispatcher;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.os.Handler;
@@ -38,9 +37,9 @@ import java.util.List;
 /**
  * A {@link TrackStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  */
-public class ChunkTrackStream implements TrackStream, Loader.Callback {
+public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
 
-  private final Loader loader;
+  private final Loader<Chunk> loader;
   private final ChunkSource chunkSource;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
@@ -57,8 +56,6 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
 
-  private Chunk currentLoadable;
-  private long currentLoadStartTimeMs;
   private boolean loadingFinished;
   private boolean released;
 
@@ -79,7 +76,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
       ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
-    loader = new Loader("Loader:ChunkTrackStream", minLoadableRetryCount);
+    loader = new Loader<>("Loader:ChunkTrackStream", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();
@@ -124,7 +121,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
     } else {
       long bufferedPositionUs = downstreamPositionUs;
       BaseMediaChunk lastMediaChunk = mediaChunks.getLast();
-      BaseMediaChunk lastCompletedMediaChunk = lastMediaChunk != currentLoadable ? lastMediaChunk
+      BaseMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
           : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
         bufferedPositionUs = Math.max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
@@ -210,26 +207,24 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Loadable loadable) {
+  public void onLoadCompleted(Chunk loadable, long elapsedMs) {
     long now = SystemClock.elapsedRealtime();
-    long loadDurationMs = now - currentLoadStartTimeMs;
-    chunkSource.onChunkLoadCompleted(currentLoadable);
-    if (isMediaChunk(currentLoadable)) {
-      BaseMediaChunk mediaChunk = (BaseMediaChunk) currentLoadable;
-      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), mediaChunk.type,
+    chunkSource.onChunkLoadCompleted(loadable);
+    if (isMediaChunk(loadable)) {
+      BaseMediaChunk mediaChunk = (BaseMediaChunk) loadable;
+      eventDispatcher.loadCompleted(loadable.bytesLoaded(), mediaChunk.type,
           mediaChunk.trigger, mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs, now,
-          loadDurationMs);
+          elapsedMs);
     } else {
-      eventDispatcher.loadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
-          currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
+      eventDispatcher.loadCompleted(loadable.bytesLoaded(), loadable.type, loadable.trigger,
+          loadable.format, -1, -1, now, elapsedMs);
     }
-    clearCurrentLoadable();
     maybeStartLoading();
   }
 
   @Override
-  public void onLoadCanceled(Loadable loadable) {
-    eventDispatcher.loadCanceled(currentLoadable.bytesLoaded());
+  public void onLoadCanceled(Chunk loadable, long elapsedMs) {
+    eventDispatcher.loadCanceled(loadable.bytesLoaded());
     if (!released) {
       restartFrom(pendingResetPositionUs);
     } else {
@@ -239,20 +234,19 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
   }
 
   @Override
-  public int onLoadError(Loadable loadable, IOException e) {
-    long bytesLoaded = currentLoadable.bytesLoaded();
-    boolean isMediaChunk = isMediaChunk(currentLoadable);
+  public int onLoadError(Chunk loadable, long elapsedMs, IOException e) {
+    long bytesLoaded = loadable.bytesLoaded();
+    boolean isMediaChunk = isMediaChunk(loadable);
     boolean cancelable = !isMediaChunk || bytesLoaded == 0 || mediaChunks.size() > 1;
-    if (chunkSource.onChunkLoadError(currentLoadable, cancelable, e)) {
+    if (chunkSource.onChunkLoadError(loadable, cancelable, e)) {
       if (isMediaChunk) {
         BaseMediaChunk removed = mediaChunks.removeLast();
-        Assertions.checkState(removed == currentLoadable);
+        Assertions.checkState(removed == loadable);
         sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
         if (mediaChunks.isEmpty()) {
           pendingResetPositionUs = lastSeekPositionUs;
         }
       }
-      clearCurrentLoadable();
       eventDispatcher.loadError(e);
       eventDispatcher.loadCanceled(bytesLoaded);
       maybeStartLoading();
@@ -279,11 +273,6 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
   private void clearState() {
     sampleQueue.clear();
     mediaChunks.clear();
-    clearCurrentLoadable();
-  }
-
-  private void clearCurrentLoadable() {
-    currentLoadable = null;
   }
 
   private void maybeStartLoading() {
@@ -304,7 +293,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
         pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : downstreamPositionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
-    Chunk nextLoadable = nextChunkHolder.chunk;
+    Chunk loadable = nextChunkHolder.chunk;
     nextChunkHolder.clear();
 
     if (endOfStream) {
@@ -313,24 +302,22 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback {
       return;
     }
 
-    if (nextLoadable == null) {
+    if (loadable == null) {
       return;
     }
 
-    currentLoadStartTimeMs = now;
-    currentLoadable = nextLoadable;
-    if (isMediaChunk(currentLoadable)) {
+    if (isMediaChunk(loadable)) {
       pendingResetPositionUs = C.UNSET_TIME_US;
-      BaseMediaChunk mediaChunk = (BaseMediaChunk) currentLoadable;
+      BaseMediaChunk mediaChunk = (BaseMediaChunk) loadable;
       mediaChunk.init(sampleQueue);
       mediaChunks.add(mediaChunk);
       eventDispatcher.loadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
           mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
     } else {
-      eventDispatcher.loadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
-          currentLoadable.trigger, currentLoadable.format, -1, -1);
+      eventDispatcher.loadStarted(loadable.dataSpec.length, loadable.type, loadable.trigger,
+          loadable.format, -1, -1);
     }
-    loader.startLoading(currentLoadable, this);
+    loader.startLoading(loadable, this);
     // Update the load control again to indicate that we're now loading.
     loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
   }

@@ -47,6 +47,7 @@ import java.io.IOException;
 
   private int bytesLoaded;
   private volatile boolean loadCanceled;
+  private volatile boolean loadCompleted;
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
@@ -92,6 +93,11 @@ import java.io.IOException;
     if (extractorNeedsInit) {
       extractor.init(output);
     }
+  }
+
+  @Override
+  public boolean isLoadCompleted() {
+    return loadCompleted;
   }
 
   @Override
@@ -143,6 +149,7 @@ import java.io.IOException;
     } finally {
       dataSource.close();
     }
+    loadCompleted = true;
   }
 
   // Private methods

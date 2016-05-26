@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Manages the background loading of {@link Loadable}s.
  */
-public final class Loader {
+public final class Loader<T extends Loader.Loadable> {
 
   /**
    * Thrown when an unexpected exception is encountered during loading.
@@ -74,37 +75,42 @@ public final class Loader {
   /**
    * Interface definition for a callback to be notified of {@link Loader} events.
    */
-  public interface Callback {
+  public interface Callback<T extends Loadable> {
 
     /**
      * Invoked when a load has been canceled.
      *
      * @param loadable The loadable whose load has been canceled.
+     * @param elapsedMs The elapsed time in milliseconds since loading started.
      */
-    void onLoadCanceled(Loadable loadable);
+    void onLoadCanceled(T loadable, long elapsedMs);
 
     /**
      * Invoked when a load has completed.
      *
      * @param loadable The loadable whose load has completed.
+     * @param elapsedMs The elapsed time in milliseconds since loading started.
      */
-    void onLoadCompleted(Loadable loadable);
+    void onLoadCompleted(T loadable, long elapsedMs);
 
     /**
      * Invoked when a load encounters an error.
      *
      * @param loadable The loadable whose load has encountered an error.
+     * @param elapsedMs The elapsed time in milliseconds since loading started.
      * @param exception The error.
-     * @return The desired retry action. One of {@link Loader#DONT_RETRY}, {@link Loader#RETRY} and
-     *     {@link Loader#RETRY_RESET_ERROR_COUNT}.
+     * @return The desired retry action. One of {@link Loader#RETRY},
+     *     {@link Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY} and
+     *     {@link Loader#DONT_RETRY_FATAL}.
      */
-    int onLoadError(Loadable loadable, IOException exception);
+    int onLoadError(T loadable, long elapsedMs, IOException exception);
 
   }
 
-  public static final int DONT_RETRY = 0;
-  public static final int RETRY = 1;
-  public static final int RETRY_RESET_ERROR_COUNT = 2;
+  public static final int RETRY = 0;
+  public static final int RETRY_RESET_ERROR_COUNT = 1;
+  public static final int DONT_RETRY = 2;
+  public static final int DONT_RETRY_FATAL = 3;
 
   private static final int MSG_START = 0;
   private static final int MSG_CANCEL = 1;
@@ -116,6 +122,7 @@ public final class Loader {
 
   private int minRetryCount;
   private LoadTask currentTask;
+  private IOException fatalError;
 
   /**
    * @param threadName A name for the loader's thread.
@@ -136,7 +143,7 @@ public final class Loader {
    * @param callback A callback to invoke when the load ends.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
    */
-  public void startLoading(Loadable loadable, Callback callback) {
+  public void startLoading(T loadable, Callback<T> callback) {
     Looper looper = Looper.myLooper();
     Assertions.checkState(looper != null);
     new LoadTask(looper, loadable, callback).start(0);
@@ -161,14 +168,16 @@ public final class Loader {
   }
 
   /**
-   * If the current {@link Loadable} has incurred a number of errors greater than the minimum
-   * number of retries and if the load is currently backed off, then the most recent error is
-   * thrown. Else does nothing.
+   * If a fatal error has been encountered, or if the current {@link Loadable} has incurred a number
+   * of errors greater than the minimum number of retries and if the load is currently backed off,
+   * then an error is thrown. Else does nothing.
    *
-   * @throws IOException The most recent error encountered by the current {@link Loadable}.
+   * @throws IOException The error.
    */
   public void maybeThrowError() throws IOException {
-    if (currentTask != null) {
+    if (fatalError != null) {
+      throw fatalError;
+    } else if (currentTask != null) {
       currentTask.maybeThrowError(minRetryCount);
     }
   }
@@ -199,18 +208,20 @@ public final class Loader {
 
     private static final String TAG = "LoadTask";
 
-    private final Loadable loadable;
-    private final Loader.Callback callback;
+    private final T loadable;
+    private final Loader.Callback<T> callback;
+    private final long startTimeMs;
 
     private IOException currentError;
     private int errorCount;
 
     private volatile Thread executorThread;
 
-    public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback) {
+    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback) {
       super(looper);
       this.loadable = loadable;
       this.callback = callback;
+      this.startTimeMs = SystemClock.elapsedRealtime();
     }
 
     public void maybeThrowError(int minRetryCount) throws IOException {
@@ -285,21 +296,24 @@ public final class Loader {
         throw (Error) msg.obj;
       }
       finish();
+      long elapsedMs = SystemClock.elapsedRealtime() - startTimeMs;
       if (loadable.isLoadCanceled()) {
-        callback.onLoadCanceled(loadable);
+        callback.onLoadCanceled(loadable, elapsedMs);
         return;
       }
       switch (msg.what) {
         case MSG_CANCEL:
-          callback.onLoadCanceled(loadable);
+          callback.onLoadCanceled(loadable, elapsedMs);
           break;
         case MSG_END_OF_SOURCE:
-          callback.onLoadCompleted(loadable);
+          callback.onLoadCompleted(loadable, elapsedMs);
           break;
         case MSG_IO_EXCEPTION:
           currentError = (IOException) msg.obj;
-          int retryAction = callback.onLoadError(loadable, currentError);
-          if (retryAction != DONT_RETRY) {
+          int retryAction = callback.onLoadError(loadable, elapsedMs, currentError);
+          if (retryAction == DONT_RETRY_FATAL) {
+            fatalError = currentError;
+          } else if (retryAction != DONT_RETRY) {
             errorCount = retryAction == RETRY_RESET_ERROR_COUNT ? 1 : errorCount + 1;
             start(getRetryDelayMillis());
           }

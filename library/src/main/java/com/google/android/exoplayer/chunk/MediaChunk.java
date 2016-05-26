@@ -56,8 +56,16 @@ public abstract class MediaChunk extends Chunk {
     this.chunkIndex = chunkIndex;
   }
 
+  /**
+   * Returns the next chunk index.
+   */
   public final int getNextChunkIndex() {
     return chunkIndex + 1;
   }
+
+  /**
+   * Returns whether the chunk has been fully loaded.
+   */
+  public abstract boolean isLoadCompleted();
 
 }

@@ -39,6 +39,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
+  private volatile boolean loadCompleted;
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
@@ -60,6 +61,11 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.sampleFormat = sampleFormat;
+  }
+
+  @Override
+  public boolean isLoadCompleted() {
+    return loadCompleted;
   }
 
   @Override
@@ -112,6 +118,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
     } finally {
       dataSource.close();
     }
+    loadCompleted = true;
   }
 
 }
