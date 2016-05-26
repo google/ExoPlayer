@@ -149,7 +149,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   /**
    * Returns the track type that the renderer at a given index handles.
    *
-   * @see {@link TrackRenderer#getTrackType()}.
+   * @see TrackRenderer#getTrackType()
    * @param index The index of the renderer.
    * @return One of the TRACK_TYPE_* constants defined in {@link C}.
    */
@@ -271,10 +271,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   // ExoPlayer implementation
 
+  @Override
   public void addListener(EventListener listener) {
     player.addListener(listener);
   }
 
+  @Override
   public void removeListener(EventListener listener) {
     player.removeListener(listener);
   }

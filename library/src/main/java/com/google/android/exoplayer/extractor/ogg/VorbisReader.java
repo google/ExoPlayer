@@ -97,8 +97,7 @@ import java.util.ArrayList;
   }
 
   //@VisibleForTesting
-  /* package */ VorbisSetup readSetupHeaders(ParsableByteArray scratch)
-      throws IOException, InterruptedException {
+  /* package */ VorbisSetup readSetupHeaders(ParsableByteArray scratch) throws IOException {
 
     if (vorbisIdHeader == null) {
       vorbisIdHeader = VorbisUtil.readVorbisIdentificationHeader(scratch);
