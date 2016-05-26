@@ -65,7 +65,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
 
   private final Uri uri;
   private final DataSource dataSource;
-  private final Loader<SingleSampleSource> loader;
+  private final Loader loader;
   private final Format format;
   private final long durationUs;
   private final TrackGroupArray tracks;
@@ -99,7 +99,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    loader = new Loader<>("Loader:SingleSampleSource", minLoadableRetryCount);
+    loader = new Loader("Loader:SingleSampleSource", minLoadableRetryCount);
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }

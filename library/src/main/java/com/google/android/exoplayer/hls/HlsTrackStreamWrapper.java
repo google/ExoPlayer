@@ -54,7 +54,7 @@ import java.util.List;
   private static final int PRIMARY_TYPE_AUDIO = 2;
   private static final int PRIMARY_TYPE_VIDEO = 3;
 
-  private final Loader<Chunk> loader;
+  private final Loader loader;
   private final HlsChunkSource chunkSource;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final LinkedList<HlsMediaChunk> mediaChunks;
@@ -101,7 +101,7 @@ import java.util.List;
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    loader = new Loader<>("Loader:HLS", minLoadableRetryCount);
+    loader = new Loader("Loader:HlsTrackStreamWrapper", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     sampleQueues = new SparseArray<>();

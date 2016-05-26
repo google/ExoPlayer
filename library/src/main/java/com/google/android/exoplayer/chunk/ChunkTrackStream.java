@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
 
-  private final Loader<Chunk> loader;
+  private final Loader loader;
   private final ChunkSource chunkSource;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
@@ -76,7 +76,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
       ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
-    loader = new Loader<>("Loader:ChunkTrackStream", minLoadableRetryCount);
+    loader = new Loader("Loader:ChunkTrackStream", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();

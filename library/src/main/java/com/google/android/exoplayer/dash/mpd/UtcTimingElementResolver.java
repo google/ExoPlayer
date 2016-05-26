@@ -69,7 +69,7 @@ public final class UtcTimingElementResolver implements Loader.Callback<UriLoadab
   private final long timingElementElapsedRealtime;
   private final UtcTimingCallback callback;
 
-  private Loader<UriLoadable<Long>> singleUseLoader;
+  private Loader singleUseLoader;
 
   /**
    * Resolves a {@link UtcTimingElement}.
@@ -121,7 +121,7 @@ public final class UtcTimingElementResolver implements Loader.Callback<UriLoadab
   }
 
   private void resolveHttp(UriLoadable.Parser<Long> parser) {
-    singleUseLoader = new Loader<>("Loader:UtcTiming", 0);
+    singleUseLoader = new Loader("Loader:UtcTiming", 0);
     singleUseLoader.startLoading(
         new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser), this);
   }

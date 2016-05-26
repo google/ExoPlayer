@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Manages the background loading of {@link Loadable}s.
  */
-public final class Loader<T extends Loader.Loadable> {
+public final class Loader {
 
   /**
    * Thrown when an unexpected exception is encountered during loading.
@@ -121,7 +121,7 @@ public final class Loader<T extends Loader.Loadable> {
   private final ExecutorService downloadExecutorService;
 
   private int minRetryCount;
-  private LoadTask currentTask;
+  private LoadTask<? extends Loadable> currentTask;
   private IOException fatalError;
 
   /**
@@ -143,10 +143,10 @@ public final class Loader<T extends Loader.Loadable> {
    * @param callback A callback to invoke when the load ends.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
    */
-  public void startLoading(T loadable, Callback<T> callback) {
+  public <T extends Loadable> void startLoading(T loadable, Callback<T> callback) {
     Looper looper = Looper.myLooper();
     Assertions.checkState(looper != null);
-    new LoadTask(looper, loadable, callback).start(0);
+    new LoadTask<>(looper, loadable, callback).start(0);
   }
 
   /**
@@ -204,7 +204,7 @@ public final class Loader<T extends Loader.Loadable> {
   }
 
   @SuppressLint("HandlerLeak")
-  private final class LoadTask extends Handler implements Runnable {
+  private final class LoadTask<T extends Loadable> extends Handler implements Runnable {
 
     private static final String TAG = "LoadTask";
 

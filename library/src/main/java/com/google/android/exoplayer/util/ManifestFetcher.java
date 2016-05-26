@@ -68,7 +68,7 @@ public class ManifestFetcher<T> implements Loader.Callback<UriLoadable<T>> {
 
   }
 
-  private final Loader<UriLoadable<T>> loader;
+  private final Loader loader;
   private final UriLoadable.Parser<T> parser;
   private final DataSource dataSource;
   private final Handler eventHandler;
@@ -106,7 +106,7 @@ public class ManifestFetcher<T> implements Loader.Callback<UriLoadable<T>> {
     this.dataSource = dataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    loader = new Loader<>("Loader:ManifestFetcher", 1);
+    loader = new Loader("Loader:ManifestFetcher", 1);
   }
 
   /**

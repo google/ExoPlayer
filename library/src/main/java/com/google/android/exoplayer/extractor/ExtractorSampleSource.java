@@ -112,7 +112,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Lazily initialized default extractor classes in priority order.
   private static List<Class<? extends Extractor>> defaultExtractorClasses;
 
-  private final Loader<Loadable> loader;
+  private final Loader loader;
   private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
@@ -233,7 +233,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // Assume on-demand until we know otherwise.
     int initialMinRetryCount = minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
         ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND : minLoadableRetryCount;
-    loader = new Loader<>("Loader:ExtractorSampleSource", initialMinRetryCount);
+    loader = new Loader("Loader:ExtractorSampleSource", initialMinRetryCount);
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
