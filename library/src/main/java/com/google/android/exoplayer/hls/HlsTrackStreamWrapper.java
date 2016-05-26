@@ -49,11 +49,6 @@ import java.util.List;
  */
 /* package */ final class HlsTrackStreamWrapper implements Loader.Callback<Chunk>, ExtractorOutput {
 
-  /**
-   * The default minimum number of times to retry loading data prior to failing.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
-
   private static final int PRIMARY_TYPE_NONE = 0;
   private static final int PRIMARY_TYPE_TEXT = 1;
   private static final int PRIMARY_TYPE_AUDIO = 2;
@@ -93,32 +88,6 @@ import java.util.List;
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
-   */
-  public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution) {
-    this(chunkSource, loadControl, bufferSizeContribution, null, null, 0);
-  }
-
-  /**
-   * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
-   * @param loadControl Controls when the source is permitted to load data.
-   * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   */
-  public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler,
-      ChunkTrackStreamEventListener eventListener, int eventSourceId) {
-    this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
-        eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
-  }
-
-  /**
-   * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
-   * @param loadControl Controls when the source is permitted to load data.
-   * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -143,9 +112,6 @@ import java.util.List;
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
-    }
-    if (!chunkSource.prepare()) {
-      return false;
     }
     if (chunkSource.getTrackCount() == 0) {
       trackGroups = new TrackGroupArray();

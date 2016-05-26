@@ -36,7 +36,6 @@ import com.google.android.exoplayer.hls.playlist.Variant;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
-import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
@@ -51,7 +50,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -72,7 +70,6 @@ public class HlsChunkSource {
   private static final String VTT_FILE_EXTENSION = ".vtt";
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
-  private final ManifestFetcher<HlsPlaylist> manifestFetcher;
   private final int type;
   private final DataSource dataSource;
   private final FormatEvaluator adaptiveFormatEvaluator;
@@ -84,8 +81,9 @@ public class HlsChunkSource {
   private boolean live;
   private long durationUs;
   private IOException fatalError;
-  private HlsMasterPlaylist masterPlaylist;
   private String baseUri;
+  private Format muxedAudioFormat;
+  private Format muxedCaptionFormat;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
@@ -103,7 +101,6 @@ public class HlsChunkSource {
   private boolean[] enabledVariantBlacklistFlags;
 
   /**
-   * @param manifestFetcher A fetcher for the playlist.
    * @param type The type of chunk provided by the source. One of {@link C#TRACK_TYPE_DEFAULT},
    *     {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
@@ -112,10 +109,9 @@ public class HlsChunkSource {
    *     same provider.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
-  public HlsChunkSource(ManifestFetcher<HlsPlaylist> manifestFetcher, int type,
-      DataSource dataSource, PtsTimestampAdjusterProvider timestampAdjusterProvider,
+  public HlsChunkSource(int type, DataSource dataSource,
+      PtsTimestampAdjusterProvider timestampAdjusterProvider,
       FormatEvaluator adaptiveFormatEvaluator) {
-    this.manifestFetcher = manifestFetcher;
     this.type = type;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
@@ -148,38 +144,14 @@ public class HlsChunkSource {
   /**
    * Prepares the source.
    *
-   * @return True if the source was prepared, false otherwise.
+   * @param playlist A {@link HlsPlaylist}.
    */
-  public boolean prepare() throws IOException {
-    if (masterPlaylist == null) {
-      HlsPlaylist playlist = manifestFetcher.getManifest();
-      if (playlist == null) {
-        manifestFetcher.maybeThrowError();
-        manifestFetcher.requestRefresh();
-        return false;
-      } else {
-        baseUri = playlist.baseUri;
-        if (playlist.type == HlsPlaylist.TYPE_MASTER) {
-          masterPlaylist = (HlsMasterPlaylist) playlist;
-        } else {
-          Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null,
-              Format.NO_VALUE);
-          List<Variant> variants = new ArrayList<>();
-          variants.add(new Variant(baseUri, format, null));
-          masterPlaylist = new HlsMasterPlaylist(baseUri, variants,
-              Collections.<Variant>emptyList(), Collections.<Variant>emptyList(), null, null);
-        }
-        processMasterPlaylist(masterPlaylist);
-        if (variants.length > 0) {
-          if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-            setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
-          }
-          // Select the first variant listed in the master playlist.
-          selectTracks(new int[] {0});
-        }
-      }
+  public void prepare(HlsPlaylist playlist) {
+    processPlaylist(playlist);
+    if (variants.length > 0) {
+      // Select the first variant listed in the master playlist.
+      selectTracks(new int[] {0});
     }
-    return true;
   }
 
   /**
@@ -235,7 +207,7 @@ public class HlsChunkSource {
    * @return The format of the audio muxed into variants, or null if unknown.
    */
   public Format getMuxedAudioFormat() {
-    return masterPlaylist.muxedAudioFormat;
+    return muxedAudioFormat;
   }
 
   /**
@@ -246,7 +218,7 @@ public class HlsChunkSource {
    * @return The format of the captions muxed into variants, or null if unknown.
    */
   public Format getMuxedCaptionFormat() {
-    return masterPlaylist.muxedCaptionFormat;
+    return muxedCaptionFormat;
   }
 
   /**
@@ -521,9 +493,33 @@ public class HlsChunkSource {
 
   // Private methods.
 
-  private void processMasterPlaylist(HlsMasterPlaylist playlist) {
+  private void processPlaylist(HlsPlaylist playlist) {
+    baseUri = playlist.baseUri;
+
+    if (playlist instanceof HlsMediaPlaylist) {
+      if (type == C.TRACK_TYPE_TEXT || type == C.TRACK_TYPE_AUDIO) {
+        variants = new Variant[0];
+        variantPlaylists = new HlsMediaPlaylist[variants.length];
+        variantLastPlaylistLoadTimesMs = new long[variants.length];
+        return;
+      }
+
+      // type == C.TRACK_TYPE_DEFAULT
+      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null,
+          Format.NO_VALUE);
+      variants = new Variant[] {new Variant(baseUri, format, null)};
+      variantPlaylists = new HlsMediaPlaylist[variants.length];
+      variantLastPlaylistLoadTimesMs = new long[variants.length];
+      setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
+      return;
+    }
+
+    HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
+    muxedAudioFormat = masterPlaylist.muxedAudioFormat;
+    muxedCaptionFormat = masterPlaylist.muxedCaptionFormat;
     if (type == C.TRACK_TYPE_TEXT || type == C.TRACK_TYPE_AUDIO) {
-      List<Variant> variantList = type == C.TRACK_TYPE_AUDIO ? playlist.audios : playlist.subtitles;
+      List<Variant> variantList = type == C.TRACK_TYPE_AUDIO ? masterPlaylist.audios
+          : masterPlaylist.subtitles;
       if (variantList != null && !variantList.isEmpty()) {
         variants = new Variant[variantList.size()];
         variantList.toArray(variants);
@@ -535,8 +531,8 @@ public class HlsChunkSource {
       return;
     }
 
-    // Type is TYPE_DEFAULT.
-    List<Variant> enabledVariantList = new ArrayList<>(playlist.variants);
+    // type == C.TRACK_TYPE_DEFAULT
+    List<Variant> enabledVariantList = new ArrayList<>(masterPlaylist.variants);
     ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
     ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
     for (int i = 0; i < enabledVariantList.size(); i++) {

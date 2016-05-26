@@ -48,7 +48,14 @@ import java.util.List;
  */
 public final class HlsSampleSource implements SampleSource {
 
+  /**
+   * The minimum number of times to retry loading data prior to failing.
+   */
+  // TODO: Use this for playlist loads as well.
+  private static final int MIN_LOADABLE_RETRY_COUNT = 3;
+
   private final ManifestFetcher<HlsPlaylist> manifestFetcher;
+  private final HlsChunkSource[] chunkSources;
   private final HlsTrackStreamWrapper[] trackStreamWrappers;
   private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final int[] selectedTrackCounts;
@@ -56,6 +63,7 @@ public final class HlsSampleSource implements SampleSource {
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private long durationUs;
+  private HlsPlaylist playlist;
   private TrackGroupArray trackGroups;
   private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
 
@@ -71,27 +79,30 @@ public final class HlsSampleSource implements SampleSource {
     PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
     DataSource defaultDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_DEFAULT,
+    HlsChunkSource defaultChunkSource = new HlsChunkSource(C.TRACK_TYPE_DEFAULT,
         defaultDataSource, timestampAdjusterProvider,
         new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
     HlsTrackStreamWrapper defaultTrackStreamWrapper = new HlsTrackStreamWrapper(defaultChunkSource,
-        loadControl, C.DEFAULT_MUXED_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO);
+        loadControl, C.DEFAULT_MUXED_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_VIDEO,
+        MIN_LOADABLE_RETRY_COUNT);
 
     DataSource audioDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_AUDIO,
+    HlsChunkSource audioChunkSource = new HlsChunkSource(C.TRACK_TYPE_AUDIO,
         audioDataSource, timestampAdjusterProvider, null);
     HlsTrackStreamWrapper audioTrackStreamWrapper = new HlsTrackStreamWrapper(audioChunkSource,
-        loadControl, C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO);
+        loadControl, C.DEFAULT_AUDIO_BUFFER_SIZE, eventHandler, eventListener, C.TRACK_TYPE_AUDIO,
+        MIN_LOADABLE_RETRY_COUNT);
 
-    DataSource subtitleDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher, C.TRACK_TYPE_TEXT,
-        subtitleDataSource, timestampAdjusterProvider, null);
-    HlsTrackStreamWrapper subtitleTrackStreamWrapper = new HlsTrackStreamWrapper(
-        subtitleChunkSource, loadControl, C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener,
-        C.TRACK_TYPE_TEXT);
+    DataSource textDataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    HlsChunkSource textChunkSource = new HlsChunkSource(C.TRACK_TYPE_TEXT, textDataSource,
+        timestampAdjusterProvider, null);
+    HlsTrackStreamWrapper textTrackStreamWrapper = new HlsTrackStreamWrapper(
+        textChunkSource, loadControl, C.DEFAULT_TEXT_BUFFER_SIZE, eventHandler, eventListener,
+        C.TRACK_TYPE_TEXT, MIN_LOADABLE_RETRY_COUNT);
 
+    chunkSources = new HlsChunkSource[] {defaultChunkSource, audioChunkSource, textChunkSource};
     trackStreamWrappers = new HlsTrackStreamWrapper[] {defaultTrackStreamWrapper,
-        audioTrackStreamWrapper, subtitleTrackStreamWrapper};
+        audioTrackStreamWrapper, textTrackStreamWrapper};
     selectedTrackCounts = new int[trackStreamWrappers.length];
     trackStreamSources = new IdentityHashMap<>();
   }
@@ -101,6 +112,19 @@ public final class HlsSampleSource implements SampleSource {
     if (prepared) {
       return true;
     }
+
+    if (playlist == null) {
+      playlist = manifestFetcher.getManifest();
+      if (playlist == null) {
+        manifestFetcher.maybeThrowError();
+        manifestFetcher.requestRefresh();
+        return false;
+      }
+      for (HlsChunkSource chunkSource : chunkSources) {
+        chunkSource.prepare(playlist);
+      }
+    }
+
     boolean trackStreamWrappersPrepared = true;
     for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
       trackStreamWrappersPrepared &= trackStreamWrapper.prepare(positionUs);
@@ -108,6 +132,7 @@ public final class HlsSampleSource implements SampleSource {
     if (!trackStreamWrappersPrepared) {
       return false;
     }
+
     durationUs = 0;
     int totalTrackGroupCount = 0;
     for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
