@@ -91,6 +91,7 @@ public class SampleChooserActivity extends Activity {
 
   private void onSampleSelected(Sample sample) {
     Intent intent = new Intent(this, PlayerActivity.class)
+        .setAction(PlayerActivity.ACTION_VIEW)
         .setData(Uri.parse(sample.uri))
         .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type)
         .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, sample.drmSchemeUuid)

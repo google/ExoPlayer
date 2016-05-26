@@ -287,8 +287,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void setSource(SampleSource source) {
-    player.setSource(source);
+  public void setSource(SampleSource sampleSource) {
+    player.setSource(sampleSource);
+  }
+
+  @Override
+  public void setSourceProvider(SampleSourceProvider sourceProvider) {
+    player.setSourceProvider(sourceProvider);
   }
 
   @Override

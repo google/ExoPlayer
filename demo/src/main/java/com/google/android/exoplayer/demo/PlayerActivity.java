@@ -25,27 +25,19 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.ExoPlayerFactory;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.TrackGroupArray;
-import com.google.android.exoplayer.dash.DashSampleSource;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
-import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.id3.GeobFrame;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.metadata.id3.PrivFrame;
 import com.google.android.exoplayer.metadata.id3.TxxxFrame;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingSampleSource;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
-import com.google.android.exoplayer.upstream.Allocator;
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.PlayerControl;
@@ -60,7 +52,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -99,7 +90,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public static final String USE_EXTENSION_DECODERS = "use_extension_decoders";
 
   // For use when launching the demo app using adb.
+  public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
+  private static final String ACTION_VIEW_LIST =
+      "com.google.android.exoplayer.demo.action.VIEW_LIST";
   private static final String CONTENT_EXT_EXTRA = "type";
+  private static final String URIS_LIST_EXTRA = "uris";
 
   private static final String TAG = "PlayerActivity";
 
@@ -246,40 +241,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
-  // Permission management methods
-
-  /**
-   * Checks whether it is necessary to ask for permission to read storage. If necessary, it also
-   * requests permission.
-   *
-   * @param uri A URI that may require {@link permission#READ_EXTERNAL_STORAGE} to play.
-   * @return True if a permission request is made. False if it is not necessary.
-   */
-  @TargetApi(23)
-  private boolean maybeRequestPermission(Uri uri) {
-    if (requiresPermission(uri)) {
-      requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  @TargetApi(23)
-  private boolean requiresPermission(Uri uri) {
-    return Util.SDK_INT >= 23
-        && Util.isLocalFileUri(uri)
-        && checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
-        != PackageManager.PERMISSION_GRANTED;
-  }
-
   // Internal methods
 
   private void initializePlayer() {
     Intent intent = getIntent();
-    Uri uri = intent.getData();
-    int type = intent.getIntExtra(CONTENT_TYPE_EXTRA,
-        inferContentType(uri, intent.getStringExtra(CONTENT_EXT_EXTRA)));
     if (player == null) {
       boolean useExtensionDecoders = intent.getBooleanExtra(USE_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = (UUID) intent.getSerializableExtra(DRM_SCHEME_UUID_EXTRA);
@@ -318,11 +283,31 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       playerNeedsSource = true;
     }
     if (playerNeedsSource) {
-      if (maybeRequestPermission(uri)) {
+      String action = intent.getAction();
+      Uri[] uris;
+      UriSampleSourceProvider sourceProvider;
+      if (ACTION_VIEW.equals(action)) {
+        uris = new Uri[] {intent.getData()};
+        sourceProvider = new UriSampleSourceProvider(player, dataSourceFactory, intent.getData(),
+            intent.getIntExtra(CONTENT_TYPE_EXTRA, UriSampleSourceProvider.UNKNOWN_TYPE),
+            intent.getStringExtra(CONTENT_EXT_EXTRA), mainHandler, eventLogger);
+      } else if (ACTION_VIEW_LIST.equals(action)) {
+        String[] uriStrings = intent.getStringArrayExtra(URIS_LIST_EXTRA);
+        uris = new Uri[uriStrings.length];
+        for (int i = 0; i < uriStrings.length; i++) {
+          uris[i] = Uri.parse(uriStrings[i]);
+        }
+        sourceProvider = new UriSampleSourceProvider(player, dataSourceFactory, uris, mainHandler,
+            eventLogger);
+      } else {
+        Log.w(TAG, "Unexpected intent action: " + action);
+        return;
+      }
+      if (maybeRequestPermission(uris)) {
         // The player will be reinitialized if permission is granted.
         return;
       }
-      player.setSource(buildSource(type, uri));
+      player.setSourceProvider(sourceProvider);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -351,25 +336,28 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
   }
 
-  private SampleSource buildSource(int type, Uri uri) {
-    switch (type) {
-      case Util.TYPE_SS:
-        return new SmoothStreamingSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
-            mainHandler, eventLogger);
-      case Util.TYPE_DASH:
-        return new DashSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), mainHandler,
-            eventLogger);
-      case Util.TYPE_HLS:
-        return new HlsSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), mainHandler,
-            eventLogger);
-      case Util.TYPE_OTHER:
-        Allocator allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
-        DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
-        return new ExtractorSampleSource(uri, dataSource, allocator, C.DEFAULT_MUXED_BUFFER_SIZE,
-            mainHandler, eventLogger, 0, ExtractorSampleSource.newDefaultExtractors());
-      default:
-        throw new IllegalStateException("Unsupported type: " + type);
+  /**
+   * Checks whether it is necessary to ask for permission to read storage. If necessary, it also
+   * requests permission.
+   *
+   * @param uris URIs that may require {@link permission#READ_EXTERNAL_STORAGE} to play.
+   * @return True if a permission request is made. False if it is not necessary.
+   */
+  @TargetApi(23)
+  private boolean maybeRequestPermission(Uri... uris) {
+    if (Util.SDK_INT >= 23) {
+      for (Uri uri : uris) {
+        if (Util.isLocalFileUri(uri)) {
+          if (checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+              != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
+            return true;
+          }
+          break;
+        }
+      }
     }
+    return false;
   }
 
   private void releasePlayer() {
@@ -583,20 +571,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     CaptioningManager captioningManager =
         (CaptioningManager) getSystemService(Context.CAPTIONING_SERVICE);
     return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
-  }
-
-  /**
-   * Makes a best guess to infer the type from a media {@link Uri} and an optional overriding file
-   * extension.
-   *
-   * @param uri The {@link Uri} of the media.
-   * @param fileExtension An overriding file extension.
-   * @return The inferred type.
-   */
-  private static int inferContentType(Uri uri, String fileExtension) {
-    String lastPathSegment = !TextUtils.isEmpty(fileExtension) ? "." + fileExtension
-        : uri.getLastPathSegment();
-    return Util.inferContentType(lastPathSegment);
   }
 
   private static final class KeyCompatibleMediaController extends MediaController {

@@ -84,7 +84,8 @@ package com.google.android.exoplayer;
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
- * {@link #setSource(SampleSource)}, {@link #stop()} or {@link #release()} being invoked.</p>
+ * {@link #setSource(SampleSource)}, {@link #setSourceProvider(SampleSourceProvider)},
+ * {@link #stop()} or {@link #release()} being invoked.</p>
  * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
@@ -224,6 +225,14 @@ public interface ExoPlayer {
    * @param sampleSource The {@link SampleSource} to play.
    */
   void setSource(SampleSource sampleSource);
+
+  /**
+   * Sets the player's source provider. The player will transition to {@link #STATE_BUFFERING} until
+   * it is ready to play the first source.
+   *
+   * @param sourceProvider The provider of {@link SampleSource}s to play.
+   */
+  void setSourceProvider(SampleSourceProvider sourceProvider);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.

@@ -66,6 +66,10 @@
         <data android:scheme="asset"/>
         <data android:scheme="file"/>
       </intent-filter>
+      <intent-filter>
+        <action android:name="com.google.android.exoplayer.demo.action.VIEW_LIST"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
     </activity>
 
   </application>

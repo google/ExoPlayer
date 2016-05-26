@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public static final int MSG_ERROR = 3;
 
   // Internal messages
-  private static final int MSG_SET_SOURCE = 0;
+  private static final int MSG_SET_SOURCE_PROVIDER = 0;
   private static final int MSG_SET_PLAY_WHEN_READY = 1;
   private static final int MSG_DO_SOME_WORK = 2;
   private static final int MSG_SEEK_TO = 3;
@@ -135,8 +135,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
   }
 
-  public void setSource(SampleSource sampleSource) {
-    handler.obtainMessage(MSG_SET_SOURCE, sampleSource).sendToTarget();
+  public void setSourceProvider(SampleSourceProvider sourceProvider) {
+    handler.obtainMessage(MSG_SET_SOURCE_PROVIDER, sourceProvider).sendToTarget();
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {
@@ -203,8 +203,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   public boolean handleMessage(Message msg) {
     try {
       switch (msg.what) {
-        case MSG_SET_SOURCE: {
-          setSourceInternal((SampleSource) msg.obj);
+        case MSG_SET_SOURCE_PROVIDER: {
+          setSourceProviderInternal((SampleSourceProvider) msg.obj);
           return true;
         }
         case MSG_SET_PLAY_WHEN_READY: {
@@ -277,9 +277,10 @@ import java.util.concurrent.atomic.AtomicInteger;
         || (durationUs != C.UNSET_TIME_US && bufferedPositionUs >= durationUs);
   }
 
-  private void setSourceInternal(SampleSource source) {
+  private void setSourceProviderInternal(SampleSourceProvider sourceProvider) {
     resetInternal();
-    this.source = source;
+    // TODO[playlists]: Create and use sources after the first one.
+    this.source = sourceProvider.createSource(0);
     setState(ExoPlayer.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
