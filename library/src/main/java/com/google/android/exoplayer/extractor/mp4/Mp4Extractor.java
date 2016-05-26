@@ -97,7 +97,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     containerAtoms.clear();
     atomHeaderBytesRead = 0;
     sampleBytesWritten = 0;

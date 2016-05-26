@@ -134,6 +134,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] trackEnabledStates;
+  private long length;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -237,6 +238,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
+    length = C.LENGTH_UNBOUNDED;
   }
 
   /**
@@ -491,11 +493,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void onLoadCompleted(Loadable loadable, long elapsedMs) {
+    copyLengthFromLoader();
     loadingFinished = true;
   }
 
   @Override
   public void onLoadCanceled(Loadable loadable, long elapsedMs) {
+    copyLengthFromLoader();
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     } else {
@@ -506,6 +510,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public int onLoadError(Loadable loadable, long elapsedMs, IOException e) {
+    copyLengthFromLoader();
     notifyLoadError(e);
     if (isLoadableExceptionFatal(e)) {
       return Loader.DONT_RETRY_FATAL;
@@ -538,6 +543,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   // Internal methods.
+
+  private void copyLengthFromLoader() {
+    if (length == C.LENGTH_UNBOUNDED) {
+      length = loadable.length;
+    }
+  }
 
   private void seekToInternal(long positionUs) {
     // Treat all seeks into non-seekable media as being to t=0.
@@ -588,23 +599,19 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private void configureRetry() {
     Assertions.checkState(loadable != null);
-    if (!prepared) {
-      // We don't know whether we're playing an on-demand or a live stream. For a live stream we
-      // need to load from the start, as outlined below. Since we might be playing a live stream,
-      // play it safe and load from the start.
-      clearSampleQueues();
-      loadable.setLoadPosition(0);
-    } else if (!seekMap.isSeekable() && durationUs == C.UNSET_TIME_US) {
-      // We're playing a non-seekable stream with unknown duration. Assume it's live, and
-      // therefore that the data at the uri is a continuously shifting window of the latest
-      // available media. For this case there's no way to continue loading from where a previous
-      // load finished, so it's necessary to load from the start whenever commencing a new load.
-      notifyReset = true;
-      clearSampleQueues();
-      loadable.setLoadPosition(0);
-    } else {
-      // We're playing a seekable on-demand stream. Resume the current loadable, which will
+    if (length != C.LENGTH_UNBOUNDED
+        || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)) {
+      // We're playing an on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
+    } else {
+      // We're playing a stream of unknown length and duration. Assume it's live, and
+      // therefore that the data at the uri is a continuously shifting window of the latest
+      // available media. For this case there's no way to continue loading from where a
+      // previous load finished, so it's necessary to load from the start whenever commencing
+      // a new load.
+      notifyReset = prepared;
+      clearSampleQueues();
+      loadable.setLoadPosition(0);
     }
   }
 
@@ -703,6 +710,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     private volatile boolean loadCanceled;
 
     private boolean pendingExtractorSeek;
+    private long length;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
         Allocator allocator, int requestedBufferSize) {
@@ -711,8 +719,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       this.extractorHolder = Assertions.checkNotNull(extractorHolder);
       this.allocator = Assertions.checkNotNull(allocator);
       this.requestedBufferSize = requestedBufferSize;
-      positionHolder = new PositionHolder();
-      pendingExtractorSeek = true;
+      this.positionHolder = new PositionHolder();
+      this.pendingExtractorSeek = true;
+      this.length = C.LENGTH_UNBOUNDED;
     }
 
     public void setLoadPosition(long position) {
@@ -737,14 +746,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         ExtractorInput input = null;
         try {
           long position = positionHolder.position;
-          long length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNBOUNDED, null));
+          length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNBOUNDED, null));
           if (length != C.LENGTH_UNBOUNDED) {
             length += position;
           }
           input = new DefaultExtractorInput(dataSource, position, length);
           Extractor extractor = extractorHolder.selectExtractor(input);
           if (pendingExtractorSeek) {
-            extractor.seek();
+            extractor.seek(position);
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {

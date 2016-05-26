@@ -50,6 +50,15 @@ public final class FakeTrackOutput implements TrackOutput {
     sampleEncryptionKeys = new ArrayList<>();
   }
 
+  public void clear() {
+    sampleData = new byte[0];
+    sampleTimesUs.clear();
+    sampleFlags.clear();
+    sampleStartOffsets.clear();
+    sampleEndOffsets.clear();
+    sampleEncryptionKeys.clear();
+  }
+
   @Override
   public void format(Format format) {
     this.format = format;

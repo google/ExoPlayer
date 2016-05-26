@@ -25,9 +25,9 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
-
 import junit.framework.TestCase;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,25 +100,8 @@ public final class Mp4ExtractorTest extends TestCase {
   /** Empty byte array. */
   private static final byte[] EMPTY = new byte[0];
 
-  private Mp4Extractor extractor;
-  private FakeExtractorOutput extractorOutput;
-
-  @Override
-  public void setUp() {
-    extractor = new Mp4Extractor();
-    extractorOutput = new FakeExtractorOutput();
-    extractor.init(extractorOutput);
-  }
-
-  @Override
-  public void tearDown() {
-    extractor = null;
-    extractorOutput = null;
-  }
-
   public void testParsesValidMp4File() throws Exception {
-    TestUtil.consumeTestData(extractor,
-        getTestInputData(true /* includeStss */, false /* mp4vFormat */));
+    FakeExtractorOutput extractorOutput = consumeTestData(true, false);
 
     // The seek map is correct.
     assertSeekMap(extractorOutput.seekMap, true);
@@ -144,8 +127,7 @@ public final class Mp4ExtractorTest extends TestCase {
   }
 
   public void testParsesValidMp4FileWithoutStss() throws Exception {
-    TestUtil.consumeTestData(extractor,
-        getTestInputData(false /* includeStss */, false /* mp4vFormat */));
+    FakeExtractorOutput extractorOutput = consumeTestData(false, false);
 
     // The seek map is correct.
     assertSeekMap(extractorOutput.seekMap, false);
@@ -162,8 +144,7 @@ public final class Mp4ExtractorTest extends TestCase {
   }
 
   public void testParsesValidMp4vFile() throws Exception {
-    TestUtil.consumeTestData(extractor,
-        getTestInputData(true /* includeStss */, true /* mp4vFormat */));
+    FakeExtractorOutput extractorOutput = consumeTestData(true, true);
 
     // The seek map is correct.
     assertSeekMap(extractorOutput.seekMap, true);
@@ -364,9 +345,11 @@ public final class Mp4ExtractorTest extends TestCase {
     return CHUNK_OFFSETS[chunkIndex] + offsetInChunk;
   }
 
-  private static byte[] getTestInputData(boolean includeStss, boolean mp4vFormat) {
-    return includeStss ? getTestMp4File(mp4vFormat)
+  private static FakeExtractorOutput consumeTestData(boolean includeStss, boolean mp4vFormat)
+      throws IOException, InterruptedException {
+    byte[] testInputData = includeStss ? getTestMp4File(mp4vFormat)
         : getTestMp4FileWithoutSynchronizationData(mp4vFormat);
+    return TestUtil.consumeTestData(new Mp4Extractor(), testInputData);
   }
 
   /** Gets a valid MP4 file with audio/video tracks and synchronization data. */

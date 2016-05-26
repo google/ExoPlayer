@@ -18,8 +18,9 @@ import java.io.IOException;
 /* package */ abstract class StreamReader {
 
   private static final int STATE_READ_HEADERS = 0;
-  private static final int STATE_READ_PAYLOAD = 1;
-  private static final int STATE_END_OF_INPUT = 2;
+  private static final int STATE_SKIP_HEADERS = 1;
+  private static final int STATE_READ_PAYLOAD = 2;
+  private static final int STATE_END_OF_INPUT = 3;
 
   static class SetupData {
     Format format;
@@ -38,27 +39,44 @@ import java.io.IOException;
   private SetupData setupData;
   private long lengthOfReadPacket;
   private boolean seekMapSet;
+  private boolean formatSet;
 
   void init(ExtractorOutput output, TrackOutput trackOutput) {
     this.extractorOutput = output;
     this.trackOutput = trackOutput;
     this.oggPacket = new OggPacket();
-    this.setupData = new SetupData();
 
-    this.state = STATE_READ_HEADERS;
-    this.targetGranule = -1;
-    this.payloadStartPosition = 0;
+    reset(true);
   }
 
   /**
-   * @see Extractor#seek()
+   * Resets the state of the {@link StreamReader}.
+   * @param headerData Resets parsed header data too.
    */
-  final void seek() {
-    oggPacket.reset();
+  protected void reset(boolean headerData) {
+    if (headerData) {
+      setupData = new SetupData();
+      payloadStartPosition = 0;
+      state = STATE_READ_HEADERS;
+    } else {
+      state = STATE_SKIP_HEADERS;
+    }
+    targetGranule = -1;
+    currentGranule = 0;
+  }
 
-    if (state != STATE_READ_HEADERS) {
-      targetGranule = oggSeeker.startSeek();
-      state = STATE_READ_PAYLOAD;
+  /**
+   * @see Extractor#seek(long)
+   */
+  final void seek(long position) {
+    oggPacket.reset();
+    if (position == 0) {
+      reset(!seekMapSet);
+    } else {
+      if (state != STATE_READ_HEADERS) {
+        targetGranule = oggSeeker.startSeek();
+        state = STATE_READ_PAYLOAD;
+      }
     }
   }
 
@@ -71,6 +89,11 @@ import java.io.IOException;
       case STATE_READ_HEADERS:
         return readHeaders(input);
 
+      case STATE_SKIP_HEADERS:
+        input.skipFully((int) payloadStartPosition);
+        state = STATE_READ_PAYLOAD;
+        return Extractor.RESULT_CONTINUE;
+
       case STATE_READ_PAYLOAD:
         return readPayload(input, seekPosition);
 
@@ -80,8 +103,7 @@ import java.io.IOException;
     }
   }
 
-  private int readHeaders(ExtractorInput input)
-      throws IOException, InterruptedException {
+  private int readHeaders(ExtractorInput input) throws IOException, InterruptedException {
     boolean readingHeaders = true;
     while (readingHeaders) {
       if (!oggPacket.populate(input)) {
@@ -97,7 +119,10 @@ import java.io.IOException;
     }
 
     sampleRate = setupData.format.sampleRate;
-    trackOutput.format(setupData.format);
+    if (!formatSet) {
+      trackOutput.format(setupData.format);
+      formatSet = true;
+    }
 
     if (setupData.oggSeeker != null) {
       oggSeeker = setupData.oggSeeker;

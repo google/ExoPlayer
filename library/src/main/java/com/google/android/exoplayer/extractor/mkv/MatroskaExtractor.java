@@ -289,7 +289,7 @@ public final class MatroskaExtractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     clusterTimecodeUs = UNKNOWN;
     blockState = BLOCK_STATE_START;
     reader.reset();

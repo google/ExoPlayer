@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -39,9 +40,10 @@ import java.util.List;
    */
   private static final int SAMPLE_RATE = 48000;
 
+  private static final int OPUS_CODE = Util.getIntegerCodeForString("Opus");
   private static final byte[] OPUS_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
+
   private boolean headerRead;
-  private boolean tagsSkipped;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     if (data.bytesLeft() < OPUS_SIGNATURE.length) {
@@ -50,6 +52,14 @@ import java.util.List;
     byte[] header = new byte[OPUS_SIGNATURE.length];
     data.readBytes(header, 0, OPUS_SIGNATURE.length);
     return Arrays.equals(header, OPUS_SIGNATURE);
+  }
+
+  @Override
+  protected void reset(boolean headerData) {
+    super.reset(headerData);
+    if (headerData) {
+      headerRead = false;
+    }
   }
 
   @Override
@@ -73,11 +83,10 @@ import java.util.List;
       setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS, Format.NO_VALUE,
           Format.NO_VALUE, channelCount, SAMPLE_RATE, initializationData, null, 0, "und");
       headerRead = true;
-    } else if (!tagsSkipped) {
-      // Skip tags packet
-      tagsSkipped = true;
     } else {
-      return false;
+      boolean headerPacket = packet.readInt() == OPUS_CODE;
+      packet.setPosition(0);
+      return headerPacket;
     }
     return true;
   }

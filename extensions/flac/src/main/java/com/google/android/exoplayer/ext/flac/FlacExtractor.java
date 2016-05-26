@@ -127,7 +127,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     decoder.flush();
   }
 

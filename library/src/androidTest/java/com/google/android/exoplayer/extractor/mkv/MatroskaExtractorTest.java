@@ -70,20 +70,9 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
   private static final String MATROSKA_DOC_TYPE = "matroska";
   private static final String WEBM_DOC_TYPE = "webm";
 
-  private MatroskaExtractor extractor;
-  private FakeExtractorOutput extractorOutput;
-
-  @Override
-  public void setUp() {
-    extractor = new MatroskaExtractor();
-    extractorOutput = new FakeExtractorOutput();
-    extractor.init(extractorOutput);
-  }
-
-  @Override
-  public void tearDown() {
-    extractor = null;
-    extractorOutput = null;
+  private FakeExtractorOutput consumeTestData(byte[] data)
+      throws IOException, InterruptedException {
+    return TestUtil.consumeTestData(new MatroskaExtractor(), data);
   }
 
   public void testReadInitializationSegment() throws IOException, InterruptedException {
@@ -93,27 +82,11 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
-  }
-
-  public void testReadSegmentTwice() throws IOException, InterruptedException {
-    byte[] data = new StreamBuilder()
-        .setHeader(WEBM_DOC_TYPE)
-        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_TIMECODE)
-        .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
-        .build(1);
-
-    TestUtil.consumeTestData(extractor, data);
-    extractor.seek();
-    TestUtil.consumeTestData(extractor, data);
-
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareOpus() throws IOException, InterruptedException {
@@ -124,11 +97,11 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             TEST_SEEK_PRE_ROLL, TEST_OPUS_CODEC_PRIVATE)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertTracksEnded(extractorOutput);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareVorbis() throws IOException, InterruptedException {
@@ -139,11 +112,11 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             getVorbisCodecPrivate())
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_VORBIS);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertTracksEnded(extractorOutput);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_VORBIS);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareH264() throws IOException, InterruptedException {
@@ -153,11 +126,11 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addH264Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, TEST_H264_CODEC_PRIVATE)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertH264VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertTracksEnded(extractorOutput);
+    assertH264VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareTwoTracks() throws IOException, InterruptedException {
@@ -169,13 +142,13 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             TEST_SEEK_PRE_ROLL, TEST_OPUS_CODEC_PRIVATE)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareThreeTracks() throws IOException, InterruptedException {
@@ -188,14 +161,14 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             TEST_SEEK_PRE_ROLL, TEST_OPUS_CODEC_PRIVATE)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
     // Even though the input stream has 3 tracks, only 2 of them are supported and will be reported.
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareFourTracks() throws IOException, InterruptedException {
@@ -210,15 +183,15 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             TEST_CODEC_DELAY, TEST_SEEK_PRE_ROLL, TEST_OPUS_CODEC_PRIVATE)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
     assertEquals(4, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_VORBIS);
-    assertVp9VideoFormat(SECOND_VIDEO_TRACK_NUMBER);
-    assertAudioFormat(SECOND_AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_VORBIS);
+    assertVp9VideoFormat(extractorOutput, SECOND_VIDEO_TRACK_NUMBER);
+    assertAudioFormat(extractorOutput, SECOND_AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareContentEncodingEncryption() throws IOException, InterruptedException {
@@ -229,12 +202,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertDrmInitData(VIDEO_TRACK_NUMBER);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertDrmInitData(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareThreeCuePoints() throws IOException, InterruptedException {
@@ -244,11 +217,11 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(3);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSeekMap(DEFAULT_TIMECODE_SCALE, 3);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSeekMap(extractorOutput, DEFAULT_TIMECODE_SCALE, 3);
   }
 
   public void testPrepareCustomTimecodeScaleBeforeDuration()
@@ -274,11 +247,11 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(3);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSeekMap(timecodeScale, 3);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSeekMap(extractorOutput, timecodeScale, 3);
   }
 
   public void testPrepareNoCuesElement() throws IOException, InterruptedException {
@@ -301,10 +274,10 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, media)
         .build(0);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertSeekMapUnseekable(timecodeScale);
+    assertTracksEnded(extractorOutput);
+    assertSeekMapUnseekable(extractorOutput, timecodeScale);
   }
 
   public void testAcceptsWebmDocType() throws IOException, InterruptedException {
@@ -314,9 +287,9 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
   }
 
   public void testAcceptsMatroskaDocType() throws IOException, InterruptedException {
@@ -326,9 +299,9 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
   }
 
   public void testPrepareInvalidDocType() throws IOException, InterruptedException {
@@ -338,7 +311,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(1);
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("DocType webB not supported", exception.getMessage());
@@ -353,7 +326,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingOrder 1 not supported", exception.getMessage());
@@ -368,7 +341,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingScope 0 not supported", exception.getMessage());
@@ -384,7 +357,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentCompAlgo 0 not supported", exception.getMessage());
@@ -399,7 +372,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncAlgo 4 not supported", exception.getMessage());
@@ -414,7 +387,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("AESSettingsCipherMode 0 not supported", exception.getMessage());
@@ -431,11 +404,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSample(0, media, 0, true, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSample(0, media, 0, true, false, null,
+        getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER));
   }
 
   public void testReadSampleKeyframeStripped() throws IOException, InterruptedException {
@@ -451,12 +425,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, sampleBytes)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
     assertSample(0, unstrippedSampleBytes, 0, true, false, null,
-        getTrackOutput(VIDEO_TRACK_NUMBER));
+        getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER));
   }
 
   public void testReadSampleKeyframeManyBytesStripped() throws IOException, InterruptedException {
@@ -472,12 +446,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, sampleBytes)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
     assertSample(0, unstrippedSampleBytes, 0, true, false, null,
-        getTrackOutput(VIDEO_TRACK_NUMBER));
+        getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER));
   }
 
   public void testReadTwoTrackSamples() throws IOException, InterruptedException {
@@ -494,14 +468,16 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSample(0, media, 0, true, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
-    assertSample(0, media, 0, true, false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSample(0, media, 0, true, false, null,
+        getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER));
+    assertSample(0, media, 0, true, false, null,
+        getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
   }
 
   public void testReadTwoTrackSamplesWithSkippedTrack() throws IOException, InterruptedException {
@@ -521,14 +497,16 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
+    assertTracksEnded(extractorOutput);
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSample(0, media, 0, true, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
-    assertSample(0, media, 0, true, false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSample(0, media, 0, true, false, null,
+        getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER));
+    assertSample(0, media, 0, true, false, null,
+        getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
   }
 
   public void testReadBlock() throws IOException, InterruptedException {
@@ -542,11 +520,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, false /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
-    assertSample(0, media, 0, true, false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
+    assertTracksEnded(extractorOutput);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSample(0, media, 0, true, false, null,
+        getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
   }
 
   public void testReadBlockNonKeyframe() throws IOException, InterruptedException {
@@ -559,11 +538,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             false /* keyframe */, false /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSample(0, media, 0, false, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSample(0, media, 0, false, false, null, getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER
+    ));
   }
 
   public void testReadEncryptedFrame() throws IOException, InterruptedException {
@@ -578,12 +558,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* validSignalByte */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
     assertSample(0, media, 0, true, false, TEST_ENCRYPTION_KEY_ID,
-        getTrackOutput(VIDEO_TRACK_NUMBER));
+        getTrackOutput(extractorOutput, VIDEO_TRACK_NUMBER));
   }
 
   public void testReadEncryptedFrameWithInvalidSignalByte()
@@ -600,10 +580,9 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .build(1);
 
     try {
-      TestUtil.consumeTestData(extractor, data);
+      FakeExtractorOutput extractorOutput = consumeTestData(data);
       fail();
     } catch (ParserException exception) {
-      assertTracksEnded();
       assertEquals("Extension bit is set in signal byte", exception.getMessage());
     }
   }
@@ -618,11 +597,13 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             false /* keyframe */, true /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSample(0, media, 25000, false, true, null, getTrackOutput(VIDEO_TRACK_NUMBER));
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSample(0, media, 25000, false, true, null, getTrackOutput(extractorOutput,
+        VIDEO_TRACK_NUMBER
+    ));
   }
 
   public void testReadSampleCustomTimecodeScale() throws IOException, InterruptedException {
@@ -636,11 +617,13 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             false /* keyframe */, false /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSample(0, media, 25, false, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSample(0, media, 25, false, false, null, getTrackOutput(extractorOutput,
+        VIDEO_TRACK_NUMBER
+    ));
   }
 
   public void testReadSampleNegativeSimpleBlockTimecode() throws IOException, InterruptedException {
@@ -653,11 +636,13 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             true /* keyframe */, true /* invisible */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
-    assertSample(0, media, 1000, true, true, null, getTrackOutput(VIDEO_TRACK_NUMBER));
+    assertTracksEnded(extractorOutput);
+    assertVp9VideoFormat(extractorOutput, VIDEO_TRACK_NUMBER);
+    assertSample(0, media, 1000, true, true, null, getTrackOutput(extractorOutput,
+        VIDEO_TRACK_NUMBER
+    ));
   }
 
   public void testReadSampleWithFixedSizeLacing() throws IOException, InterruptedException {
@@ -671,14 +656,14 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             0 /* blockTimecode */, 20 /* lacingFrameCount */, media)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertTracksEnded(extractorOutput);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     for (int i = 0; i < 20; i++) {
       long expectedTimeUs = i * TEST_DEFAULT_DURATION_NS / 1000;
       assertSample(i, Arrays.copyOfRange(media, i * 5, i * 5 + 5), expectedTimeUs, true, false,
-          null, getTrackOutput(AUDIO_TRACK_NUMBER));
+          null, getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
     }
   }
 
@@ -693,42 +678,43 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
             0 /* blockTimecode */, media, 256, 1, 243)
         .build(1);
 
-    TestUtil.consumeTestData(extractor, data);
+    FakeExtractorOutput extractorOutput = consumeTestData(data);
 
-    assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertTracksEnded(extractorOutput);
+    assertAudioFormat(extractorOutput, AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     assertSample(0, Arrays.copyOfRange(media, 0, 256), 0 * TEST_DEFAULT_DURATION_NS / 1000, true,
-        false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
+        false, null, getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
     assertSample(1, Arrays.copyOfRange(media, 256, 257), 1 * TEST_DEFAULT_DURATION_NS / 1000, true,
-        false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
+        false, null, getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
     assertSample(2, Arrays.copyOfRange(media, 257, 300), 2 * TEST_DEFAULT_DURATION_NS / 1000, true,
-        false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
+        false, null, getTrackOutput(extractorOutput, AUDIO_TRACK_NUMBER));
   }
 
-  private FakeTrackOutput getTrackOutput(int trackNumber) {
+  private FakeTrackOutput getTrackOutput(FakeExtractorOutput extractorOutput, int trackNumber) {
     return extractorOutput.trackOutputs.get(trackNumber);
   }
 
-  private void assertTracksEnded() {
+  private void assertTracksEnded(FakeExtractorOutput extractorOutput) {
     assertTrue(extractorOutput.tracksEnded);
   }
 
-  private void assertVp9VideoFormat(int trackNumber) {
-    Format format = getTrackOutput(trackNumber).format;
+  private void assertVp9VideoFormat(FakeExtractorOutput extractorOutput, int trackNumber) {
+    Format format = getTrackOutput(extractorOutput, trackNumber).format;
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
     assertEquals(MimeTypes.VIDEO_VP9, format.sampleMimeType);
   }
 
-  private void assertH264VideoFormat(int trackNumber) {
-    Format format = getTrackOutput(trackNumber).format;
+  private void assertH264VideoFormat(FakeExtractorOutput extractorOutput, int trackNumber) {
+    Format format = getTrackOutput(extractorOutput, trackNumber).format;
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
     assertEquals(MimeTypes.VIDEO_H264, format.sampleMimeType);
   }
 
-  private void assertAudioFormat(int trackNumber, String expectedMimeType) {
-    Format format = getTrackOutput(trackNumber).format;
+  private void assertAudioFormat(FakeExtractorOutput extractorOutput, int trackNumber,
+      String expectedMimeType) {
+    Format format = getTrackOutput(extractorOutput, trackNumber).format;
     assertEquals(TEST_CHANNEL_COUNT, format.channelCount);
     assertEquals(TEST_SAMPLE_RATE, format.sampleRate);
     assertEquals(expectedMimeType, format.sampleMimeType);
@@ -747,8 +733,8 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  private void assertDrmInitData(int trackNumber) {
-    DrmInitData drmInitData = getTrackOutput(trackNumber).format.drmInitData;
+  private void assertDrmInitData(FakeExtractorOutput extractorOutput, int trackNumber) {
+    DrmInitData drmInitData = getTrackOutput(extractorOutput, trackNumber).format.drmInitData;
     assertNotNull(drmInitData);
     SchemeData widevineInitData = drmInitData.get(WIDEVINE_UUID);
     assertEquals(MimeTypes.VIDEO_WEBM, widevineInitData.mimeType);
@@ -758,7 +744,8 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
     android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, zeroInitData.data);
   }
 
-  private void assertSeekMap(int timecodeScale, int cuePointCount) {
+  private void assertSeekMap(FakeExtractorOutput extractorOutput, int timecodeScale,
+      int cuePointCount) {
     ChunkIndex index = (ChunkIndex) extractorOutput.seekMap;
     assertEquals(cuePointCount, index.length);
     for (int i = 0; i < cuePointCount - 1; i++) {
@@ -777,7 +764,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         extractorOutput.seekMap.getDurationUs());
   }
 
-  private void assertSeekMapUnseekable(long timecodeScale) {
+  private void assertSeekMapUnseekable(FakeExtractorOutput extractorOutput, long timecodeScale) {
     assertFalse(extractorOutput.seekMap.isSeekable());
     long expectedDurationUs = Util.scaleLargeTimestamp(TEST_DURATION_TIMECODE, timecodeScale, 1000);
     assertEquals(expectedDurationUs, extractorOutput.seekMap.getDurationUs());

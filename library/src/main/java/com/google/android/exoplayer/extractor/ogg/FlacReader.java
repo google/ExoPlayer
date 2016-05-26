@@ -18,7 +18,6 @@ package com.google.android.exoplayer.extractor.ogg;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.SeekMap;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.FlacStreamInfo;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -47,6 +46,15 @@ import java.util.List;
         data.readUnsignedInt() == 0x464C4143; // ASCII signature "FLAC"
   }
 
+  @Override
+  protected void reset(boolean headerData) {
+    super.reset(headerData);
+    if (headerData) {
+      streamInfo = null;
+      flacOggSeeker = null;
+    }
+  }
+
   //@VisibleForTesting
   public static boolean isAudioPacket(byte[] data) {
     return data[0] == AUDIO_PACKET_TYPE;
@@ -73,7 +81,6 @@ import java.util.List;
           streamInfo.bitRate(), streamInfo.channels, streamInfo.sampleRate, initializationData,
           null, 0, null);
     } else if ((data[0] & 0x7F) == SEEKTABLE_PACKET_TYPE) {
-      Assertions.checkArgument(flacOggSeeker == null);
       flacOggSeeker = new FlacOggSeeker();
       flacOggSeeker.parseSeekTable(packet);
     } else if (isAudioPacket(data)) {

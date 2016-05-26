@@ -113,7 +113,7 @@ public final class PsExtractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     ptsTimestampAdjuster.reset();
     for (int i = 0; i < psPayloadReaders.size(); i++) {
       psPayloadReaders.valueAt(i).seek();

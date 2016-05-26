@@ -34,6 +34,7 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
   public static final String OPUS_TEST_FILE = "ogg/bear.opus";
   public static final String FLAC_TEST_FILE = "ogg/bear_flac.ogg";
   public static final String FLAC_NS_TEST_FILE = "ogg/bear_flac_noseektable.ogg";
+  public static final String VORBIS_TEST_FILE = "ogg/bear_vorbis.ogg";
 
   public void testOpus() throws Exception {
     parseFile(OPUS_TEST_FILE, false, false, false, MimeTypes.AUDIO_OPUS, 2747500, 275);
@@ -66,6 +67,13 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
     parseFile(FLAC_NS_TEST_FILE, true, true, true, MimeTypes.AUDIO_FLAC, C.UNSET_TIME_US, 33);
   }
 
+  public void testVorbis() throws Exception {
+    parseFile(VORBIS_TEST_FILE, false, false, false, MimeTypes.AUDIO_VORBIS, 2741000, 180);
+    parseFile(VORBIS_TEST_FILE, false, true, false, MimeTypes.AUDIO_VORBIS, C.UNSET_TIME_US, 180);
+    parseFile(VORBIS_TEST_FILE, true, false, true, MimeTypes.AUDIO_VORBIS, 2741000, 180);
+    parseFile(VORBIS_TEST_FILE, true, true, true, MimeTypes.AUDIO_VORBIS, C.UNSET_TIME_US, 180);
+  }
+
   private FakeTrackOutput parseFile(String testFile, boolean simulateIOErrors,
       boolean simulateUnknownLength, boolean simulatePartialReads, String expectedMimeType,
       long expectedDuration, int expectedSampleCount) throws Exception {
@@ -78,9 +86,7 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
     OggExtractor extractor = new OggExtractor();
     assertTrue(TestUtil.sniffTestData(extractor, input));
     input.resetPeekPosition();
-    FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-    extractor.init(extractorOutput);
-    TestUtil.consumeTestData(extractor, input);
+    FakeExtractorOutput extractorOutput = TestUtil.consumeTestData(extractor, input, true);
 
     assertEquals(1, extractorOutput.trackOutputs.size());
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);

@@ -116,7 +116,7 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     ptsTimestampAdjuster.reset();
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();

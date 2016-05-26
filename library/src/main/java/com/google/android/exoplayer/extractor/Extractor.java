@@ -90,12 +90,13 @@ public interface Extractor {
    * Notifies the extractor that a seek has occurred.
    * <p>
    * Following a call to this method, the {@link ExtractorInput} passed to the next invocation of
-   * {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting from a
-   * random access position in the stream. Valid random access positions are the start of the
-   * stream and positions that can be obtained from any {@link SeekMap} passed to the
-   * {@link ExtractorOutput}.
+   * {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting from {@code
+   * position} in the stream. Valid random access positions are the start of the stream and
+   * positions that can be obtained from any {@link SeekMap} passed to the {@link ExtractorOutput}.
+   *
+   * @param position The seek position.
    */
-  void seek();
+  void seek(long position);
 
   /**
    * Releases all kept resources.

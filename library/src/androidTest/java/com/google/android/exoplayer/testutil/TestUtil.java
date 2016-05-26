@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
@@ -52,13 +53,21 @@ public class TestUtil {
     }
   }
 
-  public static void consumeTestData(Extractor extractor, byte[] data)
+  public static FakeExtractorOutput consumeTestData(Extractor extractor, byte[] data)
       throws IOException, InterruptedException {
-    consumeTestData(extractor, newExtractorInput(data));
+    return consumeTestData(extractor, newExtractorInput(data));
   }
 
-  public static void consumeTestData(Extractor extractor, FakeExtractorInput input)
+  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input)
       throws IOException, InterruptedException {
+    return consumeTestData(extractor, input, false);
+  }
+
+  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
+      boolean retryFromStartIfLive) throws IOException, InterruptedException {
+    FakeExtractorOutput output = new FakeExtractorOutput();
+    extractor.init(output);
+
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
@@ -70,9 +79,22 @@ public class TestUtil {
           input.setPosition((int) seekPosition);
         }
       } catch (SimulatedIOException e) {
-        // Ignore.
+        if (!retryFromStartIfLive) {
+          continue;
+        }
+        boolean isOnDemand = input.getLength() != C.LENGTH_UNBOUNDED
+            || (output.seekMap != null && output.seekMap.getDurationUs() != C.UNSET_TIME_US);
+        if (isOnDemand) {
+          continue;
+        }
+        input.setPosition(0);
+        for (int i = 0; i < output.numberOfTracks; i++) {
+          output.trackOutputs.valueAt(i).clear();
+        }
+        extractor.seek(0);
       }
     }
+    return output;
   }
 
   public static byte[] buildTestData(int length) {

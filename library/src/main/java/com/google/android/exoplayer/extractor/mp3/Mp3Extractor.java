@@ -104,7 +104,7 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     synchronizedHeaderData = 0;
     samplesRead = 0;
     basisTimeUs = -1;

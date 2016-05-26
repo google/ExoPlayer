@@ -120,7 +120,7 @@ public final class AdtsExtractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     startedPacket = false;
     adtsReader.seek();
   }

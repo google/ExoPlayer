@@ -165,7 +165,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public void seek(long position) {
     int trackCount = trackBundles.size();
     for (int i = 0; i < trackCount; i++) {
       trackBundles.valueAt(i).reset();

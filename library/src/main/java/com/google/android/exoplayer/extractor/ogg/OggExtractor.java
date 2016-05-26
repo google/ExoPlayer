@@ -70,8 +70,8 @@ public class OggExtractor implements Extractor {
   }
 
   @Override
-  public void seek() {
-    streamReader.seek();
+  public void seek(long position) {
+    streamReader.seek(position);
   }
 
   @Override
