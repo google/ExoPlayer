@@ -255,10 +255,10 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
     codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
-    super.onEnabled(formats, joining);
+    super.onEnabled(joining);
   }
 
   @Override

@@ -174,8 +174,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
       boolean joining) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
-    this.stream = stream;
-    onEnabled(formats, joining);
+    onEnabled(joining);
+    replaceTrackStream(formats, stream);
     reset(positionUs);
   }
 
@@ -184,11 +184,35 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * <p>
    * The default implementation is a no-op.
    *
-   * @param formats The enabled formats.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Replaces the {@link TrackStream} from which samples will be consumed.
+   *
+   * @param formats The enabled formats.
+   * @param trackStream The track stream from which the renderer should consume.
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  /* package */ final void replaceTrackStream(Format[] formats, TrackStream trackStream)
+      throws ExoPlaybackException {
+    stream = trackStream;
+    onStreamChanged(formats);
+  }
+
+  /**
+   * Called when the renderer's stream has changed.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param formats The enabled formats.
+   * @throws ExoPlaybackException Thrown if an error occurs.
+   */
+  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
     // Do nothing.
   }
 

@@ -209,10 +209,18 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
     codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
-    super.onEnabled(formats, joining);
+    super.onEnabled(joining);
+    if (joining && allowedJoiningTimeMs > 0) {
+      joiningDeadlineMs = SystemClock.elapsedRealtime() + allowedJoiningTimeMs;
+    }
+    frameReleaseTimeHelper.enable();
+  }
+
+  @Override
+  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
     adaptiveMaxWidth = Format.NO_VALUE;
     adaptiveMaxHeight = Format.NO_VALUE;
     if (formats.length > 1) {
@@ -226,10 +234,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         adaptiveMaxHeight = 1080;
       }
     }
-    if (joining && allowedJoiningTimeMs > 0) {
-      joiningDeadlineMs = SystemClock.elapsedRealtime() + allowedJoiningTimeMs;
-    }
-    frameReleaseTimeHelper.enable();
+    super.onStreamChanged(formats);
   }
 
   @Override

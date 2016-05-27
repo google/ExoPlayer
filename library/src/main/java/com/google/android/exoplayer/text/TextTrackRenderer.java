@@ -104,8 +104,10 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
-    super.onEnabled(formats, joining);
+  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
+    if (parser != null) {
+      parser.release();
+    }
     parser = parserFactory.createParser(formats[0]);
   }
 

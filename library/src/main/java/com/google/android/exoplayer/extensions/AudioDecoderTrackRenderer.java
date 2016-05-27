@@ -298,7 +298,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   }
 
   @Override
-  protected void onEnabled(Format[] formats, boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
     codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
   }
