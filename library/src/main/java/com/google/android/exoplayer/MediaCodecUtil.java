@@ -127,8 +127,6 @@ public final class MediaCodecUtil {
     if (secure && decoderInfos.isEmpty() && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
       // Some devices don't list secure decoders on API level 21 [Internal: b/18678462]. Try the
       // legacy path. We also try this path on API levels 22 and 23 as a defensive measure.
-      // TODO: Verify that the issue cannot occur on API levels 22 and 23, and tighten this block
-      // to execute on API level 21 only if confirmed.
       mediaCodecList = new MediaCodecListCompatV16();
       decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
       if (!decoderInfos.isEmpty()) {

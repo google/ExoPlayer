@@ -355,7 +355,6 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param target The array into which data should be written.
    * @param length The number of bytes to read.
    */
-  // TODO: Consider reducing duplication of this method and the one above.
   private void readData(long absolutePosition, byte[] target, int length) {
     int bytesRead = 0;
     while (bytesRead < length) {
@@ -713,8 +712,9 @@ public final class DefaultTrackOutput implements TrackOutput {
         return -1;
       }
 
-      // TODO: This can be optimized further using binary search, although the fact that the array
-      // is cyclic means we'd need to implement the binary search ourselves.
+      // This could be optimized to use a binary search, however in practice callers to this method
+      // often pass times near to the start of the buffer. Hence it's unclear whether switching to
+      // a binary search would yield any real benefit.
       int sampleCount = 0;
       int sampleCountToKeyframe = -1;
       int searchIndex = relativeReadIndex;

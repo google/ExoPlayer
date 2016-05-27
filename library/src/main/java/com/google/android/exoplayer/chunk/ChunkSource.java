@@ -21,11 +21,6 @@ import java.util.List;
 /**
  * A provider of {@link Chunk}s for a {@link ChunkTrackStream} to load.
  */
-/*
- * TODO: Share more state between this interface and {@link ChunkSampleSource}. In particular
- * implementations of this class needs to know about errors, and should be more tightly integrated
- * into the process of resuming loading of a chunk after an error occurs.
- */
 public interface ChunkSource {
 
   /**

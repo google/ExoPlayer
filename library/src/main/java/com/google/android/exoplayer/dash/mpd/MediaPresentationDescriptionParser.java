@@ -75,8 +75,6 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   /**
    * @param contentId An optional content identifier to include in the parsed manifest.
    */
-  // TODO: Remove the need to inject a content identifier here, by not including it in the parsed
-  // manifest. Instead, it should be injected directly where needed (i.e. DashChunkSource).
   public MediaPresentationDescriptionParser(String contentId) {
     this.contentId = contentId;
     try {

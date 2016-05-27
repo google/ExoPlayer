@@ -36,7 +36,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -44,7 +43,6 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -729,52 +727,6 @@ public final class Util {
     }
     return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
         + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
-  }
-
-  /**
-   * Executes a post request using {@link HttpURLConnection}.
-   *
-   * @param url The request URL.
-   * @param data The request body, or null.
-   * @param requestProperties Request properties, or null.
-   * @return The response body.
-   * @throws IOException If an error occurred making the request.
-   */
-  // TODO: Remove this and use HttpDataSource once DataSpec supports inclusion of a POST body.
-  public static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
-      throws IOException {
-    HttpURLConnection urlConnection = null;
-    try {
-      urlConnection = (HttpURLConnection) new URL(url).openConnection();
-      urlConnection.setRequestMethod("POST");
-      urlConnection.setDoOutput(data != null);
-      urlConnection.setDoInput(true);
-      if (requestProperties != null) {
-        for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
-          urlConnection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-        }
-      }
-      // Write the request body, if there is one.
-      if (data != null) {
-        OutputStream out = urlConnection.getOutputStream();
-        try {
-          out.write(data);
-        } finally {
-          out.close();
-        }
-      }
-      // Read and return the response body.
-      InputStream inputStream = urlConnection.getInputStream();
-      try {
-        return toByteArray(inputStream);
-      } finally {
-        inputStream.close();
-      }
-    } finally {
-      if (urlConnection != null) {
-        urlConnection.disconnect();
-      }
-    }
   }
 
   /**

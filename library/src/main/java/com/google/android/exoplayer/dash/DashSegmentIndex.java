@@ -20,8 +20,6 @@ import com.google.android.exoplayer.dash.mpd.RangedUri;
 
 /**
  * Indexes the segments within a media stream.
- *
- * TODO: Generalize to cover all chunk streaming modes (e.g. SmoothStreaming) if possible.
  */
 public interface DashSegmentIndex {
 

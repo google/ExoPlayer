@@ -25,8 +25,6 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 /**
  * Consumes SEI buffers, outputting contained EIA608 messages to a {@link TrackOutput}.
  */
-// TODO: Technically, we shouldn't allow a sample to be read from the queue until we're sure that
-// a sample with an earlier timestamp won't be added to it.
 /* package */ final class SeiReader {
 
   private final TrackOutput output;

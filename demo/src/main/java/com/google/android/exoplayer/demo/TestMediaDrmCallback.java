@@ -24,6 +24,10 @@ import android.media.MediaDrm.ProvisionRequest;
 import android.text.TextUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -66,7 +70,7 @@ import java.util.UUID;
   @Override
   public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
     String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
-    return Util.executePost(url, null, null);
+    return executePost(url, null, null);
   }
 
   @Override
@@ -75,7 +79,43 @@ import java.util.UUID;
     if (TextUtils.isEmpty(url)) {
       url = defaultUrl;
     }
-    return Util.executePost(url, request.getData(), keyRequestProperties);
+    return executePost(url, request.getData(), keyRequestProperties);
+  }
+
+  private static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
+      throws IOException {
+    HttpURLConnection urlConnection = null;
+    try {
+      urlConnection = (HttpURLConnection) new URL(url).openConnection();
+      urlConnection.setRequestMethod("POST");
+      urlConnection.setDoOutput(data != null);
+      urlConnection.setDoInput(true);
+      if (requestProperties != null) {
+        for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
+          urlConnection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+        }
+      }
+      // Write the request body, if there is one.
+      if (data != null) {
+        OutputStream out = urlConnection.getOutputStream();
+        try {
+          out.write(data);
+        } finally {
+          out.close();
+        }
+      }
+      // Read and return the response body.
+      InputStream inputStream = urlConnection.getInputStream();
+      try {
+        return Util.toByteArray(inputStream);
+      } finally {
+        inputStream.close();
+      }
+    } finally {
+      if (urlConnection != null) {
+        urlConnection.disconnect();
+      }
+    }
   }
 
 }
