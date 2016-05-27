@@ -15,14 +15,10 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer.testutil.FakeTrackOutput;
 import com.google.android.exoplayer.testutil.TestUtil;
-import com.google.android.exoplayer.util.MimeTypes;
 
 import android.test.InstrumentationTestCase;
 
@@ -31,29 +27,28 @@ import android.test.InstrumentationTestCase;
  */
 public final class OggExtractorFileTests extends InstrumentationTestCase {
 
-  public static final String OPUS_TEST_FILE = "ogg/bear.opus";
-  public static final String FLAC_TEST_FILE = "ogg/bear_flac.ogg";
-  public static final String FLAC_NS_TEST_FILE = "ogg/bear_flac_noseektable.ogg";
-  public static final String VORBIS_TEST_FILE = "ogg/bear_vorbis.ogg";
+  private static final String OPUS_TEST_FILE = "ogg/bear.opus";
+  private static final String FLAC_TEST_FILE = "ogg/bear_flac.ogg";
+  private static final String FLAC_NS_TEST_FILE = "ogg/bear_flac_noseektable.ogg";
+  private static final String VORBIS_TEST_FILE = "ogg/bear_vorbis.ogg";
+  private static final String DUMP_EXTENSION = ".dump";
+  private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen";
 
   public void testOpus() throws Exception {
-    parseFile(OPUS_TEST_FILE, false, false, false, MimeTypes.AUDIO_OPUS, 2747500, 275);
-    parseFile(OPUS_TEST_FILE, false, true, false, MimeTypes.AUDIO_OPUS, C.UNSET_TIME_US, 275);
-    parseFile(OPUS_TEST_FILE, true, false, true, MimeTypes.AUDIO_OPUS, 2747500, 275);
-    parseFile(OPUS_TEST_FILE, true, true, true, MimeTypes.AUDIO_OPUS, C.UNSET_TIME_US, 275);
+    parseFile(OPUS_TEST_FILE);
   }
 
   public void testFlac() throws Exception {
-    testFlac(false, false, false);
-    testFlac(false, true, false);
-    testFlac(true, false, true);
-    testFlac(true, true, true);
+    for (int i = 0; i < 8; i++) {
+      testFlac((i & 1) != 0, (i & 2) != 0, (i & 4) != 0);
+    }
   }
 
   private void testFlac(boolean simulateIOErrors, boolean simulateUnknownLength,
       boolean simulatePartialReads) throws Exception {
-    FakeTrackOutput trackOutput = parseFile(FLAC_TEST_FILE, simulateIOErrors, simulateUnknownLength,
-        simulatePartialReads, MimeTypes.AUDIO_FLAC, 2741000, 33);
+    FakeExtractorOutput extractorOutput = parseFile(FLAC_TEST_FILE, simulateIOErrors,
+        simulateUnknownLength, simulatePartialReads);
+    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
     for (int i = 0; i < 33; i++) {
       byte[] sampleData = trackOutput.getSampleData(i);
       assertTrue(FlacReader.isAudioPacket(sampleData));
@@ -61,22 +56,21 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
   }
 
   public void testFlacNoSeektable() throws Exception {
-    parseFile(FLAC_NS_TEST_FILE, false, false, false, MimeTypes.AUDIO_FLAC, 2741000, 33);
-    parseFile(FLAC_NS_TEST_FILE, false, true, false, MimeTypes.AUDIO_FLAC, C.UNSET_TIME_US, 33);
-    parseFile(FLAC_NS_TEST_FILE, true, false, true, MimeTypes.AUDIO_FLAC, 2741000, 33);
-    parseFile(FLAC_NS_TEST_FILE, true, true, true, MimeTypes.AUDIO_FLAC, C.UNSET_TIME_US, 33);
+    parseFile(FLAC_NS_TEST_FILE);
   }
 
   public void testVorbis() throws Exception {
-    parseFile(VORBIS_TEST_FILE, false, false, false, MimeTypes.AUDIO_VORBIS, 2741000, 180);
-    parseFile(VORBIS_TEST_FILE, false, true, false, MimeTypes.AUDIO_VORBIS, C.UNSET_TIME_US, 180);
-    parseFile(VORBIS_TEST_FILE, true, false, true, MimeTypes.AUDIO_VORBIS, 2741000, 180);
-    parseFile(VORBIS_TEST_FILE, true, true, true, MimeTypes.AUDIO_VORBIS, C.UNSET_TIME_US, 180);
+    parseFile(VORBIS_TEST_FILE);
   }
 
-  private FakeTrackOutput parseFile(String testFile, boolean simulateIOErrors,
-      boolean simulateUnknownLength, boolean simulatePartialReads, String expectedMimeType,
-      long expectedDuration, int expectedSampleCount) throws Exception {
+  private void parseFile(String testFile) throws Exception {
+    for (int i = 0; i < 8; i++) {
+      parseFile(testFile, (i & 1) != 0, (i & 2) != 0, (i & 4) != 0);
+    }
+  }
+
+  private FakeExtractorOutput parseFile(String testFile, boolean simulateIOErrors,
+      boolean simulateUnknownLength, boolean simulatePartialReads) throws Exception {
     byte[] fileData = TestUtil.getByteArray(getInstrumentation(), testFile);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
         .setSimulateIOErrors(simulateIOErrors)
@@ -88,23 +82,14 @@ public final class OggExtractorFileTests extends InstrumentationTestCase {
     input.resetPeekPosition();
     FakeExtractorOutput extractorOutput = TestUtil.consumeTestData(extractor, input, true);
 
-    assertEquals(1, extractorOutput.trackOutputs.size());
-    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
-    assertNotNull(trackOutput);
+    String dumpFile = testFile;
+    if (simulateUnknownLength) {
+      dumpFile += UNKNOWN_LENGTH_EXTENSION;
+    }
+    dumpFile += DUMP_EXTENSION;
+    extractorOutput.assertOutput(getInstrumentation(), dumpFile);
 
-    Format format = trackOutput.format;
-    assertNotNull(format);
-    assertEquals(expectedMimeType, format.sampleMimeType);
-    assertEquals(48000, format.sampleRate);
-    assertEquals(2, format.channelCount);
-
-    SeekMap seekMap = extractorOutput.seekMap;
-    assertNotNull(seekMap);
-    assertEquals(expectedDuration, seekMap.getDurationUs());
-    assertEquals(expectedDuration != C.UNSET_TIME_US, seekMap.isSeekable());
-
-    trackOutput.assertSampleCount(expectedSampleCount);
-    return trackOutput;
+    return extractorOutput;
   }
 
 }

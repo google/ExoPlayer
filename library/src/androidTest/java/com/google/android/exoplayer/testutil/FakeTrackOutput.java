@@ -30,7 +30,7 @@ import java.util.Arrays;
 /**
  * A fake {@link TrackOutput}.
  */
-public final class FakeTrackOutput implements TrackOutput {
+public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   private final ArrayList<Long> sampleTimesUs;
   private final ArrayList<Integer> sampleFlags;
@@ -125,6 +125,51 @@ public final class FakeTrackOutput implements TrackOutput {
       } else {
         MoreAsserts.assertEquals(expected.sampleEncryptionKeys.get(i), sampleEncryptionKeys.get(i));
       }
+    }
+  }
+
+  @Override
+  public void dump(Dumper dumper) {
+    dumper.startBlock("format")
+        .add("bitrate", format.bitrate)
+        .add("id", format.id)
+        .add("containerMimeType", format.containerMimeType)
+        .add("sampleMimeType", format.sampleMimeType)
+        .add("maxInputSize", format.maxInputSize)
+        .add("requiresSecureDecryption", format.requiresSecureDecryption)
+        .add("width", format.width)
+        .add("height", format.height)
+        .add("frameRate", format.frameRate)
+        .add("rotationDegrees", format.rotationDegrees)
+        .add("pixelWidthHeightRatio", format.pixelWidthHeightRatio)
+        .add("channelCount", format.channelCount)
+        .add("sampleRate", format.sampleRate)
+        .add("pcmEncoding", format.pcmEncoding)
+        .add("encoderDelay", format.encoderDelay)
+        .add("encoderPadding", format.encoderPadding)
+        .add("subsampleOffsetUs", format.subsampleOffsetUs)
+        .add("selectionFlags", format.selectionFlags)
+        .add("language", format.language)
+        .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-");
+
+    dumper.startBlock("initializationData");
+    for (int i = 0; i < format.initializationData.size(); i++) {
+      dumper.add("data", format.initializationData.get(i));
+    }
+    dumper.endBlock().endBlock();
+
+    dumper.add("sample count", sampleTimesUs.size());
+
+    for (int i = 0; i < sampleTimesUs.size(); i++) {
+      dumper.startBlock("sample " + i)
+          .add("time", sampleTimesUs.get(i))
+          .add("flags", sampleFlags.get(i))
+          .add("data", getSampleData(i));
+      byte[] key = sampleEncryptionKeys.get(i);
+      if (key != null) {
+        dumper.add("encryption key", key);
+      }
+      dumper.endBlock();
     }
   }
 

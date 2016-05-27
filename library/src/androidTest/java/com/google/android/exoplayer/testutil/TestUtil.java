@@ -153,6 +153,11 @@ public class TestUtil {
     return Util.toByteArray(is);
   }
 
+  public static String getString(Instrumentation instrumentation, String fileName)
+      throws IOException {
+    return new String(getByteArray(instrumentation, fileName));
+  }
+
   private static FakeExtractorInput newExtractorInput(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).build();
   }

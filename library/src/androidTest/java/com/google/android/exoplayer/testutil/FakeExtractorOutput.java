@@ -18,15 +18,17 @@ package com.google.android.exoplayer.testutil;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
 
+import android.app.Instrumentation;
 import android.util.SparseArray;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import java.io.IOException;
 
 /**
  * A fake {@link ExtractorOutput}.
  */
-public final class FakeExtractorOutput implements ExtractorOutput {
+public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
 
   private final boolean allowDuplicateTrackIds;
 
@@ -84,6 +86,29 @@ public final class FakeExtractorOutput implements ExtractorOutput {
       Assert.assertEquals(expected.trackOutputs.keyAt(i), trackOutputs.keyAt(i));
       trackOutputs.valueAt(i).assertEquals(expected.trackOutputs.valueAt(i));
     }
+  }
+
+  public void assertOutput(Instrumentation instrumentation, String dumpFile) throws IOException {
+    String dumpExpected = TestUtil.getString(instrumentation, dumpFile);
+    Assert.assertEquals(dumpExpected, new Dumper().add(this).toString());
+  }
+
+  @Override
+  public void dump(Dumper dumper) {
+    if (seekMap != null) {
+      dumper.startBlock("seekMap")
+          .add("isSeekable", seekMap.isSeekable())
+          .addTime("duration", seekMap.getDurationUs())
+          .add("getPosition(0)", seekMap.getPosition(0))
+          .endBlock();
+    }
+    dumper.add("numberOfTracks", numberOfTracks);
+    for (int i = 0; i < numberOfTracks; i++) {
+      dumper.startBlock("track " + trackOutputs.keyAt(i))
+          .add(trackOutputs.valueAt(i))
+          .endBlock();
+    }
+    dumper.add("tracksEnded", tracksEnded);
   }
 
 }
