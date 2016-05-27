@@ -239,7 +239,7 @@ public final class DefaultTrackOutput implements TrackOutput {
         return TrackStream.FORMAT_READ;
       case TrackStream.BUFFER_READ:
         if (buffer.timeUs < decodeOnlyUntilUs) {
-          buffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+          buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
         }
         // Read encryption data if the sample is encrypted.
         if (buffer.isEncrypted()) {
