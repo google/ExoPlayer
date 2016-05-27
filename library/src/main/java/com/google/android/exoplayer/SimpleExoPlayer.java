@@ -31,6 +31,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaCodec;
+import android.media.PlaybackParams;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
@@ -189,6 +190,22 @@ public final class SimpleExoPlayer implements ExoPlayer {
     for (TrackRenderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
         messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_VOLUME, volume);
+      }
+    }
+    player.sendMessages(messages);
+  }
+
+  /**
+   * Sets {@link PlaybackParams} governing audio playback.
+   *
+   * @param params The {@link PlaybackParams}.
+   */
+  public void setPlaybackParams(PlaybackParams params) {
+    ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
+    int count = 0;
+    for (TrackRenderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_PLAYBACK_PARAMS, params);
       }
     }
     player.sendMessages(messages);
