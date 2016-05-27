@@ -51,9 +51,11 @@ public abstract class TrackSelectionPolicy {
    *     corresponds to the {@link TrackRenderer} of equal index in {@code renderers}.
    * @param rendererFormatSupports Maps every available track to a specific level of support as
    *     defined by the {@link TrackRenderer} FORMAT_* constants.
+   * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   /* package */ abstract TrackSelection[] selectTracks(TrackRenderer[] renderers,
-      TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports);
+      TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
+      throws ExoPlaybackException;
 
   /* package */ void init(InvalidationListener listener) {
     this.listener = listener;

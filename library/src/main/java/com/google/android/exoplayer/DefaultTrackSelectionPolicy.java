@@ -22,7 +22,15 @@ import com.google.android.exoplayer.util.Util;
  */
 public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
 
+  private static final int[] NO_TRACKS = new int[0];
+
   private String preferredLanguage;
+  private boolean allowMixedMimeAdaptiveness;
+  private boolean allowNonSeamlessAdaptiveness;
+
+  public DefaultTrackSelectionPolicy() {
+    allowNonSeamlessAdaptiveness = true;
+  }
 
   public void setPreferredLanguage(String preferredLanguage) {
     if (!Util.areEqual(this.preferredLanguage, preferredLanguage)) {
@@ -31,13 +39,33 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     }
   }
 
+  public void allowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
+    if (this.allowMixedMimeAdaptiveness != allowMixedMimeAdaptiveness) {
+      this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
+      invalidate();
+    }
+  }
+
+  public void allowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
+    if (this.allowNonSeamlessAdaptiveness != allowNonSeamlessAdaptiveness) {
+      this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
+      invalidate();
+    }
+  }
+
   @Override
   public TrackSelection[] selectTracks(TrackRenderer[] renderers,
-      TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports) {
+      TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
+      throws ExoPlaybackException {
     // Make a track selection for each renderer.
     TrackSelection[] rendererTrackSelections = new TrackSelection[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
       switch (renderers[i].getTrackType()) {
+        case C.TRACK_TYPE_VIDEO:
+          rendererTrackSelections[i] = selectTrackForVideoRenderer(renderers[i],
+              rendererTrackGroupArrays[i], rendererFormatSupports[i], allowMixedMimeAdaptiveness,
+              allowNonSeamlessAdaptiveness);
+          break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectTrackForAudioRenderer(
               rendererTrackGroupArrays[i], rendererFormatSupports[i], preferredLanguage);
@@ -55,7 +83,88 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     return rendererTrackSelections;
   }
 
-  private TrackSelection selectTrackForTextRenderer(TrackGroupArray trackGroups,
+  private static TrackSelection selectTrackForVideoRenderer(TrackRenderer renderer,
+      TrackGroupArray trackGroups, int[][] formatSupport, boolean allowMixedMimeAdaptiveness,
+      boolean allowNonSeamlessAdaptiveness) throws ExoPlaybackException {
+    int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
+        ? TrackRenderer.ADAPTIVE_NOT_SEAMLESS | TrackRenderer.ADAPTIVE_SEAMLESS
+        : TrackRenderer.ADAPTIVE_SEAMLESS;
+    boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
+        && (renderer.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
+    int largestAdaptiveGroup = -1;
+    int[] largestAdaptiveGroupTracks = NO_TRACKS;
+    for (int i = 0; i < trackGroups.length; i++) {
+      int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroups.get(i), formatSupport[i],
+          allowMixedMimeTypes, requiredAdaptiveSupport);
+      if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
+        largestAdaptiveGroup = i;
+        largestAdaptiveGroupTracks = adaptiveTracks;
+      }
+    }
+    if (largestAdaptiveGroup != -1) {
+      return new TrackSelection(largestAdaptiveGroup, largestAdaptiveGroupTracks);
+    }
+    return selectFirstSupportedTrack(trackGroups, formatSupport);
+  }
+
+  private static int[] getAdaptiveTracksOfGroup(TrackGroup trackGroup, int[] formatSupport,
+      boolean allowMixedMimeTypes, int requiredAdaptiveSupport) {
+    if (!trackGroup.adaptive) {
+      return NO_TRACKS;
+    }
+
+    String mimeType = null;
+    int adaptiveTracksCount = 0;
+    if (allowMixedMimeTypes) {
+      adaptiveTracksCount = getSupportedTrackCountForMimeType(trackGroup, formatSupport,
+          requiredAdaptiveSupport, mimeType);
+    } else {
+      for (int i = 0; i < trackGroup.length; i++) {
+        if (!Util.areEqual(mimeType, trackGroup.getFormat(i).sampleMimeType)) {
+          int countForMimeType = getSupportedTrackCountForMimeType(trackGroup, formatSupport,
+              requiredAdaptiveSupport, trackGroup.getFormat(i).sampleMimeType);
+          if (countForMimeType > adaptiveTracksCount) {
+            adaptiveTracksCount = countForMimeType;
+            mimeType = trackGroup.getFormat(i).sampleMimeType;
+          }
+        }
+      }
+    }
+
+    if (adaptiveTracksCount <= 1) {
+      // Not enough tracks to allow adaptation.
+      return NO_TRACKS;
+    }
+    int[] adaptiveTracks = new int[adaptiveTracksCount];
+    adaptiveTracksCount = 0;
+    for (int i = 0; i < trackGroup.length; i++) {
+      if (isAdaptiveTrack(trackGroup.getFormat(i).sampleMimeType, mimeType, formatSupport[i],
+          requiredAdaptiveSupport)) {
+        adaptiveTracks[adaptiveTracksCount++] = i;
+      }
+    }
+    return adaptiveTracks;
+  }
+
+  private static int getSupportedTrackCountForMimeType(TrackGroup trackGroup, int[] formatSupport,
+      int requiredAdaptiveSupport, String mimeType) {
+    int adaptiveTracksCount = 0;
+    for (int i = 0; i < trackGroup.length; i++) {
+      if (isAdaptiveTrack(trackGroup.getFormat(i).sampleMimeType, mimeType, formatSupport[i],
+          requiredAdaptiveSupport)) {
+        adaptiveTracksCount++;
+      }
+    }
+    return adaptiveTracksCount;
+  }
+
+  private static boolean isAdaptiveTrack(String trackMimeType, String mimeType, int formatSupport,
+      int requiredAdaptiveSupport) {
+    return isSupported(formatSupport) && (formatSupport & requiredAdaptiveSupport) != 0
+        && (mimeType == null || Util.areEqual(trackMimeType, mimeType));
+  }
+
+  private static TrackSelection selectTrackForTextRenderer(TrackGroupArray trackGroups,
       int[][] formatSupport, String preferredLanguage) {
     int firstForcedGroup = -1;
     int firstForcedTrack = -1;
