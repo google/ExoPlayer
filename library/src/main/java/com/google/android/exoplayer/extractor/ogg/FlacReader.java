@@ -55,8 +55,7 @@ import java.util.List;
     }
   }
 
-  //@VisibleForTesting
-  public static boolean isAudioPacket(byte[] data) {
+  private static boolean isAudioPacket(byte[] data) {
     return data[0] == AUDIO_PACKET_TYPE;
   }
 

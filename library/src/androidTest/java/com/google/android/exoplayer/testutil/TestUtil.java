@@ -24,6 +24,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.app.Instrumentation;
 import android.test.InstrumentationTestCase;
+import junit.framework.Assert;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ import java.util.Random;
  * Utility methods for tests.
  */
 public class TestUtil {
+
+  private static final String DUMP_EXTENSION = ".dump";
+  private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen";
 
   private TestUtil() {}
 
@@ -160,6 +164,68 @@ public class TestUtil {
 
   private static FakeExtractorInput newExtractorInput(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).build();
+  }
+
+  /**
+   * Calls {@link #assertOutput(Extractor, String, Instrumentation, boolean, boolean, boolean)} with
+   * all possible combinations of "simulate" parameters.
+   *
+   * @param extractor The {@link Extractor} to be tested.
+   * @param sampleFile The path to the input sample.
+   * @param instrumentation To be used to load the sample file.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   * @see #assertOutput(Extractor, String, Instrumentation, boolean, boolean, boolean)
+   */
+  public static void assertOutput(Extractor extractor, String sampleFile,
+      Instrumentation instrumentation) throws IOException, InterruptedException {
+    assertOutput(extractor, sampleFile, instrumentation, false, false, false);
+    assertOutput(extractor, sampleFile, instrumentation,  true, false, false);
+    assertOutput(extractor, sampleFile, instrumentation, false,  true, false);
+    assertOutput(extractor, sampleFile, instrumentation,  true,  true, false);
+    assertOutput(extractor, sampleFile, instrumentation, false, false,  true);
+    assertOutput(extractor, sampleFile, instrumentation,  true, false,  true);
+    assertOutput(extractor, sampleFile, instrumentation, false,  true,  true);
+    assertOutput(extractor, sampleFile, instrumentation,  true,  true,  true);
+  }
+
+  /**
+   * Asserts that {@code extractor} consumes {@code sampleFile} successfully and its output equals
+   * to a prerecorded output dump file. The prerecorded output dump file name is determined by
+   * appending "{@value UNKNOWN_LENGTH_EXTENSION}" if {@code simulateUnknownLength} is true and
+   * appending "{@value DUMP_EXTENSION}" to the end of {@code sampleFile}.
+   *
+   * @param extractor The {@link Extractor} to be tested.
+   * @param sampleFile The path to the input sample.
+   * @param instrumentation To be used to load the sample file.
+   * @param simulateIOErrors If true simulates IOErrors.
+   * @param simulateUnknownLength If true simulates unknown input length.
+   * @param simulatePartialReads If true simulates partial reads.
+   * @return The {@link FakeExtractorOutput} used in the test.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static FakeExtractorOutput assertOutput(Extractor extractor, String sampleFile,
+      Instrumentation instrumentation, boolean simulateIOErrors, boolean simulateUnknownLength,
+      boolean simulatePartialReads) throws IOException, InterruptedException {
+    byte[] fileData = getByteArray(instrumentation, sampleFile);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
+        .setSimulateIOErrors(simulateIOErrors)
+        .setSimulateUnknownLength(simulateUnknownLength)
+        .setSimulatePartialReads(simulatePartialReads).build();
+
+    Assert.assertTrue(sniffTestData(extractor, input));
+    input.resetPeekPosition();
+    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, true);
+
+    String dumpFile = sampleFile;
+    if (simulateUnknownLength) {
+      dumpFile += UNKNOWN_LENGTH_EXTENSION;
+    }
+    dumpFile += DUMP_EXTENSION;
+    extractorOutput.assertOutput(instrumentation, dumpFile);
+
+    return extractorOutput;
   }
 
 }
