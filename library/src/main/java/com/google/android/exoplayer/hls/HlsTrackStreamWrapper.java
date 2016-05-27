@@ -62,12 +62,14 @@ import java.util.List;
   private final ChunkHolder nextChunkHolder;
   private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
+  private final Format muxedAudioFormat;
+  private final Format muxedCaptionFormat;
 
   private volatile boolean sampleQueuesBuilt;
 
   private boolean prepared;
   private boolean seenFirstTrackSelection;
-  private boolean notifyReset;
+  private boolean readingEnabled;
   private int enabledTrackCount;
   private Format downstreamFormat;
 
@@ -88,6 +90,10 @@ import java.util.List;
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
+   * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed audio,
+   *     this is the audio {@link Format} as defined by the playlist.
+   * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed
+   *     captions, this is the audio {@link Format} as defined by the playlist.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -96,16 +102,20 @@ import java.util.List;
    *     before propagating an error.
    */
   public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Handler eventHandler,
-      ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
+      int bufferSizeContribution, Format muxedAudioFormat, Format muxedCaptionFormat,
+      Handler eventHandler, ChunkTrackStreamEventListener eventListener, int eventSourceId,
+      int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
+    this.muxedAudioFormat = muxedAudioFormat;
+    this.muxedCaptionFormat = muxedCaptionFormat;
     loader = new Loader("Loader:HlsTrackStreamWrapper", minLoadableRetryCount);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
+    readingEnabled = true;
     pendingResetPositionUs = C.UNSET_TIME_US;
   }
 
@@ -148,6 +158,10 @@ import java.util.List;
 
   public long getDurationUs() {
     return chunkSource.getDurationUs();
+  }
+
+  public boolean isLive() {
+    return chunkSource.isLive();
   }
 
   public TrackGroupArray getTrackGroups() {
@@ -211,12 +225,8 @@ import java.util.List;
     }
   }
 
-  public long readReset() {
-    if (notifyReset) {
-      notifyReset = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
+  public void setReadingEnabled(boolean readingEnabled) {
+    this.readingEnabled = readingEnabled;
   }
 
   public long getBufferedPositionUs() {
@@ -265,7 +275,7 @@ import java.util.List;
   }
 
   /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (notifyReset || isPendingReset()) {
+    if (!readingEnabled || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
 
@@ -449,9 +459,9 @@ import java.util.List;
         Format trackFormat = null;
         if (primaryExtractorTrackType == PRIMARY_TYPE_VIDEO) {
           if (MimeTypes.isAudio(sampleFormat.sampleMimeType)) {
-            trackFormat = chunkSource.getMuxedAudioFormat();
+            trackFormat = muxedAudioFormat;
           } else if (MimeTypes.APPLICATION_EIA608.equals(sampleFormat.sampleMimeType)) {
-            trackFormat = chunkSource.getMuxedCaptionFormat();
+            trackFormat = muxedCaptionFormat;
           }
         }
         trackGroups[i] = new TrackGroup(getSampleFormat(trackFormat, sampleFormat));
@@ -494,32 +504,9 @@ import java.util.List;
    * @param positionUs The position to seek to.
    */
   private void seekToInternal(long positionUs) {
-    // Treat all seeks into non-seekable media as being to t=0.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
-    notifyReset = true;
-    boolean seekInsideBuffer = !isPendingReset();
-    // TODO[REFACTOR]: This will nearly always fail to seek inside all buffers due to sparse tracks
-    // such as ID3 (probably EIA608 too). We need a way to not care if we can't seek to the keyframe
-    // before for such tracks. For ID3 we probably explicitly don't want the keyframe before, even
-    // if we do have it, since it might be quite a long way behind the seek position. We probably
-    // only want to output ID3 buffers whose timestamps are greater than or equal to positionUs.
-    int sampleQueueCount = sampleQueues.size();
-    for (int i = 0; seekInsideBuffer && i < sampleQueueCount; i++) {
-      if (groupEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
-      }
-    }
-    if (seekInsideBuffer) {
-      while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= positionUs) {
-        mediaChunks.removeFirst();
-      }
-    } else {
-      // If we failed to seek within the sample queues, we need to restart.
-      chunkSource.seek();
-      restartFrom(positionUs);
-    }
+    restartFrom(positionUs);
   }
 
   private void discardSamplesForDisabledTracks() {

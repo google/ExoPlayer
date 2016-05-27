@@ -28,9 +28,7 @@ import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
-import com.google.android.exoplayer.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.playlist.HlsMediaPlaylist;
-import com.google.android.exoplayer.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.playlist.Variant;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -48,10 +46,8 @@ import android.util.Log;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -70,30 +66,25 @@ public class HlsChunkSource {
   private static final String VTT_FILE_EXTENSION = ".vtt";
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
-  private final int type;
+  private final String baseUri;
   private final DataSource dataSource;
   private final FormatEvaluator adaptiveFormatEvaluator;
   private final Evaluation evaluation;
   private final HlsPlaylistParser playlistParser;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
+  private final Variant[] variants;
+  private final HlsMediaPlaylist[] variantPlaylists;
+  private final long[] variantLastPlaylistLoadTimesMs;
 
   private byte[] scratchSpace;
   private boolean live;
   private long durationUs;
   private IOException fatalError;
-  private String baseUri;
-  private Format muxedAudioFormat;
-  private Format muxedCaptionFormat;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
   private String encryptionIvString;
   private byte[] encryptionIv;
-
-  // Properties of exposed tracks.
-  private Variant[] variants;
-  private HlsMediaPlaylist[] variantPlaylists;
-  private long[] variantLastPlaylistLoadTimesMs;
 
   // Properties of enabled variants.
   private Variant[] enabledVariants;
@@ -101,23 +92,27 @@ public class HlsChunkSource {
   private boolean[] enabledVariantBlacklistFlags;
 
   /**
-   * @param type The type of chunk provided by the source. One of {@link C#TRACK_TYPE_DEFAULT},
-   *     {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_TEXT}.
+   * @param baseUri The playlist's base uri.
+   * @param variants The available variants.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
-  public HlsChunkSource(int type, DataSource dataSource,
+  public HlsChunkSource(String baseUri, Variant[] variants, DataSource dataSource,
       PtsTimestampAdjusterProvider timestampAdjusterProvider,
       FormatEvaluator adaptiveFormatEvaluator) {
-    this.type = type;
+    this.baseUri = baseUri;
+    this.variants = variants;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     playlistParser = new HlsPlaylistParser();
     evaluation = new Evaluation();
+    variantPlaylists = new HlsMediaPlaylist[variants.length];
+    variantLastPlaylistLoadTimesMs = new long[variants.length];
+    selectTracks(new int[] {0});
   }
 
   /**
@@ -139,19 +134,6 @@ public class HlsChunkSource {
    */
   public boolean isAdaptive() {
     return adaptiveFormatEvaluator != null;
-  }
-
-  /**
-   * Prepares the source.
-   *
-   * @param playlist A {@link HlsPlaylist}.
-   */
-  public void prepare(HlsPlaylist playlist) {
-    processPlaylist(playlist);
-    if (variants.length > 0) {
-      // Select the first variant listed in the master playlist.
-      selectTracks(new int[] {0});
-    }
   }
 
   /**
@@ -200,28 +182,6 @@ public class HlsChunkSource {
   }
 
   /**
-   * Returns the format of the audio muxed into variants, or null if unknown.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @return The format of the audio muxed into variants, or null if unknown.
-   */
-  public Format getMuxedAudioFormat() {
-    return muxedAudioFormat;
-  }
-
-  /**
-   * Returns the format of the captions muxed into variants, or null if unknown.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @return The format of the captions muxed into variants, or null if unknown.
-   */
-  public Format getMuxedCaptionFormat() {
-    return muxedCaptionFormat;
-  }
-
-  /**
    * Selects tracks for use.
    * <p>
    * This method should only be called after the source has been prepared.
@@ -267,17 +227,6 @@ public class HlsChunkSource {
       }
     }
     return false;
-  }
-
-  /**
-   * Notifies the source that a seek has occurred.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   */
-  public void seek() {
-    if (type == C.TRACK_TYPE_DEFAULT) {
-      timestampAdjusterProvider.reset();
-    }
   }
 
   /**
@@ -492,90 +441,6 @@ public class HlsChunkSource {
   }
 
   // Private methods.
-
-  private void processPlaylist(HlsPlaylist playlist) {
-    baseUri = playlist.baseUri;
-
-    if (playlist instanceof HlsMediaPlaylist) {
-      if (type == C.TRACK_TYPE_TEXT || type == C.TRACK_TYPE_AUDIO) {
-        variants = new Variant[0];
-        variantPlaylists = new HlsMediaPlaylist[variants.length];
-        variantLastPlaylistLoadTimesMs = new long[variants.length];
-        return;
-      }
-
-      // type == C.TRACK_TYPE_DEFAULT
-      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null,
-          Format.NO_VALUE);
-      variants = new Variant[] {new Variant(baseUri, format, null)};
-      variantPlaylists = new HlsMediaPlaylist[variants.length];
-      variantLastPlaylistLoadTimesMs = new long[variants.length];
-      setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
-      return;
-    }
-
-    HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
-    muxedAudioFormat = masterPlaylist.muxedAudioFormat;
-    muxedCaptionFormat = masterPlaylist.muxedCaptionFormat;
-    if (type == C.TRACK_TYPE_TEXT || type == C.TRACK_TYPE_AUDIO) {
-      List<Variant> variantList = type == C.TRACK_TYPE_AUDIO ? masterPlaylist.audios
-          : masterPlaylist.subtitles;
-      if (variantList != null && !variantList.isEmpty()) {
-        variants = new Variant[variantList.size()];
-        variantList.toArray(variants);
-      } else {
-        variants = new Variant[0];
-      }
-      variantPlaylists = new HlsMediaPlaylist[variants.length];
-      variantLastPlaylistLoadTimesMs = new long[variants.length];
-      return;
-    }
-
-    // type == C.TRACK_TYPE_DEFAULT
-    List<Variant> enabledVariantList = new ArrayList<>(masterPlaylist.variants);
-    ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
-    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
-    for (int i = 0; i < enabledVariantList.size(); i++) {
-      Variant variant = enabledVariantList.get(i);
-      if (variant.format.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
-        definiteVideoVariants.add(variant);
-      } else if (variantHasExplicitCodecWithPrefix(variant, "mp4a")) {
-        definiteAudioOnlyVariants.add(variant);
-      }
-    }
-
-    if (!definiteVideoVariants.isEmpty()) {
-      // We've identified some variants as definitely containing video. Assume variants within the
-      // master playlist are marked consistently, and hence that we have the full set. Filter out
-      // any other variants, which are likely to be audio only.
-      enabledVariantList = definiteVideoVariants;
-    } else if (definiteAudioOnlyVariants.size() < enabledVariantList.size()) {
-      // We've identified some variants, but not all, as being audio only. Filter them out to leave
-      // the remaining variants, which are likely to contain video.
-      enabledVariantList.removeAll(definiteAudioOnlyVariants);
-    } else {
-      // Leave the enabled variants unchanged. They're likely either all video or all audio.
-    }
-
-    variants = new Variant[enabledVariantList.size()];
-    enabledVariantList.toArray(variants);
-    variantPlaylists = new HlsMediaPlaylist[variants.length];
-    variantLastPlaylistLoadTimesMs = new long[variants.length];
-  }
-
-  private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
-    String codecs = variant.codecs;
-    if (TextUtils.isEmpty(codecs)) {
-      return false;
-    }
-    String[] codecArray = codecs.split("(\\s*,\\s*)|(\\s*$)");
-    for (String codec : codecArray) {
-      if (codec.startsWith(prefix)) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   private int getNextVariantIndex(HlsMediaChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
