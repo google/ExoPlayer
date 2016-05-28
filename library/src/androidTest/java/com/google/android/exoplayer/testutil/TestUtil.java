@@ -36,6 +36,13 @@ import java.util.Random;
  */
 public class TestUtil {
 
+  /**
+   * A factory for {@link Extractor} instances.
+   */
+  public interface ExtractorFactory {
+    Extractor create();
+  }
+
   private static final String DUMP_EXTENSION = ".dump";
   private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen";
 
@@ -170,23 +177,24 @@ public class TestUtil {
    * Calls {@link #assertOutput(Extractor, String, Instrumentation, boolean, boolean, boolean)} with
    * all possible combinations of "simulate" parameters.
    *
-   * @param extractor The {@link Extractor} to be tested.
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
    * @param sampleFile The path to the input sample.
    * @param instrumentation To be used to load the sample file.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    * @see #assertOutput(Extractor, String, Instrumentation, boolean, boolean, boolean)
    */
-  public static void assertOutput(Extractor extractor, String sampleFile,
+  public static void assertOutput(ExtractorFactory factory, String sampleFile,
       Instrumentation instrumentation) throws IOException, InterruptedException {
-    assertOutput(extractor, sampleFile, instrumentation, false, false, false);
-    assertOutput(extractor, sampleFile, instrumentation,  true, false, false);
-    assertOutput(extractor, sampleFile, instrumentation, false,  true, false);
-    assertOutput(extractor, sampleFile, instrumentation,  true,  true, false);
-    assertOutput(extractor, sampleFile, instrumentation, false, false,  true);
-    assertOutput(extractor, sampleFile, instrumentation,  true, false,  true);
-    assertOutput(extractor, sampleFile, instrumentation, false,  true,  true);
-    assertOutput(extractor, sampleFile, instrumentation,  true,  true,  true);
+    assertOutput(factory.create(), sampleFile, instrumentation, false, false, false);
+    assertOutput(factory.create(), sampleFile, instrumentation,  true, false, false);
+    assertOutput(factory.create(), sampleFile, instrumentation, false,  true, false);
+    assertOutput(factory.create(), sampleFile, instrumentation,  true,  true, false);
+    assertOutput(factory.create(), sampleFile, instrumentation, false, false,  true);
+    assertOutput(factory.create(), sampleFile, instrumentation,  true, false,  true);
+    assertOutput(factory.create(), sampleFile, instrumentation, false,  true,  true);
+    assertOutput(factory.create(), sampleFile, instrumentation,  true,  true,  true);
   }
 
   /**
