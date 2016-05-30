@@ -756,7 +756,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return pendingResetPositionUs;
     } else {
       return loadingFinished || (prepared && enabledTrackCount == 0) ? -1
-          : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
+         : (currentTsLoadable  != null) ? currentTsLoadable.endTimeUs
+         : (previousTsLoadable != null) ? previousTsLoadable.endTimeUs : -1;
+
     }
   }
 
