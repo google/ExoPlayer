@@ -123,7 +123,7 @@ public final class Mp3Extractor implements Extractor {
       return RESULT_END_OF_INPUT;
     }
     if (seeker == null) {
-      setupSeeker(input);
+      seeker = setupSeeker(input);
       extractorOutput.seekMap(seeker);
       trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType,
           Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
@@ -263,17 +263,18 @@ public final class Mp3Extractor implements Extractor {
   }
 
   /**
-   * Sets {@link #seeker} to seek using metadata read from {@code input}, which should provide data
-   * from the start of the first frame in the stream. On returning, the input's position will be set
-   * to the start of the first frame of audio.
+   * Returns a {@link Seeker} to seek using metadata read from {@code input}, which should provide
+   * data from the start of the first frame in the stream. On returning, the input's position will
+   * be set to the start of the first frame of audio.
    *
    * @param input The {@link ExtractorInput} from which to read.
    * @throws IOException Thrown if there was an error reading from the stream. Not expected if the
    *     next two frames were already peeked during synchronization.
    * @throws InterruptedException Thrown if reading from the stream was interrupted. Not expected if
    *     the next two frames were already peeked during synchronization.
+   * @return a {@link Seeker}.
    */
-  private void setupSeeker(ExtractorInput input) throws IOException, InterruptedException {
+  private Seeker setupSeeker(ExtractorInput input) throws IOException, InterruptedException {
     // Read the first frame which may contain a Xing or VBRI header with seeking metadata.
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
     input.peekFully(frame.data, 0, synchronizedHeader.frameSize);
@@ -287,6 +288,7 @@ public final class Mp3Extractor implements Extractor {
         : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
     frame.setPosition(xingBase);
     int headerData = frame.readInt();
+    Seeker seeker = null;
     if (headerData == XING_HEADER || headerData == INFO_HEADER) {
       seeker = XingSeeker.create(synchronizedHeader, frame, position, length);
       if (seeker != null && !gaplessInfoHolder.hasGaplessInfo()) {
@@ -317,6 +319,8 @@ public final class Mp3Extractor implements Extractor {
       MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
       seeker = new ConstantBitrateSeeker(input.getPosition(), synchronizedHeader.bitrate, length);
     }
+
+    return seeker;
   }
 
   /**
