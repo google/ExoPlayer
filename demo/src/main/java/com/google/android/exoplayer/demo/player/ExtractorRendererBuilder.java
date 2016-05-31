@@ -29,6 +29,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
+import com.google.android.exoplayer.ext.libmpg123.Mpg123AudioTrackRenderer;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -67,9 +68,10 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
         sampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
         mainHandler, player, 50);
-    MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
-        MediaCodecSelector.DEFAULT, null, true, mainHandler, player,
-        AudioCapabilities.getCapabilities(context), AudioManager.STREAM_MUSIC);
+//    MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
+//        MediaCodecSelector.DEFAULT, null, true, mainHandler, player,
+//        AudioCapabilities.getCapabilities(context), AudioManager.STREAM_MUSIC);
+    Mpg123AudioTrackRenderer audioRenderer = new Mpg123AudioTrackRenderer(sampleSource, null, null);
     TrackRenderer textRenderer = new TextTrackRenderer(sampleSource, player,
         mainHandler.getLooper());
 
