@@ -19,9 +19,11 @@ include ':extension-opus'
 include ':extension-vp9'
 include ':extension-okhttp'
 include ':extension-flac'
+include ':extension-mpg123'
 
 project(':demo-ext').projectDir = new File(settingsDir, 'demo_ext')
 project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')
 project(':extension-vp9').projectDir = new File(settingsDir, 'extensions/vp9')
 project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
 project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
+project(':extension-mpg123').projectDir = new File(settingsDir, 'extensions/libmpg123')
