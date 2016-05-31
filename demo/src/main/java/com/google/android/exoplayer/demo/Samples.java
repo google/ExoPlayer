@@ -227,6 +227,7 @@ import java.util.Locale;
   };
 
   public static final Sample[] MISC = new Sample[] {
+    new Sample("Movistar", "http://172.16.3.1:26666/movistartv/playChannel/239.0.0.74:8208?msession=45434&fcc=0&audio=1&subtitle=1", Util.TYPE_OTHER),
     new Sample("Dizzy", "http://html5demos.com/assets/dizzy.mp4", Util.TYPE_OTHER),
     new Sample("Apple AAC 10s", "https://devimages.apple.com.edgekey.net/"
         + "streaming/examples/bipbop_4x3/gear0/fileSequence0.aac", Util.TYPE_OTHER),

@@ -51,3 +51,10 @@ extensions/opus/src/main/jni/libopus
 
 # FLAC extension
 extensions/flac/src/main/jni/flac
+
+# Libmpg123 extension
+extensions/libmpg123/src/main/jni/libmpg123
+extensions/libmpg123/src/main/obj
+extensions/libmpg123/src/main/res
+extensions/libmpg123/src/main/libs
+

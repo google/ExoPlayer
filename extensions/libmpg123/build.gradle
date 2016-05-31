@@ -11,16 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 23
+        minSdkVersion 9
+        targetSdkVersion 22
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -31,9 +32,14 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    sourceSets.main {
+        jniLibs.srcDir 'src/main/libs'
+        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
+    }
 }
 
 dependencies {
     compile project(':library')
-    compile project(':extension-mpg123')
 }
+
