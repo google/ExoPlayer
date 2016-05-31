@@ -67,8 +67,8 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
               allowNonSeamlessAdaptiveness);
           break;
         case C.TRACK_TYPE_AUDIO:
-          rendererTrackSelections[i] = selectTrackForAudioRenderer(
-              rendererTrackGroupArrays[i], rendererFormatSupports[i], preferredLanguage);
+          rendererTrackSelections[i] = selectTrackForAudioRenderer(rendererTrackGroupArrays[i],
+              rendererFormatSupports[i], preferredLanguage);
           break;
         case C.TRACK_TYPE_TEXT:
           rendererTrackSelections[i] = selectTrackForTextRenderer(rendererTrackGroupArrays[i],
