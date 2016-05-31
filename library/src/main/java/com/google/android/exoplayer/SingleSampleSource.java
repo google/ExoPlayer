@@ -68,6 +68,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   private final Loader loader;
   private final Format format;
   private final long durationUs;
+  private final int minLoadableRetryCount;
   private final TrackGroupArray tracks;
   private final Handler eventHandler;
   private final EventListener eventListener;
@@ -96,10 +97,11 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
     this.dataSource = dataSource;
     this.format = format;
     this.durationUs = durationUs;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    loader = new Loader("Loader:SingleSampleSource", minLoadableRetryCount);
+    loader = new Loader("Loader:SingleSampleSource");
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
@@ -268,7 +270,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
     if (loadingFinished || streamState == STREAM_STATE_END_OF_STREAM || loader.isLoading()) {
       return;
     }
-    loader.startLoading(this, this);
+    loader.startLoading(this, this, minLoadableRetryCount);
   }
 
   private void notifyLoadError(final IOException e) {

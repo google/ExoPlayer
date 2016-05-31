@@ -231,10 +231,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     this.allocator = allocator;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    // Assume on-demand until we know otherwise.
-    int initialMinRetryCount = minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
-        ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND : minLoadableRetryCount;
-    loader = new Loader("Loader:ExtractorSampleSource", initialMinRetryCount);
+    loader = new Loader("Loader:ExtractorSampleSource");
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
@@ -363,10 +360,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         trackArray[i] = new TrackGroup(sampleQueues[i].getUpstreamFormat());
       }
       tracks = new TrackGroupArray(trackArray);
-      if (minLoadableRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA && !seekMap.isSeekable()
-          && durationUs == C.UNSET_TIME_US) {
-        loader.setMinRetryCount(DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE);
-      }
       prepared = true;
       return true;
     }
@@ -594,7 +587,16 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       pendingResetPositionUs = C.UNSET_TIME_US;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-    loader.startLoading(loadable, this);
+
+    int minRetryCount = minLoadableRetryCount;
+    if (minRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
+      // We assume on-demand before we're prepared.
+      minRetryCount = !prepared || (length != C.LENGTH_UNBOUNDED
+          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US))
+          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
+          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
+    }
+    loader.startLoading(loadable, this, minRetryCount);
   }
 
   private void configureRetry() {

@@ -41,6 +41,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
 
   private final Loader loader;
   private final ChunkSource chunkSource;
+  private final int minLoadableRetryCount;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
   private final DefaultTrackOutput sampleQueue;
@@ -76,7 +77,8 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
       ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
-    loader = new Loader("Loader:ChunkTrackStream", minLoadableRetryCount);
+    this.minLoadableRetryCount = minLoadableRetryCount;
+    loader = new Loader("Loader:ChunkTrackStream");
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();
@@ -317,7 +319,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
       eventDispatcher.loadStarted(loadable.dataSpec.length, loadable.type, loadable.trigger,
           loadable.format, -1, -1);
     }
-    loader.startLoading(loadable, this);
+    loader.startLoading(loadable, this, minLoadableRetryCount);
     // Update the load control again to indicate that we're now loading.
     loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
   }

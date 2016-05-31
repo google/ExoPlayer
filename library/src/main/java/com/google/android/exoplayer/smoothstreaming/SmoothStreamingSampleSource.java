@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.LoadControl;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -35,7 +36,8 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.upstream.Loader;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -51,26 +53,32 @@ import java.util.List;
 /**
  * A {@link SampleSource} for SmoothStreaming media.
  */
-public final class SmoothStreamingSampleSource implements SampleSource {
+public final class SmoothStreamingSampleSource implements SampleSource,
+    Loader.Callback<UriLoadable<SmoothStreamingManifest>> {
 
   /**
    * The minimum number of times to retry loading data prior to failing.
    */
-  // TODO: Use this for manifest loads as well.
   private static final int MIN_LOADABLE_RETRY_COUNT = 3;
 
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
+  private final Uri manifestUri;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
   private final Handler eventHandler;
   private final ChunkTrackStreamEventListener eventListener;
   private final LoadControl loadControl;
-  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
+  private final Loader manifestLoader;
+  private final DataSource manifestDataSource;
+  private final SmoothStreamingManifestParser manifestParser;
 
+  private long manifestLoadTimestamp;
+  private SmoothStreamingManifest manifest;
+
+  private boolean prepared;
   private long durationUs;
-  private SmoothStreamingManifest currentManifest;
   private TrackEncryptionBox[] trackEncryptionBoxes;
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
@@ -80,9 +88,11 @@ public final class SmoothStreamingSampleSource implements SampleSource {
   private SmoothStreamingChunkSource[] chunkSources;
   private ChunkTrackStream[] trackStreams;
 
-  public SmoothStreamingSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+  public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener) {
+    this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
+        ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     this.eventHandler = eventHandler;
@@ -92,37 +102,21 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     chunkSources = new SmoothStreamingChunkSource[0];
     trackStreams = new ChunkTrackStream[0];
 
-    if (!Util.toLowerInvariant(uri.getLastPathSegment()).equals("manifest")) {
-      uri = Uri.withAppendedPath(uri, "Manifest");
-    }
-    SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    DataSource manifestDataSource = dataSourceFactory.createDataSource();
-    manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
+    manifestDataSource = dataSourceFactory.createDataSource();
+    manifestParser = new SmoothStreamingManifestParser();
+    manifestLoader = new Loader("Loader:Manifest");
   }
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (currentManifest != null) {
-      // Already prepared.
+    if (prepared) {
       return true;
     }
-
-    currentManifest = manifestFetcher.getManifest();
-    if (currentManifest == null) {
-      manifestFetcher.maybeThrowError();
-      manifestFetcher.requestRefresh();
-      return false;
+    manifestLoader.maybeThrowError();
+    if (!manifestLoader.isLoading()) {
+      startLoadingManifest();
     }
-
-    durationUs = currentManifest.durationUs;
-    buildTrackGroups(currentManifest);
-    ProtectionElement protectionElement = currentManifest.protectionElement;
-    if (protectionElement != null) {
-      byte[] keyId = getProtectionElementKeyId(protectionElement.data);
-      trackEncryptionBoxes = new TrackEncryptionBox[] {
-          new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId)};
-    }
-    return true;
+    return false;
   }
 
   @Override
@@ -173,26 +167,17 @@ public final class SmoothStreamingSampleSource implements SampleSource {
 
   @Override
   public void continueBuffering(long positionUs) {
-    if (currentManifest.isLive) {
-      SmoothStreamingManifest newManifest = manifestFetcher.getManifest();
-      if (newManifest != currentManifest) {
-        currentManifest = newManifest;
-        for (SmoothStreamingChunkSource chunkSource : chunkSources) {
-          chunkSource.updateManifest(newManifest);
-        }
-      }
-
-      if (SystemClock.elapsedRealtime()
-          > manifestFetcher.getManifestLoadStartTimestamp() + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
+    if (manifest.isLive) {
+      if (!manifestLoader.isLoading() && SystemClock.elapsedRealtime()
+          > manifestLoadTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
         for (SmoothStreamingChunkSource chunkSource : chunkSources) {
           if (chunkSource.needManifestRefresh()) {
-            manifestFetcher.requestRefresh();
+            startLoadingManifest();
             break;
           }
         }
       }
     }
-
     for (ChunkTrackStream trackStream : trackStreams) {
       trackStream.continueBuffering(positionUs);
     }
@@ -234,7 +219,7 @@ public final class SmoothStreamingSampleSource implements SampleSource {
 
   @Override
   public void release() {
-    manifestFetcher.release();
+    manifestLoader.release();
     for (SmoothStreamingChunkSource chunkSource : chunkSources) {
       chunkSource.release();
     }
@@ -243,7 +228,46 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     }
   }
 
-  // Internal methods.
+  // Loader.Callback implementation
+
+  @Override
+  public void onLoadCompleted(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs) {
+    manifest = loadable.getResult();
+    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    if (!prepared) {
+      durationUs = manifest.durationUs;
+      buildTrackGroups(manifest);
+      ProtectionElement protectionElement = manifest.protectionElement;
+      if (protectionElement != null) {
+        byte[] keyId = getProtectionElementKeyId(protectionElement.data);
+        trackEncryptionBoxes = new TrackEncryptionBox[] {
+            new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId)};
+      }
+      prepared = true;
+    } else {
+      for (SmoothStreamingChunkSource chunkSource : chunkSources) {
+        chunkSource.updateManifest(manifest);
+      }
+    }
+  }
+
+  @Override
+  public void onLoadCanceled(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs) {
+    // Do nothing.
+  }
+
+  @Override
+  public int onLoadError(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs,
+      IOException exception) {
+    return (exception instanceof ParserException) ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+  }
+
+  // Internal methods
+
+  private void startLoadingManifest() {
+    manifestLoader.startLoading(new UriLoadable<>(manifestUri, manifestDataSource, manifestParser),
+        this, MIN_LOADABLE_RETRY_COUNT);
+  }
 
   private void buildTrackGroups(SmoothStreamingManifest manifest) {
     int trackGroupCount = 0;
@@ -273,11 +297,11 @@ public final class SmoothStreamingSampleSource implements SampleSource {
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
         ? new AdaptiveEvaluator(bandwidthMeter) : null;
     int streamElementIndex = trackGroupElementIndices[selection.group];
-    StreamElement streamElement = currentManifest.streamElements[streamElementIndex];
+    StreamElement streamElement = manifest.streamElements[streamElementIndex];
     int streamElementType = streamElement.type;
     int bufferSize = Util.getDefaultBufferSize(streamElementType);
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(currentManifest,
+    SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifest,
         streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
     ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,

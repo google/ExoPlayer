@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.LoadControl;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -35,7 +36,8 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.upstream.Loader;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
@@ -51,14 +53,15 @@ import java.util.List;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public final class HlsSampleSource implements SampleSource {
+public final class HlsSampleSource implements SampleSource,
+    Loader.Callback<UriLoadable<HlsPlaylist>> {
 
   /**
    * The minimum number of times to retry loading data prior to failing.
    */
-  // TODO: Use this for playlist loads as well.
   private static final int MIN_LOADABLE_RETRY_COUNT = 3;
 
+  private final Uri manifestUri;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
   private final Handler eventHandler;
@@ -66,7 +69,9 @@ public final class HlsSampleSource implements SampleSource {
   private final LoadControl loadControl;
   private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
-  private final ManifestFetcher<HlsPlaylist> manifestFetcher;
+  private final Loader manifestFetcher;
+  private final DataSource manifestDataSource;
+  private final HlsPlaylistParser manifestParser;
 
   private boolean seenFirstTrackSelection;
   private long durationUs;
@@ -78,9 +83,10 @@ public final class HlsSampleSource implements SampleSource {
   private boolean pendingReset;
   private long lastSeekPositionUs;
 
-  public HlsSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+  public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener) {
+    this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     this.eventHandler = eventHandler;
@@ -90,9 +96,9 @@ public final class HlsSampleSource implements SampleSource {
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     trackStreamSources = new IdentityHashMap<>();
 
-    HlsPlaylistParser parser = new HlsPlaylistParser();
-    DataSource manifestDataSource = dataSourceFactory.createDataSource();
-    manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
+    manifestDataSource = dataSourceFactory.createDataSource();
+    manifestParser = new HlsPlaylistParser();
+    manifestFetcher = new Loader("Loader:ManifestFetcher");
   }
 
   @Override
@@ -102,16 +108,13 @@ public final class HlsSampleSource implements SampleSource {
     }
 
     if (trackStreamWrappers == null) {
-      HlsPlaylist playlist = manifestFetcher.getManifest();
-      if (playlist == null) {
-        manifestFetcher.maybeThrowError();
-        manifestFetcher.requestRefresh();
-        return false;
+      manifestFetcher.maybeThrowError();
+      if (!manifestFetcher.isLoading()) {
+        manifestFetcher.startLoading(
+            new UriLoadable<>(manifestUri, manifestDataSource, manifestParser), this,
+            MIN_LOADABLE_RETRY_COUNT);
       }
-      List<HlsTrackStreamWrapper> trackStreamWrapperList = buildTrackStreamWrappers(playlist);
-      trackStreamWrappers = new HlsTrackStreamWrapper[trackStreamWrapperList.size()];
-      trackStreamWrapperList.toArray(trackStreamWrappers);
-      selectedTrackCounts = new int[trackStreamWrappers.length];
+      return false;
     }
 
     boolean trackStreamWrappersPrepared = true;
@@ -229,6 +232,27 @@ public final class HlsSampleSource implements SampleSource {
         trackStreamWrapper.release();
       }
     }
+  }
+
+  // Loader.Callback implementation.
+
+  @Override
+  public void onLoadCompleted(UriLoadable<HlsPlaylist> loadable, long elapsedMs) {
+    HlsPlaylist playlist = loadable.getResult();
+    List<HlsTrackStreamWrapper> trackStreamWrapperList = buildTrackStreamWrappers(playlist);
+    trackStreamWrappers = new HlsTrackStreamWrapper[trackStreamWrapperList.size()];
+    trackStreamWrapperList.toArray(trackStreamWrappers);
+    selectedTrackCounts = new int[trackStreamWrappers.length];
+  }
+
+  @Override
+  public void onLoadCanceled(UriLoadable<HlsPlaylist> loadable, long elapsedMs) {
+    // Do nothing.
+  }
+
+  @Override
+  public int onLoadError(UriLoadable<HlsPlaylist> loadable, long elapsedMs, IOException exception) {
+    return exception instanceof ParserException ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
   // Internal methods.

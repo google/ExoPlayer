@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
-import com.google.android.exoplayer.util.ManifestFetcher.RedirectingManifest;
-
 import android.net.Uri;
 
 import java.util.Collections;
@@ -25,7 +23,7 @@ import java.util.List;
 /**
  * Represents a DASH media presentation description (mpd).
  */
-public class MediaPresentationDescription implements RedirectingManifest {
+public class MediaPresentationDescription {
 
   public final long availabilityStartTime;
 
@@ -57,11 +55,6 @@ public class MediaPresentationDescription implements RedirectingManifest {
     this.utcTiming = utcTiming;
     this.location = location;
     this.periods = periods == null ? Collections.<Period>emptyList() : periods;
-  }
-
-  @Override
-  public final Uri getNextManifestUri() {
-    return location;
   }
 
   public final int getPeriodCount() {

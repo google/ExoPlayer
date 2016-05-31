@@ -120,17 +120,14 @@ public final class Loader {
 
   private final ExecutorService downloadExecutorService;
 
-  private int minRetryCount;
   private LoadTask<? extends Loadable> currentTask;
   private IOException fatalError;
 
   /**
    * @param threadName A name for the loader's thread.
-   * @param minRetryCount The minimum retry count.
    */
-  public Loader(String threadName, int minRetryCount) {
+  public Loader(String threadName) {
     this.downloadExecutorService = Util.newSingleThreadExecutor(threadName);
-    this.minRetryCount = minRetryCount;
   }
 
   /**
@@ -141,12 +138,15 @@ public final class Loader {
    *
    * @param loadable The {@link Loadable} to load.
    * @param callback A callback to invoke when the load ends.
+   * @param minRetryCount The minimum number of times the load must be retried before
+   *     {@link #maybeThrowError()} will propagate an error.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
    */
-  public <T extends Loadable> void startLoading(T loadable, Callback<T> callback) {
+  public <T extends Loadable> void startLoading(T loadable, Callback<T> callback,
+      int minRetryCount) {
     Looper looper = Looper.myLooper();
     Assertions.checkState(looper != null);
-    new LoadTask<>(looper, loadable, callback).start(0);
+    new LoadTask<>(looper, loadable, callback, minRetryCount).start(0);
   }
 
   /**
@@ -159,17 +159,8 @@ public final class Loader {
   }
 
   /**
-   * Sets the minimum retry count.
-   *
-   * @param minRetryCount The minimum retry count.
-   */
-  public void setMinRetryCount(int minRetryCount) {
-    this.minRetryCount = minRetryCount;
-  }
-
-  /**
    * If a fatal error has been encountered, or if the current {@link Loadable} has incurred a number
-   * of errors greater than the minimum number of retries and if the load is currently backed off,
+   * of errors greater than its minimum number of retries and if the load is currently backed off,
    * then an error is thrown. Else does nothing.
    *
    * @throws IOException The error.
@@ -178,7 +169,7 @@ public final class Loader {
     if (fatalError != null) {
       throw fatalError;
     } else if (currentTask != null) {
-      currentTask.maybeThrowError(minRetryCount);
+      currentTask.maybeThrowError();
     }
   }
 
@@ -211,20 +202,22 @@ public final class Loader {
     private final T loadable;
     private final Loader.Callback<T> callback;
     private final long startTimeMs;
+    private final int minRetryCount;
 
     private IOException currentError;
     private int errorCount;
 
     private volatile Thread executorThread;
 
-    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback) {
+    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback, int minRetryCount) {
       super(looper);
       this.loadable = loadable;
       this.callback = callback;
+      this.minRetryCount = minRetryCount;
       this.startTimeMs = SystemClock.elapsedRealtime();
     }
 
-    public void maybeThrowError(int minRetryCount) throws IOException {
+    public void maybeThrowError() throws IOException {
       if (currentError != null && errorCount > minRetryCount) {
         throw currentError;
       }

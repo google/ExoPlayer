@@ -54,16 +54,17 @@ import java.util.List;
   private static final int PRIMARY_TYPE_AUDIO = 2;
   private static final int PRIMARY_TYPE_VIDEO = 3;
 
-  private final Loader loader;
   private final HlsChunkSource chunkSource;
-  private final SparseArray<DefaultTrackOutput> sampleQueues;
-  private final LinkedList<HlsMediaChunk> mediaChunks;
-  private final int bufferSizeContribution;
-  private final ChunkHolder nextChunkHolder;
-  private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
+  private final int bufferSizeContribution;
   private final Format muxedAudioFormat;
   private final Format muxedCaptionFormat;
+  private final int minLoadableRetryCount;
+  private final Loader loader;
+  private final EventDispatcher eventDispatcher;
+  private final ChunkHolder nextChunkHolder;
+  private final SparseArray<DefaultTrackOutput> sampleQueues;
+  private final LinkedList<HlsMediaChunk> mediaChunks;
 
   private volatile boolean sampleQueuesBuilt;
 
@@ -110,7 +111,8 @@ import java.util.List;
     this.bufferSizeContribution = bufferSizeContribution;
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormat = muxedCaptionFormat;
-    loader = new Loader("Loader:HlsTrackStreamWrapper", minLoadableRetryCount);
+    this.minLoadableRetryCount = minLoadableRetryCount;
+    loader = new Loader("Loader:HlsTrackStreamWrapper");
     eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     sampleQueues = new SparseArray<>();
@@ -575,7 +577,7 @@ import java.util.List;
       eventDispatcher.loadStarted(loadable.dataSpec.length, loadable.type, loadable.trigger,
           loadable.format, -1, -1);
     }
-    loader.startLoading(loadable, this);
+    loader.startLoading(loadable, this, minLoadableRetryCount);
     if (prepared) {
       // Update the load control again to indicate that we're now loading.
       loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);

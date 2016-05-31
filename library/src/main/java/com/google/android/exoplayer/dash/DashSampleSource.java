@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.LoadControl;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -34,13 +35,12 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
-import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
-import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.upstream.Loader;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -49,35 +49,46 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * A {@link SampleSource} for DASH media.
  */
-public final class DashSampleSource implements SampleSource, UtcTimingCallback {
+public final class DashSampleSource implements SampleSource {
 
   private static final String TAG = "DashSampleSource";
 
   /**
    * The minimum number of times to retry loading data prior to failing.
    */
-  // TODO: Use this for manifest loads as well.
   private static final int MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
   private final Handler eventHandler;
   private final ChunkTrackStreamEventListener eventListener;
   private final LoadControl loadControl;
+  private final Loader loader;
+  private final DataSource dataSource;
+  private final MediaPresentationDescriptionParser manifestParser;
+  private final ManifestCallback manifestCallback;
+
+  private Uri manifestUri;
+  private long manifestLoadTimestamp;
+  private MediaPresentationDescription manifest;
 
   private boolean prepared;
-  private boolean released;
   private long durationUs;
   private long elapsedRealtimeOffset;
-  private MediaPresentationDescription manifest;
   private TrackGroupArray trackGroups;
   private int[] trackGroupAdaptationSetIndices;
   private boolean pendingReset;
@@ -86,21 +97,21 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
   private DashChunkSource[] chunkSources;
   private ChunkTrackStream[] trackStreams;
 
-  public DashSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+  public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener) {
+    this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-
     loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
+    loader = new Loader("Loader:DashSampleSource");
+    dataSource = dataSourceFactory.createDataSource();
+    manifestParser = new MediaPresentationDescriptionParser();
+    manifestCallback = new ManifestCallback();
     chunkSources = new DashChunkSource[0];
     trackStreams = new ChunkTrackStream[0];
-
-    MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    DataSource manifestDataSource = dataSourceFactory.createDataSource();
-    manifestFetcher = new ManifestFetcher<>(uri, manifestDataSource, parser);
   }
 
   @Override
@@ -108,25 +119,11 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
     if (prepared) {
       return true;
     }
-
-    if (manifest == null) {
-      manifest = manifestFetcher.getManifest();
-      if (manifest == null) {
-        manifestFetcher.maybeThrowError();
-        manifestFetcher.requestRefresh();
-        return false;
-      }
-      durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.duration * 1000;
-      buildTrackGroups(manifest);
-      if (manifest.utcTiming != null) {
-        UtcTimingElementResolver.resolveTimingElement(dataSourceFactory.createDataSource(),
-            manifest.utcTiming, manifestFetcher.getManifestLoadCompleteTimestamp(), this);
-      } else {
-        prepared = true;
-      }
+    loader.maybeThrowError();
+    if (!loader.isLoading() && manifest == null) {
+      startLoadingManifest();
     }
-
-    return prepared;
+    return false;
   }
 
   @Override
@@ -177,14 +174,6 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
   @Override
   public void continueBuffering(long positionUs) {
     if (manifest.dynamic) {
-      MediaPresentationDescription newManifest = manifestFetcher.getManifest();
-      if (newManifest != manifest) {
-        manifest = newManifest;
-        for (DashChunkSource chunkSource : chunkSources) {
-          chunkSource.updateManifest(newManifest);
-        }
-      }
-
       long minUpdatePeriod = manifest.minUpdatePeriod;
       if (minUpdatePeriod == 0) {
         // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
@@ -193,13 +182,11 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
         // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
         minUpdatePeriod = 5000;
       }
-
-      if (SystemClock.elapsedRealtime() > manifestFetcher.getManifestLoadStartTimestamp()
-          + minUpdatePeriod) {
-        manifestFetcher.requestRefresh();
+      if (!loader.isLoading()
+          && SystemClock.elapsedRealtime() > manifestLoadTimestamp + minUpdatePeriod) {
+        startLoadingManifest();
       }
     }
-
     for (ChunkTrackStream trackStream : trackStreams) {
       trackStream.continueBuffering(positionUs);
     }
@@ -241,38 +228,86 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
 
   @Override
   public void release() {
-    manifestFetcher.release();
+    loader.release();
     for (DashChunkSource chunkSource : chunkSources) {
       chunkSource.release();
     }
     for (ChunkTrackStream trackStream : trackStreams) {
       trackStream.release();
     }
-    released = true;
   }
 
-  // UtcTimingCallback implementation.
+  // Loadable callbacks.
 
-  @Override
-  public void onTimestampResolved(UtcTimingElement utcTiming, long elapsedRealtimeOffset) {
-    if (released) {
-      return;
+  /* package */ void onManifestLoadCompleted(MediaPresentationDescription manifest) {
+    this.manifest = manifest;
+    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    if (manifest.location != null) {
+      manifestUri = manifest.location;
     }
+    if (!prepared) {
+      durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.duration * 1000;
+      buildTrackGroups(manifest);
+      if (manifest.utcTiming != null) {
+        resolveUtcTimingElement(manifest.utcTiming);
+      } else {
+        prepared = true;
+      }
+    } else {
+      for (DashChunkSource chunkSource : chunkSources) {
+        chunkSource.updateManifest(manifest);
+      }
+    }
+  }
+
+  /* package */ void onUtcTimestampLoadCompleted(long elapsedRealtimeOffset) {
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     prepared = true;
   }
 
-  @Override
-  public void onTimestampError(UtcTimingElement utcTiming, IOException e) {
-    if (released) {
-      return;
-    }
-    Log.e(TAG, "Failed to resolve UtcTiming element [" + utcTiming + "]", e);
+  /* package */ void onUtcTimestampLoadError(IOException e) {
+    Log.e(TAG, "Failed to resolve UtcTiming element.", e);
     // Be optimistic and continue in the hope that the device clock is correct.
     prepared = true;
   }
 
   // Internal methods.
+
+  private void startLoadingManifest() {
+    loader.startLoading(new UriLoadable<>(manifestUri, dataSource, manifestParser),
+        manifestCallback, MIN_LOADABLE_RETRY_COUNT);
+  }
+
+  private void resolveUtcTimingElement(UtcTimingElement timingElement) {
+    String scheme = timingElement.schemeIdUri;
+    if (Util.areEqual(scheme, "urn:mpeg:dash:utc:direct:2012")) {
+      resolveUtcTimingElementDirect(timingElement);
+    } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-iso:2014")) {
+      resolveUtcTimingElementHttp(timingElement, new Iso8601Parser());
+    } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2012")
+        || Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2014")) {
+      resolveUtcTimingElementHttp(timingElement, new XsDateTimeParser());
+    } else {
+      // Unsupported scheme.
+      onUtcTimestampLoadError(new IOException("Unsupported UTC timing scheme"));
+    }
+  }
+
+  private void resolveUtcTimingElementDirect(UtcTimingElement timingElement) {
+    try {
+      long utcTimestamp = Util.parseXsDateTime(timingElement.value);
+      long elapsedRealtimeOffset = utcTimestamp - manifestLoadTimestamp;
+      onUtcTimestampLoadCompleted(elapsedRealtimeOffset);
+    } catch (ParseException e) {
+      onUtcTimestampLoadError(new ParserException(e));
+    }
+  }
+
+  private void resolveUtcTimingElementHttp(UtcTimingElement timingElement,
+      UriLoadable.Parser<Long> parser) {
+    loader.startLoading(new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser),
+        new UtcTimestampCallback(), 1);
+  }
 
   private void buildTrackGroups(MediaPresentationDescription manifest) {
     Period period = manifest.getPeriod(0);
@@ -319,6 +354,80 @@ public final class DashSampleSource implements SampleSource, UtcTimingCallback {
     ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
         positionUs, eventHandler, eventListener, adaptationSetType, MIN_LOADABLE_RETRY_COUNT);
     return Pair.create(chunkSource, trackStream);
+  }
+
+
+  private final class ManifestCallback implements
+      Loader.Callback<UriLoadable<MediaPresentationDescription>> {
+
+    @Override
+    public void onLoadCompleted(UriLoadable<MediaPresentationDescription> loadable,
+        long elapsedMs) {
+      onManifestLoadCompleted(loadable.getResult());
+    }
+
+    @Override
+    public void onLoadCanceled(UriLoadable<MediaPresentationDescription> loadable, long elapsedMs) {
+      // Do nothing.
+    }
+
+    @Override
+    public int onLoadError(UriLoadable<MediaPresentationDescription> loadable, long elapsedMs,
+        IOException exception) {
+      return (exception instanceof ParserException) ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+    }
+
+  }
+
+  private final class UtcTimestampCallback implements Loader.Callback<UriLoadable<Long>> {
+
+    @Override
+    public void onLoadCompleted(UriLoadable<Long> loadable, long elapsedMs) {
+      onUtcTimestampLoadCompleted(loadable.getResult() - SystemClock.elapsedRealtime());
+    }
+
+    @Override
+    public void onLoadCanceled(UriLoadable<Long> loadable, long elapsedMs) {
+      // Do nothing.
+    }
+
+    @Override
+    public int onLoadError(UriLoadable<Long> loadable, long elapsedMs, IOException exception) {
+      onUtcTimestampLoadError(exception);
+      return Loader.DONT_RETRY;
+    }
+
+  }
+
+  private static final class XsDateTimeParser implements UriLoadable.Parser<Long> {
+
+    @Override
+    public Long parse(Uri uri, InputStream inputStream) throws IOException {
+      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
+      try {
+        return Util.parseXsDateTime(firstLine);
+      } catch (ParseException e) {
+        throw new ParserException(e);
+      }
+    }
+
+  }
+
+  private static final class Iso8601Parser implements UriLoadable.Parser<Long> {
+
+    @Override
+    public Long parse(Uri uri, InputStream inputStream) throws IOException {
+      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
+      try {
+        // TODO: It may be necessary to handle timestamp offsets from UTC.
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return format.parse(firstLine).getTime();
+      } catch (ParseException e) {
+        throw new ParserException(e);
+      }
+    }
+
   }
 
 }
