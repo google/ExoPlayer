@@ -29,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -44,7 +45,7 @@ public class TestUtil {
   }
 
   private static final String DUMP_EXTENSION = ".dump";
-  private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen";
+  private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
 
   private TestUtil() {}
 
@@ -158,6 +159,15 @@ public class TestUtil {
     MockitoAnnotations.initMocks(instrumentationTestCase);
   }
 
+  public static boolean assetExists(Instrumentation instrumentation, String fileName)
+      throws IOException {
+    int i = fileName.lastIndexOf('/');
+    String path = i >= 0 ? fileName.substring(0, i) : "";
+    String file = i >= 0 ? fileName.substring(i + 1) : fileName;
+    return Arrays.asList(instrumentation.getContext().getResources().getAssets().list(path))
+        .contains(file);
+  }
+
   public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
       throws IOException {
     InputStream is = instrumentation.getContext().getResources().getAssets().open(fileName);
@@ -199,9 +209,9 @@ public class TestUtil {
 
   /**
    * Asserts that {@code extractor} consumes {@code sampleFile} successfully and its output equals
-   * to a prerecorded output dump file. The prerecorded output dump file name is determined by
-   * appending "{@value UNKNOWN_LENGTH_EXTENSION}" if {@code simulateUnknownLength} is true and
-   * appending "{@value DUMP_EXTENSION}" to the end of {@code sampleFile}.
+   * to a prerecorded output dump file with the name {@code sampleFile} + "{@value
+   * #DUMP_EXTENSION}". If {@code simulateUnknownLength} is true and {@code sampleFile} + "{@value
+   * #UNKNOWN_LENGTH_EXTENSION}" exists, it's preferred.
    *
    * @param extractor The {@link Extractor} to be tested.
    * @param sampleFile The path to the input sample.
@@ -226,12 +236,12 @@ public class TestUtil {
     input.resetPeekPosition();
     FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, true);
 
-    String dumpFile = sampleFile;
-    if (simulateUnknownLength) {
-      dumpFile += UNKNOWN_LENGTH_EXTENSION;
+    if (simulateUnknownLength
+        && assetExists(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION)) {
+      extractorOutput.assertOutput(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION);
+    } else {
+      extractorOutput.assertOutput(instrumentation, sampleFile + DUMP_EXTENSION);
     }
-    dumpFile += DUMP_EXTENSION;
-    extractorOutput.assertOutput(instrumentation, dumpFile);
 
     return extractorOutput;
   }
