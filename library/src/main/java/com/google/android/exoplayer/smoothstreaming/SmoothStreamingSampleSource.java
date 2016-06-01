@@ -73,7 +73,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private final DataSource manifestDataSource;
   private final SmoothStreamingManifestParser manifestParser;
 
-  private long manifestLoadTimestamp;
+  private long manifestLoadStartTimestamp;
   private SmoothStreamingManifest manifest;
 
   private boolean prepared;
@@ -157,7 +157,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   public void continueBuffering(long positionUs) {
     if (manifest.isLive) {
       if (!manifestLoader.isLoading() && SystemClock.elapsedRealtime()
-          > manifestLoadTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
+          > manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
         for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
           if (trackStream.getChunkSource().needManifestRefresh()) {
             startLoadingManifest();
@@ -218,7 +218,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   @Override
   public void onLoadCompleted(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs) {
     manifest = loadable.getResult();
-    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    manifestLoadStartTimestamp = SystemClock.elapsedRealtime() - elapsedMs;
     if (!prepared) {
       durationUs = manifest.durationUs;
       buildTrackGroups(manifest);

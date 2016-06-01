@@ -82,7 +82,8 @@ public final class DashSampleSource implements SampleSource {
   private final ManifestCallback manifestCallback;
 
   private Uri manifestUri;
-  private long manifestLoadTimestamp;
+  private long manifestLoadStartTimestamp;
+  private long manifestLoadEndTimestamp;
   private MediaPresentationDescription manifest;
 
   private boolean prepared;
@@ -173,7 +174,7 @@ public final class DashSampleSource implements SampleSource {
         minUpdatePeriod = 5000;
       }
       if (!loader.isLoading()
-          && SystemClock.elapsedRealtime() > manifestLoadTimestamp + minUpdatePeriod) {
+          && SystemClock.elapsedRealtime() > manifestLoadStartTimestamp + minUpdatePeriod) {
         startLoadingManifest();
       }
     }
@@ -226,9 +227,11 @@ public final class DashSampleSource implements SampleSource {
 
   // Loadable callbacks.
 
-  /* package */ void onManifestLoadCompleted(MediaPresentationDescription manifest) {
+  /* package */ void onManifestLoadCompleted(MediaPresentationDescription manifest,
+      long elapsedMs) {
     this.manifest = manifest;
-    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    manifestLoadEndTimestamp = SystemClock.elapsedRealtime();
+    manifestLoadStartTimestamp = manifestLoadEndTimestamp - elapsedMs;
     if (manifest.location != null) {
       manifestUri = manifest.location;
     }
@@ -283,7 +286,7 @@ public final class DashSampleSource implements SampleSource {
   private void resolveUtcTimingElementDirect(UtcTimingElement timingElement) {
     try {
       long utcTimestamp = Util.parseXsDateTime(timingElement.value);
-      long elapsedRealtimeOffset = utcTimestamp - manifestLoadTimestamp;
+      long elapsedRealtimeOffset = utcTimestamp - manifestLoadEndTimestamp;
       onUtcTimestampLoadCompleted(elapsedRealtimeOffset);
     } catch (ParseException e) {
       onUtcTimestampLoadError(new ParserException(e));
@@ -353,7 +356,7 @@ public final class DashSampleSource implements SampleSource {
     @Override
     public void onLoadCompleted(UriLoadable<MediaPresentationDescription> loadable,
         long elapsedMs) {
-      onManifestLoadCompleted(loadable.getResult());
+      onManifestLoadCompleted(loadable.getResult(), elapsedMs);
     }
 
     @Override
