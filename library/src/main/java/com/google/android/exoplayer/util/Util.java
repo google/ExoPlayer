@@ -789,6 +789,8 @@ public final class Util {
         return C.DEFAULT_VIDEO_BUFFER_SIZE;
       case C.TRACK_TYPE_TEXT:
         return C.DEFAULT_TEXT_BUFFER_SIZE;
+      case C.TRACK_TYPE_METADATA:
+        return C.DEFAULT_METADATA_BUFFER_SIZE;
       default:
         throw new IllegalStateException();
     }

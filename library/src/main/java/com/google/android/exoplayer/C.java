@@ -46,7 +46,7 @@ public interface C {
   /**
    * The number of nanoseconds in one second.
    */
-  public static final long NANOS_PER_SECOND = 1000000000L;
+  long NANOS_PER_SECOND = 1000000000L;
 
   /**
    * Represents an unbounded length of data.
@@ -201,6 +201,11 @@ public interface C {
    * A default size in bytes for a text buffer.
    */
   int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /**
+   * A default size in bytes for a metadata buffer.
+   */
+  int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /**
    * A default size in bytes for a muxed buffer (e.g. containing video, audio and text).

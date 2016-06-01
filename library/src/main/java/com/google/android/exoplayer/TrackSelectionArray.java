@@ -33,8 +33,7 @@ public final class TrackSelectionArray {
   private int hashCode;
 
   /**
-   * @param trackSelections The selections. Must not be null or contain null elements, but may be
-   *     empty.
+   * @param trackSelections The selections. Must not be null, but may contain null elements.
    */
   public TrackSelectionArray(TrackSelection... trackSelections) {
     this.trackSelections = trackSelections;
