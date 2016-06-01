@@ -47,7 +47,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -93,9 +92,7 @@ public final class DashSampleSource implements SampleSource {
   private int[] trackGroupAdaptationSetIndices;
   private boolean pendingReset;
   private long lastSeekPositionUs;
-
-  private DashChunkSource[] chunkSources;
-  private ChunkTrackStream[] trackStreams;
+  private ChunkTrackStream<DashChunkSource>[] trackStreams;
 
   public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -110,8 +107,7 @@ public final class DashSampleSource implements SampleSource {
     dataSource = dataSourceFactory.createDataSource();
     manifestParser = new MediaPresentationDescriptionParser();
     manifestCallback = new ManifestCallback();
-    chunkSources = new DashChunkSource[0];
-    trackStreams = new ChunkTrackStream[0];
+    trackStreams = newTrackStreamArray(0);
   }
 
   @Override
@@ -140,18 +136,15 @@ public final class DashSampleSource implements SampleSource {
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     int newEnabledSourceCount = trackStreams.length + newSelections.size() - oldStreams.size();
-    DashChunkSource[] newChunkSources = new DashChunkSource[newEnabledSourceCount];
-    ChunkTrackStream[] newTrackStreams = new ChunkTrackStream[newEnabledSourceCount];
+    ChunkTrackStream<DashChunkSource>[] newTrackStreams =
+        newTrackStreamArray(newEnabledSourceCount);
     int newEnabledSourceIndex = 0;
 
     // Iterate over currently enabled streams, either releasing them or adding them to the new list.
-    for (int i = 0; i < trackStreams.length; i++) {
-      ChunkTrackStream trackStream = trackStreams[i];
+    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
       if (oldStreams.contains(trackStream)) {
-        chunkSources[i].release();
         trackStream.release();
       } else {
-        newChunkSources[newEnabledSourceIndex] = chunkSources[i];
         newTrackStreams[newEnabledSourceIndex++] = trackStream;
       }
     }
@@ -159,14 +152,11 @@ public final class DashSampleSource implements SampleSource {
     // Instantiate and return new streams.
     TrackStream[] streamsToReturn = new TrackStream[newSelections.size()];
     for (int i = 0; i < newSelections.size(); i++) {
-      Pair<DashChunkSource, ChunkTrackStream> trackComponents =
-          buildTrackStream(newSelections.get(i), positionUs);
-      newChunkSources[newEnabledSourceIndex] = trackComponents.first;
-      newTrackStreams[newEnabledSourceIndex++] = trackComponents.second;
-      streamsToReturn[i] = trackComponents.second;
+      newTrackStreams[newEnabledSourceIndex] = buildTrackStream(newSelections.get(i), positionUs);
+      streamsToReturn[i] = newTrackStreams[newEnabledSourceIndex];
+      newEnabledSourceIndex++;
     }
 
-    chunkSources = newChunkSources;
     trackStreams = newTrackStreams;
     return streamsToReturn;
   }
@@ -187,7 +177,7 @@ public final class DashSampleSource implements SampleSource {
         startLoadingManifest();
       }
     }
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
       trackStream.continueBuffering(positionUs);
     }
   }
@@ -196,7 +186,7 @@ public final class DashSampleSource implements SampleSource {
   public long readReset() {
     if (pendingReset) {
       pendingReset = false;
-      for (ChunkTrackStream trackStream : trackStreams) {
+      for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
         trackStream.setReadingEnabled(true);
       }
       return lastSeekPositionUs;
@@ -207,7 +197,7 @@ public final class DashSampleSource implements SampleSource {
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = Long.MAX_VALUE;
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
       long rendererBufferedPositionUs = trackStream.getBufferedPositionUs();
       if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
@@ -220,7 +210,7 @@ public final class DashSampleSource implements SampleSource {
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
     pendingReset = true;
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
       trackStream.setReadingEnabled(false);
       trackStream.seekToUs(positionUs);
     }
@@ -229,10 +219,7 @@ public final class DashSampleSource implements SampleSource {
   @Override
   public void release() {
     loader.release();
-    for (DashChunkSource chunkSource : chunkSources) {
-      chunkSource.release();
-    }
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
       trackStream.release();
     }
   }
@@ -254,8 +241,8 @@ public final class DashSampleSource implements SampleSource {
         prepared = true;
       }
     } else {
-      for (DashChunkSource chunkSource : chunkSources) {
-        chunkSource.updateManifest(manifest);
+      for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
+        trackStream.getChunkSource().updateManifest(manifest);
       }
     }
   }
@@ -337,7 +324,7 @@ public final class DashSampleSource implements SampleSource {
     trackGroups = new TrackGroupArray(trackGroupArray);
   }
 
-  private Pair<DashChunkSource, ChunkTrackStream> buildTrackStream(TrackSelection selection,
+  private ChunkTrackStream<DashChunkSource> buildTrackStream(TrackSelection selection,
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
@@ -348,14 +335,17 @@ public final class DashSampleSource implements SampleSource {
     int adaptationSetType = adaptationSet.type;
     int bufferSize = Util.getDefaultBufferSize(adaptationSetType);
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource chunkSource = new DashChunkSource(manifest, adaptationSetIndex,
+    DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
-    ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
-        positionUs, eventHandler, eventListener, adaptationSetType, MIN_LOADABLE_RETRY_COUNT);
-    return Pair.create(chunkSource, trackStream);
+    return new ChunkTrackStream<>(chunkSource, loadControl, bufferSize, positionUs, eventHandler,
+        eventListener, adaptationSetType, MIN_LOADABLE_RETRY_COUNT);
   }
 
+  @SuppressWarnings("unchecked")
+  private static ChunkTrackStream<DashChunkSource>[] newTrackStreamArray(int length) {
+    return new ChunkTrackStream[length];
+  }
 
   private final class ManifestCallback implements
       Loader.Callback<UriLoadable<MediaPresentationDescription>> {

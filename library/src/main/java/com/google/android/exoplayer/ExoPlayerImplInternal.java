@@ -239,12 +239,12 @@ import java.util.concurrent.atomic.AtomicInteger;
           return false;
       }
     } catch (ExoPlaybackException e) {
-      Log.e(TAG, "Internal track renderer error.", e);
+      Log.e(TAG, "Renderer error.", e);
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       stopInternal();
       return true;
     } catch (IOException e) {
-      Log.e(TAG, "Source track renderer error.", e);
+      Log.e(TAG, "Source error.", e);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       stopInternal();
       return true;

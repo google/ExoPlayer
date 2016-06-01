@@ -44,7 +44,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Base64;
-import android.util.Pair;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -85,8 +84,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private boolean pendingReset;
   private long lastSeekPositionUs;
 
-  private SmoothStreamingChunkSource[] chunkSources;
-  private ChunkTrackStream[] trackStreams;
+  private ChunkTrackStream<SmoothStreamingChunkSource>[] trackStreams;
 
   public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -97,11 +95,8 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     this.bandwidthMeter = bandwidthMeter;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-
     loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
-    chunkSources = new SmoothStreamingChunkSource[0];
-    trackStreams = new ChunkTrackStream[0];
-
+    trackStreams = newTrackStreamArray(0);
     manifestDataSource = dataSourceFactory.createDataSource();
     manifestParser = new SmoothStreamingManifestParser();
     manifestLoader = new Loader("Loader:Manifest");
@@ -133,19 +128,15 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     int newEnabledSourceCount = trackStreams.length + newSelections.size() - oldStreams.size();
-    SmoothStreamingChunkSource[] newChunkSources =
-        new SmoothStreamingChunkSource[newEnabledSourceCount];
-    ChunkTrackStream[] newTrackStreams = new ChunkTrackStream[newEnabledSourceCount];
+    ChunkTrackStream<SmoothStreamingChunkSource>[] newTrackStreams =
+        newTrackStreamArray(newEnabledSourceCount);
     int newEnabledSourceIndex = 0;
 
     // Iterate over currently enabled streams, either releasing them or adding them to the new list.
-    for (int i = 0; i < trackStreams.length; i++) {
-      ChunkTrackStream trackStream = trackStreams[i];
+    for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
       if (oldStreams.contains(trackStream)) {
-        chunkSources[i].release();
         trackStream.release();
       } else {
-        newChunkSources[newEnabledSourceIndex] = chunkSources[i];
         newTrackStreams[newEnabledSourceIndex++] = trackStream;
       }
     }
@@ -153,14 +144,11 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     // Instantiate and return new streams.
     TrackStream[] streamsToReturn = new TrackStream[newSelections.size()];
     for (int i = 0; i < newSelections.size(); i++) {
-      Pair<SmoothStreamingChunkSource, ChunkTrackStream> trackComponents =
-          buildTrackStream(newSelections.get(i), positionUs);
-      newChunkSources[newEnabledSourceIndex] = trackComponents.first;
-      newTrackStreams[newEnabledSourceIndex++] = trackComponents.second;
-      streamsToReturn[i] = trackComponents.second;
+      newTrackStreams[newEnabledSourceIndex] = buildTrackStream(newSelections.get(i), positionUs);
+      streamsToReturn[i] = newTrackStreams[newEnabledSourceIndex];
+      newEnabledSourceIndex++;
     }
 
-    chunkSources = newChunkSources;
     trackStreams = newTrackStreams;
     return streamsToReturn;
   }
@@ -170,15 +158,15 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     if (manifest.isLive) {
       if (!manifestLoader.isLoading() && SystemClock.elapsedRealtime()
           > manifestLoadTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
-        for (SmoothStreamingChunkSource chunkSource : chunkSources) {
-          if (chunkSource.needManifestRefresh()) {
+        for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
+          if (trackStream.getChunkSource().needManifestRefresh()) {
             startLoadingManifest();
             break;
           }
         }
       }
     }
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
       trackStream.continueBuffering(positionUs);
     }
   }
@@ -187,7 +175,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   public long readReset() {
     if (pendingReset) {
       pendingReset = false;
-      for (ChunkTrackStream trackStream : trackStreams) {
+      for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
         trackStream.setReadingEnabled(true);
       }
       return lastSeekPositionUs;
@@ -198,7 +186,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = Long.MAX_VALUE;
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
       long rendererBufferedPositionUs = trackStream.getBufferedPositionUs();
       if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
@@ -211,7 +199,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
     pendingReset = true;
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
       trackStream.setReadingEnabled(false);
       trackStream.seekToUs(positionUs);
     }
@@ -220,10 +208,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   @Override
   public void release() {
     manifestLoader.release();
-    for (SmoothStreamingChunkSource chunkSource : chunkSources) {
-      chunkSource.release();
-    }
-    for (ChunkTrackStream trackStream : trackStreams) {
+    for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
       trackStream.release();
     }
   }
@@ -245,8 +230,8 @@ public final class SmoothStreamingSampleSource implements SampleSource,
       }
       prepared = true;
     } else {
-      for (SmoothStreamingChunkSource chunkSource : chunkSources) {
-        chunkSource.updateManifest(manifest);
+      for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
+        trackStream.getChunkSource().updateManifest(manifest);
       }
     }
   }
@@ -291,8 +276,8 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     trackGroups = new TrackGroupArray(trackGroupArray);
   }
 
-  private Pair<SmoothStreamingChunkSource, ChunkTrackStream> buildTrackStream(
-      TrackSelection selection, long positionUs) {
+  private ChunkTrackStream<SmoothStreamingChunkSource> buildTrackStream(TrackSelection selection,
+      long positionUs) {
     int[] selectedTracks = selection.getTracks();
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
         ? new AdaptiveEvaluator(bandwidthMeter) : null;
@@ -301,12 +286,16 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     int streamElementType = streamElement.type;
     int bufferSize = Util.getDefaultBufferSize(streamElementType);
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifest,
-        streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
+    SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifestLoader,
+        manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
-    ChunkTrackStream trackStream = new ChunkTrackStream(chunkSource, loadControl, bufferSize,
-        positionUs, eventHandler, eventListener, streamElementType, MIN_LOADABLE_RETRY_COUNT);
-    return Pair.create(chunkSource, trackStream);
+    return new ChunkTrackStream<>(chunkSource, loadControl, bufferSize, positionUs, eventHandler,
+        eventListener, streamElementType, MIN_LOADABLE_RETRY_COUNT);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static ChunkTrackStream<SmoothStreamingChunkSource>[] newTrackStreamArray(int length) {
+    return new ChunkTrackStream[length];
   }
 
   private static byte[] getProtectionElementKeyId(byte[] initData) {

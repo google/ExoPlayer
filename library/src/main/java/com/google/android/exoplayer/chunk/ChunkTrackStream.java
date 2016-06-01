@@ -37,10 +37,11 @@ import java.util.List;
 /**
  * A {@link TrackStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  */
-public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
+public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
+    Loader.Callback<Chunk> {
 
   private final Loader loader;
-  private final ChunkSource chunkSource;
+  private final T chunkSource;
   private final int minLoadableRetryCount;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
@@ -72,7 +73,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    */
-  public ChunkTrackStream(ChunkSource chunkSource, LoadControl loadControl,
+  public ChunkTrackStream(T chunkSource, LoadControl loadControl,
       int bufferSizeContribution, long positionUs, Handler eventHandler,
       ChunkTrackStreamEventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
@@ -107,6 +108,15 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
     if (!loader.isLoading()) {
       maybeStartLoading();
     }
+  }
+
+  /**
+   * Returns the {@link ChunkSource} used by this stream.
+   *
+   * @return The {@link ChunkSource}.
+   */
+  public T getChunkSource() {
+    return chunkSource;
   }
 
   /**
@@ -160,6 +170,7 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
    * This method should be called when the stream is no longer required.
    */
   public void release() {
+    chunkSource.release();
     loadControl.unregister(this);
     if (loader.isLoading()) {
       loader.cancelLoading();
@@ -181,7 +192,9 @@ public class ChunkTrackStream implements TrackStream, Loader.Callback<Chunk> {
   @Override
   public void maybeThrowError() throws IOException {
     loader.maybeThrowError();
-    chunkSource.maybeThrowError();
+    if (!loader.isLoading()) {
+      chunkSource.maybeThrowError();
+    }
   }
 
   @Override

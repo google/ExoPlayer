@@ -84,4 +84,11 @@ public interface ChunkSource {
    */
   boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e);
 
+  /**
+   * Releases the source.
+   * <p>
+   * This method should be called when the source is no longer required.
+   */
+  void release();
+
 }

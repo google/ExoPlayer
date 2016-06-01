@@ -93,7 +93,7 @@ import java.util.List;
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
    * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed audio,
    *     this is the audio {@link Format} as defined by the playlist.
-   * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed
+   * @param muxedCaptionFormat If HLS master playlist indicates that the stream contains muxed
    *     captions, this is the audio {@link Format} as defined by the playlist.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.

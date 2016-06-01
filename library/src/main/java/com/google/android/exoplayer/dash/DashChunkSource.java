@@ -42,6 +42,7 @@ import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
@@ -56,6 +57,7 @@ import java.util.List;
  */
 public class DashChunkSource implements ChunkSource {
 
+  private final Loader manifestLoader;
   private final int adaptationSetIndex;
   private final TrackGroup trackGroup;
   private final RepresentationHolder[] representationHolders;
@@ -72,6 +74,7 @@ public class DashChunkSource implements ChunkSource {
   private IOException fatalError;
 
   /**
+   * @param manifestLoader The {@link Loader} being used to load manifests.
    * @param manifest The initial manifest.
    * @param adaptationSetIndex The index of the adaptation set in the manifest.
    * @param trackGroup The track group corresponding to the adaptation set.
@@ -82,9 +85,10 @@ public class DashChunkSource implements ChunkSource {
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
    *     as the server's unix time minus the local elapsed time. It unknown, set to 0.
    */
-  public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetIndex,
-      TrackGroup trackGroup, int[] tracks, DataSource dataSource,
+  public DashChunkSource(Loader manifestLoader, MediaPresentationDescription manifest,
+      int adaptationSetIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs) {
+    this.manifestLoader = manifestLoader;
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
     this.trackGroup = trackGroup;
@@ -131,18 +135,14 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  public void release() {
-    if (adaptiveFormatEvaluator != null) {
-      adaptiveFormatEvaluator.disable();
-    }
-  }
-
   // ChunkSource implementation.
 
   @Override
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
+    } else {
+      manifestLoader.maybeThrowError();
     }
   }
 
@@ -271,6 +271,13 @@ public class DashChunkSource implements ChunkSource {
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
     // TODO: Consider implementing representation blacklisting.
     return false;
+  }
+
+  @Override
+  public void release() {
+    if (adaptiveFormatEvaluator != null) {
+      adaptiveFormatEvaluator.disable();
+    }
   }
 
   // Private methods.

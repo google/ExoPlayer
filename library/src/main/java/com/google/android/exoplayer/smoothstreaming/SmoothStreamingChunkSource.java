@@ -34,6 +34,7 @@ import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.Loader;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -47,6 +48,7 @@ import java.util.List;
  */
 public class SmoothStreamingChunkSource implements ChunkSource {
 
+  private final Loader manifestLoader;
   private final int elementIndex;
   private final TrackGroup trackGroup;
   private final ChunkExtractorWrapper[] extractorWrappers;
@@ -63,6 +65,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private IOException fatalError;
 
   /**
+   * @param manifestLoader The {@link Loader} being used to load manifests.
    * @param manifest The initial manifest.
    * @param elementIndex The index of the stream element in the manifest.
    * @param trackGroup The track group corresponding to the stream element.
@@ -71,9 +74,10 @@ public class SmoothStreamingChunkSource implements ChunkSource {
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param trackEncryptionBoxes Track encryption boxes for the stream.
    */
-  public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int elementIndex,
-      TrackGroup trackGroup, int[] tracks, DataSource dataSource,
+  public SmoothStreamingChunkSource(Loader manifestLoader, SmoothStreamingManifest manifest,
+      int elementIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes) {
+    this.manifestLoader = manifestLoader;
     this.manifest = manifest;
     this.elementIndex = elementIndex;
     this.trackGroup = trackGroup;
@@ -135,18 +139,14 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     return needManifestRefresh;
   }
 
-  public void release() {
-    if (adaptiveFormatEvaluator != null) {
-      adaptiveFormatEvaluator.disable();
-    }
-  }
-
   // ChunkSource implementation.
 
   @Override
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
+    } else {
+      manifestLoader.maybeThrowError();
     }
   }
 
@@ -231,6 +231,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
     // TODO: Consider implementing stream element blacklisting.
     return false;
+  }
+
+  @Override
+  public void release() {
+    if (adaptiveFormatEvaluator != null) {
+      adaptiveFormatEvaluator.disable();
+    }
   }
 
   // Private methods.
