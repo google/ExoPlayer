@@ -312,7 +312,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .build(1);
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("DocType webB not supported", exception.getMessage());
@@ -327,7 +327,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingOrder 1 not supported", exception.getMessage());
@@ -342,7 +342,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingScope 0 not supported", exception.getMessage());
@@ -358,7 +358,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentCompAlgo 0 not supported", exception.getMessage());
@@ -373,7 +373,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncAlgo 4 not supported", exception.getMessage());
@@ -388,7 +388,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, settings)
         .build(1);
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("AESSettingsCipherMode 0 not supported", exception.getMessage());
@@ -581,7 +581,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
         .build(1);
 
     try {
-      FakeExtractorOutput extractorOutput = consumeTestData(data);
+      consumeTestData(data);
       fail();
     } catch (ParserException exception) {
       assertEquals("Extension bit is set in signal byte", exception.getMessage());
