@@ -1,0 +1,103 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = 0
+numberOfTracks = 3
+track 2:
+  format:
+    bitrate = -1
+    id = null
+    containerMimeType = null
+    sampleMimeType = video/mpeg2
+    maxInputSize = -1
+    requiresSecureDecryption = false
+    width = 1080
+    height = 720
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = 1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+      data = length 22, hash D3167F9
+  sample count = 2
+  sample 0:
+    time = 33366
+    flags = 1
+    data = length 36420, hash A653C4D9
+  sample 1:
+    time = 66733
+    flags = 0
+    data = length 52814, hash 8D54E344
+track 3:
+  format:
+    bitrate = -1
+    id = null
+    containerMimeType = null
+    sampleMimeType = audio/mpeg-L2
+    maxInputSize = 4096
+    requiresSecureDecryption = false
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = -1.0
+    channelCount = 1
+    sampleRate = 44100
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+  sample count = 4
+  sample 0:
+    time = 90511
+    flags = 1
+    data = length 1253, hash 727FD1C6
+  sample 1:
+    time = 116633
+    flags = 1
+    data = length 1254, hash 787D6CCE
+  sample 2:
+    time = 142755
+    flags = 1
+    data = length 1254, hash 44B92592
+  sample 3:
+    time = 168877
+    flags = 1
+    data = length 1254, hash 3B315899
+track 21:
+  format:
+    bitrate = -1
+    id = null
+    containerMimeType = null
+    sampleMimeType = application/id3
+    maxInputSize = -1
+    requiresSecureDecryption = false
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = -1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+  sample count = 0
+tracksEnded = true

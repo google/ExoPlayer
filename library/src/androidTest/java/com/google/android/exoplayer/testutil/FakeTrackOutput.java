@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -23,6 +24,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import android.test.MoreAsserts;
 import junit.framework.Assert;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,9 +70,16 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     byte[] newData = new byte[length];
-    input.readFully(newData, 0, length);
+    int bytesAppended = input.read(newData, 0, length);
+    if (bytesAppended == C.RESULT_END_OF_INPUT) {
+      if (allowEndOfInput) {
+        return C.RESULT_END_OF_INPUT;
+      }
+      throw new EOFException();
+    }
+    newData = Arrays.copyOf(newData, bytesAppended);
     sampleData = TestUtil.joinByteArrays(sampleData, newData);
-    return length;
+    return bytesAppended;
   }
 
   @Override
