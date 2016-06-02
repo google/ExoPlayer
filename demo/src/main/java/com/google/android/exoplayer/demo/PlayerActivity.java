@@ -235,8 +235,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
       initializePlayer();
     } else {
-      Toast.makeText(getApplicationContext(), R.string.storage_permission_denied,
-          Toast.LENGTH_LONG).show();
+      showToast(R.string.storage_permission_denied);
       finish();
     }
   }
@@ -330,10 +329,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private void onUnsupportedDrmError(UnsupportedDrmException e) {
-    String errorString = getString(Util.SDK_INT < 18 ? R.string.error_drm_not_supported
+    int errorStringId = Util.SDK_INT < 18 ? R.string.error_drm_not_supported
         : e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-        ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown);
-    Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
+        ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;
+    showToast(errorStringId);
   }
 
   /**
@@ -416,7 +415,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       }
     }
     if (errorString != null) {
-      Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
+      showToast(errorString);
     }
     playerNeedsSource = true;
     updateButtonVisibilities();
@@ -440,8 +439,24 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // DefaultTrackSelector.EventListener implementation
 
   @Override
-  public void onTracksChanged(TrackInfo trackSet) {
+  public void onTracksChanged(TrackInfo trackInfo) {
     updateButtonVisibilities();
+    // Print toasts if there exist only unplayable video or audio tracks.
+    int videoRendererSupport = TrackInfo.RENDERER_SUPPORT_NO_TRACKS;
+    int audioRendererSupport = TrackInfo.RENDERER_SUPPORT_NO_TRACKS;
+    for (int i = 0; i < trackInfo.rendererCount; i++) {
+      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
+        videoRendererSupport = Math.max(videoRendererSupport, trackInfo.getRendererSupport(i));
+      } else if (player.getRendererType(i) == C.TRACK_TYPE_AUDIO) {
+        audioRendererSupport = Math.max(audioRendererSupport, trackInfo.getRendererSupport(i));
+      }
+    }
+    if (videoRendererSupport == TrackInfo.RENDERER_SUPPORT_UNPLAYABLE_TRACKS) {
+      showToast(R.string.error_unsupported_video);
+    }
+    if (audioRendererSupport == TrackInfo.RENDERER_SUPPORT_UNPLAYABLE_TRACKS) {
+      showToast(R.string.error_unsupported_audio);
+    }
   }
 
   // User controls
@@ -571,6 +586,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     CaptioningManager captioningManager =
         (CaptioningManager) getSystemService(Context.CAPTIONING_SERVICE);
     return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
+  }
+
+  private void showToast(int messageId) {
+    showToast(getString(messageId));
+  }
+
+  private void showToast(String message) {
+    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
   }
 
   private static final class KeyCompatibleMediaController extends MediaController {

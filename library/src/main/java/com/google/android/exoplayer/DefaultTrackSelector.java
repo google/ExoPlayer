@@ -428,6 +428,19 @@ public final class DefaultTrackSelector extends TrackSelector implements
   public static final class TrackInfo {
 
     /**
+     * The renderer does not have any associated tracks.
+     */
+    public static final int RENDERER_SUPPORT_NO_TRACKS = 0;
+    /**
+     * The renderer has associated tracks, but cannot play any of them.
+     */
+    public static final int RENDERER_SUPPORT_UNPLAYABLE_TRACKS = 1;
+    /**
+     * The renderer has associated tracks, and can play at least one of them.
+     */
+    public static final int RENDERER_SUPPORT_PLAYABLE_TRACKS = 2;
+
+    /**
      * The number of renderers.
      */
     public final int rendererCount;
@@ -459,7 +472,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
     }
 
     /**
-     * Gets the array of {@link TrackGroup}s that belong to the renderer at a specified index.
+     * Gets the array of {@link TrackGroup}s associated to the renderer at a specified index.
      *
      * @param rendererIndex The renderer index.
      * @return The corresponding {@link TrackGroup}s.
@@ -476,6 +489,28 @@ public final class DefaultTrackSelector extends TrackSelector implements
      */
     public TrackSelection getTrackSelection(int rendererIndex) {
       return trackSelections[rendererIndex];
+    }
+
+    /**
+     * Gets the extent to which a renderer can support playback of the tracks associated to it.
+     *
+     * @param rendererIndex The renderer index.
+     * @return One of {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS},
+     *     {@link #RENDERER_SUPPORT_UNPLAYABLE_TRACKS} and {@link #RENDERER_SUPPORT_NO_TRACKS}.
+     */
+    public int getRendererSupport(int rendererIndex) {
+      boolean hasTracks = false;
+      int[][] rendererFormatSupport = formatSupport[rendererIndex];
+      for (int i = 0; i < rendererFormatSupport.length; i++) {
+        for (int j = 0; j < rendererFormatSupport[i].length; j++) {
+          hasTracks = true;
+          if ((rendererFormatSupport[i][j] & TrackRenderer.FORMAT_SUPPORT_MASK)
+              == TrackRenderer.FORMAT_HANDLED) {
+            return RENDERER_SUPPORT_PLAYABLE_TRACKS;
+          }
+        }
+      }
+      return hasTracks ? RENDERER_SUPPORT_UNPLAYABLE_TRACKS : RENDERER_SUPPORT_NO_TRACKS;
     }
 
     /**
