@@ -112,7 +112,7 @@ public class HlsChunkSource {
     evaluation = new Evaluation();
     variantPlaylists = new HlsMediaPlaylist[variants.length];
     variantLastPlaylistLoadTimesMs = new long[variants.length];
-    selectTracks(new int[] {0});
+    selectTracks(new int[] {0}, false);
   }
 
   /**
@@ -187,11 +187,9 @@ public class HlsChunkSource {
    * This method should only be called after the source has been prepared.
    *
    * @param tracks The track indices.
-   * @return True if one or more tracks was unselected. False otherwise.
+   * @param isFirstTrackSelection True if this is the first selection, false otherwise.
    */
-  public boolean selectTracks(int[] tracks) {
-    Variant[] oldEnabledVariants = enabledVariants;
-
+  public void selectTracks(int[] tracks, boolean isFirstTrackSelection) {
     // Construct and sort the enabled variants.
     enabledVariants = new Variant[tracks.length];
     for (int i = 0; i < tracks.length; i++) {
@@ -217,16 +215,10 @@ public class HlsChunkSource {
       }
       // TODO[REFACTOR]: We need to disable this at some point.
       adaptiveFormatEvaluator.enable(formats);
-    }
-
-    if (oldEnabledVariants != null) {
-      for (Variant oldVariant : oldEnabledVariants) {
-        if (!Util.contains(enabledVariants, oldVariant)) {
-          return true;
-        }
+      if (!isFirstTrackSelection || !Util.contains(formats, evaluation.format)) {
+        evaluation.format = null;
       }
     }
-    return false;
   }
 
   /**

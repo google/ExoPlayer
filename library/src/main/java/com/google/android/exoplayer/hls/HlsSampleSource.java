@@ -163,7 +163,7 @@ public final class HlsSampleSource implements SampleSource,
     int enabledTrackStreamWrapperCount = 0;
     for (int i = 0; i < trackStreamWrappers.length; i++) {
       selectedTrackCounts[i] += selectTracks(trackStreamWrappers[i], oldStreams, newSelections,
-          positionUs, newStreams);
+          newStreams);
       if (selectedTrackCounts[i] > 0) {
         enabledTrackStreamWrapperCount++;
       }
@@ -175,6 +175,9 @@ public final class HlsSampleSource implements SampleSource,
       if (selectedTrackCounts[i] > 0) {
         enabledTrackStreamWrappers[enabledTrackStreamWrapperCount++] = trackStreamWrappers[i];
       }
+    }
+    if (enabledTrackStreamWrapperCount > 0 && seenFirstTrackSelection && !newSelections.isEmpty()) {
+      seekToUs(positionUs);
     }
     seenFirstTrackSelection = true;
     return newStreams;
@@ -220,7 +223,7 @@ public final class HlsSampleSource implements SampleSource,
     timestampAdjusterProvider.reset();
     for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
       trackStreamWrapper.setReadingEnabled(false);
-      trackStreamWrapper.seekToUs(positionUs);
+      trackStreamWrapper.restartFrom(positionUs);
     }
   }
 
@@ -335,7 +338,7 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   private int selectTracks(HlsTrackStreamWrapper trackStreamWrapper,
-      List<TrackStream> allOldStreams, List<TrackSelection> allNewSelections, long positionUs,
+      List<TrackStream> allOldStreams, List<TrackSelection> allNewSelections,
       TrackStream[] allNewStreams) {
     // Get the subset of the old streams for the source.
     ArrayList<TrackStream> oldStreams = new ArrayList<>();
@@ -363,7 +366,7 @@ public final class HlsSampleSource implements SampleSource,
     }
     // Perform the selection.
     TrackStream[] newStreams = trackStreamWrapper.selectTracks(oldStreams, newSelections,
-        positionUs);
+        !seenFirstTrackSelection);
     for (int j = 0; j < newStreams.length; j++) {
       allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
       trackStreamSources.put(newStreams[j], trackStreamWrapper);

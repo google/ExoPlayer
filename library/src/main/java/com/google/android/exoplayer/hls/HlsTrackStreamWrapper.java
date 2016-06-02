@@ -69,7 +69,6 @@ import java.util.List;
   private volatile boolean sampleQueuesBuilt;
 
   private boolean prepared;
-  private boolean seenFirstTrackSelection;
   private boolean readingEnabled;
   private int enabledTrackCount;
   private Format downstreamFormat;
@@ -171,7 +170,7 @@ import java.util.List;
   }
 
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
+      List<TrackSelection> newSelections, boolean isFirstTrackSelection) {
     Assertions.checkState(prepared);
     boolean tracksWereEnabled = enabledTrackCount > 0;
     // Unselect old tracks.
@@ -180,7 +179,6 @@ import java.util.List;
       setTrackGroupEnabledState(group, false);
     }
     // Select new tracks.
-    boolean primaryTracksDeselected = false;
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
     for (int i = 0; i < newStreams.length; i++) {
       TrackSelection selection = newSelections.get(i);
@@ -189,7 +187,7 @@ import java.util.List;
       setTrackGroupEnabledState(group, true);
       sampleQueues.valueAt(group).needDownstreamFormat();
       if (group == primaryTrackGroupIndex) {
-        primaryTracksDeselected |= chunkSource.selectTracks(tracks);
+        chunkSource.selectTracks(tracks, isFirstTrackSelection);
       }
       newStreams[i] = new TrackStreamImpl(group);
     }
@@ -207,15 +205,9 @@ import java.util.List;
         clearState();
         loadControl.trimAllocator();
       }
-    } else {
-      if (!tracksWereEnabled) {
-        loadControl.register(this, bufferSizeContribution);
-      }
-      if (primaryTracksDeselected || (seenFirstTrackSelection && newStreams.length > 0)) {
-        seekToInternal(positionUs);
-      }
+    } else if (!tracksWereEnabled) {
+      loadControl.register(this, bufferSizeContribution);
     }
-    seenFirstTrackSelection = true;
     return newStreams;
   }
 
@@ -253,8 +245,17 @@ import java.util.List;
     }
   }
 
-  public void seekToUs(long positionUs) {
-    seekToInternal(positionUs);
+  public void restartFrom(long positionUs) {
+    lastSeekPositionUs = positionUs;
+    downstreamPositionUs = positionUs;
+    pendingResetPositionUs = positionUs;
+    loadingFinished = false;
+    if (loader.isLoading()) {
+      loader.cancelLoading();
+    } else {
+      clearState();
+      maybeStartLoading();
+    }
   }
 
   public void release() {
@@ -500,17 +501,6 @@ import java.util.List;
         containerFormat.width, containerFormat.height, 0, containerFormat.language);
   }
 
-  /**
-   * Performs a seek. The operation is performed even if the seek is to the current position.
-   *
-   * @param positionUs The position to seek to.
-   */
-  private void seekToInternal(long positionUs) {
-    lastSeekPositionUs = positionUs;
-    downstreamPositionUs = positionUs;
-    restartFrom(positionUs);
-  }
-
   private void discardSamplesForDisabledTracks() {
     if (!prepared) {
       return;
@@ -519,17 +509,6 @@ import java.util.List;
       if (!groupEnabledStates[i]) {
         sampleQueues.valueAt(i).skipAllSamples();
       }
-    }
-  }
-
-  private void restartFrom(long positionUs) {
-    pendingResetPositionUs = positionUs;
-    loadingFinished = false;
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      clearState();
-      maybeStartLoading();
     }
   }
 
