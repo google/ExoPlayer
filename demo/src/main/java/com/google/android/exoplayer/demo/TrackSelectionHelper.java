@@ -206,6 +206,7 @@ import java.util.Locale;
           if (override.length == 1) {
             // The last track is being removed, so the override becomes empty.
             override = null;
+            isDisabled = true;
           } else {
             int[] tracks = new int[override.length - 1];
             int trackCount = 0;
