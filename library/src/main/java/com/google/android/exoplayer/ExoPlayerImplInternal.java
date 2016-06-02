@@ -516,7 +516,12 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
     }
     if (source != null) {
-      source.release();
+      try {
+        source.release();
+      } catch (RuntimeException e) {
+        // There's nothing we can do.
+        Log.e(TAG, "Source release failed.", e);
+      }
       source = null;
     }
   }
