@@ -306,13 +306,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("createByCodecName(" + codecName + ")");
+      TraceUtil.beginSection("createCodec:" + codecName);
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
       configureCodec(codec, format, mediaCrypto);
       TraceUtil.endSection();
-      TraceUtil.beginSection("codec.start()");
+      TraceUtil.beginSection("startCodec");
       codec.start();
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();

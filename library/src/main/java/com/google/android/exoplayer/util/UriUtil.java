@@ -116,7 +116,7 @@ public final class UriUtil {
       return removeDotSegments(uri, baseLimit + refIndices[PATH], baseLimit + refIndices[QUERY]);
     }
 
-    if (refIndices[PATH] != refIndices[QUERY] && referenceUri.charAt(refIndices[PATH]) == '/') {
+    if (referenceUri.charAt(refIndices[PATH]) == '/') {
       // The reference path is rooted. The target is the base scheme and authority (if any), plus
       // the reference.
       uri.append(baseUri, 0, baseIndices[PATH]).append(referenceUri);

@@ -27,6 +27,7 @@ import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.VideoTrackRendererEventListener;
 import com.google.android.exoplayer.VideoTrackRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.TraceUtil;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -152,15 +153,19 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       if (decoder == null) {
         // If we don't have a decoder yet, we need to instantiate one.
         long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+        TraceUtil.beginSection("createVpxDecoder");
         decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
         decoder.setOutputMode(outputMode);
+        TraceUtil.endSection();
         long codecInitializedTimestamp = SystemClock.elapsedRealtime();
         eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
             codecInitializedTimestamp - codecInitializingTimestamp);
         codecCounters.codecInitCount++;
       }
+      TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs)) {}
       while (feedInputBuffer()) {}
+      TraceUtil.endSection();
     } catch (VpxDecoderException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }

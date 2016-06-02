@@ -28,6 +28,7 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.TraceUtil;
 
 import android.media.PlaybackParams;
 import android.os.Handler;
@@ -98,7 +99,9 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     if (decoder == null) {
       try {
         long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+        TraceUtil.beginSection("createAudioDecoder");
         decoder = createDecoder(inputFormat);
+        TraceUtil.endSection();
         long codecInitializedTimestamp = SystemClock.elapsedRealtime();
         eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
             codecInitializedTimestamp - codecInitializingTimestamp);
@@ -110,8 +113,10 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
     // Rendering loop.
     try {
+      TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer()) {}
       while (feedInputBuffer()) {}
+      TraceUtil.endSection();
     } catch (AudioTrack.InitializationException | AudioTrack.WriteException
         | AudioDecoderException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());

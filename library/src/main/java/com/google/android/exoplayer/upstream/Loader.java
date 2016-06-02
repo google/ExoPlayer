@@ -251,7 +251,7 @@ public final class Loader {
       try {
         executorThread = Thread.currentThread();
         if (!loadable.isLoadCanceled()) {
-          TraceUtil.beginSection(loadable.getClass().getSimpleName() + ".load()");
+          TraceUtil.beginSection("load:" + loadable.getClass().getSimpleName());
           try {
             loadable.load();
           } finally {

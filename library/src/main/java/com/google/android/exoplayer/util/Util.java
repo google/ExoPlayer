@@ -20,10 +20,8 @@ import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
@@ -46,7 +44,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -117,17 +114,6 @@ public final class Util {
   private static final long MAX_BYTES_TO_DRAIN = 2048;
 
   private Util() {}
-
-  /**
-   * Returns whether the device is an AndroidTV.
-   *
-   * @param context A context.
-   * @return True if the device is an AndroidTV. False otherwise.
-   */
-  @SuppressLint("InlinedApi")
-  public static boolean isAndroidTv(Context context) {
-    return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
-  }
 
   /**
    * Converts microseconds to milliseconds (rounding down).
@@ -206,21 +192,6 @@ public final class Util {
    */
   public static ExecutorService newSingleThreadExecutor(final String threadName) {
     return Executors.newSingleThreadExecutor(new ThreadFactory() {
-      @Override
-      public Thread newThread(Runnable r) {
-        return new Thread(r, threadName);
-      }
-    });
-  }
-
-  /**
-   * Instantiates a new single threaded scheduled executor whose thread has the specified name.
-   *
-   * @param threadName The name of the thread.
-   * @return The executor.
-   */
-  public static ScheduledExecutorService newSingleThreadScheduledExecutor(final String threadName) {
-    return Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
       @Override
       public Thread newThread(Runnable r) {
         return new Thread(r, threadName);
@@ -598,10 +569,10 @@ public final class Util {
         unexpectedEndOfInput.setAccessible(true);
         unexpectedEndOfInput.invoke(inputStream);
       }
-    } catch (IOException e) {
-      // The connection didn't ever have an input stream, or it was closed already.
     } catch (Exception e) {
-      // Something went wrong. The device probably isn't using okhttp.
+      // If an IOException then the connection didn't ever have an input stream, or it was closed
+      // already. If another type of exception then something went wrong, most likely the device
+      // isn't using okhttp.
     }
   }
 
@@ -658,22 +629,6 @@ public final class Util {
    */
   public static long getLong(int topInteger, int bottomInteger) {
     return ((long) topInteger << 32) | (bottomInteger & 0xFFFFFFFFL);
-  }
-
-  /**
-   * Returns a hex string representation of the data provided.
-   *
-   * @param data The byte array containing the data to be turned into a hex string.
-   * @param beginIndex The begin index, inclusive.
-   * @param endIndex The end index, exclusive.
-   * @return A string containing the hex representation of the data provided.
-   */
-  public static String getHexStringFromBytes(byte[] data, int beginIndex, int endIndex) {
-    StringBuilder dataStringBuilder = new StringBuilder(endIndex - beginIndex);
-    for (int i = beginIndex; i < endIndex; i++) {
-      dataStringBuilder.append(String.format(Locale.US, "%02X", data[i]));
-    }
-    return dataStringBuilder.toString();
   }
 
   /**
