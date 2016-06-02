@@ -23,6 +23,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.mkv.StreamBuilder.ContentEncodingSettings;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer.testutil.FakeTrackOutput;
@@ -796,4 +797,12 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
     return data;
   }
 
+  public void testMkvSample() throws Exception {
+    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new MatroskaExtractor();
+      }
+    }, "mkv/sample.mkv", getInstrumentation());
+  }
 }

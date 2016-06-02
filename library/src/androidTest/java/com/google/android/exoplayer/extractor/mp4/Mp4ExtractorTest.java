@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer.testutil.FakeTrackOutput;
@@ -25,7 +26,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
-import junit.framework.TestCase;
+import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -36,7 +37,7 @@ import java.util.List;
  * Tests for {@link Mp4Extractor}.
  */
 @TargetApi(16)
-public final class Mp4ExtractorTest extends TestCase {
+public final class Mp4ExtractorTest extends InstrumentationTestCase {
 
   /** String of hexadecimal bytes containing the video stsd payload from an AVC video. */
   private static final byte[] VIDEO_STSD_PAYLOAD = Util.getBytesFromHexString(
@@ -494,6 +495,15 @@ public final class Mp4ExtractorTest extends TestCase {
       }
     }
 
+  }
+
+  public void testMp4Sample() throws Exception {
+    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new Mp4Extractor();
+      }
+    }, "mp4/sample.mp4", getInstrumentation());
   }
 
 }
