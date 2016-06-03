@@ -18,14 +18,14 @@ package com.google.android.exoplayer.upstream;
 import android.content.Context;
 
 /**
- * A {@link DataSourceFactory} that produces {@link DefaultDataSource} instances.
+ * A {@link DataSourceFactory} that produces {@link DefaultDataSource} instances that delegate to
+ * {@link DefaultHttpDataSource}s for non-file/asset/content URIs.
  */
 public final class DefaultDataSourceFactory implements DataSourceFactory {
 
   private final Context context;
   private final String userAgent;
   private final boolean allowCrossProtocolRedirects;
-  private final DataSource httpDataSource;
 
   public DefaultDataSourceFactory(Context context, String userAgent) {
     this(context, userAgent, false);
@@ -36,25 +36,16 @@ public final class DefaultDataSourceFactory implements DataSourceFactory {
     this.context = context.getApplicationContext();
     this.userAgent = userAgent;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
-    this.httpDataSource = null;
-  }
-
-  public DefaultDataSourceFactory(Context context, DataSource httpDataSource) {
-    this.context = context.getApplicationContext();
-    this.httpDataSource = httpDataSource;
-    this.userAgent = null;
-    this.allowCrossProtocolRedirects = false;
   }
 
   @Override
-  public DataSource createDataSource() {
+  public DefaultDataSource createDataSource() {
     return createDataSource(null);
   }
 
   @Override
-  public DataSource createDataSource(TransferListener listener) {
-    return httpDataSource != null ? new DefaultDataSource(context, listener, httpDataSource)
-        : new DefaultDataSource(context, listener, userAgent, allowCrossProtocolRedirects);
+  public DefaultDataSource createDataSource(TransferListener listener) {
+    return new DefaultDataSource(context, listener, userAgent, allowCrossProtocolRedirects);
   }
 
 }

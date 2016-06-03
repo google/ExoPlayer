@@ -27,12 +27,15 @@ import java.io.IOException;
  * A {@link DataSource} that supports multiple URI schemes. The supported schemes are:
  *
  * <ul>
- * <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4).
  * <li>file: For fetching data from a local file (e.g. file:///path/to/media/media.mp4, or just
  *     /path/to/media/media.mp4 because the implementation assumes that a URI without a scheme is a
  *     local file URI).
  * <li>asset: For fetching data from an asset in the application's apk (e.g. asset:///media.mp4).
  * <li>content: For fetching data from a content URI (e.g. content://authority/path/123).
+ * <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4), if
+ *     constructed using {@link #DefaultDataSource(Context, TransferListener, String, boolean)}, or
+ *     any other schemes supported by a base data source if constructed using
+ *     {@link #DefaultDataSource(Context, TransferListener, DataSource)}.
  * </ul>
  */
 public final class DefaultDataSource implements DataSource {
@@ -40,7 +43,7 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_ASSET = "asset";
   private static final String SCHEME_CONTENT = "content";
 
-  private final DataSource defaultDataSource;
+  private final DataSource baseDataSource;
   private final DataSource fileDataSource;
   private final DataSource assetDataSource;
   private final DataSource contentDataSource;
@@ -70,12 +73,11 @@ public final class DefaultDataSource implements DataSource {
    *
    * @param context A context.
    * @param listener An optional {@link TransferListener}.
-   * @param defaultDataSource A {@link DataSource} to use for URI schemes other than file, asset and
+   * @param baseDataSource A {@link DataSource} to use for URI schemes other than file, asset and
    *     content. This {@link DataSource} should normally support at least http(s).
    */
-  public DefaultDataSource(Context context, TransferListener listener,
-      DataSource defaultDataSource) {
-    this.defaultDataSource = Assertions.checkNotNull(defaultDataSource);
+  public DefaultDataSource(Context context, TransferListener listener, DataSource baseDataSource) {
+    this.baseDataSource = Assertions.checkNotNull(baseDataSource);
     this.fileDataSource = new FileDataSource(listener);
     this.assetDataSource = new AssetDataSource(context, listener);
     this.contentDataSource = new ContentDataSource(context, listener);
@@ -97,7 +99,7 @@ public final class DefaultDataSource implements DataSource {
     } else if (SCHEME_CONTENT.equals(scheme)) {
       dataSource = contentDataSource;
     } else {
-      dataSource = defaultDataSource;
+      dataSource = baseDataSource;
     }
     // Open the source and return.
     return dataSource.open(dataSpec);
