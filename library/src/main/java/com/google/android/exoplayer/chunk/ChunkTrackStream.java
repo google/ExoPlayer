@@ -169,7 +169,6 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
    * This method should be called when the stream is no longer required.
    */
   public void release() {
-    released = true;
     chunkSource.release();
     sampleQueue.disable();
     loadControl.unregister(this);
