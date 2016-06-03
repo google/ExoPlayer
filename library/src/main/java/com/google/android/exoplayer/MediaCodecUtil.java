@@ -153,15 +153,24 @@ public final class MediaCodecUtil {
         if (isCodecUsableDecoder(codecInfo, codecName, secureDecodersExplicit)) {
           for (String supportedType : codecInfo.getSupportedTypes()) {
             if (supportedType.equalsIgnoreCase(mimeType)) {
-              CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
-              boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
-              if ((secureDecodersExplicit && key.secure == secure)
-                  || (!secureDecodersExplicit && !key.secure)) {
-                decoderInfos.add(new DecoderInfo(codecName, capabilities));
-              } else if (!secureDecodersExplicit && secure) {
-                decoderInfos.add(new DecoderInfo(codecName + ".secure", capabilities));
-                // It only makes sense to have one synthesized secure decoder, return immediately.
-                return decoderInfos;
+              try {
+                CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
+                boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
+                if ((secureDecodersExplicit && key.secure == secure)
+                    || (!secureDecodersExplicit && !key.secure)) {
+                  decoderInfos.add(new DecoderInfo(codecName, capabilities));
+                } else if (!secureDecodersExplicit && secure) {
+                  decoderInfos.add(new DecoderInfo(codecName + ".secure", capabilities));
+                  // It only makes sense to have one synthesized secure decoder, return immediately.
+                  return decoderInfos;
+                }
+              } catch (Exception e) {
+                if (Util.SDK_INT <= 23 && !decoderInfos.isEmpty()) {
+                  // Suppress error querying secondary codec capabilities up to API level 23.
+                  Log.e(TAG, "Skipping codec " + codecName + " (failed to query capabilities)");
+                } else {
+                  throw e;
+                }
               }
             }
           }

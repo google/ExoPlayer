@@ -30,6 +30,7 @@ import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -102,6 +103,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
   }
+
+  private static final String TAG = "MediaCodecRenderer";
 
   /**
    * If the {@link MediaCodec} is hotswapped (i.e. replaced during playback), this is the period of
@@ -262,7 +265,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     String mimeType = format.sampleMimeType;
     MediaCrypto mediaCrypto = null;
-    boolean requiresSecureDecoder = false;
+    boolean drmSessionRequiresSecureDecoder = false;
     if (format.drmInitData != null) {
       if (drmSessionManager == null) {
         throw ExoPlaybackException.createForRenderer(
@@ -277,7 +280,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       } else if (drmSessionState == DrmSession.STATE_OPENED
           || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
         mediaCrypto = drmSession.getMediaCrypto();
-        requiresSecureDecoder = drmSession.requiresSecureDecoderComponent(mimeType);
+        drmSessionRequiresSecureDecoder = drmSession.requiresSecureDecoderComponent(mimeType);
       } else {
         // The drm session isn't open yet.
         return;
@@ -286,14 +289,26 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     DecoderInfo decoderInfo = null;
     try {
-      decoderInfo = getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
+      decoderInfo = getDecoderInfo(mediaCodecSelector, format, drmSessionRequiresSecureDecoder);
+      if (decoderInfo == null && drmSessionRequiresSecureDecoder) {
+        // The drm session indicates that a secure decoder is required, but the device does not have
+        // one. Assuming that supportsFormat indicated support for the media being played, we know
+        // that it does not require a secure output path. Most CDM implementations allow playback to
+        // proceed with a non-secure decoder in this case, so we try our luck.
+        decoderInfo = getDecoderInfo(mediaCodecSelector, format, false);
+        if (decoderInfo != null) {
+          Log.w(TAG, "Drm session requires secure decoder for " + mimeType + ", but "
+              + "no secure decoder available. Trying to proceed with " + decoderInfo.name + ".");
+        }
+      }
     } catch (DecoderQueryException e) {
-      throwDecoderInitError(new DecoderInitializationException(format, e, requiresSecureDecoder,
-          DecoderInitializationException.DECODER_QUERY_ERROR));
+      throwDecoderInitError(new DecoderInitializationException(format, e,
+          drmSessionRequiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
     }
 
     if (decoderInfo == null) {
-      throwDecoderInitError(new DecoderInitializationException(format, null, requiresSecureDecoder,
+      throwDecoderInitError(new DecoderInitializationException(format, null,
+          drmSessionRequiresSecureDecoder,
           DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
     }
 
@@ -321,8 +336,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
     } catch (Exception e) {
-      throwDecoderInitError(new DecoderInitializationException(format, e, requiresSecureDecoder,
-          codecName));
+      throwDecoderInitError(new DecoderInitializationException(format, e,
+          drmSessionRequiresSecureDecoder, codecName));
     }
     codecHotswapDeadlineMs = getState() == TrackRenderer.STATE_STARTED
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;

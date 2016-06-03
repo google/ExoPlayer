@@ -148,8 +148,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | FORMAT_HANDLED;
     }
-    // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
-    // drmSession is able to make use of a secure decoder.
     DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {

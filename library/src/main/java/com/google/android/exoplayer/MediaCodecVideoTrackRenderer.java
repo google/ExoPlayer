@@ -42,9 +42,6 @@ import java.nio.ByteBuffer;
 public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   private static final String TAG = "MediaCodecVideoRenderer";
-
-  // TODO: Use MediaFormat constants if these get exposed through the API. See
-  // [Internal: b/14127601].
   private static final String KEY_CROP_LEFT = "crop-left";
   private static final String KEY_CROP_RIGHT = "crop-right";
   private static final String KEY_CROP_BOTTOM = "crop-bottom";
@@ -176,8 +173,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     if (!MimeTypes.isVideo(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
-    // drmSession is able to make use of a secure decoder.
     DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {
