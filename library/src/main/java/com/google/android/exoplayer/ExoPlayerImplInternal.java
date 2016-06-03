@@ -361,6 +361,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
       updateBufferedPositionUs();
       source.continueBuffering(positionUs);
+    } else {
+      updatePositionUs();
     }
 
     boolean allRenderersEnded = true;
