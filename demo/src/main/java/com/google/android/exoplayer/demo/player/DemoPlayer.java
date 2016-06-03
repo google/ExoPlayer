@@ -33,7 +33,6 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
