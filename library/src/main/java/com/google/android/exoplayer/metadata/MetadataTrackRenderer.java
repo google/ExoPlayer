@@ -98,7 +98,7 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
   }
 
   @Override
-  protected void reset(long positionUs) {
+  protected void onReset(long positionUs) {
     pendingMetadata = null;
     inputStreamEnded = false;
   }

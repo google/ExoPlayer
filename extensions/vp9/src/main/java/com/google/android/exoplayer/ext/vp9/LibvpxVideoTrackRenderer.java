@@ -326,7 +326,13 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void reset(long positionUs) {
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    codecCounters.reset();
+    eventDispatcher.enabled(codecCounters);
+  }
+
+  @Override
+  protected void onReset(long positionUs) {
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;
@@ -334,12 +340,6 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     if (decoder != null) {
       flushDecoder();
     }
-  }
-
-  @Override
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    codecCounters.reset();
-    eventDispatcher.enabled(codecCounters);
   }
 
   @Override

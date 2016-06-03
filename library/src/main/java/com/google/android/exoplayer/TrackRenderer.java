@@ -217,6 +217,28 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
+   * Called when a reset is encountered, and also when the renderer is enabled.
+   *
+   * @param positionUs The playback position in microseconds.
+   * @throws ExoPlaybackException If an error occurs handling the reset.
+   */
+  /* package */ final void reset(long positionUs) throws ExoPlaybackException {
+    onReset(positionUs);
+  }
+
+  /**
+   * Called when a reset is encountered, and also when the renderer is enabled.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param positionUs The playback position in microseconds.
+   * @throws ExoPlaybackException If an error occurs handling the reset.
+   */
+  protected void onReset(long positionUs) throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
    * Starts the renderer, meaning that calls to {@link #render(long, long)} will cause media to be
    * rendered.
    *
@@ -347,17 +369,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   protected abstract int supportsFormat(Format format) throws ExoPlaybackException;
-
-  /**
-   * Invoked when a reset is encountered, and also when the renderer is enabled.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
-   *
-   * @param positionUs The playback position in microseconds.
-   * @throws ExoPlaybackException If an error occurs handling the reset.
-   */
-  protected abstract void reset(long positionUs) throws ExoPlaybackException;
 
   /**
    * Incrementally renders the {@link TrackStream}.

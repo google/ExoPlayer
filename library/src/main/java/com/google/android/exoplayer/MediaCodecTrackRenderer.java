@@ -341,6 +341,15 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
+  protected void onReset(long positionUs) throws ExoPlaybackException {
+    inputStreamEnded = false;
+    outputStreamEnded = false;
+    if (codec != null) {
+      flushCodec();
+    }
+  }
+
+  @Override
   protected void onDisabled() {
     format = null;
     try {
@@ -388,15 +397,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
           codec = null;
         }
       }
-    }
-  }
-
-  @Override
-  protected void reset(long positionUs) throws ExoPlaybackException {
-    inputStreamEnded = false;
-    outputStreamEnded = false;
-    if (codec != null) {
-      flushCodec();
     }
   }
 

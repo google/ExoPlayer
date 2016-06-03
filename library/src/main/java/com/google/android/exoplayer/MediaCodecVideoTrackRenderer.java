@@ -236,8 +236,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void reset(long positionUs) throws ExoPlaybackException {
-    super.reset(positionUs);
+  protected void onReset(long positionUs) throws ExoPlaybackException {
+    super.onReset(positionUs);
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineMs = -1;

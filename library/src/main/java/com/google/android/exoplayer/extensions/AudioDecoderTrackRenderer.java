@@ -277,18 +277,6 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
     return currentPositionUs;
   }
 
-  @Override
-  protected void reset(long positionUs) {
-    audioTrack.reset();
-    currentPositionUs = positionUs;
-    allowPositionDiscontinuity = true;
-    inputStreamEnded = false;
-    outputStreamEnded = false;
-    if (decoder != null) {
-      flushDecoder();
-    }
-  }
-
   /**
    * Invoked when the audio session id becomes known. Once the id is known it will not change
    * (and hence this method will not be invoked again) unless the renderer is disabled and then
@@ -306,6 +294,18 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
+  }
+
+  @Override
+  protected void onReset(long positionUs) {
+    audioTrack.reset();
+    currentPositionUs = positionUs;
+    allowPositionDiscontinuity = true;
+    inputStreamEnded = false;
+    outputStreamEnded = false;
+    if (decoder != null) {
+      flushDecoder();
+    }
   }
 
   @Override

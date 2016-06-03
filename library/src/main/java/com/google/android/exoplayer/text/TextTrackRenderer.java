@@ -112,7 +112,7 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected void reset(long positionUs) {
+  protected void onReset(long positionUs) {
     inputStreamEnded = false;
     outputStreamEnded = false;
     if (subtitle != null) {
