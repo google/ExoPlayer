@@ -229,12 +229,19 @@ import java.util.List;
         remainingSamplesInChunk--;
       }
 
+      Assertions.checkArgument(remainingSamplesAtTimestampOffset == 0);
+      // Remove trailing ctts entries with 0-valued sample counts.
+      while (remainingTimestampOffsetChanges > 0) {
+        Assertions.checkArgument(ctts.readUnsignedIntToInt() == 0);
+        ctts.readInt(); // Ignore offset.
+        remainingTimestampOffsetChanges--;
+      }
+
       // Check all the expected samples have been seen.
       Assertions.checkArgument(remainingSynchronizationSamples == 0);
       Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
       Assertions.checkArgument(remainingSamplesInChunk == 0);
       Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
-      Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
     } else {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
       int[] chunkSampleCounts = new int[chunkIterator.length];
