@@ -39,11 +39,9 @@ public interface Allocator {
 
   /**
    * Hints to the {@link Allocator} that it should make a best effort to release any memory that it
-   * has allocated, beyond the specified target number of bytes.
-   *
-   * @param targetSize The target size in bytes.
+   * has allocated that it no longer requires.
    */
-  void trim(int targetSize);
+  void trim();
 
   /**
    * Blocks execution until the number of bytes allocated is not greater than the limit, or the

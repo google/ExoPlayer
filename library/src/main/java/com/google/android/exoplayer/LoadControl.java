@@ -48,15 +48,6 @@ public interface LoadControl {
   Allocator getAllocator();
 
   /**
-   * Hints to the control that it should consider trimming any unused memory being held in order
-   * to satisfy allocation requests.
-   * <p>
-   * This method is typically invoked by a recently unregistered loader, once it has released all
-   * of its allocations back to the {@link Allocator}.
-   */
-  void trimAllocator();
-
-  /**
    * Invoked by a loader to update the control with its current state.
    * <p>
    * This method must be called by a registered loader whenever its state changes. This is true

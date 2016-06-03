@@ -170,16 +170,11 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
    * This method should be called when the stream is no longer required.
    */
   public void release() {
-    chunkSource.release();
-    loadControl.unregister(this);
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      clearState();
-      loadControl.trimAllocator();
-    }
-    loader.release();
     released = true;
+    chunkSource.release();
+    sampleQueue.disable();
+    loadControl.unregister(this);
+    loader.release();
   }
 
   // TrackStream implementation.
@@ -242,9 +237,6 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
     eventDispatcher.loadCanceled(loadable.bytesLoaded());
     if (!released) {
       restartFrom(pendingResetPositionUs);
-    } else {
-      clearState();
-      loadControl.trimAllocator();
     }
   }
 
@@ -277,17 +269,13 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;
     loadingFinished = false;
+    mediaChunks.clear();
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
-      clearState();
+      sampleQueue.reset(true);
       maybeStartLoading();
     }
-  }
-
-  private void clearState() {
-    sampleQueue.clear();
-    mediaChunks.clear();
   }
 
   private void maybeStartLoading() {

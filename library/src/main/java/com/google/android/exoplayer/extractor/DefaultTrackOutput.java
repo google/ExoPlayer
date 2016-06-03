@@ -30,6 +30,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A {@link TrackOutput} that buffers extracted samples in a queue and allows for consumption from
@@ -39,6 +40,10 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
+  private static final int STATE_ENABLED = 0;
+  private static final int STATE_ENABLED_WRITING = 1;
+  private static final int STATE_DISABLED = 2;
+
   private final Allocator allocator;
   private final int allocationLength;
 
@@ -46,6 +51,7 @@ public final class DefaultTrackOutput implements TrackOutput {
   private final LinkedBlockingDeque<Allocation> dataQueue;
   private final BufferExtrasHolder extrasHolder;
   private final ParsableByteArray scratch;
+  private final AtomicInteger state;
 
   // Accessed only by the consuming thread.
   private long totalBytesDropped;
@@ -69,6 +75,7 @@ public final class DefaultTrackOutput implements TrackOutput {
     dataQueue = new LinkedBlockingDeque<>();
     extrasHolder = new BufferExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
+    state = new AtomicInteger();
     lastAllocationOffset = allocationLength;
     needKeyframe = true;
   }
@@ -76,26 +83,17 @@ public final class DefaultTrackOutput implements TrackOutput {
   // Called by the consuming thread, but only when there is no loading thread.
 
   /**
-   * Clears the buffer, returning all allocations to the allocator.
+   * Resets the output.
+   *
+   * @param enable True if the output should be enabled. False if it should be disabled.
    */
-  public void clear() {
-    infoQueue.clear();
-    while (!dataQueue.isEmpty()) {
-      allocator.release(dataQueue.remove());
+  public void reset(boolean enable) {
+    int previousState = state.getAndSet(enable ? STATE_ENABLED : STATE_DISABLED);
+    clearSampleData();
+    infoQueue.resetLargestParsedTimestamps();
+    if (previousState == STATE_DISABLED) {
+      downstreamFormat = null;
     }
-    totalBytesDropped = 0;
-    totalBytesWritten = 0;
-    lastAllocation = null;
-    lastAllocationOffset = allocationLength;
-    needKeyframe = true;
-  }
-
-  /**
-   * Indicates that {@link #readData(FormatHolder, DecoderInputBuffer, boolean, long)} should
-   * provide the sample format before any samples, even if it has already been provided.
-   */
-  public void needDownstreamFormat() {
-    downstreamFormat = null;
   }
 
   /**
@@ -152,6 +150,15 @@ public final class DefaultTrackOutput implements TrackOutput {
   // Called by the consuming thread.
 
   /**
+   * Disables buffering of sample data and metadata.
+   */
+  public void disable() {
+    if (state.getAndSet(STATE_DISABLED) == STATE_ENABLED) {
+      clearSampleData();
+    }
+  }
+
+  /**
    * Returns whether the buffer is empty.
    */
   public boolean isEmpty() {
@@ -173,28 +180,17 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Returns the largest sample timestamp that has been queued since the last {@link #clear()}.
+   * Returns the largest sample timestamp that has been queued since the last {@link #reset}.
    * <p>
    * Samples that were discarded by calling {@link #discardUpstreamSamples(int)} are not
    * considered as having been queued. Samples that were dequeued from the front of the queue are
    * considered as having been queued.
    *
-     * @return The largest sample timestamp that has been queued, or {@link Long#MIN_VALUE} if no
-     *     samples have been queued.
+   * @return The largest sample timestamp that has been queued, or {@link Long#MIN_VALUE} if no
+   *     samples have been queued.
    */
   public long getLargestQueuedTimestampUs() {
     return infoQueue.getLargestQueuedTimestampUs();
-  }
-
-  /**
-   * Skips all currently buffered samples.
-   */
-  public void skipAllSamples() {
-    long nextOffset = infoQueue.skipAllSamples();
-    if (nextOffset == -1) {
-      return;
-    }
-    dropDownstreamTo(nextOffset);
   }
 
   /**
@@ -417,22 +413,40 @@ public final class DefaultTrackOutput implements TrackOutput {
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    length = prepareForAppend(length);
-    int bytesAppended = input.read(lastAllocation.data,
-        lastAllocation.translateOffset(lastAllocationOffset), length);
-    if (bytesAppended == C.RESULT_END_OF_INPUT) {
-      if (allowEndOfInput) {
-        return C.RESULT_END_OF_INPUT;
+    if (!startWriteOperation()) {
+      int bytesSkipped = input.skip(length);
+      if (bytesSkipped == C.RESULT_END_OF_INPUT) {
+        if (allowEndOfInput) {
+          return C.RESULT_END_OF_INPUT;
+        }
+        throw new EOFException();
       }
-      throw new EOFException();
+      return bytesSkipped;
     }
-    lastAllocationOffset += bytesAppended;
-    totalBytesWritten += bytesAppended;
-    return bytesAppended;
+    try {
+      length = prepareForAppend(length);
+      int bytesAppended = input.read(lastAllocation.data,
+          lastAllocation.translateOffset(lastAllocationOffset), length);
+      if (bytesAppended == C.RESULT_END_OF_INPUT) {
+        if (allowEndOfInput) {
+          return C.RESULT_END_OF_INPUT;
+        }
+        throw new EOFException();
+      }
+      lastAllocationOffset += bytesAppended;
+      totalBytesWritten += bytesAppended;
+      return bytesAppended;
+    } finally {
+      endWriteOperation();
+    }
   }
 
   @Override
   public void sampleData(ParsableByteArray buffer, int length) {
+    if (!startWriteOperation()) {
+      buffer.skipBytes(length);
+      return;
+    }
     while (length > 0) {
       int thisAppendLength = prepareForAppend(length);
       buffer.readBytes(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
@@ -441,29 +455,63 @@ public final class DefaultTrackOutput implements TrackOutput {
       totalBytesWritten += thisAppendLength;
       length -= thisAppendLength;
     }
+    endWriteOperation();
   }
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-    if (pendingSplice) {
-      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !infoQueue.attemptSplice(timeUs)) {
-        return;
-      }
-      // TODO - We should be able to actually remove the data from the rolling buffer after a splice
-      // succeeds, but doing so is a little bit tricky; it requires moving data written after the
-      // last committed sample.
-      pendingSplice = false;
+    if (!startWriteOperation()) {
+      infoQueue.commitSampleTimestamp(timeUs);
+      return;
     }
-    if (needKeyframe) {
-      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
-        // TODO - As above, although this case is probably less worthwhile.
-        return;
+    try {
+      if (pendingSplice) {
+        if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !infoQueue.attemptSplice(timeUs)) {
+          return;
+        }
+        // TODO - We should be able to actually remove the data from the rolling buffer after a
+        // splice succeeds, but doing so is a little bit tricky; it requires moving data written
+        // after the last committed sample.
+        pendingSplice = false;
       }
-      needKeyframe = false;
+      if (needKeyframe) {
+        if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
+          // TODO - As above, although this case is probably less worthwhile.
+          return;
+        }
+        needKeyframe = false;
+      }
+      timeUs += sampleOffsetUs;
+      long absoluteOffset = totalBytesWritten - size - offset;
+      infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey);
+    } finally {
+      endWriteOperation();
     }
-    timeUs += sampleOffsetUs;
-    long absoluteOffset = totalBytesWritten - size - offset;
-    infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey);
+  }
+
+  // Private methods.
+
+  private boolean startWriteOperation() {
+    return state.compareAndSet(STATE_ENABLED, STATE_ENABLED_WRITING);
+  }
+
+  private void endWriteOperation() {
+    if (!state.compareAndSet(STATE_ENABLED_WRITING, STATE_ENABLED)) {
+      clearSampleData();
+    }
+  }
+
+  private void clearSampleData() {
+    infoQueue.clearSampleData();
+    while (!dataQueue.isEmpty()) {
+      allocator.release(dataQueue.remove());
+    }
+    allocator.trim();
+    totalBytesDropped = 0;
+    totalBytesWritten = 0;
+    lastAllocation = null;
+    lastAllocationOffset = allocationLength;
+    needKeyframe = true;
   }
 
   /**
@@ -533,16 +581,16 @@ public final class DefaultTrackOutput implements TrackOutput {
       largestQueuedTimestampUs = Long.MIN_VALUE;
     }
 
-    // Called by the consuming thread, but only when there is no loading thread.
-
-    /**
-     * Clears the queue.
-     */
-    public void clear() {
+    public void clearSampleData() {
       absoluteReadIndex = 0;
       relativeReadIndex = 0;
       relativeWriteIndex = 0;
       queueSize = 0;
+    }
+
+    // Called by the consuming thread, but only when there is no loading thread.
+
+    public void resetLargestParsedTimestamps() {
       largestDequeuedTimestampUs = Long.MIN_VALUE;
       largestQueuedTimestampUs = Long.MIN_VALUE;
     }
@@ -612,7 +660,7 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
 
     /**
-     * Returns the largest sample timestamp that has been queued since the last {@link #clear()}.
+     * Returns the largest sample timestamp that has been queued since the last {@link #reset}.
      * <p>
      * Samples that were discarded by calling {@link #discardUpstreamSamples(int)} are not
      * considered as having been queued. Samples that were dequeued from the front of the queue are
@@ -677,25 +725,6 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
 
     /**
-     * Skips all currently buffered samples.
-     *
-     * @return The absolute position of the first byte in the rolling buffer that may still be
-     *     required after skipping the samples, or -1 if no samples were skipped.
-     */
-    public synchronized long skipAllSamples() {
-      if (queueSize == 0) {
-        return -1;
-      }
-
-      relativeReadIndex = (relativeReadIndex + queueSize) % capacity;
-      absoluteReadIndex += queueSize;
-      queueSize = 0;
-
-      int lastReadIndex = (relativeReadIndex == 0 ? capacity : relativeReadIndex) - 1;
-      return sizes[lastReadIndex] + offsets[lastReadIndex];
-    }
-
-    /**
      * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
      *
      * @param timeUs The seek time.
@@ -751,13 +780,13 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     public synchronized void commitSample(long timeUs, int sampleFlags, long offset, int size,
         byte[] encryptionKey) {
+      commitSampleTimestamp(timeUs);
       timesUs[relativeWriteIndex] = timeUs;
       offsets[relativeWriteIndex] = offset;
       sizes[relativeWriteIndex] = size;
       flags[relativeWriteIndex] = sampleFlags;
       encryptionKeys[relativeWriteIndex] = encryptionKey;
       formats[relativeWriteIndex] = upstreamFormat;
-      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
       // Increment the write index.
       queueSize++;
       if (queueSize == capacity) {
@@ -800,6 +829,10 @@ public final class DefaultTrackOutput implements TrackOutput {
           relativeWriteIndex = 0;
         }
       }
+    }
+
+    public synchronized void commitSampleTimestamp(long timeUs) {
+      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
     }
 
     /**

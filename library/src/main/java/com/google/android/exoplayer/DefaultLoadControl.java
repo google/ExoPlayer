@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.upstream.Allocator;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.NetworkLock;
 
 import android.os.Handler;
@@ -64,7 +65,7 @@ public final class DefaultLoadControl implements LoadControl {
   private static final int BETWEEN_WATERMARKS = 1;
   private static final int BELOW_LOW_WATERMARK = 2;
 
-  private final Allocator allocator;
+  private final DefaultAllocator allocator;
   private final List<Object> loaders;
   private final HashMap<Object, LoaderState> loaderStates;
   private final Handler eventHandler;
@@ -84,21 +85,21 @@ public final class DefaultLoadControl implements LoadControl {
   /**
    * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
    *
-   * @param allocator The {@link Allocator} used by the loader.
+   * @param allocator The {@link DefaultAllocator} used by the loader.
    */
-  public DefaultLoadControl(Allocator allocator) {
+  public DefaultLoadControl(DefaultAllocator allocator) {
     this(allocator, null, null);
   }
 
   /**
    * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
    *
-   * @param allocator The {@link Allocator} used by the loader.
+   * @param allocator The {@link DefaultAllocator} used by the loader.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public DefaultLoadControl(Allocator allocator, Handler eventHandler,
+  public DefaultLoadControl(DefaultAllocator allocator, Handler eventHandler,
       EventListener eventListener) {
     this(allocator, eventHandler, eventListener, DEFAULT_LOW_WATERMARK_MS,
         DEFAULT_HIGH_WATERMARK_MS, DEFAULT_LOW_BUFFER_LOAD, DEFAULT_HIGH_BUFFER_LOAD);
@@ -107,7 +108,7 @@ public final class DefaultLoadControl implements LoadControl {
   /**
    * Constructs a new instance.
    *
-   * @param allocator The {@link Allocator} used by the loader.
+   * @param allocator The {@link DefaultAllocator} used by the loader.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -122,8 +123,9 @@ public final class DefaultLoadControl implements LoadControl {
    * @param highBufferLoad The minimum fraction of the buffer that must be utilized for the control
    *     to transition from the loading state to the draining state.
    */
-  public DefaultLoadControl(Allocator allocator, Handler eventHandler, EventListener eventListener,
-      int lowWatermarkMs, int highWatermarkMs, float lowBufferLoad, float highBufferLoad) {
+  public DefaultLoadControl(DefaultAllocator allocator, Handler eventHandler,
+      EventListener eventListener, int lowWatermarkMs, int highWatermarkMs, float lowBufferLoad,
+      float highBufferLoad) {
     this.allocator = allocator;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
@@ -140,6 +142,7 @@ public final class DefaultLoadControl implements LoadControl {
     loaders.add(loader);
     loaderStates.put(loader, new LoaderState(bufferSizeContribution));
     targetBufferSize += bufferSizeContribution;
+    allocator.setTargetBufferSize(targetBufferSize);
   }
 
   @Override
@@ -147,12 +150,8 @@ public final class DefaultLoadControl implements LoadControl {
     loaders.remove(loader);
     LoaderState state = loaderStates.remove(loader);
     targetBufferSize -= state.bufferSizeContribution;
+    allocator.setTargetBufferSize(targetBufferSize);
     updateControlState();
-  }
-
-  @Override
-  public void trimAllocator() {
-    allocator.trim(targetBufferSize);
   }
 
   @Override

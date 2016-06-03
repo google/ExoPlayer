@@ -68,7 +68,7 @@ import java.util.List;
  * from {@link Extractor#sniff(ExtractorInput)} will be used.
  */
 public final class ExtractorSampleSource implements SampleSource, ExtractorOutput,
-    Loader.Callback<Loadable> {
+    Loader.Callback<ExtractorSampleSource.ExtractingLoadable> {
 
   /**
    * Interface definition for a callback to be notified of {@link ExtractorSampleSource} events.
@@ -136,11 +136,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private boolean[] trackEnabledStates;
   private long length;
 
-  private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
 
-  private ExtractingLoadable loadable;
   private int extractedSamplesCountAtStartOfLoad;
   private boolean loadingFinished;
 
@@ -391,6 +389,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       Assertions.checkState(trackEnabledStates[track]);
       enabledTrackCount--;
       trackEnabledStates[track] = false;
+      sampleQueues[track].disable();
     }
     // Select new tracks.
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
@@ -402,20 +401,24 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       Assertions.checkState(!trackEnabledStates[track]);
       enabledTrackCount++;
       trackEnabledStates[track] = true;
-      sampleQueues[track].needDownstreamFormat();
       newStreams[i] = new TrackStreamImpl(track);
+    }
+    // At the time of the first track selection all queues will be enabled, so we need to disable
+    // any that are no longer required.
+    if (!seenFirstTrackSelection) {
+      for (int i = 0; i < sampleQueues.length; i++) {
+        if (!trackEnabledStates[i]) {
+          sampleQueues[i].disable();
+        }
+      }
     }
     // Cancel or start requests as necessary.
     if (enabledTrackCount == 0) {
-      downstreamPositionUs = Long.MIN_VALUE;
       if (loader.isLoading()) {
         loader.cancelLoading();
-      } else {
-        clearState();
-        allocator.trim(0);
       }
     } else if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
-      seekToInternal(positionUs);
+      seekToUs(positionUs);
     }
     seenFirstTrackSelection = true;
     return newStreams;
@@ -423,8 +426,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    downstreamPositionUs = playbackPositionUs;
-    discardSamplesForDisabledTracks();
+    // Do nothing.
   }
 
   @Override
@@ -448,18 +450,35 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
             sampleQueue.getLargestQueuedTimestampUs());
       }
-      return largestQueuedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
+      return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
           : largestQueuedTimestampUs;
     }
   }
 
   @Override
   public void seekToUs(long positionUs) {
-    seekToInternal(positionUs);
+    // Treat all seeks into non-seekable media as being to t=0.
+    positionUs = seekMap.isSeekable() ? positionUs : 0;
+    lastSeekPositionUs = positionUs;
+    notifyReset = true;
+    // If we're not pending a reset, see if we can seek within the sample queues.
+    boolean seekInsideBuffer = !isPendingReset();
+    for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
+      if (trackEnabledStates[i]) {
+        seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
+      }
+    }
+    // If we failed to seek within the sample queues, we need to restart.
+    if (!seekInsideBuffer) {
+      restartFrom(positionUs);
+    }
   }
 
   @Override
   public void release() {
+    for (DefaultTrackOutput sampleQueue : sampleQueues) {
+      sampleQueue.disable();
+    }
     enabledTrackCount = 0;
     loader.release();
   }
@@ -485,32 +504,29 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Loadable loadable, long elapsedMs) {
-    copyLengthFromLoader();
+  public void onLoadCompleted(ExtractingLoadable loadable, long elapsedMs) {
+    copyLengthFromLoader(loadable);
     loadingFinished = true;
   }
 
   @Override
-  public void onLoadCanceled(Loadable loadable, long elapsedMs) {
-    copyLengthFromLoader();
+  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedMs) {
+    copyLengthFromLoader(loadable);
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
-    } else {
-      clearState();
-      allocator.trim(0);
     }
   }
 
   @Override
-  public int onLoadError(Loadable loadable, long elapsedMs, IOException e) {
-    copyLengthFromLoader();
+  public int onLoadError(ExtractingLoadable loadable, long elapsedMs, IOException e) {
+    copyLengthFromLoader(loadable);
     notifyLoadError(e);
     if (isLoadableExceptionFatal(e)) {
       return Loader.DONT_RETRY_FATAL;
     }
     int extractedSamplesCount = getExtractedSamplesCount();
     boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
-    configureRetry(); // May clear the sample queues.
+    configureRetry(loadable); // May reset the sample queues.
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
     return madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
   }
@@ -537,28 +553,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   // Internal methods.
 
-  private void copyLengthFromLoader() {
+  private void copyLengthFromLoader(ExtractingLoadable loadable) {
     if (length == C.LENGTH_UNBOUNDED) {
       length = loadable.length;
-    }
-  }
-
-  private void seekToInternal(long positionUs) {
-    // Treat all seeks into non-seekable media as being to t=0.
-    positionUs = seekMap.isSeekable() ? positionUs : 0;
-    lastSeekPositionUs = positionUs;
-    downstreamPositionUs = positionUs;
-    notifyReset = true;
-    // If we're not pending a reset, see if we can seek within the sample queues.
-    boolean seekInsideBuffer = !isPendingReset();
-    for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
-      if (trackEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
-      }
-    }
-    // If we failed to seek within the sample queues, we need to restart.
-    if (!seekInsideBuffer) {
-      restartFrom(positionUs);
     }
   }
 
@@ -568,14 +565,16 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
-      clearState();
+      for (int i = 0; i < sampleQueues.length; i++) {
+        sampleQueues[i].reset(trackEnabledStates[i]);
+      }
       startLoading();
     }
   }
 
   private void startLoading() {
-    loadable = new ExtractingLoadable(uri, dataSource, extractorHolder, allocator,
-        requestedBufferSize);
+    ExtractingLoadable loadable = new ExtractingLoadable(uri, dataSource, extractorHolder,
+        allocator, requestedBufferSize);
     if (prepared) {
       Assertions.checkState(isPendingReset());
       if (durationUs != C.UNSET_TIME_US && pendingResetPositionUs >= durationUs) {
@@ -599,8 +598,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     loader.startLoading(loadable, this, minRetryCount);
   }
 
-  private void configureRetry() {
-    Assertions.checkState(loadable != null);
+  private void configureRetry(ExtractingLoadable loadable) {
     if (length != C.LENGTH_UNBOUNDED
         || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)) {
       // We're playing an on-demand stream. Resume the current loadable, which will
@@ -612,7 +610,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       // previous load finished, so it's necessary to load from the start whenever commencing
       // a new load.
       notifyReset = prepared;
-      clearSampleQueues();
+      for (int i = 0; i < sampleQueues.length; i++) {
+        sampleQueues[i].reset(trackEnabledStates[i]);
+      }
       loadable.setLoadPosition(0);
     }
   }
@@ -632,25 +632,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       }
     }
     return true;
-  }
-
-  private void discardSamplesForDisabledTracks() {
-    for (int i = 0; i < trackEnabledStates.length; i++) {
-      if (!trackEnabledStates[i]) {
-        sampleQueues[i].skipAllSamples();
-      }
-    }
-  }
-
-  private void clearState() {
-    clearSampleQueues();
-    loadable = null;
-  }
-
-  private void clearSampleQueues() {
-    for (DefaultTrackOutput sampleQueue : sampleQueues) {
-      sampleQueue.clear();
-    }
   }
 
   private boolean isPendingReset() {
@@ -700,7 +681,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   /**
    * Loads the media stream and extracts sample data from it.
    */
-  private static class ExtractingLoadable implements Loadable {
+  /* package */ static final class ExtractingLoadable implements Loadable {
 
     private final Uri uri;
     private final DataSource dataSource;

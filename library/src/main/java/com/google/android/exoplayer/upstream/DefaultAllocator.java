@@ -30,6 +30,7 @@ public final class DefaultAllocator implements Allocator {
   private final int individualAllocationSize;
   private final byte[] initialAllocationBlock;
 
+  private int targetBufferSize;
   private int allocatedCount;
   private int availableCount;
   private Allocation[] availableAllocations;
@@ -68,6 +69,10 @@ public final class DefaultAllocator implements Allocator {
     }
   }
 
+  public synchronized void setTargetBufferSize(int targetBufferSize) {
+    this.targetBufferSize = targetBufferSize;
+  }
+
   @Override
   public synchronized Allocation allocate() {
     allocatedCount++;
@@ -96,8 +101,8 @@ public final class DefaultAllocator implements Allocator {
   }
 
   @Override
-  public synchronized void trim(int targetSize) {
-    int targetAllocationCount = Util.ceilDivide(targetSize, individualAllocationSize);
+  public synchronized void trim() {
+    int targetAllocationCount = Util.ceilDivide(targetBufferSize, individualAllocationSize);
     int targetAvailableCount = Math.max(0, targetAllocationCount - allocatedCount);
     if (targetAvailableCount >= availableCount) {
       // We're already at or below the target.

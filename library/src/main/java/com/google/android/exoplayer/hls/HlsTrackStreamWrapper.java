@@ -177,6 +177,7 @@ import java.util.List;
     for (int i = 0; i < oldStreams.size(); i++) {
       int group = ((TrackStreamImpl) oldStreams.get(i)).group;
       setTrackGroupEnabledState(group, false);
+      sampleQueues.valueAt(group).disable();
     }
     // Select new tracks.
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
@@ -185,25 +186,32 @@ import java.util.List;
       int group = selection.group;
       int[] tracks = selection.getTracks();
       setTrackGroupEnabledState(group, true);
-      sampleQueues.valueAt(group).needDownstreamFormat();
       if (group == primaryTrackGroupIndex) {
         chunkSource.selectTracks(tracks, isFirstTrackSelection);
       }
       newStreams[i] = new TrackStreamImpl(group);
     }
-    // Cancel or start requests as necessary.
+    // At the time of the first track selection all queues will be enabled, so we need to disable
+    // any that are no longer required.
+    if (isFirstTrackSelection) {
+      int sampleQueueCount = sampleQueues.size();
+      for (int i = 0; i < sampleQueueCount; i++) {
+        if (!groupEnabledStates[i]) {
+          sampleQueues.valueAt(i).disable();
+        }
+      }
+    }
+    // Cancel requests if necessary.
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
       downstreamFormat = null;
+      mediaChunks.clear();
       if (tracksWereEnabled) {
         loadControl.unregister(this);
       }
       if (loader.isLoading()) {
         loader.cancelLoading();
-      } else {
-        clearState();
-        loadControl.trimAllocator();
       }
     } else if (!tracksWereEnabled) {
       loadControl.register(this, bufferSizeContribution);
@@ -211,9 +219,26 @@ import java.util.List;
     return newStreams;
   }
 
+  public void restartFrom(long positionUs) {
+    lastSeekPositionUs = positionUs;
+    downstreamPositionUs = positionUs;
+    pendingResetPositionUs = positionUs;
+    loadingFinished = false;
+    mediaChunks.clear();
+    if (loader.isLoading()) {
+      loader.cancelLoading();
+    } else {
+      int sampleQueueCount = sampleQueues.size();
+      for (int i = 0; i < sampleQueueCount; i++) {
+        sampleQueues.valueAt(i).reset(groupEnabledStates[i]);
+      }
+      maybeStartLoading();
+    }
+  }
+
+  // TODO[REFACTOR]: Find a way to get rid of this.
   public void continueBuffering(long playbackPositionUs) {
     downstreamPositionUs = playbackPositionUs;
-    discardSamplesForDisabledTracks();
     if (!loader.isLoading()) {
       maybeStartLoading();
     }
@@ -245,23 +270,14 @@ import java.util.List;
     }
   }
 
-  public void restartFrom(long positionUs) {
-    lastSeekPositionUs = positionUs;
-    downstreamPositionUs = positionUs;
-    pendingResetPositionUs = positionUs;
-    loadingFinished = false;
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      clearState();
-      maybeStartLoading();
-    }
-  }
-
   public void release() {
+    int sampleQueueCount = sampleQueues.size();
+    for (int i = 0; i < sampleQueueCount; i++) {
+      sampleQueues.valueAt(i).disable();
+    }
     if (enabledTrackCount > 0) {
-      loadControl.unregister(this);
       enabledTrackCount = 0;
+      loadControl.unregister(this);
     }
     loader.release();
   }
@@ -319,9 +335,6 @@ import java.util.List;
     eventDispatcher.loadCanceled(loadable.bytesLoaded());
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
-    } else {
-      clearState();
-      loadControl.trimAllocator();
     }
   }
 
@@ -499,24 +512,6 @@ import java.util.List;
     }
     return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate,
         containerFormat.width, containerFormat.height, 0, containerFormat.language);
-  }
-
-  private void discardSamplesForDisabledTracks() {
-    if (!prepared) {
-      return;
-    }
-    for (int i = 0; i < groupEnabledStates.length; i++) {
-      if (!groupEnabledStates[i]) {
-        sampleQueues.valueAt(i).skipAllSamples();
-      }
-    }
-  }
-
-  private void clearState() {
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      sampleQueues.valueAt(i).clear();
-    }
-    mediaChunks.clear();
   }
 
   private void maybeStartLoading() {
