@@ -341,7 +341,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs) throws ExoPlaybackException {
+  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
     if (codec != null) {
@@ -830,8 +830,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * modified between successive calls. Hence an implementation can, for example, modify the
    * buffer's position to keep track of how much of the data it has processed.
    * <p>
-   * Note that the first call to this method following a call to {@link #reset(long)} will always
-   * receive a new {@link ByteBuffer} to be processed.
+   * Note that the first call to this method following a call to {@link #onReset(long, boolean)}
+   * will always receive a new {@link ByteBuffer} to be processed.
    *
    * @param positionUs The current media time in microseconds, measured at the start of the
    *     current iteration of the rendering loop.

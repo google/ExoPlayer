@@ -208,12 +208,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    super.onEnabled(joining);
     codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
-    super.onEnabled(joining);
-    if (joining && allowedJoiningTimeMs > 0) {
-      joiningDeadlineMs = SystemClock.elapsedRealtime() + allowedJoiningTimeMs;
-    }
     frameReleaseTimeHelper.enable();
   }
 
@@ -236,11 +233,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs) throws ExoPlaybackException {
-    super.onReset(positionUs);
+  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
+    super.onReset(positionUs, joining);
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
-    joiningDeadlineMs = -1;
+    joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : -1;
   }
 
   @Override

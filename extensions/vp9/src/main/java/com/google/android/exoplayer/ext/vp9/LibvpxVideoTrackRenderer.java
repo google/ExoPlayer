@@ -332,7 +332,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs) {
+  protected void onReset(long positionUs, boolean joining) {
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;

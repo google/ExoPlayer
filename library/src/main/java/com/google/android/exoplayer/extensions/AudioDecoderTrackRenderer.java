@@ -297,7 +297,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   }
 
   @Override
-  protected void onReset(long positionUs) {
+  protected void onReset(long positionUs, boolean joining) {
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

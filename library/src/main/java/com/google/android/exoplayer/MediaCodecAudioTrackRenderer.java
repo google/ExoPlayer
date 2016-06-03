@@ -256,14 +256,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    super.onEnabled(joining);
     codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
-    super.onEnabled(joining);
   }
 
   @Override
-  protected void onReset(long positionUs) throws ExoPlaybackException {
-    super.onReset(positionUs);
+  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
+    super.onReset(positionUs, joining);
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

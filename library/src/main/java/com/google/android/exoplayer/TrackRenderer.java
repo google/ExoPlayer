@@ -176,7 +176,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
     state = STATE_ENABLED;
     onEnabled(joining);
     replaceTrackStream(formats, stream);
-    reset(positionUs);
+    onReset(positionUs, joining);
   }
 
   /**
@@ -217,13 +217,13 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Called when a reset is encountered, and also when the renderer is enabled.
+   * Called when a reset is encountered.
    *
    * @param positionUs The playback position in microseconds.
    * @throws ExoPlaybackException If an error occurs handling the reset.
    */
   /* package */ final void reset(long positionUs) throws ExoPlaybackException {
-    onReset(positionUs);
+    onReset(positionUs, false);
   }
 
   /**
@@ -232,9 +232,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * The default implementation is a no-op.
    *
    * @param positionUs The playback position in microseconds.
+   * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs handling the reset.
    */
-  protected void onReset(long positionUs) throws ExoPlaybackException {
+  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
     // Do nothing.
   }
 
