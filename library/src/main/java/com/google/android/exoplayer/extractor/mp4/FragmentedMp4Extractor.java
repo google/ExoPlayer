@@ -47,7 +47,7 @@ import java.util.UUID;
 /**
  * Facilitates the extraction of data from the fragmented mp4 container format.
  */
-public final class FragmentedMp4Extractor implements Extractor {
+public class FragmentedMp4Extractor implements Extractor {
 
   private static final String TAG = "FragmentedMp4Extractor";
 
@@ -146,12 +146,12 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public final boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     return Sniffer.sniffFragmented(input);
   }
 
   @Override
-  public void init(ExtractorOutput output) {
+  public final void init(ExtractorOutput output) {
     extractorOutput = output;
     if (sideloadedTrack != null) {
       TrackBundle bundle = new TrackBundle(output.track(0));
@@ -162,7 +162,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public void seek() {
+  public final void seek() {
     int trackCount = trackBundles.size();
     for (int i = 0; i < trackCount; i++) {
       trackBundles.valueAt(i).reset();
@@ -172,12 +172,12 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public void release() {
+  public final void release() {
     // Do nothing
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
+  public final int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     while (true) {
       switch (parserState) {
@@ -302,6 +302,8 @@ public final class FragmentedMp4Extractor implements Extractor {
       ChunkIndex segmentIndex = parseSidx(leaf.data, inputPosition);
       extractorOutput.seekMap(segmentIndex);
       haveOutputSeekMap = true;
+    } else if (leaf.type == Atom.TYPE_emsg) {
+      parseEmsg(leaf.data, inputPosition);
     }
   }
 
@@ -719,6 +721,10 @@ public final class FragmentedMp4Extractor implements Extractor {
     out.fillEncryptionData(senc);
   }
 
+  protected void parseEmsg(ParsableByteArray atom, long inputPosition) throws ParserException {
+    // Do nothing.
+  }
+
   /**
    * Parses a sidx atom (defined in 14496-12).
    */
@@ -975,7 +981,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_tfhd || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_trex
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_pssh || atom == Atom.TYPE_saiz
         || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid
-        || atom == Atom.TYPE_elst || atom == Atom.TYPE_mehd;
+        || atom == Atom.TYPE_elst || atom == Atom.TYPE_mehd || atom == Atom.TYPE_emsg;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */

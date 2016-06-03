@@ -123,6 +123,7 @@ import java.util.List;
   public static final int TYPE_mean = Util.getIntegerCodeForString("mean");
   public static final int TYPE_name = Util.getIntegerCodeForString("name");
   public static final int TYPE_data = Util.getIntegerCodeForString("data");
+  public static final int TYPE_emsg = Util.getIntegerCodeForString("emsg");
   public static final int TYPE_DASHES = Util.getIntegerCodeForString("----");
 
   public final int type;
