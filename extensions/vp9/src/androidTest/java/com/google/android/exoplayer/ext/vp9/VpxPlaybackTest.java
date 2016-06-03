@@ -24,9 +24,7 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultDataSource;
-import com.google.android.exoplayer.util.Util;
+import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
 
 import android.content.Context;
 import android.net.Uri;
@@ -76,9 +74,6 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
 
   private static class TestPlaybackThread extends Thread implements ExoPlayer.EventListener {
 
-    private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
-    private static final int BUFFER_SEGMENT_COUNT = 16;
-
     private final Context context;
     private final Uri uri;
 
@@ -100,10 +95,9 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       player.addListener(this);
       ExtractorSampleSource sampleSource = new ExtractorSampleSource(
           uri,
-          new DefaultDataSource(context, null, Util.getUserAgent(context, "ExoPlayerExtVP9Test"),
-              false),
-          new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
-          new Extractor[] {new MatroskaExtractor()});
+          new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"), null,
+          new Extractor[] {new MatroskaExtractor()},
+          null, null, 0);
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
           LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));

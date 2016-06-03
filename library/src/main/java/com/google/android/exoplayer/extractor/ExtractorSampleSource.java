@@ -25,8 +25,11 @@ import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.upstream.Allocator;
+import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -112,16 +115,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Lazily initialized default extractor classes in priority order.
   private static List<Class<? extends Extractor>> defaultExtractorClasses;
 
-  private final Loader loader;
-  private final ExtractorHolder extractorHolder;
-  private final Allocator allocator;
-  private final int requestedBufferSize;
-  private final int minLoadableRetryCount;
   private final Uri uri;
-  private final DataSource dataSource;
+  private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final int eventSourceId;
+  private final DataSource dataSource;
+  private final Allocator allocator;
+  private final Loader loader;
+  private final ExtractorHolder extractorHolder;
 
   private volatile boolean tracksBuilt;
   private volatile SeekMap seekMap;
@@ -144,91 +146,46 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   /**
    * @param uri The {@link Uri} of the media stream.
-   * @param dataSource A data source to read the media stream.
-   * @param allocator An {@link Allocator} from which to obtain memory allocations.
-   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
-   *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
+   * @param bandwidthMeter A {@link BandwidthMeter} to notify of loads performed by the source.
    * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
    *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
    *     Where this is not possible, {@link #newDefaultExtractors()} can be used to construct an
    *     array of default extractors.
-   */
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
-      int requestedBufferSize, Extractor[] extractors) {
-    this(uri, dataSource, allocator, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
-        extractors);
-  }
-
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSource A data source to read the media stream.
-   * @param allocator An {@link Allocator} from which to obtain memory allocations.
-   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
-   *     The actual allocated size may exceed the value passed in if the implementation requires it.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
-   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
-   *     Where this is not possible, {@link #newDefaultExtractors()} can be used to construct an
-   *     array of default extractors.
    */
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
-      int requestedBufferSize, Handler eventHandler, EventListener eventListener,
-      int eventSourceId, Extractor[] extractors) {
-    this(uri, dataSource, allocator, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
-        eventHandler, eventListener, eventSourceId, extractors);
+  public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter, Extractor[] extractors, Handler eventHandler,
+      EventListener eventListener, int eventSourceId) {
+    this(uri, dataSourceFactory, bandwidthMeter, extractors, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
+        eventHandler, eventListener, eventSourceId);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
-   * @param dataSource A data source to read the media stream.
-   * @param allocator An {@link Allocator} from which to obtain memory allocations.
-   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
-   *     The actual allocated size may exceed the value passed in if the implementation requires it.
-   * @param minLoadableRetryCount The minimum number of times that the sample source will retry
-   *     if a loading error occurs.
+   * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
+   * @param bandwidthMeter A {@link BandwidthMeter} to notify of loads performed by the source.
    * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
    *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
    *     Where this is not possible, {@link #newDefaultExtractors()} can be used to construct an
    *     array of default extractors.
-   */
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
-      int requestedBufferSize, int minLoadableRetryCount, Extractor[] extractors) {
-    this(uri, dataSource, allocator, requestedBufferSize, minLoadableRetryCount, null, null, 0,
-        extractors);
-  }
-
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSource A data source to read the media stream.
-   * @param allocator An {@link Allocator} from which to obtain memory allocations.
-   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
-   *     The actual allocated size may exceed the value passed in if the implementation requires it.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
-   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
-   *     Where this is not possible {@link #newDefaultExtractors()} can be used to construct an
-   *     array of default extractors.
    */
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
-      int requestedBufferSize, int minLoadableRetryCount, Handler eventHandler,
-      EventListener eventListener, int eventSourceId, Extractor[] extractors) {
+  public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter, Extractor[] extractors, int minLoadableRetryCount,
+      Handler eventHandler, EventListener eventListener, int eventSourceId) {
     Assertions.checkState(extractors != null && extractors.length > 0);
     this.uri = uri;
-    this.dataSource = dataSource;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventListener = eventListener;
     this.eventHandler = eventHandler;
     this.eventSourceId = eventSourceId;
-    this.allocator = allocator;
-    this.requestedBufferSize = requestedBufferSize;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
     loader = new Loader("Loader:ExtractorSampleSource");
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
@@ -573,7 +530,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private void startLoading() {
     ExtractingLoadable loadable = new ExtractingLoadable(uri, dataSource, extractorHolder,
-        allocator, requestedBufferSize);
+        allocator, C.DEFAULT_MUXED_BUFFER_SIZE);
     if (prepared) {
       Assertions.checkState(isPendingReset());
       if (durationUs != C.UNSET_TIME_US && pendingResetPositionUs >= durationUs) {

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.SimpleExoPlayer;
@@ -23,10 +22,7 @@ import com.google.android.exoplayer.dash.DashSampleSource;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingSampleSource;
-import com.google.android.exoplayer.upstream.Allocator;
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -116,10 +112,8 @@ public final class UriSampleSourceProvider implements SampleSourceProvider {
         return new HlsSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), handler,
             eventLogger);
       case Util.TYPE_OTHER:
-        Allocator allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
-        DataSource dataSource = dataSourceFactory.createDataSource(player.getBandwidthMeter());
-        return new ExtractorSampleSource(uri, dataSource, allocator, C.DEFAULT_MUXED_BUFFER_SIZE,
-            handler, eventLogger, 0, ExtractorSampleSource.newDefaultExtractors());
+        return new ExtractorSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
+            ExtractorSampleSource.newDefaultExtractors(), handler, eventLogger, 0);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }
