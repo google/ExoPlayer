@@ -59,7 +59,6 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
   private long pendingResetPositionUs;
 
   private boolean loadingFinished;
-  private boolean released;
 
   /**
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
@@ -233,7 +232,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
   }
 
   @Override
-  public void onLoadCanceled(Chunk loadable, long elapsedMs) {
+  public void onLoadCanceled(Chunk loadable, long elapsedMs, boolean released) {
     eventDispatcher.loadCanceled(loadable.bytesLoaded());
     if (!released) {
       restartFrom(pendingResetPositionUs);

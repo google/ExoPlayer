@@ -249,7 +249,7 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public void onLoadCanceled(UriLoadable<HlsPlaylist> loadable, long elapsedMs) {
+  public void onLoadCanceled(UriLoadable<HlsPlaylist> loadable, long elapsedMs, boolean released) {
     // Do nothing.
   }
 

@@ -237,7 +237,8 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   @Override
-  public void onLoadCanceled(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs) {
+  public void onLoadCanceled(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs,
+      boolean released) {
     // Do nothing.
   }
 

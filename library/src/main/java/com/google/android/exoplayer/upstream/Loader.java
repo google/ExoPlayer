@@ -79,14 +79,24 @@ public final class Loader {
 
     /**
      * Invoked when a load has been canceled.
+     * <p>
+     * If the {@link Loader} has not been released then there is guaranteed to exist a memory
+     * barrier between {@link Loadable#load()} exiting and this callback being invoked. If the
+     * {@link Loader} has been released then this callback may be invoked before
+     * {@link Loadable#load()} exits.
      *
      * @param loadable The loadable whose load has been canceled.
      * @param elapsedMs The elapsed time in milliseconds since loading started.
+     * @param released True if the load was canceled because the {@link Loader} was released. False
+     *     otherwise.
      */
-    void onLoadCanceled(T loadable, long elapsedMs);
+    void onLoadCanceled(T loadable, long elapsedMs, boolean released);
 
     /**
      * Invoked when a load has completed.
+     * <p>
+     * There is guaranteed to exist a memory barrier between {@link Loadable#load()} exiting and
+     * this callback being invoked.
      *
      * @param loadable The loadable whose load has completed.
      * @param elapsedMs The elapsed time in milliseconds since loading started.
@@ -95,6 +105,9 @@ public final class Loader {
 
     /**
      * Invoked when a load encounters an error.
+     * <p>
+     * There is guaranteed to exist a memory barrier between {@link Loadable#load()} exiting and
+     * this callback being invoked.
      *
      * @param loadable The loadable whose load has encountered an error.
      * @param elapsedMs The elapsed time in milliseconds since loading started.
@@ -179,7 +192,7 @@ public final class Loader {
    * This method should only be called when a load is in progress.
    */
   public void cancelLoading() {
-    currentTask.cancel();
+    currentTask.cancel(false);
   }
 
   /**
@@ -189,7 +202,7 @@ public final class Loader {
    */
   public void release() {
     if (currentTask != null) {
-      cancelLoading();
+      currentTask.cancel(true);
     }
     downloadExecutorService.shutdown();
   }
@@ -208,6 +221,7 @@ public final class Loader {
     private int errorCount;
 
     private volatile Thread executorThread;
+    private volatile boolean released;
 
     public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback, int minRetryCount) {
       super(looper);
@@ -233,16 +247,23 @@ public final class Loader {
       }
     }
 
-    public void cancel() {
+    public void cancel(boolean released) {
+      this.released = released;
       currentError = null;
       if (hasMessages(MSG_START)) {
         removeMessages(MSG_START);
-        sendEmptyMessage(MSG_CANCEL);
+        if (!released) {
+          sendEmptyMessage(MSG_CANCEL);
+        }
       } else {
         loadable.cancelLoad();
         if (executorThread != null) {
           executorThread.interrupt();
         }
+      }
+      if (released) {
+        finish();
+        callback.onLoadCanceled(loadable, SystemClock.elapsedRealtime() - startTimeMs, true);
       }
     }
 
@@ -258,29 +279,42 @@ public final class Loader {
             TraceUtil.endSection();
           }
         }
-        sendEmptyMessage(MSG_END_OF_SOURCE);
+        if (!released) {
+          sendEmptyMessage(MSG_END_OF_SOURCE);
+        }
       } catch (IOException e) {
-        obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
+        if (!released) {
+          obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
+        }
       } catch (InterruptedException e) {
         // The load was canceled.
         Assertions.checkState(loadable.isLoadCanceled());
-        sendEmptyMessage(MSG_END_OF_SOURCE);
+        if (!released) {
+          sendEmptyMessage(MSG_END_OF_SOURCE);
+        }
       } catch (Exception e) {
         // This should never happen, but handle it anyway.
         Log.e(TAG, "Unexpected exception loading stream", e);
-        obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
+        if (!released) {
+          obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
+        }
       } catch (Error e) {
         // We'd hope that the platform would kill the process if an Error is thrown here, but the
         // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
         // the handler thread so that the process dies even if the executor behaves in this way.
         Log.e(TAG, "Unexpected error loading stream", e);
-        obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
+        if (!released) {
+          obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
+        }
         throw e;
       }
     }
 
     @Override
     public void handleMessage(Message msg) {
+      if (released) {
+        return;
+      }
       if (msg.what == MSG_START) {
         submitToExecutor();
         return;
@@ -291,12 +325,12 @@ public final class Loader {
       finish();
       long elapsedMs = SystemClock.elapsedRealtime() - startTimeMs;
       if (loadable.isLoadCanceled()) {
-        callback.onLoadCanceled(loadable, elapsedMs);
+        callback.onLoadCanceled(loadable, elapsedMs, false);
         return;
       }
       switch (msg.what) {
         case MSG_CANCEL:
-          callback.onLoadCanceled(loadable, elapsedMs);
+          callback.onLoadCanceled(loadable, elapsedMs, false);
           break;
         case MSG_END_OF_SOURCE:
           callback.onLoadCompleted(loadable, elapsedMs);

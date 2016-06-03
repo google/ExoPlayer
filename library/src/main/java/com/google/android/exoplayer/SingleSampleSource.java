@@ -166,7 +166,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
 
   @Override
   public void release() {
-    streamState = STREAM_STATE_END_OF_STREAM;
     loader.release();
   }
 
@@ -221,8 +220,10 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   }
 
   @Override
-  public void onLoadCanceled(SingleSampleSource loadable, long elapsedMs) {
-    maybeStartLoading();
+  public void onLoadCanceled(SingleSampleSource loadable, long elapsedMs, boolean released) {
+    if (!released) {
+      maybeStartLoading();
+    }
   }
 
   @Override

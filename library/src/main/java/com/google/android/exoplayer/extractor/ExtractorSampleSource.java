@@ -479,7 +479,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     for (DefaultTrackOutput sampleQueue : sampleQueues) {
       sampleQueue.disable();
     }
-    enabledTrackCount = 0;
     loader.release();
   }
 
@@ -510,9 +509,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedMs) {
+  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedMs, boolean released) {
     copyLengthFromLoader(loadable);
-    if (enabledTrackCount > 0) {
+    if (!released && enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     }
   }

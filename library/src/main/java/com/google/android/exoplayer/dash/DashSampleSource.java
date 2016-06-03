@@ -360,7 +360,8 @@ public final class DashSampleSource implements SampleSource {
     }
 
     @Override
-    public void onLoadCanceled(UriLoadable<MediaPresentationDescription> loadable, long elapsedMs) {
+    public void onLoadCanceled(UriLoadable<MediaPresentationDescription> loadable, long elapsedMs,
+        boolean released) {
       // Do nothing.
     }
 
@@ -380,7 +381,7 @@ public final class DashSampleSource implements SampleSource {
     }
 
     @Override
-    public void onLoadCanceled(UriLoadable<Long> loadable, long elapsedMs) {
+    public void onLoadCanceled(UriLoadable<Long> loadable, long elapsedMs, boolean released) {
       // Do nothing.
     }
 

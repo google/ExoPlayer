@@ -276,7 +276,6 @@ import java.util.List;
       sampleQueues.valueAt(i).disable();
     }
     if (enabledTrackCount > 0) {
-      enabledTrackCount = 0;
       loadControl.unregister(this);
     }
     loader.release();
@@ -331,9 +330,9 @@ import java.util.List;
   }
 
   @Override
-  public void onLoadCanceled(Chunk loadable, long elapsedMs) {
+  public void onLoadCanceled(Chunk loadable, long elapsedMs, boolean released) {
     eventDispatcher.loadCanceled(loadable.bytesLoaded());
-    if (enabledTrackCount > 0) {
+    if (!released && enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     }
   }
