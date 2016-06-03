@@ -58,8 +58,9 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   public final CodecCounters codecCounters = new CodecCounters();
 
   private final boolean scaleToFit;
-  private final EventDispatcher eventDispatcher;
+  private final long allowedJoiningTimeMs;
   private final int maxDroppedFrameCountToNotify;
+  private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
 
   private Format format;
@@ -71,6 +72,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   private Bitmap bitmap;
   private boolean drawnToSurface;
   private boolean renderedFirstFrame;
+  private long joiningDeadlineMs;
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
   private int outputMode;
@@ -85,26 +87,31 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   private int consecutiveDroppedFrameCount;
 
   /**
-   * @param scaleToFit Boolean that indicates if video frames should be scaled to fit when
-   *     rendering.
+   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
    */
-  public LibvpxVideoTrackRenderer(boolean scaleToFit) {
-    this(scaleToFit, null, null, 0);
+  public LibvpxVideoTrackRenderer(boolean scaleToFit, long allowedJoiningTimeMs) {
+    this(scaleToFit, allowedJoiningTimeMs, null, null, 0);
   }
 
   /**
-   * @param scaleToFit Boolean that indicates if video frames should be scaled to fit when
-   *     rendering.
+   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public LibvpxVideoTrackRenderer(boolean scaleToFit, Handler eventHandler,
-      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+  public LibvpxVideoTrackRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
+      Handler eventHandler, VideoTrackRendererEventListener eventListener,
+      int maxDroppedFrameCountToNotify) {
     this.scaleToFit = scaleToFit;
+    this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
+    joiningDeadlineMs = -1;
     previousWidth = -1;
     previousHeight = -1;
     formatHolder = new FormatHolder();
@@ -202,10 +209,11 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    // Drop frame only if we have the next frame and that's also late, otherwise render whatever we
-    // have.
-    if (nextOutputBuffer != null && nextOutputBuffer.timestampUs < positionUs) {
-      // Drop frame if we are too late.
+    // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
+    // and that's also late. Else we'll render what we have.
+    if ((joiningDeadlineMs != -1 && outputBuffer.timestampUs < positionUs - 30000)
+        || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
+            && nextOutputBuffer.timestampUs < positionUs)) {
       codecCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
       consecutiveDroppedFrameCount++;
@@ -322,7 +330,21 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected boolean isReady() {
-    return format != null && (isSourceReady() || outputBuffer != null) && renderedFirstFrame;
+    if (format != null && (isSourceReady() || outputBuffer != null) && renderedFirstFrame) {
+      // Ready. If we were joining then we've now joined, so clear the joining deadline.
+      joiningDeadlineMs = -1;
+      return true;
+    } else if (joiningDeadlineMs == -1) {
+      // Not joining.
+      return false;
+    } else if (SystemClock.elapsedRealtime() < joiningDeadlineMs) {
+      // Joining and still within the joining deadline.
+      return true;
+    } else {
+      // The joining deadline has been exceeded. Give up and clear the deadline.
+      joiningDeadlineMs = -1;
+      return false;
+    }
   }
 
   @Override
@@ -340,6 +362,8 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     if (decoder != null) {
       flushDecoder();
     }
+    joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : -1;
   }
 
   @Override
@@ -350,6 +374,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onStopped() {
+    joiningDeadlineMs = -1;
     maybeNotifyDroppedFrameCount();
   }
 

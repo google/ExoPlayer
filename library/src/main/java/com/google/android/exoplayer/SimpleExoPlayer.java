@@ -84,6 +84,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   private static final String TAG = "SimpleExoPlayer";
+  private static final long ALLOWED_VIDEO_JOINING_TIME_MS = 5000;
+  private static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final ExoPlayer player;
   private final BandwidthMeter bandwidthMeter;
@@ -381,8 +383,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private void buildRenderers(Context context, DrmSessionManager drmSessionManager,
       ArrayList<TrackRenderer> renderersList) {
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
-        MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-        drmSessionManager, false, mainHandler, componentListener, 50);
+        MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
+        ALLOWED_VIDEO_JOINING_TIME_MS, drmSessionManager, false, mainHandler, componentListener,
+        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
     renderersList.add(videoRenderer);
 
     TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(MediaCodecSelector.DEFAULT,
@@ -405,13 +408,15 @@ public final class SimpleExoPlayer implements ExoPlayer {
     try {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer");
-      Constructor<?> constructor = clazz.getConstructor(boolean.class, Handler.class,
+      Constructor<?> constructor = clazz.getConstructor(boolean.class, long.class, Handler.class,
           VideoTrackRendererEventListener.class, int.class);
-      renderersList.add((TrackRenderer) constructor.newInstance(true, mainHandler,
-          componentListener, 50));
+      renderersList.add((TrackRenderer) constructor.newInstance(true, ALLOWED_VIDEO_JOINING_TIME_MS,
+          mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
       Log.i(TAG, "Loaded LibvpxVideoTrackRenderer.");
-    } catch (Exception e) {
+    } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
     try {
@@ -421,8 +426,10 @@ public final class SimpleExoPlayer implements ExoPlayer {
           AudioTrackRendererEventListener.class);
       renderersList.add((TrackRenderer) constructor.newInstance(mainHandler, componentListener));
       Log.i(TAG, "Loaded LibopusAudioTrackRenderer.");
-    } catch (Exception e) {
+    } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
     try {
@@ -432,8 +439,10 @@ public final class SimpleExoPlayer implements ExoPlayer {
           AudioTrackRendererEventListener.class);
       renderersList.add((TrackRenderer) constructor.newInstance(mainHandler, componentListener));
       Log.i(TAG, "Loaded LibflacAudioTrackRenderer.");
-    } catch (Exception e) {
+    } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
     try {
@@ -443,8 +452,10 @@ public final class SimpleExoPlayer implements ExoPlayer {
           AudioTrackRendererEventListener.class);
       renderersList.add((TrackRenderer) constructor.newInstance(mainHandler, componentListener));
       Log.i(TAG, "Loaded FfmpegAudioTrackRenderer.");
-    } catch (Exception e) {
+    } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 

@@ -88,7 +88,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     @Override
     public void run() {
       Looper.prepare();
-      LibvpxVideoTrackRenderer videoRenderer = new LibvpxVideoTrackRenderer(true);
+      LibvpxVideoTrackRenderer videoRenderer = new LibvpxVideoTrackRenderer(true, 0);
       DefaultTrackSelector trackSelector = new DefaultTrackSelector(
           new DefaultTrackSelectionPolicy(), null);
       player = ExoPlayerFactory.newInstance(new TrackRenderer[] {videoRenderer}, trackSelector);
