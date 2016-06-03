@@ -27,9 +27,13 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   private String preferredLanguage;
   private boolean allowMixedMimeAdaptiveness;
   private boolean allowNonSeamlessAdaptiveness;
+  private int maxVideoWidth;
+  private int maxVideoHeight;
 
   public DefaultTrackSelectionPolicy() {
     allowNonSeamlessAdaptiveness = true;
+    maxVideoWidth = Integer.MAX_VALUE;
+    maxVideoHeight = Integer.MAX_VALUE;
   }
 
   public void setPreferredLanguage(String preferredLanguage) {
@@ -53,6 +57,14 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     }
   }
 
+  public void setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
+    if (this.maxVideoWidth != maxVideoWidth || this.maxVideoHeight != maxVideoHeight) {
+      this.maxVideoWidth = maxVideoWidth;
+      this.maxVideoHeight = maxVideoHeight;
+      invalidate();
+    }
+  }
+
   @Override
   public TrackSelection[] selectTracks(TrackRenderer[] renderers,
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
@@ -63,8 +75,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
       switch (renderers[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
           rendererTrackSelections[i] = selectTrackForVideoRenderer(renderers[i],
-              rendererTrackGroupArrays[i], rendererFormatSupports[i], allowMixedMimeAdaptiveness,
-              allowNonSeamlessAdaptiveness);
+              rendererTrackGroupArrays[i], rendererFormatSupports[i]);
           break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectTrackForAudioRenderer(rendererTrackGroupArrays[i],
@@ -83,9 +94,8 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     return rendererTrackSelections;
   }
 
-  private static TrackSelection selectTrackForVideoRenderer(TrackRenderer renderer,
-      TrackGroupArray trackGroups, int[][] formatSupport, boolean allowMixedMimeAdaptiveness,
-      boolean allowNonSeamlessAdaptiveness) throws ExoPlaybackException {
+  private TrackSelection selectTrackForVideoRenderer(TrackRenderer renderer,
+      TrackGroupArray trackGroups, int[][] formatSupport) throws ExoPlaybackException {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
         ? TrackRenderer.ADAPTIVE_NOT_SEAMLESS | TrackRenderer.ADAPTIVE_SEAMLESS
         : TrackRenderer.ADAPTIVE_SEAMLESS;
@@ -95,7 +105,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     int[] largestAdaptiveGroupTracks = NO_TRACKS;
     for (int i = 0; i < trackGroups.length; i++) {
       int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroups.get(i), formatSupport[i],
-          allowMixedMimeTypes, requiredAdaptiveSupport);
+          allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight);
       if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
         largestAdaptiveGroup = i;
         largestAdaptiveGroupTracks = adaptiveTracks;
@@ -104,11 +114,24 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     if (largestAdaptiveGroup != -1) {
       return new TrackSelection(largestAdaptiveGroup, largestAdaptiveGroupTracks);
     }
-    return selectFirstSupportedTrack(trackGroups, formatSupport);
+
+    // No adaptive tracks selection could be made, so we select the first supported video track.
+    for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+      TrackGroup trackGroup = trackGroups.get(groupIndex);
+      int[] trackFormatSupport = formatSupport[groupIndex];
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        if (isSupportedVideoTrack(trackFormatSupport[trackIndex], trackGroup.getFormat(trackIndex),
+            maxVideoWidth, maxVideoHeight)) {
+          return new TrackSelection(groupIndex, trackIndex);
+        }
+      }
+    }
+    return null;
   }
 
   private static int[] getAdaptiveTracksOfGroup(TrackGroup trackGroup, int[] formatSupport,
-      boolean allowMixedMimeTypes, int requiredAdaptiveSupport) {
+      boolean allowMixedMimeTypes, int requiredAdaptiveSupport, int maxVideoWidth,
+      int maxVideoHeight) {
     if (!trackGroup.adaptive) {
       return NO_TRACKS;
     }
@@ -116,13 +139,14 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     String mimeType = null;
     int adaptiveTracksCount = 0;
     if (allowMixedMimeTypes) {
-      adaptiveTracksCount = getSupportedTrackCountForMimeType(trackGroup, formatSupport,
-          requiredAdaptiveSupport, mimeType);
+      adaptiveTracksCount = getAdaptiveTrackCountForMimeType(trackGroup, formatSupport,
+          requiredAdaptiveSupport, mimeType, maxVideoWidth, maxVideoHeight);
     } else {
       for (int i = 0; i < trackGroup.length; i++) {
         if (!Util.areEqual(mimeType, trackGroup.getFormat(i).sampleMimeType)) {
-          int countForMimeType = getSupportedTrackCountForMimeType(trackGroup, formatSupport,
-              requiredAdaptiveSupport, trackGroup.getFormat(i).sampleMimeType);
+          int countForMimeType = getAdaptiveTrackCountForMimeType(trackGroup, formatSupport,
+              requiredAdaptiveSupport, trackGroup.getFormat(i).sampleMimeType, maxVideoWidth,
+              maxVideoHeight);
           if (countForMimeType > adaptiveTracksCount) {
             adaptiveTracksCount = countForMimeType;
             mimeType = trackGroup.getFormat(i).sampleMimeType;
@@ -138,30 +162,31 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     int[] adaptiveTracks = new int[adaptiveTracksCount];
     adaptiveTracksCount = 0;
     for (int i = 0; i < trackGroup.length; i++) {
-      if (isAdaptiveTrack(trackGroup.getFormat(i).sampleMimeType, mimeType, formatSupport[i],
-          requiredAdaptiveSupport)) {
+      if (isAdaptiveTrack(trackGroup.getFormat(i), mimeType, formatSupport[i],
+          requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight)) {
         adaptiveTracks[adaptiveTracksCount++] = i;
       }
     }
     return adaptiveTracks;
   }
 
-  private static int getSupportedTrackCountForMimeType(TrackGroup trackGroup, int[] formatSupport,
-      int requiredAdaptiveSupport, String mimeType) {
+  private static int getAdaptiveTrackCountForMimeType(TrackGroup trackGroup, int[] formatSupport,
+      int requiredAdaptiveSupport, String mimeType, int maxVideoWidth, int maxVideoHeight) {
     int adaptiveTracksCount = 0;
     for (int i = 0; i < trackGroup.length; i++) {
-      if (isAdaptiveTrack(trackGroup.getFormat(i).sampleMimeType, mimeType, formatSupport[i],
-          requiredAdaptiveSupport)) {
+      if (isAdaptiveTrack(trackGroup.getFormat(i), mimeType, formatSupport[i],
+          requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight)) {
         adaptiveTracksCount++;
       }
     }
     return adaptiveTracksCount;
   }
 
-  private static boolean isAdaptiveTrack(String trackMimeType, String mimeType, int formatSupport,
-      int requiredAdaptiveSupport) {
-    return isSupported(formatSupport) && (formatSupport & requiredAdaptiveSupport) != 0
-        && (mimeType == null || Util.areEqual(trackMimeType, mimeType));
+  private static boolean isAdaptiveTrack(Format format, String mimeType, int formatSupport,
+      int requiredAdaptiveSupport, int maxVideoWidth, int maxVideoHeight) {
+    return isSupportedVideoTrack(formatSupport, format, maxVideoWidth, maxVideoHeight)
+        && (formatSupport & requiredAdaptiveSupport) != 0
+        && (mimeType == null || Util.areEqual(format.sampleMimeType, mimeType));
   }
 
   private static TrackSelection selectTrackForTextRenderer(TrackGroupArray trackGroups,
@@ -219,6 +244,12 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     }
     // No preferred language was selected or no audio track presented the preferred language.
     return selectFirstSupportedTrack(trackGroups, formatSupport);
+  }
+
+  private static boolean isSupportedVideoTrack(int formatSupport, Format format, int maxVideoWidth,
+      int maxVideoHeight) {
+    return isSupported(formatSupport) && format.width <= maxVideoWidth
+        && format.height <= maxVideoHeight;
   }
 
   private static boolean isSupported(int formatSupport) {

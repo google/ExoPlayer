@@ -39,7 +39,9 @@ public abstract class TrackSelectionPolicy {
    * selections.
    */
   protected void invalidate() {
-    listener.invalidatePolicySelections();
+    if (listener != null) {
+      listener.invalidatePolicySelections();
+    }
   }
 
   /**
