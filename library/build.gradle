@@ -40,6 +40,12 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += "../testutils/src/main/java/"
+        }
+    }
 }
 
 dependencies {

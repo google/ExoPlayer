@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 include ':library'
+include ':testutils'
 include ':demo'
 include ':extension-opus'
 include ':extension-vp9'

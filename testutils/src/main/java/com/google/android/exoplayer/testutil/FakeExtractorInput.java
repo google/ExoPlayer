@@ -19,7 +19,6 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 
 import android.util.SparseBooleanArray;
-
 import junit.framework.Assert;
 
 import java.io.EOFException;
