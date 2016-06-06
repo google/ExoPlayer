@@ -94,4 +94,4 @@ By default ExoPlayer uses Android's platform decoders. Hence the supported sampl
 
 In addition to using Android's platform decoders, ExoPlayer can also make use of software decoder extensions. These must be manually built and included in projects that wish to make use of them. We currently provide software decoder extensions for [VP9](https://github.com/google/ExoPlayer/tree/master/extensions/vp9), [Flac](https://github.com/google/ExoPlayer/tree/master/extensions/flac) and [Opus](https://github.com/google/ExoPlayer/tree/master/extensions/opus).
 
-[`Flac extension`]: https://github.com/google/ExoPlayer/tree/master/extensions/flac
+[Flac extension]: https://github.com/google/ExoPlayer/tree/master/extensions/flac
