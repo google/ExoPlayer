@@ -4,7 +4,7 @@ title: FAQs
 weight: 3
 ---
 
-* [What formats does ExoPlayer support?](#what-formats-does-exoplayer-support?) 
+* What formats does ExoPlayer support?](#what-formats-does-exoplayer-support?) 
 * [How do I get smooth animation/scrolling of video?](#how-do-i-get-smooth-animation/scrolling-of-video?)
 * [Should I render video to a SurfaceView or TextureView?](#should-i-use-surfaceview-or-textureview?)
 
@@ -14,7 +14,7 @@ Please see the [Supported formats](https://google.github.io/ExoPlayer/supported-
 
 #### How do I get smooth animation/scrolling of video? ####
 
-`SurfaceVie`w rendering wasn't properly synchronized with view animations until Android N. On earlier
+`SurfaceView` rendering wasn't properly synchronized with view animations until Android N. On earlier
 releases this could result in unwanted effects when a SurfaceView was placed into scrolling container,
 or when it was subjected to animation. Such effects included the `SurfaceView`'s contents appearing to
 lag slightly behind where it should be displayed, and the view turning black when subjected to
@@ -22,7 +22,7 @@ animations.
 
 To achieve smooth animation or scrolling of video prior to Android N, it's therefore necessary to use
 `TextureView` rather than `SurfaceView`. If smooth animation or scrolling is not required then `SurfaceView`
-should be preferred (see [Should I use SurfaceView or TextureView?]((#should-i-use-surfaceview-or-textureview?)).
+should be preferred (see [Should I use SurfaceView or TextureView?](#should-i-use-surfaceview-or-textureview?)).
 
 #### Should I use SurfaceView or TextureView? ####
 
