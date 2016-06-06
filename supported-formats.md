@@ -112,9 +112,9 @@ a more appropriate container format.
 ## Sample formats ##
 
 By default ExoPlayer uses Android's platform decoders. Hence the supported sample formats depend on
-the underlying platform rather than on ExoPlayer. Supported sample formats for Android devices are
+the underlying platform rather than on ExoPlayer. Sample formats supported by Android devices are
 documented [here](https://developer.android.com/guide/appendix/media-formats.html#core). Note that
-devices may provide support for additional sample formats.
+individual devices may provide support for additional formats.
 
 In addition to using Android's platform decoders, ExoPlayer can also make use of software decoder
 extensions. These must be manually built and included in projects that wish to make use of them. We
