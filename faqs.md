@@ -8,6 +8,8 @@ weight: 3
 * [How do I get smooth animation/scrolling of video?](#how-do-i-get-smooth-animation/scrolling-of-video?)
 * [Should I render video to a SurfaceView or TextureView?](#should-i-use-surfaceview-or-textureview?)
 
+---
+
 #### What formats does ExoPlayer support? ####
 
 See the [Supported formats](https://google.github.io/ExoPlayer/supported-formats.html) page.
