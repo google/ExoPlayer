@@ -18,7 +18,6 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
@@ -61,7 +60,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   /**
    * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
    */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {
+  public interface EventListener {
 
     /**
      * Invoked when a media playlist has been loaded.
