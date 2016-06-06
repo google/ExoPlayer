@@ -37,8 +37,8 @@ use `TextureView` rather than `SurfaceView`. If smooth animation or scrolling is
 `SurfaceView` should therefore be prefered over `TextureView` where possible. `TextureView` should
 be used only if SurfaceView does not meet your needs. One example is where smooth animations or
 scrolling of the video surface is required prior to Android N (see
-[How do I get smooth animation/scrolling of video?][]).For this case, it's preferable to use
-`TextureView` only when [`SDK_INT`][] is less than 24 (Android N), and `SurfaceView` otherwise.
+[How do I get smooth animation/scrolling of video?][]). For this case, it's preferable to use
+`TextureView` only when [`SDK_INT`][] is less than 24 (Android N) and `SurfaceView` otherwise.
 
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support?
 [How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animation/scrolling-of-video?
