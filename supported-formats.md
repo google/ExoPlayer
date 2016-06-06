@@ -15,7 +15,7 @@ formats; one for video (e.g. H.264) and one for audio (e.g. AAC).
 indicated by the file extension. Note that for some audio only formats (e.g. MP3), the sample and
 container formats may be the same.
 * Adaptive streaming technologies such as DASH, SmoothStreaming and HLS. These are not media formats
-as such, however it's still necessary to define what level of support ExoPlayer providers.
+as such, however it's still necessary to define what level of support ExoPlayer provides.
 
 The following sections define ExoPlayer's support at each level, from highest to lowest.
 
