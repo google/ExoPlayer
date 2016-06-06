@@ -84,7 +84,7 @@ Media files in the following container formats can be played directly by ExoPlay
 | MPEG-PS | YES | Not seekable* |
 | FLV | YES | Not seekable* |
 | ADTS (AAC) | YES | Not seekable* |
-| Flac | YES | Using the [Flac extension](https://github.com/google/ExoPlayer/tree/master/extensions/flac) only |
+| Flac | YES | Using the [Flac extension][] only |
 
 \* Seeking is unsupported because the container does not provide metadata (e.g. a sample index) to allow a media player to perform a seek in an efficient way. If seeking is required, we suggest using a more appropriate container format.
 
@@ -93,3 +93,5 @@ Media files in the following container formats can be played directly by ExoPlay
 By default ExoPlayer uses Android's platform decoders. Hence the supported sample formats depend on the underlying platform rather than on ExoPlayer. Supported sample formats for Android devices are documented [here](https://developer.android.com/guide/appendix/media-formats.html#core). Note that devices may provide support for additional sample formats.
 
 In addition to using Android's platform decoders, ExoPlayer can also make use of software decoder extensions. These must be manually built and included in projects that wish to make use of them. We currently provide software decoder extensions for [VP9](https://github.com/google/ExoPlayer/tree/master/extensions/vp9), [Flac](https://github.com/google/ExoPlayer/tree/master/extensions/flac) and [Opus](https://github.com/google/ExoPlayer/tree/master/extensions/opus).
+
+[`Flac extension`]: https://github.com/google/ExoPlayer/tree/master/extensions/flac
