@@ -47,7 +47,7 @@ weight: 2
 | ID3 metadata                            | YES          ||
 | **Content protection**                  |||
 | AES-128                                 | YES          ||
-| Sample AES-128 | NO |||
+| Sample AES-128 | NO ||
 
 ## Standalone container formats ##
 
