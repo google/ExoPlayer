@@ -6,7 +6,7 @@ weight: 3
 
 * [What formats does ExoPlayer support?][]
 * [How do I get smooth animation/scrolling of video?][]
-* [Should I render video to a SurfaceView or TextureView?][]
+* [Should I use SurfaceView or TextureView?][]
 
 ---
 
@@ -42,6 +42,6 @@ scrolling of the video surface is required prior to Android N (see
 
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support?
 [How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animation/scrolling-of-video?
-[Should I render video to a SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview?
+[Should I use SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview?
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
 [`SDK_INT`]: https://developer.android.com/reference/android/os/Build.VERSION.html#SDK_INT
