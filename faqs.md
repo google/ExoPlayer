@@ -4,13 +4,13 @@ title: FAQs
 weight: 3
 ---
 
-* What formats does ExoPlayer support?](#what-formats-does-exoplayer-support?) 
+* [What formats does ExoPlayer support?](#what-formats-does-exoplayer-support?) 
 * [How do I get smooth animation/scrolling of video?](#how-do-i-get-smooth-animation/scrolling-of-video?)
 * [Should I render video to a SurfaceView or TextureView?](#should-i-use-surfaceview-or-textureview?)
 
 #### What formats does ExoPlayer support? ####
 
-Please see the [Supported formats](https://google.github.io/ExoPlayer/supported-formats.html) page.
+See the [Supported formats](https://google.github.io/ExoPlayer/supported-formats.html) page.
 
 #### How do I get smooth animation/scrolling of video? ####
 
