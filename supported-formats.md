@@ -25,8 +25,8 @@ The following sections define ExoPlayer's support at each level, from highest to
 
 ExoPlayer supports DASH with the FMP4, WebM and Matroska container formats. Media streams must be
 demuxed, meaning that video, audio and text must be defined in distinct AdaptationSet elements in
-the DASH manifest. The contained sample formats must also be supported for the media to be playable.
-See the [sample formats](#sample-formats) section for details.
+the DASH manifest. The contained sample formats must also be supported (see the
+[sample formats](#sample-formats) section for details).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
@@ -48,8 +48,8 @@ See the [sample formats](#sample-formats) section for details.
 
 ExoPlayer supports SmoothStreaming with the FMP4 container format. Media streams must be demuxed,
 meaning that video, audio and text must be defined in distinct StreamIndex elements in the
-SmoothStreaming manifest. The contained sample formats must also be supported for the media to be
-playable. See the [sample formats](#sample-formats) section for details.
+SmoothStreaming manifest. The contained sample formats must also be supported (see the
+[sample formats](#sample-formats) section for details).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
@@ -64,9 +64,9 @@ playable. See the [sample formats](#sample-formats) section for details.
 ### HLS ###
 
 ExoPlayer supports HLS with the MPEG-TS, ADTS and MP3 container formats. The contained sample
-formats must also be supported for the media to be playable. See the
-[sample formats](#sample-formats) section for details. We recommend using DASH (or SmoothStreaming)
-rather than HLS where possible. You can read about some of the benefits of DASH
+formats must also be supported (see the [sample formats](#sample-formats) section for details). Note
+that we recommend using DASH (or SmoothStreaming) rather than HLS where possible. You can read about
+some of the benefits of DASH
 [here](https://google.github.io/ExoPlayer/2015/05/08/the-benefits-of-dash.html).
 
 | Feature | Supported    | Comment              |
@@ -87,8 +87,8 @@ rather than HLS where possible. You can read about some of the benefits of DASH
 ## Standalone container formats ##
 
 Media files in the following container formats can be played directly by ExoPlayer. The contained
-sample formats must also be supported for the media to be playable. See the
-[sample formats](#sample-formats) section for details.
+sample formats must also be supported (see the [sample formats](#sample-formats) section for
+details).
 
 | Container format | Supported    | Comment              |
 |------------------|:------------:|:---------------------|
