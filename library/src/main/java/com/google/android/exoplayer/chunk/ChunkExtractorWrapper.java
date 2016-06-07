@@ -48,7 +48,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   }
 
   private final Extractor extractor;
-  private final DrmInitData drmInitData;
+  private final Format manifestFormat;
+  private final boolean preferManifestDrmInitData;
 
   private boolean extractorInitialized;
   private SingleTrackMetadataOutput metadataOutput;
@@ -59,12 +60,16 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   /**
    * @param extractor The extractor to wrap.
-   * @param drmInitData {@link DrmInitData} that should be added to any format extracted from the
-   *     stream. If set, overrides any {@link DrmInitData} extracted from the stream.
+   * @param manifestFormat A manifest defined {@link Format} whose data should be merged into any
+   *     sample {@link Format} output from the {@link Extractor}.
+   * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
+   *     should be preferred when the sample and manifest {@link Format}s are merged.
    */
-  public ChunkExtractorWrapper(Extractor extractor, DrmInitData drmInitData) {
+  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
+      boolean preferManifestDrmInitData) {
     this.extractor = extractor;
-    this.drmInitData = drmInitData;
+    this.manifestFormat = manifestFormat;
+    this.preferManifestDrmInitData = preferManifestDrmInitData;
   }
 
   /**
@@ -122,10 +127,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void format(Format format) {
-    if (drmInitData != null) {
-      format = format.copyWithDrmInitData(drmInitData);
-    }
-    trackOutput.format(format);
+    trackOutput.format(format.copyWithManifestFormatInfo(manifestFormat,
+        preferManifestDrmInitData));
   }
 
   @Override

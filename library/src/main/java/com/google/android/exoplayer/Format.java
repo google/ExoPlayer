@@ -376,6 +376,22 @@ public final class Format implements Parcelable {
         initializationData, drmInitData, requiresSecureDecryption);
   }
 
+  public Format copyWithManifestFormatInfo(Format manifestFormat,
+      boolean preferManifestDrmInitData) {
+    String id = manifestFormat.id;
+    int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
+    float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
+    String language = this.language == null ? manifestFormat.language : this.language;
+    DrmInitData drmInitData = (preferManifestDrmInitData && manifestFormat.drmInitData != null)
+        || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;
+    boolean requiresSecureDecryption = this.requiresSecureDecryption
+        || manifestFormat.requiresSecureDecryption;
+    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
+        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+        pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
+        initializationData, drmInitData, requiresSecureDecryption);
+  }
+
   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,

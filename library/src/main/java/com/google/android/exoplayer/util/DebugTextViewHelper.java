@@ -122,8 +122,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     if (format == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(r:" + format.width + "x" + format.height
-        + getCodecCounterBufferCountString(player.getVideoCodecCounters()) + ")";
+    return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
+        + format.height + getCodecCounterBufferCountString(player.getVideoCodecCounters()) + ")";
   }
 
   private String getAudioString() {
@@ -131,8 +131,9 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     if (format == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(hz:" + format.sampleRate + " ch:" + format.channelCount
-        + getCodecCounterBufferCountString(player.getAudioCodecCounters()) + ")";
+    return "\n" + format.sampleMimeType + "(id:" + format.id + " hz:" + format.sampleRate + " ch:"
+        + format.channelCount + getCodecCounterBufferCountString(player.getAudioCodecCounters())
+        + ")";
   }
 
   private static String getCodecCounterBufferCountString(CodecCounters counters) {

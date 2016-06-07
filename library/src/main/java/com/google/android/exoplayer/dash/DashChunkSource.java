@@ -35,7 +35,6 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
-import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
@@ -366,19 +365,16 @@ public class DashChunkSource implements ChunkSource {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
       String containerMimeType = representation.format.containerMimeType;
+      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
+      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
       extractorWrapper = mimeTypeIsRawText(containerMimeType) ? null : new ChunkExtractorWrapper(
           mimeTypeIsWebm(containerMimeType) ? new MatroskaExtractor()
-              : new FragmentedMp4Extractor(), representation.format.drmInitData);
+              : new FragmentedMp4Extractor(),
+          representation.format, true /* preferManifestDrmInitData */);
       segmentIndex = representation.getIndex();
     }
 
     public void setSampleFormat(Format sampleFormat) {
-      DrmInitData manifestDrmInitData = representation.format.drmInitData;
-      if (manifestDrmInitData != null) {
-        // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-        // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-        sampleFormat = sampleFormat.copyWithDrmInitData(manifestDrmInitData);
-      }
       this.sampleFormat = sampleFormat;
     }
 
