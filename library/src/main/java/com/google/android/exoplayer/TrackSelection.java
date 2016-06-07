@@ -87,9 +87,7 @@ public final class TrackSelection {
   @Override
   public int hashCode() {
     if (hashCode == 0) {
-      int result = 17;
-      result = 31 * result + group;
-      result = 31 * result + Arrays.hashCode(tracks);
+      hashCode = 31 * group + Arrays.hashCode(tracks);
     }
     return hashCode;
   }
