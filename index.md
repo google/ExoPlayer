@@ -11,7 +11,7 @@ be updated through Play Store application updates.
 
 ## News ##
 
-Read news, hints and tips on the [ExoPlayer developer blog](https://medium.com/google-exoplayer).
+Read news, hints and tips on the [developer blog](https://medium.com/google-exoplayer).
 
 ## Documentation ##
 
