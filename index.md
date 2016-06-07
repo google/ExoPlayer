@@ -16,12 +16,12 @@ Read news, hints and tips on the [ExoPlayer developer blog](https://medium.com/g
 ## Documentation ##
 
 * The [developer guide][] provides a wealth of information to help you get started.
-* The [FAQs][] documents common questions and pitfalls.
+* The [FAQs page][] documents common questions and pitfalls.
 * The [class reference][] documents the ExoPlayer library classes.
 * The [release notes][] document the major changes in each release.
 
 [developer guide]: https://google.github.io/ExoPlayer/guide.html
-[FAQs]: https://google.github.io/ExoPlayer/faqs.html
+[FAQs page]: https://google.github.io/ExoPlayer/faqs.html
 [class reference]: https://google.github.io/ExoPlayer/doc/reference
 [release notes]: https://github.com/google/ExoPlayer/blob/dev/RELEASENOTES.md
 
