@@ -40,6 +40,7 @@
                 {% endif %}
               {% endfor %}
               <li class="pure-menu-item"><a href="{{ site.baseurl }}/doc/reference" class="pure-menu-link">Class reference</a></li>
+              <li class="pure-menu-item"><a href="https://medium.com/google-exoplayer" class="pure-menu-link">Blog</a></li>
             </ul>
         </div>
     </div>
@@ -50,11 +51,6 @@
         <h1>{{ page.title }}</h1>
         {{ content }}
       </article>
-      {% if page.disqus == true %}
-      <div class="disqus">
-        {% include disqus.html %}
-      </div>
-      {% endif %}
     </div>
 
 </div>

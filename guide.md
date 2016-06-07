@@ -26,7 +26,7 @@ media APIs. The open source project contains both the ExoPlayer library and a de
   demonstrates usage of ExoPlayer.
 
 This guide describes the ExoPlayer library and its use. It refers to code in the demo app throughout
-in order provide concrete examples. The guide touches on the pros and cons of using ExoPlayer. It
+in order to provide concrete examples. The guide touches on the pros and cons of using ExoPlayer. It
 shows how to use ExoPlayer to play DASH, SmoothStreaming and HLS adaptive streams, as well as
 formats such as FMP4, MP4, M4A, MKV, WebM, MP3, AAC, MPEG-TS, MPEG-PS, OGG, FLV and WAV. It also
 discusses ExoPlayer events, messages, customization and DRM support.
@@ -387,7 +387,7 @@ library. Here are some use cases for building custom components:
 * We recommended that custom components use the same model as existing ExoPlayer components to allow
   reconfiguration by the app during playback, as described in
   [Sending messages to components](#sending-messages-to-components). To do this, you should
-  implement a `ExoPlayerComponent` and receive configuration changes in its `handleMessage()`
+  implement an `ExoPlayerComponent` and receive configuration changes in its `handleMessage()`
   method. Your app should pass configuration changes by calling ExoPlayer’s `sendMessage()` and
   `blockingSendMessage()` methods.
 

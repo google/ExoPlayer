@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Supported formats
-weight: 2
+weight: 3
 ---
 
 When defining the formats that ExoPlayer supports, it's important to note that "media formats" are
