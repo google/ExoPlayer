@@ -191,6 +191,13 @@ public final class FakeExtractorInput implements ExtractorInput {
     return simulateUnknownLength ? C.LENGTH_UNBOUNDED : data.length;
   }
 
+  @Override
+  public <E extends Throwable> void setRetryPosition(long position, E e) throws E {
+    Assert.assertTrue(position >= 0);
+    readPosition = (int) position;
+    throw e;
+  }
+
   private boolean checkXFully(boolean allowEndOfInput, int position, int length,
       SparseBooleanArray failedPositions) throws IOException {
     if (simulateIOErrors && !failedPositions.get(position)) {

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.util.Assertions;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -160,6 +161,13 @@ public final class DefaultExtractorInput implements ExtractorInput {
   @Override
   public long getLength() {
     return streamLength;
+  }
+
+  @Override
+  public <E extends Throwable> void setRetryPosition(long position, E e) throws E {
+    Assertions.checkArgument(position >= 0);
+    this.position = position;
+    throw e;
   }
 
   /**

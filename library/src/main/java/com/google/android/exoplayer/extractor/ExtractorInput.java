@@ -223,4 +223,15 @@ public interface ExtractorInput {
    */
   long getLength();
 
+  /**
+   * Called when reading fails and the required retry position is different from the last position.
+   * After setting the retry position it throws the given {@link Throwable}.
+   *
+   * @param <E> Type of {@link Throwable} to be thrown.
+   * @param position The required retry position.
+   * @param e {@link Throwable} to be thrown.
+   * @throws E The given {@link Throwable} object.
+   */
+  <E extends Throwable> void setRetryPosition(long position, E e) throws E;
+
 }
