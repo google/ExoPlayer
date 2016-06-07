@@ -370,7 +370,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @return True if the source is ready. False otherwise.
    */
   protected final boolean isSourceReady() {
-    return stream.isReady();
+    return readEndOfStream ? streamIsFinal : stream.isReady();
   }
 
   // Abstract methods.
