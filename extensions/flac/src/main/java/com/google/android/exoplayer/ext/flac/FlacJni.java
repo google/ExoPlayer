@@ -140,6 +140,13 @@ import java.nio.ByteBuffer;
         : flacDecodeToArray(nativeDecoderContext, output.array());
   }
 
+  /**
+   * @return The position of the next data to be decoded or -1 in case of error.
+   */
+  public long getDecodePosition() {
+    return flacGetDecodePosition(nativeDecoderContext);
+  }
+
   public long getLastSampleTimestamp() {
     return flacGetLastTimestamp(nativeDecoderContext);
   }
@@ -156,8 +163,21 @@ import java.nio.ByteBuffer;
     return flacGetSeekPosition(nativeDecoderContext, timeUs);
   }
 
+  public String getStateString() {
+    return flacGetStateString(nativeDecoderContext);
+  }
+
   public void flush() {
     flacFlush(nativeDecoderContext);
+  }
+
+  /**
+   * Resets internal state of the decoder and sets the stream position.
+   *
+   * @param newPosition Stream's new position.
+   */
+  public void reset(long newPosition) {
+    flacReset(nativeDecoderContext, newPosition);
   }
 
   public void release() {
@@ -185,11 +205,17 @@ import java.nio.ByteBuffer;
   private native int flacDecodeToArray(long context, byte[] outputArray)
       throws IOException, InterruptedException;
 
+  private native long flacGetDecodePosition(long context);
+
   private native long flacGetLastTimestamp(long context);
 
   private native long flacGetSeekPosition(long context, long timeUs);
 
+  private native String flacGetStateString(long context);
+
   private native void flacFlush(long context);
+
+  private native void flacReset(long context, long newPosition);
 
   private native void flacRelease(long context);
 

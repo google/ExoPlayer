@@ -77,9 +77,16 @@ public final class FlacExtractor implements Extractor {
     decoder.setData(input);
 
     if (!metadataParsed) {
-      final FlacStreamInfo streamInfo = decoder.decodeMetadata();
-      if (streamInfo == null) {
-        throw new IOException("Metadata decoding failed");
+      final FlacStreamInfo streamInfo;
+      try {
+        streamInfo = decoder.decodeMetadata();
+        if (streamInfo == null) {
+          throw new IOException("Metadata decoding failed");
+        }
+      } catch (IOException e){
+        decoder.reset(0);
+        input.setRetryPosition(0, e);
+        throw e; // never executes
       }
       metadataParsed = true;
 
@@ -114,7 +121,17 @@ public final class FlacExtractor implements Extractor {
     }
 
     outputBuffer.reset();
-    int size = decoder.decodeSample(outputByteBuffer);
+    long lastDecodePosition = decoder.getDecodePosition();
+    int size;
+    try {
+      size = decoder.decodeSample(outputByteBuffer);
+    } catch (IOException e){
+      if (lastDecodePosition >= 0) {
+        decoder.reset(lastDecodePosition);
+        input.setRetryPosition(lastDecodePosition, e);
+      }
+      throw e;
+    }
     if (size <= 0) {
       return RESULT_END_OF_INPUT;
     }
@@ -128,7 +145,10 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public void seek(long position) {
-    decoder.flush();
+    if (position == 0) {
+      metadataParsed = false;
+    }
+    decoder.reset(position);
   }
 
   @Override

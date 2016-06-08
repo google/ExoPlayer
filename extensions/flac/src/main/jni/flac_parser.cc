@@ -316,9 +316,13 @@ bool FLACParser::init() {
     ALOGE("init_stream failed %d", initStatus);
     return false;
   }
+  return true;
+}
+
+bool FLACParser::decodeMetadata() {
   // parse all metadata
   if (!FLAC__stream_decoder_process_until_end_of_metadata(mDecoder)) {
-    ALOGE("end_of_metadata failed");
+    ALOGE("metadata decoding failed");
     return false;
   }
   // store first frame offset
@@ -389,14 +393,14 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
 
   if (!FLAC__stream_decoder_process_single(mDecoder)) {
     ALOGE("FLACParser::readBuffer process_single failed. Status: %s",
-            FLAC__stream_decoder_get_resolved_state_string(mDecoder));
+          getDecoderStateString());
     return -1;
   }
   if (!mWriteCompleted) {
     if (FLAC__stream_decoder_get_state(mDecoder) !=
         FLAC__STREAM_DECODER_END_OF_STREAM) {
       ALOGE("FLACParser::readBuffer write did not complete. Status: %s",
-            FLAC__stream_decoder_get_resolved_state_string(mDecoder));
+            getDecoderStateString());
     }
     return -1;
   }

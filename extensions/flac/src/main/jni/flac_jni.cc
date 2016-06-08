@@ -69,19 +69,31 @@ class JavaDataSource : public DataSource {
 struct Context {
   JavaDataSource *source;
   FLACParser *parser;
+
+  Context() {
+    source = new JavaDataSource();
+    parser = new FLACParser(source);
+  }
+
+  ~Context() {
+    delete parser;
+    delete source;
+  }
 };
 
 FUNC(jlong, flacInit) {
   Context *context = new Context;
-  context->source = new JavaDataSource();
-  context->parser = new FLACParser(context->source);
+  if (!context->parser->init()) {
+    delete context;
+    return 0;
+  }
   return reinterpret_cast<intptr_t>(context);
 }
 
 FUNC(jobject, flacDecodeMetadata, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
   context->source->setFlacJni(env, thiz);
-  if (!context->parser->init()) {
+  if (!context->parser->decodeMetadata()) {
     return NULL;
   }
 
@@ -118,6 +130,11 @@ FUNC(jint, flacDecodeToArray, jlong jContext, jbyteArray jOutputArray) {
   return count;
 }
 
+FUNC(jlong, flacGetDecodePosition, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  return context->parser->getDecodePosition();
+}
+
 FUNC(jlong, flacGetLastTimestamp, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
   return context->parser->getLastTimestamp();
@@ -128,14 +145,23 @@ FUNC(jlong, flacGetSeekPosition, jlong jContext, jlong timeUs) {
   return context->parser->getSeekPosition(timeUs);
 }
 
+FUNC(jstring, flacGetStateString, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  const char *str = context->parser->getDecoderStateString();
+  return env->NewStringUTF(str);
+}
+
 FUNC(void, flacFlush, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
   context->parser->flush();
 }
 
+FUNC(void, flacReset, jlong jContext, jlong newPosition) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  context->parser->reset(newPosition);
+}
+
 FUNC(void, flacRelease, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  delete context->parser;
-  delete context->source;
   delete context;
 }

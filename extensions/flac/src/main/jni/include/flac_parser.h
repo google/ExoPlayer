@@ -48,14 +48,39 @@ class FLACParser {
     return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
   }
 
+  bool decodeMetadata();
   size_t readBuffer(void *output, size_t output_size);
 
   int64_t getSeekPosition(int64_t timeUs);
 
   void flush() {
+    reset(mCurrentPos);
+  }
+
+  void reset(int64_t newPosition) {
     if (mDecoder != NULL) {
-      FLAC__stream_decoder_flush(mDecoder);
+      mCurrentPos = newPosition;
+      mEOF = false;
+      if (newPosition == 0) {
+        mStreamInfoValid = false;
+        FLAC__stream_decoder_reset(mDecoder);
+      } else {
+        FLAC__stream_decoder_flush(mDecoder);
+      }
     }
+  }
+
+  int64_t getDecodePosition() {
+    uint64_t position;
+    if (mDecoder != NULL
+        && FLAC__stream_decoder_get_decode_position(mDecoder, &position)) {
+      return position;
+    }
+    return -1;
+  }
+
+  const char *getDecoderStateString() {
+    return FLAC__stream_decoder_get_resolved_state_string(mDecoder);
   }
 
  private:
