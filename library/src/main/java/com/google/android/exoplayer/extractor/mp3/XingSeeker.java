@@ -54,7 +54,7 @@ import com.google.android.exoplayer.util.Util;
         sampleRate);
     if ((flags & 0x06) != 0x06) {
       // If the size in bytes or table of contents is missing, the stream is not seekable.
-      return new XingSeeker(firstFramePosition, durationUs, inputLength);
+      return null;
     }
 
     long sizeBytes = frame.readUnsignedIntToInt();
