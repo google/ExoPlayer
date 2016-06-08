@@ -89,8 +89,9 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   }
 
   public void assertOutput(Instrumentation instrumentation, String dumpFile) throws IOException {
-    String dumpExpected = TestUtil.getString(instrumentation, dumpFile);
-    Assert.assertEquals(dumpExpected, new Dumper().add(this).toString());
+    String actual = new Dumper().add(this).toString();
+    String expected = TestUtil.getString(instrumentation, dumpFile);
+    Assert.assertEquals(expected, actual);
   }
 
   @Override
