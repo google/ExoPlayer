@@ -11,8 +11,8 @@ track 2:
     sampleMimeType = video/mpeg2
     maxInputSize = -1
     requiresSecureDecryption = false
-    width = 1080
-    height = 720
+    width = 640
+    height = 426
     frameRate = -1.0
     rotationDegrees = -1
     pixelWidthHeightRatio = 1.0
@@ -26,16 +26,16 @@ track 2:
     language = null
     drmInitData = -
     initializationData:
-      data = length 22, hash D3167F9
+      data = length 22, hash CE183139
   sample count = 2
   sample 0:
     time = 33366
     flags = 1
-    data = length 36420, hash A653C4D9
+    data = length 20669, hash 26DABA0F
   sample 1:
     time = 66733
     flags = 0
-    data = length 52814, hash 8D54E344
+    data = length 18112, hash EC44B35B
 track 3:
   format:
     bitrate = -1
@@ -61,21 +61,21 @@ track 3:
     initializationData:
   sample count = 4
   sample 0:
-    time = 90511
+    time = 22455
     flags = 1
     data = length 1253, hash 727FD1C6
   sample 1:
-    time = 116633
+    time = 48577
     flags = 1
-    data = length 1254, hash 787D6CCE
+    data = length 1254, hash 73FB07B8
   sample 2:
-    time = 142755
+    time = 74700
     flags = 1
-    data = length 1254, hash 44B92592
+    data = length 1254, hash 73FB07B8
   sample 3:
-    time = 168877
+    time = 100822
     flags = 1
-    data = length 1254, hash 3B315899
+    data = length 1254, hash 73FB07B8
 track 21:
   format:
     bitrate = -1
