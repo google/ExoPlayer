@@ -253,6 +253,7 @@ public final class SimpleCache implements Cache {
         }
       }
     }
+    evictor.onCacheInitialized();
   }
 
   /**
