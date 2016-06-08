@@ -21,17 +21,17 @@ import com.google.android.exoplayer.testutil.TestUtil;
 import android.test.InstrumentationTestCase;
 
 /**
- * Unit test for {@link TsExtractor}.
+ * Unit test for {@link PsExtractor}.
  */
-public final class TsExtractorTest extends InstrumentationTestCase {
+public final class PsExtractorTest extends InstrumentationTestCase {
 
   public void testSample() throws Exception {
     TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
       @Override
       public Extractor create() {
-        return new TsExtractor();
+        return new PsExtractor();
       }
-    }, "ts/sample.ts", getInstrumentation());
+    }, "ts/sample.ps", getInstrumentation());
   }
 
 }
