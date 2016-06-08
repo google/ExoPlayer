@@ -84,6 +84,9 @@ public class TestUtil {
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       try {
+        // Extractor.read should not read seekPositionHolder.position. Set it to a value that's
+        // likely to cause test failure if a read does occur.
+        seekPositionHolder.position = Long.MIN_VALUE;
         readResult = extractor.read(input, seekPositionHolder);
         if (readResult == Extractor.RESULT_SEEK) {
           long seekPosition = seekPositionHolder.position;
