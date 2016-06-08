@@ -20,6 +20,7 @@ import com.google.android.exoplayer.extensions.SimpleDecoder;
 import com.google.android.exoplayer.extensions.SimpleOutputBuffer;
 import com.google.android.exoplayer.util.FlacStreamInfo;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -52,7 +53,13 @@ import java.util.List;
 
     ByteBuffer metadata = ByteBuffer.wrap(initializationData.get(0));
     decoder.setData(metadata);
-    FlacStreamInfo streamInfo = decoder.decodeMetadata();
+    FlacStreamInfo streamInfo;
+    try {
+      streamInfo = decoder.decodeMetadata();
+    } catch (IOException | InterruptedException e) {
+      // Never happens.
+      throw new IllegalStateException(e);
+    }
     if (streamInfo == null) {
       throw new FlacDecoderException("Metadata decoding failed");
     }
@@ -84,7 +91,13 @@ import java.util.List;
     }
     decoder.setData(inputBuffer.data);
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, maxOutputBufferSize);
-    int result = decoder.decodeSample(outputData);
+    int result;
+    try {
+      result = decoder.decodeSample(outputData);
+    } catch (IOException | InterruptedException e) {
+      // Never happens.
+      throw new IllegalStateException(e);
+    }
     if (result < 0) {
       return new FlacDecoderException("Frame decoding failed");
     }

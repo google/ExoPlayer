@@ -130,11 +130,11 @@ import java.nio.ByteBuffer;
     return byteCount;
   }
 
-  public FlacStreamInfo decodeMetadata() {
+  public FlacStreamInfo decodeMetadata() throws IOException, InterruptedException {
     return flacDecodeMetadata(nativeDecoderContext);
   }
 
-  public int decodeSample(ByteBuffer output) {
+  public int decodeSample(ByteBuffer output) throws IOException, InterruptedException {
     return output.isDirect()
         ? flacDecodeToBuffer(nativeDecoderContext, output)
         : flacDecodeToArray(nativeDecoderContext, output.array());
@@ -176,11 +176,14 @@ import java.nio.ByteBuffer;
 
   private native long flacInit();
 
-  private native FlacStreamInfo flacDecodeMetadata(long context);
+  private native FlacStreamInfo flacDecodeMetadata(long context)
+      throws IOException, InterruptedException;
 
-  private native int flacDecodeToBuffer(long context, ByteBuffer outputBuffer);
+  private native int flacDecodeToBuffer(long context, ByteBuffer outputBuffer)
+      throws IOException, InterruptedException;
 
-  private native int flacDecodeToArray(long context, byte[] outputArray);
+  private native int flacDecodeToArray(long context, byte[] outputArray)
+      throws IOException, InterruptedException;
 
   private native long flacGetLastTimestamp(long context);
 
