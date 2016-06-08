@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -140,9 +139,21 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
+  public void onAudioFormatChanged(Format format) {
+    Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
+        + "]");
+  }
+
+  @Override
   public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
       long initializationDurationMs) {
     Log.d(TAG, "videoDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
+  }
+
+  @Override
+  public void onVideoFormatChanged(Format format) {
+    Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
+        + "]");
   }
 
   @Override
@@ -200,9 +211,7 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   @Override
   public void onDownstreamFormatChanged(int sourceId, Format format, int trigger,
       long mediaTimeMs) {
-    if (sourceId == C.TRACK_TYPE_VIDEO) {
-      Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + format.id + "]");
-    }
+    // Do nothing.
   }
 
   // Internal methods
@@ -266,6 +275,9 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   private static String getFormatString(Format format) {
+    if (format == null) {
+      return "null";
+    }
     StringBuilder builder = new StringBuilder();
     builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
     if (format.bitrate != Format.NO_VALUE) {

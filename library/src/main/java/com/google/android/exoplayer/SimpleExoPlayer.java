@@ -63,8 +63,10 @@ public final class SimpleExoPlayer implements ExoPlayer {
   public interface DebugListener {
     void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
+    void onAudioFormatChanged(Format format);
     void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
+    void onVideoFormatChanged(Format format);
     void onDroppedFrames(int count, long elapsed);
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
   }
@@ -481,6 +483,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onVideoInputFormatChanged(Format format) {
       videoFormat = format;
+      if (debugListener != null) {
+        debugListener.onVideoFormatChanged(format);
+      }
     }
 
     @Override
@@ -508,8 +513,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onVideoDisabled() {
-      videoFormat = null;
       videoCodecCounters = null;
+      if (videoFormat != null) {
+        videoFormat = null;
+        if (debugListener != null) {
+          debugListener.onVideoFormatChanged(null);
+        }
+      }
     }
 
     // AudioTrackRendererEventListener implementation
@@ -531,6 +541,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioInputFormatChanged(Format format) {
       audioFormat = format;
+      if (debugListener != null) {
+        debugListener.onAudioFormatChanged(format);
+      }
     }
 
     @Override
@@ -543,8 +556,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onAudioDisabled() {
-      audioFormat = null;
       audioCodecCounters = null;
+      if (audioFormat != null) {
+        audioFormat = null;
+        if (debugListener != null) {
+          debugListener.onAudioFormatChanged(null);
+        }
+      }
     }
 
     // TextRenderer implementation
