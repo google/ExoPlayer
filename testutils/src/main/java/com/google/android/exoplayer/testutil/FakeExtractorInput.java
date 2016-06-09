@@ -212,7 +212,7 @@ public final class FakeExtractorInput implements ExtractorInput {
       throw new EOFException();
     }
     if (position + length > data.length) {
-      throw new IOException("Attempted to move past end of data: (" + position + " + "
+      throw new EOFException("Attempted to move past end of data: (" + position + " + "
           + length + ") > " + data.length);
     }
     return true;
