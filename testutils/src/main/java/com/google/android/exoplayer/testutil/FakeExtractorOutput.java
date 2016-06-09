@@ -23,12 +23,16 @@ import android.util.SparseArray;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * A fake {@link ExtractorOutput}.
  */
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
+
+  private static final boolean WRITE_DUMP = false;
 
   private final boolean allowDuplicateTrackIds;
 
@@ -90,8 +94,18 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   public void assertOutput(Instrumentation instrumentation, String dumpFile) throws IOException {
     String actual = new Dumper().add(this).toString();
-    String expected = TestUtil.getString(instrumentation, dumpFile);
-    Assert.assertEquals(expected, actual);
+
+    if (WRITE_DUMP) {
+      File directory = instrumentation.getContext().getExternalFilesDir(null);
+      File file = new File(directory, dumpFile);
+      file.getParentFile().mkdirs();
+      PrintWriter out = new PrintWriter(file);
+      out.print(actual);
+      out.close();
+    } else {
+      String expected = TestUtil.getString(instrumentation, dumpFile);
+      Assert.assertEquals(dumpFile, expected, actual);
+    }
   }
 
   @Override
