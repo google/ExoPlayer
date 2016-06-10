@@ -18,6 +18,7 @@ package com.google.android.exoplayer.testutil;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -79,7 +80,13 @@ public class TestUtil {
       boolean retryFromStartIfLive) throws IOException, InterruptedException {
     FakeExtractorOutput output = new FakeExtractorOutput();
     extractor.init(output);
+    consumeTestData(extractor, input, output, retryFromStartIfLive);
+    return output;
+  }
 
+  private static void consumeTestData(Extractor extractor, FakeExtractorInput input,
+      FakeExtractorOutput output, boolean retryFromStartIfLive)
+      throws IOException, InterruptedException {
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
@@ -109,7 +116,6 @@ public class TestUtil {
         extractor.seek(0);
       }
     }
-    return output;
   }
 
   public static byte[] buildTestData(int length) {
@@ -243,7 +249,24 @@ public class TestUtil {
         && assetExists(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION)) {
       extractorOutput.assertOutput(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(instrumentation, sampleFile + DUMP_EXTENSION);
+      extractorOutput.assertOutput(instrumentation, sampleFile + ".0" + DUMP_EXTENSION);
+    }
+
+    SeekMap seekMap = extractorOutput.seekMap;
+    if (seekMap.isSeekable()) {
+      long durationUs = seekMap.getDurationUs();
+      for (int j = 0; j < 4; j++) {
+        long timeUs = (durationUs * j) / 3;
+        long position = seekMap.getPosition(timeUs);
+        input.setPosition((int) position);
+        for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
+          extractorOutput.trackOutputs.valueAt(i).clear();
+        }
+        extractor.seek(position);
+
+        consumeTestData(extractor, input, extractorOutput, false);
+        extractorOutput.assertOutput(instrumentation, sampleFile + '.' + j + DUMP_EXTENSION);
+      }
     }
 
     return extractorOutput;

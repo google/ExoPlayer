@@ -78,7 +78,8 @@ import com.google.android.exoplayer.C;
   public long getPosition(long timeUs) {
     long unroundedPosition = (timeUs * averageBytesPerSecond) / C.MICROS_PER_SECOND;
     // Round down to nearest frame.
-    return (unroundedPosition / blockAlignment) * blockAlignment + dataStartPosition;
+    long position = (unroundedPosition / blockAlignment) * blockAlignment;
+    return Math.min(position, dataSize - blockAlignment) + dataStartPosition;
   }
 
   /** Returns the time in microseconds for the given position in bytes in this WAV. */
