@@ -67,7 +67,7 @@ ExoPlayer supports HLS with the MPEG-TS, ADTS and MP3 container formats. The con
 formats must also be supported (see the [sample formats](#sample-formats) section for details). Note
 that we recommend using DASH (or SmoothStreaming) rather than HLS where possible. You can read about
 some of the benefits of DASH
-[here](https://google.github.io/ExoPlayer/2015/05/08/the-benefits-of-dash.html).
+[here](https://medium.com/google-exoplayer/test-8b62d50362ef#.dlz6npay4).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
