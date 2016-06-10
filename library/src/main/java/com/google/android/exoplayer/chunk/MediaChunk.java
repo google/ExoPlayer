@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -49,7 +50,7 @@ public abstract class MediaChunk extends Chunk {
    */
   public MediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex) {
-    super(dataSource, dataSpec, Chunk.TYPE_MEDIA, trigger, format);
+    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA, trigger, format);
     Assertions.checkNotNull(format);
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;

@@ -153,6 +153,37 @@ public interface C {
   int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
   /**
+   * A data type constant for data of unknown or unspecified type.
+   */
+  int DATA_TYPE_UNKNOWN = 0;
+
+  /**
+   * A data type constant for media, typically containing media samples.
+   */
+  int DATA_TYPE_MEDIA = 1;
+
+  /**
+   * A data type constant for media, typically containing only initialization data.
+   */
+  int DATA_TYPE_MEDIA_INITIALIZATION = 2;
+
+  /**
+   * A data type constant for drm or encryption related data.
+   */
+  int DATA_TYPE_DRM = 3;
+
+  /**
+   * A data type constant for a manifest file.
+   */
+  int DATA_TYPE_MANIFEST = 4;
+
+  /**
+   * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
+   * equal to this value.
+   */
+  int DATA_TYPE_CUSTOM_BASE = 10000;
+
+  /**
    * A type constant for tracks of unknown type.
    */
   int TRACK_TYPE_UNKNOWN = -1;
@@ -258,7 +289,8 @@ public interface C {
   int MSG_SET_PLAYBACK_PARAMS = 3;
 
   /**
-   * A minimum value for custom {@link TrackRenderer} message types.
+   * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
+   * this value.
    */
   int MSG_CUSTOM_BASE = 10000;
 

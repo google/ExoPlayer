@@ -142,7 +142,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Returns the current state of the renderer.
    *
-   * @return The current state (one of the STATE_* constants).
+   * @return The current state (one of the {@code STATE_*} constants).
    */
   protected final int getState() {
     return state;
@@ -346,7 +346,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
    * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
    *
-   * @return One of the TRACK_TYPE_* constants defined in {@link C}.
+   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   public abstract int getTrackType();
 

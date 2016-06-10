@@ -52,7 +52,7 @@ public abstract class TrackSelectionPolicy {
    * @param rendererTrackGroupArrays An array of {@link TrackGroupArray}s where each entry
    *     corresponds to the {@link TrackRenderer} of equal index in {@code renderers}.
    * @param rendererFormatSupports Maps every available track to a specific level of support as
-   *     defined by the {@link TrackRenderer} FORMAT_* constants.
+   *     defined by the {@link TrackRenderer} {@code FORMAT_*} constants.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   /* package */ abstract TrackSelection[] selectTracks(TrackRenderer[] renderers,

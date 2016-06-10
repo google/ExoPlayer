@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
@@ -57,7 +58,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
    */
   public InitializationChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       ChunkExtractorWrapper extractorWrapper) {
-    super(dataSource, dataSpec, Chunk.TYPE_MEDIA_INITIALIZATION, trigger, format);
+    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, trigger, format);
     this.extractorWrapper = extractorWrapper;
   }
 

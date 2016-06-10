@@ -159,7 +159,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
    *
    * @see TrackRenderer#getTrackType()
    * @param index The index of the renderer.
-   * @return One of the TRACK_TYPE_* constants defined in {@link C}.
+   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   public int getRendererType(int index) {
     return renderers[index].getTrackType();

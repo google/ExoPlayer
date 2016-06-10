@@ -729,7 +729,8 @@ public final class Util {
   }
 
   /**
-   * Maps a {@link C} TRACK_TYPE_* constant to its corresponding DEFAULT_*_BUFFER_SIZE value.
+   * Maps a {@link C} {@code TRACK_TYPE_*} constant to the corresponding {@link C}
+   * {@code DEFAULT_*_BUFFER_SIZE} constant.
    *
    * @param trackType The track type.
    * @return The corresponding default buffer size in bytes.

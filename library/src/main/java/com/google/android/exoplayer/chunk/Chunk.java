@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -26,31 +27,6 @@ import com.google.android.exoplayer.util.Assertions;
  * for the playback of streams.
  */
 public abstract class Chunk implements Loadable {
-
-  /**
-   * Value of {@link #type} for chunks containing unspecified data.
-   */
-  public static final int TYPE_UNSPECIFIED = 0;
-  /**
-   * Value of {@link #type} for chunks containing media data.
-   */
-  public static final int TYPE_MEDIA = 1;
-  /**
-   * Value of {@link #type} for chunks containing media initialization data.
-   */
-  public static final int TYPE_MEDIA_INITIALIZATION = 2;
-  /**
-   * Value of {@link #type} for chunks containing drm related data.
-   */
-  public static final int TYPE_DRM = 3;
-  /**
-   * Value of {@link #type} for chunks containing manifest or playlist data.
-   */
-  public static final int TYPE_MANIFEST = 4;
-  /**
-   * Implementations may define custom {@link #type} codes greater than or equal to this value.
-   */
-  public static final int TYPE_CUSTOM_BASE = 10000;
 
   /**
    * Value of {@link #trigger} for a load whose reason is unspecified.
@@ -78,7 +54,8 @@ public abstract class Chunk implements Loadable {
   public static final int TRIGGER_CUSTOM_BASE = 10000;
 
   /**
-   * The type of the chunk. For reporting only.
+   * The type of the chunk. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
+   * reporting only.
    */
   public final int type;
   /**
