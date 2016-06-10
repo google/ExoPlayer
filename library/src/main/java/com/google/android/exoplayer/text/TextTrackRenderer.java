@@ -198,8 +198,8 @@ public final class TextTrackRenderer extends TrackRenderer implements Callback {
             inputStreamEnded = true;
           } else {
             nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+            nextInputBuffer.flip();
           }
-          nextInputBuffer.flip();
           parser.queueInputBuffer(nextInputBuffer);
           nextInputBuffer = null;
         } else if (result == TrackStream.NOTHING_READ) {
