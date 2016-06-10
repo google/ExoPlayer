@@ -75,6 +75,10 @@ public final class Format implements Parcelable {
    * The average bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int bitrate;
+  /**
+   * Codecs of the format as described in RFC 6381, or null if unknown or not applicable.
+   */
+  public final String codecs;
 
   // Container specific.
 
@@ -190,92 +194,95 @@ public final class Format implements Parcelable {
   // Video.
 
   public static Format createVideoContainerFormat(String id, String containerMimeType,
-      String sampleMimeType, int bitrate, int width, int height, float frameRate,
-      List<byte[]> initializationData) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, width, height,
-        frameRate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, null,
-        OFFSET_SAMPLE_RELATIVE, initializationData, null, false);
+      String sampleMimeType, String codecs, int bitrate, int width, int height,
+      float frameRate, List<byte[]> initializationData) {
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, width,
+        height, frameRate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0,
+        null, OFFSET_SAMPLE_RELATIVE, initializationData, null, false);
   }
 
-  public static Format createVideoSampleFormat(String id, String sampleMimeType, int bitrate,
-      int maxInputSize, int width, int height, float frameRate, List<byte[]> initializationData,
+  public static Format createVideoSampleFormat(String id, String sampleMimeType,
+      String codecs, int bitrate, int maxInputSize, int width, int height, float frameRate,
+      List<byte[]> initializationData, DrmInitData drmInitData) {
+    return createVideoSampleFormat(id, sampleMimeType, codecs, bitrate, maxInputSize, width,
+        height, frameRate, initializationData, NO_VALUE, NO_VALUE, drmInitData);
+  }
+
+  public static Format createVideoSampleFormat(String id, String sampleMimeType,
+      String codecs, int bitrate, int maxInputSize, int width, int height, float frameRate,
+      List<byte[]> initializationData, int rotationDegrees, float pixelWidthHeightRatio,
       DrmInitData drmInitData) {
-    return createVideoSampleFormat(id, sampleMimeType, bitrate, maxInputSize, width, height,
-        frameRate, initializationData, NO_VALUE, NO_VALUE, drmInitData);
-  }
-
-  public static Format createVideoSampleFormat(String id, String sampleMimeType, int bitrate,
-      int maxInputSize, int width, int height, float frameRate, List<byte[]> initializationData,
-      int rotationDegrees, float pixelWidthHeightRatio, DrmInitData drmInitData) {
-    return new Format(id, null, sampleMimeType, bitrate, maxInputSize, width, height, frameRate,
-        rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0,
-        null, OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData, false);
+    return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, width, height,
+        frameRate, rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, 0, null, OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData, false);
   }
 
   // Audio.
 
   public static Format createAudioContainerFormat(String id, String containerMimeType,
-      String sampleMimeType, int bitrate, int channelCount, int sampleRate,
+      String sampleMimeType, String codecs, int bitrate, int channelCount, int sampleRate,
       List<byte[]> initializationData, int selectionFlags, String language) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, NO_VALUE, NO_VALUE, NO_VALUE,
-        selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData, null, false);
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, NO_VALUE, NO_VALUE,
+        NO_VALUE, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData, null,
+        false);
   }
 
-  public static Format createAudioSampleFormat(String id, String sampleMimeType, int bitrate,
-      int maxInputSize, int channelCount, int sampleRate, List<byte[]> initializationData,
-      DrmInitData drmInitData, int selectionFlags, String language) {
-    return createAudioSampleFormat(id, sampleMimeType, bitrate, maxInputSize, channelCount,
+  public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, int maxInputSize, int channelCount, int sampleRate,
+      List<byte[]> initializationData, DrmInitData drmInitData, int selectionFlags,
+      String language) {
+    return createAudioSampleFormat(id, sampleMimeType, codecs, bitrate, maxInputSize, channelCount,
         sampleRate, NO_VALUE, initializationData, drmInitData, selectionFlags, language);
   }
 
-  public static Format createAudioSampleFormat(String id, String sampleMimeType, int bitrate,
-      int maxInputSize, int channelCount, int sampleRate, int pcmEncoding,
+  public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, int maxInputSize, int channelCount, int sampleRate, int pcmEncoding,
       List<byte[]> initializationData, DrmInitData drmInitData, int selectionFlags,
       String language) {
-    return createAudioSampleFormat(id, sampleMimeType, bitrate, maxInputSize, channelCount,
+    return createAudioSampleFormat(id, sampleMimeType, codecs, bitrate, maxInputSize, channelCount,
         sampleRate, pcmEncoding, NO_VALUE, NO_VALUE, initializationData, drmInitData,
         selectionFlags, language);
   }
 
-  public static Format createAudioSampleFormat(String id, String sampleMimeType, int bitrate,
-      int maxInputSize, int channelCount, int sampleRate, int pcmEncoding, int encoderDelay,
-      int encoderPadding, List<byte[]> initializationData, DrmInitData drmInitData,
-      int selectionFlags, String language) {
-    return new Format(id, null, sampleMimeType, bitrate, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, channelCount, sampleRate, pcmEncoding, encoderDelay, encoderPadding,
-        selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData,
-        false);
+  public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, int maxInputSize, int channelCount, int sampleRate, int pcmEncoding,
+      int encoderDelay, int encoderPadding, List<byte[]> initializationData,
+      DrmInitData drmInitData, int selectionFlags, String language) {
+    return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, pcmEncoding, encoderDelay,
+        encoderPadding, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData,
+        drmInitData, false);
   }
 
   // Text.
 
   public static Format createTextContainerFormat(String id, String containerMimeType,
-      String sampleMimeType, int bitrate, int selectionFlags, String language) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+      String sampleMimeType, String codecs, int bitrate, int selectionFlags, String language) {
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
         selectionFlags, language, OFFSET_SAMPLE_RELATIVE, null, null, false);
   }
 
-  public static Format createTextSampleFormat(String id, String sampleMimeType, int bitrate,
-      int selectionFlags, String language, DrmInitData drmInitData) {
-    return createTextSampleFormat(id, sampleMimeType, bitrate, selectionFlags, language,
+  public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, int selectionFlags, String language, DrmInitData drmInitData) {
+    return createTextSampleFormat(id, sampleMimeType, codecs, bitrate, selectionFlags, language,
         drmInitData, OFFSET_SAMPLE_RELATIVE);
   }
 
-  public static Format createTextSampleFormat(String id, String sampleMimeType, int bitrate,
-      int selectionFlags, String language, DrmInitData drmInitData, long subsampleOffsetUs) {
-    return new Format(id, null, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
+  public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, int selectionFlags, String language, DrmInitData drmInitData,
+      long subsampleOffsetUs) {
+    return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
         selectionFlags, language, subsampleOffsetUs, null, drmInitData, false);
   }
 
   // Image.
 
-  public static Format createImageSampleFormat(String id, String sampleMimeType, int bitrate,
-      List<byte[]> initializationData, String language,
-      DrmInitData drmInitData) {
-    return new Format(id, null, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
+  public static Format createImageSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, List<byte[]> initializationData, String language, DrmInitData drmInitData) {
+    return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, language,
         OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData, false);
   }
@@ -284,27 +291,28 @@ public final class Format implements Parcelable {
 
   public static Format createContainerFormat(String id, String containerMimeType,
       String sampleMimeType, int bitrate) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, null,
-        OFFSET_SAMPLE_RELATIVE, null, null, false);
+    return new Format(id, containerMimeType, sampleMimeType, null, bitrate, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        0, null, OFFSET_SAMPLE_RELATIVE, null, null, false);
   }
 
-  public static Format createSampleFormat(String id, String sampleMimeType, int bitrate,
-      DrmInitData drmInitData) {
-    return new Format(id, null, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, null,
+  public static Format createSampleFormat(String id, String sampleMimeType, String codecs,
+      int bitrate, DrmInitData drmInitData) {
+    return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, null,
         OFFSET_SAMPLE_RELATIVE, null, drmInitData, false);
   }
 
-  /* package */ Format(String id, String containerMimeType, String sampleMimeType, int bitrate,
-      int maxInputSize, int width, int height, float frameRate, int rotationDegrees,
-      float pixelWidthHeightRatio, int channelCount, int sampleRate, int pcmEncoding,
-      int encoderDelay, int encoderPadding, int selectionFlags, String language,
+  /* package */ Format(String id, String containerMimeType, String sampleMimeType,
+      String codecs, int bitrate, int maxInputSize, int width, int height, float frameRate,
+      int rotationDegrees, float pixelWidthHeightRatio, int channelCount, int sampleRate,
+      int pcmEncoding, int encoderDelay, int encoderPadding, int selectionFlags, String language,
       long subsampleOffsetUs, List<byte[]> initializationData, DrmInitData drmInitData,
       boolean requiresSecureDecryption) {
     this.id = id;
     this.containerMimeType = containerMimeType;
     this.sampleMimeType = sampleMimeType;
+    this.codecs = codecs;
     this.bitrate = bitrate;
     this.maxInputSize = maxInputSize;
     this.width = width;
@@ -330,6 +338,7 @@ public final class Format implements Parcelable {
     id = in.readString();
     containerMimeType = in.readString();
     sampleMimeType = in.readString();
+    codecs = in.readString();
     bitrate = in.readInt();
     maxInputSize = in.readInt();
     width = in.readInt();
@@ -355,23 +364,23 @@ public final class Format implements Parcelable {
   }
 
   public Format copyWithMaxInputSize(int maxInputSize) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
-        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
+        width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
   }
 
   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
-        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
+        width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
   }
 
   public Format copyWithContainerInfo(String id, int bitrate, int width, int height,
       int selectionFlags, String language) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
-        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
+        width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
   }
@@ -386,22 +395,22 @@ public final class Format implements Parcelable {
         || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;
     boolean requiresSecureDecryption = this.requiresSecureDecryption
         || manifestFormat.requiresSecureDecryption;
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
+    return new Format(id, containerMimeType, sampleMimeType, null, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
   }
 
   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
-        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
+        width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
   }
 
   public Format copyWithDrmInitData(DrmInitData drmInitData) {
-    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
-        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+    return new Format(id, containerMimeType, codecs, sampleMimeType, bitrate, maxInputSize,
+        width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
   }
@@ -459,6 +468,7 @@ public final class Format implements Parcelable {
       result = 31 * result + (id == null ? 0 : id.hashCode());
       result = 31 * result + (containerMimeType == null ? 0 : containerMimeType.hashCode());
       result = 31 * result + (sampleMimeType == null ? 0 : sampleMimeType.hashCode());
+      result = 31 * result + (codecs == null ? 0 : codecs.hashCode());
       result = 31 * result + bitrate;
       result = 31 * result + width;
       result = 31 * result + height;
@@ -492,6 +502,7 @@ public final class Format implements Parcelable {
         || !Util.areEqual(language, other.language)
         || !Util.areEqual(containerMimeType, other.containerMimeType)
         || !Util.areEqual(sampleMimeType, other.sampleMimeType)
+        || !Util.areEqual(codecs, other.codecs)
         || !Util.areEqual(drmInitData, other.drmInitData)
         || initializationData.size() != other.initializationData.size()) {
       return false;
@@ -537,6 +548,7 @@ public final class Format implements Parcelable {
     dest.writeString(id);
     dest.writeString(containerMimeType);
     dest.writeString(sampleMimeType);
+    dest.writeString(codecs);
     dest.writeInt(bitrate);
     dest.writeInt(maxInputSize);
     dest.writeInt(width);

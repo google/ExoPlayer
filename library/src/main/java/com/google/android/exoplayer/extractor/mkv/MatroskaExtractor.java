@@ -1337,7 +1337,7 @@ public final class MatroskaExtractor implements Extractor {
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
-        format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
+        format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, maxInputSize, channelCount, sampleRate, pcmEncoding,
             initializationData, drmInitData, selectionFlags, language);
       } else if (MimeTypes.isVideo(mimeType)) {
@@ -1349,15 +1349,15 @@ public final class MatroskaExtractor implements Extractor {
         if (displayWidth != Format.NO_VALUE && displayHeight != Format.NO_VALUE) {
           pixelWidthHeightRatio = ((float) (height * displayWidth)) / (width * displayHeight);
         }
-        format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
+        format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData,
             Format.NO_VALUE, pixelWidthHeightRatio, drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
-            selectionFlags, language, drmInitData);
+        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
+            Format.NO_VALUE, selectionFlags, language, drmInitData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
-        format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType,
+        format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, initializationData, language, drmInitData);
       } else {
         throw new ParserException("Unexpected MIME type.");

@@ -610,16 +610,16 @@ import java.util.List;
             language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, 0, language, drmInitData);
+            MimeTypes.APPLICATION_TTML, null, Format.NO_VALUE, 0, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TX3G, Format.NO_VALUE, 0, language, drmInitData);
+            MimeTypes.APPLICATION_TX3G, null, Format.NO_VALUE, 0, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_wvtt) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_MP4VTT, Format.NO_VALUE, 0, language, drmInitData);
+            MimeTypes.APPLICATION_MP4VTT, null, Format.NO_VALUE, 0, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_stpp) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, 0, language, drmInitData,
+            MimeTypes.APPLICATION_TTML, null, Format.NO_VALUE, 0, language, drmInitData,
             0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -696,7 +696,7 @@ import java.util.List;
       return;
     }
 
-    out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
+    out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
         Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
         rotationDegrees, pixelWidthHeightRatio, drmInitData);
   }
@@ -908,7 +908,7 @@ import java.util.List;
         out.format = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId), language,
             drmInitData);
       } else if (childAtomType == Atom.TYPE_ddts) {
-        out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
+        out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0,
             language);
       }
@@ -919,7 +919,7 @@ import java.util.List;
       // TODO: Determine the correct PCM encoding.
       int pcmEncoding =
           MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT : Format.NO_VALUE;
-      out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
+      out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
           Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
           initializationData == null ? null : Collections.singletonList(initializationData),
           drmInitData, 0, language);

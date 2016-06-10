@@ -80,8 +80,9 @@ import java.util.List;
       putNativeOrderLong(initializationData, preskip);
       putNativeOrderLong(initializationData, DEFAULT_SEEK_PRE_ROLL_SAMPLES);
 
-      setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS, Format.NO_VALUE,
-          Format.NO_VALUE, channelCount, SAMPLE_RATE, initializationData, null, 0, "und");
+      setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS, null,
+          Format.NO_VALUE, Format.NO_VALUE, channelCount, SAMPLE_RATE, initializationData, null, 0,
+          "und");
       headerRead = true;
     } else {
       boolean headerPacket = packet.readInt() == OPUS_CODE;

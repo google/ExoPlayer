@@ -72,7 +72,7 @@ public final class WavExtractor implements Extractor, SeekMap {
         // Should only happen if the media wasn't sniffed.
         throw new ParserException("Unsupported or unrecognized wav header.");
       }
-      Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW,
+      Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null,
           wavHeader.getBitrate(), MAX_INPUT_SIZE, wavHeader.getNumChannels(),
           wavHeader.getSampleRateHz(), wavHeader.getEncoding(), null, null, 0, null);
       trackOutput.format(format);

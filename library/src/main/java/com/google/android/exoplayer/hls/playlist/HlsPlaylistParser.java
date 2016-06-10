@@ -168,7 +168,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
             String captionName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
             String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
             muxedCaptionFormat = Format.createTextContainerFormat(captionName,
-                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, -1, 0, language);
+                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, -1, 0, language);
           }
         } else if (SUBTITLES_TYPE.equals(type)) {
           // We assume all subtitles belong to the same group.
@@ -176,7 +176,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
           Format format = Format.createTextContainerFormat(subtitleName, MimeTypes.APPLICATION_M3U8,
-              MimeTypes.TEXT_VTT, bitrate, 0, language);
+              MimeTypes.TEXT_VTT, null, bitrate, 0, language);
           subtitles.add(new Variant(uri, format, codecs));
         } else if (AUDIO_TYPE.equals(type)) {
           // We assume all audios belong to the same group.
@@ -185,7 +185,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           String audioName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           int audioBitrate = uri != null ? bitrate : -1;
           Format format = Format.createAudioContainerFormat(audioName, MimeTypes.APPLICATION_M3U8,
-              null, audioBitrate, -1, -1, null, 0, language);
+              null, null, audioBitrate, -1, -1, null, 0, language);
           if (uri != null) {
             audios.add(new Variant(uri, format, codecs));
           } else {
@@ -220,7 +220,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           name = Integer.toString(variants.size());
         }
         Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
-            bitrate, width, height, Format.NO_VALUE, null);
+            null, bitrate, width, height, Format.NO_VALUE, null);
         variants.add(new Variant(line, format, codecs));
         bitrate = 0;
         codecs = null;

@@ -169,9 +169,9 @@ import java.util.List;
           initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
           NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
           NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
-          output.format(Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, Format.NO_VALUE,
-              Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE, initializationData,
-              Format.NO_VALUE, spsData.pixelWidthAspectRatio, null));
+          output.format(Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
+              Format.NO_VALUE, Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE,
+              initializationData, Format.NO_VALUE, spsData.pixelWidthAspectRatio, null));
           hasOutputFormat = true;
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);

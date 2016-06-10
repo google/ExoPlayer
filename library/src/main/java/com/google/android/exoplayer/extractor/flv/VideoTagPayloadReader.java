@@ -93,7 +93,7 @@ import java.util.List;
       nalUnitLengthFieldLength = avcData.nalUnitLengthFieldLength;
 
       // Construct and output the format.
-      Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264,
+      Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
           Format.NO_VALUE, Format.NO_VALUE, avcData.width, avcData.height,
           Format.NO_VALUE, avcData.initializationData, Format.NO_VALUE,
           avcData.pixelWidthAspectRatio, null);

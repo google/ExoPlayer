@@ -63,7 +63,7 @@ public final class FfmpegAudioTrackRenderer extends AudioDecoderTrackRenderer {
   public Format getOutputFormat() {
     int channelCount = decoder.getChannelCount();
     int sampleRate = decoder.getSampleRate();
-    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, Format.NO_VALUE,
+    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
         Format.NO_VALUE, channelCount, sampleRate, C.ENCODING_PCM_16BIT, null, null, 0, null);
   }
 

@@ -140,7 +140,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
    * rate as the input.
    */
   protected Format getOutputFormat() {
-    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, Format.NO_VALUE,
+    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
         Format.NO_VALUE, inputFormat.channelCount, inputFormat.sampleRate, C.ENCODING_PCM_16BIT,
         null, null, 0, null);
   }

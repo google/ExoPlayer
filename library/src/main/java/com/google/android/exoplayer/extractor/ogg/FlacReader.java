@@ -76,9 +76,9 @@ import java.util.List;
       byte[] metadata = Arrays.copyOfRange(data, 9, packet.limit());
       metadata[4] = (byte) 0x80; // Set the last metadata block flag, ignore the other blocks
       List<byte[]> initializationData = Collections.singletonList(metadata);
-      setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_FLAC, Format.NO_VALUE,
-          streamInfo.bitRate(), streamInfo.channels, streamInfo.sampleRate, initializationData,
-          null, 0, null);
+      setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_FLAC, null,
+          Format.NO_VALUE, streamInfo.bitRate(), streamInfo.channels, streamInfo.sampleRate,
+          initializationData, null, 0, null);
     } else if ((data[0] & 0x7F) == SEEKTABLE_PACKET_TYPE) {
       flacOggSeeker = new FlacOggSeeker();
       flacOggSeeker.parseSeekTable(packet);

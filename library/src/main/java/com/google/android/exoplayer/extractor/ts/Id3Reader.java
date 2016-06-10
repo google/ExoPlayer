@@ -40,7 +40,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public Id3Reader(TrackOutput output) {
     super(output);
-    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, Format.NO_VALUE,
+    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE,
         null));
     id3Header = new ParsableByteArray(ID3_HEADER_SIZE);
   }

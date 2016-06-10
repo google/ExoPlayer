@@ -631,8 +631,8 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         int height = parseRequiredInt(parser, KEY_MAX_HEIGHT);
         List<byte[]> codecSpecificData = buildCodecSpecificData(
             parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
-        format = Format.createVideoContainerFormat(id, MimeTypes.VIDEO_MP4, sampleMimeType, bitrate,
-            width, height, Format.NO_VALUE, codecSpecificData);
+        format = Format.createVideoContainerFormat(id, MimeTypes.VIDEO_MP4, sampleMimeType, null,
+            bitrate, width, height, Format.NO_VALUE, codecSpecificData);
       } else if (type == C.TRACK_TYPE_AUDIO) {
         sampleMimeType = sampleMimeType == null ? MimeTypes.AUDIO_AAC : sampleMimeType;
         int channels = parseRequiredInt(parser, KEY_CHANNELS);
@@ -640,12 +640,12 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         List<byte[]> codecSpecificData = buildCodecSpecificData(
             parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
-        format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, bitrate,
-            channels, samplingRate, codecSpecificData, 0, language);
+        format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, null,
+            bitrate, channels, samplingRate, codecSpecificData, 0, language);
       } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
-            bitrate, 0, language);
+            null, bitrate, 0, language);
       } else {
         format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
             bitrate);

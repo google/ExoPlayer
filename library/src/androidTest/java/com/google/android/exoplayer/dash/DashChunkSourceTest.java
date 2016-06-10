@@ -44,12 +44,13 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static final int WIDE_WIDTH = 400;
 
   private static final Format REGULAR_VIDEO = Format.createVideoContainerFormat("1",
-      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, 1000, 480, 240, Format.NO_VALUE, null);
+      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, null, 1000, 480, 240, Format.NO_VALUE, null);
   private static final Format TALL_VIDEO = Format.createVideoContainerFormat("2",
-      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, 1000, 100, TALL_HEIGHT, Format.NO_VALUE,
-      null);
+      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, null, 1000, 100, TALL_HEIGHT,
+      Format.NO_VALUE, null);
   private static final Format WIDE_VIDEO = Format.createVideoContainerFormat("3",
-      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, 1000, WIDE_WIDTH, 50, Format.NO_VALUE, null);
+      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, null, 1000, WIDE_WIDTH, 50, Format.NO_VALUE,
+      null);
 
   @Override
   public void setUp() throws Exception {

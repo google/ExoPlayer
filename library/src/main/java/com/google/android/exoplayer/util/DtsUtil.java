@@ -72,8 +72,8 @@ public final class DtsUtil {
         : TWICE_BITRATE_KBPS_BY_RATE[rate] * 1000 / 2;
     frameBits.skipBits(10); // MIX, DYNF, TIMEF, AUXF, HDCD, EXT_AUDIO_ID, EXT_AUDIO, ASPF
     channelCount += frameBits.readBits(2) > 0 ? 1 : 0; // LFF
-    return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_DTS, bitrate, Format.NO_VALUE,
-        channelCount, sampleRate, null, drmInitData, 0, language);
+    return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_DTS, null, bitrate,
+        Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0, language);
   }
 
   /**
