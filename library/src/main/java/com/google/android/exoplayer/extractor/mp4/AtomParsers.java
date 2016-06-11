@@ -1030,10 +1030,9 @@ import java.util.List;
       int childAtomSize = parent.readInt();
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_tenc) {
-        parent.skipBytes(4);
-        int firstInt = parent.readInt();
-        boolean defaultIsEncrypted = (firstInt >> 8) == 1;
-        int defaultInitVectorSize = firstInt & 0xFF;
+        parent.skipBytes(6);
+        boolean defaultIsEncrypted = parent.readUnsignedByte() == 1;
+        int defaultInitVectorSize = parent.readUnsignedByte();
         byte[] defaultKeyId = new byte[16];
         parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
         return new TrackEncryptionBox(defaultIsEncrypted, defaultInitVectorSize, defaultKeyId);
