@@ -99,6 +99,8 @@ import java.util.List;
   public static final int TYPE_frma = Util.getIntegerCodeForString("frma");
   public static final int TYPE_saiz = Util.getIntegerCodeForString("saiz");
   public static final int TYPE_saio = Util.getIntegerCodeForString("saio");
+  public static final int TYPE_sbgp = Util.getIntegerCodeForString("sbgp");
+  public static final int TYPE_sgpd = Util.getIntegerCodeForString("sgpd");
   public static final int TYPE_uuid = Util.getIntegerCodeForString("uuid");
   public static final int TYPE_senc = Util.getIntegerCodeForString("senc");
   public static final int TYPE_pasp = Util.getIntegerCodeForString("pasp");

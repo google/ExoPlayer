@@ -67,6 +67,10 @@ import java.io.IOException;
    */
   public boolean[] sampleHasSubsampleEncryptionTable;
   /**
+   * Fragment specific track encryption. May be null.
+   */
+  public TrackEncryptionBox trackEncryptionBox;
+  /**
    * If {@link #definesEncryptionData} is true, indicates the length of the sample encryption data.
    * Undefined otherwise.
    */
@@ -89,13 +93,15 @@ import java.io.IOException;
    * Resets the fragment.
    * <p>
    * {@link #length} and {@link #nextFragmentDecodeTime} are set to 0, and both
-   * {@link #definesEncryptionData} and {@link #sampleEncryptionDataNeedsFill} is set to false.
+   * {@link #definesEncryptionData} and {@link #sampleEncryptionDataNeedsFill} is set to false,
+   * and {@link #trackEncryptionBox} is set to null.
    */
   public void reset() {
     length = 0;
     nextFragmentDecodeTime = 0;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
+    trackEncryptionBox = null;
   }
 
   /**
