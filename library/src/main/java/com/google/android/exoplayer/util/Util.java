@@ -116,16 +116,6 @@ public final class Util {
   private Util() {}
 
   /**
-   * Converts microseconds to milliseconds (rounding down).
-   *
-   * @param timeUs A microsecond value.
-   * @return The value in milliseconds.
-   */
-  public static long usToMs(long timeUs) {
-    return timeUs / 1000;
-  }
-
-  /**
    * Converts the entirety of an {@link InputStream} to a byte array.
    *
    * @param inputStream the {@link InputStream} to be read. The input stream is not closed by this

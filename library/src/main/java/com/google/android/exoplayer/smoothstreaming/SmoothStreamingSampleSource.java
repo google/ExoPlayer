@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import com.google.android.exoplayer.AdaptiveSourceEventListener;
+import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
@@ -26,7 +28,6 @@ import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkTrackStream;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
@@ -37,7 +38,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.UriLoadable;
+import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -53,7 +54,7 @@ import java.util.List;
  * A {@link SampleSource} for SmoothStreaming media.
  */
 public final class SmoothStreamingSampleSource implements SampleSource,
-    Loader.Callback<UriLoadable<SmoothStreamingManifest>> {
+    Loader.Callback<ParsingLoadable<SmoothStreamingManifest>> {
 
   /**
    * The minimum number of times to retry loading data prior to failing.
@@ -66,8 +67,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private final Uri manifestUri;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
-  private final Handler eventHandler;
-  private final ChunkTrackStreamEventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
   private final Loader manifestLoader;
   private final DataSource manifestDataSource;
@@ -88,13 +88,12 @@ public final class SmoothStreamingSampleSource implements SampleSource,
 
   public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      ChunkTrackStreamEventListener eventListener) {
+      AdaptiveSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     trackStreams = newTrackStreamArray(0);
     manifestDataSource = dataSourceFactory.createDataSource();
@@ -216,9 +215,12 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   // Loader.Callback implementation
 
   @Override
-  public void onLoadCompleted(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs) {
+  public void onLoadCompleted(ParsingLoadable<SmoothStreamingManifest> loadable,
+      long elapsedRealtimeMs, long loadDurationMs) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
     manifest = loadable.getResult();
-    manifestLoadStartTimestamp = SystemClock.elapsedRealtime() - elapsedMs;
+    manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
     if (!prepared) {
       durationUs = manifest.durationUs;
       buildTrackGroups(manifest);
@@ -237,22 +239,28 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   @Override
-  public void onLoadCanceled(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs,
-      boolean released) {
-    // Do nothing.
+  public void onLoadCanceled(ParsingLoadable<SmoothStreamingManifest> loadable,
+      long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
   }
 
   @Override
-  public int onLoadError(UriLoadable<SmoothStreamingManifest> loadable, long elapsedMs,
-      IOException exception) {
-    return (exception instanceof ParserException) ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+  public int onLoadError(ParsingLoadable<SmoothStreamingManifest> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, IOException error) {
+    boolean isFatal = error instanceof ParserException;
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
+        loadable.bytesLoaded(), error, isFatal);
+    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
   // Internal methods
 
   private void startLoadingManifest() {
-    manifestLoader.startLoading(new UriLoadable<>(manifestUri, manifestDataSource, manifestParser),
-        this, MIN_LOADABLE_RETRY_COUNT);
+    ParsingLoadable<SmoothStreamingManifest> loadable = new ParsingLoadable<>(manifestDataSource,
+        manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
+    long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, MIN_LOADABLE_RETRY_COUNT);
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
   private void buildTrackGroups(SmoothStreamingManifest manifest) {
@@ -290,8 +298,8 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifestLoader,
         manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
-    return new ChunkTrackStream<>(chunkSource, loadControl, bufferSize, positionUs, eventHandler,
-        eventListener, streamElementType, MIN_LOADABLE_RETRY_COUNT);
+    return new ChunkTrackStream<>(streamElementType, chunkSource, loadControl, bufferSize,
+        positionUs, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")

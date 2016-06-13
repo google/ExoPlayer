@@ -23,7 +23,7 @@ import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
-import com.google.android.exoplayer.upstream.UriLoadable;
+import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -52,7 +52,8 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
  * IIS Smooth Streaming Client Manifest Format</a>
  */
-public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothStreamingManifest> {
+public class SmoothStreamingManifestParser implements
+    ParsingLoadable.Parser<SmoothStreamingManifest> {
 
   private final XmlPullParserFactory xmlParserFactory;
 

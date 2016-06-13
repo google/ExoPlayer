@@ -78,6 +78,18 @@ public final class Loader {
   public interface Callback<T extends Loadable> {
 
     /**
+     * Invoked when a load has completed.
+     * <p>
+     * There is guaranteed to exist a memory barrier between {@link Loadable#load()} exiting and
+     * this callback being invoked.
+     *
+     * @param loadable The loadable whose load has completed.
+     * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load ended.
+     * @param loadDurationMs The duration of the load.
+     */
+    void onLoadCompleted(T loadable, long elapsedRealtimeMs, long loadDurationMs);
+
+    /**
      * Invoked when a load has been canceled.
      * <p>
      * If the {@link Loader} has not been released then there is guaranteed to exist a memory
@@ -86,22 +98,12 @@ public final class Loader {
      * {@link Loadable#load()} exits.
      *
      * @param loadable The loadable whose load has been canceled.
-     * @param elapsedMs The elapsed time in milliseconds since loading started.
+     * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load was canceled.
+     * @param loadDurationMs The duration of the load up to the point at which it was canceled.
      * @param released True if the load was canceled because the {@link Loader} was released. False
      *     otherwise.
      */
-    void onLoadCanceled(T loadable, long elapsedMs, boolean released);
-
-    /**
-     * Invoked when a load has completed.
-     * <p>
-     * There is guaranteed to exist a memory barrier between {@link Loadable#load()} exiting and
-     * this callback being invoked.
-     *
-     * @param loadable The loadable whose load has completed.
-     * @param elapsedMs The elapsed time in milliseconds since loading started.
-     */
-    void onLoadCompleted(T loadable, long elapsedMs);
+    void onLoadCanceled(T loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released);
 
     /**
      * Invoked when a load encounters an error.
@@ -110,13 +112,14 @@ public final class Loader {
      * this callback being invoked.
      *
      * @param loadable The loadable whose load has encountered an error.
-     * @param elapsedMs The elapsed time in milliseconds since loading started.
-     * @param exception The error.
+     * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
+     * @param loadDurationMs The duration of the load up to the point at which the error occurred.
+     * @param error The load error.
      * @return The desired retry action. One of {@link Loader#RETRY},
      *     {@link Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY} and
      *     {@link Loader#DONT_RETRY_FATAL}.
      */
-    int onLoadError(T loadable, long elapsedMs, IOException exception);
+    int onLoadError(T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error);
 
   }
 
@@ -154,12 +157,15 @@ public final class Loader {
    * @param minRetryCount The minimum number of times the load must be retried before
    *     {@link #maybeThrowError()} will propagate an error.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
+   * @return {@link SystemClock#elapsedRealtime} when the load started.
    */
-  public <T extends Loadable> void startLoading(T loadable, Callback<T> callback,
+  public <T extends Loadable> long startLoading(T loadable, Callback<T> callback,
       int minRetryCount) {
     Looper looper = Looper.myLooper();
     Assertions.checkState(looper != null);
-    new LoadTask<>(looper, loadable, callback, minRetryCount).start(0);
+    long startTimeMs = SystemClock.elapsedRealtime();
+    new LoadTask<>(looper, loadable, callback, minRetryCount, startTimeMs).start(0);
+    return startTimeMs;
   }
 
   /**
@@ -214,8 +220,8 @@ public final class Loader {
 
     private final T loadable;
     private final Loader.Callback<T> callback;
-    private final long startTimeMs;
     private final int minRetryCount;
+    private final long startTimeMs;
 
     private IOException currentError;
     private int errorCount;
@@ -223,12 +229,13 @@ public final class Loader {
     private volatile Thread executorThread;
     private volatile boolean released;
 
-    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback, int minRetryCount) {
+    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback, int minRetryCount,
+        long startTimeMs) {
       super(looper);
       this.loadable = loadable;
       this.callback = callback;
       this.minRetryCount = minRetryCount;
-      this.startTimeMs = SystemClock.elapsedRealtime();
+      this.startTimeMs = startTimeMs;
     }
 
     public void maybeThrowError() throws IOException {
@@ -263,7 +270,8 @@ public final class Loader {
       }
       if (released) {
         finish();
-        callback.onLoadCanceled(loadable, SystemClock.elapsedRealtime() - startTimeMs, true);
+        long nowMs = SystemClock.elapsedRealtime();
+        callback.onLoadCanceled(loadable, nowMs, nowMs - startTimeMs, true);
       }
     }
 
@@ -323,21 +331,22 @@ public final class Loader {
         throw (Error) msg.obj;
       }
       finish();
-      long elapsedMs = SystemClock.elapsedRealtime() - startTimeMs;
+      long nowMs = SystemClock.elapsedRealtime();
+      long durationMs = nowMs - startTimeMs;
       if (loadable.isLoadCanceled()) {
-        callback.onLoadCanceled(loadable, elapsedMs, false);
+        callback.onLoadCanceled(loadable, nowMs, durationMs, false);
         return;
       }
       switch (msg.what) {
         case MSG_CANCEL:
-          callback.onLoadCanceled(loadable, elapsedMs, false);
+          callback.onLoadCanceled(loadable, nowMs, durationMs, false);
           break;
         case MSG_END_OF_SOURCE:
-          callback.onLoadCompleted(loadable, elapsedMs);
+          callback.onLoadCompleted(loadable, nowMs, durationMs);
           break;
         case MSG_IO_EXCEPTION:
           currentError = (IOException) msg.obj;
-          int retryAction = callback.onLoadError(loadable, elapsedMs, currentError);
+          int retryAction = callback.onLoadError(loadable, nowMs, durationMs, currentError);
           if (retryAction == DONT_RETRY_FATAL) {
             fatalError = currentError;
           } else if (retryAction != DONT_RETRY) {

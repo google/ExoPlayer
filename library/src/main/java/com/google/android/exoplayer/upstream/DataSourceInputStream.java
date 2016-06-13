@@ -33,6 +33,7 @@ public final class DataSourceInputStream extends InputStream {
 
   private boolean opened = false;
   private boolean closed = false;
+  private long totalBytesRead;
 
   /**
    * @param dataSource The {@link DataSource} from which the data should be read.
@@ -42,6 +43,13 @@ public final class DataSourceInputStream extends InputStream {
     this.dataSource = dataSource;
     this.dataSpec = dataSpec;
     singleByteArray = new byte[1];
+  }
+
+  /**
+   * Returns the total number of bytes that have been read or skipped.
+   */
+  public long bytesRead() {
+    return totalBytesRead;
   }
 
   /**
@@ -63,12 +71,17 @@ public final class DataSourceInputStream extends InputStream {
     if (length == -1) {
       return -1;
     }
+    totalBytesRead++;
     return singleByteArray[0] & 0xFF;
   }
 
   @Override
   public int read(byte[] buffer) throws IOException {
-    return read(buffer, 0, buffer.length);
+    int bytesRead = read(buffer, 0, buffer.length);
+    if (bytesRead != -1) {
+      totalBytesRead += bytesRead;
+    }
+    return bytesRead;
   }
 
   @Override
@@ -76,14 +89,21 @@ public final class DataSourceInputStream extends InputStream {
     Assertions.checkState(!closed);
     checkOpened();
     int bytesRead = dataSource.read(buffer, offset, length);
-    return bytesRead == C.RESULT_END_OF_INPUT ? -1 : bytesRead;
+    if (bytesRead == C.RESULT_END_OF_INPUT) {
+      return -1;
+    } else {
+      totalBytesRead += bytesRead;
+      return bytesRead;
+    }
   }
 
   @Override
   public long skip(long byteCount) throws IOException {
     Assertions.checkState(!closed);
     checkOpened();
-    return super.skip(byteCount);
+    long bytesSkipped = super.skip(byteCount);
+    totalBytesRead += bytesSkipped;
+    return bytesSkipped;
   }
 
   @Override

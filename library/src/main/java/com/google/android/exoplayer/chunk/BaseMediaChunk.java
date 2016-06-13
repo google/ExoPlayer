@@ -31,17 +31,20 @@ public abstract class BaseMediaChunk extends MediaChunk {
   private int firstSampleIndex;
 
   /**
-   * @param dataSource A {@link DataSource} for loading the data.
+   * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param trigger The reason for this chunk being selected.
-   * @param format The format of the stream to which this chunk belongs.
+   * @param format See {@link #format}.
+   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
+   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    */
-  public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
+  public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs,
+      int chunkIndex) {
+    super(dataSource, dataSpec, format, formatEvaluatorTrigger, formatEvaluatorData, startTimeUs,
+        endTimeUs, chunkIndex);
   }
 
   /**

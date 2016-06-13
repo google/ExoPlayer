@@ -113,7 +113,7 @@ public final class UriSampleSourceProvider implements SampleSourceProvider {
             eventLogger);
       case Util.TYPE_OTHER:
         return new ExtractorSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
-            ExtractorSampleSource.newDefaultExtractors(), handler, eventLogger, 0);
+            ExtractorSampleSource.newDefaultExtractors(), handler, eventLogger);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

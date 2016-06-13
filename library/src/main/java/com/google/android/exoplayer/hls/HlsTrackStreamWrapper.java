@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
@@ -26,8 +27,6 @@ import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkHolder;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener.EventDispatcher;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -35,8 +34,6 @@ import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import android.os.Handler;
-import android.os.SystemClock;
 import android.util.SparseArray;
 
 import java.io.IOException;
@@ -54,6 +51,7 @@ import java.util.List;
   private static final int PRIMARY_TYPE_AUDIO = 2;
   private static final int PRIMARY_TYPE_VIDEO = 3;
 
+  private final int trackType;
   private final HlsChunkSource chunkSource;
   private final LoadControl loadControl;
   private final int bufferSizeContribution;
@@ -87,6 +85,7 @@ import java.util.List;
   private boolean loadingFinished;
 
   /**
+   * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
    * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
@@ -94,25 +93,22 @@ import java.util.List;
    *     this is the audio {@link Format} as defined by the playlist.
    * @param muxedCaptionFormat If HLS master playlist indicates that the stream contains muxed
    *     captions, this is the audio {@link Format} as defined by the playlist.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
+   * @param eventDispatcher A dispatcher to notify of events.
    */
-  public HlsTrackStreamWrapper(HlsChunkSource chunkSource, LoadControl loadControl,
+  public HlsTrackStreamWrapper(int trackType, HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, Format muxedAudioFormat, Format muxedCaptionFormat,
-      Handler eventHandler, ChunkTrackStreamEventListener eventListener, int eventSourceId,
-      int minLoadableRetryCount) {
+      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
+    this.trackType = trackType;
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormat = muxedCaptionFormat;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    this.eventDispatcher = eventDispatcher;
     loader = new Loader("Loader:HlsTrackStreamWrapper");
-    eventDispatcher = new EventDispatcher(eventHandler, eventListener, eventSourceId);
     nextChunkHolder = new ChunkHolder();
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
@@ -303,7 +299,8 @@ import java.util.List;
     HlsMediaChunk currentChunk = mediaChunks.getFirst();
     Format format = currentChunk.format;
     if (!format.equals(downstreamFormat)) {
-      eventDispatcher.downstreamFormatChanged(format, currentChunk.trigger,
+      eventDispatcher.downstreamFormatChanged(trackType, format,
+          currentChunk.formatEvaluatorTrigger, currentChunk.formatEvaluatorData,
           currentChunk.startTimeUs);
     }
     downstreamFormat = format;
@@ -315,34 +312,33 @@ import java.util.List;
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Chunk loadable, long elapsedMs) {
-    long now = SystemClock.elapsedRealtime();
+  public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    if (isMediaChunk(loadable)) {
-      HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
-      eventDispatcher.loadCompleted(loadable.bytesLoaded(), mediaChunk.type, mediaChunk.trigger,
-          mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs, now, elapsedMs);
-    } else {
-      eventDispatcher.loadCompleted(loadable.bytesLoaded(), loadable.type, loadable.trigger,
-          loadable.format, -1, -1, now, elapsedMs);
-    }
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.format,
+        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+        loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     maybeStartLoading();
   }
 
   @Override
-  public void onLoadCanceled(Chunk loadable, long elapsedMs, boolean released) {
-    eventDispatcher.loadCanceled(loadable.bytesLoaded());
+  public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
+      boolean released) {
+    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.format,
+        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+        loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     if (!released && enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     }
   }
 
   @Override
-  public int onLoadError(Chunk loadable, long elapsedMs, IOException e) {
+  public int onLoadError(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
+      IOException error) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
     boolean cancelable = !isMediaChunk || bytesLoaded == 0;
-    if (chunkSource.onChunkLoadError(loadable, cancelable, e)) {
+    boolean canceled = false;
+    if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
       if (isMediaChunk) {
         HlsMediaChunk removed = mediaChunks.removeLast();
         Assertions.checkState(removed == loadable);
@@ -350,12 +346,16 @@ import java.util.List;
           pendingResetPositionUs = lastSeekPositionUs;
         }
       }
-      eventDispatcher.loadError(e);
-      eventDispatcher.loadCanceled(bytesLoaded);
+      canceled = true;
+    }
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, trackType, loadable.format,
+        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+        loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded(), error,
+        canceled);
+    if (canceled) {
       maybeStartLoading();
       return Loader.DONT_RETRY;
     } else {
-      eventDispatcher.loadError(e);
       return Loader.RETRY;
     }
   }
@@ -543,14 +543,12 @@ import java.util.List;
       pendingResetPositionUs = C.UNSET_TIME_US;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
       mediaChunk.init(this);
-      mediaChunks.addLast(mediaChunk);
-      eventDispatcher.loadStarted(mediaChunk.dataSpec.length, mediaChunk.type, mediaChunk.trigger,
-          mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs);
-    } else {
-      eventDispatcher.loadStarted(loadable.dataSpec.length, loadable.type, loadable.trigger,
-          loadable.format, -1, -1);
+      mediaChunks.add(mediaChunk);
     }
-    loader.startLoading(loadable, this, minLoadableRetryCount);
+    long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.format,
+        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+        loadable.endTimeUs, elapsedRealtimeMs);
     if (prepared) {
       // Update the load control again to indicate that we're now loading.
       loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);

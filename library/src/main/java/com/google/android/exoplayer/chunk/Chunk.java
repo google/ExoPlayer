@@ -29,67 +29,63 @@ import com.google.android.exoplayer.util.Assertions;
 public abstract class Chunk implements Loadable {
 
   /**
-   * Value of {@link #trigger} for a load whose reason is unspecified.
+   * The {@link DataSpec} that defines the data to be loaded.
    */
-  public static final int TRIGGER_UNSPECIFIED = 0;
-  /**
-   * Value of {@link #trigger} for a load triggered by an initial format selection.
-   */
-  public static final int TRIGGER_INITIAL = 1;
-  /**
-   * Value of {@link #trigger} for a load triggered by a user initiated format selection.
-   */
-  public static final int TRIGGER_MANUAL = 2;
-  /**
-   * Value of {@link #trigger} for a load triggered by an adaptive format selection.
-   */
-  public static final int TRIGGER_ADAPTIVE = 3;
-  /**
-   * Value of {@link #trigger} for a load triggered whilst in a trick play mode.
-   */
-  public static final int TRIGGER_TRICK_PLAY = 4;
-  /**
-   * Implementations may define custom {@link #trigger} codes greater than or equal to this value.
-   */
-  public static final int TRIGGER_CUSTOM_BASE = 10000;
-
+  public final DataSpec dataSpec;
   /**
    * The type of the chunk. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
    * reporting only.
    */
   public final int type;
   /**
-   * The reason why the chunk was generated. For reporting only.
+   * One of the {@link FormatEvaluator} {@code TRIGGER_*} constants if a format evaluation was
+   * performed to determine that this chunk should be loaded.
+   * {@link FormatEvaluator#TRIGGER_UNKNOWN} otherwise.
    */
-  public final int trigger;
+  public final int formatEvaluatorTrigger;
+  /**
+   * Optional data set by a {@link FormatEvaluator} if a format evaluation was performed to
+   * determine that this chunk should be loaded. Null otherwise.
+   */
+  public final Object formatEvaluatorData;
   /**
    * The format associated with the data being loaded, or null if the data being loaded is not
    * associated with a specific format.
    */
   public final Format format;
   /**
-   * The {@link DataSpec} that defines the data to be loaded.
+   * The start time of the media contained by the chunk, or {@link C#UNSET_TIME_US} if the data
+   * being loaded does not contain media samples.
    */
-  public final DataSpec dataSpec;
+  public final long startTimeUs;
+  /**
+   * The end time of the media contained by the chunk, or {@link C#UNSET_TIME_US} if the data being
+   * loaded does not contain media samples.
+   */
+  public final long endTimeUs;
 
   protected final DataSource dataSource;
 
   /**
    * @param dataSource The source from which the data should be loaded.
-   * @param dataSpec Defines the data to be loaded. {@code dataSpec.length} must not exceed
-   *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
-   *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
-   *     {@link Integer#MAX_VALUE}.
+   * @param dataSpec Defines the data to be loaded.
    * @param type See {@link #type}.
-   * @param trigger See {@link #trigger}.
    * @param format See {@link #format}.
+   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
+   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param startTimeUs See {@link #startTimeUs}.
+   * @param endTimeUs See {@link #endTimeUs}.
    */
-  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format) {
+  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs) {
     this.dataSource = Assertions.checkNotNull(dataSource);
     this.dataSpec = Assertions.checkNotNull(dataSpec);
     this.type = type;
-    this.trigger = trigger;
     this.format = format;
+    this.formatEvaluatorTrigger = formatEvaluatorTrigger;
+    this.formatEvaluatorData = formatEvaluatorData;
+    this.startTimeUs = startTimeUs;
+    this.endTimeUs = endTimeUs;
   }
 
   /**

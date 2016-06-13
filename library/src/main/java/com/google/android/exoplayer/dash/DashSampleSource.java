@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.dash;
 
+import com.google.android.exoplayer.AdaptiveSourceEventListener;
+import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
@@ -26,7 +28,6 @@ import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.ChunkTrackStream;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
@@ -40,7 +41,8 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.UriLoadable;
+import com.google.android.exoplayer.upstream.Loader.Callback;
+import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -73,8 +75,7 @@ public final class DashSampleSource implements SampleSource {
 
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
-  private final Handler eventHandler;
-  private final ChunkTrackStreamEventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
   private final Loader loader;
   private final DataSource dataSource;
@@ -97,12 +98,11 @@ public final class DashSampleSource implements SampleSource {
 
   public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      ChunkTrackStreamEventListener eventListener) {
+      AdaptiveSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     loader = new Loader("Loader:DashSampleSource");
     dataSource = dataSourceFactory.createDataSource();
@@ -227,11 +227,13 @@ public final class DashSampleSource implements SampleSource {
 
   // Loadable callbacks.
 
-  /* package */ void onManifestLoadCompleted(MediaPresentationDescription manifest,
-      long elapsedMs) {
-    this.manifest = manifest;
-    manifestLoadEndTimestamp = SystemClock.elapsedRealtime();
-    manifestLoadStartTimestamp = manifestLoadEndTimestamp - elapsedMs;
+  /* package */ void onManifestLoadCompleted(ParsingLoadable<MediaPresentationDescription> loadable,
+      long elapsedRealtimeMs, long loadDurationMs) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
+    manifest = loadable.getResult();
+    manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
+    manifestLoadEndTimestamp = elapsedRealtimeMs;
     if (manifest.location != null) {
       manifestUri = manifest.location;
     }
@@ -250,22 +252,40 @@ public final class DashSampleSource implements SampleSource {
     }
   }
 
-  /* package */ void onUtcTimestampLoadCompleted(long elapsedRealtimeOffset) {
-    this.elapsedRealtimeOffset = elapsedRealtimeOffset;
-    prepared = true;
+  /* package */ int onManifestLoadError(ParsingLoadable<MediaPresentationDescription> loadable,
+      long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+    boolean isFatal = error instanceof ParserException;
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
+        loadable.bytesLoaded(), error, isFatal);
+    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
-  /* package */ void onUtcTimestampLoadError(IOException e) {
-    Log.e(TAG, "Failed to resolve UtcTiming element.", e);
-    // Be optimistic and continue in the hope that the device clock is correct.
-    prepared = true;
+  /* package */ void onUtcTimestampLoadCompleted(ParsingLoadable<Long> loadable,
+      long elapsedRealtimeMs, long loadDurationMs) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
+    onUtcTimestampResolved(loadable.getResult() - elapsedRealtimeMs);
+  }
+
+  /* package */ int onUtcTimestampLoadError(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, IOException error) {
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
+        loadable.bytesLoaded(), error, true);
+    onUtcTimestampResolutionError(error);
+    return Loader.DONT_RETRY;
+  }
+
+  /* package */ void onLoadCanceled(ParsingLoadable<?> loadable, long elapsedRealtimeMs,
+      long loadDurationMs) {
+    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
   }
 
   // Internal methods.
 
   private void startLoadingManifest() {
-    loader.startLoading(new UriLoadable<>(manifestUri, dataSource, manifestParser),
-        manifestCallback, MIN_LOADABLE_RETRY_COUNT);
+    startLoading(new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST,
+        manifestParser), manifestCallback, MIN_LOADABLE_RETRY_COUNT);
   }
 
   private void resolveUtcTimingElement(UtcTimingElement timingElement) {
@@ -279,24 +299,40 @@ public final class DashSampleSource implements SampleSource {
       resolveUtcTimingElementHttp(timingElement, new XsDateTimeParser());
     } else {
       // Unsupported scheme.
-      onUtcTimestampLoadError(new IOException("Unsupported UTC timing scheme"));
+      onUtcTimestampResolutionError(new IOException("Unsupported UTC timing scheme"));
     }
   }
 
   private void resolveUtcTimingElementDirect(UtcTimingElement timingElement) {
     try {
       long utcTimestamp = Util.parseXsDateTime(timingElement.value);
-      long elapsedRealtimeOffset = utcTimestamp - manifestLoadEndTimestamp;
-      onUtcTimestampLoadCompleted(elapsedRealtimeOffset);
+      onUtcTimestampResolved(utcTimestamp - manifestLoadEndTimestamp);
     } catch (ParseException e) {
-      onUtcTimestampLoadError(new ParserException(e));
+      onUtcTimestampResolutionError(new ParserException(e));
     }
   }
 
   private void resolveUtcTimingElementHttp(UtcTimingElement timingElement,
-      UriLoadable.Parser<Long> parser) {
-    loader.startLoading(new UriLoadable<>(Uri.parse(timingElement.value), dataSource, parser),
-        new UtcTimestampCallback(), 1);
+      ParsingLoadable.Parser<Long> parser) {
+    startLoading(new ParsingLoadable<>(dataSource, Uri.parse(timingElement.value),
+        C.DATA_TYPE_TIME_SYNCHRONIZATION, parser), new UtcTimestampCallback(), 1);
+  }
+
+  private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
+    this.elapsedRealtimeOffset = elapsedRealtimeOffsetMs;
+    prepared = true;
+  }
+
+  private void onUtcTimestampResolutionError(IOException error) {
+    Log.e(TAG, "Failed to resolve UtcTiming element.", error);
+    // Be optimistic and continue in the hope that the device clock is correct.
+    prepared = true;
+  }
+
+  private <T> void startLoading(ParsingLoadable<T> loadable, Callback<ParsingLoadable<T>> callback,
+      int minRetryCount) {
+    long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
   private void buildTrackGroups(MediaPresentationDescription manifest) {
@@ -341,8 +377,8 @@ public final class DashSampleSource implements SampleSource {
     DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
-    return new ChunkTrackStream<>(chunkSource, loadControl, bufferSize, positionUs, eventHandler,
-        eventListener, adaptationSetType, MIN_LOADABLE_RETRY_COUNT);
+    return new ChunkTrackStream<>(adaptationSetType, chunkSource, loadControl, bufferSize,
+        positionUs, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")
@@ -351,49 +387,51 @@ public final class DashSampleSource implements SampleSource {
   }
 
   private final class ManifestCallback implements
-      Loader.Callback<UriLoadable<MediaPresentationDescription>> {
+      Loader.Callback<ParsingLoadable<MediaPresentationDescription>> {
 
     @Override
-    public void onLoadCompleted(UriLoadable<MediaPresentationDescription> loadable,
-        long elapsedMs) {
-      onManifestLoadCompleted(loadable.getResult(), elapsedMs);
+    public void onLoadCompleted(ParsingLoadable<MediaPresentationDescription> loadable,
+        long elapsedRealtimeMs, long loadDurationMs) {
+      onManifestLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
-    public void onLoadCanceled(UriLoadable<MediaPresentationDescription> loadable, long elapsedMs,
-        boolean released) {
-      // Do nothing.
+    public void onLoadCanceled(ParsingLoadable<MediaPresentationDescription> loadable,
+        long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+      DashSampleSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
-    public int onLoadError(UriLoadable<MediaPresentationDescription> loadable, long elapsedMs,
-        IOException exception) {
-      return (exception instanceof ParserException) ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
-    }
-
-  }
-
-  private final class UtcTimestampCallback implements Loader.Callback<UriLoadable<Long>> {
-
-    @Override
-    public void onLoadCompleted(UriLoadable<Long> loadable, long elapsedMs) {
-      onUtcTimestampLoadCompleted(loadable.getResult() - SystemClock.elapsedRealtime());
-    }
-
-    @Override
-    public void onLoadCanceled(UriLoadable<Long> loadable, long elapsedMs, boolean released) {
-      // Do nothing.
-    }
-
-    @Override
-    public int onLoadError(UriLoadable<Long> loadable, long elapsedMs, IOException exception) {
-      onUtcTimestampLoadError(exception);
-      return Loader.DONT_RETRY;
+    public int onLoadError(ParsingLoadable<MediaPresentationDescription> loadable,
+        long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+      return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }
 
   }
 
-  private static final class XsDateTimeParser implements UriLoadable.Parser<Long> {
+  private final class UtcTimestampCallback implements Loader.Callback<ParsingLoadable<Long>> {
+
+    @Override
+    public void onLoadCompleted(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
+        long loadDurationMs) {
+      onUtcTimestampLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
+    }
+
+    @Override
+    public void onLoadCanceled(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
+        long loadDurationMs, boolean released) {
+      DashSampleSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
+    }
+
+    @Override
+    public int onLoadError(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
+        long loadDurationMs, IOException error) {
+      return onUtcTimestampLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
+    }
+
+  }
+
+  private static final class XsDateTimeParser implements ParsingLoadable.Parser<Long> {
 
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {
@@ -407,7 +445,7 @@ public final class DashSampleSource implements SampleSource {
 
   }
 
-  private static final class Iso8601Parser implements UriLoadable.Parser<Long> {
+  private static final class Iso8601Parser implements ParsingLoadable.Parser<Long> {
 
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {

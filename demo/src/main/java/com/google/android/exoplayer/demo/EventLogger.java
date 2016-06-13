@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
@@ -26,9 +27,9 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackSelection;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.upstream.DataSpec;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -41,7 +42,7 @@ import java.util.Locale;
  * Logs player events using {@link Log}.
  */
 public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.DebugListener,
-    ChunkTrackStreamEventListener, ExtractorSampleSource.EventListener,
+    AdaptiveSourceEventListener, ExtractorSampleSource.EventListener,
     StreamingDrmSessionManager.EventListener, DefaultTrackSelector.EventListener {
 
   private static final String TAG = "EventLogger";
@@ -200,38 +201,52 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
     Log.d(TAG, "drmKeysLoaded [" + getSessionTimeString() + "]");
   }
 
-  // SampleSource listeners
+  // ExtractorSampleSource.EventListener
 
   @Override
-  public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-      long mediaStartTimeMs, long mediaEndTimeMs) {
+  public void onLoadError(IOException error) {
+    printInternalError("loadError", error);
+  }
+
+  // AdaptiveSourceEventListener
+
+  @Override
+  public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+      long mediaEndTimeMs, long elapsedRealtimeMs) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadError(int sourceId, IOException e) {
-    printInternalError("loadError", e);
+  public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+      long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded,
+      IOException error, boolean wasCanceled) {
+    printInternalError("loadError", error);
   }
 
   @Override
-  public void onLoadCanceled(int sourceId, long bytesLoaded) {
+  public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+      long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-       long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
+  public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+      long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
     // Do nothing.
   }
 
   @Override
-  public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
+  public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
     // Do nothing.
   }
 
   @Override
-  public void onDownstreamFormatChanged(int sourceId, Format format, int trigger,
-      long mediaTimeMs) {
+  public void onDownstreamFormatChanged(int trackType, Format format, int formatEvaluatorTrigger,
+      Object formatEvaluatorData, long mediaTimeMs) {
     // Do nothing.
   }
 

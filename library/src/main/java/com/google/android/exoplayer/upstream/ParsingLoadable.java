@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 
@@ -24,11 +25,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A {@link Loadable} for loading an object from a URI.
+ * A {@link Loadable} for objects that can be parsed from binary data using a {@link Parser}.
  *
  * @param <T> The type of the object being loaded.
  */
-public final class UriLoadable<T> implements Loadable {
+public final class ParsingLoadable<T> implements Loadable {
 
   /**
    * Parses an object from loaded data.
@@ -48,22 +49,34 @@ public final class UriLoadable<T> implements Loadable {
 
   }
 
-  private final DataSpec dataSpec;
+  /**
+   * The {@link DataSpec} that defines the data to be loaded.
+   */
+  public final DataSpec dataSpec;
+  /**
+   * The type of the data. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
+   * reporting only.
+   */
+  public final int type;
+
   private final DataSource dataSource;
   private final Parser<T> parser;
 
   private volatile T result;
   private volatile boolean isCanceled;
+  private volatile long bytesLoaded;
 
   /**
-   * @param uri The {@link Uri} from which the object should be loaded.
    * @param dataSource A {@link DataSource} to use when loading the data.
+   * @param uri The {@link Uri} from which the object should be loaded.
+   * @param type See {@link #type}.
    * @param parser Parses the object from the response.
    */
-  public UriLoadable(Uri uri, DataSource dataSource, Parser<T> parser) {
+  public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<T> parser) {
     this.dataSource = dataSource;
+    this.dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
+    this.type = type;
     this.parser = parser;
-    dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
   }
 
   /**
@@ -71,6 +84,18 @@ public final class UriLoadable<T> implements Loadable {
    */
   public final T getResult() {
     return result;
+  }
+
+  /**
+   * Returns the number of bytes loaded.
+   * <p>
+   * In the case that the network response was compressed, the value returned is the size of the
+   * data <em>after</em> decompression.
+   *
+   * @return The number of bytes loaded.
+   */
+  public long bytesLoaded() {
+    return bytesLoaded;
   }
 
   @Override
@@ -88,11 +113,12 @@ public final class UriLoadable<T> implements Loadable {
   @Override
   public final void load() throws IOException, InterruptedException {
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+    inputStream.open();
     try {
-      inputStream.open();
       result = parser.parse(dataSource.getUri(), inputStream);
     } finally {
       inputStream.close();
+      bytesLoaded = inputStream.bytesRead();
     }
   }
 

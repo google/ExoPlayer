@@ -48,17 +48,18 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   private volatile boolean loadCanceled;
 
   /**
-   * Constructor for a chunk of media samples.
-   *
-   * @param dataSource A {@link DataSource} for loading the initialization data.
-   * @param dataSpec Defines the initialization data to be loaded.
-   * @param trigger The reason for this chunk being selected.
-   * @param format The format of the stream to which this chunk belongs.
+   * @param dataSource The source from which the data should be loaded.
+   * @param dataSpec Defines the data to be loaded.
+   * @param format See {@link #format}.
+   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
+   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
    * @param extractorWrapper A wrapped extractor to use for parsing the initialization data.
    */
-  public InitializationChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+  public InitializationChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData,
       ChunkExtractorWrapper extractorWrapper) {
-    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, trigger, format);
+    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, format, formatEvaluatorTrigger,
+        formatEvaluatorData, C.UNSET_TIME_US, C.UNSET_TIME_US);
     this.extractorWrapper = extractorWrapper;
   }
 

@@ -215,20 +215,23 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(SingleSampleSource loadable, long elapsedMs) {
+  public void onLoadCompleted(SingleSampleSource loadable, long elapsedRealtimeMs,
+      long loadDurationMs) {
     loadingFinished = true;
   }
 
   @Override
-  public void onLoadCanceled(SingleSampleSource loadable, long elapsedMs, boolean released) {
+  public void onLoadCanceled(SingleSampleSource loadable, long elapsedRealtimeMs,
+      long loadDurationMs, boolean released) {
     if (!released) {
       maybeStartLoading();
     }
   }
 
   @Override
-  public int onLoadError(SingleSampleSource loadable, long elapsedMs, IOException e) {
-    notifyLoadError(e);
+  public int onLoadError(SingleSampleSource loadable, long elapsedRealtimeMs,
+      long loadDurationMs, IOException error) {
+    notifyLoadError(error);
     return Loader.RETRY;
   }
 

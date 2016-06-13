@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.AdaptiveSourceEventListener;
+import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
@@ -25,7 +27,6 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
-import com.google.android.exoplayer.chunk.ChunkTrackStreamEventListener;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.playlist.HlsMediaPlaylist;
@@ -37,7 +38,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.UriLoadable;
+import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
@@ -54,7 +55,7 @@ import java.util.List;
  * A {@link SampleSource} for HLS streams.
  */
 public final class HlsSampleSource implements SampleSource,
-    Loader.Callback<UriLoadable<HlsPlaylist>> {
+    Loader.Callback<ParsingLoadable<HlsPlaylist>> {
 
   /**
    * The minimum number of times to retry loading data prior to failing.
@@ -64,8 +65,7 @@ public final class HlsSampleSource implements SampleSource,
   private final Uri manifestUri;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
-  private final Handler eventHandler;
-  private final ChunkTrackStreamEventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final LoadControl loadControl;
   private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
@@ -85,13 +85,12 @@ public final class HlsSampleSource implements SampleSource,
 
   public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      ChunkTrackStreamEventListener eventListener) {
+      AdaptiveSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
 
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     trackStreamSources = new IdentityHashMap<>();
@@ -110,9 +109,11 @@ public final class HlsSampleSource implements SampleSource,
     if (trackStreamWrappers == null) {
       manifestFetcher.maybeThrowError();
       if (!manifestFetcher.isLoading()) {
-        manifestFetcher.startLoading(
-            new UriLoadable<>(manifestUri, manifestDataSource, manifestParser), this,
+        ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource,
+            manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
+        long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this,
             MIN_LOADABLE_RETRY_COUNT);
+        eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
       }
       return false;
     }
@@ -240,7 +241,10 @@ public final class HlsSampleSource implements SampleSource,
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(UriLoadable<HlsPlaylist> loadable, long elapsedMs) {
+  public void onLoadCompleted(ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs,
+      long loadDurationMs) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
     HlsPlaylist playlist = loadable.getResult();
     List<HlsTrackStreamWrapper> trackStreamWrapperList = buildTrackStreamWrappers(playlist);
     trackStreamWrappers = new HlsTrackStreamWrapper[trackStreamWrapperList.size()];
@@ -249,13 +253,19 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public void onLoadCanceled(UriLoadable<HlsPlaylist> loadable, long elapsedMs, boolean released) {
-    // Do nothing.
+  public void onLoadCanceled(ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, boolean released) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
   }
 
   @Override
-  public int onLoadError(UriLoadable<HlsPlaylist> loadable, long elapsedMs, IOException exception) {
-    return exception instanceof ParserException ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+  public int onLoadError(ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, IOException error) {
+    boolean isFatal = error instanceof ParserException;
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
+        loadable.bytesLoaded(), error, isFatal);
+    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
   // Internal methods.
@@ -333,8 +343,8 @@ public final class HlsSampleSource implements SampleSource,
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
-    return new HlsTrackStreamWrapper(defaultChunkSource, loadControl, bufferSize, muxedAudioFormat,
-        muxedCaptionFormat, eventHandler, eventListener, trackType, MIN_LOADABLE_RETRY_COUNT);
+    return new HlsTrackStreamWrapper(trackType, defaultChunkSource, loadControl, bufferSize,
+        muxedAudioFormat, muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 
   private int selectTracks(HlsTrackStreamWrapper trackStreamWrapper,

@@ -42,10 +42,11 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
   private volatile boolean loadCompleted;
 
   /**
-   * @param dataSource A {@link DataSource} for loading the data.
+   * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param trigger The reason for this chunk being selected.
-   * @param format The format of the stream to which this chunk belongs.
+   * @param format See {@link #format}.
+   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
+   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
@@ -54,10 +55,12 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    * @param sampleFormat The {@link Format} of the samples in the chunk, if known. May be null if
    *     the data is known to define its own sample format.
    */
-  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, Format sampleFormat) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex);
+  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs,
+      int chunkIndex, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
+      Format sampleFormat) {
+    super(dataSource, dataSpec, format, formatEvaluatorTrigger, formatEvaluatorData, startTimeUs,
+        endTimeUs, chunkIndex);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.sampleFormat = sampleFormat;

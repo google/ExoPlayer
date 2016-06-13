@@ -81,10 +81,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     /**
      * Invoked when an error occurs loading media data.
      *
-     * @param sourceId The id of the reporting {@link SampleSource}.
-     * @param e The cause of the failure.
+     * @param error The load error.
      */
-    void onLoadError(int sourceId, IOException e);
+    void onLoadError(IOException error);
 
   }
 
@@ -119,7 +118,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final int eventSourceId;
   private final DataSource dataSource;
   private final Allocator allocator;
   private final Loader loader;
@@ -153,13 +151,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
    *     Where this is not possible, {@link #newDefaultExtractors()} can be used to construct an
    *     array of default extractors.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Extractor[] extractors, Handler eventHandler,
-      EventListener eventListener, int eventSourceId) {
+      EventListener eventListener) {
     this(uri, dataSourceFactory, bandwidthMeter, extractors, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
-        eventHandler, eventListener, eventSourceId);
+        eventHandler, eventListener);
   }
 
   /**
@@ -173,17 +170,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Extractor[] extractors, int minLoadableRetryCount,
-      Handler eventHandler, EventListener eventListener, int eventSourceId) {
+      Handler eventHandler, EventListener eventListener) {
     Assertions.checkState(extractors != null && extractors.length > 0);
     this.uri = uri;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventListener = eventListener;
     this.eventHandler = eventHandler;
-    this.eventSourceId = eventSourceId;
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
     loader = new Loader("Loader:ExtractorSampleSource");
@@ -460,13 +455,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(ExtractingLoadable loadable, long elapsedMs) {
+  public void onLoadCompleted(ExtractingLoadable loadable, long elapsedRealtimeMs,
+      long loadDurationMs) {
     copyLengthFromLoader(loadable);
     loadingFinished = true;
   }
 
   @Override
-  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedMs, boolean released) {
+  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedRealtimeMs,
+      long loadDurationMs, boolean released) {
     copyLengthFromLoader(loadable);
     if (!released && enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
@@ -474,10 +471,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public int onLoadError(ExtractingLoadable loadable, long elapsedMs, IOException e) {
+  public int onLoadError(ExtractingLoadable loadable, long elapsedRealtimeMs,
+      long loadDurationMs, IOException error) {
     copyLengthFromLoader(loadable);
-    notifyLoadError(e);
-    if (isLoadableExceptionFatal(e)) {
+    notifyLoadError(error);
+    if (isLoadableExceptionFatal(error)) {
       return Loader.DONT_RETRY_FATAL;
     }
     int extractedSamplesCount = getExtractedSamplesCount();
@@ -598,12 +596,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     return e instanceof UnrecognizedInputFormatException;
   }
 
-  private void notifyLoadError(final IOException e) {
+  private void notifyLoadError(final IOException error) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onLoadError(eventSourceId, e);
+          eventListener.onLoadError(error);
         }
       });
     }

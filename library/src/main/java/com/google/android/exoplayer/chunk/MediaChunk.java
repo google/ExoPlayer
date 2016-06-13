@@ -27,33 +27,26 @@ import com.google.android.exoplayer.util.Assertions;
 public abstract class MediaChunk extends Chunk {
 
   /**
-   * The start time of the media contained by the chunk.
-   */
-  public final long startTimeUs;
-  /**
-   * The end time of the media contained by the chunk.
-   */
-  public final long endTimeUs;
-  /**
    * The chunk index.
    */
   public final int chunkIndex;
 
   /**
-   * @param dataSource A {@link DataSource} for loading the data.
+   * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param trigger The reason for this chunk being selected.
-   * @param format The format of the stream to which this chunk belongs.
+   * @param format See {@link #format}.
+   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
+   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    */
-  public MediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex) {
-    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA, trigger, format);
+  public MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs,
+      int chunkIndex) {
+    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA, format, formatEvaluatorTrigger,
+        formatEvaluatorData, startTimeUs, endTimeUs);
     Assertions.checkNotNull(format);
-    this.startTimeUs = startTimeUs;
-    this.endTimeUs = endTimeUs;
     this.chunkIndex = chunkIndex;
   }
 

@@ -167,7 +167,8 @@ public class DashChunkSource implements ChunkSource {
             evaluation);
       } else {
         evaluation.format = enabledFormats[0];
-        evaluation.trigger = Chunk.TRIGGER_MANUAL;
+        evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
+        evaluation.data = null;
       }
     }
 
@@ -194,7 +195,7 @@ public class DashChunkSource implements ChunkSource {
       // We have initialization and/or index requests to make.
       Chunk initializationChunk = newInitializationChunk(pendingInitializationUri, pendingIndexUri,
           selectedRepresentation, representationHolder.extractorWrapper, dataSource,
-          evaluation.trigger);
+          evaluation.trigger, evaluation.data);
       lastChunkWasInitialization = true;
       out.chunk = initializationChunk;
       return;
@@ -238,7 +239,7 @@ public class DashChunkSource implements ChunkSource {
     }
 
     Chunk nextMediaChunk = newMediaChunk(representationHolder, dataSource, selectedFormat,
-        sampleFormat, segmentNum, evaluation.trigger);
+        sampleFormat, segmentNum, evaluation.trigger, evaluation.data);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -291,7 +292,7 @@ public class DashChunkSource implements ChunkSource {
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
       Representation representation, ChunkExtractorWrapper extractor, DataSource dataSource,
-      int trigger) {
+      int formatEvaluatorTrigger, Object formatEvaluatorData) {
     RangedUri requestUri;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
@@ -305,12 +306,13 @@ public class DashChunkSource implements ChunkSource {
     }
     DataSpec dataSpec = new DataSpec(requestUri.getUri(), requestUri.start, requestUri.length,
         representation.getCacheKey());
-    return new InitializationChunk(dataSource, dataSpec, trigger, representation.format,
-        extractor);
+    return new InitializationChunk(dataSource, dataSpec, representation.format,
+        formatEvaluatorTrigger, formatEvaluatorData, extractor);
   }
 
   private Chunk newMediaChunk(RepresentationHolder representationHolder, DataSource dataSource,
-      Format trackFormat, Format sampleFormat, int segmentNum, int trigger) {
+      Format trackFormat, Format sampleFormat, int segmentNum, int formatEvaluatorTrigger,
+      Object formatEvaluatorData) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
@@ -319,13 +321,13 @@ public class DashChunkSource implements ChunkSource {
         representation.getCacheKey());
 
     if (representationHolder.extractorWrapper == null) {
-      return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, trackFormat,
-          startTimeUs, endTimeUs, segmentNum, trackFormat);
+      return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, formatEvaluatorTrigger,
+          formatEvaluatorData, startTimeUs, endTimeUs, segmentNum, trackFormat);
     } else {
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
-      return new ContainerMediaChunk(dataSource, dataSpec, trigger, trackFormat, startTimeUs,
-          endTimeUs, segmentNum, sampleOffsetUs, representationHolder.extractorWrapper,
-          sampleFormat);
+      return new ContainerMediaChunk(dataSource, dataSpec, trackFormat, formatEvaluatorTrigger,
+          formatEvaluatorData, startTimeUs, endTimeUs, segmentNum, sampleOffsetUs,
+          representationHolder.extractorWrapper, sampleFormat);
     }
   }
 

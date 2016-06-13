@@ -25,7 +25,33 @@ import java.util.Random;
  * Selects from a number of available formats during playback.
  */
 public interface FormatEvaluator {
-
+  
+  /**
+   * A trigger for a load whose reason is unknown or unspecified.
+   */
+  int TRIGGER_UNKNOWN = 0;
+  /**
+   * A trigger for a load triggered by an initial format selection.
+   */
+  int TRIGGER_INITIAL = 1;
+  /**
+   * A trigger for a load triggered by a user initiated format selection.
+   */
+  int TRIGGER_MANUAL = 2;
+  /**
+   * A trigger for a load triggered by an adaptive format selection.
+   */
+  int TRIGGER_ADAPTIVE = 3;
+  /**
+   * A trigger for a load triggered whilst in a trick play mode.
+   */
+  int TRIGGER_TRICK_PLAY = 4;
+  /**
+   * Applications or extensions may define custom {@code TRIGGER_*} constants greater than or equal
+   * to this value.
+   */
+  int TRIGGER_CUSTOM_BASE = 10000;
+  
   /**
    * Enables the evaluator.
    *
@@ -42,8 +68,8 @@ public interface FormatEvaluator {
    * Update the supplied evaluation.
    * <p>
    * When invoked, {@code evaluation} must contain the currently selected format (null for an
-   * initial evaluation) and the most recent trigger {@link Chunk#TRIGGER_INITIAL} for an initial
-   * evaluation).
+   * initial evaluation), the most recent trigger {@link #TRIGGER_INITIAL} for an initial
+   * evaluation) and the most recent evaluation data (null for an initial evaluation).
    *
    * @param bufferedDurationUs The duration of media currently buffered in microseconds.
    * @param blacklistFlags An array whose length is equal to the number of available formats. A
@@ -82,16 +108,13 @@ public interface FormatEvaluator {
      */
     public int trigger;
 
-    public Evaluation() {
-      trigger = Chunk.TRIGGER_INITIAL;
-    }
-
     /**
-     * Clears {@link #format} and sets {@link #trigger} to {@link Chunk#TRIGGER_INITIAL}.
+     * Sticky optional data relating to the evaluation.
      */
-    public void clear() {
-      format = null;
-      trigger = Chunk.TRIGGER_INITIAL;
+    public Object data;
+
+    public Evaluation() {
+      trigger = TRIGGER_INITIAL;
     }
 
   }
@@ -150,7 +173,7 @@ public interface FormatEvaluator {
       }
       Format newFormat = formats[formatIndex];
       if (evaluation.format != null && evaluation.format != newFormat) {
-        evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
+        evaluation.trigger = TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;
     }
@@ -173,12 +196,12 @@ public interface FormatEvaluator {
    */
   final class AdaptiveEvaluator implements FormatEvaluator {
 
-    public static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
+    private static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
 
-    public static final int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS = 10000;
-    public static final int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS = 25000;
-    public static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25000;
-    public static final float DEFAULT_BANDWIDTH_FRACTION = 0.75f;
+    private static final int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS = 10000;
+    private static final int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS = 25000;
+    private static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25000;
+    private static final float DEFAULT_BANDWIDTH_FRACTION = 0.75f;
 
     private final BandwidthMeter bandwidthMeter;
     private final int maxInitialBitrate;
@@ -257,7 +280,7 @@ public interface FormatEvaluator {
         ideal = current;
       }
       if (current != null && ideal != current) {
-        evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
+        evaluation.trigger = TRIGGER_ADAPTIVE;
       }
       evaluation.format = ideal;
     }

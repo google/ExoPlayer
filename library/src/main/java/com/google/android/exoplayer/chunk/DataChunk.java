@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -37,18 +38,17 @@ public abstract class DataChunk extends Chunk {
 
   /**
    * @param dataSource The source from which the data should be loaded.
-   * @param dataSpec Defines the data to be loaded. {@code dataSpec.length} must not exceed
-   *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
-   *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
-   *     {@link Integer#MAX_VALUE}.
+   * @param dataSpec Defines the data to be loaded.
    * @param type See {@link #type}.
-   * @param trigger See {@link #trigger}.
    * @param format See {@link #format}.
+   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
+   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
-  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format,
-      byte[] data) {
-    super(dataSource, dataSpec, type, trigger, format);
+  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, Format format,
+      int formatEvaluatorTrigger, Object formatEvaluatorData, byte[] data) {
+    super(dataSource, dataSpec, type, format, formatEvaluatorTrigger, formatEvaluatorData,
+        C.UNSET_TIME_US, C.UNSET_TIME_US);
     this.data = data;
   }
 

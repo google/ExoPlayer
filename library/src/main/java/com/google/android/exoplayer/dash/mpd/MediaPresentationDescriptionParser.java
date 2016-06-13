@@ -25,7 +25,7 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
-import com.google.android.exoplayer.upstream.UriLoadable;
+import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParserUtil;
@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
  * A parser of media presentation description files.
  */
 public class MediaPresentationDescriptionParser extends DefaultHandler
-    implements UriLoadable.Parser<MediaPresentationDescription> {
+    implements ParsingLoadable.Parser<MediaPresentationDescription> {
 
   private static final String TAG = "MpdParser";
 

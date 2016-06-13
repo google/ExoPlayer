@@ -168,7 +168,7 @@ public interface C {
   int DATA_TYPE_MEDIA_INITIALIZATION = 2;
 
   /**
-   * A data type constant for drm or encryption related data.
+   * A data type constant for drm or encryption data.
    */
   int DATA_TYPE_DRM = 3;
 
@@ -176,6 +176,11 @@ public interface C {
    * A data type constant for a manifest file.
    */
   int DATA_TYPE_MANIFEST = 4;
+
+  /**
+   * A data type constant for time synchronization data.
+   */
+  int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
 
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or

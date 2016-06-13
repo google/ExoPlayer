@@ -244,14 +244,21 @@ public class HlsChunkSource {
    * @param out A holder to populate.
    */
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
-    int variantIndex = getNextVariantIndex(previous, playbackPositionUs);
+    updateFormatEvaluation(previous, playbackPositionUs);
+    int variantIndex = 0;
+    for (int i = 0; i < variants.length; i++) {
+      if (variants[i].format == evaluation.format) {
+        variantIndex = i;
+        break;
+      }
+    }
     boolean switchingVariant = previous != null
         && variants[variantIndex].format != previous.format;
 
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
-      out.chunk = newMediaPlaylistChunk(variantIndex);
+      out.chunk = newMediaPlaylistChunk(variantIndex, evaluation.trigger, evaluation.data);
       return;
     }
 
@@ -272,7 +279,7 @@ public class HlsChunkSource {
       if (!mediaPlaylist.live) {
         out.endOfStream = true;
       } else if (shouldRerequestLiveMediaPlaylist(variantIndex)) {
-        out.chunk = newMediaPlaylistChunk(variantIndex);
+        out.chunk = newMediaPlaylistChunk(variantIndex, evaluation.trigger, evaluation.data);
       }
       return;
     }
@@ -285,7 +292,8 @@ public class HlsChunkSource {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, variantIndex);
+        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, variantIndex,
+            evaluation.trigger, evaluation.data);
         return;
       }
       if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
@@ -313,7 +321,6 @@ public class HlsChunkSource {
       startTimeUs = segment.startTimeUs;
     }
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
-    int trigger = Chunk.TRIGGER_UNSPECIFIED;
     Format format = variants[variantIndex].format;
 
     // Configure the extractor that will read the chunk.
@@ -368,9 +375,9 @@ public class HlsChunkSource {
       extractorNeedsInit = false;
     }
 
-    out.chunk = new HlsMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-        chunkMediaSequence, segment.discontinuitySequenceNumber, extractor, extractorNeedsInit,
-        switchingVariant, encryptionKey, encryptionIv);
+    out.chunk = new HlsMediaChunk(dataSource, dataSpec, format, evaluation.trigger, evaluation.data,
+        startTimeUs, endTimeUs, chunkMediaSequence, segment.discontinuitySequenceNumber, extractor,
+        extractorNeedsInit, switchingVariant, encryptionKey, encryptionIv);
   }
 
   /**
@@ -434,7 +441,7 @@ public class HlsChunkSource {
 
   // Private methods.
 
-  private int getNextVariantIndex(HlsMediaChunk previous, long playbackPositionUs) {
+  private void updateFormatEvaluation(HlsMediaChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
     if (enabledVariants.length > 1) {
       long bufferedDurationUs;
@@ -449,14 +456,9 @@ public class HlsChunkSource {
           evaluation);
     } else {
       evaluation.format = enabledVariants[0].format;
-      evaluation.trigger = Chunk.TRIGGER_MANUAL;
+      evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
+      evaluation.data = null;
     }
-    for (int i = 0; i < variants.length; i++) {
-      if (variants[i].format == evaluation.format) {
-        return i;
-      }
-    }
-    throw new IllegalStateException();
   }
 
   private boolean shouldRerequestLiveMediaPlaylist(int variantIndex) {
@@ -467,18 +469,21 @@ public class HlsChunkSource {
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
-  private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
+  private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex, int formatEvaluatorTrigger,
+      Object formatEvaluatorData) {
     Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
         DataSpec.FLAG_ALLOW_GZIP);
-    return new MediaPlaylistChunk(dataSource, dataSpec, variants[variantIndex].format, scratchSpace,
-        playlistParser, variantIndex, mediaPlaylistUri);
+    return new MediaPlaylistChunk(dataSource, dataSpec, variants[variantIndex].format,
+        formatEvaluatorTrigger, formatEvaluatorData, scratchSpace, playlistParser, variantIndex,
+        mediaPlaylistUri);
   }
 
-  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex) {
+  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
+      int formatEvaluatorTrigger, Object formatEvaluatorData) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(dataSource, dataSpec, variants[variantIndex].format, scratchSpace,
-        iv);
+    return new EncryptionKeyChunk(dataSource, dataSpec, variants[variantIndex].format,
+        formatEvaluatorTrigger, formatEvaluatorData, scratchSpace, iv);
   }
 
   private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
@@ -556,10 +561,11 @@ public class HlsChunkSource {
     private HlsMediaPlaylist result;
 
     public MediaPlaylistChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-        byte[] scratchSpace, HlsPlaylistParser playlistParser, int variantIndex,
+        int formatEvaluatorTrigger, Object formatEvaluatorData, byte[] scratchSpace,
+        HlsPlaylistParser playlistParser, int variantIndex,
         Uri playlistUri) {
-      super(dataSource, dataSpec, C.DATA_TYPE_MANIFEST, Chunk.TRIGGER_UNSPECIFIED, format,
-          scratchSpace);
+      super(dataSource, dataSpec, C.DATA_TYPE_MANIFEST, format, formatEvaluatorTrigger,
+          formatEvaluatorData, scratchSpace);
       this.variantIndex = variantIndex;
       this.playlistParser = playlistParser;
       this.playlistUri = playlistUri;
@@ -584,9 +590,9 @@ public class HlsChunkSource {
     private byte[] result;
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-        byte[] scratchSpace, String iv) {
-      super(dataSource, dataSpec, C.DATA_TYPE_DRM, Chunk.TRIGGER_UNSPECIFIED, format,
-          scratchSpace);
+        int formatEvaluatorTrigger, Object formatEvaluatorData, byte[] scratchSpace, String iv) {
+      super(dataSource, dataSpec, C.DATA_TYPE_DRM, format, formatEvaluatorTrigger,
+          formatEvaluatorData, scratchSpace);
       this.iv = iv;
     }
 
