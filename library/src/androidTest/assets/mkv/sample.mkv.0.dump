@@ -1,7 +1,7 @@
 seekMap:
   isSeekable = true
-  duration = 1145000
-  getPosition(0) = 1034
+  duration = 1072000
+  getPosition(0) = 5576
 numberOfTracks = 2
 track 1:
   format:
@@ -182,15 +182,15 @@ track 2:
     flags = 1
     data = length 418, hash 77425A86
   sample 2:
-    time = 199000
+    time = 198829
     flags = 1
     data = length 418, hash A0FE5CA1
   sample 3:
-    time = 234000
+    time = 233000
     flags = 1
     data = length 418, hash 2309B066
   sample 4:
-    time = 269000
+    time = 268000
     flags = 1
     data = length 418, hash 928A653B
   sample 5:
@@ -198,7 +198,7 @@ track 2:
     flags = 1
     data = length 418, hash 3422F0CB
   sample 6:
-    time = 338000
+    time = 337829
     flags = 1
     data = length 418, hash EFF43D5B
   sample 7:
@@ -214,7 +214,7 @@ track 2:
     flags = 1
     data = length 418, hash 2A6EE863
   sample 10:
-    time = 478000
+    time = 477829
     flags = 1
     data = length 418, hash D69A9251
   sample 11:
@@ -226,7 +226,7 @@ track 2:
     flags = 1
     data = length 418, hash 11B66799
   sample 13:
-    time = 582000
+    time = 581829
     flags = 1
     data = length 418, hash C824D392
   sample 14:
@@ -242,11 +242,11 @@ track 2:
     flags = 1
     data = length 418, hash 4D4FF934
   sample 17:
-    time = 721000
+    time = 721829
     flags = 1
     data = length 418, hash 984AA025
   sample 18:
-    time = 756000
+    time = 757000
     flags = 1
     data = length 418, hash BB788B46
   sample 19:
@@ -258,7 +258,7 @@ track 2:
     flags = 1
     data = length 418, hash DF1A460C
   sample 21:
-    time = 861000
+    time = 860829
     flags = 1
     data = length 418, hash 2BDB56A
   sample 22:
@@ -266,7 +266,7 @@ track 2:
     flags = 1
     data = length 418, hash CA230060
   sample 23:
-    time = 930000
+    time = 931000
     flags = 1
     data = length 418, hash D2F19F41
   sample 24:
@@ -274,7 +274,7 @@ track 2:
     flags = 1
     data = length 418, hash AF392D79
   sample 25:
-    time = 1000000
+    time = 999829
     flags = 1
     data = length 418, hash C5D7F2A3
   sample 26:
@@ -282,7 +282,7 @@ track 2:
     flags = 1
     data = length 418, hash 733A35AE
   sample 27:
-    time = 1070000
+    time = 1069829
     flags = 1
     data = length 418, hash DE46E5D3
   sample 28:
