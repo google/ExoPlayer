@@ -611,27 +611,6 @@ public final class Util {
   }
 
   /**
-   * Returns the top 32 bits of a long as an integer.
-   */
-  public static int getTopInt(long value) {
-    return (int) (value >>> 32);
-  }
-
-  /**
-   * Returns the bottom 32 bits of a long as an integer.
-   */
-  public static int getBottomInt(long value) {
-    return (int) value;
-  }
-
-  /**
-   * Returns a long created by concatenating the bits of two integers.
-   */
-  public static long getLong(int topInteger, int bottomInteger) {
-    return ((long) topInteger << 32) | (bottomInteger & 0xFFFFFFFFL);
-  }
-
-  /**
    * Returns a byte array containing values parsed from the hex string provided.
    *
    * @param hexString The hex string to convert to bytes.

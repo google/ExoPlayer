@@ -108,6 +108,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   private int index;
   private int state;
   private TrackStream stream;
+  private long streamOffsetUs;
+  private long maximumTimeUs;
+  private boolean readEndOfStream;
+  private boolean streamIsFinal;
 
   /**
    * Sets the index of this renderer within the player.
@@ -168,14 +172,16 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @param stream The track stream from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
+   * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream}
+   *     before they are renderered.
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void enable(Format[] formats, TrackStream stream, long positionUs,
-      boolean joining) throws ExoPlaybackException {
+      boolean joining, long offsetUs) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceTrackStream(formats, stream);
+    replaceTrackStream(formats, stream, offsetUs);
     onReset(positionUs, joining);
   }
 
@@ -192,15 +198,20 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Replaces the {@link TrackStream} from which samples will be consumed.
+   * Sets the {@link TrackStream} from which samples will be consumed.
    *
    * @param formats The enabled formats.
-   * @param trackStream The track stream from which the renderer should consume.
+   * @param stream The track stream from which the renderer should consume.
+   * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
+   *     they are renderered.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void replaceTrackStream(Format[] formats, TrackStream trackStream)
+  /* package */ final void replaceTrackStream(Format[] formats, TrackStream stream, long offsetUs)
       throws ExoPlaybackException {
-    stream = trackStream;
+    Assertions.checkState(!streamIsFinal);
+    this.stream = stream;
+    readEndOfStream = false;
+    streamOffsetUs = offsetUs;
     onStreamChanged(formats);
   }
 
@@ -223,13 +234,16 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs handling the reset.
    */
   /* package */ final void reset(long positionUs) throws ExoPlaybackException {
+    streamIsFinal = false;
+    maximumTimeUs = C.UNSET_TIME_US;
     onReset(positionUs, false);
   }
 
   /**
-   * Called when a reset is encountered, and also when the renderer is enabled.
+   * Invoked when a reset is encountered, and also when the renderer is enabled.
    * <p>
-   * The default implementation is a no-op.
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param positionUs The playback position in microseconds.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
@@ -237,6 +251,29 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
     // Do nothing.
+  }
+
+  /**
+   * Returns whether the renderer has read the current {@link TrackStream} to the end.
+   */
+  /* package */ final boolean hasReadStreamToEnd() {
+    return readEndOfStream;
+  }
+
+  /**
+   * Returns the maximum buffer timestamp read from the stream since the last reset, or
+   * {@link C#UNSET_TIME_US} if no buffers have been read.
+   */
+  /* package */ final long getMaximumTimeUs() {
+    return maximumTimeUs;
+  }
+
+  /**
+   * Signals to the renderer that the current {@link TrackStream} will be the final one supplied
+   * before it is next disabled or reset.
+   */
+  /* package */ final void setCurrentTrackStreamIsFinal() {
+    streamIsFinal = true;
   }
 
   /**
@@ -293,6 +330,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
     onDisabled();
     TrackStream trackStream = stream;
     stream = null;
+    streamIsFinal = false;
     return trackStream;
   }
 
@@ -327,7 +365,18 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @see TrackStream#readData(FormatHolder, DecoderInputBuffer)
    */
   protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    return stream.readData(formatHolder, buffer);
+    int result = stream.readData(formatHolder, buffer);
+    if (result == TrackStream.BUFFER_READ) {
+      if (buffer.isEndOfStream()) {
+        readEndOfStream = true;
+        return streamIsFinal ? TrackStream.BUFFER_READ : TrackStream.NOTHING_READ;
+      }
+      buffer.timeUs += streamOffsetUs;
+      if (buffer.timeUs > maximumTimeUs) {
+        maximumTimeUs = buffer.timeUs;
+      }
+    }
+    return result;
   }
 
   /**
