@@ -169,6 +169,9 @@ public final class MediaCodecUtil {
                   // Suppress error querying secondary codec capabilities up to API level 23.
                   Log.e(TAG, "Skipping codec " + codecName + " (failed to query capabilities)");
                 } else {
+                  // Rethrow error querying primary codec capabilities, or secondary codec
+                  // capabilities if API level is greater than 23.
+                  Log.e(TAG, "Failed to query codec " + codecName + " (" + supportedType + ")");
                   throw e;
                 }
               }
