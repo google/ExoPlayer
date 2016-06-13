@@ -204,7 +204,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     super.onEnabled(joining);
-    codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
     frameReleaseTimeHelper.enable();
   }
@@ -271,7 +270,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onDisabled() {
-    eventDispatcher.disabled();
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
@@ -280,7 +278,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
     frameReleaseTimeHelper.disable();
-    super.onDisabled();
+    try {
+      super.onDisabled();
+    } finally {
+      codecCounters.ensureUpdated();
+      eventDispatcher.disabled(codecCounters);
+    }
   }
 
   @Override
@@ -378,7 +381,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       Format oldFormat, Format newFormat) {
     return newFormat.sampleMimeType.equals(oldFormat.sampleMimeType)
         && (codecIsAdaptive
-            || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
+        || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
   }
 
   @Override

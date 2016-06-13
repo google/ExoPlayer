@@ -30,7 +30,8 @@ public interface VideoTrackRendererEventListener {
   /**
    * Invoked when the renderer is enabled.
    *
-   * @param counters {@link CodecCounters} that will be updated by the renderer.
+   * @param counters {@link CodecCounters} that will be updated by the renderer for as long as it
+   *     remains enabled.
    */
   void onVideoEnabled(CodecCounters counters);
 
@@ -94,8 +95,10 @@ public interface VideoTrackRendererEventListener {
 
   /**
    * Invoked when the renderer is disabled.
+   *
+   * @param counters {@link CodecCounters} that were updated by the renderer.
    */
-  void onVideoDisabled();
+  void onVideoDisabled(CodecCounters counters);
 
   /**
    * Dispatches events to a {@link VideoTrackRendererEventListener}.
@@ -180,12 +183,12 @@ public interface VideoTrackRendererEventListener {
       }
     }
 
-    public void disabled() {
+    public void disabled(final CodecCounters counters) {
       if (listener != null) {
         handler.post(new Runnable() {
           @Override
           public void run() {
-            listener.onVideoDisabled();
+            listener.onVideoDisabled(counters);
           }
         });
       }

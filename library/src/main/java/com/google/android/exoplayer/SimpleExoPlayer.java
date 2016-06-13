@@ -61,12 +61,16 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * A listener for debugging information.
    */
   public interface DebugListener {
+    void onAudioEnabled(CodecCounters counters);
     void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onAudioFormatChanged(Format format);
+    void onAudioDisabled(CodecCounters counters);
+    void onVideoEnabled(CodecCounters counters);
     void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onVideoFormatChanged(Format format);
+    void onVideoDisabled(CodecCounters counters);
     void onDroppedFrames(int count, long elapsed);
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
   }
@@ -469,6 +473,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onVideoEnabled(CodecCounters counters) {
       videoCodecCounters = counters;
+      if (debugListener != null) {
+        debugListener.onVideoEnabled(counters);
+      }
     }
 
     @Override
@@ -512,14 +519,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onVideoDisabled() {
-      videoCodecCounters = null;
-      if (videoFormat != null) {
-        videoFormat = null;
-        if (debugListener != null) {
-          debugListener.onVideoFormatChanged(null);
-        }
+    public void onVideoDisabled(CodecCounters counters) {
+      if (debugListener != null) {
+        debugListener.onVideoDisabled(counters);
       }
+      videoFormat = null;
+      videoCodecCounters = null;
     }
 
     // AudioTrackRendererEventListener implementation
@@ -527,6 +532,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioEnabled(CodecCounters counters) {
       audioCodecCounters = counters;
+      if (debugListener != null) {
+        debugListener.onAudioEnabled(counters);
+      }
     }
 
     @Override
@@ -555,14 +563,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onAudioDisabled() {
-      audioCodecCounters = null;
-      if (audioFormat != null) {
-        audioFormat = null;
-        if (debugListener != null) {
-          debugListener.onAudioFormatChanged(null);
-        }
+    public void onAudioDisabled(CodecCounters counters) {
+      if (debugListener != null) {
+        debugListener.onAudioDisabled(counters);
       }
+      audioFormat = null;
+      audioCodecCounters = null;
     }
 
     // TextRenderer implementation

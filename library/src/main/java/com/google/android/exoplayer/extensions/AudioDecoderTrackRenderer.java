@@ -39,11 +39,10 @@ import android.os.SystemClock;
  */
 public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements MediaClock {
 
-  public final CodecCounters codecCounters = new CodecCounters();
-
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
 
+  private CodecCounters codecCounters;
   private Format inputFormat;
   private SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
       ? extends AudioDecoderException> decoder;
@@ -292,7 +291,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    codecCounters.reset();
+    codecCounters = new CodecCounters();
     eventDispatcher.enabled(codecCounters);
   }
 
@@ -320,7 +319,6 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
 
   @Override
   protected void onDisabled() {
-    eventDispatcher.disabled();
     inputBuffer = null;
     outputBuffer = null;
     inputFormat = null;
@@ -333,7 +331,8 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
       }
       audioTrack.release();
     } finally {
-      super.onDisabled();
+      codecCounters.ensureUpdated();
+      eventDispatcher.disabled(codecCounters);
     }
   }
 

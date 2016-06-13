@@ -156,9 +156,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     // Note: We assume support for unknown sampleRate and channelCount.
     boolean decoderCapable = Util.SDK_INT < 21
         || ((format.sampleRate == Format.NO_VALUE
-            || decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate))
+        || decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate))
         && (format.channelCount == Format.NO_VALUE
-            ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
+        ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
     int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
     return ADAPTIVE_NOT_SEAMLESS | formatSupport;
   }
@@ -255,7 +255,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     super.onEnabled(joining);
-    codecCounters.reset();
     eventDispatcher.enabled(codecCounters);
   }
 
@@ -281,12 +280,16 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected void onDisabled() {
-    eventDispatcher.disabled();
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
       audioTrack.release();
     } finally {
-      super.onDisabled();
+      try {
+        super.onDisabled();
+      } finally {
+        codecCounters.ensureUpdated();
+        eventDispatcher.disabled(codecCounters);
+      }
     }
   }
 

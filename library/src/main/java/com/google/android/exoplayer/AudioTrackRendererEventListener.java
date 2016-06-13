@@ -29,7 +29,8 @@ public interface AudioTrackRendererEventListener {
   /**
    * Invoked when the renderer is enabled.
    *
-   * @param counters {@link CodecCounters} that will be updated by the renderer.
+   * @param counters {@link CodecCounters} that will be updated by the renderer for as long as it
+   *     remains enabled.
    */
   void onAudioEnabled(CodecCounters counters);
 
@@ -64,8 +65,10 @@ public interface AudioTrackRendererEventListener {
 
   /**
    * Invoked when the renderer is disabled.
+   *
+   * @param counters {@link CodecCounters} that were updated by the renderer.
    */
-  void onAudioDisabled();
+  void onAudioDisabled(CodecCounters counters);
 
   /**
    * Dispatches events to a {@link AudioTrackRendererEventListener}.
@@ -127,12 +130,12 @@ public interface AudioTrackRendererEventListener {
       }
     }
 
-    public void disabled() {
+    public void disabled(final CodecCounters counters) {
       if (listener != null) {
         handler.post(new Runnable() {
           @Override
           public void run() {
-            listener.onAudioDisabled();
+            listener.onAudioDisabled(counters);
           }
         });
       }

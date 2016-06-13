@@ -55,14 +55,13 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   private static final int NUM_BUFFERS = 16;
   private static final int INITIAL_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
-  public final CodecCounters codecCounters = new CodecCounters();
-
   private final boolean scaleToFit;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFrameCountToNotify;
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
 
+  private CodecCounters codecCounters;
   private Format format;
   private VpxDecoder decoder;
   private DecoderInputBuffer inputBuffer;
@@ -213,7 +212,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
     // and that's also late. Else we'll render what we have.
     if ((joiningDeadlineMs != -1 && outputBuffer.timestampUs < positionUs - 30000)
         || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
-            && nextOutputBuffer.timestampUs < positionUs)) {
+        && nextOutputBuffer.timestampUs < positionUs)) {
       codecCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
       consecutiveDroppedFrameCount++;
@@ -349,7 +348,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    codecCounters.reset();
+    codecCounters = new CodecCounters();
     eventDispatcher.enabled(codecCounters);
   }
 
@@ -390,8 +389,8 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
         codecCounters.codecReleaseCount++;
       }
     } finally {
-      super.onDisabled();
-      eventDispatcher.disabled();
+      codecCounters.ensureUpdated();
+      eventDispatcher.disabled(codecCounters);
     }
   }
 

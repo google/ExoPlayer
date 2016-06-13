@@ -71,16 +71,19 @@ public final class CodecCounters {
   }
 
   /**
-   * Resets all counters to zero.
+   * Merges the counts from {@code other} into this instance.
+   *
+   * @param other The {@link CodecCounters} to merge into this instance.
    */
-  public void reset() {
-    codecInitCount = 0;
-    codecReleaseCount = 0;
-    inputBufferCount = 0;
-    renderedOutputBufferCount = 0;
-    skippedOutputBufferCount = 0;
-    droppedOutputBufferCount = 0;
-    maxConsecutiveDroppedOutputBufferCount = 0;
+  public void merge(CodecCounters other) {
+    codecInitCount += other.codecInitCount;
+    codecReleaseCount += other.codecReleaseCount;
+    inputBufferCount += other.inputBufferCount;
+    renderedOutputBufferCount += other.renderedOutputBufferCount;
+    skippedOutputBufferCount += other.skippedOutputBufferCount;
+    droppedOutputBufferCount += other.droppedOutputBufferCount;
+    maxConsecutiveDroppedOutputBufferCount = Math.max(maxConsecutiveDroppedOutputBufferCount,
+        other.maxConsecutiveDroppedOutputBufferCount);
   }
 
 }

@@ -147,8 +147,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
-  public final CodecCounters codecCounters;
-
   private final MediaCodecSelector mediaCodecSelector;
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
@@ -182,6 +180,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
 
+  protected CodecCounters codecCounters;
+
   /**
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
@@ -198,7 +198,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    codecCounters = new CodecCounters();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new FormatHolder();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
@@ -356,6 +355,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    codecCounters = new CodecCounters();
+  }
+
+  @Override
   protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -370,13 +374,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     try {
       releaseCodec();
     } finally {
-      try {
-        if (drmSession != null) {
-          drmSessionManager.releaseSession(drmSession);
-          drmSession = null;
-        }
-      } finally {
-        super.onDisabled();
+      if (drmSession != null) {
+        drmSessionManager.releaseSession(drmSession);
+        drmSession = null;
       }
     }
   }
@@ -907,9 +907,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private static boolean codecNeedsFlushWorkaround(String name) {
     return Util.SDK_INT < 18
         || (Util.SDK_INT == 18
-            && ("OMX.SEC.avc.dec".equals(name) || "OMX.SEC.avc.dec.secure".equals(name)))
+        && ("OMX.SEC.avc.dec".equals(name) || "OMX.SEC.avc.dec.secure".equals(name)))
         || (Util.SDK_INT == 19 && Util.MODEL.startsWith("SM-G800")
-            && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name)));
+        && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name)));
   }
 
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -133,6 +134,11 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   // SimpleExoPlayer.DebugListener
 
   @Override
+  public void onAudioEnabled(CodecCounters counters) {
+    Log.d(TAG, "audioEnabled [" + getSessionTimeString() + "]");
+  }
+
+  @Override
   public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
       long initializationDurationMs) {
     Log.d(TAG, "audioDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
@@ -145,6 +151,16 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
+  public void onAudioDisabled(CodecCounters counters) {
+    Log.d(TAG, "audioDisabled [" + getSessionTimeString() + "]");
+  }
+
+  @Override
+  public void onVideoEnabled(CodecCounters counters) {
+    Log.d(TAG, "videoEnabled [" + getSessionTimeString() + "]");
+  }
+
+  @Override
   public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
       long initializationDurationMs) {
     Log.d(TAG, "videoDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
@@ -154,6 +170,11 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   public void onVideoFormatChanged(Format format) {
     Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
         + "]");
+  }
+
+  @Override
+  public void onVideoDisabled(CodecCounters counters) {
+    Log.d(TAG, "videoDisabled [" + getSessionTimeString() + "]");
   }
 
   @Override
