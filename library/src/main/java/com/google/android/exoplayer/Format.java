@@ -442,18 +442,6 @@ public final class Format implements Parcelable {
     return frameworkMediaFormat;
   }
 
-  /**
-   * Sets the {@link MediaFormat} returned by {@link #getFrameworkMediaFormatV16()}.
-   *
-   * @deprecated This method only exists for FrameworkSampleSource, which is itself deprecated.
-   * @param frameworkSampleFormat The format.
-   */
-  @Deprecated
-  @TargetApi(16)
-  /* package */ final void setFrameworkMediaFormatV16(MediaFormat frameworkSampleFormat) {
-    this.frameworkMediaFormat = frameworkSampleFormat;
-  }
-
   @Override
   public String toString() {
     return "Format(" + id + ", " + containerMimeType + ", " + sampleMimeType + ", " + bitrate + ", "

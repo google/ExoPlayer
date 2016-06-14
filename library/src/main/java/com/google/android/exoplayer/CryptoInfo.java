@@ -18,7 +18,6 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
-import android.media.MediaExtractor;
 
 /**
  * Compatibility wrapper around {@link android.media.MediaCodec.CryptoInfo}.
@@ -70,22 +69,6 @@ public final class CryptoInfo {
     if (Util.SDK_INT >= 16) {
       updateFrameworkCryptoInfoV16();
     }
-  }
-
-  /**
-   * Equivalent to {@link MediaExtractor#getSampleCryptoInfo(android.media.MediaCodec.CryptoInfo)}.
-   *
-   * @param extractor The extractor from which to retrieve the crypto information.
-   */
-  @TargetApi(16)
-  public void setFromExtractorV16(MediaExtractor extractor) {
-    extractor.getSampleCryptoInfo(frameworkCryptoInfo);
-    numSubSamples = frameworkCryptoInfo.numSubSamples;
-    numBytesOfClearData = frameworkCryptoInfo.numBytesOfClearData;
-    numBytesOfEncryptedData = frameworkCryptoInfo.numBytesOfEncryptedData;
-    key = frameworkCryptoInfo.key;
-    iv = frameworkCryptoInfo.iv;
-    mode = frameworkCryptoInfo.mode;
   }
 
   /**
