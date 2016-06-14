@@ -113,8 +113,8 @@ public final class ParsingLoadable<T> implements Loadable {
   @Override
   public final void load() throws IOException, InterruptedException {
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
-    inputStream.open();
     try {
+      inputStream.open();
       result = parser.parse(dataSource.getUri(), inputStream);
     } finally {
       inputStream.close();
