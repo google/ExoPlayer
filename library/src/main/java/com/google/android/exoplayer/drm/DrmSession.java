@@ -43,7 +43,7 @@ public interface DrmSession {
   /**
    * The session is open and has the keys required for decryption.
    */
-  int STATE_OPENED_WITH_KEYS = 3;
+  int STATE_OPENED_WITH_KEYS = 4;
 
   /**
    * Gets the current state of the session.
