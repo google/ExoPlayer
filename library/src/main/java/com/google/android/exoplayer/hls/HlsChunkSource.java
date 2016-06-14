@@ -714,7 +714,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
 
     return  defaultVariantIndex;
   }
-
+  
   // Private methods.
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
