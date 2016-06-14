@@ -41,6 +41,7 @@ import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
@@ -71,6 +72,7 @@ public class DashChunkSource implements ChunkSource {
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
+  private boolean missingLastSegment;
 
   /**
    * @param manifestLoader The {@link Loader} being used to load manifests.
@@ -232,7 +234,8 @@ public class DashChunkSource implements ChunkSource {
       }
     }
 
-    if (segmentNum > lastAvailableSegmentNum) {
+    if (segmentNum > lastAvailableSegmentNum
+        || (missingLastSegment && segmentNum >= lastAvailableSegmentNum)) {
       // This is beyond the last chunk in the current manifest.
       out.endOfStream = !manifest.dynamic;
       return;
@@ -269,6 +272,18 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
+    // Workaround for missing segment at the end of the period
+    if (cancelable && !manifest.dynamic && chunk instanceof MediaChunk
+        && e instanceof InvalidResponseCodeException
+        && ((InvalidResponseCodeException) e).responseCode == 404) {
+      RepresentationHolder representationHolder =
+          representationHolders[getTrackIndex(chunk.format)];
+      int lastAvailableSegmentNum = representationHolder.getLastSegmentNum();
+      if (((MediaChunk) chunk).chunkIndex >= lastAvailableSegmentNum) {
+        missingLastSegment = true;
+        return true;
+      }
+    }
     // TODO: Consider implementing representation blacklisting.
     return false;
   }
