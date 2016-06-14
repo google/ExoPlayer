@@ -80,17 +80,29 @@ import java.io.IOException;
    * Whether {@link #sampleEncryptionData} needs populating with the actual encryption data.
    */
   public boolean sampleEncryptionDataNeedsFill;
+  /**
+   * Fragment specific track encryption. May be null.
+   */
+  public TrackEncryptionBox trackEncryptionBox;
+
+  /**
+   * The absolute decode time of the start of the next fragment.
+   */
+  public long nextFragmentDecodeTime;
 
   /**
    * Resets the fragment.
    * <p>
-   * The {@link #length} is set to 0, and both {@link #definesEncryptionData} and
-   * {@link #sampleEncryptionDataNeedsFill} is set to false.
+   * {@link #length} and {@link #nextFragmentDecodeTime} are set to 0, both
+   * {@link #definesEncryptionData} and {@link #sampleEncryptionDataNeedsFill} is set to false,
+   * and {@link #trackEncryptionBox} is set to null.
    */
   public void reset() {
     length = 0;
+    nextFragmentDecodeTime = 0;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
+    trackEncryptionBox = null;
   }
 
   /**

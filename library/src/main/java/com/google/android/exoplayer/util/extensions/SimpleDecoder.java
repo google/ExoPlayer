@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.util.extensions;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.util.LinkedList;
@@ -226,8 +225,8 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
     if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
       outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
     } else {
-      if (inputBuffer.getFlag(C.SAMPLE_FLAG_DECODE_ONLY)) {
-        outputBuffer.setFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+      if (inputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
+        outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
       }
       exception = decode(inputBuffer, outputBuffer, resetDecoder);
       if (exception != null) {

@@ -22,6 +22,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -42,8 +43,7 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
   }
 
   @Override
-  public List<Id3Frame> parse(byte[] data, int size) throws UnsupportedEncodingException,
-      ParserException {
+  public List<Id3Frame> parse(byte[] data, int size) throws ParserException {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
     int id3Size = parseId3Header(id3Data);
@@ -60,91 +60,59 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
 
       // Skip frame flags.
       id3Data.skipBytes(2);
-      // Check Frame ID == TXXX.
-      if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
-        int encoding = id3Data.readUnsignedByte();
-        String charset = getCharsetName(encoding);
-        byte[] frame = new byte[frameSize - 1];
-        id3Data.readBytes(frame, 0, frameSize - 1);
 
-        int firstZeroIndex = indexOfEOS(frame, 0, encoding);
-        String description = new String(frame, 0, firstZeroIndex, charset);
-        int valueStartIndex = firstZeroIndex + delimiterLength(encoding);
-        int valueEndIndex = indexOfEOS(frame, valueStartIndex, encoding);
-        String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex, charset);
-        id3Frames.add(new TxxxFrame(description, value));
-      } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
-        // Check frame ID == PRIV
-        byte[] frame = new byte[frameSize];
-        id3Data.readBytes(frame, 0, frameSize);
-
-        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
-        String owner = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
-        byte[] privateData = new byte[frameSize - firstZeroIndex - 1];
-        System.arraycopy(frame, firstZeroIndex + 1, privateData, 0, frameSize - firstZeroIndex - 1);
-        id3Frames.add(new PrivFrame(owner, privateData));
-      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
-        // Check frame ID == GEOB
-        int encoding = id3Data.readUnsignedByte();
-        String charset = getCharsetName(encoding);
-        byte[] frame = new byte[frameSize - 1];
-        id3Data.readBytes(frame, 0, frameSize - 1);
-
-        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
-        String mimeType = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
-        int filenameStartIndex = firstZeroIndex + 1;
-        int filenameEndIndex = indexOfEOS(frame, filenameStartIndex, encoding);
-        String filename = new String(frame, filenameStartIndex,
-            filenameEndIndex - filenameStartIndex, charset);
-        int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
-        int descriptionEndIndex = indexOfEOS(frame, descriptionStartIndex, encoding);
-        String description = new String(frame, descriptionStartIndex,
-            descriptionEndIndex - descriptionStartIndex, charset);
-
-        int objectDataSize = frameSize - 1 /* encoding byte */ - descriptionEndIndex
-            - delimiterLength(encoding);
-        byte[] objectData = new byte[objectDataSize];
-        System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
-            objectDataSize);
-        id3Frames.add(new GeobFrame(mimeType, filename, description, objectData));
-      } else {
-        String type = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
-        byte[] frame = new byte[frameSize];
-        id3Data.readBytes(frame, 0, frameSize);
-        id3Frames.add(new BinaryFrame(type, frame));
+      try {
+        Id3Frame frame;
+        if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
+          frame = parseTxxxFrame(id3Data, frameSize);
+        } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
+          frame = parsePrivFrame(id3Data, frameSize);
+        } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
+          frame = parseGeobFrame(id3Data, frameSize);
+        } else if (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C') {
+          frame = parseApicFrame(id3Data, frameSize);
+        } else if (frameId0 == 'T') {
+          String id = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
+          frame = parseTextInformationFrame(id3Data, frameSize, id);
+        } else {
+          String id = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
+          frame = parseBinaryFrame(id3Data, frameSize, id);
+        }
+        id3Frames.add(frame);
+        id3Size -= frameSize + 10 /* header size */;
+      } catch (UnsupportedEncodingException e) {
+        throw new ParserException(e);
       }
-
-      id3Size -= frameSize + 10 /* header size */;
     }
 
     return Collections.unmodifiableList(id3Frames);
   }
 
-  private static int indexOf(byte[] data, int fromIndex, byte key) {
-    for (int i = fromIndex; i < data.length; i++) {
-      if (data[i] == key) {
-        return i;
-      }
-    }
-    return data.length;
-  }
+  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
+    int terminationPos = indexOfZeroByte(data, fromIndex);
 
-  private static int indexOfEOS(byte[] data, int fromIndex, int encodingByte) {
-    int terminationPos = indexOf(data, fromIndex, (byte) 0);
-
-    // For single byte encoding charsets, we are done
-    if (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8) {
+    // For single byte encoding charsets, we're done.
+    if (encoding == ID3_TEXT_ENCODING_ISO_8859_1 || encoding == ID3_TEXT_ENCODING_UTF_8) {
       return terminationPos;
     }
 
-    // Otherwise, look for a two zero bytes
+    // Otherwise look for a second zero byte.
     while (terminationPos < data.length - 1) {
       if (data[terminationPos + 1] == (byte) 0) {
         return terminationPos;
       }
-      terminationPos = indexOf(data, terminationPos + 1, (byte) 0);
+      terminationPos = indexOfZeroByte(data, terminationPos + 1);
     }
 
+    return data.length;
+  }
+
+  private static int indexOfZeroByte(byte[] data, int fromIndex) {
+    for (int i = fromIndex; i < data.length; i++) {
+      if (data[i] == (byte) 0) {
+        return i;
+      }
+    }
     return data.length;
   }
 
@@ -188,6 +156,110 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
     }
 
     return id3Size;
+  }
+
+  private static TxxxFrame parseTxxxFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
+    int encoding = id3Data.readUnsignedByte();
+    String charset = getCharsetName(encoding);
+
+    byte[] data = new byte[frameSize - 1];
+    id3Data.readBytes(data, 0, frameSize - 1);
+
+    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    String description = new String(data, 0, descriptionEndIndex, charset);
+
+    int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
+    int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
+    String value = new String(data, valueStartIndex, valueEndIndex - valueStartIndex, charset);
+
+    return new TxxxFrame(description, value);
+  }
+
+  private static PrivFrame parsePrivFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
+    byte[] data = new byte[frameSize];
+    id3Data.readBytes(data, 0, frameSize);
+
+    int ownerEndIndex = indexOfZeroByte(data, 0);
+    String owner = new String(data, 0, ownerEndIndex, "ISO-8859-1");
+
+    int privateDataStartIndex = ownerEndIndex + 1;
+    byte[] privateData = Arrays.copyOfRange(data, privateDataStartIndex, data.length);
+
+    return new PrivFrame(owner, privateData);
+  }
+
+  private static GeobFrame parseGeobFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
+    int encoding = id3Data.readUnsignedByte();
+    String charset = getCharsetName(encoding);
+
+    byte[] data = new byte[frameSize - 1];
+    id3Data.readBytes(data, 0, frameSize - 1);
+
+    int mimeTypeEndIndex = indexOfZeroByte(data, 0);
+    String mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1");
+
+    int filenameStartIndex = mimeTypeEndIndex + 1;
+    int filenameEndIndex = indexOfEos(data, filenameStartIndex, encoding);
+    String filename = new String(data, filenameStartIndex, filenameEndIndex - filenameStartIndex,
+        charset);
+
+    int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
+    int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
+    String description = new String(data, descriptionStartIndex,
+        descriptionEndIndex - descriptionStartIndex, charset);
+
+    int objectDataStartIndex = descriptionEndIndex + delimiterLength(encoding);
+    byte[] objectData = Arrays.copyOfRange(data, objectDataStartIndex, data.length);
+
+    return new GeobFrame(mimeType, filename, description, objectData);
+  }
+
+  private static ApicFrame parseApicFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
+    int encoding = id3Data.readUnsignedByte();
+    String charset = getCharsetName(encoding);
+
+    byte[] data = new byte[frameSize - 1];
+    id3Data.readBytes(data, 0, frameSize - 1);
+
+    int mimeTypeEndIndex = indexOfZeroByte(data, 0);
+    String mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1");
+
+    int pictureType = data[mimeTypeEndIndex + 1] & 0xFF;
+
+    int descriptionStartIndex = mimeTypeEndIndex + 2;
+    int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
+    String description = new String(data, descriptionStartIndex,
+        descriptionEndIndex - descriptionStartIndex, charset);
+
+    int pictureDataStartIndex = descriptionEndIndex + delimiterLength(encoding);
+    byte[] pictureData = Arrays.copyOfRange(data, pictureDataStartIndex, data.length);
+
+    return new ApicFrame(mimeType, description, pictureType, pictureData);
+  }
+
+  private static TextInformationFrame parseTextInformationFrame(ParsableByteArray id3Data,
+      int frameSize, String id) throws UnsupportedEncodingException {
+    int encoding = id3Data.readUnsignedByte();
+    String charset = getCharsetName(encoding);
+
+    byte[] data = new byte[frameSize - 1];
+    id3Data.readBytes(data, 0, frameSize - 1);
+
+    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    String description = new String(data, 0, descriptionEndIndex, charset);
+
+    return new TextInformationFrame(id, description);
+  }
+
+  private static BinaryFrame parseBinaryFrame(ParsableByteArray id3Data, int frameSize, String id) {
+    byte[] frame = new byte[frameSize];
+    id3Data.readBytes(frame, 0, frameSize);
+
+    return new BinaryFrame(id, frame);
   }
 
   /**

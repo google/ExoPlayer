@@ -26,6 +26,8 @@ VP9_EXT_PATH="${EXOPLAYER_ROOT}/extensions/vp9/src/main"
 
 * Download the [Android NDK][] and set its location in an environment variable:
 
+[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+
 ```
 NDK_PATH="<path to Android NDK>"
 ```

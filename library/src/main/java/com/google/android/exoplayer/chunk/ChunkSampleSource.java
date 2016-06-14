@@ -52,6 +52,8 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
+  protected final DefaultTrackOutput sampleQueue;
+
   private static final int STATE_IDLE = 0;
   private static final int STATE_INITIALIZED = 1;
   private static final int STATE_PREPARED = 2;
@@ -65,7 +67,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private final ChunkOperationHolder currentLoadableHolder;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
-  private final DefaultTrackOutput sampleQueue;
   private final int bufferSizeContribution;
   private final Handler eventHandler;
   private final EventListener eventListener;

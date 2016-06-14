@@ -44,10 +44,13 @@ import java.util.List;
    *
    * @param trak Atom to parse.
    * @param mvhd Movie header atom, used to get the timescale.
+   * @param duration The duration in units of the timescale declared in the mvhd atom, or -1 if the
+   *     duration should be parsed from the tkhd atom.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
-  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, boolean isQuickTime) {
+  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, long duration,
+      boolean isQuickTime) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType != Track.TYPE_soun && trackType != Track.TYPE_vide && trackType != Track.TYPE_text
@@ -56,7 +59,9 @@ import java.util.List;
     }
 
     TkhdData tkhdData = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
-    long duration = tkhdData.duration;
+    if (duration == -1) {
+      duration = tkhdData.duration;
+    }
     long movieTimescale = parseMvhd(mvhd.data);
     long durationUs;
     if (duration == -1) {
@@ -219,12 +224,19 @@ import java.util.List;
         remainingSamplesInChunk--;
       }
 
+      Assertions.checkArgument(remainingSamplesAtTimestampOffset == 0);
+      // Remove trailing ctts entries with 0-valued sample counts.
+      while (remainingTimestampOffsetChanges > 0) {
+        Assertions.checkArgument(ctts.readUnsignedIntToInt() == 0);
+        ctts.readInt(); // Ignore offset.
+        remainingTimestampOffsetChanges--;
+      }
+
       // Check all the expected samples have been seen.
       Assertions.checkArgument(remainingSynchronizationSamples == 0);
       Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
       Assertions.checkArgument(remainingSamplesInChunk == 0);
       Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
-      Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
     } else {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
       int[] chunkSampleCounts = new int[chunkIterator.length];
@@ -457,6 +469,11 @@ import java.util.List;
       duration = -1;
     } else {
       duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
+      if (duration == 0) {
+        // 0 duration normally indicates that the file is fully fragmented (i.e. all of the media
+        // samples are in fragments). Treat as unknown.
+        duration = -1;
+      }
     }
 
     tkhd.skipBytes(16);
@@ -539,8 +556,8 @@ import java.util.List;
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
           || childAtomType == Atom.TYPE_s263) {
-        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, trackId, durationUs,
-            rotationDegrees, out, i);
+        parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
+            durationUs, rotationDegrees, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
@@ -568,8 +585,8 @@ import java.util.List;
     return out;
   }
 
-  private static void parseVideoSampleEntry(ParsableByteArray parent, int position, int size,
-      int trackId, long durationUs, int rotationDegrees, StsdData out, int entryIndex) {
+  private static void parseVideoSampleEntry(ParsableByteArray parent, int atomType, int position,
+      int size, int trackId, long durationUs, int rotationDegrees, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -579,8 +596,13 @@ import java.util.List;
     float pixelWidthHeightRatio = 1;
     parent.skipBytes(50);
 
-    List<byte[]> initializationData = null;
     int childPosition = parent.getPosition();
+    if (atomType == Atom.TYPE_encv) {
+      parseSampleEntryEncryptionData(parent, position, size, out, entryIndex);
+      parent.setPosition(childPosition);
+    }
+
+    List<byte[]> initializationData = null;
     String mimeType = null;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -616,9 +638,6 @@ import java.util.List;
             parseEsdsFromParent(parent, childStartPosition);
         mimeType = mimeTypeAndInitializationData.first;
         initializationData = Collections.singletonList(mimeTypeAndInitializationData.second);
-      } else if (childAtomType == Atom.TYPE_sinf) {
-        out.trackEncryptionBoxes[entryIndex] =
-            parseSinfFromParent(parent, childStartPosition, childAtomSize);
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
         pixelWidthHeightRatioFromPasp = true;
@@ -740,56 +759,11 @@ import java.util.List;
     return Pair.create(editListDurations, editListMediaTimes);
   }
 
-  private static TrackEncryptionBox parseSinfFromParent(ParsableByteArray parent, int position,
-      int size) {
-    int childPosition = position + Atom.HEADER_SIZE;
-
-    TrackEncryptionBox trackEncryptionBox = null;
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childAtomSize = parent.readInt();
-      int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_frma) {
-        parent.readInt(); // dataFormat.
-      } else if (childAtomType == Atom.TYPE_schm) {
-        parent.skipBytes(4);
-        parent.readInt(); // schemeType. Expect cenc
-        parent.readInt(); // schemeVersion. Expect 0x00010000
-      } else if (childAtomType == Atom.TYPE_schi) {
-        trackEncryptionBox = parseSchiFromParent(parent, childPosition, childAtomSize);
-      }
-      childPosition += childAtomSize;
-    }
-
-    return trackEncryptionBox;
-  }
-
   private static float parsePaspFromParent(ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE);
     int hSpacing = parent.readUnsignedIntToInt();
     int vSpacing = parent.readUnsignedIntToInt();
     return (float) hSpacing / vSpacing;
-  }
-
-  private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,
-      int size) {
-    int childPosition = position + Atom.HEADER_SIZE;
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childAtomSize = parent.readInt();
-      int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_tenc) {
-        parent.skipBytes(4);
-        int firstInt = parent.readInt();
-        boolean defaultIsEncrypted = (firstInt >> 8) == 1;
-        int defaultInitVectorSize = firstInt & 0xFF;
-        byte[] defaultKeyId = new byte[16];
-        parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
-        return new TrackEncryptionBox(defaultIsEncrypted, defaultInitVectorSize, defaultKeyId);
-      }
-      childPosition += childAtomSize;
-    }
-    return null;
   }
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
@@ -831,6 +805,12 @@ import java.util.List;
       return;
     }
 
+    int childPosition = parent.getPosition();
+    if (atomType == Atom.TYPE_enca) {
+      atomType = parseSampleEntryEncryptionData(parent, position, size, out, entryIndex);
+      parent.setPosition(childPosition);
+    }
+
     // If the atom type determines a MIME type, set it immediately.
     String mimeType = null;
     if (atomType == Atom.TYPE_ac_3) {
@@ -852,19 +832,14 @@ import java.util.List;
     }
 
     byte[] initializationData = null;
-    int childAtomPosition = parent.getPosition();
-    while (childAtomPosition - position < size) {
-      parent.setPosition(childAtomPosition);
+    while (childPosition - position < size) {
+      parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
-      if (atomType == Atom.TYPE_mp4a || atomType == Atom.TYPE_enca) {
-        int esdsAtomPosition = -1;
-        if (childAtomType == Atom.TYPE_esds) {
-          esdsAtomPosition = childAtomPosition;
-        } else if (isQuickTime && childAtomType == Atom.TYPE_wave) {
-          esdsAtomPosition = findEsdsPosition(parent, childAtomPosition, childAtomSize);
-        }
+      if (childAtomType == Atom.TYPE_esds || (isQuickTime && childAtomType == Atom.TYPE_wave)) {
+        int esdsAtomPosition = childAtomType == Atom.TYPE_esds ? childPosition
+            : findEsdsPosition(parent, childPosition, childAtomSize);
         if (esdsAtomPosition != -1) {
           Pair<String, byte[]> mimeTypeAndInitializationData =
               parseEsdsFromParent(parent, esdsAtomPosition);
@@ -878,46 +853,32 @@ import java.util.List;
             sampleRate = audioSpecificConfig.first;
             channelCount = audioSpecificConfig.second;
           }
-        } else if (childAtomType == Atom.TYPE_sinf) {
-          out.trackEncryptionBoxes[entryIndex] = parseSinfFromParent(parent, childAtomPosition,
-              childAtomSize);
         }
-      } else if (atomType == Atom.TYPE_ac_3 && childAtomType == Atom.TYPE_dac3) {
-        // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
-        // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
-        parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
+      } else if (childAtomType == Atom.TYPE_dac3) {
+        parent.setPosition(Atom.HEADER_SIZE + childPosition);
         out.mediaFormat = Ac3Util.parseAc3AnnexFFormat(parent, Integer.toString(trackId),
             durationUs, language);
-        return;
-      } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
-        parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
+      } else if (childAtomType == Atom.TYPE_dec3) {
+        parent.setPosition(Atom.HEADER_SIZE + childPosition);
         out.mediaFormat = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId),
             durationUs, language);
-        return;
-      } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
-          || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
-          && childAtomType == Atom.TYPE_ddts) {
+      } else if (childAtomType == Atom.TYPE_ddts) {
         out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
             MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null,
             language);
-        return;
       }
-      childAtomPosition += childAtomSize;
+      childPosition += childAtomSize;
     }
 
-    // If the media type was not recognized, ignore the track.
-    if (mimeType == null) {
-      return;
+    if (out.mediaFormat == null && mimeType != null) {
+      // TODO: Determine the correct PCM encoding.
+      int pcmEncoding = MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT
+          : MediaFormat.NO_VALUE;
+      out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate,
+          initializationData == null ? null : Collections.singletonList(initializationData),
+          language, pcmEncoding);
     }
-
-    // TODO: Determine the correct PCM encoding.
-    int pcmEncoding = MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT
-        : MediaFormat.NO_VALUE;
-
-    out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate,
-        initializationData == null ? null : Collections.singletonList(initializationData),
-        language, pcmEncoding);
   }
 
   /** Returns the position of the esds box within a parent, or -1 if no esds box is found */
@@ -1008,6 +969,77 @@ import java.util.List;
     byte[] initializationData = new byte[initializationDataSize];
     parent.readBytes(initializationData, 0, initializationDataSize);
     return Pair.create(mimeType, initializationData);
+  }
+
+  /**
+   * Parses encryption data from an audio/video sample entry, populating {@code out} and returning
+   * the unencrypted atom type, or 0 if no sinf atom was present.
+   */
+  private static int parseSampleEntryEncryptionData(ParsableByteArray parent, int position,
+      int size, StsdData out, int entryIndex) {
+    int childPosition = parent.getPosition();
+    while (childPosition - position < size) {
+      parent.setPosition(childPosition);
+      int childAtomSize = parent.readInt();
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
+      int childAtomType = parent.readInt();
+      if (childAtomType == Atom.TYPE_sinf) {
+        Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
+            childAtomSize);
+        Integer dataFormat = result.first;
+        Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
+        out.trackEncryptionBoxes[entryIndex] = result.second;
+        return dataFormat;
+      }
+      childPosition += childAtomSize;
+    }
+    // This enca/encv box does not have a data format so return an invalid atom type.
+    return 0;
+  }
+
+  private static Pair<Integer, TrackEncryptionBox> parseSinfFromParent(ParsableByteArray parent,
+      int position, int size) {
+    int childPosition = position + Atom.HEADER_SIZE;
+
+    TrackEncryptionBox trackEncryptionBox = null;
+    Integer dataFormat = null;
+    while (childPosition - position < size) {
+      parent.setPosition(childPosition);
+      int childAtomSize = parent.readInt();
+      int childAtomType = parent.readInt();
+      if (childAtomType == Atom.TYPE_frma) {
+        dataFormat = parent.readInt();
+      } else if (childAtomType == Atom.TYPE_schm) {
+        parent.skipBytes(4);
+        parent.readInt(); // schemeType. Expect cenc
+        parent.readInt(); // schemeVersion. Expect 0x00010000
+      } else if (childAtomType == Atom.TYPE_schi) {
+        trackEncryptionBox = parseSchiFromParent(parent, childPosition, childAtomSize);
+      }
+      childPosition += childAtomSize;
+    }
+
+    return Pair.create(dataFormat, trackEncryptionBox);
+  }
+
+  private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,
+      int size) {
+    int childPosition = position + Atom.HEADER_SIZE;
+    while (childPosition - position < size) {
+      parent.setPosition(childPosition);
+      int childAtomSize = parent.readInt();
+      int childAtomType = parent.readInt();
+      if (childAtomType == Atom.TYPE_tenc) {
+        parent.skipBytes(6);
+        boolean defaultIsEncrypted = parent.readUnsignedByte() == 1;
+        int defaultInitVectorSize = parent.readUnsignedByte();
+        byte[] defaultKeyId = new byte[16];
+        parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
+        return new TrackEncryptionBox(defaultIsEncrypted, defaultInitVectorSize, defaultKeyId);
+      }
+      childPosition += childAtomSize;
+    }
+    return null;
   }
 
   /** Parses the size of an expandable class, as specified by ISO 14496-1 subsection 8.3.3. */

@@ -288,7 +288,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
   private void renderBuffer() {
     codecCounters.renderedOutputBufferCount++;
-    notifyIfVideoSizeChanged(outputBuffer);
+    notifyIfVideoSizeChanged(outputBuffer.width, outputBuffer.height);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
       renderRgbFrame(outputBuffer, scaleToFit);
       if (!drawnToSurface) {
@@ -350,6 +350,9 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
     inputBuffer.width = format.width;
     inputBuffer.height = format.height;
+    if (inputBuffer.sampleHolder.isDecodeOnly()) {
+      inputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+    }
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
@@ -462,16 +465,16 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     }
   }
 
-  private void notifyIfVideoSizeChanged(final VpxOutputBuffer outputBuffer) {
-    if (previousWidth == -1 || previousHeight == -1
-        || previousWidth != outputBuffer.width || previousHeight != outputBuffer.height) {
-      previousWidth = outputBuffer.width;
-      previousHeight = outputBuffer.height;
+  private void notifyIfVideoSizeChanged(final int width, final int height) {
+    if (previousWidth == -1 || previousHeight == -1 || previousWidth != width
+        || previousHeight != height) {
+      previousWidth = width;
+      previousHeight = height;
       if (eventHandler != null && eventListener != null) {
         eventHandler.post(new Runnable()  {
           @Override
           public void run() {
-            eventListener.onVideoSizeChanged(outputBuffer.width, outputBuffer.height);
+            eventListener.onVideoSizeChanged(width, height);
           }
         });
       }

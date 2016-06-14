@@ -27,12 +27,7 @@ public interface MediaCodecSelector {
   /**
    * Default implementation of {@link MediaCodecSelector}.
    */
-  public static final MediaCodecSelector DEFAULT = new MediaCodecSelector() {
-
-    /**
-     * The name for the raw (passthrough) decoder OMX component.
-     */
-    private static final String RAW_DECODER_NAME = "OMX.google.raw.decoder";
+  MediaCodecSelector DEFAULT = new MediaCodecSelector() {
 
     @Override
     public DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
@@ -41,9 +36,8 @@ public interface MediaCodecSelector {
     }
 
     @Override
-    public String getPassthroughDecoderName() throws DecoderQueryException {
-      // TODO: Return null if the raw decoder doesn't exist.
-      return RAW_DECODER_NAME;
+    public DecoderInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+      return MediaCodecUtil.getPassthroughDecoderInfo();
     }
 
   };
@@ -53,20 +47,18 @@ public interface MediaCodecSelector {
    *
    * @param mimeType The mime type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
-   * @return A {@link DecoderInfo} describing the decoder to instantiate, or null if no suitable
-   *     decoder exists.
+   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
       throws DecoderQueryException;
 
   /**
-   * Gets the name of a decoder suitable for audio passthrough.
+   * Selects a decoder to instantiate for audio passthrough.
    *
-   * @return The name of a decoder suitable for audio passthrough, or null if no suitable decoder
-   *     exists.
+   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  String getPassthroughDecoderName() throws DecoderQueryException;
+  DecoderInfo getPassthroughDecoderInfo() throws DecoderQueryException;
 
 }

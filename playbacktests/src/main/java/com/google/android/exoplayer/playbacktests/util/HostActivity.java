@@ -125,13 +125,15 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         hostedTest.onFinished();
         Log.d(TAG, "Pass conditions checked.");
       } else {
-        Log.e(TAG, "Test released before it finished. Activity may have been paused whilst test "
-            + "was in progress.");
-        fail();
+        String message = "Test released before it finished. Activity may have been paused whilst "
+            + "test was in progress.";
+        Log.e(TAG, message);
+        fail(message);
       }
     } else {
-      Log.e(TAG, "Test timed out after " + timeoutMs + " ms.");
-      fail();
+      String message = "Test timed out after " + timeoutMs + " ms.";
+      Log.e(TAG, message);
+      fail(message);
     }
   }
 

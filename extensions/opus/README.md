@@ -26,6 +26,8 @@ OPUS_EXT_PATH="${EXOPLAYER_ROOT}/extensions/opus/src/main"
 
 * Download the [Android NDK][] and set its location in an environment variable:
 
+[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+
 ```
 NDK_PATH="<path to Android NDK>"
 ```
@@ -34,7 +36,7 @@ NDK_PATH="<path to Android NDK>"
 
 ```
 cd "${OPUS_EXT_PATH}/jni" && \
-git clone git://git.opus-codec.org/opus.git libopus
+git clone https://git.xiph.org/opus.git libopus
 ```
 
 * Run the script to convert arm assembly to NDK compatible format:

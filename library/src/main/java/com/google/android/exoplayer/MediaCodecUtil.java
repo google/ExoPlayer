@@ -55,6 +55,8 @@ public final class MediaCodecUtil {
   }
 
   private static final String TAG = "MediaCodecUtil";
+  private static final DecoderInfo PASSTHROUGH_DECODER_INFO =
+      new DecoderInfo("OMX.google.raw.decoder", null);
 
   private static final Map<CodecKey, List<DecoderInfo>> decoderInfosCache = new HashMap<>();
 
@@ -62,20 +64,6 @@ public final class MediaCodecUtil {
   private static int maxH264DecodableFrameSize = -1;
 
   private MediaCodecUtil() {}
-
-  /**
-   * Get information about the decoder that will be used for a given mime type.
-   *
-   * @param mimeType The mime type.
-   * @param secure Whether the decoder is required to support secure decryption. Always pass false
-   *     unless secure decryption really is required.
-   * @return Information about the decoder that will be used, or null if no decoder exists.
-   */
-  public static DecoderInfo getDecoderInfo(String mimeType, boolean secure)
-      throws DecoderQueryException {
-    List<DecoderInfo> decoderInfos = getDecoderInfos(mimeType, secure);
-    return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
-  }
 
   /**
    * Optional call to warm the codec cache for a given mime type.
@@ -96,12 +84,38 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns all @{link DecoderInfo}s for the given mime type, in the order given by MediaCodecList.
+   * Gets information about a decoder suitable for audio passthrough.
+   **
+   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   */
+  public static DecoderInfo getPassthroughDecoderInfo() {
+    // TODO: Return null if the raw decoder doesn't exist.
+    return PASSTHROUGH_DECODER_INFO;
+  }
+
+  /**
+   * Get information about the preferred decoder for a given mime type.
    *
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A list of all @{link DecoderInfo}s for the given mime type,
+   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   */
+  public static DecoderInfo getDecoderInfo(String mimeType, boolean secure)
+      throws DecoderQueryException {
+    List<DecoderInfo> decoderInfos = getDecoderInfos(mimeType, secure);
+    return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
+  }
+
+  /**
+   * Returns all @{link DecoderInfo}s for a given mime type, in the order given by
+   * {@link MediaCodecList}.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoders are required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   * @return A list of all @{link DecoderInfo}s for the given mime type. May be empty if no suitable
+   *     decoders exist.
    */
   public static synchronized List<DecoderInfo> getDecoderInfos(String mimeType, boolean secure)
       throws DecoderQueryException {
@@ -116,8 +130,6 @@ public final class MediaCodecUtil {
     if (secure && decoderInfos.isEmpty() && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
       // Some devices don't list secure decoders on API level 21 [Internal: b/18678462]. Try the
       // legacy path. We also try this path on API levels 22 and 23 as a defensive measure.
-      // TODO: Verify that the issue cannot occur on API levels 22 and 23, and tighten this block
-      // to execute on API level 21 only if confirmed.
       mediaCodecList = new MediaCodecListCompatV16();
       decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
       if (!decoderInfos.isEmpty()) {
@@ -144,15 +156,27 @@ public final class MediaCodecUtil {
         if (isCodecUsableDecoder(codecInfo, codecName, secureDecodersExplicit)) {
           for (String supportedType : codecInfo.getSupportedTypes()) {
             if (supportedType.equalsIgnoreCase(mimeType)) {
-              CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
-              boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
-              if ((secureDecodersExplicit && key.secure == secure)
-                  || (!secureDecodersExplicit && !key.secure)) {
-                decoderInfos.add(new DecoderInfo(codecName, capabilities));
-              } else if (!secureDecodersExplicit && secure) {
-                decoderInfos.add(new DecoderInfo(codecName + ".secure", capabilities));
-                // It only makes sense to have one synthesized secure decoder, return immediately.
-                return decoderInfos;
+              try {
+                CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
+                boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
+                if ((secureDecodersExplicit && key.secure == secure)
+                    || (!secureDecodersExplicit && !key.secure)) {
+                  decoderInfos.add(new DecoderInfo(codecName, capabilities));
+                } else if (!secureDecodersExplicit && secure) {
+                  decoderInfos.add(new DecoderInfo(codecName + ".secure", capabilities));
+                  // It only makes sense to have one synthesized secure decoder, return immediately.
+                  return decoderInfos;
+                }
+              } catch (Exception e) {
+                if (Util.SDK_INT <= 23 && !decoderInfos.isEmpty()) {
+                  // Suppress error querying secondary codec capabilities up to API level 23.
+                  Log.e(TAG, "Skipping codec " + codecName + " (failed to query capabilities)");
+                } else {
+                  // Rethrow error querying primary codec capabilities, or secondary codec
+                  // capabilities if API level is greater than 23.
+                  Log.e(TAG, "Failed to query codec " + codecName + " (" + supportedType + ")");
+                  throw e;
+                }
               }
             }
           }
@@ -184,7 +208,13 @@ public final class MediaCodecUtil {
             || "MP3Decoder".equals(name)) {
       return false;
     }
+    // Work around https://github.com/google/ExoPlayer/issues/398
     if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
+      return false;
+    }
+    // Work around https://github.com/google/ExoPlayer/issues/1528
+    if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
+        && "a70".equals(Util.DEVICE)) {
       return false;
     }
 
@@ -300,6 +330,8 @@ public final class MediaCodecUtil {
         for (CodecProfileLevel profileLevel : decoderInfo.capabilities.profileLevels) {
           result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
         }
+        // We assume support for at least 360p.
+        result = Math.max(result, 480 * 360);
       }
       maxH264DecodableFrameSize = result;
     }
