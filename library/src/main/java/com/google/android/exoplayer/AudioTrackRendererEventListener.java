@@ -135,6 +135,7 @@ public interface AudioTrackRendererEventListener {
         handler.post(new Runnable() {
           @Override
           public void run() {
+            counters.ensureUpdated();
             listener.onAudioDisabled(counters);
           }
         });

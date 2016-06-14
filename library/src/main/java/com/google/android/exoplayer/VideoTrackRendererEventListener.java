@@ -188,6 +188,7 @@ public interface VideoTrackRendererEventListener {
         handler.post(new Runnable() {
           @Override
           public void run() {
+            counters.ensureUpdated();
             listener.onVideoDisabled(counters);
           }
         });

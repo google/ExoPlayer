@@ -34,6 +34,10 @@ public abstract class TrackSelectionPolicy {
 
   private InvalidationListener listener;
 
+  /* package */ final void init(InvalidationListener listener) {
+    this.listener = listener;
+  }
+
   /**
    * Must be invoked by subclasses when a selection parameter has changed, invalidating previous
    * selections.
@@ -55,13 +59,9 @@ public abstract class TrackSelectionPolicy {
    *     defined by the {@link TrackRenderer} {@code FORMAT_*} constants.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  /* package */ abstract TrackSelection[] selectTracks(TrackRenderer[] renderers,
+  protected abstract TrackSelection[] selectTracks(TrackRenderer[] renderers,
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
       throws ExoPlaybackException;
-
-  /* package */ void init(InvalidationListener listener) {
-    this.listener = listener;
-  }
 
 }
 

@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+import junit.framework.Assert;
 
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
@@ -50,8 +51,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     AudioTrack.failOnSpuriousAudioTimestamp = true;
   }
 
+  public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
+
   private final String tag;
-  private final boolean failOnPlayerError;
+  private final boolean fullPlaybackNoSeeking;
+  private final CodecCounters videoCodecCounters;
+  private final CodecCounters audioCodecCounters;
 
   private ActionSchedule pendingSchedule;
   private Handler actionHandler;
@@ -63,27 +68,19 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   private boolean playing;
   private long totalPlayingTimeMs;
   private long lastPlayingStartTimeMs;
-
-  private CodecCounters videoCodecCounters;
-  private CodecCounters audioCodecCounters;
-
-  /**
-   * Constructs a test that fails if a player error occurs.
-   *
-   * @param tag A tag to use for logging.
-   */
-  public ExoHostedTest(String tag) {
-    this(tag, true);
-  }
+  private long sourceDurationMs;
 
   /**
    * @param tag A tag to use for logging.
-   * @param failOnPlayerError True if a player error should be considered a test failure. False
-   *     otherwise.
+   * @param fullPlaybackNoSeeking Whether the test will play the target media in full without
+   *     seeking. If set to true, the test will assert that the total time spent playing the media
+   *     was within {@link #MAX_PLAYING_TIME_DISCREPANCY_MS} of the media duration.
    */
-  public ExoHostedTest(String tag, boolean failOnPlayerError) {
+  public ExoHostedTest(String tag, boolean fullPlaybackNoSeeking) {
     this.tag = tag;
-    this.failOnPlayerError = failOnPlayerError;
+    this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
+    videoCodecCounters = new CodecCounters();
+    audioCodecCounters = new CodecCounters();
   }
 
   /**
@@ -124,6 +121,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public final void onStop() {
     actionHandler.removeCallbacksAndMessages(null);
+    sourceDurationMs = player.getDuration();
     player.release();
     player = null;
   }
@@ -135,11 +133,20 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public final void onFinished() {
-    if (failOnPlayerError && playerError != null) {
+    if (playerError != null) {
       throw new Error(playerError);
     }
-    logMetrics();
-    assertPassed();
+    logMetrics(audioCodecCounters, videoCodecCounters);
+    if (fullPlaybackNoSeeking) {
+      // Assert that the playback spanned the correct duration of time.
+      long minAllowedActualPlayingTimeMs = sourceDurationMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
+      long maxAllowedActualPlayingTimeMs = sourceDurationMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
+      Assert.assertTrue("Total playing time: " + totalPlayingTimeMs + ". Actual media duration: "
+          + sourceDurationMs, minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
+          && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs);
+    }
+    // Make any additional assertions.
+    assertPassed(audioCodecCounters, videoCodecCounters);
   }
 
   // ExoPlayer.Listener
@@ -189,14 +196,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public void onAudioFormatChanged(Format format) {
     Log.d(tag, "audioFormatChanged [" + format.id + "]");
-    if (format != null) {
-      audioCodecCounters = player.getVideoCodecCounters();
-    }
   }
 
   @Override
   public void onAudioDisabled(CodecCounters counters) {
     Log.d(tag, "audioDisabled");
+    audioCodecCounters.merge(counters);
   }
 
   @Override
@@ -213,14 +218,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public void onVideoFormatChanged(Format format) {
     Log.d(tag, "videoFormatChanged [" + format.id + "]");
-    if (format != null) {
-      videoCodecCounters = player.getVideoCodecCounters();
-    }
   }
 
   @Override
   public void onVideoDisabled(CodecCounters counters) {
     Log.d(tag, "videoDisabled");
+    videoCodecCounters.merge(counters);
   }
 
   @Override
@@ -258,36 +261,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     // Do nothing. Interested subclasses may override.
   }
 
-  protected void assertPassed() {
-    // Do nothing. Subclasses may override to add additional assertions.
-  }
-
-  protected void logMetrics() {
+  protected void logMetrics(CodecCounters audioCounters, CodecCounters videoCounters) {
     // Do nothing. Subclasses may override to log metrics.
   }
 
-  // Utility methods and actions for subclasses.
-
-  protected final long getTotalPlayingTimeMs() {
-    return totalPlayingTimeMs;
-  }
-
-  protected final ExoPlaybackException getError() {
-    return playerError;
-  }
-
-  protected final CodecCounters getLastVideoCodecCounters() {
-    if (videoCodecCounters != null) {
-      videoCodecCounters.ensureUpdated();
-    }
-    return videoCodecCounters;
-  }
-
-  protected final CodecCounters getLastAudioCodecCounters() {
-    if (audioCodecCounters != null) {
-      audioCodecCounters.ensureUpdated();
-    }
-    return audioCodecCounters;
+  protected void assertPassed(CodecCounters audioCounters, CodecCounters videoCounters) {
+    // Do nothing. Subclasses may override to add additional assertions.
   }
 
 }
