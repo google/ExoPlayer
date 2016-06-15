@@ -52,9 +52,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
+  public static final long EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS = -1;
+  public static final long EXPECTED_PLAYING_TIME_UNSET = -2;
 
   private final String tag;
-  private final boolean fullPlaybackNoSeeking;
+  private final boolean failOnPlayerError;
+  private final long expectedPlayingTimeMs;
   private final CodecCounters videoCodecCounters;
   private final CodecCounters audioCodecCounters;
 
@@ -74,11 +77,30 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
    * @param tag A tag to use for logging.
    * @param fullPlaybackNoSeeking Whether the test will play the target media in full without
    *     seeking. If set to true, the test will assert that the total time spent playing the media
-   *     was within {@link #MAX_PLAYING_TIME_DISCREPANCY_MS} of the media duration.
+   *     was within {@link #MAX_PLAYING_TIME_DISCREPANCY_MS} of the media duration. If set to false,
+   *     the test will not assert an expected playing time.
    */
   public ExoHostedTest(String tag, boolean fullPlaybackNoSeeking) {
+    this(tag, fullPlaybackNoSeeking ? EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
+        : EXPECTED_PLAYING_TIME_UNSET, false);
+  }
+
+  /**
+   * @param tag A tag to use for logging.
+   * @param expectedPlayingTimeMs The expected playing time. If set to a non-negative value, the
+   *     test will assert that the total time spent playing the media was within
+   *     {@link #MAX_PLAYING_TIME_DISCREPANCY_MS} of the specified value.
+   *     {@link #EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS} should be passed to assert that the
+   *     expected playing time equals the duration of the media being played. Else
+   *     {@link #EXPECTED_PLAYING_TIME_UNSET} should be passed to indicate that the test should not
+   *     assert an expected playing time.
+   * @param failOnPlayerError True if a player error should be considered a test failure. False
+   *     otherwise.
+   */
+  public ExoHostedTest(String tag, long expectedPlayingTimeMs, boolean failOnPlayerError) {
     this.tag = tag;
-    this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
+    this.expectedPlayingTimeMs = expectedPlayingTimeMs;
+    this.failOnPlayerError = failOnPlayerError;
     videoCodecCounters = new CodecCounters();
     audioCodecCounters = new CodecCounters();
   }
@@ -133,16 +155,18 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public final void onFinished() {
-    if (playerError != null) {
+    if (failOnPlayerError && playerError != null) {
       throw new Error(playerError);
     }
     logMetrics(audioCodecCounters, videoCodecCounters);
-    if (fullPlaybackNoSeeking) {
+    if (expectedPlayingTimeMs != EXPECTED_PLAYING_TIME_UNSET) {
+      long playingTimeToAssertMs = expectedPlayingTimeMs == EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
+          ? sourceDurationMs : expectedPlayingTimeMs;
       // Assert that the playback spanned the correct duration of time.
-      long minAllowedActualPlayingTimeMs = sourceDurationMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
-      long maxAllowedActualPlayingTimeMs = sourceDurationMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
-      Assert.assertTrue("Total playing time: " + totalPlayingTimeMs + ". Actual media duration: "
-          + sourceDurationMs, minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
+      long minAllowedActualPlayingTimeMs = playingTimeToAssertMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
+      long maxAllowedActualPlayingTimeMs = playingTimeToAssertMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
+      Assert.assertTrue("Total playing time: " + totalPlayingTimeMs + ". Expected: "
+          + playingTimeToAssertMs, minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
           && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs);
     }
     // Make any additional assertions.

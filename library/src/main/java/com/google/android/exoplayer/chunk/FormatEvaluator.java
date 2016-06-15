@@ -266,23 +266,25 @@ public interface FormatEvaluator {
     public void evaluateFormat(long bufferedDurationUs, boolean[] blacklistFlags,
         Evaluation evaluation) {
       Format current = evaluation.format;
-      Format ideal = determineIdealFormat(formats, blacklistFlags,
+      Format selected = determineIdealFormat(formats, blacklistFlags,
           bandwidthMeter.getBitrateEstimate());
-      boolean isHigher = current != null && ideal.bitrate > current.bitrate;
-      boolean isLower = current != null && ideal.bitrate < current.bitrate;
-      if (isHigher && bufferedDurationUs < minDurationForQualityIncreaseUs) {
-        // The ideal format is a higher quality, but we have insufficient buffer to safely switch
-        // up. Defer switching up for now.
-        ideal = current;
-      } else if (isLower && bufferedDurationUs >= maxDurationForQualityDecreaseUs) {
-        // The ideal format is a lower quality, but we have sufficient buffer to defer switching
-        // down for now.
-        ideal = current;
+      if (current != null && isEnabledFormat(current, blacklistFlags)) {
+        if (selected.bitrate > current.bitrate
+            && bufferedDurationUs < minDurationForQualityIncreaseUs) {
+          // The ideal format is a higher quality, but we have insufficient buffer to safely switch
+          // up. Defer switching up for now.
+          selected = current;
+        } else if (selected.bitrate < current.bitrate
+            && bufferedDurationUs >= maxDurationForQualityDecreaseUs) {
+          // The ideal format is a lower quality, but we have sufficient buffer to defer switching
+          // down for now.
+          selected = current;
+        }
       }
-      if (current != null && ideal != current) {
+      if (current != null && selected != current) {
         evaluation.trigger = TRIGGER_ADAPTIVE;
       }
-      evaluation.format = ideal;
+      evaluation.format = selected;
     }
 
     @Override
@@ -338,6 +340,15 @@ public interface FormatEvaluator {
         }
       }
       return formats[lowestBitrateNonBlacklistedIndex];
+    }
+
+    private boolean isEnabledFormat(Format format, boolean[] blacklistFlags) {
+      for (int i = 0; i < formats.length; i++) {
+        if (format == formats[i]) {
+          return !blacklistFlags[i];
+        }
+      }
+      return false;
     }
 
   }
