@@ -174,7 +174,7 @@ import java.io.IOException;
         start = input.getPosition() + pageSize;
         startGranule = pageHeader.granulePosition;
         if (end - start + pageSize < MATCH_BYTE_RANGE) {
-          input.skip(pageSize);
+          input.skipFully(pageSize);
           return -(startGranule + 2);
         }
       }
@@ -194,7 +194,7 @@ import java.io.IOException;
     }
 
     // position accepted (before target granule and within MATCH_RANGE)
-    input.skip(pageSize);
+    input.skipFully(pageSize);
     return -(pageHeader.granulePosition + 2);
   }
 
