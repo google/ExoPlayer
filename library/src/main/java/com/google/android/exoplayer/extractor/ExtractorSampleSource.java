@@ -111,6 +111,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
 
+  /**
+   * When the source's duration is unknown, it is calculated by adding this value to the largest
+   * sample timestamp seen when buffering completes.
+   */
+  private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
+
   // Lazily initialized default extractor classes in priority order.
   private static List<Class<? extends Extractor>> defaultExtractorClasses;
 
@@ -397,11 +403,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      long largestQueuedTimestampUs = Long.MIN_VALUE;
-      for (DefaultTrackOutput sampleQueue : sampleQueues) {
-        largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
-            sampleQueue.getLargestQueuedTimestampUs());
-      }
+      long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
           : largestQueuedTimestampUs;
     }
@@ -459,6 +461,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       long loadDurationMs) {
     copyLengthFromLoader(loadable);
     loadingFinished = true;
+    if (durationUs == C.UNSET_TIME_US) {
+      long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
+      durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
+          : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
+    }
   }
 
   @Override
@@ -577,6 +584,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       extractedSamplesCount += sampleQueue.getWriteIndex();
     }
     return extractedSamplesCount;
+  }
+
+  private long getLargestQueuedTimestampUs() {
+    long largestQueuedTimestampUs = Long.MIN_VALUE;
+    for (DefaultTrackOutput sampleQueue : sampleQueues) {
+      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
+          sampleQueue.getLargestQueuedTimestampUs());
+    }
+    return largestQueuedTimestampUs;
   }
 
   private boolean haveFormatsForAllTracks() {

@@ -109,7 +109,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   private int state;
   private TrackStream stream;
   private long streamOffsetUs;
-  private long maximumTimeUs;
   private boolean readEndOfStream;
   private boolean streamIsFinal;
 
@@ -235,7 +234,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   /* package */ final void reset(long positionUs) throws ExoPlaybackException {
     streamIsFinal = false;
-    maximumTimeUs = C.UNSET_TIME_US;
     onReset(positionUs, false);
   }
 
@@ -258,14 +256,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   /* package */ final boolean hasReadStreamToEnd() {
     return readEndOfStream;
-  }
-
-  /**
-   * Returns the maximum buffer timestamp read from the stream since the last reset, or
-   * {@link C#UNSET_TIME_US} if no buffers have been read.
-   */
-  /* package */ final long getMaximumTimeUs() {
-    return maximumTimeUs;
   }
 
   /**
@@ -372,9 +362,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
         return streamIsFinal ? TrackStream.BUFFER_READ : TrackStream.NOTHING_READ;
       }
       buffer.timeUs += streamOffsetUs;
-      if (buffer.timeUs > maximumTimeUs) {
-        maximumTimeUs = buffer.timeUs;
-      }
     }
     return result;
   }
