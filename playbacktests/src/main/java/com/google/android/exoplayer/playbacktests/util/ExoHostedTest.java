@@ -141,16 +141,16 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
+  public final boolean canStop() {
+    return playerFinished;
+  }
+
+  @Override
   public final void onStop() {
     actionHandler.removeCallbacksAndMessages(null);
     sourceDurationMs = player.getDuration();
     player.release();
     player = null;
-  }
-
-  @Override
-  public final boolean isFinished() {
-    return playerFinished;
   }
 
   @Override
@@ -271,7 +271,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @SuppressWarnings("unused")
   protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
       DefaultTrackSelector trackSelector) {
-    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector);
+    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector, null, false,
+        ExoPlayerFactory.DEFAULT_MIN_BUFFER_MS, ExoPlayerFactory.DEFAULT_MIN_REBUFFER_MS, 0);
     player.setSurface(surface);
     return player;
   }

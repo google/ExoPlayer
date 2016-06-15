@@ -90,7 +90,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   private static final String TAG = "SimpleExoPlayer";
-  private static final long ALLOWED_VIDEO_JOINING_TIME_MS = 5000;
   private static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final ExoPlayer player;
@@ -113,7 +112,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
       DrmSessionManager drmSessionManager, boolean preferExtensionDecoders, int minBufferMs,
-      int minRebufferMs) {
+      int minRebufferMs, long allowedVideoJoiningTimeMs) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
     componentListener = new ComponentListener();
@@ -121,11 +120,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
     // Build the renderers.
     ArrayList<TrackRenderer> renderersList = new ArrayList<>();
     if (preferExtensionDecoders) {
-      buildExtensionRenderers(renderersList);
-      buildRenderers(context, drmSessionManager, renderersList);
+      buildExtensionRenderers(renderersList, allowedVideoJoiningTimeMs);
+      buildRenderers(context, drmSessionManager, renderersList, allowedVideoJoiningTimeMs);
     } else {
-      buildRenderers(context, drmSessionManager, renderersList);
-      buildExtensionRenderers(renderersList);
+      buildRenderers(context, drmSessionManager, renderersList, allowedVideoJoiningTimeMs);
+      buildExtensionRenderers(renderersList, allowedVideoJoiningTimeMs);
     }
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
@@ -387,10 +386,10 @@ public final class SimpleExoPlayer implements ExoPlayer {
   // Internal methods.
 
   private void buildRenderers(Context context, DrmSessionManager drmSessionManager,
-      ArrayList<TrackRenderer> renderersList) {
+      ArrayList<TrackRenderer> renderersList, long allowedVideoJoiningTimeMs) {
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
         MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-        ALLOWED_VIDEO_JOINING_TIME_MS, drmSessionManager, false, mainHandler, componentListener,
+        allowedVideoJoiningTimeMs, drmSessionManager, false, mainHandler, componentListener,
         MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
     renderersList.add(videoRenderer);
 
@@ -407,7 +406,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
     renderersList.add(id3Renderer);
   }
 
-  private void buildExtensionRenderers(ArrayList<TrackRenderer> renderersList) {
+  private void buildExtensionRenderers(ArrayList<TrackRenderer> renderersList,
+      long allowedVideoJoiningTimeMs) {
     // Load extension renderers using reflection so that demo app doesn't depend on them.
     // Class.forName(<class name>) appears for each renderer so that automated tools like proguard
     // can detect the use of reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
@@ -416,7 +416,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer");
       Constructor<?> constructor = clazz.getConstructor(boolean.class, long.class, Handler.class,
           VideoTrackRendererEventListener.class, int.class);
-      renderersList.add((TrackRenderer) constructor.newInstance(true, ALLOWED_VIDEO_JOINING_TIME_MS,
+      renderersList.add((TrackRenderer) constructor.newInstance(true, allowedVideoJoiningTimeMs,
           mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
       Log.i(TAG, "Loaded LibvpxVideoTrackRenderer.");
     } catch (ClassNotFoundException e) {

@@ -38,6 +38,12 @@ public final class ExoPlayerFactory {
    */
   public static final int DEFAULT_MIN_REBUFFER_MS = 5000;
 
+  /**
+   * The default maximum duration for which a video renderer can attempt to seamlessly join an
+   * ongoing playback.
+   */
+  public static final long DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS = 5000;
+
   private ExoPlayerFactory() {}
 
   /**
@@ -49,7 +55,22 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector) {
-    return newSimpleInstance(context, trackSelector, null, false);
+    return newSimpleInstance(context, trackSelector, null);
+  }
+
+  /**
+   * Obtains a {@link SimpleExoPlayer} instance.
+   * <p>
+   * Must be called from a thread that has an associated {@link Looper}.
+   *
+   * @param context A {@link Context}.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
+   */
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
+      DrmSessionManager drmSessionManager) {
+    return newSimpleInstance(context, trackSelector, drmSessionManager, false);
   }
 
   /**
@@ -68,7 +89,7 @@ public final class ExoPlayerFactory {
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       DrmSessionManager drmSessionManager, boolean preferExtensionDecoders) {
     return newSimpleInstance(context, trackSelector, drmSessionManager, preferExtensionDecoders,
-        DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
+        DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
   }
 
   /**
@@ -88,12 +109,14 @@ public final class ExoPlayerFactory {
    * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
    *     after a player-invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
    *     not due to a user action such as starting playback or seeking).
+   * @param allowedVideoJoiningTimeMs The maximum duration for which a video renderer can attempt to
+   *     seamlessly join an ongoing playback.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       DrmSessionManager drmSessionManager, boolean preferExtensionDecoders, int minBufferMs,
-      int minRebufferMs) {
+      int minRebufferMs, long allowedVideoJoiningTimeMs) {
     return new SimpleExoPlayer(context, trackSelector, drmSessionManager, preferExtensionDecoders,
-        minBufferMs, minRebufferMs);
+        minBufferMs, minRebufferMs, allowedVideoJoiningTimeMs);
   }
 
   /**

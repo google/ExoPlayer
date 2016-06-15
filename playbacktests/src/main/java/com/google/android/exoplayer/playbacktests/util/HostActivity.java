@@ -59,22 +59,22 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     void onStart(HostActivity host, Surface surface);
 
     /**
+     * Called on the main thread to check whether the test is ready to be stopped.
+     *
+     * @return True if the test is ready to be stopped. False otherwise.
+     */
+    boolean canStop();
+
+    /**
      * Called on the main thread when the test is stopped.
      * <p>
-     * The test will be stopped if it has finished, if the {@link HostActivity} has been paused, or
-     * if the {@link HostActivity}'s {@link Surface} has been destroyed.
+     * The test will be stopped if {@link #canStop()} returns true, if the {@link HostActivity} has
+     * been paused, or if the {@link HostActivity}'s {@link Surface} has been destroyed.
      */
     void onStop();
 
     /**
-     * Called on the main thread to check whether the test has finished.
-     *
-     * @return True if the test has finished. False otherwise.
-     */
-    boolean isFinished();
-
-    /**
-     * Called on the main thread after the test has finished and been stopped.
+     * Called on the test thread after the test has finished and been stopped.
      * <p>
      * Implementations may use this method to assert that test criteria were met.
      */
@@ -88,7 +88,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   private WifiLock wifiLock;
   private SurfaceView surfaceView;
   private Handler mainHandler;
-  private CheckFinishedRunnable checkFinishedRunnable;
+  private CheckCanStopRunnable checkCanStopRunnable;
 
   private HostedTest hostedTest;
   private ConditionVariable hostedTestStoppedCondition;
@@ -147,7 +147,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     mainHandler = new Handler();
-    checkFinishedRunnable = new CheckFinishedRunnable();
+    checkCanStopRunnable = new CheckCanStopRunnable();
   }
 
   @Override
@@ -211,7 +211,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       hostedTestStarted = true;
       Log.d(TAG, "Starting test.");
       hostedTest.onStart(this, surface);
-      checkFinishedRunnable.startChecking();
+      checkCanStopRunnable.startChecking();
     }
   }
 
@@ -219,8 +219,16 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     if (hostedTest != null && hostedTestStarted) {
       hostedTest.onStop();
       hostedTest = null;
-      mainHandler.removeCallbacks(checkFinishedRunnable);
-      hostedTestStoppedCondition.open();
+      mainHandler.removeCallbacks(checkCanStopRunnable);
+      // We post opening of the stopped condition so that any events posted to the main thread as a
+      // result of hostedTest.onStop() are guaranteed to be handled before hostedTest.onFinished()
+      // is invoked from runTest.
+      mainHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          hostedTestStoppedCondition.open();
+        }
+      });
     }
   }
 
@@ -229,7 +237,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     return Util.SDK_INT < 12 ? WifiManager.WIFI_MODE_FULL : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
   }
 
-  private final class CheckFinishedRunnable implements Runnable {
+  private final class CheckCanStopRunnable implements Runnable {
 
     private static final long CHECK_INTERVAL_MS = 1000;
 
@@ -239,7 +247,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
     @Override
     public void run() {
-      if (hostedTest.isFinished()) {
+      if (hostedTest.canStop()) {
         hostedTestFinished = true;
         maybeStopHostedTest();
       } else {
