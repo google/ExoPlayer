@@ -85,7 +85,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
   /**
    * A base class for parsers that parse components of a smooth streaming manifest.
    */
-  private static abstract class ElementParser {
+  private abstract static class ElementParser {
 
     private final String baseUri;
     private final String tag;
