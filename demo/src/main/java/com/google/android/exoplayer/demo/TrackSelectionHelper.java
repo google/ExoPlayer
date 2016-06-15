@@ -98,7 +98,8 @@ import java.util.Locale;
 
   @SuppressLint("InflateParams")
   private View buildView(LayoutInflater inflater) {
-    ViewGroup root = (ViewGroup) inflater.inflate(R.layout.track_selection_dialog, null);
+    View view = inflater.inflate(R.layout.track_selection_dialog, null);
+    ViewGroup root = (ViewGroup) view.findViewById(R.id.root);
 
     // View for disabling the renderer.
     disableView = (CheckedTextView) inflater.inflate(
@@ -150,7 +151,7 @@ import java.util.Locale;
     }
 
     updateViews();
-    return root;
+    return view;
   }
 
   private void updateViews() {
