@@ -209,13 +209,13 @@ public final class Loader {
           loadable.load();
           TraceUtil.endSection();
         }
-        sendEmptyMessage(MSG_END_OF_SOURCE);
+        passEmptyMessage(MSG_END_OF_SOURCE);
       } catch (IOException e) {
         obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
       } catch (InterruptedException e) {
         // The load was canceled.
         Assertions.checkState(loadable.isLoadCanceled());
-        sendEmptyMessage(MSG_END_OF_SOURCE);
+        passEmptyMessage(MSG_END_OF_SOURCE);
       } catch (Exception e) {
         // This should never happen, but handle it anyway.
         Log.e(TAG, "Unexpected exception loading stream", e);
@@ -229,7 +229,13 @@ public final class Loader {
         throw e;
       }
     }
-
+    
+    private void passEmptyMessage(int what){
+      if (getLooper().getThread().getState() != Thread.State.TERMINATED){
+        sendEmptyMessage(what);
+      }
+    }
+    
     @Override
     public void handleMessage(Message msg) {
       if (msg.what == MSG_FATAL_ERROR) {
