@@ -48,9 +48,12 @@ import java.util.Collections;
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
-  private boolean foundFirstFrameInPacket;
   private boolean foundFirstFrameInGroup;
   private long totalBytesWritten;
+
+  // Per packet state that gets reset at the start of each packet.
+  private long pesTimeUs;
+  private boolean pesPtsUsAvailable;
 
   // Per sample state that gets reset at the start of each frame.
   private boolean isKeyframe;
@@ -67,16 +70,21 @@ import java.util.Collections;
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
-    foundFirstFrameInPacket = false;
+    pesPtsUsAvailable = false;
     foundFirstFrameInGroup = false;
     totalBytesWritten = 0;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
-    if (startOfPacket) {
-      foundFirstFrameInPacket = false;
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    pesPtsUsAvailable = pesTimeUs != C.UNKNOWN_TIME_US;
+    if (pesPtsUsAvailable) {
+      this.pesTimeUs = pesTimeUs;
     }
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
@@ -132,9 +140,9 @@ import java.util.Collections;
             foundFirstFrameInGroup = false;
             isKeyframe = true;
           } else /* startCode == START_PICTURE */ {
-            frameTimeUs = !foundFirstFrameInPacket ? pesTimeUs : (frameTimeUs + frameDurationUs);
+            frameTimeUs = pesPtsUsAvailable ? pesTimeUs : (frameTimeUs + frameDurationUs);
             framePosition = totalBytesWritten - bytesWrittenPastStartCode;
-            foundFirstFrameInPacket = true;
+            pesPtsUsAvailable = false;
             foundFirstFrameInGroup = true;
           }
         }

@@ -161,4 +161,20 @@ public class UtilTest extends TestCase {
     assertEquals(value, reconstructedValue);
   }
 
+  public void testUnescapeInvalidFileName() {
+    assertNull(Util.unescapeFileName("%a"));
+    assertNull(Util.unescapeFileName("%xyz"));
+  }
+
+  public void testEscapeUnescapeFileName() {
+    assertEscapeUnescapeFileName("just+a regular+fileName", "just+a regular+fileName");
+    assertEscapeUnescapeFileName("key:value", "key%3avalue");
+    assertEscapeUnescapeFileName("<>:\"/\\|?*%", "%3c%3e%3a%22%2f%5c%7c%3f%2a%25");
+  }
+
+  private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
+    assertEquals(escapedFileName, Util.escapeFileName(fileName));
+    assertEquals(fileName, Util.unescapeFileName(escapedFileName));
+  }
+
 }

@@ -426,14 +426,13 @@ public class SmoothStreamingChunkSource implements ChunkSource,
         throw new IllegalStateException("Invalid type: " + element.type);
     }
 
-    // Build the extractor.
-    FragmentedMp4Extractor mp4Extractor = new FragmentedMp4Extractor(
-        FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-        | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
     Track mp4Track = new Track(trackIndex, mp4TrackType, element.timescale, C.UNKNOWN_TIME_US,
         durationUs, mediaFormat, trackEncryptionBoxes, mp4TrackType == Track.TYPE_vide ? 4 : -1,
         null, null);
-    mp4Extractor.setTrack(mp4Track);
+    // Build the extractor.
+    FragmentedMp4Extractor mp4Extractor = new FragmentedMp4Extractor(
+        FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+        | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, mp4Track);
 
     // Store the format and a wrapper around the extractor.
     mediaFormats.put(manifestTrackKey, mediaFormat);

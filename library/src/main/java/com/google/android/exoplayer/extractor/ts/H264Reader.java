@@ -18,12 +18,13 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer.util.CodecSpecificDataUtil.SpsData;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
+import com.google.android.exoplayer.util.NalUnitUtil.SpsData;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,15 +35,9 @@ import java.util.List;
  */
 /* package */ final class H264Reader extends ElementaryStreamReader {
 
-  private static final int FRAME_TYPE_I = 2;
-  private static final int FRAME_TYPE_ALL_I = 7;
-
-  private static final int NAL_UNIT_TYPE_IFR = 1; // Coded slice of a non-IDR picture
-  private static final int NAL_UNIT_TYPE_IDR = 5; // Coded slice of an IDR picture
   private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
   private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
   private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
-  private static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
@@ -50,26 +45,32 @@ import java.util.List;
   // State that should be reset on seek.
   private final SeiReader seiReader;
   private final boolean[] prefixFlags;
-  private final IfrParserBuffer ifrParserBuffer;
+  private final SampleReader sampleReader;
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer sei;
-  private boolean foundFirstSample;
   private long totalBytesWritten;
 
-  // Per sample state that gets reset at the start of each sample.
-  private boolean isKeyframe;
-  private long samplePosition;
-  private long sampleTimeUs;
+  // Per packet state that gets reset at the start of each packet.
+  private long pesTimeUs;
 
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
-  public H264Reader(TrackOutput output, SeiReader seiReader, boolean idrKeyframesOnly) {
+  /**
+   * @param output A {@link TrackOutput} to which H.264 samples should be written.
+   * @param seiReader A reader for EIA-608 samples in SEI NAL units.
+   * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
+   *     synchronization samples (key-frames).
+   * @param detectAccessUnits Whether to split the input stream into access units (samples) based on
+   *     slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
+   */
+  public H264Reader(TrackOutput output, SeiReader seiReader, boolean allowNonIdrKeyframes,
+      boolean detectAccessUnits) {
     super(output);
     this.seiReader = seiReader;
     prefixFlags = new boolean[3];
-    ifrParserBuffer = (idrKeyframesOnly) ? null : new IfrParserBuffer();
+    sampleReader = new SampleReader(output, allowNonIdrKeyframes, detectAccessUnits);
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
@@ -78,20 +79,21 @@ import java.util.List;
 
   @Override
   public void seek() {
-    seiReader.seek();
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     sps.reset();
     pps.reset();
     sei.reset();
-    if (ifrParserBuffer != null) {
-      ifrParserBuffer.reset();
-    }
-    foundFirstSample = false;
+    sampleReader.reset();
     totalBytesWritten = 0;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    this.pesTimeUs = pesTimeUs;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
@@ -107,7 +109,7 @@ import java.util.List;
 
         if (nalUnitOffset == limit) {
           // We've scanned to the end of the data without finding the start of another NAL unit.
-          feedNalUnitTargetBuffersData(dataArray, offset, limit);
+          nalUnitData(dataArray, offset, limit);
           return;
         }
 
@@ -118,42 +120,17 @@ import java.util.List;
         // It may be negative if the NAL unit started in the previously consumed data.
         int lengthToNalUnit = nalUnitOffset - offset;
         if (lengthToNalUnit > 0) {
-          feedNalUnitTargetBuffersData(dataArray, offset, nalUnitOffset);
+          nalUnitData(dataArray, offset, nalUnitOffset);
         }
-
-        switch (nalUnitType) {
-          case NAL_UNIT_TYPE_IDR:
-            isKeyframe = true;
-            break;
-          case NAL_UNIT_TYPE_AUD:
-            int bytesWrittenPastNalUnit = limit - nalUnitOffset;
-            if (foundFirstSample) {
-              if (ifrParserBuffer != null && ifrParserBuffer.isCompleted()) {
-                int sliceType = ifrParserBuffer.getSliceType();
-                isKeyframe |= (sliceType == FRAME_TYPE_I || sliceType == FRAME_TYPE_ALL_I);
-                ifrParserBuffer.reset();
-              }
-              if (isKeyframe && !hasOutputFormat && sps.isCompleted() && pps.isCompleted()) {
-                output.format(parseMediaFormat(sps, pps));
-                hasOutputFormat = true;
-              }
-              int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
-              int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastNalUnit;
-              output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastNalUnit, null);
-            }
-            foundFirstSample = true;
-            samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
-            sampleTimeUs = pesTimeUs;
-            isKeyframe = false;
-            break;
-        }
-
+        int bytesWrittenPastPosition = limit - nalUnitOffset;
+        long absolutePosition = totalBytesWritten - bytesWrittenPastPosition;
         // Indicate the end of the previous NAL unit. If the length to the start of the next unit
         // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
         // when notifying that the unit has ended.
-        feedNalUnitTargetEnd(pesTimeUs, lengthToNalUnit < 0 ? -lengthToNalUnit : 0);
+        endNalUnit(absolutePosition, bytesWrittenPastPosition,
+            lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
         // Indicate the start of the next NAL unit.
-        feedNalUnitTargetBuffersStart(nalUnitType);
+        startNalUnit(absolutePosition, nalUnitType, pesTimeUs);
         // Continue scanning the data.
         offset = nalUnitOffset + 3;
       }
@@ -165,99 +142,153 @@ import java.util.List;
     // Do nothing.
   }
 
-  private void feedNalUnitTargetBuffersStart(int nalUnitType) {
-    if (ifrParserBuffer != null) {
-      ifrParserBuffer.startNalUnit(nalUnitType);
-    }
-    if (!hasOutputFormat) {
+  private void startNalUnit(long position, int nalUnitType, long pesTimeUs) {
+    if (!hasOutputFormat || sampleReader.needsSpsPps()) {
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
     }
     sei.startNalUnit(nalUnitType);
+    sampleReader.startNalUnit(position, nalUnitType, pesTimeUs);
   }
 
-  private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
-    if (ifrParserBuffer != null) {
-      ifrParserBuffer.appendToNalUnit(dataArray, offset, limit);
-    }
-    if (!hasOutputFormat) {
+  private void nalUnitData(byte[] dataArray, int offset, int limit) {
+    if (!hasOutputFormat || sampleReader.needsSpsPps()) {
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
     }
     sei.appendToNalUnit(dataArray, offset, limit);
+    sampleReader.appendToNalUnit(dataArray, offset, limit);
   }
 
-  private void feedNalUnitTargetEnd(long pesTimeUs, int discardPadding) {
-    sps.endNalUnit(discardPadding);
-    pps.endNalUnit(discardPadding);
+  private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
+    if (!hasOutputFormat || sampleReader.needsSpsPps()) {
+      sps.endNalUnit(discardPadding);
+      pps.endNalUnit(discardPadding);
+      if (!hasOutputFormat) {
+        if (sps.isCompleted() && pps.isCompleted()) {
+          List<byte[]> initializationData = new ArrayList<>();
+          initializationData.add(Arrays.copyOf(sps.nalData, sps.nalLength));
+          initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
+          NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(unescape(sps));
+          NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(unescape(pps));
+          output.format(MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H264,
+              MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, spsData.width,
+              spsData.height, initializationData, MediaFormat.NO_VALUE,
+              spsData.pixelWidthAspectRatio));
+          hasOutputFormat = true;
+          sampleReader.putSps(spsData);
+          sampleReader.putPps(ppsData);
+          sps.reset();
+          pps.reset();
+        }
+      } else if (sps.isCompleted()) {
+        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(unescape(sps));
+        sampleReader.putSps(spsData);
+        sps.reset();
+      } else if (pps.isCompleted()) {
+        NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(unescape(pps));
+        sampleReader.putPps(ppsData);
+        pps.reset();
+      }
+    }
     if (sei.endNalUnit(discardPadding)) {
       int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
-      seiReader.consume(seiWrapper, pesTimeUs, true);
+      seiReader.consume(pesTimeUs, seiWrapper);
     }
+    sampleReader.endNalUnit(position, offset);
   }
 
-  private static MediaFormat parseMediaFormat(NalUnitTargetBuffer sps, NalUnitTargetBuffer pps) {
-    List<byte[]> initializationData = new ArrayList<>();
-    initializationData.add(Arrays.copyOf(sps.nalData, sps.nalLength));
-    initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
-
-    // Unescape and parse the SPS unit.
-    NalUnitUtil.unescapeStream(sps.nalData, sps.nalLength);
-    ParsableBitArray bitArray = new ParsableBitArray(sps.nalData);
+  private static ParsableBitArray unescape(NalUnitTargetBuffer buffer) {
+    int length = NalUnitUtil.unescapeStream(buffer.nalData, buffer.nalLength);
+    ParsableBitArray bitArray = new ParsableBitArray(buffer.nalData, length);
     bitArray.skipBits(32); // NAL header
-    SpsData parsedSpsData = CodecSpecificDataUtil.parseSpsNalUnit(bitArray);
-
-    return MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, parsedSpsData.width, parsedSpsData.height,
-        initializationData, MediaFormat.NO_VALUE, parsedSpsData.pixelWidthAspectRatio);
+    return bitArray;
   }
 
   /**
-   * A buffer specifically for IFR units that can be used to parse the IFR's slice type.
+   * Consumes a stream of NAL units and outputs samples.
    */
-  private static final class IfrParserBuffer {
+  private static final class SampleReader {
 
     private static final int DEFAULT_BUFFER_SIZE = 128;
-    private static final int NOT_SET = -1;
 
-    private final ParsableBitArray scratchSliceType;
+    private static final int NAL_UNIT_TYPE_NON_IDR = 1; // Coded slice of a non-IDR picture
+    private static final int NAL_UNIT_TYPE_PARTITION_A = 2; // Coded slice data partition A
+    private static final int NAL_UNIT_TYPE_IDR = 5; // Coded slice of an IDR picture
+    private static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
 
-    private byte[] ifrData;
-    private int ifrLength;
+    private final TrackOutput output;
+    private final boolean allowNonIdrKeyframes;
+    private final boolean detectAccessUnits;
+    private final ParsableBitArray scratch;
+    private final SparseArray<NalUnitUtil.SpsData> sps;
+    private final SparseArray<NalUnitUtil.PpsData> pps;
+
+    private byte[] buffer;
+    private int bufferLength;
+
+    // Per NAL unit state. A sample consists of one or more NAL units.
+    private int nalUnitType;
+    private long nalUnitStartPosition;
     private boolean isFilling;
-    private int sliceType;
+    private long nalUnitTimeUs;
+    private SliceHeaderData previousSliceHeader;
+    private SliceHeaderData sliceHeader;
 
-    public IfrParserBuffer() {
-      ifrData = new byte[DEFAULT_BUFFER_SIZE];
-      scratchSliceType = new ParsableBitArray(ifrData);
+    // Per sample state that gets reset at the start of each sample.
+    private boolean readingSample;
+    private long samplePosition;
+    private long sampleTimeUs;
+    private boolean sampleIsKeyframe;
+
+    public SampleReader(TrackOutput output, boolean allowNonIdrKeyframes,
+        boolean detectAccessUnits) {
+      this.output = output;
+      this.allowNonIdrKeyframes = allowNonIdrKeyframes;
+      this.detectAccessUnits = detectAccessUnits;
+      sps = new SparseArray<>();
+      pps = new SparseArray<>();
+      previousSliceHeader = new SliceHeaderData();
+      sliceHeader = new SliceHeaderData();
+      scratch = new ParsableBitArray();
+      buffer = new byte[DEFAULT_BUFFER_SIZE];
       reset();
     }
 
-    /**
-     * Resets the buffer, clearing any data that it holds.
-     */
+    public boolean needsSpsPps() {
+      return detectAccessUnits;
+    }
+
+    public void putSps(NalUnitUtil.SpsData spsData) {
+      sps.append(spsData.seqParameterSetId, spsData);
+    }
+
+    public void putPps(NalUnitUtil.PpsData ppsData) {
+      pps.append(ppsData.picParameterSetId, ppsData);
+    }
+
     public void reset() {
       isFilling = false;
-      ifrLength = 0;
-      sliceType = NOT_SET;
+      readingSample = false;
+      sliceHeader.clear();
     }
 
-    /**
-     * True if enough data was added to the buffer that the slice type was determined.
-     */
-    public boolean isCompleted() {
-      return sliceType != NOT_SET;
-    }
-
-    /**
-     * Invoked to indicate that a NAL unit has started, and if it is an IFR then the buffer will
-     * start.
-     */
-    public void startNalUnit(int nalUnitType) {
-      if (nalUnitType == NAL_UNIT_TYPE_IFR) {
-        reset();
+    public void startNalUnit(long position, int type, long pesTimeUs) {
+      nalUnitType = type;
+      nalUnitTimeUs = pesTimeUs;
+      nalUnitStartPosition = position;
+      if ((allowNonIdrKeyframes && nalUnitType == NAL_UNIT_TYPE_NON_IDR)
+          || (detectAccessUnits && (nalUnitType == NAL_UNIT_TYPE_IDR
+              || nalUnitType == NAL_UNIT_TYPE_NON_IDR
+              || nalUnitType == NAL_UNIT_TYPE_PARTITION_A))) {
+        // Store the previous header and prepare to populate the new one.
+        SliceHeaderData newSliceHeader = previousSliceHeader;
+        previousSliceHeader = sliceHeader;
+        sliceHeader = newSliceHeader;
+        sliceHeader.clear();
+        bufferLength = 0;
         isFilling = true;
       }
     }
@@ -274,38 +305,214 @@ import java.util.List;
         return;
       }
       int readLength = limit - offset;
-      if (ifrData.length < ifrLength + readLength) {
-        ifrData = Arrays.copyOf(ifrData, (ifrLength + readLength) * 2);
+      if (buffer.length < bufferLength + readLength) {
+        buffer = Arrays.copyOf(buffer, (bufferLength + readLength) * 2);
       }
-      System.arraycopy(data, offset, ifrData, ifrLength, readLength);
-      ifrLength += readLength;
+      System.arraycopy(data, offset, buffer, bufferLength, readLength);
+      bufferLength += readLength;
 
-      scratchSliceType.reset(ifrData, ifrLength);
-      scratchSliceType.skipBits(8);
-      // first_mb_in_slice
-      int len = scratchSliceType.peekExpGolombCodedNumLength();
-      if ((len == -1) || (len > scratchSliceType.bitsLeft())) {
-        // Not enough yet
+      scratch.reset(buffer, bufferLength);
+      if (scratch.bitsLeft() < 8) {
         return;
       }
+      scratch.skipBits(1); // forbidden_zero_bit
+      int nalRefIdc = scratch.readBits(2);
+      scratch.skipBits(5); // nal_unit_type
 
-      scratchSliceType.skipBits(len);
-      // slice_type
-      len = scratchSliceType.peekExpGolombCodedNumLength();
-      if ((len == -1) || (len > scratchSliceType.bitsLeft())) {
-        // Not enough yet
+      // Read the slice header using the syntax defined in ITU-T Recommendation H.264 (2013)
+      // subsection 7.3.3.
+      if (!scratch.canReadExpGolombCodedNum()) {
         return;
       }
-      sliceType = scratchSliceType.readUnsignedExpGolombCodedInt();
-
+      scratch.readUnsignedExpGolombCodedInt(); // first_mb_in_slice
+      if (!scratch.canReadExpGolombCodedNum()) {
+        return;
+      }
+      int sliceType = scratch.readUnsignedExpGolombCodedInt();
+      if (!detectAccessUnits) {
+        // There are AUDs in the stream so the rest of the header can be ignored.
+        isFilling = false;
+        sliceHeader.setSliceType(sliceType);
+        return;
+      }
+      if (!scratch.canReadExpGolombCodedNum()) {
+        return;
+      }
+      int picParameterSetId = scratch.readUnsignedExpGolombCodedInt();
+      if (pps.indexOfKey(picParameterSetId) < 0) {
+        // We have not seen the PPS yet, so don't try to parse the slice header.
+        isFilling = false;
+        return;
+      }
+      NalUnitUtil.PpsData ppsData = pps.get(picParameterSetId);
+      NalUnitUtil.SpsData spsData = sps.get(ppsData.seqParameterSetId);
+      if (spsData.separateColorPlaneFlag) {
+        if (scratch.bitsLeft() < 2) {
+          return;
+        }
+        scratch.skipBits(2); // colour_plane_id
+      }
+      if (scratch.bitsLeft() < spsData.frameNumLength) {
+        return;
+      }
+      boolean fieldPicFlag = false;
+      boolean bottomFieldFlagPresent = false;
+      boolean bottomFieldFlag = false;
+      int frameNum = scratch.readBits(spsData.frameNumLength);
+      if (!spsData.frameMbsOnlyFlag) {
+        if (scratch.bitsLeft() < 1) {
+          return;
+        }
+        fieldPicFlag = scratch.readBit();
+        if (fieldPicFlag) {
+          if (scratch.bitsLeft() < 1) {
+            return;
+          }
+          bottomFieldFlag = scratch.readBit();
+          bottomFieldFlagPresent = true;
+        }
+      }
+      boolean idrPicFlag = nalUnitType == NAL_UNIT_TYPE_IDR;
+      int idrPicId = 0;
+      if (idrPicFlag) {
+        if (!scratch.canReadExpGolombCodedNum()) {
+          return;
+        }
+        idrPicId = scratch.readUnsignedExpGolombCodedInt();
+      }
+      int picOrderCntLsb = 0;
+      int deltaPicOrderCntBottom = 0;
+      int deltaPicOrderCnt0 = 0;
+      int deltaPicOrderCnt1 = 0;
+      if (spsData.picOrderCountType == 0) {
+        if (scratch.bitsLeft() < spsData.picOrderCntLsbLength) {
+          return;
+        }
+        picOrderCntLsb = scratch.readBits(spsData.picOrderCntLsbLength);
+        if (ppsData.bottomFieldPicOrderInFramePresentFlag && !fieldPicFlag) {
+          if (!scratch.canReadExpGolombCodedNum()) {
+            return;
+          }
+          deltaPicOrderCntBottom = scratch.readSignedExpGolombCodedInt();
+        }
+      } else if (spsData.picOrderCountType == 1
+          && !spsData.deltaPicOrderAlwaysZeroFlag) {
+        if (!scratch.canReadExpGolombCodedNum()) {
+          return;
+        }
+        deltaPicOrderCnt0 = scratch.readSignedExpGolombCodedInt();
+        if (ppsData.bottomFieldPicOrderInFramePresentFlag && !fieldPicFlag) {
+          if (!scratch.canReadExpGolombCodedNum()) {
+            return;
+          }
+          deltaPicOrderCnt1 = scratch.readSignedExpGolombCodedInt();
+        }
+      }
+      sliceHeader.setAll(spsData, nalRefIdc, sliceType, frameNum, picParameterSetId, fieldPicFlag,
+          bottomFieldFlagPresent, bottomFieldFlag, idrPicFlag, idrPicId, picOrderCntLsb,
+          deltaPicOrderCntBottom, deltaPicOrderCnt0, deltaPicOrderCnt1);
       isFilling = false;
     }
 
-    /**
-     * @return the slice type of the IFR.
-     */
-    public int getSliceType() {
-      return sliceType;
+    public void endNalUnit(long position, int offset) {
+      if (nalUnitType == NAL_UNIT_TYPE_AUD
+          || (detectAccessUnits && sliceHeader.isFirstVclNalUnitOfPicture(previousSliceHeader))) {
+        // If the NAL unit ending is the start of a new sample, output the previous one.
+        if (readingSample) {
+          int nalUnitLength = (int) (position - nalUnitStartPosition);
+          outputSample(offset + nalUnitLength);
+        }
+        samplePosition = nalUnitStartPosition;
+        sampleTimeUs = nalUnitTimeUs;
+        sampleIsKeyframe = false;
+        readingSample = true;
+      }
+      sampleIsKeyframe |= nalUnitType == NAL_UNIT_TYPE_IDR || (allowNonIdrKeyframes
+          && nalUnitType == NAL_UNIT_TYPE_NON_IDR && sliceHeader.isISlice());
+    }
+
+    private void outputSample(int offset) {
+      int flags = sampleIsKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
+      int size = (int) (nalUnitStartPosition - samplePosition);
+      output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
+    }
+
+    private static final class SliceHeaderData {
+
+      private static final int SLICE_TYPE_I = 2;
+      private static final int SLICE_TYPE_ALL_I = 7;
+
+      private boolean isComplete;
+      private boolean hasSliceType;
+
+      private SpsData spsData;
+      private int nalRefIdc;
+      private int sliceType;
+      private int frameNum;
+      private int picParameterSetId;
+      private boolean fieldPicFlag;
+      private boolean bottomFieldFlagPresent;
+      private boolean bottomFieldFlag;
+      private boolean idrPicFlag;
+      private int idrPicId;
+      private int picOrderCntLsb;
+      private int deltaPicOrderCntBottom;
+      private int deltaPicOrderCnt0;
+      private int deltaPicOrderCnt1;
+
+      public void clear() {
+        hasSliceType = false;
+        isComplete = false;
+      }
+
+      public void setSliceType(int sliceType) {
+        this.sliceType = sliceType;
+        hasSliceType = true;
+      }
+
+      public void setAll(SpsData spsData, int nalRefIdc, int sliceType, int frameNum,
+          int picParameterSetId, boolean fieldPicFlag, boolean bottomFieldFlagPresent,
+          boolean bottomFieldFlag, boolean idrPicFlag, int idrPicId, int picOrderCntLsb,
+          int deltaPicOrderCntBottom, int deltaPicOrderCnt0, int deltaPicOrderCnt1) {
+        this.spsData = spsData;
+        this.nalRefIdc = nalRefIdc;
+        this.sliceType = sliceType;
+        this.frameNum = frameNum;
+        this.picParameterSetId = picParameterSetId;
+        this.fieldPicFlag = fieldPicFlag;
+        this.bottomFieldFlagPresent = bottomFieldFlagPresent;
+        this.bottomFieldFlag = bottomFieldFlag;
+        this.idrPicFlag = idrPicFlag;
+        this.idrPicId = idrPicId;
+        this.picOrderCntLsb = picOrderCntLsb;
+        this.deltaPicOrderCntBottom = deltaPicOrderCntBottom;
+        this.deltaPicOrderCnt0 = deltaPicOrderCnt0;
+        this.deltaPicOrderCnt1 = deltaPicOrderCnt1;
+        isComplete = true;
+        hasSliceType = true;
+      }
+
+      public boolean isISlice() {
+        return hasSliceType && (sliceType == SLICE_TYPE_ALL_I || sliceType == SLICE_TYPE_I);
+      }
+
+      private boolean isFirstVclNalUnitOfPicture(SliceHeaderData other) {
+        // See ISO 14496-10 subsection 7.4.1.2.4.
+        return isComplete && (!other.isComplete || frameNum != other.frameNum
+            || picParameterSetId != other.picParameterSetId || fieldPicFlag != other.fieldPicFlag
+            || (bottomFieldFlagPresent && other.bottomFieldFlagPresent
+                && bottomFieldFlag != other.bottomFieldFlag)
+            || (nalRefIdc != other.nalRefIdc && (nalRefIdc == 0 || other.nalRefIdc == 0))
+            || (spsData.picOrderCountType == 0 && other.spsData.picOrderCountType == 0
+                && (picOrderCntLsb != other.picOrderCntLsb
+                    || deltaPicOrderCntBottom != other.deltaPicOrderCntBottom))
+            || (spsData.picOrderCountType == 1 && other.spsData.picOrderCountType == 1
+                && (deltaPicOrderCnt0 != other.deltaPicOrderCnt0
+                    || deltaPicOrderCnt1 != other.deltaPicOrderCnt1))
+            || idrPicFlag != other.idrPicFlag
+            || (idrPicFlag && other.idrPicFlag && idrPicId != other.idrPicId));
+      }
+
     }
 
   }

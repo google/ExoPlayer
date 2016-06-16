@@ -23,6 +23,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.Arrays;
@@ -32,6 +33,8 @@ import java.util.Collections;
  * Parses a continuous ADTS byte stream and extracts individual frames.
  */
 /* package */ final class AdtsReader extends ElementaryStreamReader {
+
+  private static final String TAG = "AdtsReader";
 
   private static final int STATE_FINDING_SAMPLE = 0;
   private static final int STATE_READING_ID3_HEADER = 1;
@@ -93,10 +96,12 @@ import java.util.Collections;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
-    if (startOfPacket) {
-      timeUs = pesTimeUs;
-    }
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    timeUs = pesTimeUs;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SAMPLE:
@@ -249,6 +254,20 @@ import java.util.Collections;
 
     if (!hasOutputFormat) {
       int audioObjectType = adtsScratch.readBits(2) + 1;
+      if (audioObjectType != 2) {
+        // The stream indicates AAC-Main (1), AAC-SSR (3) or AAC-LTP (4). When the stream indicates
+        // AAC-Main it's more likely that the stream contains HE-AAC (5), which cannot be
+        // represented correctly in the 2 bit audio_object_type field in the ADTS header. In
+        // practice when the stream indicates AAC-SSR or AAC-LTP it more commonly contains AAC-LC or
+        // HE-AAC. Since most Android devices don't support AAC-Main, AAC-SSR or AAC-LTP, and since
+        // indicating AAC-LC works for HE-AAC streams, we pretend that we're dealing with AAC-LC and
+        // hope for the best. In practice this often works.
+        // See: https://github.com/google/ExoPlayer/issues/774
+        // See: https://github.com/google/ExoPlayer/issues/1383
+        Log.w(TAG, "Detected audio object type: " + audioObjectType + ", but assuming AAC LC.");
+        audioObjectType = 2;
+      }
+
       int sampleRateIndex = adtsScratch.readBits(4);
       adtsScratch.skipBits(1);
       int channelConfig = adtsScratch.readBits(3);

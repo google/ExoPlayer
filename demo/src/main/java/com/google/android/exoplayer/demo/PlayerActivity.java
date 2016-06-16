@@ -30,9 +30,12 @@ import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
-import com.google.android.exoplayer.metadata.GeobMetadata;
-import com.google.android.exoplayer.metadata.PrivMetadata;
-import com.google.android.exoplayer.metadata.TxxxMetadata;
+import com.google.android.exoplayer.metadata.id3.ApicFrame;
+import com.google.android.exoplayer.metadata.id3.GeobFrame;
+import com.google.android.exoplayer.metadata.id3.Id3Frame;
+import com.google.android.exoplayer.metadata.id3.PrivFrame;
+import com.google.android.exoplayer.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
@@ -74,7 +77,6 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
@@ -195,8 +197,22 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+    if (Util.SDK_INT > 23) {
+      onShown();
+    }
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
+    if (Util.SDK_INT <= 23 || player == null) {
+      onShown();
+    }
+  }
+
+  private void onShown() {
     Intent intent = getIntent();
     contentUri = intent.getData();
     contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA,
@@ -216,6 +232,20 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onPause() {
     super.onPause();
+    if (Util.SDK_INT <= 23) {
+      onHidden();
+    }
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    if (Util.SDK_INT > 23) {
+      onHidden();
+    }
+  }
+
+  private void onHidden() {
     if (!enableBackgroundAudio) {
       releasePlayer();
     } else {
@@ -605,23 +635,29 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // DemoPlayer.MetadataListener implementation
 
   @Override
-  public void onId3Metadata(Map<String, Object> metadata) {
-    for (Map.Entry<String, Object> entry : metadata.entrySet()) {
-      if (TxxxMetadata.TYPE.equals(entry.getKey())) {
-        TxxxMetadata txxxMetadata = (TxxxMetadata) entry.getValue();
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
-            TxxxMetadata.TYPE, txxxMetadata.description, txxxMetadata.value));
-      } else if (PrivMetadata.TYPE.equals(entry.getKey())) {
-        PrivMetadata privMetadata = (PrivMetadata) entry.getValue();
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
-            PrivMetadata.TYPE, privMetadata.owner));
-      } else if (GeobMetadata.TYPE.equals(entry.getKey())) {
-        GeobMetadata geobMetadata = (GeobMetadata) entry.getValue();
+  public void onId3Metadata(List<Id3Frame> id3Frames) {
+    for (Id3Frame id3Frame : id3Frames) {
+      if (id3Frame instanceof TxxxFrame) {
+        TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s", txxxFrame.id,
+            txxxFrame.description, txxxFrame.value));
+      } else if (id3Frame instanceof PrivFrame) {
+        PrivFrame privFrame = (PrivFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s", privFrame.id, privFrame.owner));
+      } else if (id3Frame instanceof GeobFrame) {
+        GeobFrame geobFrame = (GeobFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
-            GeobMetadata.TYPE, geobMetadata.mimeType, geobMetadata.filename,
-            geobMetadata.description));
+            geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
+      } else if (id3Frame instanceof ApicFrame) {
+        ApicFrame apicFrame = (ApicFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, description=%s",
+                apicFrame.id, apicFrame.mimeType, apicFrame.description));
+      } else if (id3Frame instanceof TextInformationFrame) {
+        TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s", textInformationFrame.id,
+            textInformationFrame.description));
       } else {
-        Log.i(TAG, String.format("ID3 TimedMetadata %s", entry.getKey()));
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
       }
     }
   }
@@ -706,13 +742,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
       int keyCode = event.getKeyCode();
-      if (playerControl.canSeekForward() && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+      if (playerControl.canSeekForward() && (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
+          || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
           playerControl.seekTo(playerControl.getCurrentPosition() + 15000); // milliseconds
           show();
         }
         return true;
-      } else if (playerControl.canSeekBackward() && keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+      } else if (playerControl.canSeekBackward() && (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
+          || keyCode == KeyEvent.KEYCODE_DPAD_LEFT)) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
           playerControl.seekTo(playerControl.getCurrentPosition() - 5000); // milliseconds
           show();

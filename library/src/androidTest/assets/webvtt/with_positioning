@@ -26,3 +26,8 @@ NOTE The positioning alignment should be inherited from align.
 00:07.000 --> 00:08.000 position:10% align:end size:10%
 This is the fifth subtitle.
 
+NOTE In newer drafts, align:middle has been replaced by align:center
+
+00:10.000 --> 00:11.000 line:45%,end align:center size:35%
+This is the sixth subtitle.
+

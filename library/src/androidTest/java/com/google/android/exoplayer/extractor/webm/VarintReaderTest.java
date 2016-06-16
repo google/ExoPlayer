@@ -16,26 +16,20 @@
 package com.google.android.exoplayer.extractor.webm;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.testutil.FakeDataSource;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DataSpec;
-
-import android.net.Uri;
+import com.google.android.exoplayer.testutil.FakeExtractorInput;
+import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 
 import junit.framework.TestCase;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Tests for {@link VarintReader}.
  */
-public class VarintReaderTest extends TestCase {
+public final class VarintReaderTest extends TestCase {
 
-  private static final String TEST_URI = "http://www.google.com";
   private static final byte MAX_BYTE = (byte) 0xFF;
 
   private static final byte[] DATA_1_BYTE_0 = new byte[] {(byte) 0x80};
@@ -88,12 +82,10 @@ public class VarintReaderTest extends TestCase {
 
   public void testReadVarintEndOfInputAtStart() throws IOException, InterruptedException {
     VarintReader reader = new VarintReader();
-    // Build an input, and read to the end.
-    DataSource dataSource = buildDataSource(new byte[1]);
-    dataSource.open(new DataSpec(Uri.parse(TEST_URI)));
-    ExtractorInput input = new DefaultExtractorInput(dataSource, 0, C.LENGTH_UNBOUNDED);
-    int bytesRead = input.read(new byte[1], 0, 1);
-    assertEquals(1, bytesRead);
+    // Build an input with no data.
+    ExtractorInput input = new FakeExtractorInput.Builder()
+        .setSimulateUnknownLength(true)
+        .build();
     // End of input allowed.
     long result = reader.readUnsignedVarint(input, true, false, 8);
     assertEquals(C.RESULT_END_OF_INPUT, result);
@@ -108,9 +100,10 @@ public class VarintReaderTest extends TestCase {
 
   public void testReadVarintExceedsMaximumAllowedLength() throws IOException, InterruptedException {
     VarintReader reader = new VarintReader();
-    DataSource dataSource = buildDataSource(DATA_8_BYTE_0);
-    dataSource.open(new DataSpec(Uri.parse(TEST_URI)));
-    ExtractorInput input = new DefaultExtractorInput(dataSource, 0, C.LENGTH_UNBOUNDED);
+    ExtractorInput input = new FakeExtractorInput.Builder()
+        .setData(DATA_8_BYTE_0)
+        .setSimulateUnknownLength(true)
+        .build();
     long result = reader.readUnsignedVarint(input, false, true, 4);
     assertEquals(C.RESULT_MAX_LENGTH_EXCEEDED, result);
   }
@@ -189,9 +182,10 @@ public class VarintReaderTest extends TestCase {
 
   private static void testReadVarint(VarintReader reader, boolean removeMask, byte[] data,
       int expectedLength, long expectedValue) throws IOException, InterruptedException {
-    DataSource dataSource = buildDataSource(data);
-    dataSource.open(new DataSpec(Uri.parse(TEST_URI)));
-    ExtractorInput input = new DefaultExtractorInput(dataSource, 0, C.LENGTH_UNBOUNDED);
+    ExtractorInput input = new FakeExtractorInput.Builder()
+        .setData(data)
+        .setSimulateUnknownLength(true)
+        .build();
     long result = reader.readUnsignedVarint(input, false, removeMask, 8);
     assertEquals(expectedLength, input.getPosition());
     assertEquals(expectedValue, result);
@@ -199,45 +193,22 @@ public class VarintReaderTest extends TestCase {
 
   private static void testReadVarintFlaky(VarintReader reader, boolean removeMask, byte[] data,
       int expectedLength, long expectedValue) throws IOException, InterruptedException {
-    DataSource dataSource = buildFlakyDataSource(data);
-    ExtractorInput input = null;
-    long position = 0;
+    ExtractorInput input = new FakeExtractorInput.Builder()
+        .setData(data)
+        .setSimulateUnknownLength(true)
+        .setSimulateIOErrors(true)
+        .setSimulatePartialReads(true)
+        .build();
     long result = -1;
     while (result == -1) {
-      dataSource.open(new DataSpec(Uri.parse(TEST_URI), position, C.LENGTH_UNBOUNDED, null));
-      input = new DefaultExtractorInput(dataSource, position, C.LENGTH_UNBOUNDED);
       try {
         result = reader.readUnsignedVarint(input, false, removeMask, 8);
-        position = input.getPosition();
-      } catch (IOException e) {
-        // Expected. We'll try again from the position that the input was advanced to.
-        position = input.getPosition();
-        dataSource.close();
+      } catch (SimulatedIOException e) {
+        // Expected.
       }
     }
     assertEquals(expectedLength, input.getPosition());
     assertEquals(expectedValue, result);
-  }
-
-  private static DataSource buildDataSource(byte[] data) {
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
-    builder.appendReadData(data);
-    return builder.build();
-  }
-
-  private static DataSource buildFlakyDataSource(byte[] data) {
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
-    builder.appendReadError(new IOException("A"));
-    builder.appendReadData(new byte[] {data[0]});
-    if (data.length > 1) {
-      builder.appendReadError(new IOException("B"));
-      builder.appendReadData(new byte[] {data[1]});
-    }
-    if (data.length > 2) {
-      builder.appendReadError(new IOException("C"));
-      builder.appendReadData(Arrays.copyOfRange(data, 2, data.length));
-    }
-    return builder.build();
   }
 
 }

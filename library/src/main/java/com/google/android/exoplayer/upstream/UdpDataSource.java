@@ -23,6 +23,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 
 /**
  * A UDP {@link DataSource}.
@@ -49,8 +50,14 @@ public final class UdpDataSource implements UriDataSource {
    */
   public static final int DEFAULT_MAX_PACKET_SIZE = 2000;
 
+  /**
+   * The default socket timeout, in milliseconds.
+   */
+  public static final int DEAFULT_SOCKET_TIMEOUT_MILLIS = 8 * 1000;
+
   private final TransferListener listener;
   private final DatagramPacket packet;
+  private final int socketTimeoutMillis;
 
   private DataSpec dataSpec;
   private DatagramSocket socket;
@@ -74,7 +81,18 @@ public final class UdpDataSource implements UriDataSource {
    * @param maxPacketSize The maximum datagram packet size, in bytes.
    */
   public UdpDataSource(TransferListener listener, int maxPacketSize) {
+    this(listener, maxPacketSize, DEAFULT_SOCKET_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * @param listener An optional listener.
+   * @param maxPacketSize The maximum datagram packet size, in bytes.
+   * @param socketTimeoutMillis The socket timeout in milliseconds. A timeout of zero is interpreted
+   *     as an infinite timeout.
+   */
+  public UdpDataSource(TransferListener listener, int maxPacketSize, int socketTimeoutMillis) {
     this.listener = listener;
+    this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
   }
@@ -82,9 +100,8 @@ public final class UdpDataSource implements UriDataSource {
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
     this.dataSpec = dataSpec;
-    String uri = dataSpec.uri.toString();
-    String host = uri.substring(0, uri.indexOf(':'));
-    int port = Integer.parseInt(uri.substring(uri.indexOf(':') + 1));
+    String host = dataSpec.uri.getHost();
+    int port = dataSpec.uri.getPort();
 
     try {
       address = InetAddress.getByName(host);
@@ -97,6 +114,12 @@ public final class UdpDataSource implements UriDataSource {
         socket = new DatagramSocket(socketAddress);
       }
     } catch (IOException e) {
+      throw new UdpDataSourceException(e);
+    }
+
+    try {
+      socket.setSoTimeout(socketTimeoutMillis);
+    } catch (SocketException e) {
       throw new UdpDataSourceException(e);
     }
 

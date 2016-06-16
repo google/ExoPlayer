@@ -32,7 +32,7 @@ import java.io.IOException;
  * <p>
  * The wrapper allows switching of the {@link SingleTrackOutput} that receives parsed data.
  */
-public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput {
+public class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput {
 
   /**
    * Receives stream level data extracted by the wrapped {@link Extractor}.

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.playbacktests.util;
 
-import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -30,12 +29,23 @@ public final class LogcatMetricsLogger implements MetricsLogger {
   }
 
   @Override
-  public void logMetrics(Bundle metrics) {
-    if (metrics != null) {
-      for (String key : metrics.keySet()) {
-        Log.v(tag, key + ": " + metrics.get(key).toString());
-      }
-    }
+  public void logMetric(String key, int value) {
+    Log.d(tag, key + ": " + value);
+  }
+
+  @Override
+  public void logMetric(String key, double value) {
+    Log.d(tag, key + ": " + value);
+  }
+
+  @Override
+  public void logMetric(String key, String value) {
+    Log.d(tag, key + ": " + value);
+  }
+
+  @Override
+  public void close() {
+    // Do nothing.
   }
 
 }

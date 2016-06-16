@@ -24,6 +24,7 @@ import com.google.android.exoplayer.util.Predicate;
 
 import okhttp3.CacheControl;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -158,7 +159,7 @@ public class OkHttpDataSource implements HttpDataSource {
       responseByteStream = response.body().byteStream();
     } catch (IOException e) {
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
-          dataSpec);
+          dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
     int responseCode = response.code();
@@ -171,7 +172,8 @@ public class OkHttpDataSource implements HttpDataSource {
     }
 
     // Check for a valid content type.
-    String contentType = response.body().contentType().toString();
+    MediaType mediaType = response.body().contentType();
+    String contentType = mediaType != null ? mediaType.toString() : null;
     if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
@@ -202,7 +204,7 @@ public class OkHttpDataSource implements HttpDataSource {
       skipInternal();
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
-      throw new HttpDataSourceException(e, dataSpec);
+      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_READ);
     }
   }
 

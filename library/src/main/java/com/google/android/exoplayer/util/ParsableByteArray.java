@@ -194,6 +194,13 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFF);
   }
 
+  /** Reads the next three bytes as a signed value in little endian order. */
+  public int readLittleEndianInt24() {
+    return (data[position++] & 0xFF)
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF) << 16;
+  }
+
   /**  Reads the next three bytes as an unsigned value in little endian order. */
   public int readLittleEndianUnsignedInt24() {
     return (data[position++] & 0xFF)
@@ -295,6 +302,20 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Reads the next four bytes as a little endian unsigned integer into an integer, if the top bit
+   * is a zero.
+   *
+   * @throws IllegalStateException Thrown if the top bit of the input data is set.
+   */
+  public int readLittleEndianUnsignedIntToInt() {
+    int result = readLittleEndianInt();
+    if (result < 0) {
+      throw new IllegalStateException("Top bit not zero: " + result);
+    }
+    return result;
+  }
+
+  /**
    * Reads the next eight bytes as an unsigned long into a long, if the top bit is a zero.
    *
    * @throws IllegalStateException Thrown if the top bit of the input data is set.
@@ -305,6 +326,11 @@ public final class ParsableByteArray {
       throw new IllegalStateException("Top bit not zero: " + result);
     }
     return result;
+  }
+
+  /** Reads the next eight bytes as a 64-bit floating point value. */
+  public double readDouble() {
+    return Double.longBitsToDouble(readLong());
   }
 
   /**
@@ -368,6 +394,63 @@ public final class ParsableByteArray {
       position++;
     }
     return line;
+  }
+
+  /**
+   * Reads a null-terminated string using the default character set.
+   * @return A String, not including any null characters, or null if the end of the stream has
+   *     been reached.
+   */
+  public String readNullTerminatedString() {
+    if (bytesLeft() == 0) {
+      return null;
+    }
+    int stringLimit = position;
+    while (stringLimit < limit && data[stringLimit] != 0) {
+      stringLimit++;
+    }
+    final int length = stringLimit - position;
+    String result = new String(data, position, length, Charset.defaultCharset());
+    position = stringLimit;
+    if (position == limit) {
+      return result;
+    }
+    position++;
+    return result;
+  }
+
+  /**
+   * Reads a long value encoded by UTF-8 encoding
+   * @throws NumberFormatException if there is a problem with decoding
+   * @return Decoded long value
+   */
+  public long readUTF8EncodedLong() {
+    int length = 0;
+    long value = data[position];
+    // find the high most 0 bit
+    for (int j = 7; j >= 0; j--) {
+      if ((value & (1 << j)) == 0) {
+        if (j < 6) {
+          value &= (1 << j) - 1;
+          length = 7 - j;
+        } else if (j == 7) {
+          length = 1;
+        }
+        break;
+      }
+    }
+    if (length == 0) {
+      throw new NumberFormatException("Invalid UTF-8 sequence first byte: " + value);
+    }
+    for (int i = 1; i < length; i++) {
+      int x = data[position + i];
+      if ((x & 0xC0) != 0x80) { // if the high most 0 bit not 7th
+        throw new NumberFormatException("Invalid UTF-8 sequence continuation byte: " + value);
+      }
+      value = (value << 6) | (x & 0x3F);
+    }
+    position += length;
+    return value;
   }
 
 }

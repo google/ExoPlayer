@@ -66,6 +66,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   private int captionRowCount;
   private String caption;
   private String lastRenderedCaption;
+  private ClosedCaptionCtrl repeatableControl;
 
   /**
    * @param source A source from which samples containing EIA-608 closed captions can be read.
@@ -102,6 +103,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   @Override
   protected void onDiscontinuity(long positionUs) {
     inputStreamEnded = false;
+    repeatableControl = null;
     pendingCaptionLists.clear();
     clearPendingSample();
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
@@ -206,10 +208,20 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
       return;
     }
 
+    boolean isRepeatableControl = false;
     for (int i = 0; i < captionBufferSize; i++) {
       ClosedCaption caption = captionList.captions[i];
       if (caption.type == ClosedCaption.TYPE_CTRL) {
         ClosedCaptionCtrl captionCtrl = (ClosedCaptionCtrl) caption;
+        isRepeatableControl = captionBufferSize == 1 && captionCtrl.isRepeatable();
+        if (isRepeatableControl && repeatableControl != null
+            && repeatableControl.cc1 == captionCtrl.cc1
+            && repeatableControl.cc2 == captionCtrl.cc2) {
+          repeatableControl = null;
+          continue;
+        } else if (isRepeatableControl) {
+          repeatableControl = captionCtrl;
+        }
         if (captionCtrl.isMiscCode()) {
           handleMiscCode(captionCtrl);
         } else if (captionCtrl.isPreambleAddressCode()) {
@@ -220,6 +232,9 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
       }
     }
 
+    if (!isRepeatableControl) {
+      repeatableControl = null;
+    }
     if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
       caption = getDisplayCaption();
     }

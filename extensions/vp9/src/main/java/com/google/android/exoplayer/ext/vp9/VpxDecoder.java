@@ -15,14 +15,26 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.util.extensions.Buffer;
+import com.google.android.exoplayer.util.extensions.SimpleDecoder;
+
 import java.nio.ByteBuffer;
 
 /**
- * JNI Wrapper for the libvpx VP9 decoder.
+ * JNI wrapper for the libvpx VP9 decoder.
  */
-/* package */ class VpxDecoder {
+/* package */ final class VpxDecoder extends
+    SimpleDecoder<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
-  private static final boolean IS_AVAILABLE;
+  public static final int OUTPUT_MODE_UNKNOWN = -1;
+  public static final int OUTPUT_MODE_YUV = 0;
+  public static final int OUTPUT_MODE_RGB = 1;
+
+  /**
+   * Whether the underlying libvpx library is available.
+   */
+  public static final boolean IS_AVAILABLE;
   static {
     boolean isAvailable;
     try {
@@ -35,59 +47,79 @@ import java.nio.ByteBuffer;
     IS_AVAILABLE = isAvailable;
   }
 
-  public static final int OUTPUT_MODE_UNKNOWN = -1;
-  public static final int OUTPUT_MODE_YUV = 0;
-  public static final int OUTPUT_MODE_RGB = 1;
-
-  private final long vpxDecContext;
-
-  /**
-   * Creates the VP9 Decoder.
-   *
-   * @throws VpxDecoderException if the decoder fails to initialize.
-   */
-  public VpxDecoder() throws VpxDecoderException {
-    vpxDecContext = vpxInit();
-    if (vpxDecContext == 0) {
-      throw new VpxDecoderException("Failed to initialize decoder");
-    }
-  }
-
-  /**
-   * Decodes a vp9 encoded frame and converts it to RGB565.
-   *
-   * @param encoded The encoded buffer.
-   * @param size Size of the encoded buffer.
-   * @param outputBuffer The buffer into which the decoded frame should be written.
-   * @return 0 on success with a frame to render. 1 on success without a frame to render.
-   * @throws VpxDecoderException on decode failure.
-   */
-  public int decode(ByteBuffer encoded, int size, VpxOutputBuffer outputBuffer)
-      throws VpxDecoderException {
-    if (vpxDecode(vpxDecContext, encoded, size) != 0) {
-      throw new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
-    }
-    return vpxGetFrame(vpxDecContext, outputBuffer);
-  }
-
-  /**
-   * Destroys the decoder.
-   */
-  public void close() {
-    vpxClose(vpxDecContext);
-  }
-
-  /**
-   * Returns whether the underlying libvpx library is available.
-   */
-  public static boolean isLibvpxAvailable() {
-    return IS_AVAILABLE;
-  }
-
   /**
    * Returns the version string of the underlying libvpx decoder.
    */
   public static native String getLibvpxVersion();
+
+  private final long vpxDecContext;
+
+  private volatile int outputMode;
+
+  /**
+   * Creates a VP9 decoder.
+   *
+   * @param numInputBuffers The number of input buffers.
+   * @param numOutputBuffers The number of output buffers.
+   * @param initialInputBufferSize The initial size of each input buffer.
+   * @throws VpxDecoderException Thrown if an exception occurs when initializing the decoder.
+   */
+  public VpxDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize)
+      throws VpxDecoderException {
+    super(new VpxInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
+    vpxDecContext = vpxInit();
+    if (vpxDecContext == 0) {
+      throw new VpxDecoderException("Failed to initialize decoder");
+    }
+    setInitialInputBufferSize(initialInputBufferSize);
+  }
+
+  /**
+   * Sets the output mode for frames rendered by the decoder.
+   *
+   * @param outputMode The output mode to use, which must be one of the {@code OUTPUT_MODE_*}
+   *     constants in {@link VpxDecoder}.
+   */
+  public void setOutputMode(int outputMode) {
+    this.outputMode = outputMode;
+  }
+
+  @Override
+  protected VpxInputBuffer createInputBuffer() {
+    return new VpxInputBuffer();
+  }
+
+  @Override
+  protected VpxOutputBuffer createOutputBuffer() {
+    return new VpxOutputBuffer(this);
+  }
+
+  @Override
+  protected void releaseOutputBuffer(VpxOutputBuffer buffer) {
+    super.releaseOutputBuffer(buffer);
+  }
+
+  @Override
+  protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
+      boolean reset) {
+    SampleHolder sampleHolder = inputBuffer.sampleHolder;
+    outputBuffer.timestampUs = sampleHolder.timeUs;
+    sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
+    if (vpxDecode(vpxDecContext, sampleHolder.data, sampleHolder.size) != 0) {
+      return new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
+    }
+    outputBuffer.mode = outputMode;
+    if (vpxGetFrame(vpxDecContext, outputBuffer) != 0) {
+      outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+    }
+    return null;
+  }
+
+  @Override
+  public void release() {
+    super.release();
+    vpxClose(vpxDecContext);
+  }
 
   private native long vpxInit();
   private native long vpxClose(long context);

@@ -48,36 +48,35 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public interface HostedTest {
 
     /**
-     * Called once the activity has been resumed and its surface has been created.
+     * Called on the main thread when the test is started.
      * <p>
-     * Called on the main thread.
+     * The test will not be started until the {@link HostActivity} has been resumed and its
+     * {@link Surface} has been created.
      *
-     * @param host The host in which the test is being run.
-     * @param surface The created surface.
+     * @param host The {@link HostActivity} in which the test is being run.
+     * @param surface The {@link Surface}.
      */
-    void initialize(HostActivity host, Surface surface);
+    void onStart(HostActivity host, Surface surface);
 
     /**
-     * Called when the test has finished, or if the activity is paused or its surface is destroyed.
+     * Called on the main thread when the test is stopped.
      * <p>
-     * Called on the main thread.
+     * The test will be stopped if it has finished, if the {@link HostActivity} has been paused, or
+     * if the {@link HostActivity}'s {@link Surface} has been destroyed.
      */
-    void release();
+    void onStop();
 
     /**
-     * Called periodically to check whether the test has finished.
-     * <p>
-     * Called on the main thread.
+     * Called on the main thread to check whether the test has finished.
      *
      * @return True if the test has finished. False otherwise.
      */
     boolean isFinished();
 
     /**
-     * Called after the test is finished and has been released. Implementations may use this method
-     * to assert that test criteria were met.
+     * Called on the main thread after the test has finished and been stopped.
      * <p>
-     * Called on the test thread.
+     * Implementations may use this method to assert that test criteria were met.
      */
     void onFinished();
 
@@ -87,20 +86,17 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
   private WakeLock wakeLock;
   private WifiLock wifiLock;
-
   private SurfaceView surfaceView;
   private Handler mainHandler;
   private CheckFinishedRunnable checkFinishedRunnable;
 
   private HostedTest hostedTest;
-  private ConditionVariable hostedTestReleasedCondition;
-  private boolean hostedTestInitialized;
+  private ConditionVariable hostedTestStoppedCondition;
+  private boolean hostedTestStarted;
   private boolean hostedTestFinished;
 
   /**
    * Executes a {@link HostedTest} inside the host.
-   * <p>
-   * Must only be called once on each instance. Must be called from the test thread.
    *
    * @param hostedTest The test to execute.
    * @param timeoutMs The number of milliseconds to wait for the test to finish. If the timeout
@@ -109,27 +105,35 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void runTest(final HostedTest hostedTest, long timeoutMs) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
+
+    Assertions.checkState(this.hostedTest == null);
+    this.hostedTest = Assertions.checkNotNull(hostedTest);
+    hostedTestStoppedCondition = new ConditionVariable();
+    hostedTestStarted = false;
+    hostedTestFinished = false;
+
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Assertions.checkState(HostActivity.this.hostedTest == null);
-        HostActivity.this.hostedTest = Assertions.checkNotNull(hostedTest);
-        maybeInitializeHostedTest();
+        maybeStartHostedTest();
       }
     });
-    if (hostedTestReleasedCondition.block(timeoutMs)) {
+
+    if (hostedTestStoppedCondition.block(timeoutMs)) {
       if (hostedTestFinished) {
         Log.d(TAG, "Test finished. Checking pass conditions.");
         hostedTest.onFinished();
         Log.d(TAG, "Pass conditions checked.");
       } else {
-        Log.e(TAG, "Test released before it finished. Activity may have been paused whilst test "
-            + "was in progress.");
-        fail();
+        String message = "Test released before it finished. Activity may have been paused whilst "
+            + "test was in progress.";
+        Log.e(TAG, message);
+        fail(message);
       }
     } else {
-      Log.e(TAG, "Test timed out after " + timeoutMs + " ms.");
-      fail();
+      String message = "Test timed out after " + timeoutMs + " ms.";
+      Log.e(TAG, message);
+      fail(message);
     }
   }
 
@@ -143,7 +147,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     mainHandler = new Handler();
-    hostedTestReleasedCondition = new ConditionVariable();
     checkFinishedRunnable = new CheckFinishedRunnable();
   }
 
@@ -162,13 +165,13 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   @Override
   public void onResume() {
     super.onResume();
-    maybeInitializeHostedTest();
+    maybeStartHostedTest();
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    maybeReleaseHostedTest();
+    maybeStopHostedTest();
   }
 
   @Override
@@ -184,12 +187,12 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
   @Override
   public void surfaceCreated(SurfaceHolder holder) {
-    maybeInitializeHostedTest();
+    maybeStartHostedTest();
   }
 
   @Override
   public void surfaceDestroyed(SurfaceHolder holder) {
-    maybeReleaseHostedTest();
+    maybeStopHostedTest();
   }
 
   @Override
@@ -199,25 +202,25 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
   // Internal logic
 
-  private void maybeInitializeHostedTest() {
-    if (hostedTest == null || hostedTestInitialized) {
+  private void maybeStartHostedTest() {
+    if (hostedTest == null || hostedTestStarted) {
       return;
     }
     Surface surface = surfaceView.getHolder().getSurface();
     if (surface != null && surface.isValid()) {
-      hostedTestInitialized = true;
-      Log.d(TAG, "Initializing test.");
-      hostedTest.initialize(this, surface);
+      hostedTestStarted = true;
+      Log.d(TAG, "Starting test.");
+      hostedTest.onStart(this, surface);
       checkFinishedRunnable.startChecking();
     }
   }
 
-  private void maybeReleaseHostedTest() {
-    if (hostedTest != null && hostedTestInitialized) {
-      hostedTest.release();
+  private void maybeStopHostedTest() {
+    if (hostedTest != null && hostedTestStarted) {
+      hostedTest.onStop();
       hostedTest = null;
       mainHandler.removeCallbacks(checkFinishedRunnable);
-      hostedTestReleasedCondition.open();
+      hostedTestStoppedCondition.open();
     }
   }
 
@@ -238,7 +241,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     public void run() {
       if (hostedTest.isFinished()) {
         hostedTestFinished = true;
-        finish();
+        maybeStopHostedTest();
       } else {
         mainHandler.postDelayed(this, CHECK_INTERVAL_MS);
       }

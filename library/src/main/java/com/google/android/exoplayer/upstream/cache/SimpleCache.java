@@ -55,7 +55,7 @@ public final class SimpleCache implements Cache {
     this.listeners = new HashMap<>();
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
-    new Thread() {
+    new Thread("SimpleCache.initialize()") {
       @Override
       public void run() {
         synchronized (SimpleCache.this) {
@@ -245,6 +245,7 @@ public final class SimpleCache implements Cache {
       if (file.length() == 0) {
         file.delete();
       } else {
+        file = CacheSpan.upgradeIfNeeded(file);
         CacheSpan span = CacheSpan.createCacheEntry(file);
         if (span == null) {
           file.delete();
@@ -253,6 +254,7 @@ public final class SimpleCache implements Cache {
         }
       }
     }
+    evictor.onCacheInitialized();
   }
 
   /**

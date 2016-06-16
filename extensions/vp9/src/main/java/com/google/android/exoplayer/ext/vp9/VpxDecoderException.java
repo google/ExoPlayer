@@ -20,7 +20,7 @@ package com.google.android.exoplayer.ext.vp9;
  */
 public class VpxDecoderException extends Exception {
 
-    public VpxDecoderException(String message) {
+    /* package */ VpxDecoderException(String message) {
       super(message);
     }
 

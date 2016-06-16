@@ -94,14 +94,12 @@ public final class VideoFormatSelectorUtil {
       int viewportWidth, int viewportHeight) throws DecoderQueryException {
     int maxVideoPixelsToRetain = Integer.MAX_VALUE;
     ArrayList<Integer> selectedIndexList = new ArrayList<>();
-    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
 
     // First pass to filter out formats that individually fail to meet the selection criteria.
     int formatWrapperCount = formatWrappers.size();
     for (int i = 0; i < formatWrapperCount; i++) {
       Format format = formatWrappers.get(i).getFormat();
-      if (isFormatPlayable(format, allowedContainerMimeTypes, filterHdFormats,
-          maxDecodableFrameSize)) {
+      if (isFormatPlayable(format, allowedContainerMimeTypes, filterHdFormats)) {
         // Select the format for now. It may still be filtered in the second pass below.
         selectedIndexList.add(i);
         // Keep track of the number of pixels of the selected format whose resolution is the
@@ -141,7 +139,7 @@ public final class VideoFormatSelectorUtil {
    * whether HD formats should be filtered and a maximum decodable frame size in pixels.
    */
   private static boolean isFormatPlayable(Format format, String[] allowedContainerMimeTypes,
-      boolean filterHdFormats, int maxDecodableFrameSize) throws DecoderQueryException {
+      boolean filterHdFormats) throws DecoderQueryException {
     if (allowedContainerMimeTypes != null
         && !Util.contains(allowedContainerMimeTypes, format.mimeType)) {
       // Filtering format based on its container mime type.
@@ -152,8 +150,12 @@ public final class VideoFormatSelectorUtil {
       return false;
     }
     if (format.width > 0 && format.height > 0) {
-      String videoMediaMimeType = MimeTypes.getVideoMediaMimeType(format.codecs);
-      if (Util.SDK_INT >= 21 && !MimeTypes.VIDEO_UNKNOWN.equals(videoMediaMimeType)) {
+      if (Util.SDK_INT >= 21) {
+        String videoMediaMimeType = MimeTypes.getVideoMediaMimeType(format.codecs);
+        if (MimeTypes.VIDEO_UNKNOWN.equals(videoMediaMimeType)) {
+          // Assume the video is H.264.
+          videoMediaMimeType = MimeTypes.VIDEO_H264;
+        }
         if (format.frameRate > 0) {
           return MediaCodecUtil.isSizeAndRateSupportedV21(videoMediaMimeType, false, format.width,
               format.height, format.frameRate);
@@ -162,9 +164,9 @@ public final class VideoFormatSelectorUtil {
               format.height);
         }
       }
-      //Assuming that the media is H.264
-      if (format.width * format.height > maxDecodableFrameSize) {
-        // Filtering stream that device cannot play
+      // Assume the video is H.264.
+      if (format.width * format.height > MediaCodecUtil.maxH264DecodableFrameSize()) {
+        // Filtering format because it exceeds the maximum decodable frame size.
         return false;
       }
     }

@@ -52,6 +52,8 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
+  protected final DefaultTrackOutput sampleQueue;
+
   private static final int STATE_IDLE = 0;
   private static final int STATE_INITIALIZED = 1;
   private static final int STATE_PREPARED = 2;
@@ -65,7 +67,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private final ChunkOperationHolder currentLoadableHolder;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
-  private final DefaultTrackOutput sampleQueue;
   private final int bufferSizeContribution;
   private final Handler eventHandler;
   private final EventListener eventListener;
@@ -249,11 +250,11 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
       currentChunk = mediaChunks.getFirst();
     }
 
-    if (downstreamFormat == null || !downstreamFormat.equals(currentChunk.format)) {
-      notifyDownstreamFormatChanged(currentChunk.format, currentChunk.trigger,
-          currentChunk.startTimeUs);
-      downstreamFormat = currentChunk.format;
+    Format format = currentChunk.format;
+    if (!format.equals(downstreamFormat)) {
+      notifyDownstreamFormatChanged(format, currentChunk.trigger, currentChunk.startTimeUs);
     }
+    downstreamFormat = format;
 
     if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
@@ -263,6 +264,11 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
         downstreamMediaFormat = mediaFormat;
         return FORMAT_READ;
       }
+      // If mediaFormat and downstreamMediaFormat are equal but different objects then the equality
+      // check above will have been expensive, comparing the fields in each format. We update
+      // downstreamMediaFormat here so that referential equality can be cheaply established during
+      // subsequent calls.
+      downstreamMediaFormat = mediaFormat;
     }
 
     if (!haveSamples) {
@@ -581,6 +587,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     while (mediaChunks.size() > queueLength) {
       removed = mediaChunks.removeLast();
       startTimeUs = removed.startTimeUs;
+      loadingFinished = false;
     }
     sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
 

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.util;
 
 import junit.framework.TestCase;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -122,6 +123,22 @@ public class NalUnitUtilTest extends TestCase {
     assertUnescapeMatchesExpected("0000030200000300", "000002000000");
   }
 
+  public void testDiscardToSps() {
+    assertDiscardToSpsMatchesExpected("", "");
+    assertDiscardToSpsMatchesExpected("00", "");
+    assertDiscardToSpsMatchesExpected("FFFF000001", "");
+    assertDiscardToSpsMatchesExpected("00000001", "");
+    assertDiscardToSpsMatchesExpected("00000001FF67", "");
+    assertDiscardToSpsMatchesExpected("00000001000167", "");
+    assertDiscardToSpsMatchesExpected("0000000167", "0000000167");
+    assertDiscardToSpsMatchesExpected("0000000167FF", "0000000167FF");
+    assertDiscardToSpsMatchesExpected("0000000167FF", "0000000167FF");
+    assertDiscardToSpsMatchesExpected("0000000167FF000000016700", "0000000167FF000000016700");
+    assertDiscardToSpsMatchesExpected("000000000167FF", "0000000167FF");
+    assertDiscardToSpsMatchesExpected("0001670000000167FF", "0000000167FF");
+    assertDiscardToSpsMatchesExpected("FF00000001660000000167FF", "0000000167FF");
+  }
+
   private static byte[] buildTestData() {
     byte[] data = new byte[20];
     for (int i = 0; i < data.length; i++) {
@@ -147,8 +164,8 @@ public class NalUnitUtilTest extends TestCase {
   }
 
   private static void assertUnescapeMatchesExpected(String input, String expectedOutput) {
-    byte[] bitstream = getByteArrayForHexString(input);
-    byte[] expectedOutputBitstream = getByteArrayForHexString(expectedOutput);
+    byte[] bitstream = Util.getBytesFromHexString(input);
+    byte[] expectedOutputBitstream = Util.getBytesFromHexString(expectedOutput);
     int count = NalUnitUtil.unescapeStream(bitstream, bitstream.length);
     assertEquals(expectedOutputBitstream.length, count);
     byte[] outputBitstream = new byte[count];
@@ -156,15 +173,14 @@ public class NalUnitUtilTest extends TestCase {
     assertTrue(Arrays.equals(expectedOutputBitstream, outputBitstream));
   }
 
-  private static byte[] getByteArrayForHexString(String hexString) {
-    int length = hexString.length();
-    Assertions.checkArgument(length % 2 == 0);
-    byte[] result = new byte[length / 2];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = (byte) ((Character.digit(hexString.charAt(i * 2), 16) << 4)
-          + Character.digit(hexString.charAt(i * 2 + 1), 16));
-    }
-    return result;
+  private static void assertDiscardToSpsMatchesExpected(String input, String expectedOutput) {
+    byte[] bitstream = Util.getBytesFromHexString(input);
+    byte[] expectedOutputBitstream = Util.getBytesFromHexString(expectedOutput);
+    ByteBuffer buffer = ByteBuffer.wrap(bitstream);
+    buffer.position(buffer.limit());
+    NalUnitUtil.discardToSps(buffer);
+    assertTrue(Arrays.equals(expectedOutputBitstream,
+        Arrays.copyOf(buffer.array(), buffer.position())));
   }
 
 }

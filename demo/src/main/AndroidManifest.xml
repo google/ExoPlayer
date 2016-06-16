@@ -16,8 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.demo"
-    android:versionCode="1503"
-    android:versionName="1.5.4"
+    android:versionCode="1509"
+    android:versionName="1.5.9"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -41,8 +41,8 @@
     </activity>
 
     <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-        android:launchMode="singleInstance"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+        android:launchMode="singleTop"
         android:label="@string/application_name"
         android:theme="@style/PlayerTheme">
       <intent-filter>

@@ -84,8 +84,10 @@ import java.io.IOException;
       return C.RESULT_MAX_LENGTH_EXCEEDED;
     }
 
-    // Read the remaining bytes.
-    input.readFully(scratch, 1, length - 1);
+    if (length != 1) {
+      // Read the remaining bytes.
+      input.readFully(scratch, 1, length - 1);
+    }
 
     state = STATE_BEGIN_READING;
     return assembleVarint(scratch, length, removeLengthMask);

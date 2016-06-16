@@ -240,8 +240,22 @@ import java.util.Locale;
         + "sparams=ip,ipbits,expire,source,id&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="
         + "513F28C7FDCBEC60A66C86C9A393556C99DC47FB.04C88036EEE12565A1ED864A875A58F15D8B5300"
         + "&key=ik0", Util.TYPE_OTHER),
+    new Sample("Screens 360P (WebM,VP9,No Audio)",
+        "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segmen"
+        + "t/video-vp9-360.webm", Util.TYPE_OTHER),
+    new Sample("Screens 480p (FMP4,H264,No Audio)",
+        "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segmen"
+        + "t/video-avc-baseline-480.mp4", Util.TYPE_OTHER),
+    new Sample("Screens 1080p (FMP4,H264, No Audio)",
+        "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segmen"
+        + "t/video-137.mp4", Util.TYPE_OTHER),
+    new Sample("Screens (FMP4,AAC Audio)",
+        "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segmen"
+        + "t/audio-141.mp4", Util.TYPE_OTHER),
     new Sample("Google Play (MP3 Audio)",
         "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3", Util.TYPE_OTHER),
+    new Sample("Google Play (Ogg/Vorbis Audio)",
+        "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg", Util.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", Util.TYPE_OTHER),
     new Sample("Big Buck Bunny (FLV Video)",
