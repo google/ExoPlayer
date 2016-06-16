@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.extractor.ts;
 
+import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.DummyTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
@@ -26,10 +30,7 @@ import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
-
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -123,6 +124,31 @@ public final class TsExtractor implements Extractor {
     }
   }
 
+  /**
+   * Skip to the next TS_SYNC_BYTE in given ExtractorInput
+   * @param input - the ExtractorInput instance
+   * @return RESULT_END_OF_INPUT in case of EOFException and RESULT_CONTINUE otherwise
+   * @throws IOException
+   * @throws InterruptedException
+   */
+  private int skipUntilSyncByte(ExtractorInput input) throws IOException, InterruptedException {
+    byte[] buffer = new byte[TS_PACKET_SIZE];
+    try {
+      input.peekFully(buffer, 0, TS_PACKET_SIZE);
+    } catch (EOFException e) {
+      return RESULT_END_OF_INPUT;
+    }
+
+    for (int i = 0; i < TS_PACKET_SIZE; i++) {
+      if (buffer[i] == TS_SYNC_BYTE) {
+        input.skipFully(i);
+        return RESULT_CONTINUE;
+      }
+    }
+    input.skipFully(TS_PACKET_SIZE);
+    return RESULT_CONTINUE;
+  }
+
   @Override
   public void release() {
     // Do nothing
@@ -141,7 +167,7 @@ public final class TsExtractor implements Extractor {
     tsPacketBuffer.setLimit(TS_PACKET_SIZE);
     int syncByte = tsPacketBuffer.readUnsignedByte();
     if (syncByte != TS_SYNC_BYTE) {
-      return RESULT_CONTINUE;
+      return skipUntilSyncByte(input);
     }
 
     tsPacketBuffer.readBytes(tsScratch, 3);
@@ -157,6 +183,12 @@ public final class TsExtractor implements Extractor {
     // Skip the adaptation field.
     if (adaptationFieldExists) {
       int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
+      // adaptationFieldLength shall be 0..182 if payload is present and 183 if it's missing
+      if (payloadExists && adaptationFieldLength > 182 ||
+              !payloadExists && adaptationFieldLength != 183) {
+        // Consider the packet broken
+        return RESULT_CONTINUE;
+      }
       tsPacketBuffer.skipBytes(adaptationFieldLength);
     }
 
