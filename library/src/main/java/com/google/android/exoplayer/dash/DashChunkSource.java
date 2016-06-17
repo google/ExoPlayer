@@ -1018,11 +1018,18 @@ public class DashChunkSource implements ChunkSource, Output {
       List<Representation> representations = period.adaptationSets
           .get(selectedTrack.adaptationSetIndex).representations;
 
-      for (int j = 0; j < representationIndices.length; j++) {
-        Representation representation = representations.get(representationIndices[j]);
-        representationHolders.get(representation.format.id).updateRepresentation(periodDurationUs,
-            representation);
+      for (Representation representation : representations) {
+        String id = representation.format.id;
+        RepresentationHolder holder = representationHolders.get(id);
+        if (holder == null) {
+          // Don't assume the representations in this period are the same as
+          // in the first requested period (handle gracefully). See class comment above.
+          Log.w(TAG, "Unexpected representation, ignoring: " + id);
+          continue;
+        }
+        holder.updateRepresentation(periodDurationUs, representation);
       }
+
       updateRepresentationIndependentProperties(periodDurationUs,
           representations.get(representationIndices[0]));
     }
