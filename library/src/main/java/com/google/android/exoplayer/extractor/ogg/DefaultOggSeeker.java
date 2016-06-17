@@ -324,7 +324,6 @@ import java.io.IOException;
   //@VisibleForTesting
   long skipToPageOfGranule(ExtractorInput input, long targetGranule, long currentGranule)
       throws IOException, InterruptedException {
-    skipToNextPage(input);
     pageHeader.populate(input, false);
     while (pageHeader.granulePosition < targetGranule) {
       input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
