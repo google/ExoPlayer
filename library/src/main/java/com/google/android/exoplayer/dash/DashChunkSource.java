@@ -1030,8 +1030,9 @@ public class DashChunkSource implements ChunkSource, Output {
         holder.updateRepresentation(periodDurationUs, representation);
       }
 
-      updateRepresentationIndependentProperties(periodDurationUs,
-          representations.get(representationIndices[0]));
+      if (representations.size() > 0) {
+        updateRepresentationIndependentProperties(periodDurationUs, representations.get(0));
+      }
     }
 
     public long getAvailableStartTimeUs() {
