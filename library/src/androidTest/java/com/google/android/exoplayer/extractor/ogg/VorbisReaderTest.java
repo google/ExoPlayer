@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ogg.VorbisReader.VorbisSetup;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
@@ -28,14 +29,6 @@ import java.io.IOException;
  * Unit test for {@link VorbisReader}.
  */
 public final class VorbisReaderTest extends TestCase {
-
-  private VorbisReader extractor;
-
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    extractor = new VorbisReader();
-  }
 
   public void testReadBits() throws Exception {
     assertEquals(0, VorbisReader.readBits((byte) 0x00, 2, 2));
@@ -57,7 +50,11 @@ public final class VorbisReaderTest extends TestCase {
 
   public void testReadSetupHeadersWithIOExceptions() throws IOException, InterruptedException {
     byte[] data = TestData.getVorbisHeaderPages();
-    VorbisReader.VorbisSetup vorbisSetup = readSetupHeaders(createInput(data));
+    ExtractorInput input = new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
+        .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
+
+    VorbisReader reader = new VorbisReader();
+    VorbisReader.VorbisSetup vorbisSetup = readSetupHeaders(reader, input);
 
     assertNotNull(vorbisSetup.idHeader);
     assertNotNull(vorbisSetup.commentHeader);
@@ -88,12 +85,7 @@ public final class VorbisReaderTest extends TestCase {
     assertTrue(vorbisSetup.modes[1].blockFlag);
   }
 
-  private static FakeExtractorInput createInput(byte[] data) {
-    return new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
-        .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
-  }
-
-  private VorbisSetup readSetupHeaders(FakeExtractorInput input)
+  private static VorbisSetup readSetupHeaders(VorbisReader reader, ExtractorInput input)
       throws IOException, InterruptedException {
     OggPacket oggPacket = new OggPacket();
     while (true) {
@@ -101,7 +93,7 @@ public final class VorbisReaderTest extends TestCase {
         if (!oggPacket.populate(input)) {
           fail();
         }
-        VorbisSetup vorbisSetup = extractor.readSetupHeaders(oggPacket.getPayload());
+        VorbisSetup vorbisSetup = reader.readSetupHeaders(oggPacket.getPayload());
         if (vorbisSetup != null) {
           return vorbisSetup;
         }

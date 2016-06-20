@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
-import com.google.android.exoplayer.util.ParsableBitArray;
+import com.google.android.exoplayer.testutil.TestUtil;
 
 import junit.framework.TestCase;
 
@@ -25,9 +25,7 @@ import junit.framework.TestCase;
 public final class VorbisBitArrayTest extends TestCase {
 
   public void testReadBit() {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0x5c, 0x50
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x5c, 0x50));
 
     assertFalse(bitArray.readBit());
     assertFalse(bitArray.readBit());
@@ -56,9 +54,7 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testSkipBits() {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xF0, 0x0F
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
 
     bitArray.skipBits(10);
     assertEquals(10, bitArray.getPosition());
@@ -79,9 +75,7 @@ public final class VorbisBitArrayTest extends TestCase {
 
 
   public void testSkipBitsThrowsErrorIfEOB() {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xF0, 0x0F
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
 
     try {
       bitArray.skipBits(17);
@@ -90,9 +84,7 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testGetPosition() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xF0, 0x0F
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
 
     assertEquals(0, bitArray.getPosition());
     bitArray.readBit();
@@ -104,9 +96,7 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testSetPosition() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xF0, 0x0F
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
 
     assertEquals(0, bitArray.getPosition());
     bitArray.setPosition(4);
@@ -121,9 +111,7 @@ public final class VorbisBitArrayTest extends TestCase {
 
   }
   public void testSetPositionIllegalPositions() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xF0, 0x0F
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
 
     try {
       bitArray.setPosition(16);
@@ -141,19 +129,14 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testReadInt32() {
-    byte[] data = {(byte) 0xF0, 0x0F, (byte) 0xF0, 0x0F};
-    VorbisBitArray lsb = new VorbisBitArray(data);
-    assertEquals(0x0FF00FF0, lsb.readBits(32));
-
-    data = new byte[]{0x0F, (byte) 0xF0, 0x0F, (byte) 0xF0};
-    lsb = new VorbisBitArray(data);
-    assertEquals(0xF00FF00F, lsb.readBits(32));
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F, 0xF0, 0x0F));
+    assertEquals(0x0FF00FF0, bitArray.readBits(32));
+    bitArray = new VorbisBitArray(TestUtil.createByteArray(0x0F, 0xF0, 0x0F, 0xF0));
+    assertEquals(0xF00FF00F, bitArray.readBits(32));
   }
 
   public void testReadBits() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-      (byte) 0x03, 0x22
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x03, 0x22));
 
     assertEquals(3, bitArray.readBits(2));
     bitArray.skipBits(6);
@@ -166,18 +149,14 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testRead4BitsBeyondBoundary() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        0x2e, 0x10
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x2e, 0x10));
     assertEquals(0x2e, bitArray.readBits(7));
     assertEquals(7, bitArray.getPosition());
     assertEquals(0x0, bitArray.readBits(4));
   }
 
   public void testReadBitsBeyondByteBoundaries() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xFF, (byte) 0x0F, (byte) 0xFF, (byte) 0x0F
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xFF, 0x0F, 0xFF, 0x0F));
 
     assertEquals(0x0FFF0FFF, bitArray.readBits(32));
 
@@ -202,9 +181,7 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testReadBitsIllegalLengths() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0x03, 0x22, 0x30
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x03, 0x22, 0x30));
 
     // reading zero bits gets 0 without advancing position
     // (like a zero-bit read is defined to yield zer0)
@@ -222,9 +199,7 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testLimit() {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xc0, 0x02
-    }, 1);
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xc0, 0x02), 1);
 
     try {
       bitArray.skipBits(9);
@@ -240,7 +215,8 @@ public final class VorbisBitArrayTest extends TestCase {
       assertEquals(0, bitArray.getPosition());
     }
 
-    bitArray.readBits(8);
+    int byteValue = bitArray.readBits(8);
+    assertEquals(0xc0, byteValue);
     assertEquals(8, bitArray.getPosition());
     try {
       bitArray.readBit();
@@ -251,9 +227,8 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
   public void testBitsLeft() {
-    VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
-        (byte) 0xc0, 0x02
-    });
+    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xc0, 0x02));
+
     assertEquals(16, bitArray.bitsLeft());
     assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
 
@@ -291,46 +266,6 @@ public final class VorbisBitArrayTest extends TestCase {
     } catch (IllegalStateException e) {
       assertEquals(0, bitArray.bitsLeft());
     }
-  }
-
-  public void testReadBitCompareWithMSb() {
-    byte[] data = {0x0F};
-    VorbisBitArray lsb = new VorbisBitArray(data);
-    ParsableBitArray msb = new ParsableBitArray(data);
-
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-    assertEquals(lsb.readBit(), !msb.readBit());
-  }
-
-  public void testReadBitsCompareWithMSb() {
-    byte[] data = {0x0F};
-    VorbisBitArray lsb = new VorbisBitArray(data);
-    ParsableBitArray msb = new ParsableBitArray(data);
-
-    assertEquals(15, lsb.readBits(4));
-    assertEquals(lsb.readBits(4), msb.readBits(4));
-    assertEquals(15, msb.readBits(4));
-  }
-
-  public void testReadBitsCompareWithMSbBeyondByteBoundary() {
-    byte[] data = {(byte) 0xF0, 0x0F};
-    VorbisBitArray lsb = new VorbisBitArray(data);
-    ParsableBitArray msb = new ParsableBitArray(data);
-
-    assertEquals(0x00, lsb.readBits(4));
-    assertEquals(0x0F, msb.readBits(4));
-
-    assertEquals(0xFF, lsb.readBits(8));
-    assertEquals(0x00, msb.readBits(8));
-
-    assertEquals(0x00, lsb.readBits(4));
-    assertEquals(0x0F, msb.readBits(4));
   }
 
 }

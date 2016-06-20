@@ -15,24 +15,42 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.testutil.TestUtil.ExtractorFactory;
 
-import junit.framework.TestCase;
+import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
 
 /**
  * Unit test for {@link OggExtractor}.
  */
-public final class OggExtractorTest extends TestCase {
+public final class OggExtractorTest extends InstrumentationTestCase {
 
-  private OggExtractor extractor;
+  private static final ExtractorFactory OGG_EXTRACTOR_FACTORY = new ExtractorFactory() {
+    @Override
+    public Extractor create() {
+      return new OggExtractor();
+    }
+  };
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    extractor = new OggExtractor();
+  public void testOpus() throws Exception {
+    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus", getInstrumentation());
+  }
+
+  public void testFlac() throws Exception {
+    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg", getInstrumentation());
+  }
+
+  public void testFlacNoSeektable() throws Exception {
+    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg",
+        getInstrumentation());
+  }
+
+  public void testVorbis() throws Exception {
+    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg", getInstrumentation());
   }
 
   public void testSniffVorbis() throws Exception {
@@ -80,7 +98,7 @@ public final class OggExtractorTest extends TestCase {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data)
         .setSimulateIOErrors(true).setSimulateUnknownLength(true).setSimulatePartialReads(true)
         .build();
-    return TestUtil.sniffTestData(extractor, input);
+    return TestUtil.sniffTestData(OGG_EXTRACTOR_FACTORY.create(), input);
   }
 
 }
