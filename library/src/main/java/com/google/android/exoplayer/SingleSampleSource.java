@@ -74,7 +74,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   private final EventListener eventListener;
   private final int eventSourceId;
 
-  private long pendingResetPositionUs;
   private boolean loadingFinished;
 
   private int streamState;
@@ -140,7 +139,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
     if (!newSelections.isEmpty()) {
       newStreams[0] = this;
       streamState = STREAM_STATE_SEND_FORMAT;
-      pendingResetPositionUs = C.UNSET_TIME_US;
       maybeStartLoading();
     }
     return newStreams;
@@ -157,11 +155,11 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   }
 
   @Override
-  public void seekToUs(long positionUs) {
+  public long seekToUs(long positionUs) {
     if (streamState == STREAM_STATE_END_OF_STREAM) {
-      pendingResetPositionUs = positionUs;
       streamState = STREAM_STATE_SEND_SAMPLE;
     }
+    return positionUs;
   }
 
   @Override
@@ -182,10 +180,8 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   }
 
   @Override
-  public long readReset() {
-    long resetPositionUs = pendingResetPositionUs;
-    pendingResetPositionUs = C.UNSET_TIME_US;
-    return resetPositionUs;
+  public long readDiscontinuity() {
+    return C.UNSET_TIME_US;
   }
 
   @Override

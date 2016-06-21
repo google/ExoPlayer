@@ -88,12 +88,15 @@ public interface SampleSource {
   void continueBuffering(long positionUs);
 
   /**
-   * Attempts to read a pending reset.
+   * Attempts to read a discontinuity.
+   * <p>
+   * After this method has returned a value other than {@link C#UNSET_TIME_US}, all
+   * {@link TrackStream}s provided by the source are guaranteed to start from a key frame.
    *
-   * @return If a reset was read then the playback position in microseconds after the reset. Else
-   *     {@link C#UNSET_TIME_US}.
+   * @return If a discontinuity was read then the playback position in microseconds after the
+   *     discontinuity. Else {@link C#UNSET_TIME_US}.
    */
-  long readReset();
+  long readDiscontinuity();
 
   /**
    * Returns an estimate of the position up to which data is buffered for the enabled tracks.
@@ -106,13 +109,17 @@ public interface SampleSource {
   long getBufferedPositionUs();
 
   /**
-   * Seeks to the specified position in microseconds.
+   * Attempts to seek to the specified position in microseconds.
+   * <p>
+   * After this method has been called, all {@link TrackStream}s provided by the source are
+   * guaranteed to start from a key frame.
    * <p>
    * This method should only be called when at least one track is selected.
    *
    * @param positionUs The seek position in microseconds.
+   * @return The actual position to which the source was seeked, in microseconds.
    */
-  void seekToUs(long positionUs);
+  long seekToUs(long positionUs);
 
   /**
    * Releases the source.

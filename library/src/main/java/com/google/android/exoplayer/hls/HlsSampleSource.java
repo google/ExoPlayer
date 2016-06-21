@@ -80,8 +80,6 @@ public final class HlsSampleSource implements SampleSource,
   private int[] selectedTrackCounts;
   private HlsTrackStreamWrapper[] trackStreamWrappers;
   private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
-  private boolean pendingReset;
-  private long lastSeekPositionUs;
 
   public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -192,14 +190,7 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public long readReset() {
-    if (pendingReset) {
-      pendingReset = false;
-      for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-        trackStreamWrapper.setReadingEnabled(true);
-      }
-      return lastSeekPositionUs;
-    }
+  public long readDiscontinuity() {
     return C.UNSET_TIME_US;
   }
 
@@ -216,16 +207,14 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public void seekToUs(long positionUs) {
+  public long seekToUs(long positionUs) {
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = isLive ? 0 : positionUs;
-    lastSeekPositionUs = positionUs;
-    pendingReset = true;
     timestampAdjusterProvider.reset();
     for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
-      trackStreamWrapper.setReadingEnabled(false);
       trackStreamWrapper.restartFrom(positionUs);
     }
+    return positionUs;
   }
 
   @Override

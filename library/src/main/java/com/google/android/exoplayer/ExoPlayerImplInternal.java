@@ -377,8 +377,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     TraceUtil.beginSection("doSomeWork");
 
     if (enabledRenderers.length > 0) {
-      // Process reset if there is one, else update the position.
-      if (!checkForSourceResetInternal()) {
+      // Process a source discontinuity if there is one, else update the position.
+      if (!checkForSourceDiscontinuityInternal()) {
         updatePositionUs();
         sampleSource = timeline.getSampleSource();
       }
@@ -442,21 +442,21 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private void seekToInternal(int sourceIndex, long positionMs) throws ExoPlaybackException {
+  private void seekToInternal(int sourceIndex, long seekPositionMs) throws ExoPlaybackException {
     try {
-      if (positionMs == (positionUs / 1000)) {
+      if (seekPositionMs == (positionUs / 1000)) {
         // Seek is to the current position. Do nothing.
         return;
       }
 
+      long seekPositionUs = seekPositionMs * 1000;
       rebuffering = false;
-      positionUs = positionMs * 1000;
-      internalPositionUs = sourceOffsetUs + positionUs;
       standaloneMediaClock.stop();
-      standaloneMediaClock.setPositionUs(internalPositionUs);
-      sampleSource = timeline.seekTo(sourceIndex, positionUs);
+
+      sampleSource = timeline.seekToSource(sourceIndex);
       if (sampleSource == null) {
         // The source isn't prepared.
+        setNewSourcePositionInternal(seekPositionUs);
         return;
       }
 
@@ -464,9 +464,10 @@ import java.util.concurrent.atomic.AtomicInteger;
         for (TrackRenderer renderer : enabledRenderers) {
           ensureStopped(renderer);
         }
-        checkForSourceResetInternal();
+        seekPositionUs = sampleSource.seekToUs(seekPositionUs);
       }
 
+      setNewSourcePositionInternal(seekPositionUs);
       resumeInternal();
     } finally {
       pendingSeekCount.decrementAndGet();
@@ -496,17 +497,22 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
-  private boolean checkForSourceResetInternal() throws ExoPlaybackException {
-    long resetPositionUs = sampleSource.readReset();
-    if (resetPositionUs == C.UNSET_TIME_US) {
+  private boolean checkForSourceDiscontinuityInternal() throws ExoPlaybackException {
+    long newSourcePositionUs = sampleSource.readDiscontinuity();
+    if (newSourcePositionUs == C.UNSET_TIME_US) {
       return false;
     }
-    internalPositionUs = sourceOffsetUs + resetPositionUs;
+    setNewSourcePositionInternal(newSourcePositionUs);
+    return true;
+  }
+
+  private void setNewSourcePositionInternal(long sourcePositionUs) throws ExoPlaybackException {
+    positionUs = sourcePositionUs;
+    internalPositionUs = sourceOffsetUs + sourcePositionUs;
     standaloneMediaClock.setPositionUs(internalPositionUs);
     for (TrackRenderer renderer : enabledRenderers) {
       renderer.reset(internalPositionUs);
     }
-    return true;
   }
 
   private void stopInternal() {
@@ -672,8 +678,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         playingSourceEndPositionUs = C.UNSET_TIME_US;
       } else if (playingSource.nextSource != null && playingSource.nextSource.prepared) {
         readingSource = playingSource.nextSource;
-        // Suppress reading a reset so that the transition can be seamless.
-        readingSource.sampleSource.readReset();
         // Replace enabled renderers' TrackStreams if they will continue to be enabled when the
         // new source starts playing, so that the transition can be seamless.
         TrackSelectionArray newTrackSelections = readingSource.trackSelections;
@@ -711,7 +715,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       return playingSource.sampleSource;
     }
 
-    public SampleSource seekTo(int sourceIndex, long sourcePositionUs) throws ExoPlaybackException {
+    public SampleSource seekToSource(int sourceIndex) throws ExoPlaybackException {
       // Clear the timeline, but keep the requested source if it is already prepared.
       Source source = playingSource;
       Source newPlayingSource = null;
@@ -729,10 +733,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         setPlayingSource(newPlayingSource, sourceOffsetUs);
         bufferingSource = playingSource;
         bufferingSourceOffsetUs = sourceOffsetUs;
-        if (playingSource.hasEnabledTracks) {
-          sampleSource.seekToUs(sourcePositionUs);
-        }
       } else {
+        // TODO[REFACTOR]: Presumably we need to disable the renderers somewhere in here?
         playingSource = null;
         readingSource = null;
         bufferingSource = null;

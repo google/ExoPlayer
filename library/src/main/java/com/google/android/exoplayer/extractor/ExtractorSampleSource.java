@@ -388,7 +388,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public long readReset() {
+  public long readDiscontinuity() {
     if (notifyReset) {
       notifyReset = false;
       return lastSeekPositionUs;
@@ -410,7 +410,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public void seekToUs(long positionUs) {
+  public long seekToUs(long positionUs) {
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
@@ -426,6 +426,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     if (!seekInsideBuffer) {
       restartFrom(positionUs);
     }
+    return positionUs;
   }
 
   @Override

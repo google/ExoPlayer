@@ -92,8 +92,6 @@ public final class DashSampleSource implements SampleSource {
   private long elapsedRealtimeOffset;
   private TrackGroupArray trackGroups;
   private int[] trackGroupAdaptationSetIndices;
-  private boolean pendingReset;
-  private long lastSeekPositionUs;
   private ChunkTrackStream<DashChunkSource>[] trackStreams;
 
   public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
@@ -184,14 +182,7 @@ public final class DashSampleSource implements SampleSource {
   }
 
   @Override
-  public long readReset() {
-    if (pendingReset) {
-      pendingReset = false;
-      for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-        trackStream.setReadingEnabled(true);
-      }
-      return lastSeekPositionUs;
-    }
+  public long readDiscontinuity() {
     return C.UNSET_TIME_US;
   }
 
@@ -208,13 +199,11 @@ public final class DashSampleSource implements SampleSource {
   }
 
   @Override
-  public void seekToUs(long positionUs) {
-    lastSeekPositionUs = positionUs;
-    pendingReset = true;
+  public long seekToUs(long positionUs) {
     for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-      trackStream.setReadingEnabled(false);
       trackStream.seekToUs(positionUs);
     }
+    return positionUs;
   }
 
   @Override

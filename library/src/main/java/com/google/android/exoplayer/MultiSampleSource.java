@@ -124,17 +124,14 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public long readReset() {
-    long resetPositionUs = C.UNSET_TIME_US;
+  public long readDiscontinuity() {
     for (SampleSource source : enabledSources) {
-      long childResetPositionUs = source.readReset();
-      if (resetPositionUs == C.UNSET_TIME_US) {
-        resetPositionUs = childResetPositionUs;
-      } else if (childResetPositionUs != C.UNSET_TIME_US) {
-        resetPositionUs = Math.min(resetPositionUs, childResetPositionUs);
+      if (source.readDiscontinuity() != C.UNSET_TIME_US) {
+        // Children are not allowed to report discontinuities.
+        throw new IllegalStateException("Child reported discontinuity");
       }
     }
-    return resetPositionUs;
+    return C.UNSET_TIME_US;
   }
 
   @Override
@@ -150,10 +147,15 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public void seekToUs(long positionUs) {
-    for (SampleSource source : enabledSources) {
-      source.seekToUs(positionUs);
+  public long seekToUs(long positionUs) {
+    positionUs = enabledSources[0].seekToUs(positionUs);
+    for (int i = 1; i < enabledSources.length; i++) {
+      // Additional sources must seek to the same position.
+      if (enabledSources[i].seekToUs(positionUs) != positionUs) {
+        throw new IllegalStateException("Children seeked to different positions");
+      }
     }
+    return positionUs;
   }
 
   @Override

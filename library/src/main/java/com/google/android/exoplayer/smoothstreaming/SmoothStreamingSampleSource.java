@@ -81,8 +81,6 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private TrackEncryptionBox[] trackEncryptionBoxes;
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
-  private boolean pendingReset;
-  private long lastSeekPositionUs;
 
   private ChunkTrackStream<SmoothStreamingChunkSource>[] trackStreams;
 
@@ -171,14 +169,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   @Override
-  public long readReset() {
-    if (pendingReset) {
-      pendingReset = false;
-      for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
-        trackStream.setReadingEnabled(true);
-      }
-      return lastSeekPositionUs;
-    }
+  public long readDiscontinuity() {
     return C.UNSET_TIME_US;
   }
 
@@ -195,13 +186,11 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   @Override
-  public void seekToUs(long positionUs) {
-    lastSeekPositionUs = positionUs;
-    pendingReset = true;
+  public long seekToUs(long positionUs) {
     for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
-      trackStream.setReadingEnabled(false);
       trackStream.seekToUs(positionUs);
     }
+    return positionUs;
   }
 
   @Override
