@@ -57,7 +57,7 @@ public final class TrackSelection {
    * @return The index of the selected track.
    */
   public int getTrack(int index) {
-    return getTracks()[index];
+    return tracks[index];
   }
 
   /**
