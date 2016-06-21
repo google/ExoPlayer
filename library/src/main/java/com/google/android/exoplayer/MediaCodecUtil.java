@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
@@ -25,16 +26,21 @@ import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A utility class for querying the available codecs.
  */
 @TargetApi(16)
+@SuppressLint("InlinedApi")
 public final class MediaCodecUtil {
 
   /**
@@ -53,7 +59,11 @@ public final class MediaCodecUtil {
 
   private static final String TAG = "MediaCodecUtil";
   private static final DecoderInfo PASSTHROUGH_DECODER_INFO =
-      new DecoderInfo("OMX.google.raw.decoder");
+      DecoderInfo.newPassthroughInstance("OMX.google.raw.decoder");
+  private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
+  private static final String CODEC_ID_HEV1 = "hev1";
+  private static final String CODEC_ID_HVC1 = "hvc1";
+  private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
 
   private static final HashMap<CodecKey, List<DecoderInfo>> decoderInfosCache = new HashMap<>();
 
@@ -158,9 +168,10 @@ public final class MediaCodecUtil {
                 boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
                 if ((secureDecodersExplicit && key.secure == secure)
                     || (!secureDecodersExplicit && !key.secure)) {
-                  decoderInfos.add(new DecoderInfo(codecName, capabilities));
+                  decoderInfos.add(DecoderInfo.newInstance(codecName, mimeType, capabilities));
                 } else if (!secureDecodersExplicit && secure) {
-                  decoderInfos.add(new DecoderInfo(codecName + ".secure", capabilities));
+                  decoderInfos.add(DecoderInfo.newInstance(codecName + ".secure", mimeType,
+                      capabilities));
                   // It only makes sense to have one synthesized secure decoder, return immediately.
                   return decoderInfos;
                 }
@@ -273,11 +284,56 @@ public final class MediaCodecUtil {
   }
 
   /**
+   * Returns the HEVC profile and level (as defined by {@link MediaCodecInfo.CodecProfileLevel})
+   * corresponding to the given codec description string (as defined by RFC 6381).
+   *
+   * @param codec An HEVC codec description string, as defined by RFC 6381.
+   * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
+   *     supported, null otherwise.
+   */
+  public static Pair<Integer, Integer> getHevcProfileAndLevel(String codec) {
+    if (codec == null) {
+      return null;
+    }
+    String[] parts = codec.split("\\.");
+    if (!CODEC_ID_HEV1.equals(parts[0]) && !CODEC_ID_HVC1.equals(parts[0])) {
+      return null;
+    }
+    if (parts.length < 4) {
+      // The codec has fewer parts than required by the HEVC codec string format.
+      Log.w(TAG, "Ignoring malformed HEVC codec string: " + codec);
+      return null;
+    }
+    // The profile_space gets ignored.
+    Matcher matcher = PROFILE_PATTERN.matcher(parts[1]);
+    if (!matcher.matches()) {
+      Log.w(TAG, "Ignoring malformed HEVC codec string: " + codec);
+      return null;
+    }
+    String profileString = matcher.group(1);
+    int profile;
+    if ("1".equals(profileString)) {
+      profile = CodecProfileLevel.HEVCProfileMain;
+    } else if ("2".equals(profileString)) {
+      profile = CodecProfileLevel.HEVCProfileMain10;
+    } else {
+      Log.w(TAG, "Unknown HEVC profile string: " + profileString);
+      return null;
+    }
+    Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(parts[3]);
+    if (level == null) {
+      Log.w(TAG, "Unknown HEVC level string: " + matcher.group(1));
+      return null;
+    }
+    return new Pair<>(profile, level);
+  }
+
+  /**
    * Conversion values taken from ISO 14496-10 Table A-1.
    *
    * @param avcLevel one of CodecProfileLevel.AVCLevel* constants.
    * @return maximum frame size that can be decoded by a decoder with the specified avc level
-   *      (or {@code -1} if the level is not recognized)
+   *     (or {@code -1} if the level is not recognized)
    */
   private static int avcLevelToMaxFrameSize(int avcLevel) {
     switch (avcLevel) {
@@ -426,6 +482,37 @@ public final class MediaCodecUtil {
       return TextUtils.equals(mimeType, other.mimeType) && secure == other.secure;
     }
 
+  }
+
+  static {
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL = new HashMap<>();
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L30", CodecProfileLevel.HEVCMainTierLevel1);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L60", CodecProfileLevel.HEVCMainTierLevel2);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L63", CodecProfileLevel.HEVCMainTierLevel21);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L90", CodecProfileLevel.HEVCMainTierLevel3);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L93", CodecProfileLevel.HEVCMainTierLevel31);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L120", CodecProfileLevel.HEVCMainTierLevel4);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L123", CodecProfileLevel.HEVCMainTierLevel41);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L150", CodecProfileLevel.HEVCMainTierLevel5);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L153", CodecProfileLevel.HEVCMainTierLevel51);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L156", CodecProfileLevel.HEVCMainTierLevel52);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L180", CodecProfileLevel.HEVCMainTierLevel6);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L183", CodecProfileLevel.HEVCMainTierLevel61);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L186", CodecProfileLevel.HEVCMainTierLevel62);
+
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H30", CodecProfileLevel.HEVCHighTierLevel1);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H60", CodecProfileLevel.HEVCHighTierLevel2);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H63", CodecProfileLevel.HEVCHighTierLevel21);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H90", CodecProfileLevel.HEVCHighTierLevel3);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H93", CodecProfileLevel.HEVCHighTierLevel31);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H120", CodecProfileLevel.HEVCHighTierLevel4);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H123", CodecProfileLevel.HEVCHighTierLevel41);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H150", CodecProfileLevel.HEVCHighTierLevel5);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H153", CodecProfileLevel.HEVCHighTierLevel51);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H156", CodecProfileLevel.HEVCHighTierLevel52);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H180", CodecProfileLevel.HEVCHighTierLevel6);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H183", CodecProfileLevel.HEVCHighTierLevel61);
+    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H186", CodecProfileLevel.HEVCHighTierLevel62);
   }
 
 }

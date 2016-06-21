@@ -188,6 +188,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         } else {
           decoderCapable = decoderInfo.isVideoSizeSupportedV21(format.width, format.height);
         }
+        decoderCapable &= decoderInfo.isCodecSupported(format.codecs);
       } else {
         decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
       }

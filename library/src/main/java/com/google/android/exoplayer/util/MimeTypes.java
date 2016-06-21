@@ -124,15 +124,9 @@ public final class MimeTypes {
     }
     String[] codecList = codecs.split(",");
     for (String codec : codecList) {
-      codec = codec.trim();
-      if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
-        return MimeTypes.VIDEO_H264;
-      } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
-        return MimeTypes.VIDEO_H265;
-      } else if (codec.startsWith("vp9")) {
-        return MimeTypes.VIDEO_VP9;
-      } else if (codec.startsWith("vp8")) {
-        return MimeTypes.VIDEO_VP8;
+      String mimeType = getMediaMimeType(codec);
+      if (mimeType != null && isVideo(mimeType)) {
+        return mimeType;
       }
     }
     return null;
@@ -150,22 +144,47 @@ public final class MimeTypes {
     }
     String[] codecList = codecs.split(",");
     for (String codec : codecList) {
-      codec = codec.trim();
-      if (codec.startsWith("mp4a")) {
-        return MimeTypes.AUDIO_AAC;
-      } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
-        return MimeTypes.AUDIO_AC3;
-      } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
-        return MimeTypes.AUDIO_E_AC3;
-      } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
-        return MimeTypes.AUDIO_DTS;
-      } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
-        return MimeTypes.AUDIO_DTS_HD;
-      } else if (codec.startsWith("opus")) {
-        return MimeTypes.AUDIO_OPUS;
-      } else if (codec.startsWith("vorbis")) {
-        return MimeTypes.AUDIO_VORBIS;
+      String mimeType = getMediaMimeType(codec);
+      if (mimeType != null && isAudio(mimeType)) {
+        return mimeType;
       }
+    }
+    return null;
+  }
+
+  /**
+   * Derives a mimeType from a codec identifier, as defined in RFC 6381.
+   *
+   * @param codec The codec identifier to derive.
+   * @return The mimeType, or null if it could not be derived.
+   */
+  public static String getMediaMimeType(String codec) {
+    if (codec == null) {
+      return null;
+    }
+    codec = codec.trim();
+    if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
+      return MimeTypes.VIDEO_H264;
+    } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
+      return MimeTypes.VIDEO_H265;
+    } else if (codec.startsWith("vp9")) {
+      return MimeTypes.VIDEO_VP9;
+    } else if (codec.startsWith("vp8")) {
+      return MimeTypes.VIDEO_VP8;
+    } else if (codec.startsWith("mp4a")) {
+      return MimeTypes.AUDIO_AAC;
+    } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
+      return MimeTypes.AUDIO_AC3;
+    } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
+      return MimeTypes.AUDIO_E_AC3;
+    } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
+      return MimeTypes.AUDIO_DTS;
+    } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
+      return MimeTypes.AUDIO_DTS_HD;
+    } else if (codec.startsWith("opus")) {
+      return MimeTypes.AUDIO_OPUS;
+    } else if (codec.startsWith("vorbis")) {
+      return MimeTypes.AUDIO_VORBIS;
     }
     return null;
   }

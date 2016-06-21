@@ -15,12 +15,15 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
+import android.util.Pair;
 
 /**
  * Contains information about a media decoder.
@@ -44,25 +47,27 @@ public final class DecoderInfo {
    */
   public final boolean adaptive;
 
+  private final String mimeType;
   private final CodecCapabilities capabilities;
 
-  /**
-   * @param name The name of the decoder.
-   */
-  /* package */ DecoderInfo(String name) {
-    this.name = name;
-    this.adaptive = false;
-    this.capabilities = null;
+  public static DecoderInfo newPassthroughInstance(String name) {
+    return new DecoderInfo(name, null, null);
+  }
+
+  public static DecoderInfo newInstance(String name, String mimeType,
+      CodecCapabilities capabilities) {
+    return new DecoderInfo(name, mimeType, capabilities);
   }
 
   /**
    * @param name The name of the decoder.
    * @param capabilities The capabilities of the decoder.
    */
-  /* package */ DecoderInfo(String name, CodecCapabilities capabilities) {
-    this.name = name;
+  private DecoderInfo(String name, String mimeType, CodecCapabilities capabilities) {
+    this.name = Assertions.checkNotNull(name);
+    this.mimeType = mimeType;
     this.capabilities = capabilities;
-    adaptive = isAdaptive(capabilities);
+    adaptive = capabilities != null && isAdaptive(capabilities);
   }
 
   /**
@@ -73,6 +78,42 @@ public final class DecoderInfo {
   public CodecProfileLevel[] getProfileLevels() {
     return capabilities == null || capabilities.profileLevels == null ? new CodecProfileLevel[0]
         : capabilities.profileLevels;
+  }
+
+  /**
+   * Whether the decoder supports the given {@code codec}. If there is insufficient information to
+   * decide, returns true.
+   *
+   * @param codec Codec string as defined in RFC 6381.
+   * @return True if the given codec is supported by the decoder.
+   */
+  public boolean isCodecSupported(String codec) {
+    if (codec == null || mimeType == null) {
+      return true;
+    }
+    String codecMimeType = MimeTypes.getMediaMimeType(codec);
+    if (codecMimeType == null) {
+      return true;
+    }
+    if (!mimeType.equals(codecMimeType)) {
+      return false;
+    }
+    if (!codecMimeType.equals(MimeTypes.VIDEO_H265)) {
+      return true;
+    }
+    Pair<Integer, Integer> codecProfileAndLevel =
+        MediaCodecUtil.getHevcProfileAndLevel(codec);
+    if (codecProfileAndLevel == null) {
+      // If we don't know any better, we assume that the profile and level are supported.
+      return true;
+    }
+    for (MediaCodecInfo.CodecProfileLevel capabilities : getProfileLevels()) {
+      if (capabilities.profile == codecProfileAndLevel.first
+          && capabilities.level >= codecProfileAndLevel.second) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

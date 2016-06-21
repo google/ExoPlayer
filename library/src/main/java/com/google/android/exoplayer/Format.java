@@ -388,6 +388,7 @@ public final class Format implements Parcelable {
   public Format copyWithManifestFormatInfo(Format manifestFormat,
       boolean preferManifestDrmInitData) {
     String id = manifestFormat.id;
+    String codecs = this.codecs == null ? manifestFormat.codecs : this.codecs;
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
     float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
     String language = this.language == null ? manifestFormat.language : this.language;
@@ -395,7 +396,7 @@ public final class Format implements Parcelable {
         || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;
     boolean requiresSecureDecryption = this.requiresSecureDecryption
         || manifestFormat.requiresSecureDecryption;
-    return new Format(id, containerMimeType, sampleMimeType, null, bitrate, maxInputSize, width,
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
         initializationData, drmInitData, requiresSecureDecryption);
