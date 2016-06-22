@@ -73,6 +73,11 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
+  public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+    Log.d(TAG, "discontinuity [" + sourceIndex + ", " + positionMs + "]");
+  }
+
+  @Override
   public void onPlayWhenReadyCommitted() {
     // Do nothing.
   }

@@ -31,7 +31,6 @@ import android.util.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements the internal behavior of {@link ExoPlayerImpl}.
@@ -40,12 +39,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 // always propagated properly.
 /* package */ final class ExoPlayerImplInternal implements Handler.Callback, InvalidationListener {
 
+  /**
+   * Playback position information which is read on the application's thread by
+   * {@link ExoPlayerImpl} and read/written internally on the player's thread.
+   */
+  public static final class PlaybackInfo {
+
+    public final int sourceIndex;
+
+    public volatile long positionUs;
+    public volatile long bufferedPositionUs;
+    public volatile long durationUs;
+
+    public PlaybackInfo(int sourceIndex) {
+      this.sourceIndex = sourceIndex;
+      bufferedPositionUs = C.UNSET_TIME_US;
+      durationUs = C.UNSET_TIME_US;
+    }
+
+  }
+
   private static final String TAG = "ExoPlayerImplInternal";
 
   // External messages
   public static final int MSG_STATE_CHANGED = 1;
   public static final int MSG_SET_PLAY_WHEN_READY_ACK = 2;
-  public static final int MSG_ERROR = 3;
+  public static final int MSG_SET_SOURCE_PROVIDER_ACK = 3;
+  public static final int MSG_SEEK_ACK = 4;
+  public static final int MSG_SOURCE_CHANGED = 5;
+  public static final int MSG_ERROR = 6;
 
   // Internal messages
   private static final int MSG_SET_SOURCE_PROVIDER = 0;
@@ -69,12 +91,13 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
-  private final AtomicInteger pendingSeekCount;
   private final Timeline timeline;
 
+  private PlaybackInfo playbackInfo;
   private TrackRenderer rendererMediaClockSource;
   private MediaClock rendererMediaClock;
   private SampleSourceProvider sampleSourceProvider;
+  // TODO[playlists]: Use timeline.playingSource.sampleSource instead.
   private SampleSource sampleSource;
   private TrackRenderer[] enabledRenderers;
   private boolean released;
@@ -83,17 +106,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   private int state;
   private int customMessagesSent;
   private int customMessagesProcessed;
-  private long lastSeekPositionMs;
-  private int lastSeekSourceIndex;
   private long elapsedRealtimeUs;
 
   private long sourceOffsetUs;
   private long internalPositionUs;
-  private int sourceIndex;
-
-  private volatile long durationUs;
-  private volatile long positionUs;
-  private volatile long bufferedPositionUs;
 
   public ExoPlayerImplInternal(TrackRenderer[] renderers, TrackSelector trackSelector,
       int minBufferMs, int minRebufferMs, boolean playWhenReady, Handler eventHandler) {
@@ -104,17 +120,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.playWhenReady = playWhenReady;
     this.eventHandler = eventHandler;
     this.state = ExoPlayer.STATE_IDLE;
-    this.durationUs = C.UNSET_TIME_US;
-    this.bufferedPositionUs = C.UNSET_TIME_US;
 
     for (int i = 0; i < renderers.length; i++) {
       renderers[i].setIndex(i);
     }
 
     standaloneMediaClock = new StandaloneMediaClock();
-    pendingSeekCount = new AtomicInteger();
     enabledRenderers = new TrackRenderer[0];
     timeline = new Timeline();
+    playbackInfo = new PlaybackInfo(0);
 
     trackSelector.init(this);
 
@@ -126,21 +140,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler = new Handler(internalPlaybackThread.getLooper(), this);
   }
 
-  public long getCurrentPosition() {
-    return pendingSeekCount.get() > 0 ? lastSeekPositionMs : (positionUs / 1000);
-  }
-
-  public long getBufferedPosition() {
-    long bufferedPositionUs = this.bufferedPositionUs;
-    return bufferedPositionUs == C.UNSET_TIME_US || bufferedPositionUs == C.END_OF_SOURCE_US
-        ? ExoPlayer.UNKNOWN_TIME : bufferedPositionUs / 1000;
-  }
-
-  public long getDuration() {
-    long durationUs = this.durationUs;
-    return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
-  }
-
   public void setSourceProvider(SampleSourceProvider sourceProvider) {
     handler.obtainMessage(MSG_SET_SOURCE_PROVIDER, sourceProvider).sendToTarget();
   }
@@ -149,21 +148,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void seekTo(long positionMs) {
-    // TODO[playlists]: Move to ExoPlayerImpl.
-    int sourceIndex;
-    synchronized (timeline) {
-      sourceIndex = this.sourceIndex;
-    }
-    seekTo(sourceIndex, positionMs);
-  }
-
   public void seekTo(int sourceIndex, long positionMs) {
-    // TODO[playlists]: Expose the current source index and seeking to sources in ExoPlayer.
-    lastSeekSourceIndex = sourceIndex;
-    lastSeekPositionMs = positionMs;
-    pendingSeekCount.incrementAndGet();
-    handler.obtainMessage(MSG_SEEK_TO, lastSeekSourceIndex, -1, positionMs).sendToTarget();
+    handler.obtainMessage(MSG_SEEK_TO, sourceIndex, -1, positionMs).sendToTarget();
   }
 
   public void stop() {
@@ -294,17 +280,22 @@ import java.util.concurrent.atomic.AtomicInteger;
     // TODO[playlists]: Take into account the buffered position in the timeline.
     long minBufferDurationUs = rebuffering ? minRebufferUs : minBufferUs;
     return minBufferDurationUs <= 0
-        || bufferedPositionUs == C.UNSET_TIME_US
-        || bufferedPositionUs == C.END_OF_SOURCE_US
-        || bufferedPositionUs >= positionUs + minBufferDurationUs
-        || (durationUs != C.UNSET_TIME_US && bufferedPositionUs >= durationUs);
+        || playbackInfo.bufferedPositionUs == C.UNSET_TIME_US
+        || playbackInfo.bufferedPositionUs == C.END_OF_SOURCE_US
+        || playbackInfo.bufferedPositionUs >= playbackInfo.positionUs + minBufferDurationUs
+        || (playbackInfo.durationUs != C.UNSET_TIME_US
+            && playbackInfo.bufferedPositionUs >= playbackInfo.durationUs);
   }
 
   private void setSourceProviderInternal(SampleSourceProvider sourceProvider) {
-    resetInternal();
-    sampleSourceProvider = sourceProvider;
-    setState(ExoPlayer.STATE_BUFFERING);
-    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    try {
+      resetInternal();
+      sampleSourceProvider = sourceProvider;
+      setState(ExoPlayer.STATE_BUFFERING);
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    } finally {
+      eventHandler.sendEmptyMessage(MSG_SET_SOURCE_PROVIDER_ACK);
+    }
   }
 
   private void setPlayWhenReadyInternal(boolean playWhenReady) throws ExoPlaybackException {
@@ -323,7 +314,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
     } finally {
-      eventHandler.obtainMessage(MSG_SET_PLAY_WHEN_READY_ACK).sendToTarget();
+      eventHandler.sendEmptyMessage(MSG_SET_PLAY_WHEN_READY_ACK);
     }
   }
 
@@ -349,14 +340,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     } else {
       internalPositionUs = standaloneMediaClock.getPositionUs();
     }
-    positionUs = internalPositionUs - sourceOffsetUs;
+    playbackInfo.positionUs = internalPositionUs - sourceOffsetUs;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
   private void updateBufferedPositionUs() {
     long sourceBufferedPositionUs = enabledRenderers.length > 0
-        ? sampleSource.getBufferedPositionUs() : C.END_OF_SOURCE_US;
-    bufferedPositionUs = sourceBufferedPositionUs == C.END_OF_SOURCE_US
+        ? timeline.playingSource.sampleSource.getBufferedPositionUs() : C.END_OF_SOURCE_US;
+    long durationUs = playbackInfo.durationUs;
+    playbackInfo.bufferedPositionUs = sourceBufferedPositionUs == C.END_OF_SOURCE_US
         && durationUs != C.UNSET_TIME_US ? durationUs : sourceBufferedPositionUs;
   }
 
@@ -406,7 +398,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     boolean timelineIsReady = timeline.isReady();
-    if (allRenderersEnded && (durationUs == C.UNSET_TIME_US || durationUs <= positionUs)) {
+    if (allRenderersEnded && (playbackInfo.durationUs == C.UNSET_TIME_US
+        || playbackInfo.durationUs <= playbackInfo.positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded
@@ -444,9 +437,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private void seekToInternal(int sourceIndex, long seekPositionMs) throws ExoPlaybackException {
     try {
-      if (seekPositionMs == (positionUs / 1000)) {
+      if (sourceIndex == playbackInfo.sourceIndex
+          && seekPositionMs == (playbackInfo.positionUs / 1000)) {
         // Seek is to the current position. Do nothing.
         return;
+      }
+
+      if (sourceIndex != playbackInfo.sourceIndex) {
+        playbackInfo = new PlaybackInfo(sourceIndex);
+        eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
       }
 
       long seekPositionUs = seekPositionMs * 1000;
@@ -470,7 +469,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       setNewSourcePositionInternal(seekPositionUs);
       resumeInternal();
     } finally {
-      pendingSeekCount.decrementAndGet();
+      eventHandler.sendEmptyMessage(MSG_SEEK_ACK);
     }
   }
 
@@ -483,7 +482,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     updateBufferedPositionUs();
-    if (allRenderersEnded && (durationUs == C.UNSET_TIME_US || durationUs <= positionUs)) {
+    if (allRenderersEnded && (playbackInfo.durationUs == C.UNSET_TIME_US
+        || playbackInfo.durationUs <= playbackInfo.positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
     } else {
       setState(allRenderersReadyOrEnded && haveSufficientBuffer() && timeline.isReady()
@@ -507,7 +507,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   private void setNewSourcePositionInternal(long sourcePositionUs) throws ExoPlaybackException {
-    positionUs = sourcePositionUs;
+    playbackInfo.positionUs = sourcePositionUs;
     internalPositionUs = sourceOffsetUs + sourcePositionUs;
     standaloneMediaClock.setPositionUs(internalPositionUs);
     for (TrackRenderer renderer : enabledRenderers) {
@@ -636,7 +636,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         if (!bufferingSource.prepared) {
           // Continue preparation.
           // TODO[playlists]: Add support for setting the start position to play in a source.
-          long startPositionUs = playingSource == null ? positionUs : 0;
+          long startPositionUs = playingSource == null ? playbackInfo.positionUs : 0;
           if (bufferingSource.prepare(startPositionUs)) {
             Pair<TrackSelectionArray, Object> result = trackSelector.selectTracks(renderers,
                 bufferingSource.sampleSource.getTrackGroups());
@@ -710,7 +710,9 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (readingSource != playingSource && playingSourceEndPositionUs != C.UNSET_TIME_US
           && internalPositionUs >= playingSourceEndPositionUs) {
         playingSource.release();
+        playbackInfo = new PlaybackInfo(readingSource.index);
         setPlayingSource(readingSource, playingSourceEndPositionUs);
+        eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
       }
       return playingSource.sampleSource;
     }
@@ -727,23 +729,24 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
         source = source.nextSource;
       }
+
       if (newPlayingSource != null) {
-        nextSourceIndex = sourceIndex + 1;
         newPlayingSource.nextSource = null;
         setPlayingSource(newPlayingSource, sourceOffsetUs);
         bufferingSource = playingSource;
         bufferingSourceOffsetUs = sourceOffsetUs;
+        nextSourceIndex = sourceIndex + 1;
       } else {
         // TODO[REFACTOR]: Presumably we need to disable the renderers somewhere in here?
         playingSource = null;
         readingSource = null;
         bufferingSource = null;
         bufferingSourceOffsetUs = 0;
-        durationUs = C.UNSET_TIME_US;
         sampleSource = null;
         // Set the next source index so that the required source is created in updateSources.
         nextSourceIndex = sourceIndex;
       }
+
       return sampleSource;
     }
 
@@ -794,7 +797,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
       int enabledRendererCount = disableRenderers(false, newTrackSelections);
       TrackStream[] newStreams = playingSource.updateTrackStreams(oldStreams, newTrackSelections,
-          newSelections, positionUs);
+          newSelections, playbackInfo.positionUs);
       trackSelector.onSelectionActivated(trackSelectionData);
 
       // Update the stored TrackStreams.
@@ -819,32 +822,16 @@ import java.util.concurrent.atomic.AtomicInteger;
       playingSource = null;
       readingSource = null;
       bufferingSource = null;
-      durationUs = C.UNSET_TIME_US;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
       nextSourceIndex = 0;
       sourceOffsetUs = 0;
       bufferingSourceOffsetUs = 0;
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("Timeline[");
-      Source source = playingSource != null ? playingSource : bufferingSource;
-      while (source != null) {
-        sb.append(source);
-        source = source.nextSource;
-        if (source != null) {
-          sb.append(", ");
-        }
-      }
-      sb.append("]");
-      return sb.toString();
+      playbackInfo = new PlaybackInfo(0);
+      eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
     }
 
     private void setPlayingSource(Source source, long offsetUs) throws ExoPlaybackException {
       sourceOffsetUs = offsetUs;
-      durationUs = source.sampleSource.getDurationUs();
 
       // Disable/enable renderers for the new source.
       int enabledRendererCount = disableRenderers(true, source.trackSelections);
@@ -856,11 +843,10 @@ import java.util.concurrent.atomic.AtomicInteger;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
       enableRenderers(source.trackSelections, enabledRendererCount);
 
-      // Update the timeline position for the new source index.
-      synchronized (timeline) {
-        sourceIndex = source.index;
-        updatePositionUs();
-      }
+      // Update playback information.
+      playbackInfo.durationUs = source.sampleSource.getDurationUs();
+      updateBufferedPositionUs();
+      updatePositionUs();
     }
 
     private int disableRenderers(boolean sourceTransition, TrackSelectionArray newTrackSelections)

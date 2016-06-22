@@ -204,6 +204,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     // Do nothing.
   }
 
+  @Override
+  public final void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+    // Do nothing.
+  }
+
   // SimpleExoPlayer.DebugListener
 
   @Override

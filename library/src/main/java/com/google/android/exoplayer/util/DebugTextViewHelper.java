@@ -81,11 +81,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   private void updateTextView() {
-    textView.setText(getPlayerStateString() + getBandwidthString() + getVideoString()
-        + getAudioString());
+    textView.setText(getPlayerStateString() + getPlayerSourceIndexString() + getBandwidthString()
+        + getVideoString() + getAudioString());
   }
 
-  public String getPlayerStateString() {
+  private String getPlayerStateString() {
     String text = "playWhenReady:" + player.getPlayWhenReady() + " playbackState:";
     switch(player.getPlaybackState()) {
       case ExoPlayer.STATE_BUFFERING:
@@ -105,6 +105,10 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
         break;
     }
     return text;
+  }
+
+  private String getPlayerSourceIndexString() {
+    return " source:" + player.getCurrentSourceIndex();
   }
 
   private String getBandwidthString() {
@@ -157,6 +161,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   @Override
   public void onPlayWhenReadyCommitted() {
     // Do nothing.
+  }
+
+  @Override
+  public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+    updateTextView();
   }
 
   @Override

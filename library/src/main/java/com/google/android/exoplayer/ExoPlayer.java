@@ -118,6 +118,16 @@ public interface ExoPlayer {
      */
     void onPlayWhenReadyCommitted();
 
+    // TODO[playlists]: Should source-initiated resets also cause this to be invoked?
+    /**
+     * Invoked when the player's position changes due to a discontinuity (seeking or playback
+     * transitioning to the next source).
+     *
+     * @param sourceIndex The index of the source being played.
+     * @param positionMs The playback position in that source, in milliseconds.
+     */
+    void onPositionDiscontinuity(int sourceIndex, long positionMs);
+
     /**
      * Invoked when an error occurs. The playback state will transition to
      * {@link ExoPlayer#STATE_IDLE} immediately after this method is invoked. The player instance
@@ -227,8 +237,9 @@ public interface ExoPlayer {
   void setSource(SampleSource sampleSource);
 
   /**
-   * Sets the player's source provider. The player will transition to {@link #STATE_BUFFERING} until
-   * it is ready to play the first source.
+   * Sets the player's source provider. The player's position will be reset to the start of the
+   * first source and the player will transition to {@link #STATE_BUFFERING} until it is ready to
+   * play it.
    *
    * @param sourceProvider The provider of {@link SampleSource}s to play.
    */
@@ -259,11 +270,19 @@ public interface ExoPlayer {
   boolean isPlayWhenReadyCommitted();
 
   /**
-   * Seeks to a position specified in milliseconds.
+   * Seeks to a position specified in milliseconds in the current source.
    *
    * @param positionMs The seek position.
    */
   void seekTo(long positionMs);
+
+  /**
+   * Seeks to a position specified in milliseconds in the specified source.
+   *
+   * @param sourceIndex The index of the source to seek to.
+   * @param positionMs The seek position relative to the start of the specified source.
+   */
+  void seekTo(int sourceIndex, long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -312,11 +331,18 @@ public interface ExoPlayer {
   long getDuration();
 
   /**
-   * Gets the current playback position in milliseconds.
+   * Gets the playback position in the current source, in milliseconds.
    *
-   * @return The current playback position in milliseconds.
+   * @return The playback position in the current source, in milliseconds.
    */
   long getCurrentPosition();
+
+  /**
+   * Gets the index of the current source.
+   *
+   * @return The index of the current source.
+   */
+  int getCurrentSourceIndex();
 
   /**
    * Gets an estimate of the absolute position in milliseconds up to which data is buffered.

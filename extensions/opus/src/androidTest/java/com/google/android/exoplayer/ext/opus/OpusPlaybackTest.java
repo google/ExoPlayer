@@ -93,6 +93,11 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
+    public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+      // Do nothing.
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException error) {
       playbackException = error;
     }

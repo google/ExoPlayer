@@ -344,6 +344,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void seekTo(int sourceIndex, long positionMs) {
+    player.seekTo(sourceIndex, positionMs);
+  }
+
+  @Override
   public void stop() {
     player.stop();
   }
@@ -371,6 +376,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   @Override
   public long getCurrentPosition() {
     return player.getCurrentPosition();
+  }
+
+  @Override
+  public int getCurrentSourceIndex() {
+    return player.getCurrentSourceIndex();
   }
 
   @Override

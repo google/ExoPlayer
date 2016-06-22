@@ -392,6 +392,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   @Override
+  public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+    if (mediaController.isShowing()) {
+      // The MediaController is visible, so force it to show the updated position immediately.
+      mediaController.show();
+    }
+  }
+
+  @Override
   public void onPlayerError(ExoPlaybackException e) {
     String errorString = null;
     if (e.type == ExoPlaybackException.TYPE_RENDERER) {
