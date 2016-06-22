@@ -592,12 +592,11 @@ import java.util.ArrayList;
     private final ArrayList<TrackStream> oldStreams;
     private final ArrayList<TrackSelection> newSelections;
 
-    private int nextSourceIndex;
-
     private Source playingSource;
     private Source readingSource;
     private Source bufferingSource;
 
+    private int pendingSourceIndex;
     private long playingSourceEndPositionUs;
     private long bufferingSourceOffsetUs;
 
@@ -612,16 +611,15 @@ import java.util.ArrayList;
     public void updateSources() throws ExoPlaybackException, IOException {
       // TODO[playlists]: Let sample source providers invalidate sources that are already buffering.
 
-      // Continue buffering the first source that is not yet buffered, if any.
       int sourceCount = sampleSourceProvider.getSourceCount();
       if (bufferingSource == null || bufferingSource.isFullyBuffered()) {
-        if (sourceCount == SampleSourceProvider.UNKNOWN_SOURCE_COUNT
-            || nextSourceIndex < sourceCount) {
-          // Create the next source and prepare to buffer it.
-          int index = nextSourceIndex++;
-          SampleSource sampleSource = sampleSourceProvider.createSource(index);
+        // Try and obtain the next source to start buffering.
+        int sourceIndex = bufferingSource == null ? pendingSourceIndex : bufferingSource.index + 1;
+        if (sourceCount == SampleSourceProvider.UNKNOWN_SOURCE_COUNT || sourceIndex < sourceCount) {
+          // Attempt to create the next source.
+          SampleSource sampleSource = sampleSourceProvider.createSource(sourceIndex);
           if (sampleSource != null) {
-            Source newSource = new Source(sampleSource, index, renderers.length);
+            Source newSource = new Source(sampleSource, sourceIndex, renderers.length);
             if (bufferingSource != null) {
               bufferingSource.nextSource = newSource;
               bufferingSourceOffsetUs += bufferingSource.sampleSource.getDurationUs();
@@ -734,7 +732,6 @@ import java.util.ArrayList;
         setPlayingSource(newPlayingSource, sourceOffsetUs);
         bufferingSource = playingSource;
         bufferingSourceOffsetUs = sourceOffsetUs;
-        nextSourceIndex = sourceIndex + 1;
       } else {
         // TODO[REFACTOR]: Presumably we need to disable the renderers somewhere in here?
         playingSource = null;
@@ -742,8 +739,7 @@ import java.util.ArrayList;
         bufferingSource = null;
         bufferingSourceOffsetUs = 0;
         sampleSource = null;
-        // Set the next source index so that the required source is created in updateSources.
-        nextSourceIndex = sourceIndex;
+        pendingSourceIndex = sourceIndex;
       }
 
       return sampleSource;
@@ -780,7 +776,6 @@ import java.util.ArrayList;
       playingSource.nextSource = null;
       readingSource = playingSource;
       bufferingSource = playingSource;
-      nextSourceIndex = playingSource.index + 1;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
       bufferingSourceOffsetUs = sourceOffsetUs;
 
@@ -822,7 +817,7 @@ import java.util.ArrayList;
       readingSource = null;
       bufferingSource = null;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
-      nextSourceIndex = 0;
+      pendingSourceIndex = 0;
       sourceOffsetUs = 0;
       bufferingSourceOffsetUs = 0;
       playbackInfo = new PlaybackInfo(0);
