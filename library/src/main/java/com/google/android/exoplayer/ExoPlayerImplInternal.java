@@ -84,7 +84,6 @@ import java.util.ArrayList;
   private static final int IDLE_INTERVAL_MS = 1000;
 
   private final TrackSelector trackSelector;
-  private final TrackRenderer[] renderers;
   private final StandaloneMediaClock standaloneMediaClock;
   private final long minBufferUs;
   private final long minRebufferUs;
@@ -113,7 +112,6 @@ import java.util.ArrayList;
 
   public ExoPlayerImplInternal(TrackRenderer[] renderers, TrackSelector trackSelector,
       int minBufferMs, int minRebufferMs, boolean playWhenReady, Handler eventHandler) {
-    this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.minBufferUs = minBufferMs * 1000L;
     this.minRebufferUs = minRebufferMs * 1000L;
@@ -127,7 +125,7 @@ import java.util.ArrayList;
 
     standaloneMediaClock = new StandaloneMediaClock();
     enabledRenderers = new TrackRenderer[0];
-    timeline = new Timeline();
+    timeline = new Timeline(renderers);
     playbackInfo = new PlaybackInfo(0);
 
     trackSelector.init(this);
@@ -476,7 +474,7 @@ import java.util.ArrayList;
   private void resumeInternal() throws ExoPlaybackException {
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    for (TrackRenderer renderer : renderers) {
+    for (TrackRenderer renderer : enabledRenderers) {
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
     }
@@ -535,18 +533,16 @@ import java.util.ArrayList;
     standaloneMediaClock.stop();
     rendererMediaClock = null;
     rendererMediaClockSource = null;
-    enabledRenderers = new TrackRenderer[0];
-    for (TrackRenderer renderer : renderers) {
+    for (TrackRenderer renderer : enabledRenderers) {
       try {
         ensureStopped(renderer);
-        if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-          renderer.disable();
-        }
+        renderer.disable();
       } catch (ExoPlaybackException | RuntimeException e) {
         // There's nothing we can do.
         Log.e(TAG, "Stop failed.", e);
       }
     }
+    enabledRenderers = new TrackRenderer[0];
     sampleSource = null;
     timeline.reset();
   }
@@ -589,6 +585,8 @@ import java.util.ArrayList;
    */
   private final class Timeline {
 
+    private final TrackRenderer[] renderers;
+
     // Used during track reselection.
     private final boolean[] rendererWasEnabledFlags;
     private final ArrayList<TrackStream> oldStreams;
@@ -603,7 +601,8 @@ import java.util.ArrayList;
     private long playingSourceEndPositionUs;
     private long bufferingSourceOffsetUs;
 
-    public Timeline() {
+    public Timeline(TrackRenderer[] renderers) {
+      this.renderers = renderers;
       rendererWasEnabledFlags = new boolean[renderers.length];
       oldStreams = new ArrayList<>();
       newSelections = new ArrayList<>();
