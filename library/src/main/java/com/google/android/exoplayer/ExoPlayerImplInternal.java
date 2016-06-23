@@ -353,13 +353,11 @@ import java.util.ArrayList;
     if (sampleSource == null) {
       timeline.updateSources();
       sampleSource = timeline.getSampleSource();
-      if (sampleSource != null) {
-        resumeInternal();
-      } else {
+      if (sampleSource == null) {
         // We're still waiting for the source to be prepared.
         scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, PREPARING_SOURCE_INTERVAL_MS);
+        return;
       }
-      return;
     }
 
     TraceUtil.beginSection("doSomeWork");
@@ -439,57 +437,25 @@ import java.util.ArrayList;
         return;
       }
 
+      setState(ExoPlayer.STATE_BUFFERING);
+      stopRenderers();
+      rebuffering = false;
+
       if (sourceIndex != playbackInfo.sourceIndex) {
         playbackInfo = new PlaybackInfo(sourceIndex);
         eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
       }
 
-      rebuffering = false;
-      standaloneMediaClock.stop();
-
       sampleSource = timeline.seekToSource(sourceIndex);
-      if (sampleSource == null) {
-        // The source isn't prepared.
-        setNewSourcePositionInternal(seekPositionUs);
-        return;
-      }
-
-      if (enabledRenderers.length > 0) {
-        for (TrackRenderer renderer : enabledRenderers) {
-          ensureStopped(renderer);
-        }
+      if (sampleSource != null && enabledRenderers.length > 0) {
         seekPositionUs = sampleSource.seekToUs(seekPositionUs);
       }
 
       setNewSourcePositionInternal(seekPositionUs);
-      resumeInternal();
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } finally {
       eventHandler.sendEmptyMessage(MSG_SEEK_ACK);
     }
-  }
-
-  private void resumeInternal() throws ExoPlaybackException {
-    boolean allRenderersEnded = true;
-    boolean allRenderersReadyOrEnded = true;
-    for (TrackRenderer renderer : enabledRenderers) {
-      allRenderersEnded = allRenderersEnded && renderer.isEnded();
-      allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
-    }
-
-    updateBufferedPositionUs();
-    if (allRenderersEnded && (playbackInfo.durationUs == C.UNSET_TIME_US
-        || playbackInfo.durationUs <= playbackInfo.positionUs)) {
-      setState(ExoPlayer.STATE_ENDED);
-    } else {
-      setState(allRenderersReadyOrEnded && haveSufficientBuffer() && timeline.isReady()
-          ? ExoPlayer.STATE_READY : ExoPlayer.STATE_BUFFERING);
-    }
-
-    // Start the renderers if ready, and schedule the first piece of work.
-    if (playWhenReady && state == ExoPlayer.STATE_READY) {
-      startRenderers();
-    }
-    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
   private boolean checkForSourceDiscontinuityInternal() throws ExoPlaybackException {
