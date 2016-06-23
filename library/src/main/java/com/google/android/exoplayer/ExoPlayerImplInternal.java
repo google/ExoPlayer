@@ -397,21 +397,27 @@ import java.util.ArrayList;
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded;
     }
 
-    boolean timelineIsReady = timeline.isReady();
+    // TODO: Have timeline.updateSources() above return whether the timeline is ready, and remove
+    // timeline.isReady(). This will avoid any inconsistencies that could arise due to the playback
+    // position update. We could probably return [ENDED|READY|BUFFERING] and get rid of isEnded too.
     if (allRenderersEnded && (playbackInfo.durationUs == C.UNSET_TIME_US
-        || playbackInfo.durationUs <= playbackInfo.positionUs)) {
+        || playbackInfo.durationUs <= playbackInfo.positionUs) && timeline.isEnded()) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
-    } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded
-        && haveSufficientBuffer() && timelineIsReady) {
-      setState(ExoPlayer.STATE_READY);
-      if (playWhenReady) {
-        startRenderers();
+    } else if (state == ExoPlayer.STATE_BUFFERING) {
+      if ((enabledRenderers.length > 0 ? allRenderersReadyOrEnded : timeline.isReady())
+          && haveSufficientBuffer()) {
+        setState(ExoPlayer.STATE_READY);
+        if (playWhenReady) {
+          startRenderers();
+        }
       }
-    } else if (state == ExoPlayer.STATE_READY && (!allRenderersReadyOrEnded || !timelineIsReady)) {
-      rebuffering = playWhenReady;
-      setState(ExoPlayer.STATE_BUFFERING);
-      stopRenderers();
+    } else if (state == ExoPlayer.STATE_READY) {
+      if (enabledRenderers.length > 0 ? !allRenderersReadyOrEnded : !timeline.isReady()) {
+        rebuffering = playWhenReady;
+        setState(ExoPlayer.STATE_BUFFERING);
+        stopRenderers();
+      }
     }
 
     handler.removeMessages(MSG_DO_SOME_WORK);
@@ -576,6 +582,21 @@ import java.util.ArrayList;
       return playingSource == null ? null : playingSource.sampleSource;
     }
 
+    public boolean isEnded() {
+      if (playingSource == null) {
+        return false;
+      }
+      int sourceCount = sampleSourceProvider.getSourceCount();
+      return sourceCount != SampleSourceProvider.UNKNOWN_SOURCE_COUNT
+          && playingSource.index == sourceCount - 1;
+    }
+
+    public boolean isReady() {
+      return playingSourceEndPositionUs == C.UNSET_TIME_US
+          || internalPositionUs < playingSourceEndPositionUs
+          || (playingSource.nextSource != null && playingSource.nextSource.prepared);
+    }
+
     public void updateSources() throws ExoPlaybackException, IOException {
       // TODO[playlists]: Let sample source providers invalidate sources that are already buffering.
 
@@ -678,11 +699,6 @@ import java.util.ArrayList;
           }
         }
       }
-    }
-
-    public boolean isReady() {
-      return playingSourceEndPositionUs == C.UNSET_TIME_US
-          || internalPositionUs < playingSourceEndPositionUs || playingSource.nextSource != null;
     }
 
     public void seekToSource(int sourceIndex) throws ExoPlaybackException {
