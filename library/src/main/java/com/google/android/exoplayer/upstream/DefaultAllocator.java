@@ -47,7 +47,7 @@ public final class DefaultAllocator implements Allocator {
   /**
    * Constructs a pool with some {@link Allocation}s created up front.
    * <p>
-   * Note: Initial {@link Allocation}s will never be discarded by {@link #trim(int)}.
+   * Note: Initial {@link Allocation}s will never be discarded by {@link #trim()}.
    *
    * @param individualAllocationSize The length of each individual allocation.
    * @param initialAllocationCount The number of allocations to create up front.
@@ -70,7 +70,11 @@ public final class DefaultAllocator implements Allocator {
   }
 
   public synchronized void setTargetBufferSize(int targetBufferSize) {
+    boolean targetBufferSizeReduced = targetBufferSize < this.targetBufferSize;
     this.targetBufferSize = targetBufferSize;
+    if (targetBufferSizeReduced) {
+      trim();
+    }
   }
 
   @Override
@@ -145,14 +149,6 @@ public final class DefaultAllocator implements Allocator {
   @Override
   public synchronized int getTotalBytesAllocated() {
     return allocatedCount * individualAllocationSize;
-  }
-
-  @Override
-  public synchronized void blockWhileTotalBytesAllocatedExceeds(int limit)
-      throws InterruptedException {
-    while (getTotalBytesAllocated() > limit) {
-      wait();
-    }
   }
 
   @Override

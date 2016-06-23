@@ -17,14 +17,15 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
+import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.FormatHolder;
+import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
-import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
@@ -36,6 +37,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
+import android.os.ConditionVariable;
 import android.os.Handler;
 
 import java.io.EOFException;
@@ -125,7 +127,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final DataSource dataSource;
-  private final Allocator allocator;
+  private final ConditionVariable loadCondition;
+  private final LoadControl loadControl;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
 
@@ -186,7 +189,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     this.eventListener = eventListener;
     this.eventHandler = eventHandler;
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    allocator = new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE);
+    loadCondition = new ConditionVariable();
+    loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     loader = new Loader("Loader:ExtractorSampleSource");
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
@@ -308,6 +312,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return true;
     }
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
+      loadCondition.close();
       int trackCount = sampleQueues.length;
       TrackGroup[] trackArray = new TrackGroup[trackCount];
       trackEnabledStates = new boolean[trackCount];
@@ -322,6 +327,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // We're not prepared.
     maybeThrowError();
     if (!loader.isLoading()) {
+      loadCondition.open();
       startLoading();
     }
     return false;
@@ -341,6 +347,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
+    boolean tracksWereEnabled = enabledTrackCount > 0;
     // Unselect old tracks.
     for (int i = 0; i < oldStreams.size(); i++) {
       int track = ((TrackStreamImpl) oldStreams.get(i)).track;
@@ -372,11 +379,21 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
     // Cancel or start requests as necessary.
     if (enabledTrackCount == 0) {
+      if (tracksWereEnabled) {
+        loadControl.unregister(this);
+        loadCondition.close();
+      }
       if (loader.isLoading()) {
         loader.cancelLoading();
       }
-    } else if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
-      seekToUs(positionUs);
+    } else {
+      if (!tracksWereEnabled) {
+        loadControl.register(this, C.DEFAULT_MUXED_BUFFER_SIZE);
+        loadCondition.open();
+      }
+      if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
+        seekToUs(positionUs);
+      }
     }
     seenFirstTrackSelection = true;
     return newStreams;
@@ -384,7 +401,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    // Do nothing.
+    if (loadControl.update(this, playbackPositionUs, getBufferedPositionUs(), loader.isLoading())) {
+      loadCondition.open();
+    } else {
+      loadCondition.close();
+    }
   }
 
   @Override
@@ -433,6 +454,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public void release() {
     for (DefaultTrackOutput sampleQueue : sampleQueues) {
       sampleQueue.disable();
+    }
+    if (enabledTrackCount > 0) {
+      loadControl.unregister(this);
     }
     loader.release();
   }
@@ -498,7 +522,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public TrackOutput track(int id) {
     sampleQueues = Arrays.copyOf(sampleQueues, sampleQueues.length + 1);
-    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(allocator);
+    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
     sampleQueues[sampleQueues.length - 1] = sampleQueue;
     return sampleQueue;
   }
@@ -536,7 +560,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private void startLoading() {
     ExtractingLoadable loadable = new ExtractingLoadable(uri, dataSource, extractorHolder,
-        allocator, C.DEFAULT_MUXED_BUFFER_SIZE);
+        loadCondition);
     if (prepared) {
       Assertions.checkState(isPendingReset());
       if (durationUs != C.UNSET_TIME_US && pendingResetPositionUs >= durationUs) {
@@ -657,8 +681,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     private final Uri uri;
     private final DataSource dataSource;
     private final ExtractorHolder extractorHolder;
-    private final Allocator allocator;
-    private final int requestedBufferSize;
+    private final ConditionVariable loadCondition;
     private final PositionHolder positionHolder;
 
     private volatile boolean loadCanceled;
@@ -667,12 +690,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     private long length;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
-        Allocator allocator, int requestedBufferSize) {
+        ConditionVariable loadCondition) {
       this.uri = Assertions.checkNotNull(uri);
       this.dataSource = Assertions.checkNotNull(dataSource);
       this.extractorHolder = Assertions.checkNotNull(extractorHolder);
-      this.allocator = Assertions.checkNotNull(allocator);
-      this.requestedBufferSize = requestedBufferSize;
+      this.loadCondition = loadCondition;
       this.positionHolder = new PositionHolder();
       this.pendingExtractorSeek = true;
       this.length = C.LENGTH_UNBOUNDED;
@@ -711,11 +733,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-            allocator.blockWhileTotalBytesAllocatedExceeds(requestedBufferSize);
+            // TODO: Prevent the loader from loading too much data between evaluations of the
+            // buffering condition.
+            loadCondition.block();
             result = extractor.read(input, positionHolder);
-            // TODO: Implement throttling to stop us from buffering data too often.
-            // TODO: Block buffering between the point at which we have sufficient data for
-            // preparation to complete and the first call to endTrackSelection.
           }
         } finally {
           if (result == Extractor.RESULT_SEEK) {

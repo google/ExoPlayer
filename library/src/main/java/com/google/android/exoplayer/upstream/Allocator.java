@@ -39,18 +39,9 @@ public interface Allocator {
 
   /**
    * Hints to the {@link Allocator} that it should make a best effort to release any memory that it
-   * has allocated that it no longer requires.
+   * has allocated beyond the target buffer size.
    */
   void trim();
-
-  /**
-   * Blocks execution until the number of bytes allocated is not greater than the limit, or the
-   * thread is interrupted.
-   *
-   * @param limit The limit in bytes.
-   * @throws InterruptedException If the thread is interrupted.
-   */
-  void blockWhileTotalBytesAllocatedExceeds(int limit) throws InterruptedException;
 
   /**
    * Returns the total number of bytes currently allocated.

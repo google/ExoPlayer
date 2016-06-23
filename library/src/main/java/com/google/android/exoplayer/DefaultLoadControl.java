@@ -58,8 +58,6 @@ public final class DefaultLoadControl implements LoadControl {
 
   public static final int DEFAULT_LOW_WATERMARK_MS = 15000;
   public static final int DEFAULT_HIGH_WATERMARK_MS = 30000;
-  public static final float DEFAULT_LOW_BUFFER_LOAD = 0.2f;
-  public static final float DEFAULT_HIGH_BUFFER_LOAD = 0.8f;
 
   private static final int ABOVE_HIGH_WATERMARK = 0;
   private static final int BETWEEN_WATERMARKS = 1;
@@ -73,12 +71,10 @@ public final class DefaultLoadControl implements LoadControl {
 
   private final long lowWatermarkUs;
   private final long highWatermarkUs;
-  private final float lowBufferLoad;
-  private final float highBufferLoad;
 
-  private int targetBufferSize;
   private long maxLoadStartPositionUs;
-  private int bufferState;
+  private int targetBufferSize;
+  private boolean targetBufferSizeReached;
   private boolean fillingBuffers;
   private boolean streamingPrioritySet;
 
@@ -102,7 +98,7 @@ public final class DefaultLoadControl implements LoadControl {
   public DefaultLoadControl(DefaultAllocator allocator, Handler eventHandler,
       EventListener eventListener) {
     this(allocator, eventHandler, eventListener, DEFAULT_LOW_WATERMARK_MS,
-        DEFAULT_HIGH_WATERMARK_MS, DEFAULT_LOW_BUFFER_LOAD, DEFAULT_HIGH_BUFFER_LOAD);
+        DEFAULT_HIGH_WATERMARK_MS);
   }
 
   /**
@@ -117,15 +113,9 @@ public final class DefaultLoadControl implements LoadControl {
    *     the filling state.
    * @param highWatermarkMs The minimum duration of media that can be buffered for the control to
    *     transition from filling to draining.
-   * @param lowBufferLoad The minimum fraction of the buffer that must be utilized for the control
-   *     to be in the draining state. If the utilization is lower, then the control will transition
-   *     to the filling state.
-   * @param highBufferLoad The minimum fraction of the buffer that must be utilized for the control
-   *     to transition from the loading state to the draining state.
    */
   public DefaultLoadControl(DefaultAllocator allocator, Handler eventHandler,
-      EventListener eventListener, int lowWatermarkMs, int highWatermarkMs, float lowBufferLoad,
-      float highBufferLoad) {
+      EventListener eventListener, int lowWatermarkMs, int highWatermarkMs) {
     this.allocator = allocator;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
@@ -133,8 +123,6 @@ public final class DefaultLoadControl implements LoadControl {
     this.loaderStates = new HashMap<>();
     this.lowWatermarkUs = lowWatermarkMs * 1000L;
     this.highWatermarkUs = highWatermarkMs * 1000L;
-    this.lowBufferLoad = lowBufferLoad;
-    this.highBufferLoad = highBufferLoad;
   }
 
   @Override
@@ -151,6 +139,7 @@ public final class DefaultLoadControl implements LoadControl {
     LoaderState state = loaderStates.remove(loader);
     targetBufferSize -= state.bufferSizeContribution;
     allocator.setTargetBufferSize(targetBufferSize);
+    targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     updateControlState();
   }
 
@@ -174,11 +163,10 @@ public final class DefaultLoadControl implements LoadControl {
     }
 
     // Update the buffer state.
-    int currentBufferSize = allocator.getTotalBytesAllocated();
-    int bufferState = getBufferState(currentBufferSize);
-    boolean bufferStateChanged = this.bufferState != bufferState;
+    boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
+    boolean bufferStateChanged = this.targetBufferSizeReached != targetBufferSizeReached;
     if (bufferStateChanged) {
-      this.bufferState = bufferState;
+      this.targetBufferSizeReached = targetBufferSizeReached;
     }
 
     // If either of the individual states have changed, update the shared control state.
@@ -186,8 +174,7 @@ public final class DefaultLoadControl implements LoadControl {
       updateControlState();
     }
 
-    return currentBufferSize < targetBufferSize && nextLoadPositionUs != C.UNSET_TIME_US
-        && nextLoadPositionUs <= maxLoadStartPositionUs;
+    return nextLoadPositionUs != C.UNSET_TIME_US && nextLoadPositionUs <= maxLoadStartPositionUs;
   }
 
   private int getLoaderBufferState(long playbackPositionUs, long nextLoadPositionUs) {
@@ -201,27 +188,20 @@ public final class DefaultLoadControl implements LoadControl {
     }
   }
 
-  private int getBufferState(int currentBufferSize) {
-    float bufferLoad = (float) currentBufferSize / targetBufferSize;
-    return bufferLoad > highBufferLoad ? ABOVE_HIGH_WATERMARK
-        : bufferLoad < lowBufferLoad ? BELOW_LOW_WATERMARK
-        : BETWEEN_WATERMARKS;
-  }
-
   private void updateControlState() {
     boolean loading = false;
     boolean haveNextLoadPosition = false;
-    int highestState = bufferState;
+    int worstLoaderState = ABOVE_HIGH_WATERMARK;
     for (int i = 0; i < loaders.size(); i++) {
       LoaderState loaderState = loaderStates.get(loaders.get(i));
       loading |= loaderState.loading;
       haveNextLoadPosition |= loaderState.nextLoadPositionUs != C.UNSET_TIME_US;
-      highestState = Math.max(highestState, loaderState.bufferState);
+      worstLoaderState = Math.max(worstLoaderState, loaderState.bufferState);
     }
 
     fillingBuffers = !loaders.isEmpty() && (loading || haveNextLoadPosition)
-        && (highestState == BELOW_LOW_WATERMARK
-        || (highestState == BETWEEN_WATERMARKS && fillingBuffers));
+        && (worstLoaderState == BELOW_LOW_WATERMARK
+        || (worstLoaderState == BETWEEN_WATERMARKS && fillingBuffers && !targetBufferSizeReached));
     if (fillingBuffers && !streamingPrioritySet) {
       NetworkLock.instance.add(NetworkLock.STREAMING_PRIORITY);
       streamingPrioritySet = true;
