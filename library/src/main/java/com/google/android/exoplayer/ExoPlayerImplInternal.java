@@ -609,6 +609,9 @@ import java.util.ArrayList;
       // TODO[playlists]: Let sample source providers invalidate sources that are already buffering.
 
       int sourceCount = sampleSourceProvider.getSourceCount();
+      // TODO: There should probably be some kind of read ahead limit here to prevent the number of
+      // sources between the playing source and the buffering source from growing excessively large
+      // (e.g. >100)?
       if (bufferingSource == null || bufferingSource.isFullyBuffered()) {
         // Try and obtain the next source to start buffering.
         int sourceIndex = bufferingSource == null ? pendingSourceIndex : bufferingSource.index + 1;
@@ -954,7 +957,8 @@ import java.util.ArrayList;
     }
 
     public boolean isFullyBuffered() {
-      return prepared && sampleSource.getBufferedPositionUs() == C.END_OF_SOURCE_US;
+      return prepared && (!hasEnabledTracks
+          || sampleSource.getBufferedPositionUs() == C.END_OF_SOURCE_US);
     }
 
     public boolean prepare(long startPositionUs) throws IOException {
