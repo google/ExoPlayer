@@ -681,21 +681,26 @@ import java.util.ArrayList;
         playingSourceEndPositionUs = C.UNSET_TIME_US;
       } else if (playingSource.nextSource != null && playingSource.nextSource.prepared) {
         readingSource = playingSource.nextSource;
-        // Replace enabled renderers' TrackStreams if they will continue to be enabled when the
-        // new source starts playing, so that the transition can be seamless.
         TrackSelectionArray newTrackSelections = readingSource.trackSelections;
         TrackGroupArray groups = readingSource.sampleSource.getTrackGroups();
         for (int i = 0; i < renderers.length; i++) {
           TrackRenderer renderer = renderers[i];
           TrackSelection selection = newTrackSelections.get(i);
-          if (selection != null && renderer.getState() != TrackRenderer.STATE_DISABLED) {
-            // The renderer is enabled and will continue to be enabled after the transition.
-            Format[] formats = new Format[selection.length];
-            for (int j = 0; j < formats.length; j++) {
-              formats[j] = groups.get(selection.group).getFormat(selection.getTrack(j));
+          if (renderer.getState() != TrackRenderer.STATE_DISABLED) {
+            if (selection != null) {
+              // Replace the renderer's TrackStream so the transition to playing the next source can
+              // be seamless.
+              Format[] formats = new Format[selection.length];
+              for (int j = 0; j < formats.length; j++) {
+                formats[j] = groups.get(selection.group).getFormat(selection.getTrack(j));
+              }
+              renderer.replaceTrackStream(formats, readingSource.trackStreams[i],
+                  playingSourceEndPositionUs);
+            } else {
+              // The renderer will be disabled when transitioning to playing the next source. Send
+              // end-of-stream to play out any remaining data.
+              renderer.setCurrentTrackStreamIsFinal();
             }
-            renderer.replaceTrackStream(formats, readingSource.trackStreams[i],
-                playingSourceEndPositionUs);
           }
         }
       }
