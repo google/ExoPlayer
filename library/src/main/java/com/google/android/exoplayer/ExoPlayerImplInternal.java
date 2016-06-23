@@ -53,7 +53,6 @@ import java.util.ArrayList;
 
     public PlaybackInfo(int sourceIndex) {
       this.sourceIndex = sourceIndex;
-      bufferedPositionUs = C.UNSET_TIME_US;
       durationUs = C.UNSET_TIME_US;
     }
 
@@ -146,8 +145,8 @@ import java.util.ArrayList;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void seekTo(int sourceIndex, long positionMs) {
-    handler.obtainMessage(MSG_SEEK_TO, sourceIndex, -1, positionMs).sendToTarget();
+  public void seekTo(int sourceIndex, long positionUs) {
+    handler.obtainMessage(MSG_SEEK_TO, sourceIndex, -1, positionUs).sendToTarget();
   }
 
   public void stop() {
@@ -278,7 +277,6 @@ import java.util.ArrayList;
     // TODO[playlists]: Take into account the buffered position in the timeline.
     long minBufferDurationUs = rebuffering ? minRebufferUs : minBufferUs;
     return minBufferDurationUs <= 0
-        || playbackInfo.bufferedPositionUs == C.UNSET_TIME_US
         || playbackInfo.bufferedPositionUs == C.END_OF_SOURCE_US
         || playbackInfo.bufferedPositionUs >= playbackInfo.positionUs + minBufferDurationUs
         || (playbackInfo.durationUs != C.UNSET_TIME_US
@@ -433,11 +431,11 @@ import java.util.ArrayList;
     }
   }
 
-  private void seekToInternal(int sourceIndex, long seekPositionMs) throws ExoPlaybackException {
+  private void seekToInternal(int sourceIndex, long seekPositionUs) throws ExoPlaybackException {
     try {
       if (sourceIndex == playbackInfo.sourceIndex
-          && seekPositionMs == (playbackInfo.positionUs / 1000)) {
-        // Seek is to the current position. Do nothing.
+          && (seekPositionUs / 1000) == (playbackInfo.positionUs / 1000)) {
+        // Seek position equals the current position to the nearest millisecond. Do nothing.
         return;
       }
 
@@ -446,7 +444,6 @@ import java.util.ArrayList;
         eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
       }
 
-      long seekPositionUs = seekPositionMs * 1000;
       rebuffering = false;
       standaloneMediaClock.stop();
 

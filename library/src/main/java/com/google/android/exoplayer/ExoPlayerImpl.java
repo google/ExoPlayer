@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.annotation.SuppressLint;
@@ -42,12 +43,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int pendingSetSourceProviderAndSeekAcks;
 
   // Playback information when there is no pending seek/set source operation.
-  private ExoPlayerImplInternal.PlaybackInfo playbackInfo;
+  private PlaybackInfo playbackInfo;
 
   // Playback information when there is a pending seek/set source operation.
-  private int sourceIndex;
-  private long position;
-  private long duration;
+  private int maskingSourceIndex;
+  private long maskingPositionMs;
+  private long maskingDurationMs;
 
   /**
    * Constructs an instance. Must be invoked from a thread that has an associated {@link Looper}.
@@ -102,14 +103,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void setSourceProvider(SampleSourceProvider sourceProvider) {
-    duration = ExoPlayer.UNKNOWN_TIME;
-    position = 0;
-    sourceIndex = 0;
+    maskingSourceIndex = 0;
+    maskingPositionMs = 0;
+    maskingDurationMs = ExoPlayer.UNKNOWN_TIME;
 
     pendingSetSourceProviderAndSeekAcks++;
     internalPlayer.setSourceProvider(sourceProvider);
     for (EventListener listener : listeners) {
-      listener.onPositionDiscontinuity(sourceIndex, position);
+      listener.onPositionDiscontinuity(0, 0);
     }
   }
 
@@ -142,14 +143,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int sourceIndex, long positionMs) {
-    duration = sourceIndex == getCurrentSourceIndex() ? getDuration() : ExoPlayer.UNKNOWN_TIME;
-    position = positionMs;
-    this.sourceIndex = sourceIndex;
+    boolean sourceChanging = sourceIndex != getCurrentSourceIndex();
+    maskingSourceIndex = sourceIndex;
+    maskingPositionMs = positionMs;
+    maskingDurationMs = sourceChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
 
     pendingSetSourceProviderAndSeekAcks++;
-    internalPlayer.seekTo(sourceIndex, position);
+    internalPlayer.seekTo(sourceIndex, positionMs * 1000);
     for (EventListener listener : listeners) {
-      listener.onPositionDiscontinuity(sourceIndex, position);
+      listener.onPositionDiscontinuity(sourceIndex, positionMs);
     }
   }
 
@@ -180,28 +182,28 @@ import java.util.concurrent.CopyOnWriteArraySet;
       long durationUs = playbackInfo.durationUs;
       return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
     } else {
-      return duration;
+      return maskingDurationMs;
     }
   }
 
   @Override
   public long getCurrentPosition() {
-    return pendingSetSourceProviderAndSeekAcks == 0 ? playbackInfo.positionUs / 1000 : position;
+    return pendingSetSourceProviderAndSeekAcks == 0 ? playbackInfo.positionUs / 1000
+        : maskingPositionMs;
   }
 
   @Override
   public int getCurrentSourceIndex() {
-    return pendingSetSourceProviderAndSeekAcks == 0 ? playbackInfo.sourceIndex : sourceIndex;
+    return pendingSetSourceProviderAndSeekAcks == 0 ? playbackInfo.sourceIndex : maskingSourceIndex;
   }
 
   @Override
   public long getBufferedPosition() {
     if (pendingSetSourceProviderAndSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
-      return bufferedPositionUs == C.UNSET_TIME_US || bufferedPositionUs == C.END_OF_SOURCE_US
-          ? ExoPlayer.UNKNOWN_TIME : bufferedPositionUs / 1000;
+      return bufferedPositionUs == C.END_OF_SOURCE_US ? getDuration() : bufferedPositionUs / 1000;
     } else {
-      return position;
+      return maskingPositionMs;
     }
   }
 
