@@ -23,10 +23,14 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.novoda:bintray-release:0.3.4'
     }
+
+    ext.setup = [compileSdk: 23,
+               minSdk    : 16,
+               buildTools: "23.0.3"]
 }
 
 allprojects {
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 }
