@@ -790,8 +790,9 @@ import java.util.ArrayList;
       }
 
       int enabledRendererCount = disableRenderers(false, newTrackSelections);
-      TrackStream[] newStreams = playingSource.updateTrackStreams(oldStreams, newTrackSelections,
-          newSelections, playbackInfo.positionUs);
+      TrackStream[] newStreams = sampleSource.selectTracks(oldStreams, newSelections,
+          playbackInfo.positionUs);
+      playingSource.updateTrackStreams(newTrackSelections, newSelections, newStreams);
       trackSelector.onSelectionActivated(trackSelectionData);
 
       // Update the stored TrackStreams.
@@ -989,14 +990,12 @@ import java.util.ArrayList;
           }
         }
       }
-      updateTrackStreams(oldStreams, newTrackSelections, newSelections, positionUs);
+      TrackStream[] newStreams = sampleSource.selectTracks(oldStreams, newSelections, positionUs);
+      updateTrackStreams(newTrackSelections, newSelections, newStreams);
     }
 
-    public TrackStream[] updateTrackStreams(ArrayList<TrackStream> oldStreams,
-        TrackSelectionArray newTrackSelections, ArrayList<TrackSelection> newSelections,
-        long positionUs) {
-      TrackStream[] newStreams = sampleSource.selectTracks(oldStreams, newSelections,
-          positionUs);
+    public void updateTrackStreams(TrackSelectionArray newTrackSelections,
+        ArrayList<TrackSelection> newSelections, TrackStream[] newStreams) {
       hasEnabledTracks = false;
       for (int i = 0; i < newTrackSelections.length; i++) {
         TrackSelection selection = newTrackSelections.get(i);
@@ -1013,7 +1012,6 @@ import java.util.ArrayList;
         }
       }
       trackSelections = newTrackSelections;
-      return newStreams;
     }
 
     public void release() {
