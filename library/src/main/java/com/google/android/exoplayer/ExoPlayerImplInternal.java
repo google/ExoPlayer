@@ -82,6 +82,13 @@ import java.util.ArrayList;
   private static final int RENDERING_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
 
+  /**
+   * Limits the maximum number of sources to buffer ahead of the current source in the timeline. The
+   * source buffering policy normally prevents buffering too far ahead, but the policy could allow
+   * too many very small sources to be buffered if the buffered source count were not limited.
+   */
+  private static final int MAXIMUM_BUFFER_AHEAD_SOURCES = 100;
+
   private final TrackSelector trackSelector;
   private final StandaloneMediaClock standaloneMediaClock;
   private final long minBufferUs;
@@ -601,10 +608,9 @@ import java.util.ArrayList;
       // TODO[playlists]: Let sample source providers invalidate sources that are already buffering.
 
       int sourceCount = sampleSourceProvider.getSourceCount();
-      // TODO: There should probably be some kind of read ahead limit here to prevent the number of
-      // sources between the playing source and the buffering source from growing excessively large
-      // (e.g. >100)?
-      if (bufferingSource == null || bufferingSource.isFullyBuffered()) {
+      if (bufferingSource == null
+          || (bufferingSource.isFullyBuffered() && bufferingSource.index
+              - (playingSource != null ? playingSource.index : 0) < MAXIMUM_BUFFER_AHEAD_SOURCES)) {
         // Try and obtain the next source to start buffering.
         int sourceIndex = bufferingSource == null ? pendingSourceIndex : bufferingSource.index + 1;
         if (sourceCount == SampleSourceProvider.UNKNOWN_SOURCE_COUNT || sourceIndex < sourceCount) {
