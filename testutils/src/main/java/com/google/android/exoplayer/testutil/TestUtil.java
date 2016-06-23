@@ -87,6 +87,7 @@ public class TestUtil {
   private static void consumeTestData(Extractor extractor, FakeExtractorInput input,
       FakeExtractorOutput output, boolean retryFromStartIfLive)
       throws IOException, InterruptedException {
+    extractor.seek(input.getPosition());
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
@@ -193,8 +194,8 @@ public class TestUtil {
   }
 
   /**
-   * Calls {@link #assertOutput(Extractor, String, Instrumentation, boolean, boolean, boolean)} with
-   * all possible combinations of "simulate" parameters.
+   * Calls {@link #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean,
+   * boolean)} with all possible combinations of "simulate" parameters.
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
@@ -202,18 +203,37 @@ public class TestUtil {
    * @param instrumentation To be used to load the sample file.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
-   * @see #assertOutput(Extractor, String, Instrumentation, boolean, boolean, boolean)
+   * @see #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean, boolean)
    */
   public static void assertOutput(ExtractorFactory factory, String sampleFile,
       Instrumentation instrumentation) throws IOException, InterruptedException {
-    assertOutput(factory.create(), sampleFile, instrumentation, false, false, false);
-    assertOutput(factory.create(), sampleFile, instrumentation,  true, false, false);
-    assertOutput(factory.create(), sampleFile, instrumentation, false,  true, false);
-    assertOutput(factory.create(), sampleFile, instrumentation,  true,  true, false);
-    assertOutput(factory.create(), sampleFile, instrumentation, false, false,  true);
-    assertOutput(factory.create(), sampleFile, instrumentation,  true, false,  true);
-    assertOutput(factory.create(), sampleFile, instrumentation, false,  true,  true);
-    assertOutput(factory.create(), sampleFile, instrumentation,  true,  true,  true);
+    byte[] fileData = getByteArray(instrumentation, sampleFile);
+    assertOutput(factory, sampleFile, fileData, instrumentation);
+  }
+
+  /**
+   * Calls {@link #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean,
+   * boolean)} with all possible combinations of "simulate" parameters.
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param sampleFile The path to the input sample.
+   * @param fileData Content of the input file.
+   * @param instrumentation To be used to load the sample file.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   * @see #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean, boolean)
+   */
+  public static void assertOutput(ExtractorFactory factory, String sampleFile, byte[] fileData,
+      Instrumentation instrumentation) throws IOException, InterruptedException {
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false, false, false);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true, false, false);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false,  true, false);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true,  true, false);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false, false,  true);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true, false,  true);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false,  true,  true);
+    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true,  true,  true);
   }
 
   /**
@@ -224,6 +244,7 @@ public class TestUtil {
    *
    * @param extractor The {@link Extractor} to be tested.
    * @param sampleFile The path to the input sample.
+   * @param fileData Content of the input file.
    * @param instrumentation To be used to load the sample file.
    * @param simulateIOErrors If true simulates IOErrors.
    * @param simulateUnknownLength If true simulates unknown input length.
@@ -233,9 +254,9 @@ public class TestUtil {
    * @throws InterruptedException If interrupted while reading from the input.
    */
   public static FakeExtractorOutput assertOutput(Extractor extractor, String sampleFile,
-      Instrumentation instrumentation, boolean simulateIOErrors, boolean simulateUnknownLength,
+      byte[] fileData, Instrumentation instrumentation, boolean simulateIOErrors,
+      boolean simulateUnknownLength,
       boolean simulatePartialReads) throws IOException, InterruptedException {
-    byte[] fileData = getByteArray(instrumentation, sampleFile);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
         .setSimulateIOErrors(simulateIOErrors)
         .setSimulateUnknownLength(simulateUnknownLength)
@@ -262,7 +283,6 @@ public class TestUtil {
         for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
           extractorOutput.trackOutputs.valueAt(i).clear();
         }
-        extractor.seek(position);
 
         consumeTestData(extractor, input, extractorOutput, false);
         extractorOutput.assertOutput(instrumentation, sampleFile + '.' + j + DUMP_EXTENSION);
