@@ -878,9 +878,8 @@ import java.util.ArrayList;
               rendererMediaClockSource = null;
             }
             ensureStopped(renderer);
-            // TODO[playlists]: Consider using TrackStreams from the timeline source instead of
-            // returning a TrackStream from TrackRenderer.disable.
-            oldStreams.add(renderer.disable());
+            renderer.disable();
+            oldStreams.add(playingSource.trackStreams[i]);
           }
           if (newSelection != null) {
             newSelections.add(newSelection);

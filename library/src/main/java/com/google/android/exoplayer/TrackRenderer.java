@@ -314,14 +314,12 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Disable the renderer.
    */
-  /* package */ final TrackStream disable() {
+  /* package */ final void disable() {
     Assertions.checkState(state == STATE_ENABLED);
     state = STATE_DISABLED;
     onDisabled();
-    TrackStream trackStream = stream;
     stream = null;
     streamIsFinal = false;
-    return trackStream;
   }
 
   /**
