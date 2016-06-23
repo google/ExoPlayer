@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
  */
 /* package */ final class HlsParserUtil {
 
+  private static final String BOOLEAN_TRUE_VALUE = "YES";
+  private static final String BOOLEAN_FALSE_VALUE = "NO";
+
   private HlsParserUtil() {}
 
   public static String parseStringAttr(String line, Pattern pattern, String tag)
@@ -52,6 +55,19 @@ import java.util.regex.Pattern;
       return matcher.group(1);
     }
     return null;
+  }
+
+  public static boolean parseBooleanAttribute(String line, Pattern pattern, boolean defaultValue) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find()) {
+      return matcher.group(1).equals(BOOLEAN_TRUE_VALUE);
+    }
+    return defaultValue;
+  }
+
+  public static Pattern compileBooleanAttrPattern(String attribute) {
+    return Pattern.compile(attribute + "=(" + BOOLEAN_FALSE_VALUE + "|" + BOOLEAN_TRUE_VALUE + ")");
+
   }
 
 }

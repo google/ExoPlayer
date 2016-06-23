@@ -510,7 +510,8 @@ import java.util.List;
       return sampleFormat;
     }
     return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate,
-        containerFormat.width, containerFormat.height, 0, containerFormat.language);
+        containerFormat.width, containerFormat.height, containerFormat.selectionFlags,
+        containerFormat.language);
   }
 
   private void maybeStartLoading() {

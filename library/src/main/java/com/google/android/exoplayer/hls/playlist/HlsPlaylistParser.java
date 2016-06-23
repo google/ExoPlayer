@@ -62,6 +62,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String URI_ATTR = "URI";
   private static final String IV_ATTR = "IV";
   private static final String INSTREAM_ID_ATTR = "INSTREAM-ID";
+  private static final String AUTOSELECT_ATTR = "AUTOSELECT";
+  private static final String DEFAULT_ATTR = "DEFAULT";
+  private static final String FORCED_ATTR = "FORCED";
 
   private static final String AUDIO_TYPE = "AUDIO";
   private static final String VIDEO_TYPE = "VIDEO";
@@ -103,10 +106,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
   private static final Pattern INSTREAM_ID_ATTR_REGEX =
       Pattern.compile(INSTREAM_ID_ATTR + "=\"(.+?)\"");
-  // private static final Pattern AUTOSELECT_ATTR_REGEX =
-  //     HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
-  // private static final Pattern DEFAULT_ATTR_REGEX =
-  //     HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
+  private static final Pattern AUTOSELECT_ATTR_REGEX =
+      HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
+  private static final Pattern DEFAULT_ATTR_REGEX =
+      HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
+  private static final Pattern FORCED_ATTR_REGEX =
+      HlsParserUtil.compileBooleanAttrPattern(FORCED_ATTR);
 
   @Override
   public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
@@ -159,6 +164,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     while (iterator.hasNext()) {
       line = iterator.next();
       if (line.startsWith(MEDIA_TAG)) {
+        boolean isDefault = HlsParserUtil.parseBooleanAttribute(line, DEFAULT_ATTR_REGEX, false);
+        boolean isForced = HlsParserUtil.parseBooleanAttribute(line, FORCED_ATTR_REGEX, false);
+        boolean isAutoselect = HlsParserUtil.parseBooleanAttribute(line, AUTOSELECT_ATTR_REGEX,
+            false);
+        int selectionFlags = (isDefault ? Format.SELECTION_FLAG_DEFAULT : 0)
+            | (isForced ? Format.SELECTION_FLAG_FORCED : 0)
+            | (isAutoselect ? Format.SELECTION_FLAG_AUTOSELECT : 0);
         String type = HlsParserUtil.parseStringAttr(line, TYPE_ATTR_REGEX, TYPE_ATTR);
         if (CLOSED_CAPTIONS_TYPE.equals(type)) {
           String instreamId = HlsParserUtil.parseStringAttr(line, INSTREAM_ID_ATTR_REGEX,
@@ -168,7 +180,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             String captionName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
             String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
             muxedCaptionFormat = Format.createTextContainerFormat(captionName,
-                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, -1, 0, language);
+                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, -1, selectionFlags,
+                language);
           }
         } else if (SUBTITLES_TYPE.equals(type)) {
           // We assume all subtitles belong to the same group.
@@ -176,7 +189,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
           Format format = Format.createTextContainerFormat(subtitleName, MimeTypes.APPLICATION_M3U8,
-              MimeTypes.TEXT_VTT, null, bitrate, 0, language);
+              MimeTypes.TEXT_VTT, null, bitrate, selectionFlags, language);
           subtitles.add(new Variant(uri, format, codecs));
         } else if (AUDIO_TYPE.equals(type)) {
           // We assume all audios belong to the same group.
@@ -185,7 +198,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String audioName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           int audioBitrate = uri != null ? bitrate : -1;
           Format format = Format.createAudioContainerFormat(audioName, MimeTypes.APPLICATION_M3U8,
-              null, null, audioBitrate, -1, -1, null, 0, language);
+              null, null, audioBitrate, -1, -1, null, selectionFlags, language);
           if (uri != null) {
             audios.add(new Variant(uri, format, codecs));
           } else {

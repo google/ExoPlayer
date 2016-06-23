@@ -60,6 +60,11 @@ public final class Format implements Parcelable {
    * Indicates that the track must be displayed. Only applies to text tracks.
    */
   public static final int SELECTION_FLAG_FORCED = 2;
+  /**
+   * Indicates that the player may choose to play the track in absence of an explicit user
+   * preference.
+   */
+  public static final int SELECTION_FLAG_AUTOSELECT = 4;
 
   /**
    * A value for {@link #subsampleOffsetUs} to indicate that subsample timestamps are relative to
@@ -391,6 +396,7 @@ public final class Format implements Parcelable {
     String codecs = this.codecs == null ? manifestFormat.codecs : this.codecs;
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
     float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
+    int selectionFlags = this.selectionFlags |  manifestFormat.selectionFlags;
     String language = this.language == null ? manifestFormat.language : this.language;
     DrmInitData drmInitData = (preferManifestDrmInitData && manifestFormat.drmInitData != null)
         || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;
