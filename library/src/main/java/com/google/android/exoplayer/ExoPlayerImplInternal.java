@@ -111,7 +111,6 @@ import java.util.ArrayList;
   private int customMessagesProcessed;
   private long elapsedRealtimeUs;
 
-  private long sourceOffsetUs;
   private long internalPositionUs;
 
   public ExoPlayerImplInternal(TrackRenderer[] renderers, TrackSelector trackSelector,
@@ -356,7 +355,7 @@ import java.util.ArrayList;
       } else {
         internalPositionUs = standaloneMediaClock.getPositionUs();
       }
-      positionUs = internalPositionUs - sourceOffsetUs;
+      positionUs = internalPositionUs - timeline.playingSource.offsetUs;
     }
     playbackInfo.positionUs = positionUs;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
@@ -469,7 +468,6 @@ import java.util.ArrayList;
 
       if (sourceIndex != playbackInfo.sourceIndex) {
         playbackInfo = new PlaybackInfo(sourceIndex);
-        playbackInfo.positionUs = seekPositionUs;
         updatePlaybackPositions();
         eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
       }
@@ -483,7 +481,7 @@ import java.util.ArrayList;
   }
 
   private void resetInternalPosition(long sourcePositionUs) throws ExoPlaybackException {
-    internalPositionUs = sourceOffsetUs + sourcePositionUs;
+    internalPositionUs = timeline.playingSource.offsetUs + sourcePositionUs;
     standaloneMediaClock.setPositionUs(internalPositionUs);
     for (TrackRenderer renderer : enabledRenderers) {
       renderer.reset(internalPositionUs);
@@ -575,7 +573,6 @@ import java.util.ArrayList;
 
     private int pendingSourceIndex;
     private long playingSourceEndPositionUs;
-    private long bufferingSourceOffsetUs;
 
     public Timeline(TrackRenderer[] renderers) {
       this.renderers = renderers;
@@ -607,6 +604,7 @@ import java.util.ArrayList;
     public void updateSources() throws ExoPlaybackException, IOException {
       // TODO[playlists]: Let sample source providers invalidate sources that are already buffering.
 
+      // Update the buffering source.
       int sourceCount = sampleSourceProvider.getSourceCount();
       if (bufferingSource == null
           || (bufferingSource.isFullyBuffered() && bufferingSource.index
@@ -619,14 +617,12 @@ import java.util.ArrayList;
           if (sampleSource != null) {
             Source newSource = new Source(sampleSource, sourceIndex, renderers.length);
             if (bufferingSource != null) {
-              bufferingSource.nextSource = newSource;
-              bufferingSourceOffsetUs += bufferingSource.sampleSource.getDurationUs();
+              bufferingSource.setNextSource(newSource);
             }
             bufferingSource = newSource;
           }
         }
       }
-
       if (bufferingSource != null) {
         if (!bufferingSource.prepared) {
           // Continue preparation.
@@ -638,55 +634,46 @@ import java.util.ArrayList;
             bufferingSource.selectTracks(result.first, result.second, startPositionUs);
             if (playingSource == null) {
               // This is the first prepared source, so start playing it.
-              setPlayingSource(bufferingSource, 0);
+              readingSource = bufferingSource;
+              setPlayingSource(readingSource);
             }
           }
         }
-
         if (bufferingSource.hasEnabledTracks) {
-          long sourcePositionUs = internalPositionUs - bufferingSourceOffsetUs;
+          long sourcePositionUs = internalPositionUs - bufferingSource.offsetUs;
           bufferingSource.sampleSource.continueBuffering(sourcePositionUs);
         }
       }
 
+      // Update the playing and reading sources.
       if (playingSource == null) {
         return;
       }
-
-      if (readingSource != playingSource) {
-        if (playingSourceEndPositionUs != C.UNSET_TIME_US
-            && internalPositionUs >= playingSourceEndPositionUs) {
-          playingSource.release();
-          setPlayingSource(readingSource, playingSourceEndPositionUs);
-          playbackInfo = new PlaybackInfo(playingSource.index);
-          updatePlaybackPositions();
-          eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
-        } else {
-          // We're reading ahead, but it's not time to update the playing source yet.
-          return;
-        }
+      if (playingSourceEndPositionUs == C.UNSET_TIME_US && playingSource.isFullyBuffered()) {
+        playingSourceEndPositionUs = playingSource.offsetUs
+            + playingSource.sampleSource.getDurationUs();
       }
-
-      // Check whether all enabled renderers have read to the end of their TrackStreams.
+      while (playingSource.nextSource != null && playingSource.nextSource.prepared
+          && internalPositionUs >= playingSource.nextSource.offsetUs) {
+        playingSource.release();
+        if (readingSource == playingSource) {
+          readingSource = playingSource.nextSource;
+        }
+        setPlayingSource(playingSource.nextSource);
+        playbackInfo = new PlaybackInfo(playingSource.index);
+        updatePlaybackPositions();
+        eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
+      }
+      if (readingSource == null) {
+        return;
+      }
       for (TrackRenderer renderer : enabledRenderers) {
         if (!renderer.hasReadStreamToEnd()) {
           return;
         }
       }
-      // TODO: Is playingSourceEndPositionUs equivalent to playbackInfo.durationUs?
-      if (playingSourceEndPositionUs == C.UNSET_TIME_US) {
-        playingSourceEndPositionUs = sourceOffsetUs + playingSource.sampleSource.getDurationUs();
-      }
-      if (sourceCount != SampleSourceProvider.UNKNOWN_SOURCE_COUNT
-          && readingSource.index == sourceCount - 1) {
-        // This is the last source, so signal the renderers to read the end of the stream.
-        for (TrackRenderer renderer : enabledRenderers) {
-          renderer.setCurrentTrackStreamIsFinal();
-        }
-        readingSource = null;
-        playingSourceEndPositionUs = C.UNSET_TIME_US;
-      } else if (playingSource.nextSource != null && playingSource.nextSource.prepared) {
-        readingSource = playingSource.nextSource;
+      if (readingSource.nextSource != null && readingSource.nextSource.prepared) {
+        readingSource = readingSource.nextSource;
         TrackSelectionArray newTrackSelections = readingSource.trackSelections;
         TrackGroupArray groups = readingSource.sampleSource.getTrackGroups();
         for (int i = 0; i < renderers.length; i++) {
@@ -701,13 +688,20 @@ import java.util.ArrayList;
                 formats[j] = groups.get(selection.group).getFormat(selection.getTrack(j));
               }
               renderer.replaceTrackStream(formats, readingSource.trackStreams[i],
-                  playingSourceEndPositionUs);
+                  readingSource.offsetUs);
             } else {
               // The renderer will be disabled when transitioning to playing the next source. Send
               // end-of-stream to play out any remaining data.
               renderer.setCurrentTrackStreamIsFinal();
             }
           }
+        }
+      } else if (sourceCount != SampleSourceProvider.UNKNOWN_SOURCE_COUNT
+          && readingSource.index == sourceCount - 1) {
+        readingSource = null;
+        // This is the last source, so signal the renderers to read the end of the stream.
+        for (TrackRenderer renderer : enabledRenderers) {
+          renderer.setCurrentTrackStreamIsFinal();
         }
       }
     }
@@ -727,15 +721,14 @@ import java.util.ArrayList;
 
       if (newPlayingSource != null) {
         newPlayingSource.nextSource = null;
-        setPlayingSource(newPlayingSource, sourceOffsetUs);
+        setPlayingSource(newPlayingSource);
+        readingSource = playingSource;
         bufferingSource = playingSource;
-        bufferingSourceOffsetUs = sourceOffsetUs;
       } else {
         // TODO[REFACTOR]: We need to disable the renderers somewhere in here?
         playingSource = null;
         readingSource = null;
         bufferingSource = null;
-        bufferingSourceOffsetUs = 0;
         pendingSourceIndex = sourceIndex;
       }
     }
@@ -756,7 +749,8 @@ import java.util.ArrayList;
             for (int j = 0; j < formats.length; j++) {
               formats[j] = groups.get(selection.group).getFormat(selection.getTrack(j));
             }
-            renderer.replaceTrackStream(formats, playingSource.trackStreams[i], sourceOffsetUs);
+            renderer.replaceTrackStream(formats, playingSource.trackStreams[i],
+                playingSource.offsetUs);
           }
         }
       }
@@ -772,7 +766,6 @@ import java.util.ArrayList;
       readingSource = playingSource;
       bufferingSource = playingSource;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
-      bufferingSourceOffsetUs = sourceOffsetUs;
 
       // Update the track selection for the playing source.
       Pair<TrackSelectionArray, Object> result =
@@ -814,20 +807,14 @@ import java.util.ArrayList;
       bufferingSource = null;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
       pendingSourceIndex = 0;
-      sourceOffsetUs = 0;
-      bufferingSourceOffsetUs = 0;
       playbackInfo = new PlaybackInfo(0);
       eventHandler.obtainMessage(MSG_SOURCE_CHANGED, playbackInfo).sendToTarget();
     }
 
-    private void setPlayingSource(Source source, long offsetUs) throws ExoPlaybackException {
-      sourceOffsetUs = offsetUs;
+    private void setPlayingSource(Source source) throws ExoPlaybackException {
       // Disable/enable renderers for the new source.
       int enabledRendererCount = disableRenderers(true, source.trackSelections);
-      if (playingSource != source) {
-        trackSelector.onSelectionActivated(source.trackSelectionData);
-      }
-      readingSource = source;
+      trackSelector.onSelectionActivated(source.trackSelectionData);
       playingSource = source;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
       enableRenderers(source.trackSelections, enabledRendererCount);
@@ -902,7 +889,7 @@ import java.util.ArrayList;
             }
             // Enable the renderer.
             renderer.enable(formats, playingSource.trackStreams[i], internalPositionUs, joining,
-                sourceOffsetUs);
+                playingSource.offsetUs);
             MediaClock mediaClock = renderer.getMediaClock();
             if (mediaClock != null) {
               if (rendererMediaClock != null) {
@@ -936,7 +923,7 @@ import java.util.ArrayList;
     public boolean hasEnabledTracks;
     public TrackSelectionArray trackSelections;
     public Object trackSelectionData;
-
+    public long offsetUs;
     public Source nextSource;
 
     public Source(SampleSource sampleSource, int index, int rendererCount) {
@@ -948,6 +935,11 @@ import java.util.ArrayList;
     public boolean isFullyBuffered() {
       return prepared && (!hasEnabledTracks
           || sampleSource.getBufferedPositionUs() == C.END_OF_SOURCE_US);
+    }
+
+    public void setNextSource(Source nextSource) {
+      this.nextSource = nextSource;
+      nextSource.offsetUs = offsetUs + sampleSource.getDurationUs();
     }
 
     public boolean prepare(long startPositionUs) throws IOException {
