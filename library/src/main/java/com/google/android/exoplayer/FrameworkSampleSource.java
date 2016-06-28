@@ -337,12 +337,12 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @TargetApi(16)
-  private static final String getOptionalStringV16(android.media.MediaFormat format, String key) {
+  private static String getOptionalStringV16(android.media.MediaFormat format, String key) {
     return format.containsKey(key) ? format.getString(key) : null;
   }
 
   @TargetApi(16)
-  private static final int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
+  private static int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
     return format.containsKey(key) ? format.getInteger(key) : MediaFormat.NO_VALUE;
   }
 
