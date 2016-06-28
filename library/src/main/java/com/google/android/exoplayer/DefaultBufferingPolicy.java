@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.NetworkLock;
+import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 
@@ -40,10 +42,10 @@ import java.util.List;
  * itself as a task with priority {@link NetworkLock#STREAMING_PRIORITY} during loading periods,
  * and unregistering itself during draining periods.
  */
-public final class DefaultLoadControl implements LoadControl {
+public final class DefaultBufferingPolicy implements BufferingPolicy, LoadControl {
 
   /**
-   * Interface definition for a callback to be notified of {@link DefaultLoadControl} events.
+   * Interface definition for a callback to be notified of {@link DefaultBufferingPolicy} events.
    */
   public interface EventListener {
 
@@ -56,8 +58,29 @@ public final class DefaultLoadControl implements LoadControl {
 
   }
 
-  public static final int DEFAULT_LOW_WATERMARK_MS = 15000;
-  public static final int DEFAULT_HIGH_WATERMARK_MS = 30000;
+  /**
+   * The default minimum duration of media that the player will attempt to ensure is buffered at all
+   * times, in milliseconds.
+   */
+  public static final int DEFAULT_MIN_BUFFER_MS = 15000;
+
+  /**
+   * The default maximum duration of media that the player will attempt to buffer, in milliseconds.
+   */
+  public static final int DEFAULT_MAX_BUFFER_MS = 30000;
+
+  /**
+   * The default duration of media that must be buffered for playback to start or resume following a
+   * user action such as a seek, in milliseconds.
+   */
+  public static final int DEFAULT_BUFFER_FOR_PLAYBACK_MS = 2500;
+
+  /**
+   * The default duration of media that must be buffered for playback to resume after a
+   * player-invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion rather than a user
+   * action), in milliseconds.
+   */
+  public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS  = 5000;
 
   private static final int ABOVE_HIGH_WATERMARK = 0;
   private static final int BETWEEN_WATERMARKS = 1;
@@ -69,22 +92,35 @@ public final class DefaultLoadControl implements LoadControl {
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private final long lowWatermarkUs;
-  private final long highWatermarkUs;
+  private final long minBufferUs;
+  private final long maxBufferUs;
+  private final long bufferForPlaybackUs;
+  private final long bufferForPlaybackAfterRebufferUs;
 
-  private long maxLoadStartPositionUs;
   private int targetBufferSize;
   private boolean targetBufferSizeReached;
   private boolean fillingBuffers;
   private boolean streamingPrioritySet;
 
+  private long playbackPositionUs;
+  private long maxLoadStartPositionUs;
+
+  /**
+   * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
+   */
+  public DefaultBufferingPolicy() {
+    this(null, null);
+  }
+
   /**
    * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
    *
-   * @param allocator The {@link DefaultAllocator} used by the loader.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public DefaultLoadControl(DefaultAllocator allocator) {
-    this(allocator, null, null);
+  public DefaultBufferingPolicy(Handler eventHandler, EventListener eventListener) {
+    this(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE), eventHandler, eventListener);
   }
 
   /**
@@ -95,10 +131,10 @@ public final class DefaultLoadControl implements LoadControl {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public DefaultLoadControl(DefaultAllocator allocator, Handler eventHandler,
+  public DefaultBufferingPolicy(DefaultAllocator allocator, Handler eventHandler,
       EventListener eventListener) {
-    this(allocator, eventHandler, eventListener, DEFAULT_LOW_WATERMARK_MS,
-        DEFAULT_HIGH_WATERMARK_MS);
+    this(allocator, eventHandler, eventListener, DEFAULT_MIN_BUFFER_MS, DEFAULT_MAX_BUFFER_MS,
+        DEFAULT_BUFFER_FOR_PLAYBACK_MS, DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS);
   }
 
   /**
@@ -108,39 +144,81 @@ public final class DefaultLoadControl implements LoadControl {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param lowWatermarkMs The minimum duration of media that can be buffered for the control to
-   *     be in the draining state. If less media is buffered, then the control will transition to
-   *     the filling state.
-   * @param highWatermarkMs The minimum duration of media that can be buffered for the control to
-   *     transition from filling to draining.
+   * @param minBufferMs The minimum duration of media that the player will attempt to ensure is
+   *     buffered at all times, in milliseconds.
+   * @param maxBufferMs The maximum duration of media that the player will attempt buffer, in
+   *     milliseconds.
+   * @param bufferForPlaybackMs The duration of media that must be buffered for playback to start or
+   *     resume following a user action such as a seek, in milliseconds.
+   * @param bufferForPlaybackAfterRebufferMs The default duration of media that must be buffered for
+   *     playback to resume after a player-invoked rebuffer (i.e. a rebuffer that occurs due to
+   *     buffer depletion rather than a user action), in milliseconds.
    */
-  public DefaultLoadControl(DefaultAllocator allocator, Handler eventHandler,
-      EventListener eventListener, int lowWatermarkMs, int highWatermarkMs) {
+  public DefaultBufferingPolicy(DefaultAllocator allocator, Handler eventHandler,
+      EventListener eventListener, int minBufferMs, int maxBufferMs, long bufferForPlaybackMs,
+      long bufferForPlaybackAfterRebufferMs) {
     this.allocator = allocator;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    this.loaders = new ArrayList<>();
-    this.loaderStates = new HashMap<>();
-    this.lowWatermarkUs = lowWatermarkMs * 1000L;
-    this.highWatermarkUs = highWatermarkMs * 1000L;
+    this.minBufferUs = minBufferMs * 1000L;
+    this.maxBufferUs = maxBufferMs * 1000L;
+    this.bufferForPlaybackUs = bufferForPlaybackMs * 1000L;
+    this.bufferForPlaybackAfterRebufferUs = bufferForPlaybackAfterRebufferMs * 1000L;
+    loaders = new ArrayList<>();
+    loaderStates = new HashMap<>();
+  }
+
+  // BufferingPolicy implementation.
+
+  @Override
+  public void setPlaybackPosition(long playbackPositionUs) {
+    this.playbackPositionUs = playbackPositionUs;
   }
 
   @Override
-  public void register(Object loader, int bufferSizeContribution) {
-    loaders.add(loader);
-    loaderStates.put(loader, new LoaderState(bufferSizeContribution));
-    targetBufferSize += bufferSizeContribution;
+  public boolean haveSufficientBuffer(long bufferedPositionUs, boolean rebuffering) {
+    long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
+    return minBufferDurationUs <= 0
+        || bufferedPositionUs == C.END_OF_SOURCE_US
+        || bufferedPositionUs >= playbackPositionUs + minBufferDurationUs;
+  }
+
+  @Override
+  public void onTrackSelections(TrackRenderer[] renderers, TrackGroupArray trackGroups,
+      TrackSelectionArray trackSelections) {
+    targetBufferSize = 0;
+    for (int i = 0; i < renderers.length; i++) {
+      if (trackSelections.get(i) != null) {
+        targetBufferSize += Util.getDefaultBufferSize(renderers[i].getTrackType());
+      }
+    }
     allocator.setTargetBufferSize(targetBufferSize);
+    targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
+    updateControlState();
+  }
+
+  @Override
+  public void reset() {
+    targetBufferSize = 0;
+  }
+
+  @Override
+  public LoadControl getLoadControl() {
+    return this;
+  }
+
+  // LoadControl implementation.
+
+  @Override
+  public void register(Object loader) {
+    loaders.add(loader);
+    loaderStates.put(loader, new LoaderState());
   }
 
   @Override
   public void unregister(Object loader) {
     loaders.remove(loader);
-    LoaderState state = loaderStates.remove(loader);
-    targetBufferSize -= state.bufferSizeContribution;
-    allocator.setTargetBufferSize(targetBufferSize);
-    targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
-    updateControlState();
+    loaderStates.remove(loader);
   }
 
   @Override
@@ -149,8 +227,7 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public boolean update(Object loader, long playbackPositionUs, long nextLoadPositionUs,
-      boolean loading) {
+  public boolean update(Object loader, long nextLoadPositionUs, boolean loading) {
     // Update the loader state.
     int loaderBufferState = getLoaderBufferState(playbackPositionUs, nextLoadPositionUs);
     LoaderState loaderState = loaderStates.get(loader);
@@ -182,8 +259,8 @@ public final class DefaultLoadControl implements LoadControl {
       return ABOVE_HIGH_WATERMARK;
     } else {
       long timeUntilNextLoadPosition = nextLoadPositionUs - playbackPositionUs;
-      return timeUntilNextLoadPosition > highWatermarkUs ? ABOVE_HIGH_WATERMARK :
-          timeUntilNextLoadPosition < lowWatermarkUs ? BELOW_LOW_WATERMARK :
+      return timeUntilNextLoadPosition > maxBufferUs ? ABOVE_HIGH_WATERMARK :
+          timeUntilNextLoadPosition < minBufferUs ? BELOW_LOW_WATERMARK :
           BETWEEN_WATERMARKS;
     }
   }
@@ -239,14 +316,11 @@ public final class DefaultLoadControl implements LoadControl {
 
   private static class LoaderState {
 
-    public final int bufferSizeContribution;
-
     public int bufferState;
     public boolean loading;
     public long nextLoadPositionUs;
 
-    public LoaderState(int bufferSizeContribution) {
-      this.bufferSizeContribution = bufferSizeContribution;
+    public LoaderState() {
       bufferState = ABOVE_HIGH_WATERMARK;
       loading = false;
       nextLoadPositionUs = C.UNSET_TIME_US;

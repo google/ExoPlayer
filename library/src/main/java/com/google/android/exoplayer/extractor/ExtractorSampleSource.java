@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer.extractor;
 
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
-import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
@@ -30,7 +29,6 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -128,13 +126,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final EventListener eventListener;
   private final DataSource dataSource;
   private final ConditionVariable loadCondition;
-  private final LoadControl loadControl;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
 
   private volatile boolean tracksBuilt;
   private volatile SeekMap seekMap;
 
+  private LoadControl loadControl;
   private boolean prepared;
   private boolean seenFirstTrackSelection;
   private boolean notifyReset;
@@ -190,7 +188,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     this.eventHandler = eventHandler;
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     loadCondition = new ConditionVariable();
-    loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     loader = new Loader("Loader:ExtractorSampleSource");
     extractorHolder = new ExtractorHolder(extractors, this);
     pendingResetPositionUs = C.UNSET_TIME_US;
@@ -307,10 +304,11 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // SampleSource implementation.
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
     if (prepared) {
       return true;
     }
+    this.loadControl = loadControl;
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
       loadCondition.close();
       int trackCount = sampleQueues.length;
@@ -388,7 +386,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       }
     } else {
       if (!tracksWereEnabled) {
-        loadControl.register(this, C.DEFAULT_MUXED_BUFFER_SIZE);
+        loadControl.register(this);
         loadCondition.open();
       }
       if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
@@ -401,7 +399,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    if (loadControl.update(this, playbackPositionUs, getBufferedPositionUs(), loader.isLoading())) {
+    if (loadControl.update(this, getBufferedPositionUs(), loader.isLoading())) {
       loadCondition.open();
     } else {
       loadCondition.close();

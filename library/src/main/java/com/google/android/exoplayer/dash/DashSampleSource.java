@@ -17,10 +17,9 @@ package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
@@ -39,7 +38,6 @@ import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Callback;
 import com.google.android.exoplayer.upstream.ParsingLoadable;
@@ -76,7 +74,6 @@ public final class DashSampleSource implements SampleSource {
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
   private final EventDispatcher eventDispatcher;
-  private final LoadControl loadControl;
   private final Loader loader;
   private final DataSource dataSource;
   private final MediaPresentationDescriptionParser manifestParser;
@@ -87,6 +84,7 @@ public final class DashSampleSource implements SampleSource {
   private long manifestLoadEndTimestamp;
   private MediaPresentationDescription manifest;
 
+  private LoadControl loadControl;
   private boolean prepared;
   private long durationUs;
   private long elapsedRealtimeOffset;
@@ -101,7 +99,6 @@ public final class DashSampleSource implements SampleSource {
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     loader = new Loader("Loader:DashSampleSource");
     dataSource = dataSourceFactory.createDataSource();
     manifestParser = new MediaPresentationDescriptionParser();
@@ -110,10 +107,11 @@ public final class DashSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
     if (prepared) {
       return true;
     }
+    this.loadControl = loadControl;
     loader.maybeThrowError();
     if (!loader.isLoading() && manifest == null) {
       startLoadingManifest();
@@ -361,13 +359,12 @@ public final class DashSampleSource implements SampleSource {
     AdaptationSet adaptationSet = manifest.getPeriod(0).adaptationSets.get(
         adaptationSetIndex);
     int adaptationSetType = adaptationSet.type;
-    int bufferSize = Util.getDefaultBufferSize(adaptationSetType);
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
-    return new ChunkTrackStream<>(adaptationSetType, chunkSource, loadControl, bufferSize,
-        positionUs, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
+    return new ChunkTrackStream<>(adaptationSetType, chunkSource, loadControl, positionUs,
+        MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")

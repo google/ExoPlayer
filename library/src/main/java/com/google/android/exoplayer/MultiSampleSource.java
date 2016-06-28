@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.util.Pair;
@@ -46,13 +47,13 @@ public final class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
     if (prepared) {
       return true;
     }
     boolean sourcesPrepared = true;
     for (SampleSource source : sources) {
-      sourcesPrepared &= source.prepare(positionUs);
+      sourcesPrepared &= source.prepare(positionUs, loadControl);
     }
     if (!sourcesPrepared) {
       return false;

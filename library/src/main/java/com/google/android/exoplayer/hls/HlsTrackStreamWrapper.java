@@ -16,11 +16,11 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
@@ -54,7 +54,6 @@ import java.util.List;
   private final int trackType;
   private final HlsChunkSource chunkSource;
   private final LoadControl loadControl;
-  private final int bufferSizeContribution;
   private final Format muxedAudioFormat;
   private final Format muxedCaptionFormat;
   private final int minLoadableRetryCount;
@@ -88,7 +87,6 @@ import java.util.List;
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
-   * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
    * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed audio,
    *     this is the audio {@link Format} as defined by the playlist.
    * @param muxedCaptionFormat If HLS master playlist indicates that the stream contains muxed
@@ -98,12 +96,11 @@ import java.util.List;
    * @param eventDispatcher A dispatcher to notify of events.
    */
   public HlsTrackStreamWrapper(int trackType, HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, Format muxedAudioFormat, Format muxedCaptionFormat,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
+      Format muxedAudioFormat, Format muxedCaptionFormat, int minLoadableRetryCount,
+      EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
-    this.bufferSizeContribution = bufferSizeContribution;
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormat = muxedCaptionFormat;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -210,7 +207,7 @@ import java.util.List;
         loader.cancelLoading();
       }
     } else if (!tracksWereEnabled) {
-      loadControl.register(this, bufferSizeContribution);
+      loadControl.register(this);
     }
     return newStreams;
   }
@@ -516,7 +513,7 @@ import java.util.List;
 
   private void maybeStartLoading() {
     boolean shouldStartLoading = !prepared || (enabledTrackCount > 0
-        && loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), false));
+        && loadControl.update(this, getNextLoadPositionUs(), false));
     if (!shouldStartLoading) {
       return;
     }
@@ -531,7 +528,7 @@ import java.util.List;
     if (endOfStream) {
       loadingFinished = true;
       if (prepared) {
-        loadControl.update(this, downstreamPositionUs, C.UNSET_TIME_US, false);
+        loadControl.update(this, C.UNSET_TIME_US, false);
       }
       return;
     }
@@ -552,7 +549,7 @@ import java.util.List;
         loadable.endTimeUs, elapsedRealtimeMs);
     if (prepared) {
       // Update the load control again to indicate that we're now loading.
-      loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
+      loadControl.update(this, getNextLoadPositionUs(), true);
     }
   }
 

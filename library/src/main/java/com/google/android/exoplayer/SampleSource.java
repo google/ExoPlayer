@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -31,10 +33,11 @@ public interface SampleSource {
    * tracks.
    *
    * @param positionUs The player's current playback position.
+   * @param loadControl A {@link LoadControl} to determine when to load data.
    * @return True if the source is prepared, false otherwise.
    * @throws IOException If there's an error preparing the source.
    */
-  boolean prepare(long positionUs) throws IOException;
+  boolean prepare(long positionUs, LoadControl loadControl) throws IOException;
 
   /**
    * Returns the duration of the source in microseconds, or {@link C#UNSET_TIME_US} if not known.

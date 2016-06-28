@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
@@ -108,7 +109,8 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   // SampleSource implementation.
 
   @Override
-  public boolean prepare(long positionUs) {
+  public boolean prepare(long positionUs, LoadControl loadControl) {
+    // TODO: Use the load control.
     return true;
   }
 

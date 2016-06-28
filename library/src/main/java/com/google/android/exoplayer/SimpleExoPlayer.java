@@ -111,8 +111,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private CodecCounters audioCodecCounters;
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
-      DrmSessionManager drmSessionManager, boolean preferExtensionDecoders, int minBufferMs,
-      int minRebufferMs, long allowedVideoJoiningTimeMs) {
+      BufferingPolicy bufferingPolicy, DrmSessionManager drmSessionManager,
+      boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
     componentListener = new ComponentListener();
@@ -145,7 +145,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
     this.audioRendererCount = audioRendererCount;
 
     // Build the player and associated objects.
-    player = new ExoPlayerImpl(renderers, trackSelector, minBufferMs, minRebufferMs);
+    player = new ExoPlayerImpl(renderers, trackSelector, bufferingPolicy);
   }
 
   /**

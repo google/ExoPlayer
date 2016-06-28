@@ -17,10 +17,9 @@ package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
@@ -36,7 +35,6 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Stre
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.Util;
@@ -68,7 +66,6 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
   private final EventDispatcher eventDispatcher;
-  private final LoadControl loadControl;
   private final Loader manifestLoader;
   private final DataSource manifestDataSource;
   private final SmoothStreamingManifestParser manifestParser;
@@ -76,6 +73,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private long manifestLoadStartTimestamp;
   private SmoothStreamingManifest manifest;
 
+  private LoadControl loadControl;
   private boolean prepared;
   private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
@@ -92,7 +90,6 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     trackStreams = newTrackStreamArray(0);
     manifestDataSource = dataSourceFactory.createDataSource();
     manifestParser = new SmoothStreamingManifestParser();
@@ -100,10 +97,11 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
     if (prepared) {
       return true;
     }
+    this.loadControl = loadControl;
     manifestLoader.maybeThrowError();
     if (!manifestLoader.isLoading()) {
       startLoadingManifest();
@@ -282,13 +280,12 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     int streamElementIndex = trackGroupElementIndices[selection.group];
     StreamElement streamElement = manifest.streamElements[streamElementIndex];
     int streamElementType = streamElement.type;
-    int bufferSize = Util.getDefaultBufferSize(streamElementType);
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifestLoader,
         manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
-    return new ChunkTrackStream<>(streamElementType, chunkSource, loadControl, bufferSize,
-        positionUs, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
+    return new ChunkTrackStream<>(streamElementType, chunkSource, loadControl, positionUs,
+        MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")

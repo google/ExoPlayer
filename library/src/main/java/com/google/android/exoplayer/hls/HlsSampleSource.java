@@ -17,10 +17,9 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
@@ -36,7 +35,6 @@ import com.google.android.exoplayer.hls.playlist.Variant;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -66,13 +64,13 @@ public final class HlsSampleSource implements SampleSource,
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
   private final EventDispatcher eventDispatcher;
-  private final LoadControl loadControl;
   private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final Loader manifestFetcher;
   private final DataSource manifestDataSource;
   private final HlsPlaylistParser manifestParser;
 
+  private LoadControl loadControl;
   private boolean seenFirstTrackSelection;
   private long durationUs;
   private boolean isLive;
@@ -89,7 +87,6 @@ public final class HlsSampleSource implements SampleSource,
     this.bandwidthMeter = bandwidthMeter;
 
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    loadControl = new DefaultLoadControl(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     trackStreamSources = new IdentityHashMap<>();
 
@@ -99,11 +96,12 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
     if (trackGroups != null) {
       return true;
     }
 
+    this.loadControl = loadControl;
     if (trackStreamWrappers == null) {
       manifestFetcher.maybeThrowError();
       if (!manifestFetcher.isLoading()) {
@@ -268,8 +266,7 @@ public final class HlsSampleSource implements SampleSource,
           Format.NO_VALUE);
       Variant[] variants = new Variant[] {new Variant(playlist.baseUri, format, null)};
       trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), C.DEFAULT_MUXED_BUFFER_SIZE,
-          null, null));
+          new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), null, null));
       return trackStreamWrappers;
     }
 
@@ -302,8 +299,8 @@ public final class HlsSampleSource implements SampleSource,
     Variant[] variants = new Variant[selectedVariants.size()];
     selectedVariants.toArray(variants);
     trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-        new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), C.DEFAULT_MUXED_BUFFER_SIZE,
-        masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat));
+        new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), masterPlaylist.muxedAudioFormat,
+        masterPlaylist.muxedCaptionFormat));
 
     // Build the audio stream wrapper if applicable.
     List<Variant> audioVariants = masterPlaylist.audios;
@@ -311,7 +308,7 @@ public final class HlsSampleSource implements SampleSource,
       variants = new Variant[audioVariants.size()];
       audioVariants.toArray(variants);
       trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
-          C.DEFAULT_AUDIO_BUFFER_SIZE, null, null));
+          null, null));
     }
 
     // Build the text stream wrapper if applicable.
@@ -320,20 +317,20 @@ public final class HlsSampleSource implements SampleSource,
       variants = new Variant[subtitleVariants.size()];
       subtitleVariants.toArray(variants);
       trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
-          C.DEFAULT_TEXT_BUFFER_SIZE, null, null));
+          null, null));
     }
 
     return trackStreamWrappers;
   }
 
   private HlsTrackStreamWrapper buildTrackStreamWrapper(int trackType, String baseUri,
-      Variant[] variants, FormatEvaluator formatEvaluator, int bufferSize, Format muxedAudioFormat,
+      Variant[] variants, FormatEvaluator formatEvaluator, Format muxedAudioFormat,
       Format muxedCaptionFormat) {
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
-    return new HlsTrackStreamWrapper(trackType, defaultChunkSource, loadControl, bufferSize,
-        muxedAudioFormat, muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
+    return new HlsTrackStreamWrapper(trackType, defaultChunkSource, loadControl, muxedAudioFormat,
+        muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 
   private int selectTracks(HlsTrackStreamWrapper trackStreamWrapper,

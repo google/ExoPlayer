@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+
 import junit.framework.Assert;
 
 /**
@@ -276,8 +277,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @SuppressWarnings("unused")
   protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
       DefaultTrackSelector trackSelector) {
-    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector, null, false,
-        ExoPlayerFactory.DEFAULT_MIN_BUFFER_MS, ExoPlayerFactory.DEFAULT_MIN_REBUFFER_MS, 0);
+    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector);
     player.setSurface(surface);
     return player;
   }

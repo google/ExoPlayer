@@ -55,15 +55,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *
    * @param renderers The {@link TrackRenderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param minBufferMs A minimum duration of data that must be buffered for playback to start
-   *     or resume following a user action such as a seek.
-   * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
-   *     after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
-   *     not due to a user action such as starting playback or seeking).
+   * @param bufferingPolicy The {@link BufferingPolicy} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(TrackRenderer[] renderers, TrackSelector trackSelector, int minBufferMs,
-      int minRebufferMs) {
+  public ExoPlayerImpl(TrackRenderer[] renderers, TrackSelector trackSelector,
+      BufferingPolicy bufferingPolicy) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     Assertions.checkNotNull(renderers);
     Assertions.checkState(renderers.length > 0);
@@ -76,7 +72,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, minBufferMs, minRebufferMs,
+    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, bufferingPolicy,
         playWhenReady, eventHandler);
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0);
   }

@@ -16,11 +16,11 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
@@ -64,14 +64,13 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
-   * @param bufferSizeContribution The contribution of this source to the media buffer, in bytes.
    * @param positionUs The position from which to start loading media.
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public ChunkTrackStream(int trackType, T chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, long positionUs, int minLoadableRetryCount,
+  public ChunkTrackStream(int trackType, T chunkSource, LoadControl loadControl, long positionUs,
+      int minLoadableRetryCount,
       EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.chunkSource = chunkSource;
@@ -87,7 +86,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
     readingEnabled = true;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    loadControl.register(this, bufferSizeContribution);
+    loadControl.register(this);
     restartFrom(positionUs);
   }
 
@@ -287,7 +286,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
       lastPreferredQueueSizeEvaluationTimeMs = now;
     }
 
-    boolean isNext = loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), false);
+    boolean isNext = loadControl.update(this, getNextLoadPositionUs(), false);
     if (!isNext) {
       return;
     }
@@ -301,7 +300,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
 
     if (endOfStream) {
       loadingFinished = true;
-      loadControl.update(this, downstreamPositionUs, C.UNSET_TIME_US, false);
+      loadControl.update(this, C.UNSET_TIME_US, false);
       return;
     }
 
@@ -320,7 +319,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
         loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs);
     // Update the load control again to indicate that we're now loading.
-    loadControl.update(this, downstreamPositionUs, getNextLoadPositionUs(), true);
+    loadControl.update(this, getNextLoadPositionUs(), true);
   }
 
   /**

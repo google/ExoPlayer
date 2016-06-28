@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer.util.PriorityHandlerThread;
@@ -90,9 +91,8 @@ import java.util.ArrayList;
   private static final int MAXIMUM_BUFFER_AHEAD_SOURCES = 100;
 
   private final TrackSelector trackSelector;
+  private final BufferingPolicy bufferingPolicy;
   private final StandaloneMediaClock standaloneMediaClock;
-  private final long minBufferUs;
-  private final long minRebufferUs;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
@@ -114,10 +114,9 @@ import java.util.ArrayList;
   private long internalPositionUs;
 
   public ExoPlayerImplInternal(TrackRenderer[] renderers, TrackSelector trackSelector,
-      int minBufferMs, int minRebufferMs, boolean playWhenReady, Handler eventHandler) {
+      BufferingPolicy bufferingPolicy, boolean playWhenReady, Handler eventHandler) {
     this.trackSelector = trackSelector;
-    this.minBufferUs = minBufferMs * 1000L;
-    this.minRebufferUs = minRebufferMs * 1000L;
+    this.bufferingPolicy = bufferingPolicy;
     this.playWhenReady = playWhenReady;
     this.eventHandler = eventHandler;
     this.state = ExoPlayer.STATE_IDLE;
@@ -277,16 +276,6 @@ import java.util.ArrayList;
     return renderer.isReady() || renderer.isEnded();
   }
 
-  private boolean haveSufficientBuffer() {
-    // TODO[playlists]: Take into account the buffered position in the timeline.
-    long minBufferDurationUs = rebuffering ? minRebufferUs : minBufferUs;
-    return minBufferDurationUs <= 0
-        || playbackInfo.bufferedPositionUs == C.END_OF_SOURCE_US
-        || playbackInfo.bufferedPositionUs >= playbackInfo.positionUs + minBufferDurationUs
-        || (playbackInfo.durationUs != C.UNSET_TIME_US
-            && playbackInfo.bufferedPositionUs >= playbackInfo.durationUs);
-  }
-
   private void setSourceProviderInternal(SampleSourceProvider sourceProvider) {
     try {
       resetInternal();
@@ -359,6 +348,7 @@ import java.util.ArrayList;
     }
     playbackInfo.positionUs = positionUs;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+    bufferingPolicy.setPlaybackPosition(positionUs);
 
     // Update the buffered position.
     long bufferedPositionUs;
@@ -412,7 +402,7 @@ import java.util.ArrayList;
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING) {
       if ((enabledRenderers.length > 0 ? allRenderersReadyOrEnded : timeline.isReady())
-          && haveSufficientBuffer()) {
+          && bufferingPolicy.haveSufficientBuffer(playbackInfo.bufferedPositionUs, rebuffering)) {
         setState(ExoPlayer.STATE_READY);
         if (playWhenReady) {
           startRenderers();
@@ -520,6 +510,7 @@ import java.util.ArrayList;
     enabledRenderers = new TrackRenderer[0];
     sampleSourceProvider = null;
     timeline.reset();
+    bufferingPolicy.reset();
   }
 
   private void sendMessagesInternal(ExoPlayerMessage[] messages) throws ExoPlaybackException {
@@ -628,10 +619,11 @@ import java.util.ArrayList;
           // Continue preparation.
           // TODO[playlists]: Add support for setting the start position to play in a source.
           long startPositionUs = playingSource == null ? playbackInfo.positionUs : 0;
-          if (bufferingSource.prepare(startPositionUs)) {
+          if (bufferingSource.prepare(startPositionUs, bufferingPolicy.getLoadControl())) {
             Pair<TrackSelectionArray, Object> result = trackSelector.selectTracks(renderers,
                 bufferingSource.sampleSource.getTrackGroups());
-            bufferingSource.selectTracks(result.first, result.second, startPositionUs);
+            bufferingSource.selectTracks(result.first, result.second, startPositionUs,
+                bufferingPolicy, renderers);
             if (playingSource == null) {
               // This is the first prepared source, so start playing it.
               readingSource = bufferingSource;
@@ -937,13 +929,8 @@ import java.util.ArrayList;
           || sampleSource.getBufferedPositionUs() == C.END_OF_SOURCE_US);
     }
 
-    public void setNextSource(Source nextSource) {
-      this.nextSource = nextSource;
-      nextSource.offsetUs = offsetUs + sampleSource.getDurationUs();
-    }
-
-    public boolean prepare(long startPositionUs) throws IOException {
-      if (sampleSource.prepare(startPositionUs)) {
+    public boolean prepare(long startPositionUs, LoadControl loadControl) throws IOException {
+      if (sampleSource.prepare(startPositionUs, loadControl)) {
         prepared = true;
         return true;
       } else {
@@ -951,8 +938,14 @@ import java.util.ArrayList;
       }
     }
 
+    public void setNextSource(Source nextSource) {
+      this.nextSource = nextSource;
+      nextSource.offsetUs = offsetUs + sampleSource.getDurationUs();
+    }
+
     public void selectTracks(TrackSelectionArray newTrackSelections, Object trackSelectionData,
-        long positionUs) throws ExoPlaybackException {
+        long positionUs, BufferingPolicy bufferingPolicy, TrackRenderer[] renderers)
+        throws ExoPlaybackException {
       this.trackSelectionData = trackSelectionData;
       if (newTrackSelections.equals(trackSelections)) {
         return;
@@ -974,6 +967,9 @@ import java.util.ArrayList;
       }
       TrackStream[] newStreams = sampleSource.selectTracks(oldStreams, newSelections, positionUs);
       updateTrackStreams(newTrackSelections, newSelections, newStreams);
+
+      bufferingPolicy.onTrackSelections(renderers, sampleSource.getTrackGroups(),
+          newTrackSelections);
     }
 
     public void updateTrackStreams(TrackSelectionArray newTrackSelections,
