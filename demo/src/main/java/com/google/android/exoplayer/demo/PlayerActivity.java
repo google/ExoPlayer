@@ -17,6 +17,7 @@ package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ConcatenatingSampleSourceProvider;
 import com.google.android.exoplayer.DefaultBufferingPolicy;
 import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer.DefaultTrackSelector;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.ExoPlayerFactory;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.drm.DrmSessionManager;
@@ -85,19 +87,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     ExoPlayer.EventListener, SimpleExoPlayer.VideoListener, SimpleExoPlayer.CaptionListener,
     SimpleExoPlayer.Id3MetadataListener, DefaultTrackSelector.EventListener {
 
-  // For use within demo app code.
-  public static final String CONTENT_TYPE_EXTRA = "content_type";
+  public static final String URIS_LIST_EXTRA = "uris";
+  public static final String CONTENT_EXT_EXTRA = "extension";
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_CONTENT_ID_EXTRA = "drm_content_id";
   public static final String DRM_PROVIDER_EXTRA = "drm_provider";
   public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
-
-  // For use when launching the demo app using adb.
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
-  private static final String ACTION_VIEW_LIST =
+  public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
-  private static final String CONTENT_EXT_EXTRA = "type";
-  private static final String URIS_LIST_EXTRA = "uris";
 
   private static final String TAG = "PlayerActivity";
 
@@ -287,20 +285,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (playerNeedsSource) {
       String action = intent.getAction();
       Uri[] uris;
-      UriSampleSourceProvider sourceProvider;
       if (ACTION_VIEW.equals(action)) {
         uris = new Uri[] {intent.getData()};
-        sourceProvider = new UriSampleSourceProvider(player, dataSourceFactory, intent.getData(),
-            intent.getIntExtra(CONTENT_TYPE_EXTRA, UriSampleSourceProvider.UNKNOWN_TYPE),
-            intent.getStringExtra(CONTENT_EXT_EXTRA), mainHandler, eventLogger);
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URIS_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
         for (int i = 0; i < uriStrings.length; i++) {
           uris[i] = Uri.parse(uriStrings[i]);
         }
-        sourceProvider = new UriSampleSourceProvider(player, dataSourceFactory, uris, mainHandler,
-            eventLogger);
       } else {
         Log.w(TAG, "Unexpected intent action: " + action);
         return;
@@ -309,6 +301,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         // The player will be reinitialized if permission is granted.
         return;
       }
+
+      UriSampleSourceProvider[] providers = new UriSampleSourceProvider[uris.length];
+      for (int i = 0; i < uris.length; i++) {
+        providers[i] = new UriSampleSourceProvider(player.getBandwidthMeter(), dataSourceFactory,
+            uris[i], intent.getStringExtra(CONTENT_EXT_EXTRA), mainHandler, eventLogger);
+      }
+      SampleSourceProvider sourceProvider = providers.length == 1 ? providers[0]
+          : new ConcatenatingSampleSourceProvider(providers);
       player.setSourceProvider(sourceProvider);
       playerNeedsSource = false;
       updateButtonVisibilities();

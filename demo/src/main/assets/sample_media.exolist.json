@@ -5,22 +5,22 @@
       {
         "name": "Google Glass (MP4,H264)",
         "uri": "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0",
-        "type": "dash"
+        "extension": "mpd"
       },
       {
         "name": "Google Play (MP4,H264)",
         "uri": "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0",
-        "type": "dash"
+        "extension": "mpd"
       },
       {
         "name": "Google Glass (WebM,VP9)",
         "uri": "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3.7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0",
-        "type": "dash"
+        "extension": "mpd"
       },
       {
         "name": "Google Play (WebM,VP9)",
         "uri": "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD.BD153B9882175F1F94BFE5141A5482313EA38E8D&key=ik0",
-        "type": "dash"
+        "extension": "mpd"
       }
     ]
   },
@@ -30,49 +30,41 @@
       {
         "name": "WV: HDCP not specified",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:d286538032258a1c:widevine_test"
       },
       {
         "name": "WV: HDCP not required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:48fcc369939ac96c:widevine_test"
       },
       {
         "name": "WV: HDCP required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:e06c39f1151da3df:widevine_test"
       },
       {
         "name": "WV: Secure video path required (MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:0894c7c8719b28a0:widevine_test"
       },
       {
         "name": "WV: Secure video path required (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:0894c7c8719b28a0:widevine_test"
       },
       {
         "name": "WV: Secure video path required (MP4,H265)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:0894c7c8719b28a0:widevine_test"
       },
       {
         "name": "WV: HDCP + secure video path required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:efd045b1eb61888a:widevine_test"
       },
       {
         "name": "WV: 30s license duration (fails at ~30s)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:f9a34cab7b05881a:widevine_test"
       }
     ]
@@ -83,37 +75,31 @@
       {
         "name": "WV: HDCP: None (not required)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:HDCP_None:widevine_test"
       },
       {
         "name": "WV: HDCP: 1.0 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:HDCP_V1:widevine_test"
       },
       {
         "name": "WV: HDCP: 2.0 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:HDCP_V2:widevine_test"
       },
       {
         "name": "WV: HDCP: 2.1 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:HDCP_V2_1:widevine_test"
       },
       {
         "name": "WV: HDCP: 2.2 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:HDCP_V2_2:widevine_test"
       },
       {
         "name": "WV: HDCP: No digital output",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine:HDCP_NO_DIGTAL_OUTPUT:widevine_test"
       }
     ]
@@ -123,46 +109,38 @@
     "samples": [
       {
         "name": "WV: Clear SD & HD (MP4,H264)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
       },
       {
         "name": "WV: Clear SD (MP4,H264)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_sd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_sd.mpd"
       },
       {
         "name": "WV: Clear HD (MP4,H264)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd"
       },
       {
         "name": "WV: Clear UHD (MP4,H264)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd"
       },
       {
         "name": "WV: Secure SD & HD (MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure SD (MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure HD (MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_hd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure UHD (MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       }
     ]
@@ -172,46 +150,38 @@
     "samples": [
       {
         "name": "WV: Clear SD & HD (WebM,VP9)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears.mpd"
       },
       {
         "name": "WV: Clear SD (WebM,VP9)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_sd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_sd.mpd"
       },
       {
         "name": "WV: Clear HD (WebM,VP9)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_hd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_hd.mpd"
       },
       {
         "name": "WV: Clear UHD (WebM,VP9)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_uhd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_uhd.mpd"
       },
       {
         "name": "WV: Secure SD & HD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure SD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_sd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure HD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_hd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure UHD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       }
     ]
@@ -221,46 +191,38 @@
     "samples": [
       {
         "name": "WV: Clear SD & HD (MP4,H265)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears.mpd"
       },
       {
         "name": "WV: Clear SD (MP4,H265)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_sd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_sd.mpd"
       },
       {
         "name": "WV: Clear HD (MP4,H265)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_hd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_hd.mpd"
       },
       {
         "name": "WV: Clear UHD (MP4,H265)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_uhd.mpd",
-        "type": "dash"
+        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_uhd.mpd"
       },
       {
         "name": "WV: Secure SD & HD (MP4,H265)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure SD (MP4,H265)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_sd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure HD (MP4,H265)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_hd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       },
       {
         "name": "WV: Secure UHD (MP4,H265)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_uhd.mpd",
-        "type": "dash",
         "drm": "widevine::widevine_test"
       }
     ]
@@ -270,13 +232,11 @@
     "samples": [
       {
         "name": "Super speed",
-        "uri": "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism",
-        "type": "smoothstreaming"
+        "uri": "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism"
       },
       {
         "name": "Super speed (PlayReady)",
         "uri": "http://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
-        "type": "smoothstreaming",
         "drm": "playready::"
       }
     ]
@@ -286,28 +246,23 @@
     "samples": [
       {
         "name": "Apple master playlist",
-        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-        "type": "hls"
+        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
       },
       {
         "name": "Apple master playlist advanced",
-        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
-        "type": "hls"
+        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"
       },
       {
         "name": "Apple TS media playlist",
-        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
-        "type": "hls"
+        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8"
       },
       {
         "name": "Apple AAC media playlist",
-        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear0/prog_index.m3u8",
-        "type": "hls"
+        "uri": "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear0/prog_index.m3u8"
       },
       {
         "name": "Apple ID3 metadata",
-        "uri": "http://devimages.apple.com/samplecode/adDemo/ad.m3u8",
-        "type": "hls"
+        "uri": "http://devimages.apple.com/samplecode/adDemo/ad.m3u8"
       }
     ]
   },
@@ -368,8 +323,7 @@
       },
       {
         "name": "Google Glass DASH - VP9 and Opus",
-        "uri": "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd",
-        "type": "dash"
+        "uri": "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd"
       },
       {
         "name": "Big Buck Bunny (FLV Video)",

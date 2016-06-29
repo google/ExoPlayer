@@ -17,11 +17,11 @@ package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceProvider;
-import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.dash.DashSampleSource;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingSampleSource;
+import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.util.Util;
 
@@ -30,17 +30,14 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 /**
- * Provides {@link SampleSource}s to play back media loaded from one or more URI/URIs.
+ * Provides a {@link SampleSource} to play back media loaded from a {@link Uri}.
  */
 public final class UriSampleSourceProvider implements SampleSourceProvider {
 
-  public static final int UNKNOWN_TYPE = -1;
-
-  private final SimpleExoPlayer player;
+  private final BandwidthMeter bandwidthMeter;
   private final DataSourceFactory dataSourceFactory;
-  private final Uri[] uris;
+  private final Uri uri;
   private final String overrideExtension;
-  private final int type;
   private final Handler handler;
   private final EventLogger eventLogger;
 
@@ -48,71 +45,42 @@ public final class UriSampleSourceProvider implements SampleSourceProvider {
    * Constructs a source provider for {@link SampleSource} to play back media at the specified
    * URI, using the specified type.
    *
-   * @param player The demo player, which will listen to source events.
+   * @param bandwidthMeter A bandwidth meter.
    * @param dataSourceFactory A data source factory.
    * @param uri The URI to play back.
-   * @param type A {@code PlayerActivity.TYPE_*} constant specifying the type of the source, or
-   *     {@link #UNKNOWN_TYPE}, in which case it is inferred from the URI's extension.
    * @param overrideExtension An overriding file extension used when inferring the source's type,
    *     or {@code null}.
    * @param handler A handler to use for logging events.
    * @param eventLogger An event logger.
    */
-  public UriSampleSourceProvider(SimpleExoPlayer player, DataSourceFactory dataSourceFactory,
-      Uri uri, int type, String overrideExtension, Handler handler, EventLogger eventLogger) {
-    this.player = player;
+  public UriSampleSourceProvider(BandwidthMeter bandwidthMeter, DataSourceFactory dataSourceFactory,
+      Uri uri, String overrideExtension, Handler handler, EventLogger eventLogger) {
+    this.bandwidthMeter = bandwidthMeter;
     this.dataSourceFactory = dataSourceFactory;
+    this.uri = uri;
     this.overrideExtension = overrideExtension;
-    this.type = type;
     this.handler = handler;
     this.eventLogger = eventLogger;
-
-    uris = new Uri[] {uri};
-  }
-
-  /**
-   * Constructs a source provider for {@link SampleSource}s to play back media at one or more
-   * {@link Uri}s. The content type of each URI is inferred based on its last path segment.
-   *
-   * @param player The demo player, which will listen to source events.
-   * @param dataSourceFactory A data source factory.
-   * @param uris The URIs to play back.
-   * @param handler A handler to use for logging events.
-   * @param eventLogger An event logger.
-   */
-  public UriSampleSourceProvider(SimpleExoPlayer player, DataSourceFactory dataSourceFactory,
-      Uri[] uris, Handler handler, EventLogger eventLogger) {
-    this.player = player;
-    this.dataSourceFactory = dataSourceFactory;
-    this.uris = uris;
-    this.handler = handler;
-    this.eventLogger = eventLogger;
-
-    overrideExtension = null;
-    type = UNKNOWN_TYPE;
   }
 
   @Override
   public int getSourceCount() {
-    return uris.length;
+    return 1;
   }
 
   @Override
   public SampleSource createSource(int index) {
-    Uri uri = uris[index];
-    int type = this.type == UNKNOWN_TYPE ? inferContentType(uri, overrideExtension) : this.type;
+    int type = inferContentType(uri, overrideExtension);
     switch (type) {
       case Util.TYPE_SS:
-        return new SmoothStreamingSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
-            handler, eventLogger);
+        return new SmoothStreamingSampleSource(uri, dataSourceFactory, bandwidthMeter, handler,
+            eventLogger);
       case Util.TYPE_DASH:
-        return new DashSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), handler,
-            eventLogger);
+        return new DashSampleSource(uri, dataSourceFactory, bandwidthMeter, handler, eventLogger);
       case Util.TYPE_HLS:
-        return new HlsSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(), handler,
-            eventLogger);
+        return new HlsSampleSource(uri, dataSourceFactory, bandwidthMeter, handler, eventLogger);
       case Util.TYPE_OTHER:
-        return new ExtractorSampleSource(uri, dataSourceFactory, player.getBandwidthMeter(),
+        return new ExtractorSampleSource(uri, dataSourceFactory, bandwidthMeter,
             ExtractorSampleSource.newDefaultExtractors(), handler, eventLogger);
       default:
         throw new IllegalStateException("Unsupported type: " + type);

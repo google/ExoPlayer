@@ -93,7 +93,7 @@ public class SampleChooserActivity extends Activity {
     Intent intent = new Intent(this, PlayerActivity.class)
         .setAction(PlayerActivity.ACTION_VIEW)
         .setData(Uri.parse(sample.uri))
-        .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type)
+        .putExtra(PlayerActivity.CONTENT_EXT_EXTRA, sample.extension)
         .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, sample.drmSchemeUuid)
         .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, sample.drmContentId)
         .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, sample.drmProvider)
@@ -167,7 +167,7 @@ public class SampleChooserActivity extends Activity {
     private Sample readSample(JsonReader reader) throws IOException {
       String sampleName = null;
       String uri = null;
-      int type = Util.TYPE_OTHER;
+      String extension = null;
       UUID drmUuid = null;
       String drmContentId = null;
       String drmProvider = null;
@@ -182,8 +182,8 @@ public class SampleChooserActivity extends Activity {
           case "uri":
             uri = reader.nextString();
             break;
-          case "type":
-            type = getType(reader.nextString());
+          case "extension":
+            extension = reader.nextString();
             break;
           case "drm":
             String[] drmComponents = reader.nextString().split(":", -1);
@@ -201,7 +201,7 @@ public class SampleChooserActivity extends Activity {
       if (sampleName == null || uri == null) {
         throw new ParserException("Invalid sample (name or uri missing)");
       }
-      return new Sample(sampleName, uri, type, drmUuid, drmContentId, drmProvider,
+      return new Sample(sampleName, uri, extension, drmUuid, drmContentId, drmProvider,
           preferExtensionDecoders);
     }
 
@@ -224,22 +224,6 @@ public class SampleChooserActivity extends Activity {
           return C.PLAYREADY_UUID;
         default:
           throw new ParserException("Unsupported drm type: " + typeString);
-      }
-    }
-
-    private int getType(String typeString) {
-      if (typeString == null) {
-        return Util.TYPE_OTHER;
-      }
-      switch (typeString.toLowerCase()) {
-        case "dash":
-          return Util.TYPE_DASH;
-        case "smoothstreaming":
-          return Util.TYPE_SS;
-        case "hls":
-          return Util.TYPE_HLS;
-        default:
-          return Util.TYPE_OTHER;
       }
     }
 
@@ -337,17 +321,17 @@ public class SampleChooserActivity extends Activity {
 
     public final String name;
     public final String uri;
-    public final int type;
+    public final String extension;
     public final UUID drmSchemeUuid;
     public final String drmContentId;
     public final String drmProvider;
     public final boolean preferExtensionDecoders;
 
-    public Sample(String name, String uri, int type, UUID drmSchemeUuid, String drmContentId,
-        String drmProvider, boolean preferExtensionDecoders) {
+    public Sample(String name, String uri, String extension, UUID drmSchemeUuid,
+        String drmContentId, String drmProvider, boolean preferExtensionDecoders) {
       this.name = name;
       this.uri = uri;
-      this.type = type;
+      this.extension = extension;
       this.drmSchemeUuid = drmSchemeUuid;
       this.drmContentId = drmContentId;
       this.drmProvider = drmProvider;
