@@ -38,6 +38,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class DefaultTrackOutput implements TrackOutput {
 
+  /**
+   * A listener for changes to the upstream format.
+   */
+  public interface UpstreamFormatChangedListener {
+
+    /**
+     * Invoked on the loading thread when an upstream format change occurs.
+     *
+     * @param format The new upstream format.
+     */
+    void onUpstreamFormatChanged(Format format);
+
+  }
+
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
   private static final int STATE_ENABLED = 0;
@@ -64,6 +78,7 @@ public final class DefaultTrackOutput implements TrackOutput {
   private int lastAllocationOffset;
   private boolean needKeyframe;
   private boolean pendingSplice;
+  private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
@@ -392,6 +407,15 @@ public final class DefaultTrackOutput implements TrackOutput {
   // Called by the loading thread.
 
   /**
+   * Sets a listener to be notified of changes to the upstream format.
+   *
+   * @param listener The listener.
+   */
+  public void setUpstreamFormatChangeListener(UpstreamFormatChangedListener listener) {
+    upstreamFormatChangeListener = listener;
+  }
+
+  /**
    * Like {@link #format(Format)}, but with an offset that will be added to the timestamps of
    * samples subsequently queued to the buffer. The offset is also used to adjust
    * {@link Format#subsampleOffsetUs} for both the {@link Format} passed and those subsequently
@@ -407,7 +431,11 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   @Override
   public void format(Format format) {
-    infoQueue.format(getAdjustedSampleFormat(format, sampleOffsetUs));
+    Format adjustedFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
+    infoQueue.format(adjustedFormat);
+    if (upstreamFormatChangeListener != null) {
+      upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedFormat);
+    }
   }
 
   @Override

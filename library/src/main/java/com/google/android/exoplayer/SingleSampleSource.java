@@ -109,9 +109,13 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   // SampleSource implementation.
 
   @Override
-  public boolean prepare(long positionUs, LoadControl loadControl) {
-    // TODO: Use the load control.
-    return true;
+  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+    callback.onSourcePrepared(this);
+  }
+
+  @Override
+  public void maybeThrowPrepareError() throws IOException {
+    // Do nothing.
   }
 
   @Override

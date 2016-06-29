@@ -28,6 +28,7 @@ import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkHolder;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.upstream.Loader;
@@ -44,7 +45,20 @@ import java.util.List;
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
  * {@link TrackStream}s from which the loaded media can be consumed.
  */
-/* package */ final class HlsTrackStreamWrapper implements Loader.Callback<Chunk>, ExtractorOutput {
+/* package */ final class HlsTrackStreamWrapper implements Loader.Callback<Chunk>, ExtractorOutput,
+    UpstreamFormatChangedListener {
+
+  /**
+   * A callback to be notified of events.
+   */
+  public interface Callback {
+
+    /**
+     * Invoked when the wrapper has been prepared.
+     */
+    void onPrepared();
+
+  }
 
   private static final int PRIMARY_TYPE_NONE = 0;
   private static final int PRIMARY_TYPE_TEXT = 1;
@@ -52,6 +66,7 @@ import java.util.List;
   private static final int PRIMARY_TYPE_VIDEO = 3;
 
   private final int trackType;
+  private final Callback callback;
   private final HlsChunkSource chunkSource;
   private final LoadControl loadControl;
   private final Format muxedAudioFormat;
@@ -85,8 +100,10 @@ import java.util.List;
 
   /**
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
+   * @param callback A callback for the wrapper.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param loadControl Controls when the source is permitted to load data.
+   * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed audio,
    *     this is the audio {@link Format} as defined by the playlist.
    * @param muxedCaptionFormat If HLS master playlist indicates that the stream contains muxed
@@ -95,10 +112,11 @@ import java.util.List;
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public HlsTrackStreamWrapper(int trackType, HlsChunkSource chunkSource, LoadControl loadControl,
-      Format muxedAudioFormat, Format muxedCaptionFormat, int minLoadableRetryCount,
-      EventDispatcher eventDispatcher) {
+  public HlsTrackStreamWrapper(int trackType, Callback callback, HlsChunkSource chunkSource,
+      LoadControl loadControl, long positionUs, Format muxedAudioFormat, Format muxedCaptionFormat,
+      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
     this.trackType = trackType;
+    this.callback = callback;
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.muxedAudioFormat = muxedAudioFormat;
@@ -110,44 +128,16 @@ import java.util.List;
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
     readingEnabled = true;
-    pendingResetPositionUs = C.UNSET_TIME_US;
+    pendingResetPositionUs = positionUs;
+    downstreamPositionUs = positionUs;
   }
 
-  public boolean prepare(long positionUs) throws IOException {
-    if (prepared) {
-      return true;
-    }
-    if (chunkSource.getTrackCount() == 0) {
-      trackGroups = new TrackGroupArray();
-      prepared = true;
-      return true;
-    }
-    if (sampleQueuesBuilt) {
-      boolean canBuildTracks = true;
-      int sampleQueueCount = sampleQueues.size();
-      for (int i = 0; i < sampleQueueCount; i++) {
-        if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
-          canBuildTracks = false;
-          break;
-        }
-      }
-      if (canBuildTracks) {
-        buildTracks();
-        prepared = true;
-        return true;
-      }
-    }
-    // We're not prepared.
+  public void prepare() {
+    maybeStartLoading();
+  }
+
+  public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
-    if (!loader.isLoading()) {
-      // We're going to have to start loading a chunk to get what we need for preparation. We should
-      // attempt to load the chunk at positionUs, so that we'll already be loading the correct chunk
-      // in the common case where the renderer is subsequently enabled at this position.
-      pendingResetPositionUs = positionUs;
-      downstreamPositionUs = positionUs;
-      maybeStartLoading();
-    }
-    return false;
   }
 
   public long getDurationUs() {
@@ -376,6 +366,7 @@ import java.util.List;
       return sampleQueues.get(id);
     }
     DefaultTrackOutput trackOutput = new DefaultTrackOutput(loadControl.getAllocator());
+    trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueues.put(id, trackOutput);
     return trackOutput;
   }
@@ -383,6 +374,7 @@ import java.util.List;
   @Override
   public void endTracks() {
     sampleQueuesBuilt = true;
+    maybeFinishPrepare();
   }
 
   @Override
@@ -390,7 +382,29 @@ import java.util.List;
     // Do nothing.
   }
 
+  // UpstreamFormatChangedListener implementation.
+
+  @Override
+  public void onUpstreamFormatChanged(Format format) {
+    maybeFinishPrepare();
+  }
+
   // Internal methods.
+
+  private void maybeFinishPrepare() {
+    if (!sampleQueuesBuilt) {
+      return;
+    }
+    int sampleQueueCount = sampleQueues.size();
+    for (int i = 0; i < sampleQueueCount; i++) {
+      if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
+        return;
+      }
+    }
+    buildTracks();
+    prepared = true;
+    callback.onPrepared();
+  }
 
   /**
    * Builds tracks that are exposed by this {@link HlsTrackStreamWrapper} instance, as well as

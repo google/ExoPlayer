@@ -112,6 +112,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   private boolean readEndOfStream;
   private boolean streamIsFinal;
 
+  public TrackRenderer() {
+    readEndOfStream = true;
+  }
+
   /**
    * Sets the index of this renderer within the player.
    *

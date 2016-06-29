@@ -26,18 +26,45 @@ import java.util.List;
 public interface SampleSource {
 
   /**
-   * Prepares the source, or does nothing if the source is already prepared.
-   * <p>
-   * {@link #selectTracks(List, List, long)} <b>must</b> be called after the source is prepared to
-   * make an initial track selection. This is true even if the caller does not wish to select any
-   * tracks.
-   *
-   * @param positionUs The player's current playback position.
-   * @param loadControl A {@link LoadControl} to determine when to load data.
-   * @return True if the source is prepared, false otherwise.
-   * @throws IOException If there's an error preparing the source.
+   * A callback to be notified of {@link SampleSource} events.
    */
-  boolean prepare(long positionUs, LoadControl loadControl) throws IOException;
+  interface Callback {
+
+    /**
+     * Invoked by the source when preparation completes.
+     * <p>
+     * May be called from any thread. After invoking this method, the source can expect
+     * {@link #selectTracks(List, List, long)} to be invoked when the initial track selection.
+     *
+     * @param source The prepared source.
+     */
+    void onSourcePrepared(SampleSource source);
+
+  }
+
+  /**
+   * Starts preparation of the source.
+   * <p>
+   * {@link Callback#onSourcePrepared(SampleSource)} is invoked when preparation completes. If
+   * preparation fails, {@link #maybeThrowPrepareError()} will throw an {@link IOException} if
+   * invoked.
+   *
+   * @param callback A callback to receive updates from the source.
+   * @param loadControl A {@link LoadControl} to determine when to load data.
+   * @param positionUs The player's current playback position.
+   * @return True if the source is prepared, false otherwise.
+   */
+  void prepare(Callback callback, LoadControl loadControl, long positionUs);
+
+  /**
+   * Throws an error that's preventing the source from becoming prepared. Does nothing if no such
+   * error exists.
+   * <p>
+   * This method should only be called before the source has completed preparation.
+   *
+   * @throws IOException The underlying error.
+   */
+  void maybeThrowPrepareError() throws IOException;
 
   /**
    * Returns the duration of the source in microseconds, or {@link C#UNSET_TIME_US} if not known.

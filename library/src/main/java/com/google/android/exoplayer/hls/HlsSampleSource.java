@@ -53,7 +53,7 @@ import java.util.List;
  * A {@link SampleSource} for HLS streams.
  */
 public final class HlsSampleSource implements SampleSource,
-    Loader.Callback<ParsingLoadable<HlsPlaylist>> {
+    Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsTrackStreamWrapper.Callback {
 
   /**
    * The minimum number of times to retry loading data prior to failing.
@@ -70,7 +70,11 @@ public final class HlsSampleSource implements SampleSource,
   private final DataSource manifestDataSource;
   private final HlsPlaylistParser manifestParser;
 
+  private Callback callback;
   private LoadControl loadControl;
+  private long preparePositionUs;
+  private int pendingPrepareCount;
+
   private boolean seenFirstTrackSelection;
   private long durationUs;
   private boolean isLive;
@@ -96,50 +100,26 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
-    if (trackGroups != null) {
-      return true;
-    }
-
+  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+    this.callback = callback;
     this.loadControl = loadControl;
+    this.preparePositionUs = positionUs;
+    ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource,
+        manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
+    long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this,
+        MIN_LOADABLE_RETRY_COUNT);
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+  }
+
+  @Override
+  public void maybeThrowPrepareError() throws IOException {
     if (trackStreamWrappers == null) {
       manifestFetcher.maybeThrowError();
-      if (!manifestFetcher.isLoading()) {
-        ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource,
-            manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
-        long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this,
-            MIN_LOADABLE_RETRY_COUNT);
-        eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
-      }
-      return false;
-    }
-
-    boolean trackStreamWrappersPrepared = true;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      trackStreamWrappersPrepared &= trackStreamWrapper.prepare(positionUs);
-    }
-    if (!trackStreamWrappersPrepared) {
-      return false;
-    }
-
-    // The wrapper at index 0 is the one of type TRACK_TYPE_DEFAULT.
-    durationUs = trackStreamWrappers[0].getDurationUs();
-    isLive = trackStreamWrappers[0].isLive();
-
-    int totalTrackGroupCount = 0;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      totalTrackGroupCount += trackStreamWrapper.getTrackGroups().length;
-    }
-    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
-    int trackGroupIndex = 0;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      int wrapperTrackGroupCount = trackStreamWrapper.getTrackGroups().length;
-      for (int j = 0; j < wrapperTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = trackStreamWrapper.getTrackGroups().get(j);
+    } else {
+      for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+        trackStreamWrapper.maybeThrowPrepareError();
       }
     }
-    trackGroups = new TrackGroupArray(trackGroupArray);
-    return true;
   }
 
   @Override
@@ -237,6 +217,10 @@ public final class HlsSampleSource implements SampleSource,
     trackStreamWrappers = new HlsTrackStreamWrapper[trackStreamWrapperList.size()];
     trackStreamWrapperList.toArray(trackStreamWrappers);
     selectedTrackCounts = new int[trackStreamWrappers.length];
+    pendingPrepareCount = trackStreamWrappers.length;
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      trackStreamWrapper.prepare();
+    }
   }
 
   @Override
@@ -253,6 +237,34 @@ public final class HlsSampleSource implements SampleSource,
     eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
         loadable.bytesLoaded(), error, isFatal);
     return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+  }
+
+  // HlsTrackStreamWrapper callback.
+
+  @Override
+  public void onPrepared() {
+    if (--pendingPrepareCount > 0) {
+      return;
+    }
+
+    // The wrapper at index 0 is the one of type TRACK_TYPE_DEFAULT.
+    durationUs = trackStreamWrappers[0].getDurationUs();
+    isLive = trackStreamWrappers[0].isLive();
+
+    int totalTrackGroupCount = 0;
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      totalTrackGroupCount += trackStreamWrapper.getTrackGroups().length;
+    }
+    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
+    int trackGroupIndex = 0;
+    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
+      int wrapperTrackGroupCount = trackStreamWrapper.getTrackGroups().length;
+      for (int j = 0; j < wrapperTrackGroupCount; j++) {
+        trackGroupArray[trackGroupIndex++] = trackStreamWrapper.getTrackGroups().get(j);
+      }
+    }
+    trackGroups = new TrackGroupArray(trackGroupArray);
+    callback.onSourcePrepared(this);
   }
 
   // Internal methods.
@@ -296,16 +308,18 @@ public final class HlsSampleSource implements SampleSource,
     } else {
       // Leave the enabled variants unchanged. They're likely either all video or all audio.
     }
-    Variant[] variants = new Variant[selectedVariants.size()];
-    selectedVariants.toArray(variants);
-    trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-        new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), masterPlaylist.muxedAudioFormat,
-        masterPlaylist.muxedCaptionFormat));
+    if (!selectedVariants.isEmpty()) {
+      Variant[] variants = new Variant[selectedVariants.size()];
+      selectedVariants.toArray(variants);
+      trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
+          new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), masterPlaylist.muxedAudioFormat,
+          masterPlaylist.muxedCaptionFormat));
+    }
 
     // Build the audio stream wrapper if applicable.
     List<Variant> audioVariants = masterPlaylist.audios;
     if (!audioVariants.isEmpty()) {
-      variants = new Variant[audioVariants.size()];
+      Variant[] variants = new Variant[audioVariants.size()];
       audioVariants.toArray(variants);
       trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
           null, null));
@@ -314,7 +328,7 @@ public final class HlsSampleSource implements SampleSource,
     // Build the text stream wrapper if applicable.
     List<Variant> subtitleVariants = masterPlaylist.subtitles;
     if (!subtitleVariants.isEmpty()) {
-      variants = new Variant[subtitleVariants.size()];
+      Variant[] variants = new Variant[subtitleVariants.size()];
       subtitleVariants.toArray(variants);
       trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
           null, null));
@@ -329,8 +343,9 @@ public final class HlsSampleSource implements SampleSource,
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
-    return new HlsTrackStreamWrapper(trackType, defaultChunkSource, loadControl, muxedAudioFormat,
-        muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
+    return new HlsTrackStreamWrapper(trackType, this, defaultChunkSource, loadControl,
+        preparePositionUs, muxedAudioFormat, muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT,
+        eventDispatcher);
   }
 
   private int selectTracks(HlsTrackStreamWrapper trackStreamWrapper,

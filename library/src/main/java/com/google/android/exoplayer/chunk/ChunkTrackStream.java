@@ -70,8 +70,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
    * @param eventDispatcher A dispatcher to notify of events.
    */
   public ChunkTrackStream(int trackType, T chunkSource, LoadControl loadControl, long positionUs,
-      int minLoadableRetryCount,
-      EventDispatcher eventDispatcher) {
+      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;

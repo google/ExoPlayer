@@ -46,7 +46,7 @@ public final class Loader {
   }
 
   /**
-   * Interface definition of an object that can be loaded using a {@link Loader}.
+   * An object that can be loaded using a {@link Loader}.
    */
   public interface Loadable {
 
@@ -73,7 +73,7 @@ public final class Loader {
   }
 
   /**
-   * Interface definition for a callback to be notified of {@link Loader} events.
+   * A callback to be notified of {@link Loader} events.
    */
   public interface Callback<T extends Loadable> {
 

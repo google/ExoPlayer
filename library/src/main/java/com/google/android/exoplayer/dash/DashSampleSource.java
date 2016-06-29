@@ -39,7 +39,6 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.Loader.Callback;
 import com.google.android.exoplayer.upstream.ParsingLoadable;
 import com.google.android.exoplayer.util.Util;
 
@@ -84,6 +83,7 @@ public final class DashSampleSource implements SampleSource {
   private long manifestLoadEndTimestamp;
   private MediaPresentationDescription manifest;
 
+  private Callback callback;
   private LoadControl loadControl;
   private boolean prepared;
   private long durationUs;
@@ -107,16 +107,15 @@ public final class DashSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
-    if (prepared) {
-      return true;
-    }
+  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+    this.callback = callback;
     this.loadControl = loadControl;
+    startLoadingManifest();
+  }
+
+  @Override
+  public void maybeThrowPrepareError() throws IOException {
     loader.maybeThrowError();
-    if (!loader.isLoading() && manifest == null) {
-      startLoadingManifest();
-    }
-    return false;
   }
 
   @Override
@@ -231,6 +230,7 @@ public final class DashSampleSource implements SampleSource {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
         prepared = true;
+        callback.onSourcePrepared(this);
       }
     } else {
       for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
@@ -308,16 +308,18 @@ public final class DashSampleSource implements SampleSource {
   private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
     this.elapsedRealtimeOffset = elapsedRealtimeOffsetMs;
     prepared = true;
+    callback.onSourcePrepared(this);
   }
 
   private void onUtcTimestampResolutionError(IOException error) {
     Log.e(TAG, "Failed to resolve UtcTiming element.", error);
     // Be optimistic and continue in the hope that the device clock is correct.
     prepared = true;
+    callback.onSourcePrepared(this);
   }
 
-  private <T> void startLoading(ParsingLoadable<T> loadable, Callback<ParsingLoadable<T>> callback,
-      int minRetryCount) {
+  private <T> void startLoading(ParsingLoadable<T> loadable,
+      Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }

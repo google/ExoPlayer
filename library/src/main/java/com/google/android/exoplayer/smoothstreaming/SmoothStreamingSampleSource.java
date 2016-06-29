@@ -73,6 +73,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private long manifestLoadStartTimestamp;
   private SmoothStreamingManifest manifest;
 
+  private Callback callback;
   private LoadControl loadControl;
   private boolean prepared;
   private long durationUs;
@@ -97,16 +98,15 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   @Override
-  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
-    if (prepared) {
-      return true;
-    }
+  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+    this.callback = callback;
     this.loadControl = loadControl;
+    startLoadingManifest();
+  }
+
+  @Override
+  public void maybeThrowPrepareError() throws IOException {
     manifestLoader.maybeThrowError();
-    if (!manifestLoader.isLoading()) {
-      startLoadingManifest();
-    }
-    return false;
   }
 
   @Override
@@ -218,6 +218,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
             new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId)};
       }
       prepared = true;
+      callback.onSourcePrepared(this);
     } else {
       for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
         trackStream.getChunkSource().updateManifest(manifest);

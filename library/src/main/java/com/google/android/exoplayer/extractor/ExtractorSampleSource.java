@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor;
 import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
@@ -71,7 +73,8 @@ import java.util.List;
  * from {@link Extractor#sniff(ExtractorInput)} will be used.
  */
 public final class ExtractorSampleSource implements SampleSource, ExtractorOutput,
-    Loader.Callback<ExtractorSampleSource.ExtractingLoadable> {
+    Loader.Callback<ExtractorSampleSource.ExtractingLoadable>,
+    UpstreamFormatChangedListener {
 
   /**
    * Interface definition for a callback to be notified of {@link ExtractorSampleSource} events.
@@ -129,11 +132,12 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
 
-  private volatile boolean tracksBuilt;
-  private volatile SeekMap seekMap;
-
+  private Callback callback;
   private LoadControl loadControl;
+  private SeekMap seekMap;
+  private boolean tracksBuilt;
   private boolean prepared;
+
   private boolean seenFirstTrackSelection;
   private boolean notifyReset;
   private int enabledTrackCount;
@@ -304,31 +308,16 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // SampleSource implementation.
 
   @Override
-  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
-    if (prepared) {
-      return true;
-    }
+  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+    this.callback = callback;
     this.loadControl = loadControl;
-    if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
-      loadCondition.close();
-      int trackCount = sampleQueues.length;
-      TrackGroup[] trackArray = new TrackGroup[trackCount];
-      trackEnabledStates = new boolean[trackCount];
-      durationUs = seekMap.getDurationUs();
-      for (int i = 0; i < trackCount; i++) {
-        trackArray[i] = new TrackGroup(sampleQueues[i].getUpstreamFormat());
-      }
-      tracks = new TrackGroupArray(trackArray);
-      prepared = true;
-      return true;
-    }
-    // We're not prepared.
+    loadCondition.open();
+    startLoading();
+  }
+
+  @Override
+  public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
-    if (!loader.isLoading()) {
-      loadCondition.open();
-      startLoading();
-    }
-    return false;
   }
 
   @Override
@@ -521,6 +510,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public TrackOutput track(int id) {
     sampleQueues = Arrays.copyOf(sampleQueues, sampleQueues.length + 1);
     DefaultTrackOutput sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
+    sampleQueue.setUpstreamFormatChangeListener(this);
     sampleQueues[sampleQueues.length - 1] = sampleQueue;
     return sampleQueue;
   }
@@ -528,14 +518,45 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public void endTracks() {
     tracksBuilt = true;
+    maybeFinishPrepare();
   }
 
   @Override
   public void seekMap(SeekMap seekMap) {
     this.seekMap = seekMap;
+    maybeFinishPrepare();
+  }
+
+  // UpstreamFormatChangedListener implementation
+
+  @Override
+  public void onUpstreamFormatChanged(Format format) {
+    maybeFinishPrepare();
   }
 
   // Internal methods.
+
+  private void maybeFinishPrepare() {
+    if (seekMap == null || !tracksBuilt) {
+      return;
+    }
+    for (DefaultTrackOutput sampleQueue : sampleQueues) {
+      if (sampleQueue.getUpstreamFormat() == null) {
+        return;
+      }
+    }
+    loadCondition.close();
+    int trackCount = sampleQueues.length;
+    TrackGroup[] trackArray = new TrackGroup[trackCount];
+    trackEnabledStates = new boolean[trackCount];
+    durationUs = seekMap.getDurationUs();
+    for (int i = 0; i < trackCount; i++) {
+      trackArray[i] = new TrackGroup(sampleQueues[i].getUpstreamFormat());
+    }
+    tracks = new TrackGroupArray(trackArray);
+    prepared = true;
+    callback.onSourcePrepared(this);
+  }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {
     if (length == C.LENGTH_UNBOUNDED) {
@@ -616,15 +637,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
           sampleQueue.getLargestQueuedTimestampUs());
     }
     return largestQueuedTimestampUs;
-  }
-
-  private boolean haveFormatsForAllTracks() {
-    for (DefaultTrackOutput sampleQueue : sampleQueues) {
-      if (sampleQueue.getUpstreamFormat() == null) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private boolean isPendingReset() {

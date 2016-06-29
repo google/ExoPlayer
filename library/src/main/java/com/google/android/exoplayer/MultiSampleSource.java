@@ -16,7 +16,6 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.BufferingPolicy.LoadControl;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.util.Pair;
 
@@ -28,57 +27,40 @@ import java.util.List;
 /**
  * Combines multiple {@link SampleSource} instances.
  */
-public final class MultiSampleSource implements SampleSource {
+public final class MultiSampleSource implements SampleSource, SampleSource.Callback {
 
   private final SampleSource[] sources;
   private final IdentityHashMap<TrackStream, SampleSource> trackStreamSources;
   private final int[] selectedTrackCounts;
 
-  private boolean prepared;
-  private boolean seenFirstTrackSelection;
+  private Callback callback;
+  private int pendingChildPrepareCount;
   private long durationUs;
   private TrackGroupArray trackGroups;
+
+  private boolean seenFirstTrackSelection;
   private SampleSource[] enabledSources;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
+    pendingChildPrepareCount = sources.length;
     trackStreamSources = new IdentityHashMap<>();
     selectedTrackCounts = new int[sources.length];
   }
 
   @Override
-  public boolean prepare(long positionUs, LoadControl loadControl) throws IOException {
-    if (prepared) {
-      return true;
-    }
-    boolean sourcesPrepared = true;
+  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+    this.callback = callback;
     for (SampleSource source : sources) {
-      sourcesPrepared &= source.prepare(positionUs, loadControl);
+      source.prepare(this, loadControl, positionUs);
     }
-    if (!sourcesPrepared) {
-      return false;
-    }
-    durationUs = 0;
-    int totalTrackGroupCount = 0;
+  }
+
+  @Override
+  public void maybeThrowPrepareError() throws IOException {
     for (SampleSource source : sources) {
-      totalTrackGroupCount += source.getTrackGroups().length;
-      if (durationUs != C.UNSET_TIME_US) {
-        long sourceDurationUs = source.getDurationUs();
-        durationUs = sourceDurationUs == C.UNSET_TIME_US
-            ? C.UNSET_TIME_US : Math.max(durationUs, sourceDurationUs);
-      }
+      source.maybeThrowPrepareError();
     }
-    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
-    int trackGroupIndex = 0;
-    for (SampleSource source : sources) {
-      int sourceTrackGroupCount = source.getTrackGroups().length;
-      for (int j = 0; j < sourceTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = source.getTrackGroups().get(j);
-      }
-    }
-    trackGroups = new TrackGroupArray(trackGroupArray);
-    prepared = true;
-    return true;
   }
 
   @Override
@@ -94,13 +76,12 @@ public final class MultiSampleSource implements SampleSource {
   @Override
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(prepared);
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
     // Select tracks for each source.
     int enabledSourceCount = 0;
     for (int i = 0; i < sources.length; i++) {
       selectedTrackCounts[i] += selectTracks(sources[i], oldStreams, newSelections, positionUs,
-          newStreams);
+          newStreams, seenFirstTrackSelection);
       if (selectedTrackCounts[i] > 0) {
         enabledSourceCount++;
       }
@@ -166,10 +147,40 @@ public final class MultiSampleSource implements SampleSource {
     }
   }
 
+  // SampleSource.Callback implementation
+
+  @Override
+  public void onSourcePrepared(SampleSource ignored) {
+    if (--pendingChildPrepareCount > 0) {
+      return;
+    }
+    durationUs = 0;
+    int totalTrackGroupCount = 0;
+    for (SampleSource source : sources) {
+      totalTrackGroupCount += source.getTrackGroups().length;
+      if (durationUs != C.UNSET_TIME_US) {
+        long sourceDurationUs = source.getDurationUs();
+        durationUs = sourceDurationUs == C.UNSET_TIME_US
+            ? C.UNSET_TIME_US : Math.max(durationUs, sourceDurationUs);
+      }
+    }
+    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
+    int trackGroupIndex = 0;
+    for (SampleSource source : sources) {
+      int sourceTrackGroupCount = source.getTrackGroups().length;
+      for (int j = 0; j < sourceTrackGroupCount; j++) {
+        trackGroupArray[trackGroupIndex++] = source.getTrackGroups().get(j);
+      }
+    }
+    trackGroups = new TrackGroupArray(trackGroupArray);
+    callback.onSourcePrepared(this);
+  }
+
   // Internal methods.
 
   private int selectTracks(SampleSource source, List<TrackStream> allOldStreams,
-      List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams) {
+      List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams,
+      boolean seenFirstTrackSelection) {
     // Get the subset of the old streams for the source.
     ArrayList<TrackStream> oldStreams = new ArrayList<>();
     for (int i = 0; i < allOldStreams.size(); i++) {
