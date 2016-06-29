@@ -364,9 +364,6 @@ import java.util.ArrayList;
       bufferedPositionUs = C.END_OF_SOURCE_US;
     } else {
       bufferedPositionUs = sampleSource.getBufferedPositionUs();
-      if (bufferedPositionUs == C.END_OF_SOURCE_US && playbackInfo.durationUs != C.UNSET_TIME_US) {
-        bufferedPositionUs = playbackInfo.durationUs;
-      }
     }
     playbackInfo.bufferedPositionUs = bufferedPositionUs;
   }
@@ -563,11 +560,6 @@ import java.util.ArrayList;
 
     private final TrackRenderer[] renderers;
 
-    // Used during track reselection.
-    private final boolean[] rendererWasEnabledFlags;
-    private final ArrayList<TrackStream> oldStreams;
-    private final ArrayList<TrackSelection> newSelections;
-
     public boolean isReady;
     public boolean isEnded;
 
@@ -580,9 +572,6 @@ import java.util.ArrayList;
 
     public Timeline(TrackRenderer[] renderers) {
       this.renderers = renderers;
-      rendererWasEnabledFlags = new boolean[renderers.length];
-      oldStreams = new ArrayList<>();
-      newSelections = new ArrayList<>();
       playingSourceEndPositionUs = C.UNSET_TIME_US;
     }
 
@@ -616,7 +605,7 @@ import java.util.ArrayList;
           // Attempt to create the next source.
           SampleSource sampleSource = sampleSourceProvider.createSource(sourceIndex);
           if (sampleSource != null) {
-            Source newSource = new Source(sampleSource, sourceIndex, renderers.length);
+            Source newSource = new Source(renderers, trackSelector, sampleSource, sourceIndex);
             if (bufferingSource != null) {
               bufferingSource.setNextSource(newSource);
             }
@@ -627,7 +616,6 @@ import java.util.ArrayList;
           }
         }
       }
-
       if (bufferingSource != null && bufferingSource.hasEnabledTracks) {
         long sourcePositionUs = internalPositionUs - bufferingSource.offsetUs;
         bufferingSource.sampleSource.continueBuffering(sourcePositionUs);
@@ -643,12 +631,11 @@ import java.util.ArrayList;
         playingSourceEndPositionUs = playingSource.offsetUs
             + playingSource.sampleSource.getDurationUs();
       }
-      while (playingSource.nextSource != null && playingSource.nextSource.prepared
+      while (playingSource != readingSource && playingSource.nextSource != null
           && internalPositionUs >= playingSource.nextSource.offsetUs) {
+        // All enabled renderers' streams have been read to the end, and the playback position
+        // reached the end of the playing source, so advance playback to the next source.
         playingSource.release();
-        if (readingSource == playingSource) {
-          readingSource = playingSource.nextSource;
-        }
         setPlayingSource(playingSource.nextSource);
         playbackInfo = new PlaybackInfo(playingSource.index);
         updatePlaybackPositions();
@@ -656,6 +643,7 @@ import java.util.ArrayList;
       }
       updateTimelineState();
       if (readingSource == null) {
+        // The renderers have their final TrackStreams.
         return;
       }
       for (TrackRenderer renderer : enabledRenderers) {
@@ -664,25 +652,27 @@ import java.util.ArrayList;
         }
       }
       if (readingSource.nextSource != null && readingSource.nextSource.prepared) {
+        TrackSelectionArray oldTrackSelections = readingSource.trackSelections;
         readingSource = readingSource.nextSource;
         TrackSelectionArray newTrackSelections = readingSource.trackSelections;
         TrackGroupArray groups = readingSource.sampleSource.getTrackGroups();
         for (int i = 0; i < renderers.length; i++) {
           TrackRenderer renderer = renderers[i];
-          TrackSelection selection = newTrackSelections.get(i);
-          if (renderer.getState() != TrackRenderer.STATE_DISABLED) {
-            if (selection != null) {
+          TrackSelection oldSelection = oldTrackSelections.get(i);
+          TrackSelection newSelection = newTrackSelections.get(i);
+          if (oldSelection != null) {
+            if (newSelection != null) {
               // Replace the renderer's TrackStream so the transition to playing the next source can
               // be seamless.
-              Format[] formats = new Format[selection.length];
+              Format[] formats = new Format[newSelection.length];
               for (int j = 0; j < formats.length; j++) {
-                formats[j] = groups.get(selection.group).getFormat(selection.getTrack(j));
+                formats[j] = groups.get(newSelection.group).getFormat(newSelection.getTrack(j));
               }
               renderer.replaceTrackStream(formats, readingSource.trackStreams[i],
                   readingSource.offsetUs);
             } else {
-              // The renderer will be disabled when transitioning to playing the next source. Send
-              // end-of-stream to play out any remaining data.
+              // The renderer will be disabled when transitioning to playing the next source. Mark
+              // the TrackStream as final to play out any remaining data.
               renderer.setCurrentTrackStreamIsFinal();
             }
           }
@@ -703,13 +693,11 @@ import java.util.ArrayList;
         return;
       }
       long startPositionUs = playingSource == null ? playbackInfo.positionUs : 0;
-      Pair<TrackSelectionArray, Object> result = trackSelector.selectTracks(renderers,
-          bufferingSource.sampleSource.getTrackGroups());
-      bufferingSource.handlePrepared(result.first, result.second, startPositionUs,
-          bufferingPolicy, renderers);
+      bufferingSource.handlePrepared(startPositionUs, bufferingPolicy);
       if (playingSource == null) {
         // This is the first prepared source, so start playing it.
-        setPlayingSource(bufferingSource);
+        readingSource = bufferingSource;
+        setPlayingSource(readingSource);
         updateTimelineState();
       }
     }
@@ -734,7 +722,11 @@ import java.util.ArrayList;
         readingSource = playingSource;
         bufferingSource = playingSource;
       } else {
-        // TODO[REFACTOR]: We need to disable the renderers somewhere in here?
+        for (TrackRenderer renderer : enabledRenderers) {
+          ensureStopped(renderer);
+          renderer.disable();
+        }
+        enabledRenderers = new TrackRenderer[0];
         playingSource = null;
         readingSource = null;
         bufferingSource = null;
@@ -743,66 +735,85 @@ import java.util.ArrayList;
     }
 
     public void reselectTracks() throws ExoPlaybackException {
-      if (readingSource != null && readingSource != playingSource) {
-        // Newly enabled tracks in playingSource can increase the calculated start timestamp for the
-        // next source, so we have to discard the reading source. Reset TrackStreams for renderers
-        // that are reading the next source already back to the playing source.
-        TrackSelectionArray newTrackSelections = readingSource.trackSelections;
-        TrackGroupArray groups = readingSource.sampleSource.getTrackGroups();
-        for (int i = 0; i < renderers.length; i++) {
-          TrackRenderer renderer = renderers[i];
-          TrackSelection selection = newTrackSelections.get(i);
-          if (selection != null && renderer.getState() != TrackRenderer.STATE_DISABLED) {
-            // The renderer is enabled and will continue to be enabled after the transition.
-            Format[] formats = new Format[selection.length];
-            for (int j = 0; j < formats.length; j++) {
-              formats[j] = groups.get(selection.group).getFormat(selection.getTrack(j));
-            }
-            renderer.replaceTrackStream(formats, playingSource.trackStreams[i],
-                playingSource.offsetUs);
-          }
+      // Reselect tracks on each source in turn, until the selection changes.
+      Source source = playingSource;
+      boolean selectionsChangedForReadSource = true;
+      while (true) {
+        if (source == null || !source.prepared) {
+          // The reselection did not change any prepared sources.
+          return;
         }
-      }
-
-      // Discard the rest of the timeline after the playing source, as the player may need to
-      // rebuffer after track selection.
-      Source source = playingSource.nextSource;
-      while (source != null) {
-        source.release();
+        if (source.selectTracks()) {
+          break;
+        }
+        if (source == readingSource) {
+          // The track reselection didn't affect any source that has been read.
+          selectionsChangedForReadSource = false;
+        }
         source = source.nextSource;
       }
-      playingSource.nextSource = null;
-      readingSource = playingSource;
-      bufferingSource = playingSource;
-      playingSourceEndPositionUs = C.UNSET_TIME_US;
 
-      // Update the track selection for the playing source.
-      Pair<TrackSelectionArray, Object> result =
-          trackSelector.selectTracks(renderers, playingSource.sampleSource.getTrackGroups());
-      TrackSelectionArray newTrackSelections = result.first;
-      Object trackSelectionData = result.second;
-      if (newTrackSelections.equals(playingSource.trackSelections)) {
-        trackSelector.onSelectionActivated(trackSelectionData);
-        return;
-      }
-
-      int enabledRendererCount = disableRenderers(false, newTrackSelections);
-      TrackStream[] newStreams = playingSource.sampleSource.selectTracks(oldStreams, newSelections,
-          playbackInfo.positionUs);
-      playingSource.updateTrackStreams(newTrackSelections, newSelections, newStreams);
-      trackSelector.onSelectionActivated(trackSelectionData);
-
-      // Update the stored TrackStreams.
-      for (int i = 0; i < renderers.length; i++) {
-        TrackRenderer renderer = renderers[i];
-        TrackSelection newSelection = newTrackSelections.get(i);
-        if (newSelection != null && renderer.getState() == TrackRenderer.STATE_DISABLED) {
-          int newStreamIndex = newSelections.indexOf(newSelection);
-          playingSource.trackStreams[i] = newStreams[newStreamIndex];
+      if (selectionsChangedForReadSource) {
+        // Release everything after the playing source because a renderer may have read data from a
+        // track whose selection has now changed.
+        source = playingSource.nextSource;
+        while (source != null) {
+          source.release();
+          source = source.nextSource;
         }
-      }
+        playingSource.nextSource = null;
+        readingSource = playingSource;
+        bufferingSource = playingSource;
+        playingSourceEndPositionUs = C.UNSET_TIME_US;
 
-      enableRenderers(newTrackSelections, enabledRendererCount);
+        // Update streams for the new selection, recreating all streams if reading ahead.
+        boolean recreateStreams = readingSource != playingSource;
+        TrackSelectionArray playingSourceOldTrackSelections = playingSource.sourceTrackSelections;
+        playingSource.updateSourceTrackSelection(playbackInfo.positionUs, bufferingPolicy,
+            recreateStreams);
+
+        int enabledRendererCount = 0;
+        boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
+        for (int i = 0; i < renderers.length; i++) {
+          TrackRenderer renderer = renderers[i];
+          rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
+          TrackSelection oldSelection = playingSourceOldTrackSelections.get(i);
+          TrackSelection newSelection = playingSource.trackSelections.get(i);
+          if (newSelection != null) {
+            enabledRendererCount++;
+          }
+          if (rendererWasEnabledFlags[i]
+              && (recreateStreams || !Util.areEqual(oldSelection, newSelection))) {
+            // We need to disable the renderer so that we can enable it with its new stream.
+            if (renderer == rendererMediaClockSource) {
+              // The renderer is providing the media clock.
+              if (newSelection == null) {
+                // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
+                // over timing responsibilities.
+                standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+              }
+              rendererMediaClock = null;
+              rendererMediaClockSource = null;
+            }
+            ensureStopped(renderer);
+            renderer.disable();
+          }
+        }
+        trackSelector.onSelectionActivated(playingSource.trackSelectionData);
+        enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
+      } else {
+        // Release and re-prepare/buffer sources after the one whose selection changed.
+        bufferingSource = source;
+        source = bufferingSource.nextSource;
+        while (source != null) {
+          source.release();
+          source = source.nextSource;
+        }
+        bufferingSource.nextSource = null;
+
+        long positionUs = Math.max(0, internalPositionUs - bufferingSource.offsetUs);
+        bufferingSource.updateSourceTrackSelection(positionUs, bufferingPolicy, false);
+      }
     }
 
     public void reset() {
@@ -823,12 +834,32 @@ import java.util.ArrayList;
     }
 
     private void setPlayingSource(Source source) throws ExoPlaybackException {
-      // Disable/enable renderers for the new source.
-      int enabledRendererCount = disableRenderers(true, source.trackSelections);
+      int enabledRendererCount = 0;
+      boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
+      for (int i = 0; i < renderers.length; i++) {
+        TrackRenderer renderer = renderers[i];
+        rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
+        TrackSelection newSelection = source.trackSelections.get(i);
+        if (newSelection != null) {
+          // The renderer should be enabled when playing the new source.
+          enabledRendererCount++;
+        } else if (rendererWasEnabledFlags[i]) {
+          // The renderer should be disabled when playing the new source.
+          if (renderer == rendererMediaClockSource) {
+            // Sync standaloneMediaClock so that it can take over timing responsibilities.
+            standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+            rendererMediaClock = null;
+            rendererMediaClockSource = null;
+          }
+          ensureStopped(renderer);
+          renderer.disable();
+        }
+      }
+
       trackSelector.onSelectionActivated(source.trackSelectionData);
       playingSource = source;
       playingSourceEndPositionUs = C.UNSET_TIME_US;
-      enableRenderers(source.trackSelections, enabledRendererCount);
+      enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
     }
 
     private void updateTimelineState() {
@@ -840,55 +871,8 @@ import java.util.ArrayList;
           && playingSource.index == sourceCount - 1;
     }
 
-    private int disableRenderers(boolean sourceTransition, TrackSelectionArray newTrackSelections)
+    private void enableRenderers(boolean[] rendererWasEnabledFlags, int enabledRendererCount)
         throws ExoPlaybackException {
-      // Disable any renderers whose selections have changed, adding the corresponding TrackStream
-      // instances to oldStreams. Where we need to obtain a new TrackStream instance for a renderer,
-      // we add the corresponding TrackSelection to newSelections.
-      oldStreams.clear();
-      newSelections.clear();
-      int enabledRendererCount = 0;
-      for (int i = 0; i < renderers.length; i++) {
-        TrackRenderer renderer = renderers[i];
-        rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
-        TrackSelection oldSelection = playingSource == null ? null
-            : playingSource.trackSelections.get(i);
-        TrackSelection newSelection = newTrackSelections.get(i);
-        if (newSelection != null) {
-          enabledRendererCount++;
-        }
-        // If the player is transitioning to a new source, disable renderers that are not used when
-        // playing the new source. Otherwise, disable renderers whose selections are changing.
-        if ((sourceTransition && oldSelection != null && newSelection == null)
-            || (!sourceTransition && !Util.areEqual(oldSelection, newSelection))) {
-          // Either this is a source transition and the renderer is not needed any more, or the
-          if (rendererWasEnabledFlags[i]) {
-            // We need to disable the renderer so that we can enable it with its new selection.
-            if (renderer == rendererMediaClockSource) {
-              // The renderer is providing the media clock.
-              if (newSelection == null) {
-                // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
-                // over timing responsibilities.
-                standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
-              }
-              rendererMediaClock = null;
-              rendererMediaClockSource = null;
-            }
-            ensureStopped(renderer);
-            renderer.disable();
-            oldStreams.add(playingSource.trackStreams[i]);
-          }
-          if (newSelection != null) {
-            newSelections.add(newSelection);
-          }
-        }
-      }
-      return enabledRendererCount;
-    }
-
-    private void enableRenderers(TrackSelectionArray newTrackSelections, int enabledRendererCount)
-        throws ExoPlaybackException {
-      playingSource.trackSelections = newTrackSelections;
       enabledRenderers = new TrackRenderer[enabledRendererCount];
       enabledRendererCount = 0;
       TrackGroupArray trackGroups = playingSource.sampleSource.getTrackGroups();
@@ -902,7 +886,7 @@ import java.util.ArrayList;
             boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
             // Consider as joining only if the renderer was previously disabled.
             boolean joining = !rendererWasEnabledFlags[i] && playing;
-            // Build an array of formats contained by the new selection.
+            // Build an array of formats contained by the selection.
             Format[] formats = new Format[newSelection.length];
             for (int j = 0; j < formats.length; j++) {
               formats[j] = trackGroups.get(newSelection.group).getFormat(newSelection.getTrack(j));
@@ -935,21 +919,30 @@ import java.util.ArrayList;
    */
   private static final class Source {
 
+    private final TrackRenderer[] renderers;
+    private final TrackSelector trackSelector;
+
     public final SampleSource sampleSource;
     public final int index;
     public final TrackStream[] trackStreams;
 
     public boolean prepared;
     public boolean hasEnabledTracks;
-    public TrackSelectionArray trackSelections;
-    public Object trackSelectionData;
     public long offsetUs;
     public Source nextSource;
 
-    public Source(SampleSource sampleSource, int index, int rendererCount) {
+    private Object trackSelectionData;
+    private TrackSelectionArray trackSelections;
+    private TrackSelectionArray sourceTrackSelections;
+
+    public Source(TrackRenderer[] renderers, TrackSelector trackSelector, SampleSource sampleSource,
+        int index) {
+      this.renderers = renderers;
+      this.trackSelector = trackSelector;
+
       this.sampleSource = sampleSource;
       this.index = index;
-      trackStreams = new TrackStream[rendererCount];
+      trackStreams = new TrackStream[renderers.length];
     }
 
     public void setNextSource(Source nextSource) {
@@ -962,21 +955,35 @@ import java.util.ArrayList;
           || sampleSource.getBufferedPositionUs() == C.END_OF_SOURCE_US);
     }
 
-    public void handlePrepared(TrackSelectionArray newTrackSelections, Object trackSelectionData,
-        long positionUs, BufferingPolicy bufferingPolicy, TrackRenderer[] renderers)
+    public void handlePrepared(long positionUs, BufferingPolicy bufferingPolicy)
         throws ExoPlaybackException {
       prepared = true;
-      this.trackSelectionData = trackSelectionData;
-      if (newTrackSelections.equals(trackSelections)) {
-        return;
-      }
+      selectTracks();
+      updateSourceTrackSelection(positionUs, bufferingPolicy, false);
+    }
 
+    public boolean selectTracks() throws ExoPlaybackException {
+      Pair<TrackSelectionArray, Object> result =
+          trackSelector.selectTracks(renderers, sampleSource.getTrackGroups());
+      TrackSelectionArray newTrackSelections = result.first;
+      if (newTrackSelections.equals(sourceTrackSelections)) {
+        return false;
+      }
+      trackSelections = newTrackSelections;
+      trackSelectionData = result.second;
+      return true;
+    }
+
+    public void updateSourceTrackSelection(long positionUs, BufferingPolicy bufferingPolicy,
+        boolean forceRecreateStreams) throws ExoPlaybackException {
+      // Populate lists of streams that are being disabled/newly enabled.
       ArrayList<TrackStream> oldStreams = new ArrayList<>();
       ArrayList<TrackSelection> newSelections = new ArrayList<>();
-      for (int i = 0; i < newTrackSelections.length; i++) {
-        TrackSelection oldSelection = trackSelections == null ? null : trackSelections.get(i);
-        TrackSelection newSelection = newTrackSelections.get(i);
-        if (!Util.areEqual(oldSelection, newSelection)) {
+      for (int i = 0; i < trackSelections.length; i++) {
+        TrackSelection oldSelection =
+            sourceTrackSelections == null ? null : sourceTrackSelections.get(i);
+        TrackSelection newSelection = trackSelections.get(i);
+        if (forceRecreateStreams || !Util.areEqual(oldSelection, newSelection)) {
           if (oldSelection != null) {
             oldStreams.add(trackStreams[i]);
           }
@@ -985,18 +992,13 @@ import java.util.ArrayList;
           }
         }
       }
+
+      // Disable streams on the source and get new streams for updated/newly-enabled tracks.
       TrackStream[] newStreams = sampleSource.selectTracks(oldStreams, newSelections, positionUs);
-      updateTrackStreams(newTrackSelections, newSelections, newStreams);
-
-      bufferingPolicy.onTrackSelections(renderers, sampleSource.getTrackGroups(),
-          newTrackSelections);
-    }
-
-    public void updateTrackStreams(TrackSelectionArray newTrackSelections,
-        ArrayList<TrackSelection> newSelections, TrackStream[] newStreams) {
+      sourceTrackSelections = trackSelections;
       hasEnabledTracks = false;
-      for (int i = 0; i < newTrackSelections.length; i++) {
-        TrackSelection selection = newTrackSelections.get(i);
+      for (int i = 0; i < trackSelections.length; i++) {
+        TrackSelection selection = trackSelections.get(i);
         if (selection != null) {
           hasEnabledTracks = true;
           int index = newSelections.indexOf(selection);
@@ -1009,7 +1011,9 @@ import java.util.ArrayList;
           trackStreams[i] = null;
         }
       }
-      trackSelections = newTrackSelections;
+
+      // The track selection has changed.
+      bufferingPolicy.onTrackSelections(renderers, sampleSource.getTrackGroups(), trackSelections);
     }
 
     public void release() {
