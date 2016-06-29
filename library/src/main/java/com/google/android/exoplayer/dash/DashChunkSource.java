@@ -195,9 +195,9 @@ public class DashChunkSource implements ChunkSource {
     }
     if (pendingInitializationUri != null || pendingIndexUri != null) {
       // We have initialization and/or index requests to make.
-      Chunk initializationChunk = newInitializationChunk(pendingInitializationUri, pendingIndexUri,
-          selectedRepresentation, representationHolder.extractorWrapper, dataSource,
-          evaluation.trigger, evaluation.data);
+      Chunk initializationChunk = newInitializationChunk(representationHolder, dataSource,
+          selectedFormat, pendingInitializationUri, pendingIndexUri, evaluation.trigger,
+          evaluation.data);
       lastChunkWasInitialization = true;
       out.chunk = initializationChunk;
       return;
@@ -305,8 +305,8 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
-      Representation representation, ChunkExtractorWrapper extractor, DataSource dataSource,
+  private Chunk newInitializationChunk(RepresentationHolder representationHolder,
+      DataSource dataSource, Format trackFormat, RangedUri initializationUri, RangedUri indexUri,
       int formatEvaluatorTrigger, Object formatEvaluatorData) {
     RangedUri requestUri;
     if (initializationUri != null) {
@@ -320,9 +320,9 @@ public class DashChunkSource implements ChunkSource {
       requestUri = indexUri;
     }
     DataSpec dataSpec = new DataSpec(requestUri.getUri(), requestUri.start, requestUri.length,
-        representation.getCacheKey());
-    return new InitializationChunk(dataSource, dataSpec, representation.format,
-        formatEvaluatorTrigger, formatEvaluatorData, extractor);
+        representationHolder.representation.getCacheKey());
+    return new InitializationChunk(dataSource, dataSpec, trackFormat,
+        formatEvaluatorTrigger, formatEvaluatorData, representationHolder.extractorWrapper);
   }
 
   private Chunk newMediaChunk(RepresentationHolder representationHolder, DataSource dataSource,
