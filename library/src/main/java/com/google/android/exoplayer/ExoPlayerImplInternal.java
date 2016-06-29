@@ -284,10 +284,6 @@ import java.util.ArrayList;
     }
   }
 
-  private boolean isReadyOrEnded(TrackRenderer renderer) {
-    return renderer.isReady() || renderer.isEnded();
-  }
-
   private void setSourceProviderInternal(SampleSourceProvider sourceProvider) {
     try {
       resetInternal();
@@ -399,7 +395,7 @@ import java.util.ArrayList;
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
       // Determine whether the renderer is ready (or ended). If it's not, throw an error that's
       // preventing the renderer from making progress, if such an error exists.
-      boolean rendererReadyOrEnded = isReadyOrEnded(renderer);
+      boolean rendererReadyOrEnded = renderer.isReady() || renderer.isEnded();
       if (!rendererReadyOrEnded) {
         renderer.maybeThrowStreamError();
       }

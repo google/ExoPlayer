@@ -107,13 +107,22 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
 
   @Override
   public long readDiscontinuity() {
-    for (SampleSource source : enabledSources) {
-      if (source.readDiscontinuity() != C.UNSET_TIME_US) {
-        // Children are not allowed to report discontinuities.
+    long positionUs = enabledSources[0].readDiscontinuity();
+    if (positionUs != C.UNSET_TIME_US) {
+      // It must be possible to seek additional sources to the new position.
+      for (int i = 1; i < enabledSources.length; i++) {
+        if (enabledSources[i].seekToUs(positionUs) != positionUs) {
+          throw new IllegalStateException("Children seeked to different positions");
+        }
+      }
+    }
+    // Additional sources are not allowed to report discontinuities.
+    for (int i = 1; i < enabledSources.length; i++) {
+      if (enabledSources[i].readDiscontinuity() != C.UNSET_TIME_US) {
         throw new IllegalStateException("Child reported discontinuity");
       }
     }
-    return C.UNSET_TIME_US;
+    return positionUs;
   }
 
   @Override
@@ -131,8 +140,8 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
   @Override
   public long seekToUs(long positionUs) {
     positionUs = enabledSources[0].seekToUs(positionUs);
+    // Additional sources must seek to the same position.
     for (int i = 1; i < enabledSources.length; i++) {
-      // Additional sources must seek to the same position.
       if (enabledSources[i].seekToUs(positionUs) != positionUs) {
         throw new IllegalStateException("Children seeked to different positions");
       }

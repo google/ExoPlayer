@@ -379,7 +379,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         loadCondition.open();
       }
       if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
-        seekToUs(positionUs);
+        long seekPositionUs = seekToUs(positionUs);
+        if (seekPositionUs != positionUs) {
+          notifyReset = true;
+        }
       }
     }
     seenFirstTrackSelection = true;
@@ -422,7 +425,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
-    notifyReset = true;
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
@@ -434,6 +436,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     if (!seekInsideBuffer) {
       restartFrom(positionUs);
     }
+    notifyReset = false;
     return positionUs;
   }
 
@@ -455,7 +458,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
+    int minRetryCount = minLoadableRetryCount;
+    if (minRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
+      // We assume on-demand before we're prepared.
+      minRetryCount = !prepared || length != C.LENGTH_UNBOUNDED
+          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)
+          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
+          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
+    }
+    loader.maybeThrowError(minRetryCount);
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
@@ -591,16 +602,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       pendingResetPositionUs = C.UNSET_TIME_US;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-
-    int minRetryCount = minLoadableRetryCount;
-    if (minRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
-      // We assume on-demand before we're prepared.
-      minRetryCount = !prepared || (length != C.LENGTH_UNBOUNDED
-          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US))
-          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
-          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
-    }
-    loader.startLoading(loadable, this, minRetryCount);
+    loader.startLoading(loadable, this, 0);
   }
 
   private void configureRetry(ExtractingLoadable loadable) {

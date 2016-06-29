@@ -154,17 +154,17 @@ public final class Loader {
    *
    * @param loadable The {@link Loadable} to load.
    * @param callback A callback to invoke when the load ends.
-   * @param minRetryCount The minimum number of times the load must be retried before
+   * @param defaultMinRetryCount The minimum number of times the load must be retried before
    *     {@link #maybeThrowError()} will propagate an error.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
    * @return {@link SystemClock#elapsedRealtime} when the load started.
    */
   public <T extends Loadable> long startLoading(T loadable, Callback<T> callback,
-      int minRetryCount) {
+      int defaultMinRetryCount) {
     Looper looper = Looper.myLooper();
     Assertions.checkState(looper != null);
     long startTimeMs = SystemClock.elapsedRealtime();
-    new LoadTask<>(looper, loadable, callback, minRetryCount, startTimeMs).start(0);
+    new LoadTask<>(looper, loadable, callback, defaultMinRetryCount, startTimeMs).start(0);
     return startTimeMs;
   }
 
@@ -179,16 +179,29 @@ public final class Loader {
 
   /**
    * If a fatal error has been encountered, or if the current {@link Loadable} has incurred a number
-   * of errors greater than its minimum number of retries and if the load is currently backed off,
-   * then an error is thrown. Else does nothing.
+   * of errors greater than its default minimum number of retries and if the load is currently
+   * backed off, then an error is thrown. Else does nothing.
    *
    * @throws IOException The error.
    */
   public void maybeThrowError() throws IOException {
+    maybeThrowError(Integer.MIN_VALUE);
+  }
+
+  /**
+   * If a fatal error has been encountered, or if the current {@link Loadable} has incurred a number
+   * of errors greater than the specified minimum number of retries and if the load is currently
+   * backed off, then an error is thrown. Else does nothing.
+   *
+   * @param minRetryCount A minimum retry count that must be exceeded.
+   * @throws IOException The error.
+   */
+  public void maybeThrowError(int minRetryCount) throws IOException {
     if (fatalError != null) {
       throw fatalError;
     } else if (currentTask != null) {
-      currentTask.maybeThrowError();
+      currentTask.maybeThrowError(minRetryCount == Integer.MIN_VALUE
+          ? currentTask.defaultMinRetryCount : minRetryCount);
     }
   }
 
@@ -220,7 +233,7 @@ public final class Loader {
 
     private final T loadable;
     private final Loader.Callback<T> callback;
-    private final int minRetryCount;
+    public final int defaultMinRetryCount;
     private final long startTimeMs;
 
     private IOException currentError;
@@ -229,16 +242,16 @@ public final class Loader {
     private volatile Thread executorThread;
     private volatile boolean released;
 
-    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback, int minRetryCount,
-        long startTimeMs) {
+    public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback,
+        int defaultMinRetryCount, long startTimeMs) {
       super(looper);
       this.loadable = loadable;
       this.callback = callback;
-      this.minRetryCount = minRetryCount;
+      this.defaultMinRetryCount = defaultMinRetryCount;
       this.startTimeMs = startTimeMs;
     }
 
-    public void maybeThrowError() throws IOException {
+    public void maybeThrowError(int minRetryCount) throws IOException {
       if (currentError != null && errorCount > minRetryCount) {
         throw currentError;
       }
