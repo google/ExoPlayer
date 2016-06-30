@@ -242,6 +242,15 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
     return result;
   }
 
+  public long getAdjustedEndTimeUs() {
+    long largestAdjustedPtsParsed = Long.MIN_VALUE;
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      largestAdjustedPtsParsed = Math.max(largestAdjustedPtsParsed,
+          sampleQueues.valueAt(i).getLargestParsedTimestampUs());
+    }
+    return largestAdjustedPtsParsed;
+  }
+
   // ExtractorOutput implementation.
 
   @Override

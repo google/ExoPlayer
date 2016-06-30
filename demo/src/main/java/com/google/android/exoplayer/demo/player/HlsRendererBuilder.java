@@ -145,7 +145,7 @@ public class HlsRendererBuilder implements RendererBuilder {
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       HlsChunkSource chunkSource = new HlsChunkSource(true /* isMaster */, dataSource, manifest,
           DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter,
-          timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+          timestampAdjusterProvider);
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
           MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
       MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
@@ -160,7 +160,7 @@ public class HlsRendererBuilder implements RendererBuilder {
         DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
         HlsChunkSource audioChunkSource = new HlsChunkSource(false /* isMaster */, audioDataSource,
             manifest, DefaultHlsTrackSelector.newAudioInstance(), bandwidthMeter,
-            timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+            timestampAdjusterProvider);
         HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
             AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_AUDIO);
@@ -180,7 +180,7 @@ public class HlsRendererBuilder implements RendererBuilder {
         DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
         HlsChunkSource textChunkSource = new HlsChunkSource(false /* isMaster */, textDataSource,
             manifest, DefaultHlsTrackSelector.newSubtitleInstance(), bandwidthMeter,
-            timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+            timestampAdjusterProvider);
         HlsSampleSource textSampleSource = new HlsSampleSource(textChunkSource, loadControl,
             TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
         textRenderer = new TextTrackRenderer(textSampleSource, player, mainHandler.getLooper());

@@ -44,6 +44,7 @@ public final class TsChunk extends MediaChunk {
   private final boolean isEncrypted;
 
   private int bytesLoaded;
+  private long adjustedEndTimeUs;
   private volatile boolean loadCanceled;
 
   /**
@@ -68,6 +69,7 @@ public final class TsChunk extends MediaChunk {
     this.extractorWrapper = extractorWrapper;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    adjustedEndTimeUs = startTimeUs;
   }
 
   @Override
@@ -114,12 +116,20 @@ public final class TsChunk extends MediaChunk {
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractorWrapper.read(input);
         }
+        long tsChunkEndTimeUs = extractorWrapper.getAdjustedEndTimeUs();
+        if (tsChunkEndTimeUs != Long.MIN_VALUE) {
+          adjustedEndTimeUs = tsChunkEndTimeUs;
+        }
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
       dataSource.close();
     }
+  }
+
+  public long getAdjustedEndTimeUs() {
+    return adjustedEndTimeUs;
   }
 
   // Private methods
