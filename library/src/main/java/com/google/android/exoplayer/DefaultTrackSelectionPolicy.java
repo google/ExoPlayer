@@ -27,6 +27,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   private String preferredLanguage;
   private boolean allowMixedMimeAdaptiveness;
   private boolean allowNonSeamlessAdaptiveness;
+  private boolean filterHdFormats;
   private int maxVideoWidth;
   private int maxVideoHeight;
 
@@ -39,6 +40,13 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   public void setPreferredLanguage(String preferredLanguage) {
     if (!Util.areEqual(this.preferredLanguage, preferredLanguage)) {
       this.preferredLanguage = preferredLanguage;
+      invalidate();
+    }
+  }
+
+  public void setFilterHdFormats(boolean filterHdFormats) {
+    if (this.filterHdFormats != filterHdFormats) {
+      this.filterHdFormats = filterHdFormats;
       invalidate();
     }
   }
@@ -99,6 +107,8 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
         ? TrackRenderer.ADAPTIVE_NOT_SEAMLESS | TrackRenderer.ADAPTIVE_SEAMLESS
         : TrackRenderer.ADAPTIVE_SEAMLESS;
+    int maxVideoWidth = Math.min(this.maxVideoWidth, filterHdFormats ? 1279 : Integer.MAX_VALUE);
+    int maxVideoHeight = Math.min(this.maxVideoHeight, filterHdFormats ? 719 : Integer.MAX_VALUE);
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
         && (renderer.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
     int largestAdaptiveGroup = -1;
