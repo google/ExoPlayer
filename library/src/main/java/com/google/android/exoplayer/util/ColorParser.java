@@ -195,7 +195,6 @@ public final class ColorParser {
     COLOR_MAP.put("limegreen", 0xFF32CD32);
     COLOR_MAP.put("linen", 0xFFFAF0E6);
     COLOR_MAP.put("magenta", 0xFFFF00FF);
-    COLOR_MAP.put("marinelewis", 0xFFA4D3E4);
     COLOR_MAP.put("maroon", 0xFF800000);
     COLOR_MAP.put("mediumaquamarine", 0xFF66CDAA);
     COLOR_MAP.put("mediumblue", 0xFF0000CD);
