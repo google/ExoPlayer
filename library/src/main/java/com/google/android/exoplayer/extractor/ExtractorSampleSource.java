@@ -296,7 +296,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     Extractor[] extractors = new Extractor[defaultExtractorClasses.size()];
     for (int i = 0; i < extractors.length; i++) {
       try {
-        extractors[i] = defaultExtractorClasses.get(i).newInstance();
+        extractors[i] = defaultExtractorClasses.get(i).getConstructor().newInstance();
       } catch (Exception e) {
         // Should never happen.
         throw new IllegalStateException("Unexpected error creating default extractor", e);
