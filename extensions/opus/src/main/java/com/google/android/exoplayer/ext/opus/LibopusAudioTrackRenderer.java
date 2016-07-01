@@ -30,6 +30,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Buffer;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
 
+import android.media.AudioManager;
 import android.os.Handler;
 
 import java.util.List;
@@ -113,11 +114,23 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
    */
   public LibopusAudioTrackRenderer(SampleSource source, Handler eventHandler,
       EventListener eventListener) {
+      this(source, eventHandler, eventListener, AudioManager.STREAM_MUSIC);
+  }
+
+  /**
+   * @param source The upstream source from which the renderer obtains samples.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param streamType The type of audio stream for the {@link AudioTrack}.
+   */
+  public LibopusAudioTrackRenderer(SampleSource source, Handler eventHandler,
+      EventListener eventListener, int streamType) {
     super(source);
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack();
+    audioTrack = new AudioTrack(null, streamType);
     formatHolder = new MediaFormatHolder();
   }
 
