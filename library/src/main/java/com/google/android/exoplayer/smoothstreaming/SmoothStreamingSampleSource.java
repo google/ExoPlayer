@@ -58,9 +58,9 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     Loader.Callback<ParsingLoadable<SmoothStreamingManifest>> {
 
   /**
-   * The minimum number of times to retry loading data prior to failing.
+   * The default minimum number of times to retry loading data prior to failing.
    */
-  private static final int MIN_LOADABLE_RETRY_COUNT = 3;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
@@ -68,6 +68,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private final Uri manifestUri;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
+  private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final Loader manifestLoader;
   private final DataSource manifestDataSource;
@@ -91,10 +92,18 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       AdaptiveSourceEventListener eventListener) {
+    this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        eventHandler, eventListener);
+  }
+
+  public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     trackStreams = newTrackStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
@@ -274,7 +283,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private void startLoadingManifest() {
     ParsingLoadable<SmoothStreamingManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
-    long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, MIN_LOADABLE_RETRY_COUNT);
+    long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, minLoadableRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
@@ -313,7 +322,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
         manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
     return new ChunkTrackStream<>(streamElementType, chunkSource, this, allocator, positionUs,
-        MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
+        minLoadableRetryCount, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")

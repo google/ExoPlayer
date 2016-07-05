@@ -66,15 +66,16 @@ import java.util.TimeZone;
 public final class DashSampleSource implements SampleSource,
     SequenceableLoader.Callback<ChunkTrackStream<DashChunkSource>> {
 
-  private static final String TAG = "DashSampleSource";
-
   /**
-   * The minimum number of times to retry loading data prior to failing.
+   * The default minimum number of times to retry loading data prior to failing.
    */
-  private static final int MIN_LOADABLE_RETRY_COUNT = 3;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
+
+  private static final String TAG = "DashSampleSource";
 
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
+  private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final Loader loader;
   private final DataSource dataSource;
@@ -101,9 +102,17 @@ public final class DashSampleSource implements SampleSource,
   public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       AdaptiveSourceEventListener eventListener) {
+    this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        eventHandler, eventListener);
+  }
+
+  public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     dataSource = dataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashSampleSource");
@@ -282,7 +291,7 @@ public final class DashSampleSource implements SampleSource,
 
   private void startLoadingManifest() {
     startLoading(new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST,
-        manifestParser), manifestCallback, MIN_LOADABLE_RETRY_COUNT);
+        manifestParser), manifestCallback, minLoadableRetryCount);
   }
 
   private void resolveUtcTimingElement(UtcTimingElement timingElement) {
@@ -402,7 +411,7 @@ public final class DashSampleSource implements SampleSource,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
     return new ChunkTrackStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
-        MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
+        minLoadableRetryCount, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")

@@ -63,7 +63,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   private static final int AUDIO_RENDERER_INDEX = 1;
 
   private static final long TEST_TIMEOUT_MS = 5 * 60 * 1000;
-  private static final int MIN_LOADABLE_RETRY_COUNT = 10; // TODO[REFACTOR]: Use this again.
+  private static final int MIN_LOADABLE_RETRY_COUNT = 10;
   private static final int MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES = 10;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
 
@@ -420,7 +420,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     public SampleSource buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
         BandwidthMeter bandwidthMeter) {
-      return new DashSampleSource(manifestUri, dataSourceFactory, bandwidthMeter, null, null);
+      return new DashSampleSource(manifestUri, dataSourceFactory, bandwidthMeter,
+          MIN_LOADABLE_RETRY_COUNT, null, null);
     }
 
     @Override

@@ -57,13 +57,14 @@ public final class HlsSampleSource implements SampleSource,
     Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsTrackStreamWrapper.Callback {
 
   /**
-   * The minimum number of times to retry loading data prior to failing.
+   * The default minimum number of times to retry loading data prior to failing.
    */
-  private static final int MIN_LOADABLE_RETRY_COUNT = 3;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private final Uri manifestUri;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
+  private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
@@ -88,9 +89,17 @@ public final class HlsSampleSource implements SampleSource,
   public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
       AdaptiveSourceEventListener eventListener) {
+    this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        eventHandler, eventListener);
+  }
+
+  public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
+    this.minLoadableRetryCount = minLoadableRetryCount;
 
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
@@ -109,7 +118,7 @@ public final class HlsSampleSource implements SampleSource,
     ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this,
-        MIN_LOADABLE_RETRY_COUNT);
+        minLoadableRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
@@ -355,7 +364,7 @@ public final class HlsSampleSource implements SampleSource,
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
     return new HlsTrackStreamWrapper(trackType, this, defaultChunkSource, allocator,
-        preparePositionUs, muxedAudioFormat, muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT,
+        preparePositionUs, muxedAudioFormat, muxedCaptionFormat, minLoadableRetryCount,
         eventDispatcher);
   }
 
