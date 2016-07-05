@@ -17,8 +17,8 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.CompositeSequenceableLoader;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
@@ -32,6 +32,7 @@ import com.google.android.exoplayer.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.playlist.Variant;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
@@ -71,7 +72,7 @@ public final class HlsSampleSource implements SampleSource,
   private final HlsPlaylistParser manifestParser;
 
   private Callback callback;
-  private LoadControl loadControl;
+  private Allocator allocator;
   private long preparePositionUs;
   private int pendingPrepareCount;
 
@@ -82,6 +83,7 @@ public final class HlsSampleSource implements SampleSource,
   private int[] selectedTrackCounts;
   private HlsTrackStreamWrapper[] trackStreamWrappers;
   private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
+  private CompositeSequenceableLoader sequenceableLoader;
 
   public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -100,9 +102,9 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+  public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
-    this.loadControl = loadControl;
+    this.allocator = allocator;
     this.preparePositionUs = positionUs;
     ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
@@ -147,6 +149,7 @@ public final class HlsSampleSource implements SampleSource,
     }
     // Update the enabled wrappers.
     enabledTrackStreamWrappers = new HlsTrackStreamWrapper[enabledTrackStreamWrapperCount];
+    sequenceableLoader = new CompositeSequenceableLoader(enabledTrackStreamWrappers);
     enabledTrackStreamWrapperCount = 0;
     for (int i = 0; i < trackStreamWrappers.length; i++) {
       if (selectedTrackCounts[i] > 0) {
@@ -161,10 +164,13 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public void continueBuffering(long positionUs) {
-    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
-      trackStreamWrapper.continueBuffering(positionUs);
-    }
+  public boolean continueLoading(long positionUs) {
+    return sequenceableLoader.continueLoading(positionUs);
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    return sequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -190,7 +196,7 @@ public final class HlsSampleSource implements SampleSource,
     positionUs = isLive ? 0 : positionUs;
     timestampAdjusterProvider.reset();
     for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
-      trackStreamWrapper.restartFrom(positionUs);
+      trackStreamWrapper.seekTo(positionUs);
     }
     return positionUs;
   }
@@ -239,7 +245,7 @@ public final class HlsSampleSource implements SampleSource,
     return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
-  // HlsTrackStreamWrapper callback.
+  // HlsTrackStreamWrapper.Callback implementation.
 
   @Override
   public void onPrepared() {
@@ -265,6 +271,11 @@ public final class HlsSampleSource implements SampleSource,
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
     callback.onSourcePrepared(this);
+  }
+
+  @Override
+  public void onContinueLoadingRequested(HlsTrackStreamWrapper trackStreanWrapper) {
+    callback.onContinueLoadingRequested(this);
   }
 
   // Internal methods.
@@ -343,7 +354,7 @@ public final class HlsSampleSource implements SampleSource,
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
-    return new HlsTrackStreamWrapper(trackType, this, defaultChunkSource, loadControl,
+    return new HlsTrackStreamWrapper(trackType, this, defaultChunkSource, allocator,
         preparePositionUs, muxedAudioFormat, muxedCaptionFormat, MIN_LOADABLE_RETRY_COUNT,
         eventDispatcher);
   }

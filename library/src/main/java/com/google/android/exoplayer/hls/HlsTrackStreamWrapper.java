@@ -16,11 +16,11 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
+import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
@@ -31,6 +31,7 @@ import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -45,13 +46,13 @@ import java.util.List;
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
  * {@link TrackStream}s from which the loaded media can be consumed.
  */
-/* package */ final class HlsTrackStreamWrapper implements Loader.Callback<Chunk>, ExtractorOutput,
-    UpstreamFormatChangedListener {
+/* package */ final class HlsTrackStreamWrapper implements Loader.Callback<Chunk>,
+    SequenceableLoader, ExtractorOutput, UpstreamFormatChangedListener {
 
   /**
    * A callback to be notified of events.
    */
-  public interface Callback {
+  public interface Callback extends SequenceableLoader.Callback<HlsTrackStreamWrapper> {
 
     /**
      * Invoked when the wrapper has been prepared.
@@ -68,7 +69,7 @@ import java.util.List;
   private final int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
-  private final LoadControl loadControl;
+  private final Allocator allocator;
   private final Format muxedAudioFormat;
   private final Format muxedCaptionFormat;
   private final int minLoadableRetryCount;
@@ -81,7 +82,6 @@ import java.util.List;
   private volatile boolean sampleQueuesBuilt;
 
   private boolean prepared;
-  private boolean readingEnabled;
   private int enabledTrackCount;
   private Format downstreamFormat;
 
@@ -92,7 +92,6 @@ import java.util.List;
   // Indexed by group.
   private boolean[] groupEnabledStates;
 
-  private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
 
@@ -102,7 +101,7 @@ import java.util.List;
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param callback A callback for the wrapper.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
-   * @param loadControl Controls when the source is permitted to load data.
+   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed audio,
    *     this is the audio {@link Format} as defined by the playlist.
@@ -113,12 +112,12 @@ import java.util.List;
    * @param eventDispatcher A dispatcher to notify of events.
    */
   public HlsTrackStreamWrapper(int trackType, Callback callback, HlsChunkSource chunkSource,
-      LoadControl loadControl, long positionUs, Format muxedAudioFormat, Format muxedCaptionFormat,
+      Allocator allocator, long positionUs, Format muxedAudioFormat, Format muxedCaptionFormat,
       int minLoadableRetryCount, EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
-    this.loadControl = loadControl;
+    this.allocator = allocator;
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormat = muxedCaptionFormat;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -127,13 +126,12 @@ import java.util.List;
     nextChunkHolder = new ChunkHolder();
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
-    readingEnabled = true;
+    lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
-    downstreamPositionUs = positionUs;
   }
 
   public void prepare() {
-    maybeStartLoading();
+    continueLoading(lastSeekPositionUs);
   }
 
   public void maybeThrowPrepareError() throws IOException {
@@ -155,7 +153,6 @@ import java.util.List;
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, boolean isFirstTrackSelection) {
     Assertions.checkState(prepared);
-    boolean tracksWereEnabled = enabledTrackCount > 0;
     // Unselect old tracks.
     for (int i = 0; i < oldStreams.size(); i++) {
       int group = ((TrackStreamImpl) oldStreams.get(i)).group;
@@ -187,24 +184,17 @@ import java.util.List;
     // Cancel requests if necessary.
     if (enabledTrackCount == 0) {
       chunkSource.reset();
-      downstreamPositionUs = Long.MIN_VALUE;
       downstreamFormat = null;
       mediaChunks.clear();
-      if (tracksWereEnabled) {
-        loadControl.unregister(this);
-      }
       if (loader.isLoading()) {
         loader.cancelLoading();
       }
-    } else if (!tracksWereEnabled) {
-      loadControl.register(this);
     }
     return newStreams;
   }
 
-  public void restartFrom(long positionUs) {
+  public void seekTo(long positionUs) {
     lastSeekPositionUs = positionUs;
-    downstreamPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
     loadingFinished = false;
     mediaChunks.clear();
@@ -215,20 +205,7 @@ import java.util.List;
       for (int i = 0; i < sampleQueueCount; i++) {
         sampleQueues.valueAt(i).reset(groupEnabledStates[i]);
       }
-      maybeStartLoading();
     }
-  }
-
-  // TODO[REFACTOR]: Find a way to get rid of this.
-  public void continueBuffering(long playbackPositionUs) {
-    downstreamPositionUs = playbackPositionUs;
-    if (!loader.isLoading()) {
-      maybeStartLoading();
-    }
-  }
-
-  public void setReadingEnabled(boolean readingEnabled) {
-    this.readingEnabled = readingEnabled;
   }
 
   public long getBufferedPositionUs() {
@@ -237,7 +214,7 @@ import java.util.List;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      long bufferedPositionUs = downstreamPositionUs;
+      long bufferedPositionUs = lastSeekPositionUs;
       HlsMediaChunk lastMediaChunk = mediaChunks.getLast();
       HlsMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
           : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
@@ -258,9 +235,6 @@ import java.util.List;
     for (int i = 0; i < sampleQueueCount; i++) {
       sampleQueues.valueAt(i).disable();
     }
-    if (enabledTrackCount > 0) {
-      loadControl.unregister(this);
-    }
     loader.release();
   }
 
@@ -276,13 +250,14 @@ import java.util.List;
   }
 
   /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (!readingEnabled || isPendingReset()) {
+    if (isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
 
-    while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= downstreamPositionUs) {
-      mediaChunks.removeFirst();
-    }
+    // TODO[REFACTOR]: Restore this.
+    // while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= downstreamPositionUs) {
+    //   mediaChunks.removeFirst();
+    // }
     HlsMediaChunk currentChunk = mediaChunks.getFirst();
     Format format = currentChunk.format;
     if (!format.equals(downstreamFormat)) {
@@ -296,6 +271,52 @@ import java.util.List;
         lastSeekPositionUs);
   }
 
+  // SequenceableLoader implementation
+
+  @Override
+  public boolean continueLoading(long positionUs) {
+    if (loader.isLoading()) {
+      return false;
+    }
+
+    chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
+        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : positionUs,
+        nextChunkHolder);
+    boolean endOfStream = nextChunkHolder.endOfStream;
+    Chunk loadable = nextChunkHolder.chunk;
+    nextChunkHolder.clear();
+
+    if (endOfStream) {
+      loadingFinished = true;
+      return true;
+    }
+
+    if (loadable == null) {
+      return false;
+    }
+
+    if (isMediaChunk(loadable)) {
+      pendingResetPositionUs = C.UNSET_TIME_US;
+      HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
+      mediaChunk.init(this);
+      mediaChunks.add(mediaChunk);
+    }
+    long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.format,
+        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+        loadable.endTimeUs, elapsedRealtimeMs);
+    return true;
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else {
+      return loadingFinished ? C.END_OF_SOURCE_US : mediaChunks.getLast().endTimeUs;
+    }
+  }
+
   // Loader.Callback implementation.
 
   @Override
@@ -304,7 +325,11 @@ import java.util.List;
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.format,
         loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
-    maybeStartLoading();
+    if (!prepared) {
+      continueLoading(lastSeekPositionUs);
+    } else {
+      callback.onContinueLoadingRequested(this);
+    }
   }
 
   @Override
@@ -313,8 +338,12 @@ import java.util.List;
     eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.format,
         loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
-    if (!released && enabledTrackCount > 0) {
-      restartFrom(pendingResetPositionUs);
+    if (!released) {
+      int sampleQueueCount = sampleQueues.size();
+      for (int i = 0; i < sampleQueueCount; i++) {
+        sampleQueues.valueAt(i).reset(groupEnabledStates[i]);
+      }
+      callback.onContinueLoadingRequested(this);
     }
   }
 
@@ -340,7 +369,7 @@ import java.util.List;
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded(), error,
         canceled);
     if (canceled) {
-      maybeStartLoading();
+      callback.onContinueLoadingRequested(this);
       return Loader.DONT_RETRY;
     } else {
       return Loader.RETRY;
@@ -365,7 +394,7 @@ import java.util.List;
     if (sampleQueues.indexOfKey(id) >= 0) {
       return sampleQueues.get(id);
     }
-    DefaultTrackOutput trackOutput = new DefaultTrackOutput(loadControl.getAllocator());
+    DefaultTrackOutput trackOutput = new DefaultTrackOutput(allocator);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueues.put(id, trackOutput);
     return trackOutput;
@@ -523,60 +552,6 @@ import java.util.List;
     return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate,
         containerFormat.width, containerFormat.height, containerFormat.selectionFlags,
         containerFormat.language);
-  }
-
-  private void maybeStartLoading() {
-    boolean shouldStartLoading = !prepared || (enabledTrackCount > 0
-        && loadControl.update(this, getNextLoadPositionUs(), false));
-    if (!shouldStartLoading) {
-      return;
-    }
-
-    chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : downstreamPositionUs,
-        nextChunkHolder);
-    boolean endOfStream = nextChunkHolder.endOfStream;
-    Chunk loadable = nextChunkHolder.chunk;
-    nextChunkHolder.clear();
-
-    if (endOfStream) {
-      loadingFinished = true;
-      if (prepared) {
-        loadControl.update(this, C.UNSET_TIME_US, false);
-      }
-      return;
-    }
-
-    if (loadable == null) {
-      return;
-    }
-
-    if (isMediaChunk(loadable)) {
-      pendingResetPositionUs = C.UNSET_TIME_US;
-      HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
-      mediaChunk.init(this);
-      mediaChunks.add(mediaChunk);
-    }
-    long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
-        loadable.endTimeUs, elapsedRealtimeMs);
-    if (prepared) {
-      // Update the load control again to indicate that we're now loading.
-      loadControl.update(this, getNextLoadPositionUs(), true);
-    }
-  }
-
-  /**
-   * Gets the next load time, assuming that the next load starts where the previous chunk ended (or
-   * from the pending reset time, if there is one).
-   */
-  private long getNextLoadPositionUs() {
-    if (isPendingReset()) {
-      return pendingResetPositionUs;
-    } else {
-      return loadingFinished ? C.UNSET_TIME_US : mediaChunks.getLast().endTimeUs;
-    }
   }
 
   private boolean isMediaChunk(Chunk chunk) {

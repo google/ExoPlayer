@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
+import com.google.android.exoplayer.upstream.Allocator;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,12 +23,12 @@ import java.util.List;
 /**
  * A source of media.
  */
-public interface SampleSource {
+public interface SampleSource extends SequenceableLoader {
 
   /**
    * A callback to be notified of {@link SampleSource} events.
    */
-  interface Callback {
+  interface Callback extends SequenceableLoader.Callback<SampleSource> {
 
     /**
      * Invoked by the source when preparation completes.
@@ -50,11 +50,10 @@ public interface SampleSource {
    * invoked.
    *
    * @param callback A callback to receive updates from the source.
-   * @param loadControl A {@link LoadControl} to determine when to load data.
+   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The player's current playback position.
-   * @return True if the source is prepared, false otherwise.
    */
-  void prepare(Callback callback, LoadControl loadControl, long positionUs);
+  void prepare(Callback callback, Allocator allocator, long positionUs);
 
   /**
    * Throws an error that's preventing the source from becoming prepared. Does nothing if no such
@@ -107,15 +106,6 @@ public interface SampleSource {
    */
   TrackStream[] selectTracks(List<TrackStream> oldStreams, List<TrackSelection> newSelections,
       long positionUs);
-
-  /**
-   * Indicates to the source that it should continue buffering data for its enabled tracks.
-   * <p>
-   * This method should only be called when at least one track is selected.
-   *
-   * @param positionUs The current playback position.
-   */
-  void continueBuffering(long positionUs);
 
   /**
    * Attempts to read a discontinuity.

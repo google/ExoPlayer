@@ -17,11 +17,12 @@ package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.CompositeSequenceableLoader;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
@@ -61,7 +63,8 @@ import java.util.TimeZone;
 /**
  * A {@link SampleSource} for DASH media.
  */
-public final class DashSampleSource implements SampleSource {
+public final class DashSampleSource implements SampleSource,
+    SequenceableLoader.Callback<ChunkTrackStream<DashChunkSource>> {
 
   private static final String TAG = "DashSampleSource";
 
@@ -84,13 +87,16 @@ public final class DashSampleSource implements SampleSource {
   private MediaPresentationDescription manifest;
 
   private Callback callback;
-  private LoadControl loadControl;
+  private Allocator allocator;
+  private Handler manifestRefreshHandler;
   private boolean prepared;
   private long durationUs;
   private long elapsedRealtimeOffset;
   private TrackGroupArray trackGroups;
   private int[] trackGroupAdaptationSetIndices;
+
   private ChunkTrackStream<DashChunkSource>[] trackStreams;
+  private CompositeSequenceableLoader sequenceableLoader;
 
   public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -99,17 +105,19 @@ public final class DashSampleSource implements SampleSource {
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    loader = new Loader("Loader:DashSampleSource");
     dataSource = dataSourceFactory.createDataSource();
+    loader = new Loader("Loader:DashSampleSource");
     manifestParser = new MediaPresentationDescriptionParser();
     manifestCallback = new ManifestCallback();
     trackStreams = newTrackStreamArray(0);
+    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
   }
 
   @Override
-  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+  public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
-    this.loadControl = loadControl;
+    this.allocator = allocator;
+    manifestRefreshHandler = new Handler();
     startLoadingManifest();
   }
 
@@ -154,28 +162,18 @@ public final class DashSampleSource implements SampleSource {
     }
 
     trackStreams = newTrackStreams;
+    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
     return streamsToReturn;
   }
 
   @Override
-  public void continueBuffering(long positionUs) {
-    if (manifest.dynamic) {
-      long minUpdatePeriod = manifest.minUpdatePeriod;
-      if (minUpdatePeriod == 0) {
-        // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
-        // minUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is explicit
-        // signaling in the stream, according to:
-        // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
-        minUpdatePeriod = 5000;
-      }
-      if (!loader.isLoading()
-          && SystemClock.elapsedRealtime() > manifestLoadStartTimestamp + minUpdatePeriod) {
-        startLoadingManifest();
-      }
-    }
-    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-      trackStream.continueBuffering(positionUs);
-    }
+  public boolean continueLoading(long positionUs) {
+    return sequenceableLoader.continueLoading(positionUs);
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    return sequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -205,10 +203,21 @@ public final class DashSampleSource implements SampleSource {
 
   @Override
   public void release() {
+    if (manifestRefreshHandler != null) {
+      manifestRefreshHandler.removeCallbacksAndMessages(null);
+      manifestRefreshHandler = null;
+    }
     loader.release();
     for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
       trackStream.release();
     }
+  }
+
+  // SequenceableLoader.Callback implementation.
+
+  @Override
+  public void onContinueLoadingRequested(ChunkTrackStream<DashChunkSource> trackStream) {
+    callback.onContinueLoadingRequested(this);
   }
 
   // Loadable callbacks.
@@ -229,13 +238,14 @@ public final class DashSampleSource implements SampleSource {
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
-        prepared = true;
-        callback.onSourcePrepared(this);
+        finishPrepare();
       }
     } else {
       for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
         trackStream.getChunkSource().updateManifest(manifest);
       }
+      callback.onContinueLoadingRequested(this);
+      scheduleManifestRefresh();
     }
   }
 
@@ -307,15 +317,41 @@ public final class DashSampleSource implements SampleSource {
 
   private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
     this.elapsedRealtimeOffset = elapsedRealtimeOffsetMs;
-    prepared = true;
-    callback.onSourcePrepared(this);
+    finishPrepare();
   }
 
   private void onUtcTimestampResolutionError(IOException error) {
     Log.e(TAG, "Failed to resolve UtcTiming element.", error);
     // Be optimistic and continue in the hope that the device clock is correct.
+    finishPrepare();
+  }
+
+  private void finishPrepare() {
     prepared = true;
     callback.onSourcePrepared(this);
+    scheduleManifestRefresh();
+  }
+
+  private void scheduleManifestRefresh() {
+    if (!manifest.dynamic) {
+      return;
+    }
+    long minUpdatePeriod = manifest.minUpdatePeriod;
+    if (minUpdatePeriod == 0) {
+      // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
+      // minUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is explicit
+      // signaling in the stream, according to:
+      // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
+      minUpdatePeriod = 5000;
+    }
+    long nextLoadTimestamp = manifestLoadStartTimestamp + minUpdatePeriod;
+    long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
+    manifestRefreshHandler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        startLoadingManifest();
+      }
+    }, delayUntilNextLoad);
   }
 
   private <T> void startLoading(ParsingLoadable<T> loadable,
@@ -365,7 +401,7 @@ public final class DashSampleSource implements SampleSource {
     DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
-    return new ChunkTrackStream<>(adaptationSetType, chunkSource, loadControl, positionUs,
+    return new ChunkTrackStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
         MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 

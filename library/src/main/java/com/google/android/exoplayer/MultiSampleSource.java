@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
+import com.google.android.exoplayer.upstream.Allocator;
 
 import android.util.Pair;
 
@@ -40,6 +40,7 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
 
   private boolean seenFirstTrackSelection;
   private SampleSource[] enabledSources;
+  private SequenceableLoader sequenceableLoader;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
@@ -49,10 +50,10 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
   }
 
   @Override
-  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+  public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     for (SampleSource source : sources) {
-      source.prepare(this, loadControl, positionUs);
+      source.prepare(this, allocator, positionUs);
     }
   }
 
@@ -86,6 +87,7 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
         enabledSourceCount++;
       }
     }
+    seenFirstTrackSelection = true;
     // Update the enabled sources.
     enabledSources = new SampleSource[enabledSourceCount];
     enabledSourceCount = 0;
@@ -94,15 +96,18 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
         enabledSources[enabledSourceCount++] = sources[i];
       }
     }
-    seenFirstTrackSelection = true;
+    sequenceableLoader = new CompositeSequenceableLoader(enabledSources);
     return newStreams;
   }
 
   @Override
-  public void continueBuffering(long positionUs) {
-    for (SampleSource source : enabledSources) {
-      source.continueBuffering(positionUs);
-    }
+  public boolean continueLoading(long positionUs) {
+    return sequenceableLoader.continueLoading(positionUs);
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    return sequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -183,6 +188,11 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
     callback.onSourcePrepared(this);
+  }
+
+  @Override
+  public void onContinueLoadingRequested(SampleSource ignored) {
+    callback.onContinueLoadingRequested(this);
   }
 
   // Internal methods.

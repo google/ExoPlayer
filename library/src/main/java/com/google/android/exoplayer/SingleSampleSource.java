@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
@@ -109,7 +109,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   // SampleSource implementation.
 
   @Override
-  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+  public void prepare(Callback callback, Allocator allocator, long positionUs) {
     callback.onSourcePrepared(this);
   }
 
@@ -133,26 +133,27 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(oldStreams.size() <= 1);
     Assertions.checkState(newSelections.size() <= 1);
-    // Unselect old tracks.
-    if (!oldStreams.isEmpty()) {
-      streamState = STREAM_STATE_END_OF_STREAM;
-      if (loader.isLoading()) {
-        loader.cancelLoading();
-      }
-    }
     // Select new tracks.
     TrackStream[] newStreams = new TrackStream[newSelections.size()];
     if (!newSelections.isEmpty()) {
       newStreams[0] = this;
       streamState = STREAM_STATE_SEND_FORMAT;
-      maybeStartLoading();
     }
     return newStreams;
   }
 
   @Override
-  public void continueBuffering(long positionUs) {
-    // Do nothing.
+  public boolean continueLoading(long positionUs) {
+    if (loadingFinished || loader.isLoading()) {
+      return false;
+    }
+    loader.startLoading(this, this, minLoadableRetryCount);
+    return true;
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    return loadingFinished || loader.isLoading() ? C.END_OF_SOURCE_US : 0;
   }
 
   @Override
@@ -170,6 +171,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
 
   @Override
   public void release() {
+    sampleData = null;
     loader.release();
   }
 
@@ -225,9 +227,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   @Override
   public void onLoadCanceled(SingleSampleSource loadable, long elapsedRealtimeMs,
       long loadDurationMs, boolean released) {
-    if (!released) {
-      maybeStartLoading();
-    }
+    // Never happens.
   }
 
   @Override
@@ -271,13 +271,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   }
 
   // Internal methods.
-
-  private void maybeStartLoading() {
-    if (loadingFinished || streamState == STREAM_STATE_END_OF_STREAM || loader.isLoading()) {
-      return;
-    }
-    loader.startLoading(this, this, minLoadableRetryCount);
-  }
 
   private void notifyLoadError(final IOException e) {
     if (eventHandler != null && eventListener != null) {

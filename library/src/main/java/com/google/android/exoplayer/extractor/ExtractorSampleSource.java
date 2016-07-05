@@ -15,18 +15,19 @@
  */
 package com.google.android.exoplayer.extractor;
 
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
@@ -34,10 +35,10 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.ConditionVariable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
-import android.os.ConditionVariable;
 import android.os.Handler;
 
 import java.io.EOFException;
@@ -133,7 +134,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final ExtractorHolder extractorHolder;
 
   private Callback callback;
-  private LoadControl loadControl;
+  private Allocator allocator;
   private SeekMap seekMap;
   private boolean tracksBuilt;
   private boolean prepared;
@@ -308,9 +309,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // SampleSource implementation.
 
   @Override
-  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+  public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
-    this.loadControl = loadControl;
+    this.allocator = allocator;
     loadCondition.open();
     startLoading();
   }
@@ -334,7 +335,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public TrackStream[] selectTracks(List<TrackStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
-    boolean tracksWereEnabled = enabledTrackCount > 0;
     // Unselect old tracks.
     for (int i = 0; i < oldStreams.size(); i++) {
       int track = ((TrackStreamImpl) oldStreams.get(i)).track;
@@ -364,38 +364,34 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         }
       }
     }
-    // Cancel or start requests as necessary.
     if (enabledTrackCount == 0) {
-      if (tracksWereEnabled) {
-        loadControl.unregister(this);
-        loadCondition.close();
-      }
+      notifyReset = false;
       if (loader.isLoading()) {
         loader.cancelLoading();
       }
-    } else {
-      if (!tracksWereEnabled) {
-        loadControl.register(this);
-        loadCondition.open();
-      }
-      if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
-        long seekPositionUs = seekToUs(positionUs);
-        if (seekPositionUs != positionUs) {
-          notifyReset = true;
-        }
-      }
+    } else if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
+      seekToUs(positionUs);
     }
     seenFirstTrackSelection = true;
     return newStreams;
   }
 
   @Override
-  public void continueBuffering(long playbackPositionUs) {
-    if (loadControl.update(this, getBufferedPositionUs(), loader.isLoading())) {
-      loadCondition.open();
-    } else {
-      loadCondition.close();
+  public boolean continueLoading(long playbackPositionUs) {
+    if (loadingFinished) {
+      return false;
     }
+    boolean continuedLoading = loadCondition.open();
+    if (!loader.isLoading()) {
+      startLoading();
+      continuedLoading = true;
+    }
+    return continuedLoading;
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    return getBufferedPositionUs();
   }
 
   @Override
@@ -434,7 +430,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
     // If we failed to seek within the sample queues, we need to restart.
     if (!seekInsideBuffer) {
-      restartFrom(positionUs);
+      pendingResetPositionUs = positionUs;
+      loadingFinished = false;
+      if (loader.isLoading()) {
+        loader.cancelLoading();
+      } else {
+        for (int i = 0; i < sampleQueues.length; i++) {
+          sampleQueues[i].reset(trackEnabledStates[i]);
+        }
+      }
     }
     notifyReset = false;
     return positionUs;
@@ -444,9 +448,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public void release() {
     for (DefaultTrackOutput sampleQueue : sampleQueues) {
       sampleQueue.disable();
-    }
-    if (enabledTrackCount > 0) {
-      loadControl.unregister(this);
     }
     loader.release();
   }
@@ -458,15 +459,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    int minRetryCount = minLoadableRetryCount;
-    if (minRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
-      // We assume on-demand before we're prepared.
-      minRetryCount = !prepared || length != C.LENGTH_UNBOUNDED
-          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)
-          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
-          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
-    }
-    loader.maybeThrowError(minRetryCount);
+    loader.maybeThrowError();
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
@@ -496,7 +489,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       long loadDurationMs, boolean released) {
     copyLengthFromLoader(loadable);
     if (!released && enabledTrackCount > 0) {
-      restartFrom(pendingResetPositionUs);
+      for (int i = 0; i < sampleQueues.length; i++) {
+        sampleQueues[i].reset(trackEnabledStates[i]);
+      }
+      callback.onContinueLoadingRequested(this);
     }
   }
 
@@ -520,7 +516,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public TrackOutput track(int id) {
     sampleQueues = Arrays.copyOf(sampleQueues, sampleQueues.length + 1);
-    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
+    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(allocator);
     sampleQueue.setUpstreamFormatChangeListener(this);
     sampleQueues[sampleQueues.length - 1] = sampleQueue;
     return sampleQueue;
@@ -575,19 +571,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
   }
 
-  private void restartFrom(long positionUs) {
-    pendingResetPositionUs = positionUs;
-    loadingFinished = false;
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      for (int i = 0; i < sampleQueues.length; i++) {
-        sampleQueues[i].reset(trackEnabledStates[i]);
-      }
-      startLoading();
-    }
-  }
-
   private void startLoading() {
     ExtractingLoadable loadable = new ExtractingLoadable(uri, dataSource, extractorHolder,
         loadCondition);
@@ -602,7 +585,16 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       pendingResetPositionUs = C.UNSET_TIME_US;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-    loader.startLoading(loadable, this, 0);
+
+    int minRetryCount = minLoadableRetryCount;
+    if (minRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
+      // We assume on-demand before we're prepared.
+      minRetryCount = !prepared || length != C.LENGTH_UNBOUNDED
+          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)
+          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
+          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
+    }
+    loader.startLoading(loadable, this, minRetryCount);
   }
 
   private void configureRetry(ExtractingLoadable loadable) {
@@ -616,6 +608,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       // available media. For this case there's no way to continue loading from where a
       // previous load finished, so it's necessary to load from the start whenever commencing
       // a new load.
+      lastSeekPositionUs = 0;
       notifyReset = prepared;
       for (int i = 0; i < sampleQueues.length; i++) {
         sampleQueues[i].reset(trackEnabledStates[i]);
@@ -688,7 +681,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   /**
    * Loads the media stream and extracts sample data from it.
    */
-  /* package */ static final class ExtractingLoadable implements Loadable {
+  /* package */ final class ExtractingLoadable implements Loadable {
+
+    /**
+     * The number of bytes that should be loaded between each each invocation of
+     * {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
+     */
+    private static final int CONTINUE_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
 
     private final Uri uri;
     private final DataSource dataSource;
@@ -745,10 +744,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-            // TODO: Prevent the loader from loading too much data between evaluations of the
-            // buffering condition.
             loadCondition.block();
             result = extractor.read(input, positionHolder);
+            if (input.getPosition() > position + CONTINUE_LOADING_CHECK_INTERVAL_BYTES) {
+              position = input.getPosition();
+              loadCondition.close();
+              callback.onContinueLoadingRequested(ExtractorSampleSource.this);
+            }
           }
         } finally {
           if (result == Extractor.RESULT_SEEK) {

@@ -16,17 +16,16 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
+import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.Assertions;
-
-import android.os.SystemClock;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -36,12 +35,12 @@ import java.util.List;
 /**
  * A {@link TrackStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  */
-public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
+public class ChunkTrackStream<T extends ChunkSource> implements TrackStream, SequenceableLoader,
     Loader.Callback<Chunk> {
 
   private final int trackType;
   private final T chunkSource;
-  private final LoadControl loadControl;
+  private final SequenceableLoader.Callback<ChunkTrackStream<T>> callback;
   private final EventDispatcher eventDispatcher;
   private final int minLoadableRetryCount;
   private final LinkedList<BaseMediaChunk> mediaChunks;
@@ -50,11 +49,8 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
   private final ChunkHolder nextChunkHolder;
   private final Loader loader;
 
-  private boolean readingEnabled;
-  private long lastPreferredQueueSizeEvaluationTimeMs;
   private Format downstreamFormat;
 
-  private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
 
@@ -63,47 +59,29 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
   /**
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
-   * @param loadControl Controls when the source is permitted to load data.
+   * @param callback An {@link Callback} for the stream.
+   * @param allocator An {@link Allocator} from which allocations can be obtained.
    * @param positionUs The position from which to start loading media.
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public ChunkTrackStream(int trackType, T chunkSource, LoadControl loadControl, long positionUs,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
+  public ChunkTrackStream(int trackType, T chunkSource,
+      SequenceableLoader.Callback<ChunkTrackStream<T>> callback, Allocator allocator,
+      long positionUs, int minLoadableRetryCount, EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.chunkSource = chunkSource;
-    this.loadControl = loadControl;
+    this.callback = callback;
     this.eventDispatcher = eventDispatcher;
     this.minLoadableRetryCount = minLoadableRetryCount;
     loader = new Loader("Loader:ChunkTrackStream");
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
-    sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
+    sampleQueue = new DefaultTrackOutput(allocator);
     pendingResetPositionUs = C.UNSET_TIME_US;
-    readingEnabled = true;
-    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    loadControl.register(this);
-    restartFrom(positionUs);
-  }
-
-  /**
-   * Enables or disables reading of data from {@link #readData(FormatHolder, DecoderInputBuffer)}.
-   *
-   * @param readingEnabled Whether reading should be enabled.
-   */
-  public void setReadingEnabled(boolean readingEnabled) {
-    this.readingEnabled = readingEnabled;
-  }
-
-  // TODO[REFACTOR]: Find a way to get rid of this.
-  public void continueBuffering(long positionUs) {
-    downstreamPositionUs = positionUs;
-    if (!loader.isLoading()) {
-      maybeStartLoading();
-    }
+    pendingResetPositionUs = positionUs;
   }
 
   /**
@@ -127,7 +105,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      long bufferedPositionUs = downstreamPositionUs;
+      long bufferedPositionUs = lastSeekPositionUs;
       BaseMediaChunk lastMediaChunk = mediaChunks.getLast();
       BaseMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
           : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
@@ -144,7 +122,6 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
    * @param positionUs The seek position in microseconds.
    */
   public void seekToUs(long positionUs) {
-    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
     boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
@@ -156,7 +133,14 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
       }
     } else {
       // We failed, and need to restart.
-      restartFrom(positionUs);
+      pendingResetPositionUs = positionUs;
+      loadingFinished = false;
+      mediaChunks.clear();
+      if (loader.isLoading()) {
+        loader.cancelLoading();
+      } else {
+        sampleQueue.reset(true);
+      }
     }
   }
 
@@ -168,7 +152,6 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
   public void release() {
     chunkSource.release();
     sampleQueue.disable();
-    loadControl.unregister(this);
     loader.release();
   }
 
@@ -189,7 +172,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
 
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (!readingEnabled || isPendingReset()) {
+    if (isPendingReset()) {
       return NOTHING_READ;
     }
 
@@ -218,7 +201,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.format,
         loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
-    maybeStartLoading();
+    callback.onContinueLoadingRequested(this);
   }
 
   @Override
@@ -228,7 +211,8 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
         loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     if (!released) {
-      restartFrom(pendingResetPositionUs);
+      sampleQueue.reset(true);
+      callback.onContinueLoadingRequested(this);
     }
   }
 
@@ -255,43 +239,23 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, bytesLoaded, error,
         canceled);
     if (canceled) {
-      maybeStartLoading();
+      callback.onContinueLoadingRequested(this);
       return Loader.DONT_RETRY;
     } else {
       return Loader.RETRY;
     }
   }
 
-  // Internal methods.
+  // SequenceableLoader implementation
 
-  private void restartFrom(long positionUs) {
-    pendingResetPositionUs = positionUs;
-    loadingFinished = false;
-    mediaChunks.clear();
+  @Override
+  public boolean continueLoading(long positionUs) {
     if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      sampleQueue.reset(true);
-      maybeStartLoading();
-    }
-  }
-
-  private void maybeStartLoading() {
-    long now = SystemClock.elapsedRealtime();
-    if (now - lastPreferredQueueSizeEvaluationTimeMs > 5000) {
-      int queueSize = chunkSource.getPreferredQueueSize(downstreamPositionUs, readOnlyMediaChunks);
-      // Never discard the first chunk.
-      discardUpstreamMediaChunks(Math.max(1, queueSize));
-      lastPreferredQueueSizeEvaluationTimeMs = now;
-    }
-
-    boolean isNext = loadControl.update(this, getNextLoadPositionUs(), false);
-    if (!isNext) {
-      return;
+      return false;
     }
 
     chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : downstreamPositionUs,
+        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : positionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
@@ -299,12 +263,11 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
 
     if (endOfStream) {
       loadingFinished = true;
-      loadControl.update(this, C.UNSET_TIME_US, false);
-      return;
+      return true;
     }
 
     if (loadable == null) {
-      return;
+      return false;
     }
 
     if (isMediaChunk(loadable)) {
@@ -317,20 +280,30 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream,
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.format,
         loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs);
-    // Update the load control again to indicate that we're now loading.
-    loadControl.update(this, getNextLoadPositionUs(), true);
+    return true;
   }
 
-  /**
-   * Gets the next load time, assuming that the next load starts where the previous chunk ended (or
-   * from the pending reset time, if there is one).
-   */
-  private long getNextLoadPositionUs() {
+  @Override
+  public long getNextLoadPositionUs() {
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? C.UNSET_TIME_US : mediaChunks.getLast().endTimeUs;
+      return loadingFinished ? C.END_OF_SOURCE_US : mediaChunks.getLast().endTimeUs;
     }
+  }
+
+  // Internal methods
+
+  // TODO[REFACTOR]: Call maybeDiscardUpstream for DASH and SmoothStreaming.
+  /**
+   * Discards media chunks from the back of the buffer if conditions have changed such that it's
+   * preferable to re-buffer the media at a different quality.
+   *
+   * @param positionUs The current playback position in microseconds.
+   */
+  private void maybeDiscardUpstream(long positionUs) {
+    int queueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    discardUpstreamMediaChunks(Math.max(1, queueSize));
   }
 
   private boolean isMediaChunk(Chunk chunk) {

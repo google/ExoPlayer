@@ -17,11 +17,12 @@ package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.AdaptiveSourceEventListener;
 import com.google.android.exoplayer.AdaptiveSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer.BufferingPolicy.LoadControl;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.CompositeSequenceableLoader;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
@@ -52,6 +54,7 @@ import java.util.List;
  * A {@link SampleSource} for SmoothStreaming media.
  */
 public final class SmoothStreamingSampleSource implements SampleSource,
+    SequenceableLoader.Callback<ChunkTrackStream<SmoothStreamingChunkSource>>,
     Loader.Callback<ParsingLoadable<SmoothStreamingManifest>> {
 
   /**
@@ -74,7 +77,8 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private SmoothStreamingManifest manifest;
 
   private Callback callback;
-  private LoadControl loadControl;
+  private Allocator allocator;
+  private Handler manifestRefreshHandler;
   private boolean prepared;
   private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
@@ -82,6 +86,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   private int[] trackGroupElementIndices;
 
   private ChunkTrackStream<SmoothStreamingChunkSource>[] trackStreams;
+  private CompositeSequenceableLoader sequenceableLoader;
 
   public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -92,15 +97,17 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     this.bandwidthMeter = bandwidthMeter;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     trackStreams = newTrackStreamArray(0);
+    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
     manifestDataSource = dataSourceFactory.createDataSource();
     manifestParser = new SmoothStreamingManifestParser();
     manifestLoader = new Loader("Loader:Manifest");
   }
 
   @Override
-  public void prepare(Callback callback, LoadControl loadControl, long positionUs) {
+  public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
-    this.loadControl = loadControl;
+    this.allocator = allocator;
+    manifestRefreshHandler = new Handler();
     startLoadingManifest();
   }
 
@@ -145,25 +152,18 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     }
 
     trackStreams = newTrackStreams;
+    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
     return streamsToReturn;
   }
 
   @Override
-  public void continueBuffering(long positionUs) {
-    if (manifest.isLive) {
-      if (!manifestLoader.isLoading() && SystemClock.elapsedRealtime()
-          > manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS) {
-        for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
-          if (trackStream.getChunkSource().needManifestRefresh()) {
-            startLoadingManifest();
-            break;
-          }
-        }
-      }
-    }
-    for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
-      trackStream.continueBuffering(positionUs);
-    }
+  public boolean continueLoading(long positionUs) {
+    return sequenceableLoader.continueLoading(positionUs);
+  }
+
+  @Override
+  public long getNextLoadPositionUs() {
+    return sequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -193,10 +193,21 @@ public final class SmoothStreamingSampleSource implements SampleSource,
 
   @Override
   public void release() {
+    if (manifestRefreshHandler != null) {
+      manifestRefreshHandler.removeCallbacksAndMessages(null);
+      manifestRefreshHandler = null;
+    }
     manifestLoader.release();
     for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
       trackStream.release();
     }
+  }
+
+  // SequenceableLoader.Callback implementation
+
+  @Override
+  public void onContinueLoadingRequested(ChunkTrackStream<SmoothStreamingChunkSource> trackStream) {
+    callback.onContinueLoadingRequested(this);
   }
 
   // Loader.Callback implementation
@@ -223,7 +234,9 @@ public final class SmoothStreamingSampleSource implements SampleSource,
       for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
         trackStream.getChunkSource().updateManifest(manifest);
       }
+      callback.onContinueLoadingRequested(this);
     }
+    scheduleManifestRefresh();
   }
 
   @Override
@@ -243,6 +256,20 @@ public final class SmoothStreamingSampleSource implements SampleSource,
   }
 
   // Internal methods
+
+  private void scheduleManifestRefresh() {
+    if (!manifest.isLive) {
+      return;
+    }
+    long nextLoadTimestamp = manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS;
+    long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
+    manifestRefreshHandler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        startLoadingManifest();
+      }
+    }, delayUntilNextLoad);
+  }
 
   private void startLoadingManifest() {
     ParsingLoadable<SmoothStreamingManifest> loadable = new ParsingLoadable<>(manifestDataSource,
@@ -285,7 +312,7 @@ public final class SmoothStreamingSampleSource implements SampleSource,
     SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifestLoader,
         manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);
-    return new ChunkTrackStream<>(streamElementType, chunkSource, loadControl, positionUs,
+    return new ChunkTrackStream<>(streamElementType, chunkSource, this, allocator, positionUs,
         MIN_LOADABLE_RETRY_COUNT, eventDispatcher);
   }
 

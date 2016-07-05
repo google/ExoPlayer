@@ -55,11 +55,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *
    * @param renderers The {@link TrackRenderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param bufferingPolicy The {@link BufferingPolicy} that will be used by the instance.
+   * @param bufferingControl The {@link BufferingControl} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(TrackRenderer[] renderers, TrackSelector trackSelector,
-      BufferingPolicy bufferingPolicy) {
+      BufferingControl bufferingControl) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     Assertions.checkNotNull(renderers);
     Assertions.checkState(renderers.length > 0);
@@ -72,7 +72,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, bufferingPolicy,
+    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, bufferingControl,
         playWhenReady, eventHandler);
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0);
   }

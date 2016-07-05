@@ -18,7 +18,7 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ConcatenatingSampleSourceProvider;
-import com.google.android.exoplayer.DefaultBufferingPolicy;
+import com.google.android.exoplayer.DefaultBufferingControl;
 import com.google.android.exoplayer.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer.DefaultTrackSelector;
 import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
@@ -268,8 +268,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       trackSelector.addListener(this);
       trackSelector.addListener(eventLogger);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector);
-      player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultBufferingPolicy(),
-          drmSessionManager, preferExtensionDecoders);
+      player = ExoPlayerFactory.newSimpleInstance(this, trackSelector,
+          new DefaultBufferingControl(), drmSessionManager, preferExtensionDecoders);
       player.addListener(this);
       player.addListener(eventLogger);
       player.setDebugListener(eventLogger);
