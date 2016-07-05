@@ -87,15 +87,18 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     ExoPlayer.EventListener, SimpleExoPlayer.VideoListener, SimpleExoPlayer.CaptionListener,
     SimpleExoPlayer.Id3MetadataListener, DefaultTrackSelector.EventListener {
 
-  public static final String URIS_LIST_EXTRA = "uris";
-  public static final String CONTENT_EXT_EXTRA = "extension";
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_CONTENT_ID_EXTRA = "drm_content_id";
   public static final String DRM_PROVIDER_EXTRA = "drm_provider";
   public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
+
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
+  public static final String EXTENSION_EXTRA = "extension";
+
   public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
+  public static final String URI_LIST_EXTRA = "uri_list";
+  public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
   private static final String TAG = "PlayerActivity";
 
@@ -285,13 +288,19 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (playerNeedsSource) {
       String action = intent.getAction();
       Uri[] uris;
+      String[] extensions;
       if (ACTION_VIEW.equals(action)) {
         uris = new Uri[] {intent.getData()};
+        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
-        String[] uriStrings = intent.getStringArrayExtra(URIS_LIST_EXTRA);
+        String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
         for (int i = 0; i < uriStrings.length; i++) {
           uris[i] = Uri.parse(uriStrings[i]);
+        }
+        extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
+        if (extensions == null) {
+          extensions = new String[uriStrings.length];
         }
       } else {
         Log.w(TAG, "Unexpected intent action: " + action);
@@ -305,7 +314,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       UriSampleSourceProvider[] providers = new UriSampleSourceProvider[uris.length];
       for (int i = 0; i < uris.length; i++) {
         providers[i] = new UriSampleSourceProvider(player.getBandwidthMeter(), dataSourceFactory,
-            uris[i], intent.getStringExtra(CONTENT_EXT_EXTRA), mainHandler, eventLogger);
+            uris[i], extensions[i], mainHandler, eventLogger);
       }
       SampleSourceProvider sourceProvider = providers.length == 1 ? providers[0]
           : new ConcatenatingSampleSourceProvider(providers);

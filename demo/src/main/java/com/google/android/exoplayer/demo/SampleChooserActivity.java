@@ -21,6 +21,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceInputStream;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.DefaultDataSource;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.app.Activity;
@@ -90,15 +91,7 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void onSampleSelected(Sample sample) {
-    Intent intent = new Intent(this, PlayerActivity.class)
-        .setAction(PlayerActivity.ACTION_VIEW)
-        .setData(Uri.parse(sample.uri))
-        .putExtra(PlayerActivity.CONTENT_EXT_EXTRA, sample.extension)
-        .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, sample.drmSchemeUuid)
-        .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, sample.drmContentId)
-        .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, sample.drmProvider)
-        .putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, sample.preferExtensionDecoders);
-    startActivity(intent);
+    startActivity(sample.buildIntent(this));
   }
 
   private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
@@ -116,7 +109,7 @@ public class SampleChooserActivity extends Activity {
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
         try {
           readSampleGroups(new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
-        } catch (IOException e) {
+        } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
         } finally {
@@ -152,7 +145,7 @@ public class SampleChooserActivity extends Activity {
           case "samples":
             reader.beginArray();
             while (reader.hasNext()) {
-              samples.add(readSample(reader));
+              samples.add(readEntry(reader, false));
             }
             reader.endArray();
             break;
@@ -164,7 +157,7 @@ public class SampleChooserActivity extends Activity {
       group.samples.addAll(samples);
     }
 
-    private Sample readSample(JsonReader reader) throws IOException {
+    private Sample readEntry(JsonReader reader, boolean insidePlaylist) throws IOException {
       String sampleName = null;
       String uri = null;
       String extension = null;
@@ -172,10 +165,12 @@ public class SampleChooserActivity extends Activity {
       String drmContentId = null;
       String drmProvider = null;
       boolean preferExtensionDecoders = false;
+      ArrayList<UriSample> playlistSamples = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
-        switch (reader.nextName()) {
+        String name = reader.nextName();
+        switch (name) {
           case "name":
             sampleName = reader.nextString();
             break;
@@ -194,15 +189,30 @@ public class SampleChooserActivity extends Activity {
           case "prefer_extension_decoders":
             preferExtensionDecoders = reader.nextBoolean();
             break;
+          case "playlist":
+            Assertions.checkState(!insidePlaylist, "Nested playlists are invalid");
+            playlistSamples = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              playlistSamples.add((UriSample) readEntry(reader, true));
+            }
+            reader.endArray();
+            break;
+          default:
+            throw new ParserException("Unsupported attribute name: " + name);
         }
       }
       reader.endObject();
 
-      if (sampleName == null || uri == null) {
-        throw new ParserException("Invalid sample (name or uri missing)");
+      if (playlistSamples != null) {
+        UriSample[] playlistSamplesArray = playlistSamples.toArray(
+            new UriSample[playlistSamples.size()]);
+        return new PlaylistSample(sampleName, drmUuid, drmContentId, drmProvider,
+            preferExtensionDecoders, playlistSamplesArray);
+      } else {
+        return new UriSample(sampleName, drmUuid, drmContentId, drmProvider,
+            preferExtensionDecoders, uri, extension);
       }
-      return new Sample(sampleName, uri, extension, drmUuid, drmContentId, drmProvider,
-          preferExtensionDecoders);
     }
 
     private SampleGroup getGroup(String groupName, List<SampleGroup> groups) {
@@ -317,25 +327,85 @@ public class SampleChooserActivity extends Activity {
 
   }
 
-  private static class Sample {
+  private abstract static class Sample {
 
     public final String name;
-    public final String uri;
-    public final String extension;
+    public final boolean preferExtensionDecoders;
+
+    // TODO: DRM properties should be specified on UriSample only. This requires changes to
+    // PlayerActivity and beyond to be able to handle playlists containing multiple DRM protected
+    // items that have different DRM properties.
     public final UUID drmSchemeUuid;
     public final String drmContentId;
     public final String drmProvider;
-    public final boolean preferExtensionDecoders;
 
-    public Sample(String name, String uri, String extension, UUID drmSchemeUuid,
-        String drmContentId, String drmProvider, boolean preferExtensionDecoders) {
+    public Sample(String name, UUID drmSchemeUuid, String drmContentId, String drmProvider,
+        boolean preferExtensionDecoders) {
       this.name = name;
-      this.uri = uri;
-      this.extension = extension;
       this.drmSchemeUuid = drmSchemeUuid;
       this.drmContentId = drmContentId;
       this.drmProvider = drmProvider;
       this.preferExtensionDecoders = preferExtensionDecoders;
+    }
+
+    public abstract Intent buildIntent(Context context);
+
+  }
+
+  private static final class UriSample extends Sample {
+
+    public final String uri;
+    public final String extension;
+
+    public UriSample(String name, UUID drmSchemeUuid, String drmContentId, String drmProvider,
+        boolean preferExtensionDecoders, String uri, String extension) {
+      super(name, drmSchemeUuid, drmContentId, drmProvider, preferExtensionDecoders);
+      this.uri = uri;
+      this.extension = extension;
+    }
+
+    @Override
+    public Intent buildIntent(Context context) {
+      return new Intent(context, PlayerActivity.class)
+          .setAction(PlayerActivity.ACTION_VIEW)
+          .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid)
+          .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, drmContentId)
+          .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, drmProvider)
+          .putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders)
+          .setData(Uri.parse(uri))
+          .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
+          .setAction(PlayerActivity.ACTION_VIEW);
+    }
+
+  }
+
+  private static final class PlaylistSample extends Sample {
+
+    public final UriSample[] children;
+
+    public PlaylistSample(String name, UUID drmSchemeUuid, String drmContentId, String drmProvider,
+        boolean preferExtensionDecoders, UriSample... children) {
+      super(name, drmSchemeUuid, drmContentId, drmProvider, preferExtensionDecoders);
+      this.children = children;
+    }
+
+    @Override
+    public Intent buildIntent(Context context) {
+      String[] uris = new String[children.length];
+      String[] extensions = new String[children.length];
+      for (int i = 0; i < children.length; i++) {
+        uris[i] = children[i].uri;
+        extensions[i] = children[i].extension;
+      }
+      return new Intent(context, PlayerActivity.class)
+          .setAction(PlayerActivity.ACTION_VIEW)
+          .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid)
+          .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, drmContentId)
+          .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, drmProvider)
+          .putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders)
+          .putExtra(PlayerActivity.URI_LIST_EXTRA, uris)
+          .putExtra(PlayerActivity.EXTENSION_LIST_EXTRA, extensions)
+          .setAction(PlayerActivity.ACTION_VIEW_LIST);
     }
 
   }

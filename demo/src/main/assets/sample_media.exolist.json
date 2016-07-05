@@ -330,5 +330,32 @@
         "uri": "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
       }
     ]
+  },
+  {
+    "name": "Playlists",
+    "samples": [
+      {
+        "name": "Cats and dogs",
+        "playlist": [
+          {
+            "uri": "http://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "http://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          }
+        ]
+      },
+      {
+        "name": "Audio then Video",
+        "playlist": [
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
+          },
+          {
+            "uri": "http://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          }
+        ]
+      }
+    ]
   }
 ]
