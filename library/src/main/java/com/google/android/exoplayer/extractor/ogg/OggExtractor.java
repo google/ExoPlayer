@@ -31,7 +31,7 @@ import java.io.IOException;
 public class OggExtractor implements Extractor {
 
   private static final int MAX_VERIFICATION_BYTES = 8;
-  
+
   private StreamReader streamReader;
 
   @Override

@@ -43,13 +43,6 @@ public interface Extractor {
   int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
 
   /**
-   * Initializes the extractor with an {@link ExtractorOutput}.
-   *
-   * @param output An {@link ExtractorOutput} to receive extracted data.
-   */
-  void init(ExtractorOutput output);
-
-  /**
    * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
    * provide data from the start of the stream.
    * <p>
@@ -62,6 +55,13 @@ public interface Extractor {
    * @throws InterruptedException If the thread was interrupted.
    */
   boolean sniff(ExtractorInput input) throws IOException, InterruptedException;
+
+  /**
+   * Initializes the extractor with an {@link ExtractorOutput}.
+   *
+   * @param output An {@link ExtractorOutput} to receive extracted data.
+   */
+  void init(ExtractorOutput output);
 
   /**
    * Extracts data read from a provided {@link ExtractorInput}.

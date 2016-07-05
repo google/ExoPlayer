@@ -35,13 +35,14 @@ import java.util.Arrays;
  * Facilitates the extraction of data from the FLAC container format.
  */
 public final class FlacExtractor implements Extractor {
+
   /**
    * FLAC signature: first 4 is the signature word, second 4 is the sizeof STREAMINFO. 0x22 is the
    * mandatory STREAMINFO.
    */
   private static final byte[] FLAC_SIGNATURE = {'f', 'L', 'a', 'C', 0, 0, 0, 0x22};
 
-  private ExtractorOutput output;
+  private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
 
   private FlacJni decoder;
@@ -53,9 +54,9 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    this.output = output;
-    this.trackOutput = output.track(0);
-    output.endTracks();
+    extractorOutput = output;
+    trackOutput = extractorOutput.track(0);
+    extractorOutput.endTracks();
 
     try {
       decoder = new FlacJni();
@@ -90,7 +91,7 @@ public final class FlacExtractor implements Extractor {
       }
       metadataParsed = true;
 
-      output.seekMap(new SeekMap() {
+      extractorOutput.seekMap(new SeekMap() {
         final boolean isSeekable = decoder.getSeekPosition(0) != -1;
         final long durationUs = streamInfo.durationUs();
 

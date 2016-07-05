@@ -54,7 +54,7 @@ import java.util.ArrayList;
     }
     previousPacketBlockSize = 0;
     seenFirstAudioPacket = false;
-    }
+  }
 
   @Override
   protected void onSeekEnd(long currentGranule) {

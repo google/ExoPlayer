@@ -773,7 +773,7 @@ public final class MatroskaExtractor implements Extractor {
                     }
                     // The first read value is the first size. Later values are signed offsets.
                     if (sampleIndex > 0) {
-                      readValue -= (1L << 6 + i * 7) - 1;
+                      readValue -= (1L << (6 + i * 7)) - 1;
                     }
                     break;
                   }

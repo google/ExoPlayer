@@ -97,8 +97,8 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput) {
-    this.extractorOutput = extractorOutput;
+  public void init(ExtractorOutput output) {
+    extractorOutput = output;
     trackOutput = extractorOutput.track(0);
     extractorOutput.endTracks();
   }
@@ -106,8 +106,8 @@ public final class Mp3Extractor implements Extractor {
   @Override
   public void seek(long position) {
     synchronizedHeaderData = 0;
-    samplesRead = 0;
     basisTimeUs = -1;
+    samplesRead = 0;
     sampleBytesRemaining = 0;
   }
 

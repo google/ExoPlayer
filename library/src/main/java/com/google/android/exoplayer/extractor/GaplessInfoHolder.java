@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Holder for gapless playback information
+ * Holder for gapless playback information.
  */
 public final class GaplessInfoHolder {
 

@@ -51,6 +51,7 @@ import java.io.IOException;
 
   /**
    * Resets the state of the {@link StreamReader}.
+   *
    * @param headerData Resets parsed header data too.
    */
   protected void reset(boolean headerData) {
@@ -174,9 +175,8 @@ import java.io.IOException;
   /**
    * Converts granule value to time.
    *
-   * @param granule
-   *     granule value.
-   * @return Returns time in milliseconds.
+   * @param granule The granule value.
+   * @return Time in milliseconds.
    */
   protected long convertGranuleToTime(long granule) {
     return (granule * C.MICROS_PER_SECOND) / sampleRate;
@@ -185,9 +185,8 @@ import java.io.IOException;
   /**
    * Converts time value to granule.
    *
-   * @param timeUs
-   *     Time in milliseconds.
-   * @return Granule value.
+   * @param timeUs Time in milliseconds.
+   * @return The granule value.
    */
   protected long convertTimeToGranule(long timeUs) {
     return (sampleRate * timeUs) / C.MICROS_PER_SECOND;
@@ -197,8 +196,7 @@ import java.io.IOException;
    * Prepares payload data in the packet for submitting to TrackOutput and returns number of
    * granules in the packet.
    *
-   * @param packet
-   *     Ogg payload data packet
+   * @param packet Ogg payload data packet.
    * @return Number of granules in the packet or -1 if the packet doesn't contain payload data.
    */
   protected abstract long preparePayload(ParsableByteArray packet);
@@ -209,7 +207,7 @@ import java.io.IOException;
    * @param packet An ogg packet.
    * @param position Position of the given header packet.
    * @param setupData Setup data to be filled.
-   * @return Return true if the packet contains header data.
+   * @return True if the packet contains header data. False otherwise.
    */
   protected abstract boolean readHeaders(ParsableByteArray packet, long position,
       SetupData setupData) throws IOException, InterruptedException;
@@ -223,7 +221,7 @@ import java.io.IOException;
     this.currentGranule = currentGranule;
   }
 
-  private class UnseekableOggSeeker implements OggSeeker {
+  private static final class UnseekableOggSeeker implements OggSeeker {
     @Override
     public long read(ExtractorInput input) throws IOException, InterruptedException {
       return -1;

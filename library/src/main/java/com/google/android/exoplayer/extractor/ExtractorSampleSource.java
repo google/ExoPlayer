@@ -215,77 +215,77 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.mkv.MatroskaExtractor")
-              .asSubclass(Extractor.class));
+                  .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.mp4.Mp4Extractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.mp3.Mp3Extractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.ts.AdtsExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.ts.TsExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.ogg.OggExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.ts.PsExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.extractor.wav.WavExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer.ext.flac.FlacExtractor")
-              .asSubclass(Extractor.class));
+                 .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
         }
@@ -788,6 +788,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
      * later calls.
      *
      * @param input The {@link ExtractorInput} from which data should be read.
+     * @return An initialized extractor for reading {@code input}.
      * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
      * @throws IOException Thrown if the input could not be read.
      * @throws InterruptedException Thrown if the thread was interrupted.
