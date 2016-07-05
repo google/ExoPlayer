@@ -84,6 +84,7 @@ import java.util.List;
   private boolean prepared;
   private int enabledTrackCount;
   private Format downstreamFormat;
+  private int upstreamChunkUid;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
@@ -254,10 +255,9 @@ import java.util.List;
       return TrackStream.NOTHING_READ;
     }
 
-    // TODO[REFACTOR]: Restore this.
-    // while (mediaChunks.size() > 1 && mediaChunks.get(1).startTimeUs <= downstreamPositionUs) {
-    //   mediaChunks.removeFirst();
-    // }
+    while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
+      mediaChunks.removeFirst();
+    }
     HlsMediaChunk currentChunk = mediaChunks.getFirst();
     Format format = currentChunk.format;
     if (!format.equals(downstreamFormat)) {
@@ -269,6 +269,16 @@ import java.util.List;
 
     return sampleQueues.valueAt(group).readData(formatHolder, buffer, loadingFinished,
         lastSeekPositionUs);
+  }
+
+  private boolean finishedReadingChunk(HlsMediaChunk chunk) {
+    int chunkUid = chunk.uid;
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      if (groupEnabledStates[i] && sampleQueues.valueAt(i).peekSourceId() == chunkUid) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // SequenceableLoader implementation
@@ -379,11 +389,21 @@ import java.util.List;
   // Called by the consuming thread, but only when there is no loading thread.
 
   /**
-   * Indicates to all track outputs that they should splice in subsequently queued samples.
+   * Initializes the wrapper for loading a chunk.
+   *
+   * @param chunkUid The chunk's uid.
+   * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
+   *     samples already queued to the wrapper.
    */
-  public void splice() {
+  public void init(int chunkUid, boolean shouldSpliceIn) {
+    upstreamChunkUid = chunkUid;
     for (int i = 0; i < sampleQueues.size(); i++) {
-      sampleQueues.valueAt(i).splice();
+      sampleQueues.valueAt(i).sourceId(chunkUid);
+    }
+    if (shouldSpliceIn) {
+      for (int i = 0; i < sampleQueues.size(); i++) {
+        sampleQueues.valueAt(i).splice();
+      }
     }
   }
 
@@ -396,6 +416,7 @@ import java.util.List;
     }
     DefaultTrackOutput trackOutput = new DefaultTrackOutput(allocator);
     trackOutput.setUpstreamFormatChangeListener(this);
+    trackOutput.sourceId(upstreamChunkUid);
     sampleQueues.put(id, trackOutput);
     return trackOutput;
   }
@@ -421,7 +442,7 @@ import java.util.List;
   // Internal methods.
 
   private void maybeFinishPrepare() {
-    if (!sampleQueuesBuilt) {
+    if (prepared || !sampleQueuesBuilt) {
       return;
     }
     int sampleQueueCount = sampleQueues.size();

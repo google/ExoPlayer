@@ -544,7 +544,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   // Internal methods.
 
   private void maybeFinishPrepare() {
-    if (seekMap == null || !tracksBuilt) {
+    if (prepared || seekMap == null || !tracksBuilt) {
       return;
     }
     for (DefaultTrackOutput sampleQueue : sampleQueues) {

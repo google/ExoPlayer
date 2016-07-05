@@ -25,11 +25,19 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An HLS {@link MediaChunk}.
  */
 /* package */ final class HlsMediaChunk extends MediaChunk {
+
+  private static final AtomicInteger UID_SOURCE = new AtomicInteger();
+
+  /**
+   * A unique identifier for the chunk.
+   */
+  public final int uid;
 
   /**
    * The discontinuity sequence number of the chunk.
@@ -80,6 +88,7 @@ import java.io.IOException;
     this.shouldSpliceIn = shouldSpliceIn;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    uid = UID_SOURCE.getAndIncrement();
   }
 
   /**
@@ -89,9 +98,7 @@ import java.io.IOException;
    * @param output The output that will receive the loaded samples.
    */
   public void init(HlsTrackStreamWrapper output) {
-    if (shouldSpliceIn) {
-      output.splice();
-    }
+    output.init(uid, shouldSpliceIn);
     if (extractorNeedsInit) {
       extractor.init(output);
     }

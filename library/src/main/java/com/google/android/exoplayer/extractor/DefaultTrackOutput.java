@@ -112,6 +112,15 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
+   * Sets a source identifier for subsequent samples.
+   *
+   * @param sourceId The source identifier.
+   */
+  public void sourceId(int sourceId) {
+    infoQueue.sourceId(sourceId);
+  }
+
+  /**
    * Indicates that samples subsequently queued to the buffer should be spliced into those already
    * queued.
    */
@@ -185,6 +194,16 @@ public final class DefaultTrackOutput implements TrackOutput {
    */
   public int getReadIndex() {
     return infoQueue.getReadIndex();
+  }
+
+  /**
+   * Peeks the source id of the next sample, or the current upstream source id if the buffer is
+   * empty.
+   *
+   * @return The source id.
+   */
+  public int peekSourceId() {
+    return infoQueue.peekSourceId();
   }
 
   /**
@@ -581,6 +600,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     private int capacity;
 
+    private int[] sourceIds;
     private long[] offsets;
     private int[] sizes;
     private int[] flags;
@@ -596,9 +616,11 @@ public final class DefaultTrackOutput implements TrackOutput {
     private long largestDequeuedTimestampUs;
     private long largestQueuedTimestampUs;
     private Format upstreamFormat;
+    private int upstreamSourceId;
 
     public InfoQueue() {
       capacity = SAMPLE_CAPACITY_INCREMENT;
+      sourceIds = new int[capacity];
       offsets = new long[capacity];
       timesUs = new long[capacity];
       flags = new int[capacity];
@@ -664,6 +686,10 @@ public final class DefaultTrackOutput implements TrackOutput {
       return offsets[relativeWriteIndex];
     }
 
+    public void sourceId(int sourceId) {
+      upstreamSourceId = sourceId;
+    }
+
     // Called by the consuming thread.
 
     /**
@@ -671,6 +697,14 @@ public final class DefaultTrackOutput implements TrackOutput {
      */
     public int getReadIndex() {
       return absoluteReadIndex;
+    }
+
+    /**
+     * Peeks the source id of the next sample, or the current upstream source id if the queue is
+     * empty.
+     */
+    public int peekSourceId() {
+      return queueSize == 0 ? upstreamSourceId : sourceIds[relativeReadIndex];
     }
 
     /**
@@ -815,11 +849,13 @@ public final class DefaultTrackOutput implements TrackOutput {
       flags[relativeWriteIndex] = sampleFlags;
       encryptionKeys[relativeWriteIndex] = encryptionKey;
       formats[relativeWriteIndex] = upstreamFormat;
+      sourceIds[relativeWriteIndex] = upstreamSourceId;
       // Increment the write index.
       queueSize++;
       if (queueSize == capacity) {
         // Increase the capacity.
         int newCapacity = capacity + SAMPLE_CAPACITY_INCREMENT;
+        int[] newSourceIds = new int[newCapacity];
         long[] newOffsets = new long[newCapacity];
         long[] newTimesUs = new long[newCapacity];
         int[] newFlags = new int[newCapacity];
@@ -833,6 +869,7 @@ public final class DefaultTrackOutput implements TrackOutput {
         System.arraycopy(sizes, relativeReadIndex, newSizes, 0, beforeWrap);
         System.arraycopy(encryptionKeys, relativeReadIndex, newEncryptionKeys, 0, beforeWrap);
         System.arraycopy(formats, relativeReadIndex, newFormats, 0, beforeWrap);
+        System.arraycopy(sourceIds, relativeReadIndex, newSourceIds, 0, beforeWrap);
         int afterWrap = relativeReadIndex;
         System.arraycopy(offsets, 0, newOffsets, beforeWrap, afterWrap);
         System.arraycopy(timesUs, 0, newTimesUs, beforeWrap, afterWrap);
@@ -840,12 +877,14 @@ public final class DefaultTrackOutput implements TrackOutput {
         System.arraycopy(sizes, 0, newSizes, beforeWrap, afterWrap);
         System.arraycopy(encryptionKeys, 0, newEncryptionKeys, beforeWrap, afterWrap);
         System.arraycopy(formats, 0, newFormats, beforeWrap, afterWrap);
+        System.arraycopy(sourceIds, 0, newSourceIds, beforeWrap, afterWrap);
         offsets = newOffsets;
         timesUs = newTimesUs;
         flags = newFlags;
         sizes = newSizes;
         encryptionKeys = newEncryptionKeys;
         formats = newFormats;
+        sourceIds = newSourceIds;
         relativeReadIndex = 0;
         relativeWriteIndex = capacity;
         queueSize = capacity;
