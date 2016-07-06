@@ -111,8 +111,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final EventListener eventListener;
   private final DataSource dataSource;
   private final ConditionVariable loadCondition;
-  private final Loader loader;
   private final ExtractorHolder extractorHolder;
+  private final Loader loader;
 
   private Callback callback;
   private Allocator allocator;
@@ -171,8 +171,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     this.eventHandler = eventHandler;
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     loadCondition = new ConditionVariable();
-    loader = new Loader("Loader:ExtractorSampleSource");
     extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
+    loader = new Loader("Loader:ExtractorSampleSource", extractorHolder);
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
     length = C.LENGTH_UNBOUNDED;
@@ -640,7 +640,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   /**
    * Stores a list of extractors and a selected extractor when the format has been detected.
    */
-  private static final class ExtractorHolder {
+  private static final class ExtractorHolder implements Loader.Releasable {
 
     private final Extractor[] extractors;
     private final ExtractorOutput extractorOutput;
@@ -689,6 +689,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       }
       extractor.init(extractorOutput);
       return extractor;
+    }
+
+    @Override
+    public void release() {
+      if (extractor != null) {
+        extractor.release();
+        extractor = null;
+      }
     }
 
   }
