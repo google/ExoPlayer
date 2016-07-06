@@ -154,6 +154,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   // ExoPlayer.EventListener implementation
 
   @Override
+  public void onLoadingChanged(boolean isLoading) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     updateTextView();
   }

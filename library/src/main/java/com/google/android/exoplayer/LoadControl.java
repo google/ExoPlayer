@@ -20,7 +20,7 @@ import com.google.android.exoplayer.upstream.Allocator;
 /**
  * Controls buffering of media.
  */
-public interface BufferingControl {
+public interface LoadControl {
 
   /**
    * Invoked by the player when a track selection occurs.
@@ -55,11 +55,11 @@ public interface BufferingControl {
   boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering);
 
   /**
-   * Invoked by the player to determine whether buffering should continue.
+   * Invoked by the player to determine whether it should continue to load the source.
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
-   * @return True if the buffering should continue. False otherwise.
+   * @return True if the loading should continue. False otherwise.
    */
-  boolean shouldContinueBuffering(long bufferedDurationUs);
+  boolean shouldContinueLoading(long bufferedDurationUs);
 
 }

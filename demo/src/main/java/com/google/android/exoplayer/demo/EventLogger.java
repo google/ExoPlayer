@@ -67,6 +67,11 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   // ExoPlayer.EventListener
 
   @Override
+  public void onLoadingChanged(boolean isLoading) {
+    Log.d(TAG, "loading [" + isLoading + "]");
+  }
+
+  @Override
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
     Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", "
         + getStateString(state) + "]");

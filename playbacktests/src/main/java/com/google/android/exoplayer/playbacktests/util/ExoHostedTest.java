@@ -174,7 +174,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     assertPassed(audioCodecCounters, videoCodecCounters);
   }
 
-  // ExoPlayer.Listener
+  // ExoPlayer.EventListener
+
+  @Override
+  public void onLoadingChanged(boolean isLoading) {
+    // Do nothing.
+  }
 
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

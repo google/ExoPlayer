@@ -89,6 +89,11 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
+    public void onLoadingChanged(boolean isLoading) {
+      // Do nothing.
+    }
+
+    @Override
     public void onPlayWhenReadyCommitted () {
       // Do nothing.
     }

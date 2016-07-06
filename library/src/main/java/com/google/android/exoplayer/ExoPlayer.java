@@ -98,6 +98,13 @@ public interface ExoPlayer {
   interface EventListener {
 
     /**
+     * Invoked when the player starts or stops loading the source.
+     *
+     * @param isLoading Whether the source is currently being loaded.
+     */
+    void onLoadingChanged(boolean isLoading);
+
+    /**
      * Invoked when the value returned from either {@link ExoPlayer#getPlayWhenReady()} or
      * {@link ExoPlayer#getPlaybackState()} changes.
      *
@@ -268,6 +275,13 @@ public interface ExoPlayer {
    * @return True if the current value has been reflected. False otherwise.
    */
   boolean isPlayWhenReadyCommitted();
+
+  /**
+   * Whether the player is currently loading the source.
+   *
+   * @return True if the player is currently loading the source. False otherwise.
+   */
+  boolean isLoading();
 
   /**
    * Seeks to a position specified in milliseconds in the current source.

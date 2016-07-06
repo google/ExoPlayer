@@ -41,6 +41,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int playbackState;
   private int pendingPlayWhenReadyAcks;
   private int pendingSetSourceProviderAndSeekAcks;
+  private boolean isLoading;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -55,11 +56,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *
    * @param renderers The {@link TrackRenderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param bufferingControl The {@link BufferingControl} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(TrackRenderer[] renderers, TrackSelector trackSelector,
-      BufferingControl bufferingControl) {
+      LoadControl loadControl) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     Assertions.checkNotNull(renderers);
     Assertions.checkState(renderers.length > 0);
@@ -72,8 +73,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, bufferingControl,
-        playWhenReady, eventHandler);
+    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
+        eventHandler);
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0);
   }
 
@@ -130,6 +131,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public boolean isPlayWhenReadyCommitted() {
     return pendingPlayWhenReadyAcks == 0;
+  }
+
+  @Override
+  public boolean isLoading() {
+    return isLoading;
   }
 
   @Override
@@ -218,6 +224,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
         playbackState = msg.arg1;
         for (EventListener listener : listeners) {
           listener.onPlayerStateChanged(playWhenReady, playbackState);
+        }
+        break;
+      }
+      case ExoPlayerImplInternal.MSG_LOADING_CHANGED: {
+        isLoading = msg.arg1 != 0;
+        for (EventListener listener : listeners) {
+          listener.onLoadingChanged(isLoading);
         }
         break;
       }
