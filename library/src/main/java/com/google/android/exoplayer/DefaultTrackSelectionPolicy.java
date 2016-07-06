@@ -17,6 +17,8 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.util.Util;
 
+import java.util.Locale;
+
 /**
  * A {@link TrackSelectionPolicy} that allows configuration of common parameters.
  */
@@ -27,9 +29,9 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   private String preferredLanguage;
   private boolean allowMixedMimeAdaptiveness;
   private boolean allowNonSeamlessAdaptiveness;
-  private boolean filterHdFormats;
   private int maxVideoWidth;
   private int maxVideoHeight;
+  private boolean filterHdVideoTracks;
 
   public DefaultTrackSelectionPolicy() {
     allowNonSeamlessAdaptiveness = true;
@@ -37,20 +39,24 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     maxVideoHeight = Integer.MAX_VALUE;
   }
 
+  /**
+   * Sets the preferred language for audio and text tracks.
+   *
+   * @param preferredLanguage The language as defined by RFC 5646.
+   */
   public void setPreferredLanguage(String preferredLanguage) {
-    if (!Util.areEqual(this.preferredLanguage, preferredLanguage)) {
-      this.preferredLanguage = preferredLanguage;
+    String adjustedPreferredLanguage = new Locale(preferredLanguage).getLanguage();
+    if (!Util.areEqual(this.preferredLanguage, adjustedPreferredLanguage)) {
+      this.preferredLanguage = adjustedPreferredLanguage;
       invalidate();
     }
   }
 
-  public void setFilterHdFormats(boolean filterHdFormats) {
-    if (this.filterHdFormats != filterHdFormats) {
-      this.filterHdFormats = filterHdFormats;
-      invalidate();
-    }
-  }
-
+  /**
+   * Sets whether selections may contain mixed mime types.
+   *
+   * @param allowMixedMimeAdaptiveness True to allow mixed mime types, false otherwise.
+   */
   public void allowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
     if (this.allowMixedMimeAdaptiveness != allowMixedMimeAdaptiveness) {
       this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
@@ -58,6 +64,12 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     }
   }
 
+  /**
+   * Sets whether non seamless adaptation is allowed.
+   *
+   * @param allowNonSeamlessAdaptiveness True to allow non seamless adaptation between tracks, false
+   *     otherwise.
+   */
   public void allowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
     if (this.allowNonSeamlessAdaptiveness != allowNonSeamlessAdaptiveness) {
       this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
@@ -65,6 +77,12 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     }
   }
 
+  /**
+   * Sets the maximum allowed size for video tracks.
+   *
+   * @param maxVideoWidth Maximum allowed width.
+   * @param maxVideoHeight Maximum allowed height.
+   */
   public void setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
     if (this.maxVideoWidth != maxVideoWidth || this.maxVideoHeight != maxVideoHeight) {
       this.maxVideoWidth = maxVideoWidth;
@@ -72,6 +90,23 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
       invalidate();
     }
   }
+
+  /**
+   * Sets whether HD video tracks are filtered.
+   * <p>
+   * A video track is considered HD when it is 1280 pixels wide or more, or when it is 720 pixels
+   * high or more.
+   *
+   * @param filterHdVideoTracks True to filter HD video tracks, false otherwise.
+   */
+  public void setFilterHdVideoTracks(boolean filterHdVideoTracks) {
+    if (this.filterHdVideoTracks != filterHdVideoTracks) {
+      this.filterHdVideoTracks = filterHdVideoTracks;
+      invalidate();
+    }
+  }
+
+  // TrackSelectionPolicy implementation.
 
   @Override
   public TrackSelection[] selectTracks(TrackRenderer[] renderers,
@@ -107,8 +142,10 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
         ? TrackRenderer.ADAPTIVE_NOT_SEAMLESS | TrackRenderer.ADAPTIVE_SEAMLESS
         : TrackRenderer.ADAPTIVE_SEAMLESS;
-    int maxVideoWidth = Math.min(this.maxVideoWidth, filterHdFormats ? 1279 : Integer.MAX_VALUE);
-    int maxVideoHeight = Math.min(this.maxVideoHeight, filterHdFormats ? 719 : Integer.MAX_VALUE);
+    int maxVideoWidth = Math.min(this.maxVideoWidth,
+        filterHdVideoTracks ? 1279 : Integer.MAX_VALUE);
+    int maxVideoHeight = Math.min(this.maxVideoHeight,
+        filterHdVideoTracks ? 719 : Integer.MAX_VALUE);
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
         && (renderer.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
     int largestAdaptiveGroup = -1;
@@ -214,8 +251,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
             firstForcedGroup = groupIndex;
             firstForcedTrack = trackIndex;
           }
-          if (preferredLanguage != null
-              && preferredLanguage.equals(trackGroup.getFormat(trackIndex).language)) {
+          if (formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
             return new TrackSelection(groupIndex, trackIndex);
           }
         }
@@ -246,7 +282,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
         int[] trackFormatSupport = formatSupport[groupIndex];
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           if (isSupported(trackFormatSupport[trackIndex])
-              && preferredLanguage.equals(trackGroup.getFormat(trackIndex).language)) {
+              && formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
             return new TrackSelection(groupIndex, trackIndex);
           }
         }
@@ -264,6 +300,10 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
 
   private static boolean isSupported(int formatSupport) {
     return (formatSupport & TrackRenderer.FORMAT_SUPPORT_MASK) == TrackRenderer.FORMAT_HANDLED;
+  }
+
+  private static boolean formatHasLanguage(Format format, String language) {
+    return language != null && language.equals(new Locale(format.language).getLanguage());
   }
 
 }
