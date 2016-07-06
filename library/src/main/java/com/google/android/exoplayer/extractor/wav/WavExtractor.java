@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -30,6 +31,18 @@ import java.io.IOException;
 
 /** {@link Extractor} to extract samples from a WAV byte stream. */
 public final class WavExtractor implements Extractor, SeekMap {
+
+  /**
+   * Factory that returns one extractor which is a {@link WavExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new WavExtractor()};
+    }
+
+  }
 
   /** Arbitrary maximum input size of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
   private static final int MAX_INPUT_SIZE = 32 * 1024;

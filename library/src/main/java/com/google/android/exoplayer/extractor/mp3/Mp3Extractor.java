@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -36,6 +37,18 @@ import java.io.IOException;
  * Extracts data from an MP3 file.
  */
 public final class Mp3Extractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is an {@link Mp3Extractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new Mp3Extractor()};
+    }
+
+  }
 
   /**
    * The maximum number of bytes to search when synchronizing, before giving up.

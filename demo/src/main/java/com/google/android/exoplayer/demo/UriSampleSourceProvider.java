@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.dash.DashSampleSource;
+import com.google.android.exoplayer.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingSampleSource;
@@ -81,7 +82,7 @@ public final class UriSampleSourceProvider implements SampleSourceProvider {
         return new HlsSampleSource(uri, dataSourceFactory, bandwidthMeter, handler, eventLogger);
       case Util.TYPE_OTHER:
         return new ExtractorSampleSource(uri, dataSourceFactory, bandwidthMeter,
-            ExtractorSampleSource.newDefaultExtractors(), handler, eventLogger);
+            new DefaultExtractorsFactory(), handler, eventLogger);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

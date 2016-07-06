@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.flv;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -29,6 +30,18 @@ import java.io.IOException;
  * Facilitates the extraction of data from the FLV container format.
  */
 public final class FlvExtractor implements Extractor, SeekMap {
+
+  /**
+   * Factory that returns one extractor which is a {@link FlvExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new FlvExtractor()};
+    }
+
+  }
 
   // Header sizes.
   private static final int FLV_HEADER_SIZE = 9;

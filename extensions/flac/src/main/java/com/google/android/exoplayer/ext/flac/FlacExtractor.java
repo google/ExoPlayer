@@ -20,6 +20,7 @@ import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -35,6 +36,18 @@ import java.util.Arrays;
  * Facilitates the extraction of data from the FLAC container format.
  */
 public final class FlacExtractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is a {@link FlacExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new FlacExtractor()};
+    }
+
+  }
 
   /**
    * FLAC signature: first 4 is the signature word, second 4 is the sizeof STREAMINFO. 0x22 is the

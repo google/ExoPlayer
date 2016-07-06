@@ -20,6 +20,7 @@ import com.google.android.exoplayer.extractor.DummyTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.Assertions;
@@ -37,6 +38,18 @@ import java.io.IOException;
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
 public final class TsExtractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is a {@link TsExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new TsExtractor()};
+    }
+
+  }
 
   public static final int WORKAROUND_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;

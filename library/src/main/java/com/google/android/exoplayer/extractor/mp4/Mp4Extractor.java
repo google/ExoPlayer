@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -40,6 +41,18 @@ import java.util.Stack;
  * Extracts data from an unfragmented MP4 file.
  */
 public final class Mp4Extractor implements Extractor, SeekMap {
+
+  /**
+   * Factory that returns one extractor which is an {@link Mp4Extractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new Mp4Extractor()};
+    }
+
+  }
 
   // Parser states.
   private static final int STATE_AFTER_SEEK = 0;

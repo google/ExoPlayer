@@ -24,6 +24,7 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -50,6 +51,18 @@ import java.util.UUID;
  * Extracts data from a Matroska or WebM file.
  */
 public final class MatroskaExtractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is a {@link MatroskaExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new MatroskaExtractor()};
+    }
+
+  }
 
   private static final int BLOCK_STATE_START = 0;
   private static final int BLOCK_STATE_HEADER = 1;

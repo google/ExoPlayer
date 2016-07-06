@@ -43,35 +43,19 @@ import android.os.Handler;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * A {@link SampleSource} that extracts sample data using an {@link Extractor}.
  *
- * <p>If no {@link Extractor} instances are passed to the constructor, the input stream container
- * format will be detected automatically from the following supported formats:
+ * <p>If the possible input stream container formats are known, pass a factory that instantiates
+ * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to
+ * use the default extractors. When reading a new stream, the first {@link Extractor} in the array
+ * of extractors created by the factory that returns {@code true} from
+ * {@link Extractor#sniff(ExtractorInput)} will be used to extract samples from the input stream.
  *
- * <ul>
- * <li>MP4, including M4A ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
- * <li>fMP4 ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
- * <li>Matroska and WebM ({@link com.google.android.exoplayer.extractor.mkv.MatroskaExtractor})</li>
- * <li>Ogg Vorbis/FLAC ({@link com.google.android.exoplayer.extractor.ogg.OggExtractor}</li>
- * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
- * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
- * <li>MPEG TS ({@link com.google.android.exoplayer.extractor.ts.TsExtractor})</li>
- * <li>MPEG PS ({@link com.google.android.exoplayer.extractor.ts.PsExtractor})</li>
- * <li>FLV ({@link com.google.android.exoplayer.extractor.flv.FlvExtractor})</li>
- * <li>WAV ({@link com.google.android.exoplayer.extractor.wav.WavExtractor})</li>
- * <li>FLAC (only available if the FLAC extension is built and included)</li>
- * </ul>
- *
- * <p>Seeking in AAC, MPEG TS and FLV streams is not supported.
- *
- * <p>To override the default extractors, pass one or more {@link Extractor} instances to the
- * constructor. When reading a new stream, the first {@link Extractor} that returns {@code true}
- * from {@link Extractor#sniff(ExtractorInput)} will be used.
+ * <p>Note that the built-in extractors for AAC, MPEG TS and FLV streams do not support seeking.
  */
 public final class ExtractorSampleSource implements SampleSource, ExtractorOutput,
     Loader.Callback<ExtractorSampleSource.ExtractingLoadable>,
@@ -121,9 +105,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
    */
   private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
 
-  // Lazily initialized default extractor classes in priority order.
-  private static List<Class<? extends Extractor>> defaultExtractorClasses;
-
   private final Uri uri;
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
@@ -158,35 +139,32 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
    * @param bandwidthMeter A {@link BandwidthMeter} to notify of loads performed by the source.
-   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
-   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
-   *     Where this is not possible, {@link #newDefaultExtractors()} can be used to construct an
-   *     array of default extractors.
+   * @param extractorsFactory Factory for {@link Extractor}s to process the media stream. If the
+   *     possible formats are known, pass a factory that instantiates extractors for those formats.
+   *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, Extractor[] extractors, Handler eventHandler,
+      BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, Handler eventHandler,
       EventListener eventListener) {
-    this(uri, dataSourceFactory, bandwidthMeter, extractors, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
-        eventHandler, eventListener);
+    this(uri, dataSourceFactory, bandwidthMeter, extractorsFactory,
+        MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler, eventListener);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
    * @param bandwidthMeter A {@link BandwidthMeter} to notify of loads performed by the source.
-   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
-   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
-   *     Where this is not possible, {@link #newDefaultExtractors()} can be used to construct an
-   *     array of default extractors.
+   * @param extractorsFactory Factory for {@link Extractor}s to process the media stream. If the
+   *     possible formats are known, pass a factory that instantiates extractors for those formats.
+   *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, Extractor[] extractors, int minLoadableRetryCount,
+      BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, int minLoadableRetryCount,
       Handler eventHandler, EventListener eventListener) {
-    Assertions.checkState(extractors != null && extractors.length > 0);
     this.uri = uri;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventListener = eventListener;
@@ -194,116 +172,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     loadCondition = new ConditionVariable();
     loader = new Loader("Loader:ExtractorSampleSource");
-    extractorHolder = new ExtractorHolder(extractors, this);
+    extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
     length = C.LENGTH_UNBOUNDED;
-  }
-
-  /**
-   * Builds default extractors that can be passed to an {@link ExtractorSampleSource} constructor.
-   *
-   * @return An array of default extractors.
-   */
-  public static Extractor[] newDefaultExtractors() {
-    synchronized (ExtractorSampleSource.class) {
-      if (defaultExtractorClasses == null) {
-        // Lazily initialize defaultExtractorClasses.
-        List<Class<? extends Extractor>> extractorClasses = new ArrayList<>();
-        // We reference extractors using reflection so that they can be deleted cleanly.
-        // Class.forName is used so that automated tools like proguard can detect the use of
-        // reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.mkv.MatroskaExtractor")
-                  .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.mp4.Mp4Extractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.mp3.Mp3Extractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.ts.AdtsExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.ts.TsExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.ogg.OggExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.ts.PsExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.extractor.wav.WavExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        try {
-          extractorClasses.add(
-              Class.forName("com.google.android.exoplayer.ext.flac.FlacExtractor")
-                 .asSubclass(Extractor.class));
-        } catch (ClassNotFoundException e) {
-          // Extractor not found.
-        }
-        defaultExtractorClasses = extractorClasses;
-      }
-    }
-
-    Extractor[] extractors = new Extractor[defaultExtractorClasses.size()];
-    for (int i = 0; i < extractors.length; i++) {
-      try {
-        extractors[i] = defaultExtractorClasses.get(i).getConstructor().newInstance();
-      } catch (Exception e) {
-        // Should never happen.
-        throw new IllegalStateException("Unexpected error creating default extractor", e);
-      }
-    }
-    return extractors;
   }
 
   // SampleSource implementation.

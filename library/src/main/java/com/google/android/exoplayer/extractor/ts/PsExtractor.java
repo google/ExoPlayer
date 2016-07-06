@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -32,6 +33,18 @@ import java.io.IOException;
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
 public final class PsExtractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is a {@link PsExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new PsExtractor()};
+    }
+
+  }
 
   private static final int PACK_START_CODE = 0x000001BA;
   private static final int SYSTEM_HEADER_START_CODE = 0x000001BB;

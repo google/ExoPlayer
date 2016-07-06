@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -32,6 +33,18 @@ import java.io.IOException;
  * headers.
  */
 public final class AdtsExtractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is an {@link AdtsExtractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new AdtsExtractor()};
+    }
+
+  }
 
   private static final int MAX_PACKET_SIZE = 200;
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");

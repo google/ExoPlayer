@@ -21,7 +21,6 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.ExoPlayerFactory;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
@@ -95,9 +94,11 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       player.addListener(this);
       ExtractorSampleSource sampleSource = new ExtractorSampleSource(
           uri,
-          new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"), null,
-          new Extractor[] {new MatroskaExtractor()},
-          null, null);
+          new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
+          null,
+          new MatroskaExtractor.Factory(),
+          null,
+          null);
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
           LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));

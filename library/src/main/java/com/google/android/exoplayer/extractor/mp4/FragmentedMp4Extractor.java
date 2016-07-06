@@ -23,6 +23,7 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.ExtractorsFactory;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -49,6 +50,18 @@ import java.util.UUID;
  * Facilitates the extraction of data from the fragmented mp4 container format.
  */
 public final class FragmentedMp4Extractor implements Extractor {
+
+  /**
+   * Factory that returns one extractor which is a {@link FragmentedMp4Extractor}.
+   */
+  public static final class Factory implements ExtractorsFactory {
+
+    @Override
+    public Extractor[] createExtractors() {
+      return new Extractor[] {new FragmentedMp4Extractor()};
+    }
+
+  }
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
