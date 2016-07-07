@@ -75,7 +75,6 @@ public class HlsChunkSource {
   private final Variant[] variants;
   private final HlsMediaPlaylist[] variantPlaylists;
   private final long[] variantLastPlaylistLoadTimesMs;
-  private final int initialEnabledVariantIndex;
 
   private boolean seenFirstExternalTrackSelection;
   private byte[] scratchSpace;
@@ -119,7 +118,6 @@ public class HlsChunkSource {
       initialTrackSelection[i] = i;
     }
     selectTracksInternal(initialTrackSelection, false);
-    initialEnabledVariantIndex = getEnabledVariantIndex(variants[0].format);
   }
 
   /**
@@ -440,6 +438,10 @@ public class HlsChunkSource {
     enabledVariantBlacklistTimes = new long[enabledVariants.length];
     enabledVariantBlacklistFlags = new boolean[enabledVariants.length];
 
+    if (!isExternal) {
+      return;
+    }
+
     if (enabledVariants.length > 1) {
       Format[] formats = new Format[enabledVariants.length];
       for (int i = 0; i < formats.length; i++) {
@@ -458,24 +460,36 @@ public class HlsChunkSource {
 
   private void updateFormatEvaluation(HlsMediaChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
-    if (!seenFirstExternalTrackSelection
-        && !enabledVariantBlacklistFlags[initialEnabledVariantIndex]) {
-      // Use the first variant prior to external track selection, unless it's been blacklisted.
-      evaluation.format = variants[0].format;
-    } else if (enabledVariants.length > 1) {
-      long bufferedDurationUs;
-      if (previous != null) {
-        // Use start time of the previous chunk rather than its end time because switching format
-        // will require downloading overlapping segments.
-        bufferedDurationUs = Math.max(0, previous.startTimeUs - playbackPositionUs);
-      } else {
-        bufferedDurationUs = 0;
+    if (!seenFirstExternalTrackSelection) {
+      if (!enabledVariantBlacklistFlags[getEnabledVariantIndex(variants[0].format)]) {
+        // Use the first variant prior to external track selection, unless it's been blacklisted.
+        evaluation.format = variants[0].format;
+        return;
       }
-      adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, enabledVariantBlacklistFlags,
-          evaluation);
-    } else {
-      evaluation.format = enabledVariants[0].format;
+      // Try from lowest bitrate to highest.
+      for (int i = enabledVariants.length - 1; i >= 0; i--) {
+        if (!enabledVariantBlacklistFlags[i]) {
+          evaluation.format = enabledVariants[i].format;
+          return;
+        }
+      }
+      // Should never happen.
+      throw new IllegalStateException();
     }
+    if (enabledVariants.length == 1) {
+      evaluation.format = enabledVariants[0].format;
+      return;
+    }
+    long bufferedDurationUs;
+    if (previous != null) {
+      // Use start time of the previous chunk rather than its end time because switching format
+      // will require downloading overlapping segments.
+      bufferedDurationUs = Math.max(0, previous.startTimeUs - playbackPositionUs);
+    } else {
+      bufferedDurationUs = 0;
+    }
+    adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, enabledVariantBlacklistFlags,
+        evaluation);
   }
 
   private boolean shouldRerequestLiveMediaPlaylist(int variantIndex) {

@@ -192,6 +192,10 @@ public final class MultiSampleSource implements SampleSource, SampleSource.Callb
 
   @Override
   public void onContinueLoadingRequested(SampleSource ignored) {
+    if (trackGroups == null) {
+      // Still preparing.
+      return;
+    }
     callback.onContinueLoadingRequested(this);
   }
 

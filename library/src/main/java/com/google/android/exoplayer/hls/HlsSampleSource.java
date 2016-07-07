@@ -284,6 +284,10 @@ public final class HlsSampleSource implements SampleSource,
 
   @Override
   public void onContinueLoadingRequested(HlsTrackStreamWrapper trackStreamWrapper) {
+    if (trackGroups == null) {
+      // Still preparing.
+      return;
+    }
     callback.onContinueLoadingRequested(this);
   }
 
