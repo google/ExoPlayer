@@ -218,8 +218,8 @@ public final class TtmlParser extends SimpleSubtitleParser {
         }
       }
     }
-    return position != Cue.DIMEN_UNSET ? new Pair<>(regionId, new TtmlRegion(position, line, width))
-        : null;
+    return position != Cue.DIMEN_UNSET ? new Pair<>(regionId, new TtmlRegion(position, line,
+        Cue.LINE_TYPE_FRACTION, width)) : null;
   }
 
   private String[] parseStyleIds(String parentStyleIds) {

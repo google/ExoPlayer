@@ -216,6 +216,9 @@ import android.util.Log;
     for (int i = 0; i < lineCount; i++) {
       textWidth = Math.max((int) Math.ceil(textLayout.getLineWidth(i)), textWidth);
     }
+    if (cueSize != Cue.DIMEN_UNSET && textWidth < availableWidth) {
+      textWidth = availableWidth;
+    }
     textWidth += textPaddingX * 2;
 
     int textLeft;
