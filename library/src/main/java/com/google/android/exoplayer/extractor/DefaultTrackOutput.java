@@ -550,9 +550,8 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   private void clearSampleData() {
     infoQueue.clearSampleData();
-    while (!dataQueue.isEmpty()) {
-      allocator.release(dataQueue.remove());
-    }
+    allocator.release(dataQueue.toArray(new Allocation[dataQueue.size()]));
+    dataQueue.clear();
     allocator.trim();
     totalBytesDropped = 0;
     totalBytesWritten = 0;
