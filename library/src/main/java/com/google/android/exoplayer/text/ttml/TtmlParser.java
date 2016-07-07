@@ -166,15 +166,15 @@ public final class TtmlParser extends SimpleSubtitleParser {
 
   private FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser) throws ParserException {
     int frameRate = DEFAULT_FRAME_RATE;
-    String frameRateStr = xmlParser.getAttributeValue(TTP, "frameRate");
-    if (frameRateStr != null) {
-      frameRate = Integer.parseInt(frameRateStr);
+    String frameRateString = xmlParser.getAttributeValue(TTP, "frameRate");
+    if (frameRateString != null) {
+      frameRate = Integer.parseInt(frameRateString);
     }
 
     float frameRateMultiplier = 1;
-    String frameRateMultiplierStr = xmlParser.getAttributeValue(TTP, "frameRateMultiplier");
-    if (frameRateMultiplierStr != null) {
-      String[] parts = frameRateMultiplierStr.split(" ");
+    String frameRateMultiplierString = xmlParser.getAttributeValue(TTP, "frameRateMultiplier");
+    if (frameRateMultiplierString != null) {
+      String[] parts = frameRateMultiplierString.split(" ");
       if (parts.length != 2) {
         throw new ParserException("frameRateMultiplier doesn't have 2 parts");
       }
@@ -184,15 +184,15 @@ public final class TtmlParser extends SimpleSubtitleParser {
     }
 
     int subFrameRate = DEFAULT_FRAME_AND_TICK_RATE.subFrameRate;
-    String subFrameRateStr = xmlParser.getAttributeValue(TTP, "subFrameRate");
-    if (subFrameRateStr != null) {
-      subFrameRate = Integer.parseInt(subFrameRateStr);
+    String subFrameRateString = xmlParser.getAttributeValue(TTP, "subFrameRate");
+    if (subFrameRateString != null) {
+      subFrameRate = Integer.parseInt(subFrameRateString);
     }
 
     int tickRate = DEFAULT_FRAME_AND_TICK_RATE.tickRate;
-    String tickRateStr = xmlParser.getAttributeValue(TTP, "tickRate");
-    if (tickRateStr != null) {
-      tickRate = Integer.parseInt(tickRateStr);
+    String tickRateString = xmlParser.getAttributeValue(TTP, "tickRate");
+    if (tickRateString != null) {
+      tickRate = Integer.parseInt(tickRateString);
     }
     return new FrameAndTickRate(frameRate * frameRateMultiplier, subFrameRate, tickRate);
   }
