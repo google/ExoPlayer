@@ -468,7 +468,6 @@ import java.util.ArrayList;
         return;
       }
 
-      setState(ExoPlayer.STATE_BUFFERING);
       stopRenderers();
       rebuffering = false;
 
@@ -483,6 +482,7 @@ import java.util.ArrayList;
 
       updatePlaybackPositions();
       if (sampleSourceProvider != null) {
+        setState(ExoPlayer.STATE_BUFFERING);
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
     } finally {
