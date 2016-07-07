@@ -180,7 +180,7 @@ import java.util.TreeSet;
     List<Cue> cues = new ArrayList<>();
     for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
       TtmlRegion region = regionMap.get(entry.getKey());
-      cues.add(new Cue(cleanUpText(entry.getValue()), null, region.line, Cue.TYPE_UNSET,
+      cues.add(new Cue(cleanUpText(entry.getValue()), null, region.line, region.lineType,
           Cue.TYPE_UNSET, region.position, Cue.TYPE_UNSET, region.width));
     }
     return cues;
