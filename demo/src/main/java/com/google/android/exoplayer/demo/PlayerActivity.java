@@ -30,18 +30,24 @@ import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.SimpleExoPlayer;
 import com.google.android.exoplayer.TrackGroupArray;
+import com.google.android.exoplayer.dash.DashSampleSource;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
+import com.google.android.exoplayer.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.id3.ApicFrame;
 import com.google.android.exoplayer.metadata.id3.GeobFrame;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.metadata.id3.PrivFrame;
 import com.google.android.exoplayer.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer.metadata.id3.TxxxFrame;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingSampleSource;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
+import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
@@ -57,6 +63,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -126,6 +133,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
+  private BandwidthMeter bandwidthMeter;
   private boolean playerNeedsSource;
 
   private long playerPosition;
@@ -283,6 +291,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       mediaController.setAnchorView(rootView);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
+      bandwidthMeter = player.getBandwidthMeter();
       playerNeedsSource = true;
     }
     if (playerNeedsSource) {
@@ -311,16 +320,37 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return;
       }
 
-      UriSampleSourceProvider[] providers = new UriSampleSourceProvider[uris.length];
+      SampleSourceProvider[] providers = new SampleSourceProvider[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        providers[i] = new UriSampleSourceProvider(player.getBandwidthMeter(), dataSourceFactory,
-            uris[i], extensions[i], mainHandler, eventLogger);
+        providers[i] = getSampleSourceProvider(uris[i], extensions[i]);
       }
       SampleSourceProvider sourceProvider = providers.length == 1 ? providers[0]
           : new ConcatenatingSampleSourceProvider(providers);
       player.setSourceProvider(sourceProvider);
       playerNeedsSource = false;
       updateButtonVisibilities();
+    }
+  }
+
+  private SampleSourceProvider getSampleSourceProvider(Uri uri, String overrideExtension) {
+    String lastPathSegment = !TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
+        : uri.getLastPathSegment();
+    int type = Util.inferContentType(lastPathSegment);
+    switch (type) {
+      case Util.TYPE_SS:
+        return new SmoothStreamingSampleSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
+            eventLogger);
+      case Util.TYPE_DASH:
+        return new DashSampleSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
+            eventLogger);
+      case Util.TYPE_HLS:
+        return new HlsSampleSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
+            eventLogger);
+      case Util.TYPE_OTHER:
+        return new ExtractorSampleSource(uri, dataSourceFactory, bandwidthMeter,
+            new DefaultExtractorsFactory(), mainHandler, eventLogger);
+      default:
+        throw new IllegalStateException("Unsupported type: " + type);
     }
   }
 

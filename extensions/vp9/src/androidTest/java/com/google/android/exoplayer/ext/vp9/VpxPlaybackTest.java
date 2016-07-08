@@ -102,7 +102,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
           LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));
-      player.setSource(sampleSource);
+      player.setSourceProvider(sampleSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }

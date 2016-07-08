@@ -22,7 +22,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackRenderer;
@@ -44,6 +44,7 @@ import android.annotation.TargetApi;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+
 import junit.framework.AssertionFailedError;
 
 import java.util.ArrayList;
@@ -418,7 +419,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    public SampleSource buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
+    public SampleSourceProvider buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
         BandwidthMeter bandwidthMeter) {
       return new DashSampleSource(manifestUri, dataSourceFactory, bandwidthMeter,
           MIN_LOADABLE_RETRY_COUNT, null, null);

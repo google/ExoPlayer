@@ -17,6 +17,7 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -30,10 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link SampleSource} that loads the data at a given {@link Uri} as a single sample.
+ * A {@link SampleSource} that loads the data at a given {@link Uri} as a single sample. Also acts
+ * as a {@link SampleSourceProvider} providing {@link SingleSampleSource} instances.
  */
-public final class SingleSampleSource implements SampleSource, TrackStream,
-    Loader.Callback<SingleSampleSource>, Loadable {
+public final class SingleSampleSource implements SampleSource, SampleSourceProvider, TrackStream,
+    Loader.Callback<SingleSampleSource.SourceLoadable> {
 
   /**
    * Interface definition for a callback to be notified of {@link SingleSampleSource} events.
@@ -65,8 +67,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   private static final int STREAM_STATE_END_OF_STREAM = 2;
 
   private final Uri uri;
-  private final DataSource dataSource;
-  private final Loader loader;
+  private final DataSourceFactory dataSourceFactory;
   private final Format format;
   private final long durationUs;
   private final int minLoadableRetryCount;
@@ -75,41 +76,57 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   private final EventListener eventListener;
   private final int eventSourceId;
 
+  private Loader loader;
   private boolean loadingFinished;
 
   private int streamState;
   private byte[] sampleData;
   private int sampleSize;
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs) {
-    this(uri, dataSource, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+  public SingleSampleSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+      long durationUs) {
+    this(uri, dataSourceFactory, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs,
-      int minLoadableRetryCount) {
-    this(uri, dataSource, format, durationUs, minLoadableRetryCount, null, null, 0);
+  public SingleSampleSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+      long durationUs, int minLoadableRetryCount) {
+    this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, 0);
   }
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs,
-      int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
+  public SingleSampleSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+      long durationUs, int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
       int eventSourceId) {
     this.uri = uri;
-    this.dataSource = dataSource;
+    this.dataSourceFactory = dataSourceFactory;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    loader = new Loader("Loader:SingleSampleSource");
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
+    streamState = STREAM_STATE_SEND_FORMAT;
+  }
+
+  // SampleSourceProvider implementation.
+
+  @Override
+  public int getSourceCount() {
+    return 1;
+  }
+
+  @Override
+  public SampleSource createSource(int index) {
+    Assertions.checkArgument(index == 0);
+    return this;
   }
 
   // SampleSource implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
+    loader = new Loader("Loader:SingleSampleSource");
     callback.onSourcePrepared(this);
   }
 
@@ -147,7 +164,8 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
     if (loadingFinished || loader.isLoading()) {
       return false;
     }
-    loader.startLoading(this, this, minLoadableRetryCount);
+    loader.startLoading(new SourceLoadable(uri, dataSourceFactory.createDataSource()), this,
+        minLoadableRetryCount);
     return true;
   }
 
@@ -171,8 +189,14 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
 
   @Override
   public void release() {
+    if (loader != null) {
+      loader.release();
+      loader = null;
+    }
+    loadingFinished = false;
+    streamState = STREAM_STATE_SEND_FORMAT;
     sampleData = null;
-    loader.release();
+    sampleSize = 0;
   }
 
   // TrackStream implementation.
@@ -219,55 +243,24 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(SingleSampleSource loadable, long elapsedRealtimeMs,
+  public void onLoadCompleted(SourceLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
+    sampleSize = loadable.sampleSize;
+    sampleData = loadable.sampleData;
     loadingFinished = true;
   }
 
   @Override
-  public void onLoadCanceled(SingleSampleSource loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
-    // Never happens.
+  public void onLoadCanceled(SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
+      boolean released) {
+    // Do nothing.
   }
 
   @Override
-  public int onLoadError(SingleSampleSource loadable, long elapsedRealtimeMs,
-      long loadDurationMs, IOException error) {
+  public int onLoadError(SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
+      IOException error) {
     notifyLoadError(error);
     return Loader.RETRY;
-  }
-
-  // Loadable implementation.
-
-  @Override
-  public void cancelLoad() {
-    // Never happens.
-  }
-
-  @Override
-  public boolean isLoadCanceled() {
-    return false;
-  }
-
-  @Override
-  public void load() throws IOException, InterruptedException {
-    // We always load from the beginning, so reset the sampleSize to 0.
-    sampleSize = 0;
-    try {
-      // Create and open the input.
-      dataSource.open(new DataSpec(uri));
-      // Load the sample data.
-      int result = 0;
-      while (result != C.RESULT_END_OF_INPUT) {
-        sampleSize += result;
-        if (sampleSize == sampleData.length) {
-          sampleData = Arrays.copyOf(sampleData, sampleData.length * 2);
-        }
-        result = dataSource.read(sampleData, sampleSize, sampleData.length - sampleSize);
-      }
-    } finally {
-      dataSource.close();
-    }
   }
 
   // Internal methods.
@@ -281,6 +274,52 @@ public final class SingleSampleSource implements SampleSource, TrackStream,
         }
       });
     }
+  }
+
+  /* package */ static final class SourceLoadable implements Loadable {
+
+    private final Uri uri;
+    private final DataSource dataSource;
+
+    private int sampleSize;
+    private byte[] sampleData;
+
+    public SourceLoadable(Uri uri, DataSource dataSource) {
+      this.uri = uri;
+      this.dataSource = dataSource;
+    }
+
+    @Override
+    public void cancelLoad() {
+      // Never happens.
+    }
+
+    @Override
+    public boolean isLoadCanceled() {
+      return false;
+    }
+
+    @Override
+    public void load() throws IOException, InterruptedException {
+      // We always load from the beginning, so reset the sampleSize to 0.
+      sampleSize = 0;
+      try {
+        // Create and open the input.
+        dataSource.open(new DataSpec(uri));
+        // Load the sample data.
+        int result = 0;
+        while (result != C.RESULT_END_OF_INPUT) {
+          sampleSize += result;
+          if (sampleSize == sampleData.length) {
+            sampleData = Arrays.copyOf(sampleData, sampleData.length * 2);
+          }
+          result = dataSource.read(sampleData, sampleSize, sampleData.length - sampleSize);
+        }
+      } finally {
+        dataSource.close();
+      }
+    }
+
   }
 
 }

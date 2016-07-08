@@ -21,6 +21,7 @@ import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -47,7 +48,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link SampleSource} that extracts sample data using an {@link Extractor}.
+ * A {@link SampleSource} that extracts sample data using an {@link Extractor}. Also acts as a
+ * {@link SampleSourceProvider} providing {@link ExtractorSampleSource} instances.
  *
  * <p>If the possible input stream container formats are known, pass a factory that instantiates
  * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to
@@ -57,8 +59,8 @@ import java.util.List;
  *
  * <p>Note that the built-in extractors for AAC, MPEG TS and FLV streams do not support seeking.
  */
-public final class ExtractorSampleSource implements SampleSource, ExtractorOutput,
-    Loader.Callback<ExtractorSampleSource.ExtractingLoadable>,
+public final class ExtractorSampleSource implements SampleSource, SampleSourceProvider,
+    ExtractorOutput, Loader.Callback<ExtractorSampleSource.ExtractingLoadable>,
     UpstreamFormatChangedListener {
 
   /**
@@ -106,13 +108,17 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
 
   private final Uri uri;
+  private final DataSourceFactory dataSourceFactory;
+  private final BandwidthMeter bandwidthMeter;
+  private final ExtractorsFactory extractorsFactory;
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final DataSource dataSource;
-  private final ConditionVariable loadCondition;
-  private final ExtractorHolder extractorHolder;
-  private final Loader loader;
+
+  private DataSource dataSource;
+  private ExtractorHolder extractorHolder;
+  private Loader loader;
+  private ConditionVariable loadCondition;
 
   private Callback callback;
   private Allocator allocator;
@@ -166,16 +172,25 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, int minLoadableRetryCount,
       Handler eventHandler, EventListener eventListener) {
     this.uri = uri;
+    this.dataSourceFactory = dataSourceFactory;
+    this.bandwidthMeter = bandwidthMeter;
+    this.extractorsFactory = extractorsFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.eventListener = eventListener;
     this.eventHandler = eventHandler;
-    dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    loadCondition = new ConditionVariable();
-    extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
-    loader = new Loader("Loader:ExtractorSampleSource", extractorHolder);
-    pendingResetPositionUs = C.UNSET_TIME_US;
-    sampleQueues = new DefaultTrackOutput[0];
-    length = C.LENGTH_UNBOUNDED;
+    this.eventListener = eventListener;
+  }
+
+  // SampleSourceProvider implementation.
+
+  @Override
+  public int getSourceCount() {
+    return 1;
+  }
+
+  @Override
+  public SampleSource createSource(int index) {
+    Assertions.checkArgument(index == 0);
+    return this;
   }
 
   // SampleSource implementation.
@@ -184,6 +199,15 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
+
+    dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
+    loader = new Loader("Loader:ExtractorSampleSource", extractorHolder);
+    loadCondition = new ConditionVariable();
+    pendingResetPositionUs = C.UNSET_TIME_US;
+    sampleQueues = new DefaultTrackOutput[0];
+    length = C.LENGTH_UNBOUNDED;
+
     loadCondition.open();
     startLoading();
   }
@@ -318,10 +342,35 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void release() {
-    for (DefaultTrackOutput sampleQueue : sampleQueues) {
-      sampleQueue.disable();
+    dataSource = null;
+    extractorHolder = null;
+    if (loader != null) {
+      loader.release(); // Releases extractorHolder via its own reference on the loader's thread.
+      loader = null;
     }
-    loader.release();
+    loadCondition = null;
+    callback = null;
+    allocator = null;
+    seekMap = null;
+    tracksBuilt = false;
+    prepared = false;
+    seenFirstTrackSelection = false;
+    notifyReset = false;
+    enabledTrackCount = 0;
+    if (sampleQueues != null) {
+      for (DefaultTrackOutput sampleQueue : sampleQueues) {
+        sampleQueue.disable();
+      }
+      sampleQueues = null;
+    }
+    tracks = null;
+    durationUs = 0;
+    trackEnabledStates = null;
+    length = 0;
+    lastSeekPositionUs = 0;
+    pendingResetPositionUs = 0;
+    extractedSamplesCountAtStartOfLoad = 0;
+    loadingFinished = false;
   }
 
   // TrackStream methods.

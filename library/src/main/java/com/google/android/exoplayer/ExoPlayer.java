@@ -236,14 +236,6 @@ public interface ExoPlayer {
   int getPlaybackState();
 
   /**
-   * Sets the player's source. The player will transition to {@link #STATE_BUFFERING} until it is
-   * ready to play the new source.
-   *
-   * @param sampleSource The {@link SampleSource} to play.
-   */
-  void setSource(SampleSource sampleSource);
-
-  /**
    * Sets the player's source provider. The player's position will be reset to the start of the
    * first source and the player will transition to {@link #STATE_BUFFERING} until it is ready to
    * play it.

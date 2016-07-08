@@ -22,6 +22,7 @@ import com.google.android.exoplayer.CompositeSequenceableLoader;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.ParsingLoadable;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
@@ -51,9 +53,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
- * A {@link SampleSource} for HLS streams.
+ * A {@link SampleSource} for HLS streams. Also acts as a {@link SampleSourceProvider} providing
+ * {@link HlsSampleSource} instances.
  */
-public final class HlsSampleSource implements SampleSource,
+public final class HlsSampleSource implements SampleSource, SampleSourceProvider,
     Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsTrackStreamWrapper.Callback {
 
   /**
@@ -68,9 +71,10 @@ public final class HlsSampleSource implements SampleSource,
   private final EventDispatcher eventDispatcher;
   private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
-  private final Loader manifestFetcher;
-  private final DataSource manifestDataSource;
   private final HlsPlaylistParser manifestParser;
+
+  private DataSource manifestDataSource;
+  private Loader manifestFetcher;
 
   private Callback callback;
   private Allocator allocator;
@@ -100,25 +104,38 @@ public final class HlsSampleSource implements SampleSource,
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
     this.minLoadableRetryCount = minLoadableRetryCount;
-
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
-    trackStreamSources = new IdentityHashMap<>();
 
-    manifestDataSource = dataSourceFactory.createDataSource();
+    trackStreamSources = new IdentityHashMap<>();
+    timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     manifestParser = new HlsPlaylistParser();
-    manifestFetcher = new Loader("Loader:ManifestFetcher");
   }
+
+  // SampleSourceProvider implementation.
+
+  @Override
+  public int getSourceCount() {
+    return 1;
+  }
+
+  @Override
+  public SampleSource createSource(int index) {
+    Assertions.checkArgument(index == 0);
+    return this;
+  }
+
+  // SampleSource implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
-    this.preparePositionUs = positionUs;
-    ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource,
-        manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
-    long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this,
-        minLoadableRetryCount);
+    preparePositionUs = positionUs;
+    manifestDataSource = dataSourceFactory.createDataSource();
+    manifestFetcher = new Loader("Loader:ManifestFetcher");
+    ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(manifestDataSource, manifestUri,
+        C.DATA_TYPE_MANIFEST, manifestParser);
+    long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this, minLoadableRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
@@ -212,12 +229,30 @@ public final class HlsSampleSource implements SampleSource,
 
   @Override
   public void release() {
-    manifestFetcher.release();
+    trackStreamSources.clear();
+    timestampAdjusterProvider.reset();
+    manifestDataSource = null;
+    if (manifestFetcher != null) {
+      manifestFetcher.release();
+      manifestFetcher = null;
+    }
+    callback = null;
+    allocator = null;
+    preparePositionUs = 0;
+    pendingPrepareCount = 0;
+    seenFirstTrackSelection = false;
+    durationUs = 0;
+    isLive = false;
+    trackGroups = null;
+    selectedTrackCounts = null;
     if (trackStreamWrappers != null) {
       for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
         trackStreamWrapper.release();
       }
+      trackStreamWrappers = null;
     }
+    enabledTrackStreamWrappers = null;
+    sequenceableLoader = null;
   }
 
   // Loader.Callback implementation.

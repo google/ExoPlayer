@@ -83,7 +83,7 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
           new MatroskaExtractor.Factory(),
           null,
           null);
-      player.setSource(sampleSource);
+      player.setSourceProvider(sampleSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }

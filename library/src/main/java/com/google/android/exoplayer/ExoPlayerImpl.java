@@ -94,11 +94,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void setSource(final SampleSource sampleSource) {
-    setSourceProvider(new SingleSampleSourceProvider(sampleSource));
-  }
-
-  @Override
   public void setSourceProvider(SampleSourceProvider sourceProvider) {
     maskingSourceIndex = 0;
     maskingPositionMs = 0;
@@ -265,27 +260,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
     }
-  }
-
-  private static final class SingleSampleSourceProvider implements SampleSourceProvider {
-
-    private final SampleSource sampleSource;
-
-    public SingleSampleSourceProvider(SampleSource sampleSource) {
-      this.sampleSource = sampleSource;
-    }
-
-    @Override
-    public int getSourceCount() {
-      return 1;
-    }
-
-    @Override
-    public SampleSource createSource(int index) {
-      // The source will only be created once.
-      return sampleSource;
-    }
-
   }
 
 }

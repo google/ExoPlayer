@@ -22,6 +22,7 @@ import com.google.android.exoplayer.CompositeSequenceableLoader;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSourceProvider;
 import com.google.android.exoplayer.SequenceableLoader;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -42,6 +43,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceFactory;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.ParsingLoadable;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -61,9 +63,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * A {@link SampleSource} for DASH media.
+ * A {@link SampleSource} for DASH media. Also acts as a {@link SampleSourceProvider} providing
+ * {@link DashSampleSource} instances.
  */
-public final class DashSampleSource implements SampleSource,
+public final class DashSampleSource implements SampleSource, SampleSourceProvider,
     SequenceableLoader.Callback<ChunkTrackStream<DashChunkSource>> {
 
   /**
@@ -77,10 +80,13 @@ public final class DashSampleSource implements SampleSource,
   private final BandwidthMeter bandwidthMeter;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
-  private final Loader loader;
-  private final DataSource dataSource;
   private final MediaPresentationDescriptionParser manifestParser;
   private final ManifestCallback manifestCallback;
+
+  private DataSource dataSource;
+  private Loader loader;
+  private ChunkTrackStream<DashChunkSource>[] trackStreams;
+  private CompositeSequenceableLoader sequenceableLoader;
 
   private Uri manifestUri;
   private long manifestLoadStartTimestamp;
@@ -95,9 +101,6 @@ public final class DashSampleSource implements SampleSource,
   private long elapsedRealtimeOffset;
   private TrackGroupArray trackGroups;
   private int[] trackGroupAdaptationSetIndices;
-
-  private ChunkTrackStream<DashChunkSource>[] trackStreams;
-  private CompositeSequenceableLoader sequenceableLoader;
 
   public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -114,18 +117,33 @@ public final class DashSampleSource implements SampleSource,
     this.bandwidthMeter = bandwidthMeter;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    dataSource = dataSourceFactory.createDataSource();
-    loader = new Loader("Loader:DashSampleSource");
     manifestParser = new MediaPresentationDescriptionParser();
     manifestCallback = new ManifestCallback();
-    trackStreams = newTrackStreamArray(0);
-    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
   }
+
+  // SampleSourceProvider implementation.
+
+  @Override
+  public int getSourceCount() {
+    return 1;
+  }
+
+  @Override
+  public SampleSource createSource(int index) {
+    Assertions.checkArgument(index == 0);
+    return this;
+  }
+
+  // SampleSource implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
+    trackStreams = newTrackStreamArray(0);
+    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
+    dataSource = dataSourceFactory.createDataSource();
+    loader = new Loader("Loader:DashSampleSource");
     manifestRefreshHandler = new Handler();
     startLoadingManifest();
   }
@@ -212,14 +230,32 @@ public final class DashSampleSource implements SampleSource,
 
   @Override
   public void release() {
+    dataSource = null;
+    if (loader != null) {
+      loader.release();
+      loader = null;
+    }
+    if (trackStreams != null) {
+      for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
+        trackStream.release();
+      }
+      trackStreams = null;
+    }
+    sequenceableLoader = null;
+    manifestLoadStartTimestamp = 0;
+    manifestLoadEndTimestamp = 0;
+    manifest = null;
+    callback = null;
+    allocator = null;
     if (manifestRefreshHandler != null) {
       manifestRefreshHandler.removeCallbacksAndMessages(null);
       manifestRefreshHandler = null;
     }
-    loader.release();
-    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-      trackStream.release();
-    }
+    prepared = false;
+    durationUs = 0;
+    elapsedRealtimeOffset = 0;
+    trackGroups = null;
+    trackGroupAdaptationSetIndices = null;
   }
 
   // SequenceableLoader.Callback implementation.
