@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer.demo"
+    package="com.google.android.exoplayer2.demo"
     android:versionCode="2000"
     android:versionName="2.0.0"
     android:theme="@style/RootTheme">
@@ -31,7 +31,7 @@
       android:largeHeap="true"
       android:allowBackup="false">
 
-    <activity android:name="com.google.android.exoplayer.demo.SampleChooserActivity"
+    <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
         android:label="@string/application_name">
       <intent-filter>
@@ -52,7 +52,7 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
+    <activity android:name="com.google.android.exoplayer2.demo.PlayerActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
         android:launchMode="singleTop"
         android:label="@string/application_name"

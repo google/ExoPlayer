@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <com.google.android.exoplayer.AspectRatioFrameLayout android:id="@+id/video_frame"
+  <com.google.android.exoplayer2.AspectRatioFrameLayout android:id="@+id/video_frame"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center">
@@ -36,11 +36,11 @@
         android:layout_height="match_parent"
         android:background="@android:color/black"/>
 
-    <com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"
+    <com.google.android.exoplayer2.text.SubtitleLayout android:id="@+id/subtitles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-  </com.google.android.exoplayer.AspectRatioFrameLayout>
+  </com.google.android.exoplayer2.AspectRatioFrameLayout>
 
   <LinearLayout
       android:layout_width="match_parent"

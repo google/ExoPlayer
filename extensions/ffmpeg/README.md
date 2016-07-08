@@ -5,7 +5,7 @@
 The FFmpeg extension is a [TrackRenderer][] implementation that uses FFmpeg to
 decode audio.
 
-[TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
+[TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/TrackRenderer.html
 
 ## Build instructions ##
 

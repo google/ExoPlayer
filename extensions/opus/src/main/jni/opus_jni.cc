@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@
 #define FUNC(RETURN_TYPE, NAME, ...) \
   extern "C" { \
   JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer_ext_opus_OpusDecoder_ ## NAME \
+    Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
   } \
   JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer_ext_opus_OpusDecoder_ ## NAME \
+    Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
