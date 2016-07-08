@@ -652,7 +652,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
-   * Invoked when a new format is read from the upstream {@link SampleSource}.
+   * Invoked when a new format is read from the upstream {@link MediaPeriod}.
    *
    * @param newFormat The new format.
    * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.

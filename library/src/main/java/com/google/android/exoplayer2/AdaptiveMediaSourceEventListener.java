@@ -25,9 +25,9 @@ import android.os.SystemClock;
 import java.io.IOException;
 
 /**
- * Interface for callbacks to be notified about events during adaptive playbacks.
+ * Interface for callbacks to be notified of adaptive {@link MediaSource} events.
  */
-public interface AdaptiveSourceEventListener {
+public interface AdaptiveMediaSourceEventListener {
 
   /**
    * Invoked when a load begins.
@@ -171,14 +171,14 @@ public interface AdaptiveSourceEventListener {
       Object formatEvaluatorData, long mediaTimeMs);
 
   /**
-   * Dispatches events to a {@link AdaptiveSourceEventListener}.
+   * Dispatches events to a {@link AdaptiveMediaSourceEventListener}.
    */
   final class EventDispatcher {
 
     private final Handler handler;
-    private final AdaptiveSourceEventListener listener;
+    private final AdaptiveMediaSourceEventListener listener;
 
-    public EventDispatcher(Handler handler, AdaptiveSourceEventListener listener) {
+    public EventDispatcher(Handler handler, AdaptiveMediaSourceEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }

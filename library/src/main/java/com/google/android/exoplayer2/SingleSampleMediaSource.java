@@ -31,21 +31,20 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link SampleSource} that loads the data at a given {@link Uri} as a single sample. Also acts
- * as a {@link SampleSourceProvider} providing {@link SingleSampleSource} instances.
+ * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
  */
-public final class SingleSampleSource implements SampleSource, SampleSourceProvider, TrackStream,
-    Loader.Callback<SingleSampleSource.SourceLoadable> {
+public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, TrackStream,
+    Loader.Callback<SingleSampleMediaSource.SourceLoadable> {
 
   /**
-   * Interface definition for a callback to be notified of {@link SingleSampleSource} events.
+   * Interface definition for a callback to be notified of {@link SingleSampleMediaSource} events.
    */
   public interface EventListener {
 
     /**
      * Invoked when an error occurs loading media data.
      *
-     * @param sourceId The id of the reporting {@link SampleSource}.
+     * @param sourceId The id of the reporting {@link SingleSampleMediaSource}.
      * @param e The cause of the failure.
      */
     void onLoadError(int sourceId, IOException e);
@@ -83,17 +82,17 @@ public final class SingleSampleSource implements SampleSource, SampleSourceProvi
   private byte[] sampleData;
   private int sampleSize;
 
-  public SingleSampleSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+  public SingleSampleMediaSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
       long durationUs) {
     this(uri, dataSourceFactory, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
-  public SingleSampleSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+  public SingleSampleMediaSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount) {
     this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, 0);
   }
 
-  public SingleSampleSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+  public SingleSampleMediaSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
       int eventSourceId) {
     this.uri = uri;
@@ -109,25 +108,25 @@ public final class SingleSampleSource implements SampleSource, SampleSourceProvi
     streamState = STREAM_STATE_SEND_FORMAT;
   }
 
-  // SampleSourceProvider implementation.
+  // MediaSource implementation.
 
   @Override
-  public int getSourceCount() {
+  public int getPeriodCount() {
     return 1;
   }
 
   @Override
-  public SampleSource createSource(int index) {
+  public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;
   }
 
-  // SampleSource implementation.
+  // MediaPeriod implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
-    loader = new Loader("Loader:SingleSampleSource");
-    callback.onSourcePrepared(this);
+    loader = new Loader("Loader:SingleSampleMediaSource");
+    callback.onPeriodPrepared(this);
   }
 
   @Override

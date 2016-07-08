@@ -38,11 +38,11 @@ package com.google.android.exoplayer2;
  *
  * <p>{@link MediaCodecAudioTrackRenderer} and {@link MediaCodecVideoTrackRenderer} can be used for
  * the common cases of rendering audio and video. These components in turn require an
- * <i>upstream</i> {@link SampleSource} to be injected through their constructors, where upstream
+ * <i>upstream</i> {@link MediaPeriod} to be injected through their constructors, where upstream
  * is defined to denote a component that is closer to the source of the media. This pattern of
  * upstream dependency injection is actively encouraged, since it means that the functionality of
  * the player is built up through the composition of components that can easily be exchanged for
- * alternate implementations. For example a {@link SampleSource} implementation may require a
+ * alternate implementations. For example a {@link MediaPeriod} implementation may require a
  * further upstream data loading component to be injected through its constructor, with different
  * implementations enabling the loading of data from various sources.
  *
@@ -84,8 +84,7 @@ package com.google.android.exoplayer2;
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
- * {@link #setSource(SampleSource)}, {@link #setSourceProvider(SampleSourceProvider)},
- * {@link #stop()} or {@link #release()} being invoked.</p>
+ * {@link #setMediaSource(MediaSource)}, {@link #stop()} or {@link #release()} being invoked.</p>
  * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
@@ -128,12 +127,12 @@ public interface ExoPlayer {
     // TODO[playlists]: Should source-initiated resets also cause this to be invoked?
     /**
      * Invoked when the player's position changes due to a discontinuity (seeking or playback
-     * transitioning to the next source).
+     * transitioning to the next period).
      *
-     * @param sourceIndex The index of the source being played.
-     * @param positionMs The playback position in that source, in milliseconds.
+     * @param periodIndex The index of the period being played.
+     * @param positionMs The playback position in that period, in milliseconds.
      */
-    void onPositionDiscontinuity(int sourceIndex, long positionMs);
+    void onPositionDiscontinuity(int periodIndex, long positionMs);
 
     /**
      * Invoked when an error occurs. The playback state will transition to
@@ -189,7 +188,7 @@ public interface ExoPlayer {
   }
 
   /**
-   * The player does not have a source to load, so it is neither buffering nor ready to play.
+   * The player does not have a source to play, so it is neither buffering nor ready to play.
    */
   int STATE_IDLE = 1;
   /**
@@ -236,17 +235,18 @@ public interface ExoPlayer {
   int getPlaybackState();
 
   /**
-   * Sets the player's source provider. The player's position will be reset to the start of the
-   * first source and the player will transition to {@link #STATE_BUFFERING} until it is ready to
-   * play it.
+   * Sets the {@link MediaSource} to play.
+   * <p>
+   * The player's position will be reset to the start of the source.
    *
-   * @param sourceProvider The provider of {@link SampleSource}s to play.
+   * @param mediaSource The {@link MediaSource} to play.
    */
-  void setSourceProvider(SampleSourceProvider sourceProvider);
+  void setMediaSource(MediaSource mediaSource);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
-   * If the player is already in this state, then this method can be used to pause and resume
+   * <p>
+   * If the player is already in the ready state then this method can be used to pause and resume
    * playback.
    *
    * @param playWhenReady Whether playback should proceed when ready.
@@ -276,19 +276,19 @@ public interface ExoPlayer {
   boolean isLoading();
 
   /**
-   * Seeks to a position specified in milliseconds in the current source.
+   * Seeks to a position specified in milliseconds in the current period.
    *
    * @param positionMs The seek position.
    */
   void seekTo(long positionMs);
 
   /**
-   * Seeks to a position specified in milliseconds in the specified source.
+   * Seeks to a position specified in milliseconds in the specified period.
    *
-   * @param sourceIndex The index of the source to seek to.
-   * @param positionMs The seek position relative to the start of the specified source.
+   * @param periodIndex The index of the period to seek to.
+   * @param positionMs The seek position relative to the start of the specified period.
    */
-  void seekTo(int sourceIndex, long positionMs);
+  void seekTo(int periodIndex, long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -298,9 +298,7 @@ public interface ExoPlayer {
    * {@link ExoPlayer#STATE_IDLE}. The player instance can still be used, and
    * {@link ExoPlayer#release()} must still be called on the player if it's no longer required.
    * <p>
-   * Calling this method does not reset the playback position. If this player instance will be used
-   * to play another video from its start, then {@code seekTo(0)} should be called after stopping
-   * the player and before setting the next source.
+   * Calling this method does not reset the playback position.
    */
   void stop();
 
@@ -337,18 +335,18 @@ public interface ExoPlayer {
   long getDuration();
 
   /**
-   * Gets the playback position in the current source, in milliseconds.
+   * Gets the playback position in the current period, in milliseconds.
    *
-   * @return The playback position in the current source, in milliseconds.
+   * @return The playback position in the current period, in milliseconds.
    */
   long getCurrentPosition();
 
   /**
-   * Gets the index of the current source.
+   * Gets the index of the current period.
    *
-   * @return The index of the current source.
+   * @return The index of the current period.
    */
-  int getCurrentSourceIndex();
+  int getCurrentPeriodIndex();
 
   /**
    * Gets an estimate of the absolute position in milliseconds up to which data is buffered.

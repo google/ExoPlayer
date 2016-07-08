@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import com.google.android.exoplayer2.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ConcatenatingSampleSourceProvider;
+import com.google.android.exoplayer2.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultTrackSelectionPolicy;
 import com.google.android.exoplayer2.DefaultTrackSelector;
@@ -27,23 +27,23 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.SampleSourceProvider;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.TrackGroupArray;
-import com.google.android.exoplayer2.dash.DashSampleSource;
+import com.google.android.exoplayer2.dash.DashMediaSource;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer2.hls.HlsSampleSource;
+import com.google.android.exoplayer2.extractor.ExtractorMediaSource;
+import com.google.android.exoplayer2.hls.HlsMediaSource;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.GeobFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.TxxxFrame;
-import com.google.android.exoplayer2.smoothstreaming.SmoothStreamingSampleSource;
+import com.google.android.exoplayer2.smoothstreaming.SmoothStreamingMediaSource;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleLayout;
@@ -320,34 +320,33 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return;
       }
 
-      SampleSourceProvider[] providers = new SampleSourceProvider[uris.length];
+      MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        providers[i] = getSampleSourceProvider(uris[i], extensions[i]);
+        mediaSources[i] = getMediaSource(uris[i], extensions[i]);
       }
-      SampleSourceProvider sourceProvider = providers.length == 1 ? providers[0]
-          : new ConcatenatingSampleSourceProvider(providers);
-      player.setSourceProvider(sourceProvider);
+      MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
+          : new ConcatenatingMediaSource(mediaSources);
+      player.setMediaSource(mediaSource);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
   }
 
-  private SampleSourceProvider getSampleSourceProvider(Uri uri, String overrideExtension) {
+  private MediaSource getMediaSource(Uri uri, String overrideExtension) {
     String lastPathSegment = !TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
         : uri.getLastPathSegment();
     int type = Util.inferContentType(lastPathSegment);
     switch (type) {
       case Util.TYPE_SS:
-        return new SmoothStreamingSampleSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
+        return new SmoothStreamingMediaSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
             eventLogger);
       case Util.TYPE_DASH:
-        return new DashSampleSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
+        return new DashMediaSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
             eventLogger);
       case Util.TYPE_HLS:
-        return new HlsSampleSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
-            eventLogger);
+        return new HlsMediaSource(uri, dataSourceFactory, bandwidthMeter, mainHandler, eventLogger);
       case Util.TYPE_OTHER:
-        return new ExtractorSampleSource(uri, dataSourceFactory, bandwidthMeter,
+        return new ExtractorMediaSource(uri, dataSourceFactory, bandwidthMeter,
             new DefaultExtractorsFactory(), mainHandler, eventLogger);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
@@ -437,7 +436,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   @Override
-  public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
     if (mediaController.isShowing()) {
       // The MediaController is visible, so force it to show the updated position immediately.
       mediaController.show();

@@ -20,9 +20,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.util.Arrays;
 
 /**
- * Defines a group of tracks exposed by a {@link SampleSource}.
+ * Defines a group of tracks exposed by a {@link MediaPeriod}.
  * <p>
- * A {@link SampleSource} is only able to provide one {@link TrackStream} corresponding to a group
+ * A {@link MediaPeriod} is only able to provide one {@link TrackStream} corresponding to a group
  * at any given time. If {@link #adaptive} is true this {@link TrackStream} can adapt between
  * multiple tracks within the group. If {@link #adaptive} is false then it's only possible to
  * consume one track from the group at a given time.

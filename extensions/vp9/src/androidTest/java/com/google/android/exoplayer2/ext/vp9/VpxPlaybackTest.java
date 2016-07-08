@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.TrackRenderer;
-import com.google.android.exoplayer2.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer2.extractor.ExtractorMediaSource;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
@@ -92,7 +92,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
           new DefaultTrackSelectionPolicy(), null);
       player = ExoPlayerFactory.newInstance(new TrackRenderer[] {videoRenderer}, trackSelector);
       player.addListener(this);
-      ExtractorSampleSource sampleSource = new ExtractorSampleSource(
+      ExtractorMediaSource mediaSource = new ExtractorMediaSource(
           uri,
           new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
           null,
@@ -102,7 +102,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
           LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));
-      player.setSourceProvider(sampleSource);
+      player.setMediaSource(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }
@@ -118,7 +118,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+    public void onPositionDiscontinuity(int periodIndex, long positionMs) {
       // Do nothing.
     }
 

@@ -18,7 +18,7 @@ package com.google.android.exoplayer2;
 import java.util.Arrays;
 
 /**
- * An array of {@link TrackGroup}s exposed by a {@link SampleSource}.
+ * An array of {@link TrackGroup}s exposed by a {@link MediaPeriod}.
  */
 public final class TrackGroupArray {
 

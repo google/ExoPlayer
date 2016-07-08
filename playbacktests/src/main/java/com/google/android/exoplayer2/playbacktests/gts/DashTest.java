@@ -22,13 +22,13 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaCodecUtil;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.SampleSourceProvider;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.TrackGroup;
 import com.google.android.exoplayer2.TrackGroupArray;
 import com.google.android.exoplayer2.TrackRenderer;
 import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.TrackSelectionPolicy;
-import com.google.android.exoplayer2.dash.DashSampleSource;
+import com.google.android.exoplayer2.dash.DashMediaSource;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
 import com.google.android.exoplayer2.playbacktests.util.CodecCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
@@ -418,9 +418,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    public SampleSourceProvider buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
+    public MediaSource buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
         BandwidthMeter bandwidthMeter) {
-      return new DashSampleSource(manifestUri, dataSourceFactory, bandwidthMeter,
+      return new DashMediaSource(manifestUri, dataSourceFactory, bandwidthMeter,
           MIN_LOADABLE_RETRY_COUNT, null, null);
     }
 

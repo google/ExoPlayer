@@ -25,7 +25,7 @@ import java.io.IOException;
 public final class ExoPlaybackException extends Exception {
 
   /**
-   * The error occurred loading data from a {@link SampleSource}.
+   * The error occurred loading data from a {@link MediaSource}.
    * <p>
    * Call {@link #getSourceException()} to retrieve the underlying cause.
    */

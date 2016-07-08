@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.hls;
 
-import com.google.android.exoplayer2.AdaptiveSourceEventListener;
-import com.google.android.exoplayer2.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaPeriod;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.SampleSource;
-import com.google.android.exoplayer2.SampleSourceProvider;
 import com.google.android.exoplayer2.TrackGroup;
 import com.google.android.exoplayer2.TrackGroupArray;
 import com.google.android.exoplayer2.TrackSelection;
@@ -53,10 +53,9 @@ import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
- * A {@link SampleSource} for HLS streams. Also acts as a {@link SampleSourceProvider} providing
- * {@link HlsSampleSource} instances.
+ * An HLS {@link MediaSource}.
  */
-public final class HlsSampleSource implements SampleSource, SampleSourceProvider,
+public final class HlsMediaSource implements MediaPeriod, MediaSource,
     Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsTrackStreamWrapper.Callback {
 
   /**
@@ -90,16 +89,16 @@ public final class HlsSampleSource implements SampleSource, SampleSourceProvider
   private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
 
-  public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+  public HlsMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      AdaptiveSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
         eventHandler, eventListener);
   }
 
-  public HlsSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+  public HlsMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
@@ -111,20 +110,20 @@ public final class HlsSampleSource implements SampleSource, SampleSourceProvider
     manifestParser = new HlsPlaylistParser();
   }
 
-  // SampleSourceProvider implementation.
+  // MediaSource implementation.
 
   @Override
-  public int getSourceCount() {
+  public int getPeriodCount() {
     return 1;
   }
 
   @Override
-  public SampleSource createSource(int index) {
+  public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;
   }
 
-  // SampleSource implementation.
+  // MediaPeriod implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
@@ -314,7 +313,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceProvider
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
-    callback.onSourcePrepared(this);
+    callback.onPeriodPrepared(this);
   }
 
   @Override

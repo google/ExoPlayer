@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.TrackRenderer;
-import com.google.android.exoplayer2.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer2.extractor.ExtractorMediaSource;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
@@ -76,14 +76,14 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
           new DefaultTrackSelectionPolicy(), null);
       player = ExoPlayerFactory.newInstance(new TrackRenderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
-      ExtractorSampleSource sampleSource = new ExtractorSampleSource(
+      ExtractorMediaSource mediaSource = new ExtractorMediaSource(
           uri,
           new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"),
           null,
           new MatroskaExtractor.Factory(),
           null,
           null);
-      player.setSourceProvider(sampleSource);
+      player.setMediaSource(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }
@@ -99,7 +99,7 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+    public void onPositionDiscontinuity(int periodIndex, long positionMs) {
       // Do nothing.
     }
 

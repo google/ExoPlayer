@@ -40,14 +40,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean playWhenReady;
   private int playbackState;
   private int pendingPlayWhenReadyAcks;
-  private int pendingSetSourceProviderAndSeekAcks;
+  private int pendingSetMediaSourceAndSeekAcks;
   private boolean isLoading;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
 
   // Playback information when there is a pending seek/set source operation.
-  private int maskingSourceIndex;
+  private int maskingPeriodIndex;
   private long maskingPositionMs;
   private long maskingDurationMs;
 
@@ -94,13 +94,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void setSourceProvider(SampleSourceProvider sourceProvider) {
-    maskingSourceIndex = 0;
+  public void setMediaSource(MediaSource mediaSource) {
+    maskingPeriodIndex = 0;
     maskingPositionMs = 0;
     maskingDurationMs = ExoPlayer.UNKNOWN_TIME;
 
-    pendingSetSourceProviderAndSeekAcks++;
-    internalPlayer.setSourceProvider(sourceProvider);
+    pendingSetMediaSourceAndSeekAcks++;
+    internalPlayer.setMediaSource(mediaSource);
     for (EventListener listener : listeners) {
       listener.onPositionDiscontinuity(0, 0);
     }
@@ -135,20 +135,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(long positionMs) {
-    seekTo(getCurrentSourceIndex(), positionMs);
+    seekTo(getCurrentPeriodIndex(), positionMs);
   }
 
   @Override
-  public void seekTo(int sourceIndex, long positionMs) {
-    boolean sourceChanging = sourceIndex != getCurrentSourceIndex();
-    maskingSourceIndex = sourceIndex;
+  public void seekTo(int periodIndex, long positionMs) {
+    boolean periodChanging = periodIndex != getCurrentPeriodIndex();
+    maskingPeriodIndex = periodIndex;
     maskingPositionMs = positionMs;
-    maskingDurationMs = sourceChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
+    maskingDurationMs = periodChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
 
-    pendingSetSourceProviderAndSeekAcks++;
-    internalPlayer.seekTo(sourceIndex, positionMs * 1000);
+    pendingSetMediaSourceAndSeekAcks++;
+    internalPlayer.seekTo(periodIndex, positionMs * 1000);
     for (EventListener listener : listeners) {
-      listener.onPositionDiscontinuity(sourceIndex, positionMs);
+      listener.onPositionDiscontinuity(periodIndex, positionMs);
     }
   }
 
@@ -175,7 +175,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getDuration() {
-    if (pendingSetSourceProviderAndSeekAcks == 0) {
+    if (pendingSetMediaSourceAndSeekAcks == 0) {
       long durationUs = playbackInfo.durationUs;
       return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
     } else {
@@ -185,18 +185,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getCurrentPosition() {
-    return pendingSetSourceProviderAndSeekAcks == 0 ? playbackInfo.positionUs / 1000
+    return pendingSetMediaSourceAndSeekAcks == 0 ? playbackInfo.positionUs / 1000
         : maskingPositionMs;
   }
 
   @Override
-  public int getCurrentSourceIndex() {
-    return pendingSetSourceProviderAndSeekAcks == 0 ? playbackInfo.sourceIndex : maskingSourceIndex;
+  public int getCurrentPeriodIndex() {
+    return pendingSetMediaSourceAndSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
   }
 
   @Override
   public long getBufferedPosition() {
-    if (pendingSetSourceProviderAndSeekAcks == 0) {
+    if (pendingSetMediaSourceAndSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
       return bufferedPositionUs == C.END_OF_SOURCE_US ? getDuration() : bufferedPositionUs / 1000;
     } else {
@@ -238,16 +238,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
-      case ExoPlayerImplInternal.MSG_SET_SOURCE_PROVIDER_ACK: // Fall through.
+      case ExoPlayerImplInternal.MSG_SET_MEDIA_SOURCE_ACK: // Fall through.
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
-        pendingSetSourceProviderAndSeekAcks--;
+        pendingSetMediaSourceAndSeekAcks--;
         break;
       }
-      case ExoPlayerImplInternal.MSG_SOURCE_CHANGED: {
+      case ExoPlayerImplInternal.MSG_PERIOD_CHANGED: {
         playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-        if (pendingSetSourceProviderAndSeekAcks == 0) {
+        if (pendingSetMediaSourceAndSeekAcks == 0) {
           for (EventListener listener : listeners) {
-            listener.onPositionDiscontinuity(playbackInfo.sourceIndex, 0);
+            listener.onPositionDiscontinuity(playbackInfo.periodIndex, 0);
           }
         }
         break;

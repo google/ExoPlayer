@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.hls;
 
-import com.google.android.exoplayer2.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;

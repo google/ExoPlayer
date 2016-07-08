@@ -314,8 +314,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void setSourceProvider(SampleSourceProvider sourceProvider) {
-    player.setSourceProvider(sourceProvider);
+  public void setMediaSource(MediaSource mediaSource) {
+    player.setMediaSource(mediaSource);
   }
 
   @Override
@@ -344,8 +344,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void seekTo(int sourceIndex, long positionMs) {
-    player.seekTo(sourceIndex, positionMs);
+  public void seekTo(int periodIndex, long positionMs) {
+    player.seekTo(periodIndex, positionMs);
   }
 
   @Override
@@ -379,8 +379,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public int getCurrentSourceIndex() {
-    return player.getCurrentSourceIndex();
+  public int getCurrentPeriodIndex() {
+    return player.getCurrentPeriodIndex();
   }
 
   @Override

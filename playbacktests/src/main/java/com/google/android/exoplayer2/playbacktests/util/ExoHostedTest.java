@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.SampleSourceProvider;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.TrackSelectionPolicy;
 import com.google.android.exoplayer2.audio.AudioTrack;
@@ -128,7 +128,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     player = buildExoPlayer(host, surface, trackSelector);
     DataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(host, Util
         .getUserAgent(host, "ExoPlayerPlaybackTests"));
-    player.setSourceProvider(buildSource(host, dataSourceFactory, player.getBandwidthMeter()));
+    player.setMediaSource(buildSource(host, dataSourceFactory, player.getBandwidthMeter()));
     player.addListener(this);
     player.setDebugListener(this);
     player.setPlayWhenReady(true);
@@ -210,7 +210,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public final void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+  public final void onPositionDiscontinuity(int periodIndex, long positionMs) {
     // Do nothing.
   }
 
@@ -287,8 +287,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @SuppressWarnings("unused")
-  protected abstract SampleSourceProvider buildSource(HostActivity host,
-      DataSourceFactory dataSourceFactory, BandwidthMeter bandwidthMeter);
+  protected abstract MediaSource buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
+      BandwidthMeter bandwidthMeter);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {

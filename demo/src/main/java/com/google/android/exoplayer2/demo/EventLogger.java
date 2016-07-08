@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import com.google.android.exoplayer2.AdaptiveSourceEventListener;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.CodecCounters;
 import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.TrackGroupArray;
 import com.google.android.exoplayer2.TrackRenderer;
 import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer2.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer2.extractor.ExtractorMediaSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
 import android.os.SystemClock;
@@ -42,7 +42,7 @@ import java.util.Locale;
  * Logs player events using {@link Log}.
  */
 public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.DebugListener,
-    AdaptiveSourceEventListener, ExtractorSampleSource.EventListener,
+    AdaptiveMediaSourceEventListener, ExtractorMediaSource.EventListener,
     StreamingDrmSessionManager.EventListener, DefaultTrackSelector.EventListener {
 
   private static final String TAG = "EventLogger";
@@ -78,8 +78,8 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
-  public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
-    Log.d(TAG, "discontinuity [" + sourceIndex + ", " + positionMs + "]");
+  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
+    Log.d(TAG, "discontinuity [" + periodIndex + ", " + positionMs + "]");
   }
 
   @Override
@@ -211,14 +211,14 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
     Log.d(TAG, "drmKeysLoaded [" + getSessionTimeString() + "]");
   }
 
-  // ExtractorSampleSource.EventListener
+  // ExtractorMediaSource.EventListener
 
   @Override
   public void onLoadError(IOException error) {
     printInternalError("loadError", error);
   }
 
-  // AdaptiveSourceEventListener
+  // AdaptiveMediaSourceEventListener
 
   @Override
   public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format format,

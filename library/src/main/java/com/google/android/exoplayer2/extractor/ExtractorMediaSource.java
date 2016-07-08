@@ -19,9 +19,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.MediaPeriod;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.SampleSource;
-import com.google.android.exoplayer2.SampleSourceProvider;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackGroup;
 import com.google.android.exoplayer2.TrackGroupArray;
@@ -48,10 +48,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link SampleSource} that extracts sample data using an {@link Extractor}. Also acts as a
- * {@link SampleSourceProvider} providing {@link ExtractorSampleSource} instances.
- *
- * <p>If the possible input stream container formats are known, pass a factory that instantiates
+ * Provides a single {@link MediaPeriod} whose data is loaded from a {@link Uri} and extracted using
+ * an {@link Extractor}.
+ * <p>
+ * If the possible input stream container formats are known, pass a factory that instantiates
  * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to
  * use the default extractors. When reading a new stream, the first {@link Extractor} in the array
  * of extractors created by the factory that returns {@code true} from
@@ -59,12 +59,12 @@ import java.util.List;
  *
  * <p>Note that the built-in extractors for AAC, MPEG TS and FLV streams do not support seeking.
  */
-public final class ExtractorSampleSource implements SampleSource, SampleSourceProvider,
-    ExtractorOutput, Loader.Callback<ExtractorSampleSource.ExtractingLoadable>,
+public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
+    ExtractorOutput, Loader.Callback<ExtractorMediaSource.ExtractingLoadable>,
     UpstreamFormatChangedListener {
 
   /**
-   * Interface definition for a callback to be notified of {@link ExtractorSampleSource} events.
+   * Interface definition for a callback to be notified of {@link ExtractorMediaSource} events.
    */
   public interface EventListener {
 
@@ -150,7 +150,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
    *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+  public ExtractorMediaSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, Handler eventHandler,
       EventListener eventListener) {
     this(uri, dataSourceFactory, bandwidthMeter, extractorsFactory,
@@ -168,7 +168,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
    *     if a loading error occurs.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ExtractorSampleSource(Uri uri, DataSourceFactory dataSourceFactory,
+  public ExtractorMediaSource(Uri uri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, int minLoadableRetryCount,
       Handler eventHandler, EventListener eventListener) {
     this.uri = uri;
@@ -180,20 +180,20 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
     this.eventListener = eventListener;
   }
 
-  // SampleSourceProvider implementation.
+  // MediaSource implementation.
 
   @Override
-  public int getSourceCount() {
+  public int getPeriodCount() {
     return 1;
   }
 
   @Override
-  public SampleSource createSource(int index) {
+  public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;
   }
 
-  // SampleSource implementation.
+  // MediaPeriod implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
@@ -202,7 +202,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
 
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
-    loader = new Loader("Loader:ExtractorSampleSource", extractorHolder);
+    loader = new Loader("Loader:ExtractorMediaSource", extractorHolder);
     loadCondition = new ConditionVariable();
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
@@ -483,7 +483,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
     }
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
-    callback.onSourcePrepared(this);
+    callback.onPeriodPrepared(this);
   }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {
@@ -584,17 +584,17 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
 
     @Override
     public boolean isReady() {
-      return ExtractorSampleSource.this.isReady(track);
+      return ExtractorMediaSource.this.isReady(track);
     }
 
     @Override
     public void maybeThrowError() throws IOException {
-      ExtractorSampleSource.this.maybeThrowError();
+      ExtractorMediaSource.this.maybeThrowError();
     }
 
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      return ExtractorSampleSource.this.readData(track, formatHolder, buffer);
+      return ExtractorMediaSource.this.readData(track, formatHolder, buffer);
     }
 
   }
@@ -670,7 +670,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourcePr
             if (input.getPosition() > position + CONTINUE_LOADING_CHECK_INTERVAL_BYTES) {
               position = input.getPosition();
               loadCondition.close();
-              callback.onContinueLoadingRequested(ExtractorSampleSource.this);
+              callback.onContinueLoadingRequested(ExtractorMediaSource.this);
             }
           }
         } finally {

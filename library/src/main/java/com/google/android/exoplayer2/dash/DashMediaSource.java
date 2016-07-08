@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.dash;
 
-import com.google.android.exoplayer2.AdaptiveSourceEventListener;
-import com.google.android.exoplayer2.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaPeriod;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.SampleSource;
-import com.google.android.exoplayer2.SampleSourceProvider;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackGroup;
 import com.google.android.exoplayer2.TrackGroupArray;
@@ -63,10 +63,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * A {@link SampleSource} for DASH media. Also acts as a {@link SampleSourceProvider} providing
- * {@link DashSampleSource} instances.
+ * A DASH {@link MediaSource}.
  */
-public final class DashSampleSource implements SampleSource, SampleSourceProvider,
+public final class DashMediaSource implements MediaPeriod, MediaSource,
     SequenceableLoader.Callback<ChunkTrackStream<DashChunkSource>> {
 
   /**
@@ -74,7 +73,7 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final String TAG = "DashSampleSource";
+  private static final String TAG = "DashMediaSource";
 
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
@@ -102,16 +101,16 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
   private TrackGroupArray trackGroups;
   private int[] trackGroupAdaptationSetIndices;
 
-  public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+  public DashMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      AdaptiveSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
         eventHandler, eventListener);
   }
 
-  public DashSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+  public DashMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.bandwidthMeter = bandwidthMeter;
@@ -121,20 +120,20 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
     manifestCallback = new ManifestCallback();
   }
 
-  // SampleSourceProvider implementation.
+  // MediaSource implementation.
 
   @Override
-  public int getSourceCount() {
+  public int getPeriodCount() {
     return 1;
   }
 
   @Override
-  public SampleSource createSource(int index) {
+  public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;
   }
 
-  // SampleSource implementation.
+  // MediaPeriod implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
@@ -143,7 +142,7 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
     trackStreams = newTrackStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
     dataSource = dataSourceFactory.createDataSource();
-    loader = new Loader("Loader:DashSampleSource");
+    loader = new Loader("Loader:DashMediaSource");
     manifestRefreshHandler = new Handler();
     startLoadingManifest();
   }
@@ -373,7 +372,7 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
 
   private void finishPrepare() {
     prepared = true;
-    callback.onSourcePrepared(this);
+    callback.onPeriodPrepared(this);
     scheduleManifestRefresh();
   }
 
@@ -467,7 +466,7 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
     @Override
     public void onLoadCanceled(ParsingLoadable<MediaPresentationDescription> loadable,
         long elapsedRealtimeMs, long loadDurationMs, boolean released) {
-      DashSampleSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
+      DashMediaSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
@@ -489,7 +488,7 @@ public final class DashSampleSource implements SampleSource, SampleSourceProvide
     @Override
     public void onLoadCanceled(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
         long loadDurationMs, boolean released) {
-      DashSampleSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
+      DashMediaSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override

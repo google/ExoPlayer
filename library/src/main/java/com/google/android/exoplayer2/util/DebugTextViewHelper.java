@@ -81,7 +81,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   private void updateTextView() {
-    textView.setText(getPlayerStateString() + getPlayerSourceIndexString() + getBandwidthString()
+    textView.setText(getPlayerStateString() + getPlayerPeriodIndexString() + getBandwidthString()
         + getVideoString() + getAudioString());
   }
 
@@ -107,8 +107,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     return text;
   }
 
-  private String getPlayerSourceIndexString() {
-    return " source:" + player.getCurrentSourceIndex();
+  private String getPlayerPeriodIndexString() {
+    return " period:" + player.getCurrentPeriodIndex();
   }
 
   private String getBandwidthString() {
@@ -169,7 +169,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
-  public void onPositionDiscontinuity(int sourceIndex, long positionMs) {
+  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
     updateTextView();
   }
 

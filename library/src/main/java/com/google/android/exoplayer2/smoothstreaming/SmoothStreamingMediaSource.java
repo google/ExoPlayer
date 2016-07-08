@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.smoothstreaming;
 
-import com.google.android.exoplayer2.AdaptiveSourceEventListener;
-import com.google.android.exoplayer2.AdaptiveSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaPeriod;
+import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.SampleSource;
-import com.google.android.exoplayer2.SampleSourceProvider;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackGroup;
 import com.google.android.exoplayer2.TrackGroupArray;
@@ -53,10 +53,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link SampleSource} for SmoothStreaming media. Also acts as a {@link SampleSourceProvider}
- * providing {@link SmoothStreamingSampleSource} instances.
+ * A SmoothStreaming {@link MediaSource}.
  */
-public final class SmoothStreamingSampleSource implements SampleSource, SampleSourceProvider,
+public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSource,
     SequenceableLoader.Callback<ChunkTrackStream<SmoothStreamingChunkSource>>,
     Loader.Callback<ParsingLoadable<SmoothStreamingManifest>> {
 
@@ -92,16 +91,16 @@ public final class SmoothStreamingSampleSource implements SampleSource, SampleSo
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
 
-  public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+  public SmoothStreamingMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
-      AdaptiveSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
         eventHandler, eventListener);
   }
 
-  public SmoothStreamingSampleSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
+  public SmoothStreamingMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
@@ -111,20 +110,20 @@ public final class SmoothStreamingSampleSource implements SampleSource, SampleSo
     manifestParser = new SmoothStreamingManifestParser();
   }
 
-  // SampleSourceProvider implementation.
+  // MediaSource implementation.
 
   @Override
-  public int getSourceCount() {
+  public int getPeriodCount() {
     return 1;
   }
 
   @Override
-  public SampleSource createSource(int index) {
+  public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;
   }
 
-  // SampleSource implementation.
+  // MediaPeriod implementation.
 
   @Override
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
@@ -273,7 +272,7 @@ public final class SmoothStreamingSampleSource implements SampleSource, SampleSo
             new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId)};
       }
       prepared = true;
-      callback.onSourcePrepared(this);
+      callback.onPeriodPrepared(this);
     } else {
       for (ChunkTrackStream<SmoothStreamingChunkSource> trackStream : trackStreams) {
         trackStream.getChunkSource().updateManifest(manifest);
