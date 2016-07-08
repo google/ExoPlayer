@@ -31,10 +31,11 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   private boolean allowNonSeamlessAdaptiveness;
   private int maxVideoWidth;
   private int maxVideoHeight;
-  private boolean filterHdVideoTracks;
+  private boolean exceedVideoConstraintsIfNecessary;
 
   public DefaultTrackSelectionPolicy() {
     allowNonSeamlessAdaptiveness = true;
+    exceedVideoConstraintsIfNecessary = true;
     maxVideoWidth = Integer.MAX_VALUE;
     maxVideoHeight = Integer.MAX_VALUE;
   }
@@ -92,16 +93,28 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   }
 
   /**
-   * Sets whether HD video tracks are filtered.
-   * <p>
-   * A video track is considered HD when it is 1280 pixels wide or more, or when it is 720 pixels
-   * high or more.
-   *
-   * @param filterHdVideoTracks True to filter HD video tracks, false otherwise.
+   * Equivalent to {@code setMaxVideoSize(1279, 719)}.
    */
-  public void setFilterHdVideoTracks(boolean filterHdVideoTracks) {
-    if (this.filterHdVideoTracks != filterHdVideoTracks) {
-      this.filterHdVideoTracks = filterHdVideoTracks;
+  public void setMaxVideoSizeSd() {
+    setMaxVideoSize(1279, 719);
+  }
+
+  /**
+   * Equivalent to {@code setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)}.
+   */
+  public void clearMaxVideoSize() {
+    setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+  }
+
+  /**
+   * Sets whether video constraints should be ignored when no selection can be made otherwise.
+   *
+   * @param exceedVideoConstraintsIfNecessary True to ignore video constraints when no selections
+   *     can be made otherwise. False to force constraints anyway.
+   */
+  public void setExceedVideoConstraintsIfNecessary(boolean exceedVideoConstraintsIfNecessary) {
+    if (this.exceedVideoConstraintsIfNecessary != exceedVideoConstraintsIfNecessary) {
+      this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
       invalidate();
     }
   }
@@ -118,7 +131,12 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
       switch (renderers[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
           rendererTrackSelections[i] = selectTrackForVideoRenderer(renderers[i],
-              rendererTrackGroupArrays[i], rendererFormatSupports[i]);
+              rendererTrackGroupArrays[i], rendererFormatSupports[i], maxVideoWidth, maxVideoHeight,
+              allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness);
+          if (rendererTrackSelections[i] == null && exceedVideoConstraintsIfNecessary) {
+            rendererTrackSelections[i] = selectSmallestSupportedVideoTrack(
+                rendererTrackGroupArrays[i], rendererFormatSupports[i]);
+          }
           break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectTrackForAudioRenderer(rendererTrackGroupArrays[i],
@@ -137,15 +155,15 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     return rendererTrackSelections;
   }
 
-  private TrackSelection selectTrackForVideoRenderer(TrackRenderer renderer,
-      TrackGroupArray trackGroups, int[][] formatSupport) throws ExoPlaybackException {
+  // Video track selection implementation.
+
+  private static TrackSelection selectTrackForVideoRenderer(TrackRenderer renderer,
+      TrackGroupArray trackGroups, int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
+      boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness)
+      throws ExoPlaybackException {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
         ? TrackRenderer.ADAPTIVE_NOT_SEAMLESS | TrackRenderer.ADAPTIVE_SEAMLESS
         : TrackRenderer.ADAPTIVE_SEAMLESS;
-    int maxVideoWidth = Math.min(this.maxVideoWidth,
-        filterHdVideoTracks ? 1279 : Integer.MAX_VALUE);
-    int maxVideoHeight = Math.min(this.maxVideoHeight,
-        filterHdVideoTracks ? 719 : Integer.MAX_VALUE);
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
         && (renderer.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
     int largestAdaptiveGroup = -1;
@@ -236,6 +254,58 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
         && (mimeType == null || Util.areEqual(format.sampleMimeType, mimeType));
   }
 
+  private static TrackSelection selectSmallestSupportedVideoTrack(TrackGroupArray trackGroups,
+      int[][] formatSupport) {
+    int smallestPixelCount = Integer.MAX_VALUE;
+    int trackGroupIndexSelection = -1;
+    int trackIndexSelection = -1;
+    for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+      TrackGroup trackGroup = trackGroups.get(groupIndex);
+      int[] trackFormatSupport = formatSupport[groupIndex];
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        Format format = trackGroup.getFormat(trackIndex);
+        int pixelCount = format.width * format.height;
+        if (pixelCount < smallestPixelCount
+            && isSupportedVideoTrack(trackFormatSupport[trackIndex], format, Integer.MAX_VALUE,
+                Integer.MAX_VALUE)) {
+          smallestPixelCount = pixelCount;
+          trackGroupIndexSelection = groupIndex;
+          trackIndexSelection = trackIndex;
+        }
+      }
+    }
+    return trackIndexSelection != -1
+        ? new TrackSelection(trackGroupIndexSelection, trackIndexSelection) : null;
+  }
+
+  private static boolean isSupportedVideoTrack(int formatSupport, Format format, int maxVideoWidth,
+      int maxVideoHeight) {
+    return isSupported(formatSupport) && format.width <= maxVideoWidth
+        && format.height <= maxVideoHeight;
+  }
+
+  // Audio track selection implementation.
+
+  private static TrackSelection selectTrackForAudioRenderer(TrackGroupArray trackGroups,
+      int[][] formatSupport, String preferredLanguage) {
+    if (preferredLanguage != null) {
+      for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+        TrackGroup trackGroup = trackGroups.get(groupIndex);
+        int[] trackFormatSupport = formatSupport[groupIndex];
+        for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+          if (isSupported(trackFormatSupport[trackIndex])
+              && formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
+            return new TrackSelection(groupIndex, trackIndex);
+          }
+        }
+      }
+    }
+    // No preferred language was selected or no audio track presented the preferred language.
+    return selectFirstSupportedTrack(trackGroups, formatSupport);
+  }
+
+  // Text track selection implementation.
+
   private static TrackSelection selectTrackForTextRenderer(TrackGroupArray trackGroups,
       int[][] formatSupport, String preferredLanguage) {
     int firstForcedGroup = -1;
@@ -260,6 +330,8 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
     return firstForcedGroup != -1 ? new TrackSelection(firstForcedGroup, firstForcedTrack) : null;
   }
 
+  // General track selection methods.
+
   private static TrackSelection selectFirstSupportedTrack(TrackGroupArray trackGroups,
       int[][] formatSupport) {
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
@@ -272,30 +344,6 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
       }
     }
     return null;
-  }
-
-  private static TrackSelection selectTrackForAudioRenderer(TrackGroupArray trackGroups,
-      int[][] formatSupport, String preferredLanguage) {
-    if (preferredLanguage != null) {
-      for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-        TrackGroup trackGroup = trackGroups.get(groupIndex);
-        int[] trackFormatSupport = formatSupport[groupIndex];
-        for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-          if (isSupported(trackFormatSupport[trackIndex])
-              && formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new TrackSelection(groupIndex, trackIndex);
-          }
-        }
-      }
-    }
-    // No preferred language was selected or no audio track presented the preferred language.
-    return selectFirstSupportedTrack(trackGroups, formatSupport);
-  }
-
-  private static boolean isSupportedVideoTrack(int formatSupport, Format format, int maxVideoWidth,
-      int maxVideoHeight) {
-    return isSupported(formatSupport) && format.width <= maxVideoWidth
-        && format.height <= maxVideoHeight;
   }
 
   private static boolean isSupported(int formatSupport) {
