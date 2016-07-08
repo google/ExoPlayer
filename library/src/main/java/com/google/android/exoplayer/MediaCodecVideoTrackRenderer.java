@@ -17,6 +17,7 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
@@ -197,8 +198,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    */
   public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
       MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
+      int maxDroppedFrameCountToNotify) {
     super(source, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener);
     this.frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);

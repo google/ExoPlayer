@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.TraceUtil;
@@ -196,7 +197,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   public final CodecCounters codecCounters;
 
   private final MediaCodecSelector mediaCodecSelector;
-  private final DrmSessionManager drmSessionManager;
+  private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
   private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
@@ -248,8 +249,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, EventListener eventListener) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
     this (new SampleSource[] {source}, mediaCodecSelector, drmSessionManager,
         playClearSamplesWithoutKeys, eventHandler, eventListener);
   }
@@ -269,8 +270,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecTrackRenderer(SampleSource[] sources, MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, EventListener eventListener) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
     super(sources);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
@@ -352,7 +353,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         throw new ExoPlaybackException(drmSessionManager.getError());
       } else if (drmSessionState == DrmSessionManager.STATE_OPENED
           || drmSessionState == DrmSessionManager.STATE_OPENED_WITH_KEYS) {
-        mediaCrypto = drmSessionManager.getMediaCrypto();
+        mediaCrypto = drmSessionManager.getMediaCrypto().getWrappedMediaCrypto();
         requiresSecureDecoder = drmSessionManager.requiresSecureDecoderComponent(mimeType);
       } else {
         // The drm session isn't open yet.

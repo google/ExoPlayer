@@ -35,6 +35,7 @@ import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
@@ -195,7 +196,7 @@ public class DashRendererBuilder implements RendererBuilder {
 
       // Check drm support if necessary.
       boolean filterHdContent = false;
-      StreamingDrmSessionManager drmSessionManager = null;
+      StreamingDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (hasContentProtection) {
         if (Util.SDK_INT < 18) {
           player.onRenderersError(
