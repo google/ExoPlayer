@@ -224,6 +224,9 @@ public final class MediaCodecUtil {
         && "OMX.qcom.audio.decoder.mp3".equals(name)
         && ("dlxu".equals(Util.DEVICE) // HTC Butterfly
             || "protou".equals(Util.DEVICE) // HTC Desire X
+            || "ville".equals(Util.DEVICE) // HTC One S
+            || "villeplus".equals(Util.DEVICE)
+            || "villec2".equals(Util.DEVICE)
             || "C6602".equals(Util.DEVICE) // Sony Xperia Z
             || "C6603".equals(Util.DEVICE)
             || "C6606".equals(Util.DEVICE)
