@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTimestamp;
 import android.media.PlaybackParams;
 import android.os.ConditionVariable;
@@ -229,13 +228,6 @@ public final class AudioTrack {
 
   private ByteBuffer resampledBuffer;
   private boolean useResampledBuffer;
-
-  /**
-   * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
-   */
-  public AudioTrack() {
-    this(null, AudioManager.STREAM_MUSIC);
-  }
 
   /**
    * Creates an audio track using the specified audio capabilities and stream type.

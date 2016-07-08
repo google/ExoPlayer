@@ -26,10 +26,12 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.MediaClock;
 import com.google.android.exoplayer2.TrackRenderer;
 import com.google.android.exoplayer2.TrackStream;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 
+import android.media.AudioManager;
 import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -45,7 +47,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   private CodecCounters codecCounters;
   private Format inputFormat;
   private SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-      ? extends AudioDecoderException> decoder;
+        ? extends AudioDecoderException> decoder;
   private DecoderInputBuffer inputBuffer;
   private SimpleOutputBuffer outputBuffer;
 
@@ -71,9 +73,23 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
    */
   public AudioDecoderTrackRenderer(Handler eventHandler,
       AudioTrackRendererEventListener eventListener) {
+    this (eventHandler, eventListener, null, AudioManager.STREAM_MUSIC);
+  }
+
+  /**
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
+   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param streamType The type of audio stream for the {@link AudioTrack}.
+   */
+  public AudioDecoderTrackRenderer(Handler eventHandler,
+      AudioTrackRendererEventListener eventListener, AudioCapabilities audioCapabilities,
+      int streamType) {
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack();
+    audioTrack = new AudioTrack(audioCapabilities, streamType);
     formatHolder = new FormatHolder();
   }
 
