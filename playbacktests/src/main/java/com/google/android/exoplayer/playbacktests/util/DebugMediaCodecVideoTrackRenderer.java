@@ -19,6 +19,8 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.FrameworkMediaCrypto;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -43,9 +45,12 @@ public class DebugMediaCodecVideoTrackRenderer extends MediaCodecVideoTrackRende
 
   public DebugMediaCodecVideoTrackRenderer(Context context, SampleSource source,
       MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs,
-      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
-    super(context, source, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
-        eventHandler, eventListener, maxDroppedFrameCountToNotify);
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
+      int maxDroppedFrameCountToNotify) {
+    super(context, source, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs,
+        drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener,
+        maxDroppedFrameCountToNotify);
     startIndex = 0;
     queueSize = 0;
   }
