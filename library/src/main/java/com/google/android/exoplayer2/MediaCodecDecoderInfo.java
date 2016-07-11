@@ -29,7 +29,7 @@ import android.util.Pair;
  * Contains information about a media decoder.
  */
 @TargetApi(16)
-public final class DecoderInfo {
+public final class MediaCodecDecoderInfo {
 
   /**
    * The name of the decoder.
@@ -42,28 +42,28 @@ public final class DecoderInfo {
   /**
    * Whether the decoder supports seamless resolution switches.
    *
-   * @see android.media.MediaCodecInfo.CodecCapabilities#isFeatureSupported(String)
-   * @see android.media.MediaCodecInfo.CodecCapabilities#FEATURE_AdaptivePlayback
+   * @see MediaCodecInfo.CodecCapabilities#isFeatureSupported(String)
+   * @see MediaCodecInfo.CodecCapabilities#FEATURE_AdaptivePlayback
    */
   public final boolean adaptive;
 
   private final String mimeType;
   private final CodecCapabilities capabilities;
 
-  public static DecoderInfo newPassthroughInstance(String name) {
-    return new DecoderInfo(name, null, null);
+  public static MediaCodecDecoderInfo newPassthroughInstance(String name) {
+    return new MediaCodecDecoderInfo(name, null, null);
   }
 
-  public static DecoderInfo newInstance(String name, String mimeType,
+  public static MediaCodecDecoderInfo newInstance(String name, String mimeType,
       CodecCapabilities capabilities) {
-    return new DecoderInfo(name, mimeType, capabilities);
+    return new MediaCodecDecoderInfo(name, mimeType, capabilities);
   }
 
   /**
    * @param name The name of the decoder.
    * @param capabilities The capabilities of the decoder.
    */
-  private DecoderInfo(String name, String mimeType, CodecCapabilities capabilities) {
+  private MediaCodecDecoderInfo(String name, String mimeType, CodecCapabilities capabilities) {
     this.name = Assertions.checkNotNull(name);
     this.mimeType = mimeType;
     this.capabilities = capabilities;

@@ -30,13 +30,13 @@ public interface MediaCodecSelector {
   MediaCodecSelector DEFAULT = new MediaCodecSelector() {
 
     @Override
-    public DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
+    public MediaCodecDecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
         throws DecoderQueryException {
       return MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
     }
 
     @Override
-    public DecoderInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+    public MediaCodecDecoderInfo getPassthroughDecoderInfo() throws DecoderQueryException {
       return MediaCodecUtil.getPassthroughDecoderInfo();
     }
 
@@ -47,18 +47,20 @@ public interface MediaCodecSelector {
    *
    * @param mimeType The mime type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
-   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   * @return A {@link MediaCodecDecoderInfo} describing the decoder, or null if no suitable decoder
+   *     exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
+  MediaCodecDecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
       throws DecoderQueryException;
 
   /**
    * Selects a decoder to instantiate for audio passthrough.
    *
-   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   * @return A {@link MediaCodecDecoderInfo} describing the decoder, or null if no suitable decoder
+   *     exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  DecoderInfo getPassthroughDecoderInfo() throws DecoderQueryException;
+  MediaCodecDecoderInfo getPassthroughDecoderInfo() throws DecoderQueryException;
 
 }

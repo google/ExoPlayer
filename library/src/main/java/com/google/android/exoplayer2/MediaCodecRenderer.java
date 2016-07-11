@@ -248,17 +248,17 @@ public abstract class MediaCodecRenderer extends Renderer {
       throws DecoderQueryException;
 
   /**
-   * Returns a {@link DecoderInfo} for a given format.
+   * Returns a {@link MediaCodecDecoderInfo} for a given format.
    *
    * @param mediaCodecSelector The decoder selector.
    * @param format The format for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
-   * @return A {@link DecoderInfo} describing the decoder to instantiate, or null if no suitable
-   *     decoder exists.
+   * @return A {@link MediaCodecDecoderInfo} describing the decoder to instantiate, or null if no
+   *     suitable decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, Format format,
-      boolean requiresSecureDecoder) throws DecoderQueryException {
+  protected MediaCodecDecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
+      Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
     return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder);
   }
 
@@ -301,7 +301,7 @@ public abstract class MediaCodecRenderer extends Renderer {
       }
     }
 
-    DecoderInfo decoderInfo = null;
+    MediaCodecDecoderInfo decoderInfo = null;
     try {
       decoderInfo = getDecoderInfo(mediaCodecSelector, format, drmSessionRequiresSecureDecoder);
       if (decoderInfo == null && drmSessionRequiresSecureDecoder) {

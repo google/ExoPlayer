@@ -148,7 +148,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | FORMAT_HANDLED;
     }
-    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
+    MediaCodecDecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
@@ -164,10 +164,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, Format format,
-      boolean requiresSecureDecoder) throws DecoderQueryException {
+  protected MediaCodecDecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
+      Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
     if (allowPassthrough(format.sampleMimeType)) {
-      DecoderInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
+      MediaCodecDecoderInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
       if (passthroughDecoderInfo != null) {
         passthroughEnabled = true;
         return passthroughDecoderInfo;

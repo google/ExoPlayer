@@ -58,14 +58,15 @@ public final class MediaCodecUtil {
   }
 
   private static final String TAG = "MediaCodecUtil";
-  private static final DecoderInfo PASSTHROUGH_DECODER_INFO =
-      DecoderInfo.newPassthroughInstance("OMX.google.raw.decoder");
+  private static final MediaCodecDecoderInfo PASSTHROUGH_DECODER_INFO =
+      MediaCodecDecoderInfo.newPassthroughInstance("OMX.google.raw.decoder");
   private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
   private static final String CODEC_ID_HEV1 = "hev1";
   private static final String CODEC_ID_HVC1 = "hvc1";
   private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
 
-  private static final HashMap<CodecKey, List<DecoderInfo>> decoderInfosCache = new HashMap<>();
+  private static final HashMap<CodecKey, List<MediaCodecDecoderInfo>> decoderInfosCache =
+      new HashMap<>();
 
   // Lazily initialized.
   private static int maxH264DecodableFrameSize = -1;
@@ -93,9 +94,10 @@ public final class MediaCodecUtil {
   /**
    * Returns information about a decoder suitable for audio passthrough.
    **
-   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   * @return A {@link MediaCodecDecoderInfo} describing the decoder, or null if no suitable decoder
+   *     exists.
    */
-  public static DecoderInfo getPassthroughDecoderInfo() {
+  public static MediaCodecDecoderInfo getPassthroughDecoderInfo() {
     // TODO: Return null if the raw decoder doesn't exist.
     return PASSTHROUGH_DECODER_INFO;
   }
@@ -106,28 +108,29 @@ public final class MediaCodecUtil {
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A {@link DecoderInfo} describing the decoder, or null if no suitable decoder exists.
+   * @return A {@link MediaCodecDecoderInfo} describing the decoder, or null if no suitable decoder
+   *     exists.
    */
-  public static DecoderInfo getDecoderInfo(String mimeType, boolean secure)
+  public static MediaCodecDecoderInfo getDecoderInfo(String mimeType, boolean secure)
       throws DecoderQueryException {
-    List<DecoderInfo> decoderInfos = getDecoderInfos(mimeType, secure);
+    List<MediaCodecDecoderInfo> decoderInfos = getDecoderInfos(mimeType, secure);
     return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
   }
 
   /**
-   * Returns all {@link DecoderInfo}s for the given mime type, in the order given by
+   * Returns all {@link MediaCodecDecoderInfo}s for the given mime type, in the order given by
    * {@link MediaCodecList}.
    *
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A list of all @{link DecoderInfo}s for the given mime type, in the order given by
-   *     {@link MediaCodecList}.
+   * @return A list of all @{link MediaCodecDecoderInfo}s for the given mime type, in the order
+   *     given by {@link MediaCodecList}.
    */
-  public static synchronized List<DecoderInfo> getDecoderInfos(String mimeType, boolean secure)
-      throws DecoderQueryException {
+  public static synchronized List<MediaCodecDecoderInfo> getDecoderInfos(String mimeType,
+      boolean secure) throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
-    List<DecoderInfo> decoderInfos = decoderInfosCache.get(key);
+    List<MediaCodecDecoderInfo> decoderInfos = decoderInfosCache.get(key);
     if (decoderInfos != null) {
       return decoderInfos;
     }
@@ -149,10 +152,10 @@ public final class MediaCodecUtil {
     return decoderInfos;
   }
 
-  private static List<DecoderInfo> getDecoderInfosInternal(
+  private static List<MediaCodecDecoderInfo> getDecoderInfosInternal(
       CodecKey key, MediaCodecListCompat mediaCodecList) throws DecoderQueryException {
     try {
-      List<DecoderInfo> decoderInfos = new ArrayList<>();
+      List<MediaCodecDecoderInfo> decoderInfos = new ArrayList<>();
       String mimeType = key.mimeType;
       int numberOfCodecs = mediaCodecList.getCodecCount();
       boolean secureDecodersExplicit = mediaCodecList.secureDecodersExplicit();
@@ -168,10 +171,11 @@ public final class MediaCodecUtil {
                 boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
                 if ((secureDecodersExplicit && key.secure == secure)
                     || (!secureDecodersExplicit && !key.secure)) {
-                  decoderInfos.add(DecoderInfo.newInstance(codecName, mimeType, capabilities));
+                  decoderInfos.add(
+                      MediaCodecDecoderInfo.newInstance(codecName, mimeType, capabilities));
                 } else if (!secureDecodersExplicit && secure) {
-                  decoderInfos.add(DecoderInfo.newInstance(codecName + ".secure", mimeType,
-                      capabilities));
+                  decoderInfos.add(MediaCodecDecoderInfo.newInstance(codecName + ".secure",
+                      mimeType, capabilities));
                   // It only makes sense to have one synthesized secure decoder, return immediately.
                   return decoderInfos;
                 }
@@ -273,7 +277,7 @@ public final class MediaCodecUtil {
   public static int maxH264DecodableFrameSize() throws DecoderQueryException {
     if (maxH264DecodableFrameSize == -1) {
       int result = 0;
-      DecoderInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false);
+      MediaCodecDecoderInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false);
       if (decoderInfo != null) {
         for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
           result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);

@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.CodecCounters;
-import com.google.android.exoplayer2.DecoderInfo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaCodecDecoderInfo;
 import com.google.android.exoplayer2.MediaCodecUtil;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.Renderer;
@@ -365,7 +365,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   private boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    DecoderInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
+    MediaCodecDecoderInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
       return false;
