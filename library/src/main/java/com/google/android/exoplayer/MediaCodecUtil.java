@@ -201,11 +201,11 @@ public final class MediaCodecUtil {
 
     // Work around broken audio decoders.
     if (Util.SDK_INT < 21
-        && ("CIPAACDecoder".equals(name))
+        && ("CIPAACDecoder".equals(name)
             || "CIPMP3Decoder".equals(name)
             || "CIPVorbisDecoder".equals(name)
             || "AACDecoder".equals(name)
-            || "MP3Decoder".equals(name)) {
+            || "MP3Decoder".equals(name))) {
       return false;
     }
     // Work around https://github.com/google/ExoPlayer/issues/398
