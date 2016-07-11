@@ -277,7 +277,7 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
       manifestUri = manifest.location;
     }
     if (!prepared) {
-      durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.duration * 1000;
+      durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(0) * 1000;
       buildTrackGroups(manifest);
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
