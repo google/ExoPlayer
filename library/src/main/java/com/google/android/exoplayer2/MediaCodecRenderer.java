@@ -29,6 +29,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
@@ -148,6 +149,16 @@ public abstract class MediaCodecRenderer extends Renderer {
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
+  /**
+   * H.264/AVC buffer to queue when using the adaptation workaround (see
+   * {@link #codecNeedsAdaptationWorkaround(String)}. Consists of three NAL units with start codes:
+   * Baseline sequence/picture parameter sets and a 32 * 32 pixel IDR slice. This stream can be
+   * queued to force a resolution change when adapting to a new format.
+   */
+  private static final byte[] ADAPTATION_WORKAROUND_BUFFER = Util.getBytesFromHexString(
+      "0000016742C00BDA259000000168CE0F13200000016588840DCE7118A0002FBF1C31C3275D78");
+  private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
+
   private final MediaCodecSelector mediaCodecSelector;
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
@@ -162,9 +173,12 @@ public abstract class MediaCodecRenderer extends Renderer {
   private boolean codecIsAdaptive;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
+  private boolean codecNeedsAdaptationWorkaround;
   private boolean codecNeedsEosPropagationWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
+  private boolean codecNeedsAdaptationWorkaroundBuffer;
+  private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapDeadlineMs;
@@ -316,6 +330,7 @@ public abstract class MediaCodecRenderer extends Renderer {
     codecIsAdaptive = decoderInfo.adaptive;
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
+    codecNeedsAdaptationWorkaround = codecNeedsAdaptationWorkaround(codecName);
     codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
@@ -397,9 +412,12 @@ public abstract class MediaCodecRenderer extends Renderer {
       codecIsAdaptive = false;
       codecNeedsDiscardToSpsWorkaround = false;
       codecNeedsFlushWorkaround = false;
+      codecNeedsAdaptationWorkaround = false;
       codecNeedsEosPropagationWorkaround = false;
       codecNeedsEosFlushWorkaround = false;
       codecNeedsMonoChannelCountWorkaround = false;
+      codecNeedsAdaptationWorkaroundBuffer = false;
+      shouldSkipAdaptationWorkaroundOutputBuffer = false;
       codecReceivedEos = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecReinitializationState = REINITIALIZATION_STATE_NONE;
@@ -455,6 +473,8 @@ public abstract class MediaCodecRenderer extends Renderer {
     waitingForKeys = false;
     shouldSkipOutputBuffer = false;
     decodeOnlyPresentationTimestamps.clear();
+    codecNeedsAdaptationWorkaroundBuffer = false;
+    shouldSkipAdaptationWorkaroundOutputBuffer = false;
     if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       // Workaround framework bugs. See [Internal: b/8347958, b/8578467, b/8543366, b/23361053].
       releaseCodec();
@@ -509,6 +529,15 @@ public abstract class MediaCodecRenderer extends Renderer {
       }
       codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
+    }
+
+    if (codecNeedsAdaptationWorkaroundBuffer) {
+      codecNeedsAdaptationWorkaroundBuffer = false;
+      buffer.data.put(ADAPTATION_WORKAROUND_BUFFER);
+      codec.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
+      inputIndex = -1;
+      codecReceivedBuffers = true;
+      return true;
     }
 
     int result;
@@ -664,6 +693,7 @@ public abstract class MediaCodecRenderer extends Renderer {
     if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+      codecNeedsAdaptationWorkaroundBuffer = codecNeedsAdaptationWorkaround;
     } else {
       if (codecReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
@@ -684,7 +714,7 @@ public abstract class MediaCodecRenderer extends Renderer {
    * @param codec The {@link MediaCodec} instance.
    * @param outputFormat The new output format.
    */
-  protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat) {
     // Do nothing.
   }
 
@@ -776,6 +806,12 @@ public abstract class MediaCodecRenderer extends Renderer {
       outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
       if (outputIndex >= 0) {
         // We've dequeued a buffer.
+        if (shouldSkipAdaptationWorkaroundOutputBuffer) {
+          shouldSkipAdaptationWorkaroundOutputBuffer = false;
+          codec.releaseOutputBuffer(outputIndex, false);
+          outputIndex = -1;
+          return true;
+        }
         if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
           // The dequeued buffer indicates the end of the stream. Process it immediately.
           processEndOfStream();
@@ -820,9 +856,16 @@ public abstract class MediaCodecRenderer extends Renderer {
    * Processes a new output format.
    */
   private void processOutputFormat() {
-    android.media.MediaFormat format = codec.getOutputFormat();
+    MediaFormat format = codec.getOutputFormat();
+    if (codecNeedsAdaptationWorkaround
+        && format.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
+        && format.getInteger(MediaFormat.KEY_HEIGHT) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT) {
+      // We assume this format changed event was caused by the adaptation workaround.
+      shouldSkipAdaptationWorkaroundOutputBuffer = true;
+      return;
+    }
     if (codecNeedsMonoChannelCountWorkaround) {
-      format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
+      format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
     onOutputFormatChanged(codec, format);
   }
@@ -911,6 +954,22 @@ public abstract class MediaCodecRenderer extends Renderer {
         && ("OMX.SEC.avc.dec".equals(name) || "OMX.SEC.avc.dec.secure".equals(name)))
         || (Util.SDK_INT == 19 && Util.MODEL.startsWith("SM-G800")
         && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name)));
+  }
+
+  /**
+   * Returns whether the decoder is known to get stuck during some adaptations.
+   * <p>
+   * If true is returned, the renderer will work around the issue by queueing and discarding a blank
+   * frame at a different resolution, which resets the codec's internal state.
+   * <p>
+   * See [Internal: b/27807182].
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to get stuck during some adaptations.
+   */
+  private static boolean codecNeedsAdaptationWorkaround(String name) {
+    return Util.SDK_INT < 24 && Util.DEVICE.startsWith("flounder")
+        && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name));
   }
 
   /**
