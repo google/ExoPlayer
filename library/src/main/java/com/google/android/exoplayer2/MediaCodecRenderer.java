@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TraceUtil;

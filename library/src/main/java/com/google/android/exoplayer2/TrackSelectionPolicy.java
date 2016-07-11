@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+
 /**
  *  Defines a policy for selecting the track rendered by each {@link Renderer}.
  */

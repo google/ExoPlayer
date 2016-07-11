@@ -22,11 +22,11 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.TrackSelectionPolicy;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+
 import junit.framework.Assert;
 
 /**

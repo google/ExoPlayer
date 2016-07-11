@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.source.TrackGroupArray;
+
 import android.util.Pair;
 
 /**

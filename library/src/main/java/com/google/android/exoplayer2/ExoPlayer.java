@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
+
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as
  * the ability to buffer media, play, pause and seek.

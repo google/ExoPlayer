@@ -19,9 +19,9 @@ import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackGroup;
-import com.google.android.exoplayer2.TrackGroupArray;
 import com.google.android.exoplayer2.TrackSelection;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import android.annotation.SuppressLint;

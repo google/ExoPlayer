@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import com.google.android.exoplayer2.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.CodecCounters;
 import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
@@ -24,11 +23,12 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.TrackGroup;
-import com.google.android.exoplayer2.TrackGroupArray;
 import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer2.extractor.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
 import android.os.SystemClock;

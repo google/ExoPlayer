@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 
 import java.io.IOException;
