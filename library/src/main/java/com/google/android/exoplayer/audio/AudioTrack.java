@@ -273,7 +273,7 @@ public final class AudioTrack {
    */
   public boolean isPassthroughSupported(String mimeType) {
     return audioCapabilities != null
-        && audioCapabilities.supportsEncoding(getEncodingForMimeType(mimeType));
+        && audioCapabilities.supportsEncoding(getEncodingForMimeType(mimeType, audioCapabilities));
   }
 
   /**
@@ -395,7 +395,7 @@ public final class AudioTrack {
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     int sourceEncoding;
     if (passthrough) {
-      sourceEncoding = getEncodingForMimeType(mimeType);
+      sourceEncoding = getEncodingForMimeType(mimeType, audioCapabilities);
     } else if (pcmEncoding == C.ENCODING_PCM_8BIT || pcmEncoding == C.ENCODING_PCM_16BIT
         || pcmEncoding == C.ENCODING_PCM_24BIT || pcmEncoding == C.ENCODING_PCM_32BIT) {
       sourceEncoding = pcmEncoding;
@@ -1030,7 +1030,7 @@ public final class AudioTrack {
     return resampledBuffer;
   }
 
-  private static int getEncodingForMimeType(String mimeType) {
+  private static int getEncodingForMimeType(String mimeType, AudioCapabilities audioCapabilities) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
@@ -1039,7 +1039,8 @@ public final class AudioTrack {
       case MimeTypes.AUDIO_DTS:
         return C.ENCODING_DTS;
       case MimeTypes.AUDIO_DTS_HD:
-        return C.ENCODING_DTS_HD;
+        // If the audio capabilities can handle DTS-HD, then we can use it. Otherwise, we can just fallback to DTS.
+        return audioCapabilities.supportsEncoding(C.ENCODING_DTS_HD) ? C.ENCODING_DTS_HD : C.ENCODING_DTS;
       default:
         return C.ENCODING_INVALID;
     }
