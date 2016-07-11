@@ -24,11 +24,10 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 
-// TODO: Make this a MediaSource
 /**
  * Merges multiple {@link MediaPeriod} instances.
  */
-public final class MultiMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
+public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   private final MediaPeriod[] periods;
   private final IdentityHashMap<TrackStream, MediaPeriod> trackStreamPeriods;
@@ -43,7 +42,7 @@ public final class MultiMediaPeriod implements MediaPeriod, MediaPeriod.Callback
   private MediaPeriod[] enabledPeriods;
   private SequenceableLoader sequenceableLoader;
 
-  public MultiMediaPeriod(MediaPeriod... periods) {
+  public MergingMediaPeriod(MediaPeriod... periods) {
     this.periods = periods;
     pendingChildPrepareCount = periods.length;
     trackStreamPeriods = new IdentityHashMap<>();

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2;
 
 /**
- * A {@link MediaSource} that concatenates multiple {@link MediaSource}s.
+ * Concatenates multiple {@link MediaSource}s.
  */
 public final class ConcatenatingMediaSource implements MediaSource {
 
