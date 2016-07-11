@@ -2,11 +2,11 @@
 
 ## Description ##
 
-The VP9 Extension is a [TrackRenderer][] implementation that helps you bundle
-libvpx (the VP9 decoding library) into your app and use it along with ExoPlayer
-to play VP9 video on Android devices.
+The VP9 Extension is a [Renderer][] implementation that helps you bundle libvpx
+(the VP9 decoding library) into your app and use it along with ExoPlayer to play
+VP9 video on Android devices.
 
-[TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/TrackRenderer.html
+[Renderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/Renderer.html
 
 ## Build Instructions ##
 

@@ -22,9 +22,9 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 /**
- * Interface definition for a callback to be notified of audio {@link TrackRenderer} events.
+ * Interface definition for a callback to be notified of audio {@link Renderer} events.
  */
-public interface AudioTrackRendererEventListener {
+public interface AudioRendererEventListener {
 
   /**
    * Invoked when the renderer is enabled.
@@ -71,14 +71,14 @@ public interface AudioTrackRendererEventListener {
   void onAudioDisabled(CodecCounters counters);
 
   /**
-   * Dispatches events to a {@link AudioTrackRendererEventListener}.
+   * Dispatches events to a {@link AudioRendererEventListener}.
    */
   final class EventDispatcher {
 
     private final Handler handler;
-    private final AudioTrackRendererEventListener listener;
+    private final AudioRendererEventListener listener;
 
-    public EventDispatcher(Handler handler, AudioTrackRendererEventListener listener) {
+    public EventDispatcher(Handler handler, AudioRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }

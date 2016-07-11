@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2;
 
 /**
- *  Defines a policy for selecting the track rendered by each {@link TrackRenderer}.
+ *  Defines a policy for selecting the track rendered by each {@link Renderer}.
  */
 public abstract class TrackSelectionPolicy {
 
@@ -49,17 +49,17 @@ public abstract class TrackSelectionPolicy {
   }
 
   /**
-   * Given an array of {@link TrackRenderer}s and a set of {@link TrackGroup}s assigned to each of
+   * Given an array of {@link Renderer}s and a set of {@link TrackGroup}s assigned to each of
    * them, provides a {@link TrackSelection} per renderer.
    *
-   * @param renderers The available {@link TrackRenderer}s.
+   * @param renderers The available {@link Renderer}s.
    * @param rendererTrackGroupArrays An array of {@link TrackGroupArray}s where each entry
-   *     corresponds to the {@link TrackRenderer} of equal index in {@code renderers}.
+   *     corresponds to the {@link Renderer} of equal index in {@code renderers}.
    * @param rendererFormatSupports Maps every available track to a specific level of support as
-   *     defined by the {@link TrackRenderer} {@code FORMAT_*} constants.
+   *     defined by the {@link Renderer} {@code FORMAT_*} constants.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  protected abstract TrackSelection[] selectTracks(TrackRenderer[] renderers,
+  protected abstract TrackSelection[] selectTracks(Renderer[] renderers,
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
       throws ExoPlaybackException;
 

@@ -71,7 +71,7 @@ public final class ExoPlayerFactory {
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
-   * @param preferExtensionDecoders True to prefer {@link TrackRenderer} instances defined in
+   * @param preferExtensionDecoders True to prefer {@link Renderer} instances defined in
    *     available extensions over those defined in the core library. Note that extensions must be
    *     included in the application build for setting this flag to have any effect.
    */
@@ -92,7 +92,7 @@ public final class ExoPlayerFactory {
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
-   * @param preferExtensionDecoders True to prefer {@link TrackRenderer} instances defined in
+   * @param preferExtensionDecoders True to prefer {@link Renderer} instances defined in
    *     available extensions over those defined in the core library. Note that extensions must be
    *     included in the application build for setting this flag to have any effect.
    * @param allowedVideoJoiningTimeMs The maximum duration for which a video renderer can attempt to
@@ -110,10 +110,10 @@ public final class ExoPlayerFactory {
    * <p>
    * Must be called from a thread that has an associated {@link Looper}.
    *
-   * @param renderers The {@link TrackRenderer}s that will be used by the instance.
+   * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(TrackRenderer[] renderers, TrackSelector trackSelector) {
+  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector) {
     return newInstance(renderers, trackSelector, new DefaultLoadControl());
   }
 
@@ -122,11 +122,11 @@ public final class ExoPlayerFactory {
    * <p>
    * Must be called from a thread that has an associated {@link Looper}.
    *
-   * @param renderers The {@link TrackRenderer}s that will be used by the instance.
+   * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(TrackRenderer[] renderers, TrackSelector trackSelector,
+  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl) {
     return new ExoPlayerImpl(renderers, trackSelector, loadControl);
   }

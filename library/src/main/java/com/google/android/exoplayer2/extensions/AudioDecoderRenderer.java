@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.extensions;
 
-import com.google.android.exoplayer2.AudioTrackRendererEventListener;
-import com.google.android.exoplayer2.AudioTrackRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.AudioRendererEventListener;
+import com.google.android.exoplayer2.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.CodecCounters;
 import com.google.android.exoplayer2.DecoderInputBuffer;
@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.MediaClock;
-import com.google.android.exoplayer2.TrackRenderer;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioTrack;
@@ -39,7 +39,7 @@ import android.os.SystemClock;
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
-public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements MediaClock {
+public abstract class AudioDecoderRenderer extends Renderer implements MediaClock {
 
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
@@ -62,7 +62,7 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
   private boolean audioTrackHasData;
   private long lastFeedElapsedRealtimeMs;
 
-  public AudioDecoderTrackRenderer() {
+  public AudioDecoderRenderer() {
     this(null, null);
   }
 
@@ -71,8 +71,8 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public AudioDecoderTrackRenderer(Handler eventHandler,
-      AudioTrackRendererEventListener eventListener) {
+  public AudioDecoderRenderer(Handler eventHandler,
+      AudioRendererEventListener eventListener) {
     this (eventHandler, eventListener, null, AudioManager.STREAM_MUSIC);
   }
 
@@ -84,8 +84,8 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
-  public AudioDecoderTrackRenderer(Handler eventHandler,
-      AudioTrackRendererEventListener eventListener, AudioCapabilities audioCapabilities,
+  public AudioDecoderRenderer(Handler eventHandler,
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
       int streamType) {
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
@@ -193,14 +193,14 @@ public abstract class AudioDecoderTrackRenderer extends TrackRenderer implements
         onAudioSessionId(audioSessionId);
       }
       audioTrackHasData = false;
-      if (getState() == TrackRenderer.STATE_STARTED) {
+      if (getState() == Renderer.STATE_STARTED) {
         audioTrack.play();
       }
     } else {
       // Check for AudioTrack underrun.
       boolean audioTrackHadData = audioTrackHasData;
       audioTrackHasData = audioTrack.hasPendingData();
-      if (audioTrackHadData && !audioTrackHasData && getState() == TrackRenderer.STATE_STARTED) {
+      if (audioTrackHadData && !audioTrackHasData && getState() == Renderer.STATE_STARTED) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
         long bufferSizeUs = audioTrack.getBufferSizeUs();
         long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;

@@ -23,9 +23,9 @@ import android.view.Surface;
 import android.view.TextureView;
 
 /**
- * Interface definition for a callback to be notified of video {@link TrackRenderer} events.
+ * Interface definition for a callback to be notified of video {@link Renderer} events.
  */
-public interface VideoTrackRendererEventListener {
+public interface VideoRendererEventListener {
 
   /**
    * Invoked when the renderer is enabled.
@@ -101,14 +101,14 @@ public interface VideoTrackRendererEventListener {
   void onVideoDisabled(CodecCounters counters);
 
   /**
-   * Dispatches events to a {@link VideoTrackRendererEventListener}.
+   * Dispatches events to a {@link VideoRendererEventListener}.
    */
   final class EventDispatcher {
 
     private final Handler handler;
-    private final VideoTrackRendererEventListener listener;
+    private final VideoRendererEventListener listener;
 
-    public EventDispatcher(Handler handler, VideoTrackRendererEventListener listener) {
+    public EventDispatcher(Handler handler, VideoRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }

@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.TrackRenderer;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.ExtractorMediaSource;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -31,7 +31,7 @@ import android.os.Looper;
 import android.test.InstrumentationTestCase;
 
 /**
- * Playback tests using {@link LibvpxVideoTrackRenderer}.
+ * Playback tests using {@link LibvpxVideoRenderer}.
  */
 public class VpxPlaybackTest extends InstrumentationTestCase {
 
@@ -87,10 +87,10 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     @Override
     public void run() {
       Looper.prepare();
-      LibvpxVideoTrackRenderer videoRenderer = new LibvpxVideoTrackRenderer(true, 0);
+      LibvpxVideoRenderer videoRenderer = new LibvpxVideoRenderer(true, 0);
       DefaultTrackSelector trackSelector = new DefaultTrackSelector(
           new DefaultTrackSelectionPolicy(), null);
-      player = ExoPlayerFactory.newInstance(new TrackRenderer[] {videoRenderer}, trackSelector);
+      player = ExoPlayerFactory.newInstance(new Renderer[] {videoRenderer}, trackSelector);
       player.addListener(this);
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(
           uri,
@@ -100,7 +100,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
           null,
           null);
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
-          LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
+          LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));
       player.setMediaSource(mediaSource);
       player.setPlayWhenReady(true);

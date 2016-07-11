@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaCodecAudioRenderer;
 
 import android.widget.MediaController.MediaPlayerControl;
 
@@ -52,9 +53,8 @@ public class PlayerControl implements MediaPlayerControl {
    * This is an unsupported operation.
    * <p>
    * Application of audio effects is dependent on the audio renderer used. When using
-   * {@link com.google.android.exoplayer2.MediaCodecAudioTrackRenderer}, the recommended approach is
-   * to extend the class and override
-   * {@link com.google.android.exoplayer2.MediaCodecAudioTrackRenderer#onAudioSessionId}.
+   * {@link MediaCodecAudioRenderer}, the recommended approach is to extend the class and override
+   * {@link MediaCodecAudioRenderer#onAudioSessionId}.
    *
    * @throws UnsupportedOperationException Always thrown.
    */

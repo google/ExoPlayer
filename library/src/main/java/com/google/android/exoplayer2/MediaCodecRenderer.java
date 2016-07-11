@@ -37,10 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An abstract {@link TrackRenderer} that uses {@link MediaCodec} to decode samples for rendering.
+ * An abstract {@link Renderer} that uses {@link MediaCodec} to decode samples for rendering.
  */
 @TargetApi(16)
-public abstract class MediaCodecTrackRenderer extends TrackRenderer {
+public abstract class MediaCodecRenderer extends Renderer {
 
   /**
    * Thrown when a failure occurs instantiating a decoder.
@@ -192,7 +192,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
-  public MediaCodecTrackRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
@@ -338,7 +338,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       throwDecoderInitError(new DecoderInitializationException(format, e,
           drmSessionRequiresSecureDecoder, codecName));
     }
-    codecHotswapDeadlineMs = getState() == TrackRenderer.STATE_STARTED
+    codecHotswapDeadlineMs = getState() == Renderer.STATE_STARTED
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;
     inputIndex = -1;
     outputIndex = -1;

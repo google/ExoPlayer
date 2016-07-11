@@ -271,21 +271,21 @@ public interface C {
   UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
   /**
-   * The type of a message that can be passed to a video {@link TrackRenderer} via
+   * The type of a message that can be passed to a video {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be the target {@link Surface}, or null.
    */
   int MSG_SET_SURFACE = 1;
 
   /**
-   * The type of a message that can be passed to an audio {@link TrackRenderer} via
+   * The type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   int MSG_SET_VOLUME = 2;
 
   /**
-   * The type of a message that can be passed to an audio {@link TrackRenderer} via
+   * The type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link android.media.PlaybackParams}, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the

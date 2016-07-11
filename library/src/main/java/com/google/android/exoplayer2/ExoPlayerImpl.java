@@ -54,12 +54,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /**
    * Constructs an instance. Must be invoked from a thread that has an associated {@link Looper}.
    *
-   * @param renderers The {@link TrackRenderer}s that will be used by the instance.
+   * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(TrackRenderer[] renderers, TrackSelector trackSelector,
+  public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     Assertions.checkNotNull(renderers);

@@ -22,10 +22,10 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.TrackRenderer;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.TrackStream;
-import com.google.android.exoplayer2.VideoTrackRendererEventListener;
-import com.google.android.exoplayer2.VideoTrackRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.VideoRendererEventListener;
+import com.google.android.exoplayer2.VideoRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 
@@ -38,7 +38,7 @@ import android.view.Surface;
 /**
  * Decodes and renders video using the native VP9 decoder.
  */
-public final class LibvpxVideoTrackRenderer extends TrackRenderer {
+public final class LibvpxVideoRenderer extends Renderer {
 
   /**
    * The type of a message that can be passed to an instance of this class via
@@ -48,7 +48,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
   /**
-   * The number of input buffers and the number of output buffers. The track renderer may limit the
+   * The number of input buffers and the number of output buffers. The renderer may limit the
    * minimum possible value due to requiring multiple output buffers to be dequeued at a time for it
    * to make progress.
    */
@@ -90,7 +90,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public LibvpxVideoTrackRenderer(boolean scaleToFit, long allowedJoiningTimeMs) {
+  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs) {
     this(scaleToFit, allowedJoiningTimeMs, null, null, 0);
   }
 
@@ -102,10 +102,10 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public LibvpxVideoTrackRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
-      Handler eventHandler, VideoTrackRendererEventListener eventListener,
+  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
+      Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFrameCountToNotify) {
     this.scaleToFit = scaleToFit;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
@@ -234,7 +234,7 @@ public final class LibvpxVideoTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    if (getState() == TrackRenderer.STATE_STARTED
+    if (getState() == Renderer.STATE_STARTED
         && outputBuffer.timestampUs <= positionUs + 30000) {
       renderBuffer();
     }

@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.MediaCodecTrackRenderer.DecoderInitializationException;
+import com.google.android.exoplayer2.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.MediaSource;
 import com.google.android.exoplayer2.SimpleExoPlayer;

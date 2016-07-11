@@ -100,10 +100,10 @@ import java.util.ArrayList;
   private final Timeline timeline;
 
   private PlaybackInfo playbackInfo;
-  private TrackRenderer rendererMediaClockSource;
+  private Renderer rendererMediaClockSource;
   private MediaClock rendererMediaClock;
   private MediaSource mediaSource;
-  private TrackRenderer[] enabledRenderers;
+  private Renderer[] enabledRenderers;
   private boolean released;
   private boolean playWhenReady;
   private boolean rebuffering;
@@ -115,7 +115,7 @@ import java.util.ArrayList;
 
   private long internalPositionUs;
 
-  public ExoPlayerImplInternal(TrackRenderer[] renderers, TrackSelector trackSelector,
+  public ExoPlayerImplInternal(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl, boolean playWhenReady, Handler eventHandler) {
     this.trackSelector = trackSelector;
     this.loadControl = loadControl;
@@ -128,7 +128,7 @@ import java.util.ArrayList;
     }
 
     standaloneMediaClock = new StandaloneMediaClock();
-    enabledRenderers = new TrackRenderer[0];
+    enabledRenderers = new Renderer[0];
     timeline = new Timeline(renderers);
     playbackInfo = new PlaybackInfo(0);
 
@@ -335,14 +335,14 @@ import java.util.ArrayList;
   private void startRenderers() throws ExoPlaybackException {
     rebuffering = false;
     standaloneMediaClock.start();
-    for (TrackRenderer renderer : enabledRenderers) {
+    for (Renderer renderer : enabledRenderers) {
       renderer.start();
     }
   }
 
   private void stopRenderers() throws ExoPlaybackException {
     standaloneMediaClock.stop();
-    for (TrackRenderer renderer : enabledRenderers) {
+    for (Renderer renderer : enabledRenderers) {
       ensureStopped(renderer);
     }
   }
@@ -400,7 +400,7 @@ import java.util.ArrayList;
     updatePlaybackPositions();
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    for (TrackRenderer renderer : enabledRenderers) {
+    for (Renderer renderer : enabledRenderers) {
       // TODO: Each renderer should return the maximum delay before which it wishes to be invoked
       // again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
@@ -494,7 +494,7 @@ import java.util.ArrayList;
     long sourceOffsetUs = timeline.playingPeriod == null ? 0 : timeline.playingPeriod.offsetUs;
     internalPositionUs = sourceOffsetUs + periodPositionUs;
     standaloneMediaClock.setPositionUs(internalPositionUs);
-    for (TrackRenderer renderer : enabledRenderers) {
+    for (Renderer renderer : enabledRenderers) {
       renderer.reset(internalPositionUs);
     }
   }
@@ -519,7 +519,7 @@ import java.util.ArrayList;
     standaloneMediaClock.stop();
     rendererMediaClock = null;
     rendererMediaClockSource = null;
-    for (TrackRenderer renderer : enabledRenderers) {
+    for (Renderer renderer : enabledRenderers) {
       try {
         ensureStopped(renderer);
         renderer.disable();
@@ -528,7 +528,7 @@ import java.util.ArrayList;
         Log.e(TAG, "Stop failed.", e);
       }
     }
-    enabledRenderers = new TrackRenderer[0];
+    enabledRenderers = new Renderer[0];
     mediaSource = null;
     timeline.reset();
     loadControl.reset();
@@ -552,8 +552,8 @@ import java.util.ArrayList;
     }
   }
 
-  private void ensureStopped(TrackRenderer renderer) throws ExoPlaybackException {
-    if (renderer.getState() == TrackRenderer.STATE_STARTED) {
+  private void ensureStopped(Renderer renderer) throws ExoPlaybackException {
+    if (renderer.getState() == Renderer.STATE_STARTED) {
       renderer.stop();
     }
   }
@@ -573,7 +573,7 @@ import java.util.ArrayList;
    */
   private final class Timeline {
 
-    private final TrackRenderer[] renderers;
+    private final Renderer[] renderers;
 
     public boolean isReady;
     public boolean isEnded;
@@ -585,7 +585,7 @@ import java.util.ArrayList;
     private int pendingPeriodIndex;
     private long playingPeriodEndPositionUs;
 
-    public Timeline(TrackRenderer[] renderers) {
+    public Timeline(Renderer[] renderers) {
       this.renderers = renderers;
       playingPeriodEndPositionUs = C.UNSET_TIME_US;
     }
@@ -615,7 +615,7 @@ import java.util.ArrayList;
     public void maybeThrowPeriodPrepareError() throws IOException {
       if (loadingPeriod != null && !loadingPeriod.prepared
           && (readingPeriod == null || readingPeriod.nextPeriod == loadingPeriod)) {
-        for (TrackRenderer renderer : enabledRenderers) {
+        for (Renderer renderer : enabledRenderers) {
           if (!renderer.hasReadStreamToEnd()) {
             return;
           }
@@ -682,7 +682,7 @@ import java.util.ArrayList;
         // The renderers have their final TrackStreams.
         return;
       }
-      for (TrackRenderer renderer : enabledRenderers) {
+      for (Renderer renderer : enabledRenderers) {
         if (!renderer.hasReadStreamToEnd()) {
           return;
         }
@@ -693,7 +693,7 @@ import java.util.ArrayList;
         TrackSelectionArray newTrackSelections = readingPeriod.trackSelections;
         TrackGroupArray groups = readingPeriod.mediaPeriod.getTrackGroups();
         for (int i = 0; i < renderers.length; i++) {
-          TrackRenderer renderer = renderers[i];
+          Renderer renderer = renderers[i];
           TrackSelection oldSelection = oldTrackSelections.get(i);
           TrackSelection newSelection = newTrackSelections.get(i);
           if (oldSelection != null) {
@@ -717,7 +717,7 @@ import java.util.ArrayList;
           && readingPeriod.index == periodCount - 1) {
         readingPeriod = null;
         // This is the last period, so signal the renderers to read the end of the stream.
-        for (TrackRenderer renderer : enabledRenderers) {
+        for (Renderer renderer : enabledRenderers) {
           renderer.setCurrentTrackStreamIsFinal();
         }
       }
@@ -789,11 +789,11 @@ import java.util.ArrayList;
         resetInternalPosition(seekPositionUs);
         maybeContinueLoading();
       } else {
-        for (TrackRenderer renderer : enabledRenderers) {
+        for (Renderer renderer : enabledRenderers) {
           ensureStopped(renderer);
           renderer.disable();
         }
-        enabledRenderers = new TrackRenderer[0];
+        enabledRenderers = new Renderer[0];
         playingPeriod = null;
         readingPeriod = null;
         loadingPeriod = null;
@@ -844,8 +844,8 @@ import java.util.ArrayList;
         int enabledRendererCount = 0;
         boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
         for (int i = 0; i < renderers.length; i++) {
-          TrackRenderer renderer = renderers[i];
-          rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
+          Renderer renderer = renderers[i];
+          rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
           TrackSelection oldSelection = playingPeriodOldTrackSelections.get(i);
           TrackSelection newSelection = playingPeriod.trackSelections.get(i);
           if (newSelection != null) {
@@ -906,8 +906,8 @@ import java.util.ArrayList;
       int enabledRendererCount = 0;
       boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
       for (int i = 0; i < renderers.length; i++) {
-        TrackRenderer renderer = renderers[i];
-        rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
+        Renderer renderer = renderers[i];
+        rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
         TrackSelection newSelection = period.trackSelections.get(i);
         if (newSelection != null) {
           // The renderer should be enabled when playing the new period.
@@ -942,15 +942,15 @@ import java.util.ArrayList;
 
     private void enableRenderers(boolean[] rendererWasEnabledFlags, int enabledRendererCount)
         throws ExoPlaybackException {
-      enabledRenderers = new TrackRenderer[enabledRendererCount];
+      enabledRenderers = new Renderer[enabledRendererCount];
       enabledRendererCount = 0;
       TrackGroupArray trackGroups = playingPeriod.mediaPeriod.getTrackGroups();
       for (int i = 0; i < renderers.length; i++) {
-        TrackRenderer renderer = renderers[i];
+        Renderer renderer = renderers[i];
         TrackSelection newSelection = playingPeriod.trackSelections.get(i);
         if (newSelection != null) {
           enabledRenderers[enabledRendererCount++] = renderer;
-          if (renderer.getState() == TrackRenderer.STATE_DISABLED) {
+          if (renderer.getState() == Renderer.STATE_DISABLED) {
             // The renderer needs enabling with its new track selection.
             boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
             // Consider as joining only if the renderer was previously disabled.
@@ -988,7 +988,7 @@ import java.util.ArrayList;
    */
   private static final class Period {
 
-    private final TrackRenderer[] renderers;
+    private final Renderer[] renderers;
     private final TrackSelector trackSelector;
 
     public final MediaPeriod mediaPeriod;
@@ -1005,7 +1005,7 @@ import java.util.ArrayList;
     private TrackSelectionArray trackSelections;
     private TrackSelectionArray periodTrackSelections;
 
-    public Period(TrackRenderer[] renderers, TrackSelector trackSelector, MediaPeriod mediaPeriod,
+    public Period(Renderer[] renderers, TrackSelector trackSelector, MediaPeriod mediaPeriod,
         int index) {
       this.renderers = renderers;
       this.trackSelector = trackSelector;

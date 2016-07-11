@@ -232,7 +232,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
   }
 
   @Override
-  protected Pair<TrackSelectionArray, Object> selectTracks(TrackRenderer[] renderers,
+  protected Pair<TrackSelectionArray, Object> selectTracks(Renderer[] renderers,
       TrackGroupArray trackGroups) throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
     // of each array is to store data associated with track groups that cannot be associated with
@@ -319,13 +319,13 @@ public final class DefaultTrackSelector extends TrackSelector implements
    * Finds the renderer to which the provided {@link TrackGroup} should be associated.
    * <p>
    * A {@link TrackGroup} is associated to a renderer that reports
-   * {@link TrackRenderer#FORMAT_HANDLED} support for one or more of the tracks in the group, or
-   * {@link TrackRenderer#FORMAT_EXCEEDS_CAPABILITIES} if no such renderer exists, or
-   * {@link TrackRenderer#FORMAT_UNSUPPORTED_SUBTYPE} if again no such renderer exists. In the case
+   * {@link Renderer#FORMAT_HANDLED} support for one or more of the tracks in the group, or
+   * {@link Renderer#FORMAT_EXCEEDS_CAPABILITIES} if no such renderer exists, or
+   * {@link Renderer#FORMAT_UNSUPPORTED_SUBTYPE} if again no such renderer exists. In the case
    * that two or more renderers report the same level of support, the renderer with the lowest index
    * is associated.
    * <p>
-   * If all renderers report {@link TrackRenderer#FORMAT_UNSUPPORTED_TYPE} for all of the tracks in
+   * If all renderers report {@link Renderer#FORMAT_UNSUPPORTED_TYPE} for all of the tracks in
    * the group, then {@code renderers.length} is returned to indicate that no association was made.
    *
    * @param renderers The renderers from which to select.
@@ -334,18 +334,18 @@ public final class DefaultTrackSelector extends TrackSelector implements
    *     was made.
    * @throws ExoPlaybackException If an error occurs finding a renderer.
    */
-  private static int findRenderer(TrackRenderer[] renderers, TrackGroup group)
+  private static int findRenderer(Renderer[] renderers, TrackGroup group)
       throws ExoPlaybackException {
     int bestRendererIndex = renderers.length;
-    int bestSupportLevel = TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+    int bestSupportLevel = Renderer.FORMAT_UNSUPPORTED_TYPE;
     for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
-      TrackRenderer renderer = renderers[rendererIndex];
+      Renderer renderer = renderers[rendererIndex];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
         int trackSupportLevel = renderer.supportsFormat(group.getFormat(trackIndex));
         if (trackSupportLevel > bestSupportLevel) {
           bestRendererIndex = rendererIndex;
           bestSupportLevel = trackSupportLevel;
-          if (bestSupportLevel == TrackRenderer.FORMAT_HANDLED) {
+          if (bestSupportLevel == Renderer.FORMAT_HANDLED) {
             // We can't do better.
             return bestRendererIndex;
           }
@@ -356,16 +356,16 @@ public final class DefaultTrackSelector extends TrackSelector implements
   }
 
   /**
-   * Calls {@link TrackRenderer#supportsFormat(Format)} for each track in the specified
+   * Calls {@link Renderer#supportsFormat(Format)} for each track in the specified
    * {@link TrackGroup}, returning the results in an array.
    *
    * @param renderer The renderer to evaluate.
    * @param group The {@link TrackGroup} to evaluate.
-   * @return An array containing the result of calling {@link TrackRenderer#supportsFormat(Format)}
+   * @return An array containing the result of calling {@link Renderer#supportsFormat(Format)}
    *     on the renderer for each track in the group.
    * @throws ExoPlaybackException If an error occurs determining the format support.
    */
-  private static int[] getFormatSupport(TrackRenderer renderer, TrackGroup group)
+  private static int[] getFormatSupport(Renderer renderer, TrackGroup group)
       throws ExoPlaybackException {
     int[] formatSupport = new int[group.length];
     for (int i = 0; i < group.length; i++) {
@@ -375,15 +375,15 @@ public final class DefaultTrackSelector extends TrackSelector implements
   }
 
   /**
-   * Calls {@link TrackRenderer#supportsMixedMimeTypeAdaptation()} for each renderer, returning
+   * Calls {@link Renderer#supportsMixedMimeTypeAdaptation()} for each renderer, returning
    * the results in an array.
    *
    * @param renderers The renderers to evaluate.
    * @return An array containing the result of calling
-   *     {@link TrackRenderer#supportsMixedMimeTypeAdaptation()} on each renderer.
+   *     {@link Renderer#supportsMixedMimeTypeAdaptation()} on each renderer.
    * @throws ExoPlaybackException If an error occurs determining the adaptation support.
    */
-  private static int[] getMixedMimeTypeAdaptationSupport(TrackRenderer[] renderers)
+  private static int[] getMixedMimeTypeAdaptationSupport(Renderer[] renderers)
       throws ExoPlaybackException {
     int[] mixedMimeTypeAdaptationSupport = new int[renderers.length];
     for (int i = 0; i < mixedMimeTypeAdaptationSupport.length; i++) {
@@ -423,7 +423,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
   }
 
   /**
-   * Provides track information for each {@link TrackRenderer}.
+   * Provides track information for each {@link Renderer}.
    */
   public static final class TrackInfo {
 
@@ -455,8 +455,8 @@ public final class DefaultTrackSelector extends TrackSelector implements
      * @param trackGroups The {@link TrackGroupArray}s for each renderer.
      * @param trackSelections The current {@link TrackSelection}s for each renderer.
      * @param mixedMimeTypeAdaptiveSupport The result of
-     *     {@link TrackRenderer#supportsMixedMimeTypeAdaptation()} for each renderer.
-     * @param formatSupport The result of {@link TrackRenderer#supportsFormat(Format)} for each
+     *     {@link Renderer#supportsMixedMimeTypeAdaptation()} for each renderer.
+     * @param formatSupport The result of {@link Renderer#supportsFormat(Format)} for each
      *     track, indexed by renderer index, group index and track index (in that order).
      * @param unassociatedTrackGroups Contains {@link TrackGroup}s not associated with any renderer.
      */
@@ -504,8 +504,8 @@ public final class DefaultTrackSelector extends TrackSelector implements
       for (int i = 0; i < rendererFormatSupport.length; i++) {
         for (int j = 0; j < rendererFormatSupport[i].length; j++) {
           hasTracks = true;
-          if ((rendererFormatSupport[i][j] & TrackRenderer.FORMAT_SUPPORT_MASK)
-              == TrackRenderer.FORMAT_HANDLED) {
+          if ((rendererFormatSupport[i][j] & Renderer.FORMAT_SUPPORT_MASK)
+              == Renderer.FORMAT_HANDLED) {
             return RENDERER_SUPPORT_PLAYABLE_TRACKS;
           }
         }
@@ -519,14 +519,14 @@ public final class DefaultTrackSelector extends TrackSelector implements
      * @param rendererIndex The renderer index.
      * @param groupIndex The index of the group to which the track belongs.
      * @param trackIndex The index of the track within the group.
-     * @return One of {@link TrackRenderer#FORMAT_HANDLED},
-     *     {@link TrackRenderer#FORMAT_EXCEEDS_CAPABILITIES},
-     *     {@link TrackRenderer#FORMAT_UNSUPPORTED_SUBTYPE} and
-     *     {@link TrackRenderer#FORMAT_UNSUPPORTED_TYPE}.
+     * @return One of {@link Renderer#FORMAT_HANDLED},
+     *     {@link Renderer#FORMAT_EXCEEDS_CAPABILITIES},
+     *     {@link Renderer#FORMAT_UNSUPPORTED_SUBTYPE} and
+     *     {@link Renderer#FORMAT_UNSUPPORTED_TYPE}.
      */
     public int getTrackFormatSupport(int rendererIndex, int groupIndex, int trackIndex) {
       return formatSupport[rendererIndex][groupIndex][trackIndex]
-          & TrackRenderer.FORMAT_SUPPORT_MASK;
+          & Renderer.FORMAT_SUPPORT_MASK;
     }
 
     /**
@@ -534,21 +534,21 @@ public final class DefaultTrackSelector extends TrackSelector implements
      * specified {@link TrackGroup}.
      * <p>
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
-     * {@link TrackRenderer#FORMAT_HANDLED} are always considered.
+     * {@link Renderer#FORMAT_HANDLED} are always considered.
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
-     * {@link TrackRenderer#FORMAT_UNSUPPORTED_TYPE} or
-     * {@link TrackRenderer#FORMAT_UNSUPPORTED_SUBTYPE} are never considered.
+     * {@link Renderer#FORMAT_UNSUPPORTED_TYPE} or
+     * {@link Renderer#FORMAT_UNSUPPORTED_SUBTYPE} are never considered.
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
-     * {@link TrackRenderer#FORMAT_EXCEEDS_CAPABILITIES} are considered only if
+     * {@link Renderer#FORMAT_EXCEEDS_CAPABILITIES} are considered only if
      * {@code includeCapabilitiesExceededTracks} is set to {@code true}.
      *
      * @param rendererIndex The renderer index.
      * @param groupIndex The index of the group.
      * @param includeCapabilitiesExceededTracks True if formats that exceed the capabilities of the
      *     renderer should be included when determining support. False otherwise.
-     * @return One of {@link TrackRenderer#ADAPTIVE_SEAMLESS},
-     *     {@link TrackRenderer#ADAPTIVE_NOT_SEAMLESS} and
-     *     {@link TrackRenderer#ADAPTIVE_NOT_SUPPORTED}.
+     * @return One of {@link Renderer#ADAPTIVE_SEAMLESS},
+     *     {@link Renderer#ADAPTIVE_NOT_SEAMLESS} and
+     *     {@link Renderer#ADAPTIVE_NOT_SUPPORTED}.
      */
     public int getAdaptiveSupport(int rendererIndex, int groupIndex,
         boolean includeCapabilitiesExceededTracks) {
@@ -558,8 +558,8 @@ public final class DefaultTrackSelector extends TrackSelector implements
       int trackIndexCount = 0;
       for (int i = 0; i < trackCount; i++) {
         int fixedSupport = getTrackFormatSupport(rendererIndex, groupIndex, i);
-        if (fixedSupport == TrackRenderer.FORMAT_HANDLED || (includeCapabilitiesExceededTracks
-            && fixedSupport == TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES)) {
+        if (fixedSupport == Renderer.FORMAT_HANDLED || (includeCapabilitiesExceededTracks
+            && fixedSupport == Renderer.FORMAT_EXCEEDS_CAPABILITIES)) {
           trackIndices[trackIndexCount++] = i;
         }
       }
@@ -573,17 +573,17 @@ public final class DefaultTrackSelector extends TrackSelector implements
      *
      * @param rendererIndex The renderer index.
      * @param groupIndex The index of the group.
-     * @return One of {@link TrackRenderer#ADAPTIVE_SEAMLESS},
-     *     {@link TrackRenderer#ADAPTIVE_NOT_SEAMLESS} and
-     *     {@link TrackRenderer#ADAPTIVE_NOT_SUPPORTED}.
+     * @return One of {@link Renderer#ADAPTIVE_SEAMLESS},
+     *     {@link Renderer#ADAPTIVE_NOT_SEAMLESS} and
+     *     {@link Renderer#ADAPTIVE_NOT_SUPPORTED}.
      */
     public int getAdaptiveSupport(int rendererIndex, int groupIndex, int[] trackIndices) {
       TrackGroup trackGroup = trackGroups[rendererIndex].get(groupIndex);
       if (!trackGroup.adaptive) {
-        return TrackRenderer.ADAPTIVE_NOT_SUPPORTED;
+        return Renderer.ADAPTIVE_NOT_SUPPORTED;
       }
       int handledTrackCount = 0;
-      int adaptiveSupport = TrackRenderer.ADAPTIVE_SEAMLESS;
+      int adaptiveSupport = Renderer.ADAPTIVE_SEAMLESS;
       boolean multipleMimeTypes = false;
       String firstSampleMimeType = null;
       for (int i = 0; i < trackIndices.length; i++) {
@@ -596,7 +596,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
           multipleMimeTypes |= !Util.areEqual(firstSampleMimeType, sampleMimeType);
         }
         adaptiveSupport = Math.min(adaptiveSupport,
-            formatSupport[rendererIndex][groupIndex][i] & TrackRenderer.ADAPTIVE_SUPPORT_MASK);
+            formatSupport[rendererIndex][groupIndex][i] & Renderer.ADAPTIVE_SUPPORT_MASK);
       }
       return multipleMimeTypes
           ? Math.min(adaptiveSupport, mixedMimeTypeAdaptiveSupport[rendererIndex])
@@ -604,9 +604,9 @@ public final class DefaultTrackSelector extends TrackSelector implements
     }
 
     /**
-     * Gets the {@link TrackGroup}s not associated with any {@link TrackRenderer}.
+     * Gets the {@link TrackGroup}s not associated with any {@link Renderer}.
      *
-     * @return The {@link TrackGroup}s not associated with any {@link TrackRenderer}.
+     * @return The {@link TrackGroup}s not associated with any {@link Renderer}.
      */
     public TrackGroupArray getUnassociatedTrackGroups() {
       return unassociatedTrackGroups;

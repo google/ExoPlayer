@@ -31,7 +31,7 @@ public final class ExoPlaybackException extends Exception {
    */
   public static final int TYPE_SOURCE = 0;
   /**
-   * The error occurred in a {@link TrackRenderer}.
+   * The error occurred in a {@link Renderer}.
    * <p>
    * Call {@link #getRendererException()} to retrieve the underlying cause.
    */

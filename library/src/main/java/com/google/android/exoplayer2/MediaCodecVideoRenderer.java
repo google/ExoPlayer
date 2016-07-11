@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.VideoTrackRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.VideoRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
  * Decodes and renders video using {@link MediaCodec}.
  */
 @TargetApi(16)
-public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
+public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static final String TAG = "MediaCodecVideoRenderer";
   private static final String KEY_CROP_LEFT = "crop-left";
@@ -82,7 +82,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode) {
     this(context, mediaCodecSelector, videoScalingMode, 0);
   }
@@ -95,7 +95,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public MediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode, long allowedJoiningTimeMs) {
     this(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, null, -1);
   }
@@ -111,11 +111,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode, long allowedJoiningTimeMs, Handler eventHandler,
-      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+      VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     this(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
         eventHandler, eventListener, maxDroppedFrameCountToNotify);
   }
@@ -138,12 +138,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoTrackRendererEventListener#onDroppedFrames(int, long)}.
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode, long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+      VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
@@ -307,7 +307,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     this.surface = surface;
     this.reportedDrawnToSurface = false;
     int state = getState();
-    if (state == TrackRenderer.STATE_ENABLED || state == TrackRenderer.STATE_STARTED) {
+    if (state == Renderer.STATE_ENABLED || state == Renderer.STATE_STARTED) {
       releaseCodec();
       maybeInitCodec();
     }
@@ -403,7 +403,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       return true;
     }
 
-    if (getState() != TrackRenderer.STATE_STARTED) {
+    if (getState() != Renderer.STATE_STARTED) {
       return false;
     }
 

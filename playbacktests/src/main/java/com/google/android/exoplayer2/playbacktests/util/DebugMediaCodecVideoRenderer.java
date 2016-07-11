@@ -18,19 +18,19 @@ package com.google.android.exoplayer2.playbacktests.util;
 import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaCodecSelector;
-import com.google.android.exoplayer2.MediaCodecVideoTrackRenderer;
-import com.google.android.exoplayer2.VideoTrackRendererEventListener;
+import com.google.android.exoplayer2.MediaCodecVideoRenderer;
+import com.google.android.exoplayer2.VideoRendererEventListener;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Handler;
 
 /**
- * Decodes and renders video using {@link MediaCodecVideoTrackRenderer}. Provides buffer timestamp
+ * Decodes and renders video using {@link MediaCodecVideoRenderer}. Provides buffer timestamp
  * assertions.
  */
 @TargetApi(16)
-public class DebugMediaCodecVideoTrackRenderer extends MediaCodecVideoTrackRenderer {
+public class DebugMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
   private static final int ARRAY_SIZE = 1000;
 
@@ -40,9 +40,9 @@ public class DebugMediaCodecVideoTrackRenderer extends MediaCodecVideoTrackRende
   private int queueSize;
   private int bufferCount;
 
-  public DebugMediaCodecVideoTrackRenderer(Context context, MediaCodecSelector mediaCodecSelector,
+  public DebugMediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       int videoScalingMode, long allowedJoiningTimeMs, Handler eventHandler,
-      VideoTrackRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+      VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     super(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
         eventHandler, eventListener, maxDroppedFrameCountToNotify);
     startIndex = 0;

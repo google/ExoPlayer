@@ -13,40 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ext.opus;
+package com.google.android.exoplayer2.ext.ffmpeg;
 
-import com.google.android.exoplayer2.AudioTrackRendererEventListener;
+import com.google.android.exoplayer2.AudioRendererEventListener;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioTrack;
-import com.google.android.exoplayer2.extensions.AudioDecoderTrackRenderer;
+import com.google.android.exoplayer2.extensions.AudioDecoderRenderer;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import android.os.Handler;
 
 /**
- * Decodes and renders audio using the native Opus decoder.
+ * Decodes and renders audio using FFmpeg.
  */
-public final class LibopusAudioTrackRenderer extends AudioDecoderTrackRenderer {
+public final class FfmpegAudioRenderer extends AudioDecoderRenderer {
 
   private static final int NUM_BUFFERS = 16;
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
 
-  /**
-   * Returns whether the underlying libopus library is available.
-   */
-  public static boolean isLibopusAvailable() {
-    return OpusDecoder.IS_AVAILABLE;
-  }
+  private FfmpegDecoder decoder;
 
-  /**
-   * Returns the version of the underlying libopus library if available, otherwise {@code null}.
-   */
-  public static String getLibopusVersion() {
-    return isLibopusAvailable() ? OpusDecoder.getLibopusVersion() : null;
-  }
-
-  public LibopusAudioTrackRenderer() {
+  public FfmpegAudioRenderer() {
     this(null, null);
   }
 
@@ -55,8 +44,7 @@ public final class LibopusAudioTrackRenderer extends AudioDecoderTrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public LibopusAudioTrackRenderer(Handler eventHandler,
-      AudioTrackRendererEventListener eventListener) {
+  public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener) {
     super(eventHandler, eventListener);
   }
 
@@ -68,22 +56,34 @@ public final class LibopusAudioTrackRenderer extends AudioDecoderTrackRenderer {
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
-  public LibopusAudioTrackRenderer(Handler eventHandler,
-      AudioTrackRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType) {
+  public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+      AudioCapabilities audioCapabilities, int streamType) {
     super(eventHandler, eventListener, audioCapabilities, streamType);
   }
 
   @Override
   protected int supportsFormat(Format format) {
-    return isLibopusAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
-        ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+    if (!FfmpegDecoder.IS_AVAILABLE) {
+      return FORMAT_UNSUPPORTED_TYPE;
+    }
+    String mimeType = format.sampleMimeType;
+    return FfmpegDecoder.supportsFormat(mimeType) ? FORMAT_HANDLED
+        : MimeTypes.isAudio(mimeType) ? FORMAT_UNSUPPORTED_SUBTYPE : FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override
-  protected OpusDecoder createDecoder(Format format) throws OpusDecoderException {
-    return new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.initializationData);
+  protected FfmpegDecoder createDecoder(Format format) throws FfmpegDecoderException {
+    decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
+        format.sampleMimeType, format.initializationData);
+    return decoder;
+  }
+
+  @Override
+  public Format getOutputFormat() {
+    int channelCount = decoder.getChannelCount();
+    int sampleRate = decoder.getSampleRate();
+    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
+        Format.NO_VALUE, channelCount, sampleRate, C.ENCODING_PCM_16BIT, null, null, 0, null);
   }
 
 }

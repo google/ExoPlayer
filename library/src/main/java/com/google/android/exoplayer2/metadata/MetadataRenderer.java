@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.TrackRenderer;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -33,18 +33,18 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * A {@link TrackRenderer} for metadata embedded in a media stream.
+ * A {@link Renderer} for metadata embedded in a media stream.
  *
  * @param <T> The type of the metadata.
  */
-public final class MetadataTrackRenderer<T> extends TrackRenderer implements Callback {
+public final class MetadataRenderer<T> extends Renderer implements Callback {
 
   /**
-   * An interface for components that process metadata.
+   * An output for the renderer.
    *
    * @param <T> The type of the metadata.
    */
-  public interface MetadataRenderer<T> {
+  public interface Output<T> {
 
     /**
      * Invoked each time there is a metadata associated with current playback time.
@@ -58,8 +58,8 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
   private static final int MSG_INVOKE_RENDERER = 0;
 
   private final MetadataParser<T> metadataParser;
-  private final MetadataRenderer<T> metadataRenderer;
-  private final Handler metadataHandler;
+  private final Output<T> output;
+  private final Handler outputHandler;
   private final FormatHolder formatHolder;
   private final DecoderInputBuffer buffer;
 
@@ -68,20 +68,18 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
   private T pendingMetadata;
 
   /**
+   * @param output The output.
+   * @param outputLooper The looper associated with the thread on which the output should be
+   *     invoked. If the output makes use of standard Android UI components, then this should
+   *     normally be the looper associated with the application's main thread, which can be obtained
+   *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
+   *     should be invoked directly on the player's internal rendering thread.
    * @param metadataParser A parser for parsing the metadata.
-   * @param metadataRenderer The metadata renderer to receive the parsed metadata.
-   * @param metadataRendererLooper The looper associated with the thread on which metadataRenderer
-   *     should be invoked. If the renderer makes use of standard Android UI components, then this
-   *     should normally be the looper associated with the applications' main thread, which can be
-   *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
-   *     renderer should be invoked directly on the player's internal rendering thread.
    */
-  public MetadataTrackRenderer(MetadataParser<T> metadataParser,
-      MetadataRenderer<T> metadataRenderer, Looper metadataRendererLooper) {
+  public MetadataRenderer(Output<T> output, Looper outputLooper, MetadataParser<T> metadataParser) {
+    this.output = Assertions.checkNotNull(output);
+    this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
     this.metadataParser = Assertions.checkNotNull(metadataParser);
-    this.metadataRenderer = Assertions.checkNotNull(metadataRenderer);
-    this.metadataHandler = metadataRendererLooper == null ? null
-        : new Handler(metadataRendererLooper, this);
     formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
@@ -93,8 +91,8 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
 
   @Override
   protected int supportsFormat(Format format) {
-    return metadataParser.canParse(format.sampleMimeType) ? TrackRenderer.FORMAT_HANDLED
-        : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+    return metadataParser.canParse(format.sampleMimeType) ? Renderer.FORMAT_HANDLED
+        : Renderer.FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override
@@ -147,8 +145,8 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
   }
 
   private void invokeRenderer(T metadata) {
-    if (metadataHandler != null) {
-      metadataHandler.obtainMessage(MSG_INVOKE_RENDERER, metadata).sendToTarget();
+    if (outputHandler != null) {
+      outputHandler.obtainMessage(MSG_INVOKE_RENDERER, metadata).sendToTarget();
     } else {
       invokeRendererInternal(metadata);
     }
@@ -166,7 +164,7 @@ public final class MetadataTrackRenderer<T> extends TrackRenderer implements Cal
   }
 
   private void invokeRendererInternal(T metadata) {
-    metadataRenderer.onMetadata(metadata);
+    output.onMetadata(metadata);
   }
 
 }

@@ -122,7 +122,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   // TrackSelectionPolicy implementation.
 
   @Override
-  public TrackSelection[] selectTracks(TrackRenderer[] renderers,
+  public TrackSelection[] selectTracks(Renderer[] renderers,
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
       throws ExoPlaybackException {
     // Make a track selection for each renderer.
@@ -157,13 +157,13 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
 
   // Video track selection implementation.
 
-  private static TrackSelection selectTrackForVideoRenderer(TrackRenderer renderer,
+  private static TrackSelection selectTrackForVideoRenderer(Renderer renderer,
       TrackGroupArray trackGroups, int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
       boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness)
       throws ExoPlaybackException {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
-        ? TrackRenderer.ADAPTIVE_NOT_SEAMLESS | TrackRenderer.ADAPTIVE_SEAMLESS
-        : TrackRenderer.ADAPTIVE_SEAMLESS;
+        ? (Renderer.ADAPTIVE_NOT_SEAMLESS | Renderer.ADAPTIVE_SEAMLESS)
+        : Renderer.ADAPTIVE_SEAMLESS;
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
         && (renderer.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
     int largestAdaptiveGroup = -1;
@@ -347,7 +347,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   }
 
   private static boolean isSupported(int formatSupport) {
-    return (formatSupport & TrackRenderer.FORMAT_SUPPORT_MASK) == TrackRenderer.FORMAT_HANDLED;
+    return (formatSupport & Renderer.FORMAT_SUPPORT_MASK) == Renderer.FORMAT_HANDLED;
   }
 
   private static boolean formatHasLanguage(Format format, String language) {

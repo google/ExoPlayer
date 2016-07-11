@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
-import com.google.android.exoplayer2.AudioTrackRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioTrack;
@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
  * Decodes and renders audio using {@link MediaCodec} and {@link android.media.AudioTrack}.
  */
 @TargetApi(16)
-public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implements MediaClock {
+public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
   private final EventDispatcher eventDispatcher;
   private final AudioTrack audioTrack;
@@ -57,7 +57,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   /**
    * @param mediaCodecSelector A decoder selector.
    */
-  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector) {
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector) {
     this(mediaCodecSelector, null, true);
   }
 
@@ -71,7 +71,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
-  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
@@ -82,8 +82,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector, Handler eventHandler,
-      AudioTrackRendererEventListener eventListener) {
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector, Handler eventHandler,
+      AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, null, true, eventHandler, eventListener);
   }
 
@@ -100,9 +100,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, AudioTrackRendererEventListener eventListener) {
+      Handler eventHandler, AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener, null, AudioManager.STREAM_MUSIC);
   }
@@ -123,9 +123,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
-  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, AudioTrackRendererEventListener eventListener,
+      Handler eventHandler, AudioRendererEventListener eventListener,
       AudioCapabilities audioCapabilities, int streamType) {
     super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
@@ -344,14 +344,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       } catch (AudioTrack.InitializationException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
-      if (getState() == TrackRenderer.STATE_STARTED) {
+      if (getState() == Renderer.STATE_STARTED) {
         audioTrack.play();
       }
     } else {
       // Check for AudioTrack underrun.
       boolean audioTrackHadData = audioTrackHasData;
       audioTrackHasData = audioTrack.hasPendingData();
-      if (audioTrackHadData && !audioTrackHasData && getState() == TrackRenderer.STATE_STARTED) {
+      if (audioTrackHadData && !audioTrackHasData && getState() == Renderer.STATE_STARTED) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
         long bufferSizeUs = audioTrack.getBufferSizeUs();
         long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;

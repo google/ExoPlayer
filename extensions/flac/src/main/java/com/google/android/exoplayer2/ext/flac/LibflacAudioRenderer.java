@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
-import com.google.android.exoplayer2.AudioTrackRendererEventListener;
+import com.google.android.exoplayer2.AudioRendererEventListener;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioTrack;
-import com.google.android.exoplayer2.extensions.AudioDecoderTrackRenderer;
+import com.google.android.exoplayer2.extensions.AudioDecoderRenderer;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import android.os.Handler;
@@ -27,7 +27,7 @@ import android.os.Handler;
 /**
  * Decodes and renders audio using the native Flac decoder.
  */
-public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
+public class LibflacAudioRenderer extends AudioDecoderRenderer {
 
   private static final int NUM_BUFFERS = 16;
 
@@ -38,7 +38,7 @@ public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
     return FlacJni.IS_AVAILABLE;
   }
 
-  public LibflacAudioTrackRenderer() {
+  public LibflacAudioRenderer() {
     this(null, null);
   }
 
@@ -47,8 +47,7 @@ public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public LibflacAudioTrackRenderer(Handler eventHandler,
-      AudioTrackRendererEventListener eventListener) {
+  public LibflacAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener) {
     super(eventHandler, eventListener);
   }
 
@@ -60,9 +59,8 @@ public class LibflacAudioTrackRenderer extends AudioDecoderTrackRenderer {
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
-  public LibflacAudioTrackRenderer(Handler eventHandler,
-      AudioTrackRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType) {
+  public LibflacAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+      AudioCapabilities audioCapabilities, int streamType) {
     super(eventHandler, eventListener, audioCapabilities, streamType);
   }
 

@@ -23,16 +23,16 @@ import java.io.IOException;
 
 /**
  * Renders a single component of media.
- *
- * <p>Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The player
- * will transition its renderers through various states as the overall playback state changes. The
- * valid state transitions are shown below, annotated with the methods that are invoked during each
+ * <p>
+ * Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The player will
+ * transition its renderers through various states as the overall playback state changes. The valid
+ * state transitions are shown below, annotated with the methods that are invoked during each
  * transition.
  * <p align="center"><img src="../../../../../images/trackrenderer_state.png"
- *     alt="TrackRenderer state transitions"
+ *     alt="Renderer state transitions"
  *     border="0"/></p>
  */
-public abstract class TrackRenderer implements ExoPlayerComponent {
+public abstract class Renderer implements ExoPlayerComponent {
 
   /**
    * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
@@ -41,33 +41,33 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   public static final int FORMAT_SUPPORT_MASK = 0b11;
   /**
-   * The {@link TrackRenderer} is capable of rendering the format.
+   * The {@link Renderer} is capable of rendering the format.
    */
   public static final int FORMAT_HANDLED = 0b11;
   /**
-   * The {@link TrackRenderer} is capable of rendering formats with the same mimeType, but the
+   * The {@link Renderer} is capable of rendering formats with the same mimeType, but the
    * properties of the format exceed the renderer's capability.
    * <p>
-   * Example: The {@link TrackRenderer} is capable of rendering H264 and the format's mimeType is
+   * Example: The {@link Renderer} is capable of rendering H264 and the format's mimeType is
    * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
    * by the underlying H264 decoder.
    */
   public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b10;
   /**
-   * The {@link TrackRenderer} is a general purpose renderer for formats of the same top-level type,
+   * The {@link Renderer} is a general purpose renderer for formats of the same top-level type,
    * but is not capable of rendering the format or any other format with the same mimeType because
    * the sub-type is not supported.
    * <p>
-   * Example: The {@link TrackRenderer} is a general purpose audio renderer and the format's
+   * Example: The {@link Renderer} is a general purpose audio renderer and the format's
    * mimeType matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
    */
   public static final int FORMAT_UNSUPPORTED_SUBTYPE = 0b01;
   /**
-   * The {@link TrackRenderer} is not capable of rendering the format, either because it does not
+   * The {@link Renderer} is not capable of rendering the format, either because it does not
    * support the format's top-level type, or because it's a specialized renderer for a different
    * mimeType.
    * <p>
-   * Example: The {@link TrackRenderer} is a general purpose video renderer, but the format has an
+   * Example: The {@link Renderer} is a general purpose video renderer, but the format has an
    * audio mimeType.
    */
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b00;
@@ -78,16 +78,16 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   public static final int ADAPTIVE_SUPPORT_MASK = 0b1100;
   /**
-   * The {@link TrackRenderer} can seamlessly adapt between formats.
+   * The {@link Renderer} can seamlessly adapt between formats.
    */
   public static final int ADAPTIVE_SEAMLESS = 0b1000;
   /**
-   * The {@link TrackRenderer} can adapt between formats, but may suffer a brief discontinuity
+   * The {@link Renderer} can adapt between formats, but may suffer a brief discontinuity
    * (~50-100ms) when adaptation occurs.
    */
   public static final int ADAPTIVE_NOT_SEAMLESS = 0b0100;
   /**
-   * The {@link TrackRenderer} does not support adaptation between formats.
+   * The {@link Renderer} does not support adaptation between formats.
    */
   public static final int ADAPTIVE_NOT_SUPPORTED = 0b0000;
 
@@ -112,7 +112,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   private boolean readEndOfStream;
   private boolean streamIsFinal;
 
-  public TrackRenderer() {
+  public Renderer() {
     readEndOfStream = true;
   }
 
@@ -447,7 +447,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Whether the renderer is ready for the {@link ExoPlayer} instance to transition to
    * {@link ExoPlayer#STATE_ENDED}. The player will make this transition as soon as {@code true} is
-   * returned by all of its {@link TrackRenderer}s.
+   * returned by all of its {@link Renderer}s.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.

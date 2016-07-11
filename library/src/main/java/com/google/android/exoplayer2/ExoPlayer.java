@@ -32,11 +32,11 @@ package com.google.android.exoplayer2;
  * <p>The implementation is designed to make no assumptions about (and hence impose no restrictions
  * on) the type of the media being played, how and where it is stored, or how it is rendered.
  * Rather than implementing the loading and rendering of media directly, {@link ExoPlayer} instead
- * delegates this work to one or more {@link TrackRenderer}s, which are injected when the player
+ * delegates this work to one or more {@link Renderer}s, which are injected when the player
  * is created. Hence {@link ExoPlayer} is capable of loading and playing any media for which a
- * {@link TrackRenderer} implementation can be provided.
+ * {@link Renderer} implementation can be provided.
  *
- * <p>{@link MediaCodecAudioTrackRenderer} and {@link MediaCodecVideoTrackRenderer} can be used for
+ * <p>{@link MediaCodecAudioRenderer} and {@link MediaCodecVideoRenderer} can be used for
  * the common cases of rendering audio and video. These components in turn require an
  * <i>upstream</i> {@link MediaPeriod} to be injected through their constructors, where upstream
  * is defined to denote a component that is closer to the source of the media. This pattern of
@@ -63,8 +63,8 @@ package com.google.android.exoplayer2;
  * <li>Registered {@link EventListener}s are invoked on the thread that created the
  * {@link ExoPlayer} instance.</li>
  * <li>An internal playback thread is responsible for managing playback and invoking the
- * {@link TrackRenderer}s in order to load and play the media.</li>
- * <li>{@link TrackRenderer} implementations (or any upstream components that they depend on) may
+ * {@link Renderer}s in order to load and play the media.</li>
+ * <li>{@link Renderer} implementations (or any upstream components that they depend on) may
  * use additional background threads (e.g. to load data). These are implementation specific.</li>
  * </ul>
  *
@@ -83,7 +83,7 @@ package com.google.android.exoplayer2;
  *     border="0"/></p>
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
- * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
+ * by changes in the state of the {@link Renderer}s being used, or as a result of
  * {@link #setMediaSource(MediaSource)}, {@link #stop()} or {@link #release()} being invoked.</p>
  * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
@@ -193,7 +193,7 @@ public interface ExoPlayer {
   int STATE_IDLE = 1;
   /**
    * The player not able to immediately play from the current position. The cause is
-   * {@link TrackRenderer} specific, but this state typically occurs when more data needs to be
+   * {@link Renderer} specific, but this state typically occurs when more data needs to be
    * loaded to be ready to play, or more data needs to be buffered for playback to resume.
    */
   int STATE_BUFFERING = 2;

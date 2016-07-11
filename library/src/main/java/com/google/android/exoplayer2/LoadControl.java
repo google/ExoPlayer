@@ -29,7 +29,7 @@ public interface LoadControl {
    * @param trackGroups The available {@link TrackGroup}s.
    * @param trackSelections The {@link TrackSelection}s that were made.
    */
-  void onTrackSelections(TrackRenderer[] renderers, TrackGroupArray trackGroups,
+  void onTrackSelections(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelectionArray trackSelections);
 
   /**

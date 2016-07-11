@@ -103,7 +103,7 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public void onTrackSelections(TrackRenderer[] renderers, TrackGroupArray trackGroups,
+  public void onTrackSelections(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelectionArray trackSelections) {
     targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {

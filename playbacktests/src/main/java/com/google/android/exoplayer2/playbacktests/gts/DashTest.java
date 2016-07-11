@@ -23,9 +23,9 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaCodecUtil;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.MediaSource;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.TrackGroup;
 import com.google.android.exoplayer2.TrackGroupArray;
-import com.google.android.exoplayer2.TrackRenderer;
 import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.TrackSelectionPolicy;
 import com.google.android.exoplayer2.dash.DashMediaSource;
@@ -444,7 +444,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         // We shouldn't have skipped any output buffers.
         CodecCountersUtil.assertSkippedOutputBufferCount(AUDIO_TAG, audioCounters, 0);
         CodecCountersUtil.assertSkippedOutputBufferCount(VIDEO_TAG, videoCounters, 0);
-        // We allow one fewer output buffer due to the way that MediaCodecTrackRenderer and the
+        // We allow one fewer output buffer due to the way that MediaCodecRenderer and the
         // underlying decoders handle the end of stream. This should be tightened up in the future.
         CodecCountersUtil.assertTotalOutputBufferCount(AUDIO_TAG, audioCounters,
             audioCounters.inputBufferCount - 1, audioCounters.inputBufferCount);
@@ -490,7 +490,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    protected TrackSelection[] selectTracks(TrackRenderer[] renderers,
+    protected TrackSelection[] selectTracks(Renderer[] renderers,
         TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
         throws ExoPlaybackException {
       Assertions.checkState(renderers[VIDEO_RENDERER_INDEX].getTrackType() == C.TRACK_TYPE_VIDEO);
@@ -531,8 +531,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
-          if (!trackIndices.contains(i) && (formatSupport[i] & TrackRenderer.FORMAT_SUPPORT_MASK)
-              == TrackRenderer.FORMAT_HANDLED) {
+          if (!trackIndices.contains(i) && (formatSupport[i] & Renderer.FORMAT_SUPPORT_MASK)
+              == Renderer.FORMAT_HANDLED) {
             Log.d(TAG, "Adding video format: " + trackGroup.getFormat(i).id);
             trackIndices.add(i);
           }
