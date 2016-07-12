@@ -52,6 +52,11 @@ import java.nio.ByteBuffer;
    */
   public static native String getLibvpxVersion();
 
+  /**
+   * Returns the configuration string with which the underlying libvpx library was built.
+   */
+  public static native String getLibvpxConfig();
+
   private final long vpxDecContext;
 
   private volatile int outputMode;
