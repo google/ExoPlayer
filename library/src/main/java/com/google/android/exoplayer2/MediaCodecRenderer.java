@@ -693,7 +693,8 @@ public abstract class MediaCodecRenderer extends Renderer {
     if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-      codecNeedsAdaptationWorkaroundBuffer = codecNeedsAdaptationWorkaround;
+      codecNeedsAdaptationWorkaroundBuffer = codecNeedsAdaptationWorkaround
+          && format.width == oldFormat.width && format.height == oldFormat.height;
     } else {
       if (codecReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
@@ -957,7 +958,8 @@ public abstract class MediaCodecRenderer extends Renderer {
   }
 
   /**
-   * Returns whether the decoder is known to get stuck during some adaptations.
+   * Returns whether the decoder is known to get stuck during some adaptations where the resolution
+   * does not change.
    * <p>
    * If true is returned, the renderer will work around the issue by queueing and discarding a blank
    * frame at a different resolution, which resets the codec's internal state.
@@ -968,8 +970,10 @@ public abstract class MediaCodecRenderer extends Renderer {
    * @return True if the decoder is known to get stuck during some adaptations.
    */
   private static boolean codecNeedsAdaptationWorkaround(String name) {
-    return Util.SDK_INT < 24 && Util.DEVICE.startsWith("flounder")
-        && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name));
+    return Util.SDK_INT < 24
+        && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name))
+        && (Util.DEVICE.equals("flounder") || Util.DEVICE.equals("flounder_lte")
+            || Util.DEVICE.equals("grouper") || Util.DEVICE.equals("tilapia"));
   }
 
   /**
