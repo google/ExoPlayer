@@ -60,7 +60,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   private SmoothStreamingManifest manifest;
   private int currentManifestChunkOffset;
-  private boolean needManifestRefresh;
 
   private IOException fatalError;
 
@@ -132,11 +131,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       }
     }
     manifest = newManifest;
-    needManifestRefresh = false;
-  }
-
-  public boolean needManifestRefresh() {
-    return needManifestRefresh;
   }
 
   // ChunkSource implementation.
@@ -182,11 +176,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     StreamElement streamElement = manifest.streamElements[elementIndex];
     if (streamElement.chunkCount == 0) {
-      if (manifest.isLive) {
-        needManifestRefresh = true;
-      } else {
-        out.endOfStream = true;
-      }
+      // There aren't any chunks for us to load.
+      out.endOfStream = !manifest.isLive;
       return;
     }
 
@@ -202,7 +193,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       }
     }
 
-    needManifestRefresh = manifest.isLive && chunkIndex >= streamElement.chunkCount - 1;
     if (chunkIndex >= streamElement.chunkCount) {
       // This is beyond the last chunk in the current manifest.
       out.endOfStream = !manifest.isLive;
