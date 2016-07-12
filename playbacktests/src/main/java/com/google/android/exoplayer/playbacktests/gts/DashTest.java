@@ -76,6 +76,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   private static final String TAG = "DashTest";
   private static final String REPORT_NAME = "GtsExoPlayerTestCases";
+  private static final String REPORT_OBJECT_NAME = "playbacktest";
 
   private static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
@@ -613,7 +614,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     MediaPresentationDescription mpd = TestUtil.loadManifest(activity, TAG,
         MANIFEST_URL_PREFIX + manifestFileName, new MediaPresentationDescriptionParser());
     MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG,
-        REPORT_NAME, streamName);
+        REPORT_NAME, REPORT_OBJECT_NAME);
     DashHostedTest test = new DashHostedTest(streamName, mpd, metricsLogger, fullPlaybackNoSeeking,
         audioFormat, canIncludeAdditionalVideoFormats, isWidevineEncrypted, false, actionSchedule,
         videoMimeType, videoFormats);
@@ -622,7 +623,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     // non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
       metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG, REPORT_NAME,
-          streamName + "_cdd_limited_retry");
+          REPORT_OBJECT_NAME);
       test = new DashHostedTest(streamName, mpd, metricsLogger, fullPlaybackNoSeeking, audioFormat,
           false, isWidevineEncrypted, true, actionSchedule, videoMimeType, videoFormats);
       activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
@@ -660,6 +661,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     private final boolean fullPlaybackNoSeeking;
     private final boolean canIncludeAdditionalVideoFormats;
     private final boolean isWidevineEncrypted;
+    private final boolean isCddLimitedRetry;
     private final String[] audioFormats;
     private final String[] videoFormats;
 
@@ -698,6 +700,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       this.audioFormats = new String[] {audioFormat};
       this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;
       this.isWidevineEncrypted = isWidevineEncrypted;
+      this.isCddLimitedRetry = isCddLimitedRetry;
       this.videoMimeType = videoMimeType;
       this.videoFormats = videoFormats;
       if (actionSchedule != null) {
@@ -827,6 +830,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     protected void logMetrics() {
       // Log metrics from the test.
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
+      metricsLogger.logMetric(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
           videoCounters.droppedOutputBufferCount);
       metricsLogger.logMetric(MetricsLogger.KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT,
