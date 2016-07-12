@@ -16,22 +16,22 @@
 package com.google.android.exoplayer2.source.smoothstreaming;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer2.upstream.Allocator;

@@ -15,19 +15,19 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
-import com.google.android.exoplayer2.BehindLiveWindowException;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.chunk.Chunk;
-import com.google.android.exoplayer2.chunk.ChunkHolder;
-import com.google.android.exoplayer2.chunk.DataChunk;
-import com.google.android.exoplayer2.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
+import com.google.android.exoplayer2.source.BehindLiveWindowException;
+import com.google.android.exoplayer2.source.chunk.Chunk;
+import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.DataChunk;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.source.hls.playlist.Variant;

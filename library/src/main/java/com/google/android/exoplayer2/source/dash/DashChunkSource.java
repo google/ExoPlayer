@@ -15,25 +15,25 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import com.google.android.exoplayer2.BehindLiveWindowException;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.DecreasingBandwidthComparator;
-import com.google.android.exoplayer2.chunk.Chunk;
-import com.google.android.exoplayer2.chunk.ChunkExtractorWrapper;
-import com.google.android.exoplayer2.chunk.ChunkHolder;
-import com.google.android.exoplayer2.chunk.ChunkSource;
-import com.google.android.exoplayer2.chunk.ContainerMediaChunk;
-import com.google.android.exoplayer2.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.chunk.FormatEvaluator.Evaluation;
-import com.google.android.exoplayer2.chunk.InitializationChunk;
-import com.google.android.exoplayer2.chunk.MediaChunk;
-import com.google.android.exoplayer2.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.Chunk;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
+import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkSource;
+import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
+import com.google.android.exoplayer2.source.chunk.InitializationChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.source.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer2.source.dash.mpd.Period;

@@ -13,29 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.chunk;
+package com.google.android.exoplayer2.source;
+
+import java.io.IOException;
 
 /**
- * Holds a chunk or an indication that the end of the stream has been reached.
+ * Thrown when a live playback falls behind the available media window.
  */
-public final class ChunkHolder {
+public final class BehindLiveWindowException extends IOException {
 
-  /**
-   * The chunk.
-   */
-  public Chunk chunk;
-
-  /**
-   * Indicates that the end of the stream has been reached.
-   */
-  public boolean endOfStream;
-
-  /**
-   * Clears the holder.
-   */
-  public void clear() {
-    chunk = null;
-    endOfStream = false;
+  public BehindLiveWindowException() {
+    super();
   }
 
 }

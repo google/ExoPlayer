@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.chunk.FormatEvaluator;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 

@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2;
+package com.google.android.exoplayer2.source;
+
+import com.google.android.exoplayer2.C;
 
 /**
  * An loader that can proceed in approximate synchronization with other loaders.

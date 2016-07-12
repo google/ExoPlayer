@@ -15,22 +15,22 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
-import com.google.android.exoplayer2.BehindLiveWindowException;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.DecreasingBandwidthComparator;
-import com.google.android.exoplayer2.chunk.Chunk;
-import com.google.android.exoplayer2.chunk.ChunkExtractorWrapper;
-import com.google.android.exoplayer2.chunk.ChunkHolder;
-import com.google.android.exoplayer2.chunk.ChunkSource;
-import com.google.android.exoplayer2.chunk.ContainerMediaChunk;
-import com.google.android.exoplayer2.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.chunk.FormatEvaluator.Evaluation;
-import com.google.android.exoplayer2.chunk.MediaChunk;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Track;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.Chunk;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
+import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkSource;
+import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
