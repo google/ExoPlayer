@@ -16,17 +16,16 @@
 package com.google.android.exoplayer2.playbacktests.util;
 
 import com.google.android.exoplayer2.CodecCounters;
-import com.google.android.exoplayer2.DefaultTrackSelectionPolicy;
-import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.TrackSelectionPolicy;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -64,7 +63,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   private ActionSchedule pendingSchedule;
   private Handler actionHandler;
-  private DefaultTrackSelector trackSelector;
+  private MappingTrackSelector trackSelector;
   private SimpleExoPlayer player;
   private ExoPlaybackException playerError;
   private boolean playerWasPrepared;
@@ -124,8 +123,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public final void onStart(HostActivity host, Surface surface) {
     // Build the player.
-    TrackSelectionPolicy trackSelectionPolicy = buildTrackSelectionPolicy(host);
-    trackSelector = new DefaultTrackSelector(trackSelectionPolicy, null);
+    trackSelector = buildTrackSelector(host);
     player = buildExoPlayer(host, surface, trackSelector);
     DataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(host, Util
         .getUserAgent(host, "ExoPlayerPlaybackTests"));
@@ -275,13 +273,13 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   // Internal logic
 
   @SuppressWarnings("unused")
-  protected TrackSelectionPolicy buildTrackSelectionPolicy(HostActivity host) {
-    return new DefaultTrackSelectionPolicy();
+  protected MappingTrackSelector buildTrackSelector(HostActivity host) {
+    return new DefaultTrackSelector(null);
   }
 
   @SuppressWarnings("unused")
   protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
-      DefaultTrackSelector trackSelector) {
+      MappingTrackSelector trackSelector) {
     SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector);
     player.setSurface(surface);
     return player;

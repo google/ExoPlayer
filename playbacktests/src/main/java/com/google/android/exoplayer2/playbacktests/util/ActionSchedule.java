@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
-import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.playbacktests.util.Action.Seek;
 import com.google.android.exoplayer2.playbacktests.util.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.playbacktests.util.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.playbacktests.util.Action.Stop;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 
 import android.os.Handler;
 
@@ -45,7 +45,7 @@ public final class ActionSchedule {
    * @param trackSelector The track selector to which actions should be applied.
    * @param mainHandler A handler associated with the main thread of the host activity.
    */
-  /* package */ void start(ExoPlayer player, DefaultTrackSelector trackSelector,
+  /* package */ void start(ExoPlayer player, MappingTrackSelector trackSelector,
       Handler mainHandler) {
     rootNode.schedule(player, trackSelector, mainHandler);
   }
@@ -167,7 +167,7 @@ public final class ActionSchedule {
     private ActionNode next;
 
     private ExoPlayer player;
-    private DefaultTrackSelector trackSelector;
+    private MappingTrackSelector trackSelector;
     private Handler mainHandler;
 
     /**
@@ -196,7 +196,7 @@ public final class ActionSchedule {
      * @param trackSelector The track selector to which actions should be applied.
      * @param mainHandler A handler associated with the main thread of the host activity.
      */
-    public void schedule(ExoPlayer player, DefaultTrackSelector trackSelector,
+    public void schedule(ExoPlayer player, MappingTrackSelector trackSelector,
         Handler mainHandler) {
       this.player = player;
       this.trackSelector = trackSelector;
@@ -224,7 +224,7 @@ public final class ActionSchedule {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, DefaultTrackSelector trackSelector) {
+    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
       // Do nothing.
     }
 

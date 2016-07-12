@@ -62,7 +62,7 @@ public final class FfmpegAudioRenderer extends AudioDecoderRenderer {
   }
 
   @Override
-  protected int supportsFormat(Format format) {
+  public int supportsFormat(Format format) {
     if (!FfmpegDecoder.IS_AVAILABLE) {
       return FORMAT_UNSUPPORTED_TYPE;
     }

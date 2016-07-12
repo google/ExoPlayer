@@ -108,7 +108,7 @@ public final class TextRenderer extends Renderer implements Callback {
   }
 
   @Override
-  protected int supportsFormat(Format format) {
+  public int supportsFormat(Format format) {
     return parserFactory.supportsFormat(format) ? Renderer.FORMAT_HANDLED
         : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE
         : FORMAT_UNSUPPORTED_TYPE);

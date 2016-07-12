@@ -222,12 +222,12 @@ public abstract class MediaCodecRenderer extends Renderer {
   }
 
   @Override
-  protected final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  public final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override
-  protected final int supportsFormat(Format format) throws ExoPlaybackException {
+  public final int supportsFormat(Format format) throws ExoPlaybackException {
     try {
       return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {

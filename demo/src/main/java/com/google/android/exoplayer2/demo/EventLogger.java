@@ -16,19 +16,19 @@
 package com.google.android.exoplayer2.demo;
 
 import com.google.android.exoplayer2.CodecCounters;
-import com.google.android.exoplayer2.DefaultTrackSelector;
-import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
 import android.os.SystemClock;
@@ -43,7 +43,7 @@ import java.util.Locale;
  */
 public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.DebugListener,
     AdaptiveMediaSourceEventListener, ExtractorMediaSource.EventListener,
-    StreamingDrmSessionManager.EventListener, DefaultTrackSelector.EventListener {
+    StreamingDrmSessionManager.EventListener, MappingTrackSelector.EventListener {
 
   private static final String TAG = "EventLogger";
   private static final NumberFormat TIME_FORMAT;
@@ -92,7 +92,7 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
     Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
   }
 
-  // DefaultTrackSelector.EventListener
+  // MappingTrackSelector.EventListener
 
   @Override
   public void onTracksChanged(TrackInfo trackInfo) {

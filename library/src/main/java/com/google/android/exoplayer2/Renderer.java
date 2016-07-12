@@ -165,7 +165,7 @@ public abstract class Renderer implements ExoPlayerComponent {
    *     {@link #ADAPTIVE_NOT_SUPPORTED}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
@@ -408,7 +408,7 @@ public abstract class Renderer implements ExoPlayerComponent {
    * @return The extent to which the renderer is capable of supporting the given format.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract int supportsFormat(Format format) throws ExoPlaybackException;
+  public abstract int supportsFormat(Format format) throws ExoPlaybackException;
 
   /**
    * Incrementally renders the {@link SampleStream}.

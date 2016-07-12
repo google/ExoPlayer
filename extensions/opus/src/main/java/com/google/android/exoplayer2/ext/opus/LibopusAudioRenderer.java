@@ -73,7 +73,7 @@ public final class LibopusAudioRenderer extends AudioDecoderRenderer {
   }
 
   @Override
-  protected int supportsFormat(Format format) {
+  public int supportsFormat(Format format) {
     return isLibopusAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
         ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
   }

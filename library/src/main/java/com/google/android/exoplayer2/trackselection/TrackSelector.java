@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2;
+package com.google.android.exoplayer2.trackselection;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 
 import android.util.Pair;
@@ -27,7 +29,7 @@ public abstract class TrackSelector {
   /**
    * Notified when previous selections by a {@link TrackSelector} are no longer valid.
    */
-  /* package */ interface InvalidationListener {
+  public interface InvalidationListener {
 
     /**
      * Invoked by a {@link TrackSelector} when previous selections are no longer valid.
@@ -38,17 +40,13 @@ public abstract class TrackSelector {
 
   private InvalidationListener listener;
 
-  /* package */ void init(InvalidationListener listener) {
-    this.listener = listener;
-  }
-
   /**
-   * Invalidates all previously generated track selections.
+   * Initializes the selector.
+   *
+   * @param listener A listener for the selector.
    */
-  protected final void invalidate() {
-    if (listener != null) {
-      listener.onTrackSelectionsInvalidated();
-    }
+  public final void init(InvalidationListener listener) {
+    this.listener = listener;
   }
 
   /**
@@ -65,7 +63,7 @@ public abstract class TrackSelector {
    *     if the selection is activated.
    * @throws ExoPlaybackException If an error occurs selecting tracks.
    */
-  protected abstract Pair<TrackSelectionArray, Object> selectTracks(Renderer[] renderers,
+  public abstract Pair<TrackSelectionArray, Object> selectTracks(Renderer[] renderers,
       TrackGroupArray trackGroups) throws ExoPlaybackException;
 
   /**
@@ -74,6 +72,15 @@ public abstract class TrackSelector {
    *
    * @param selectionInfo The opaque object associated with the selection.
    */
-  protected abstract void onSelectionActivated(Object selectionInfo);
+  public abstract void onSelectionActivated(Object selectionInfo);
+
+  /**
+   * Invalidates all previously generated track selections.
+   */
+  protected final void invalidate() {
+    if (listener != null) {
+      listener.onTrackSelectionsInvalidated();
+    }
+  }
 
 }

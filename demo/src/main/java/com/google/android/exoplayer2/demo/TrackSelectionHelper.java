@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import com.google.android.exoplayer2.DefaultTrackSelector;
-import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackSelection;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import android.annotation.SuppressLint;
@@ -44,7 +44,7 @@ import java.util.Locale;
 /* package */ final class TrackSelectionHelper implements View.OnClickListener,
     DialogInterface.OnClickListener {
 
-  private final DefaultTrackSelector selector;
+  private final MappingTrackSelector selector;
   
   private TrackInfo trackInfo;
   private int rendererIndex;
@@ -60,7 +60,7 @@ import java.util.Locale;
   /**
    * @param selector The track selector.
    */
-  public TrackSelectionHelper(DefaultTrackSelector selector) {
+  public TrackSelectionHelper(MappingTrackSelector selector) {
     this.selector = selector;
   }
 

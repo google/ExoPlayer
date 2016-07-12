@@ -17,9 +17,6 @@ package com.google.android.exoplayer2.demo;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.DefaultTrackSelectionPolicy;
-import com.google.android.exoplayer2.DefaultTrackSelector;
-import com.google.android.exoplayer2.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -46,6 +43,9 @@ import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingMedia
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleLayout;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerControl;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -92,7 +92,7 @@ import java.util.UUID;
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
     ExoPlayer.EventListener, SimpleExoPlayer.VideoListener, SimpleExoPlayer.CaptionListener,
-    SimpleExoPlayer.Id3MetadataListener, DefaultTrackSelector.EventListener {
+    SimpleExoPlayer.Id3MetadataListener, MappingTrackSelector.EventListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_CONTENT_ID_EXTRA = "drm_content_id";
@@ -130,7 +130,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private DataSourceFactory dataSourceFactory;
   private SimpleExoPlayer player;
-  private DefaultTrackSelector trackSelector;
+  private MappingTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private BandwidthMeter bandwidthMeter;
@@ -272,7 +272,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       }
       eventLogger = new EventLogger();
       eventLogger.startSession();
-      trackSelector = new DefaultTrackSelector(new DefaultTrackSelectionPolicy(), mainHandler);
+      trackSelector = new DefaultTrackSelector(mainHandler);
       trackSelector.addListener(this);
       trackSelector.addListener(eventLogger);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector);
@@ -490,7 +490,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     shutterView.setVisibility(View.GONE);
   }
 
-  // DefaultTrackSelector.EventListener implementation
+  // MappingTrackSelector.EventListener implementation
 
   @Override
   public void onTracksChanged(TrackInfo trackInfo) {

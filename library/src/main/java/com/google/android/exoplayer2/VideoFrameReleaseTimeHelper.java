@@ -279,7 +279,6 @@ public final class VideoFrameReleaseTimeHelper {
       }
     }
 
-
     private void createChoreographerInstanceInternal() {
       choreographer = Choreographer.getInstance();
     }
@@ -298,7 +297,6 @@ public final class VideoFrameReleaseTimeHelper {
         sampledVsyncTimeNs = 0;
       }
     }
-
 
   }
 

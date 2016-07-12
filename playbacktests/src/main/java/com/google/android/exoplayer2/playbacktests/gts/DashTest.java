@@ -23,8 +23,6 @@ import com.google.android.exoplayer2.MediaCodecDecoderInfo;
 import com.google.android.exoplayer2.MediaCodecUtil;
 import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackSelectionPolicy;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
 import com.google.android.exoplayer2.playbacktests.util.CodecCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
@@ -34,6 +32,8 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.util.Assertions;
@@ -381,7 +381,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     private final Uri manifestUri;
     private final MetricsLogger metricsLogger;
     private final boolean fullPlaybackNoSeeking;
-    private final DashTestTrackSelectionPolicy trackSelectionPolicy;
+    private final DashTestTrackSelector trackSelector;
 
     private boolean needsCddLimitedRetry;
 
@@ -406,7 +406,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       this.manifestUri = manifestUri;
       this.metricsLogger = metricsLogger;
       this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
-      trackSelectionPolicy = new DashTestTrackSelectionPolicy(new String[] {audioFormat},
+      trackSelector = new DashTestTrackSelector(new String[] {audioFormat},
           videoFormats, canIncludeAdditionalVideoFormats);
       if (actionSchedule != null) {
         setSchedule(actionSchedule);
@@ -414,8 +414,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    protected TrackSelectionPolicy buildTrackSelectionPolicy(HostActivity host) {
-      return trackSelectionPolicy;
+    protected MappingTrackSelector buildTrackSelector(HostActivity host) {
+      return trackSelector;
     }
 
     @Override
@@ -463,7 +463,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         CodecCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
             MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
       } catch (AssertionFailedError e) {
-        if (trackSelectionPolicy.includedAdditionalVideoFormats) {
+        if (trackSelector.includedAdditionalVideoFormats) {
           // Retry limiting to CDD mandated formats (b/28220076).
           Log.e(TAG, "Too many dropped or consecutive dropped frames.", e);
           needsCddLimitedRetry = true;
@@ -475,7 +475,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   }
 
-  private static final class DashTestTrackSelectionPolicy extends TrackSelectionPolicy {
+  private static final class DashTestTrackSelector extends MappingTrackSelector {
 
     private final String[] audioFormatIds;
     private final String[] videoFormatIds;
@@ -483,8 +483,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     public boolean includedAdditionalVideoFormats;
 
-    private DashTestTrackSelectionPolicy(String[] audioFormatIds, String[] videoFormatIds,
+    private DashTestTrackSelector(String[] audioFormatIds, String[] videoFormatIds,
         boolean canIncludeAdditionalVideoFormats) {
+      super(null);
       this.audioFormatIds = audioFormatIds;
       this.videoFormatIds = videoFormatIds;
       this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;

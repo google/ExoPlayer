@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2;
+package com.google.android.exoplayer2.trackselection;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
 
+import android.os.Handler;
+
 import java.util.Locale;
 
 /**
- * A {@link TrackSelectionPolicy} that allows configuration of common parameters.
+ * A {@link MappingTrackSelector} that allows configuration of common parameters.
  */
-public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
+public class DefaultTrackSelector extends MappingTrackSelector {
 
   private static final int[] NO_TRACKS = new int[0];
 
@@ -35,7 +41,8 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   private int maxVideoHeight;
   private boolean exceedVideoConstraintsIfNecessary;
 
-  public DefaultTrackSelectionPolicy() {
+  public DefaultTrackSelector(Handler eventHandler) {
+    super(eventHandler);
     allowNonSeamlessAdaptiveness = true;
     exceedVideoConstraintsIfNecessary = true;
     maxVideoWidth = Integer.MAX_VALUE;
@@ -124,7 +131,7 @@ public class DefaultTrackSelectionPolicy extends TrackSelectionPolicy {
   // TrackSelectionPolicy implementation.
 
   @Override
-  public TrackSelection[] selectTracks(Renderer[] renderers,
+  protected TrackSelection[] selectTracks(Renderer[] renderers,
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
       throws ExoPlaybackException {
     // Make a track selection for each renderer.

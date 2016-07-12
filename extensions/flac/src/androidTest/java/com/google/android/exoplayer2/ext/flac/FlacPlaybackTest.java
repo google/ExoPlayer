@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
-import com.google.android.exoplayer2.DefaultTrackSelectionPolicy;
-import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 import android.content.Context;
@@ -72,8 +71,7 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
     public void run() {
       Looper.prepare();
       LibflacAudioRenderer audioRenderer = new LibflacAudioRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(
-          new DefaultTrackSelectionPolicy(), null);
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null);
       player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(

@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
-import com.google.android.exoplayer2.DefaultTrackSelector;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 
 import android.util.Log;
 
@@ -43,18 +43,18 @@ public abstract class Action {
    * @param player The player to which the action should be applied.
    * @param trackSelector The track selector to which the action should be applied.
    */
-  public final void doAction(ExoPlayer player, DefaultTrackSelector trackSelector) {
+  public final void doAction(ExoPlayer player, MappingTrackSelector trackSelector) {
     Log.i(tag, description);
     doActionImpl(player, trackSelector);
   }
 
   /**
-   * Called by {@link #doAction(ExoPlayer, DefaultTrackSelector)} do actually perform the action.
+   * Called by {@link #doAction(ExoPlayer, MappingTrackSelector)} do actually perform the action.
    *
    * @param player The player to which the action should be applied.
    * @param trackSelector The track selector to which the action should be applied.
    */
-  protected abstract void doActionImpl(ExoPlayer player, DefaultTrackSelector trackSelector);
+  protected abstract void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector);
 
   /**
    * Calls {@link ExoPlayer#seekTo(long)}.
@@ -73,7 +73,7 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, DefaultTrackSelector trackSelector) {
+    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
       player.seekTo(positionMs);
     }
 
@@ -92,7 +92,7 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, DefaultTrackSelector trackSelector) {
+    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
       player.stop();
     }
 
@@ -115,14 +115,14 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, DefaultTrackSelector trackSelector) {
+    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
       player.setPlayWhenReady(playWhenReady);
     }
 
   }
 
   /**
-   * Calls {@link DefaultTrackSelector#setRendererDisabled(int, boolean)}.
+   * Calls {@link MappingTrackSelector#setRendererDisabled(int, boolean)}.
    */
   public static final class SetRendererDisabled extends Action {
 
@@ -141,7 +141,7 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, DefaultTrackSelector trackSelector) {
+    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
       trackSelector.setRendererDisabled(rendererIndex, disabled);
     }
 

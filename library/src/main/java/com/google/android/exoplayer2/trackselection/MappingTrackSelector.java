@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2;
+package com.google.android.exoplayer2.trackselection;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Assertions;
@@ -31,13 +34,14 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * A {@link TrackSelector} suitable for a wide range of use cases.
+ * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
+ * and {@link Renderer}s, and then from the mapping create {@link TrackSelection}s for each of the
+ * {@link Renderer}s.
  */
-public final class DefaultTrackSelector extends TrackSelector implements
-    TrackSelectionPolicy.InvalidationListener{
+public abstract class MappingTrackSelector extends TrackSelector {
 
   /**
-   * Interface definition for a callback to be notified of {@link DefaultTrackSelector} events.
+   * Interface definition for a callback to be notified of {@link MappingTrackSelector} events.
    */
   public interface EventListener {
 
@@ -54,22 +58,18 @@ public final class DefaultTrackSelector extends TrackSelector implements
   private final CopyOnWriteArraySet<EventListener> listeners;
   private final SparseArray<Map<TrackGroupArray, TrackSelection>> trackSelectionOverrides;
   private final SparseBooleanArray rendererDisabledFlags;
-  private final TrackSelectionPolicy trackSelectionPolicy;
 
   private TrackInfo activeTrackInfo;
 
   /**
-   * @param trackSelectionPolicy Defines the policy for track selection.
    * @param eventHandler A handler to use when delivering events to listeners added via
    *     {@link #addListener(EventListener)}.
    */
-  public DefaultTrackSelector(TrackSelectionPolicy trackSelectionPolicy, Handler eventHandler) {
-    this.trackSelectionPolicy = Assertions.checkNotNull(trackSelectionPolicy);
+  public MappingTrackSelector(Handler eventHandler) {
     this.eventHandler = eventHandler;
     this.listeners = new CopyOnWriteArraySet<>();
     trackSelectionOverrides = new SparseArray<>();
     rendererDisabledFlags = new SparseBooleanArray();
-    trackSelectionPolicy.init(this);
   }
 
   /**
@@ -78,7 +78,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    *
    * @param listener The listener to register.
    */
-  public void addListener(EventListener listener) {
+  public final void addListener(EventListener listener) {
     Assertions.checkState(eventHandler != null);
     listeners.add(listener);
   }
@@ -88,7 +88,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    *
    * @param listener The listener to unregister.
    */
-  public void removeListener(EventListener listener) {
+  public final void removeListener(EventListener listener) {
     listeners.remove(listener);
   }
 
@@ -97,7 +97,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    *
    * @return Contains the current tracks and track selection information.
    */
-  public TrackInfo getTrackInfo() {
+  public final TrackInfo getTrackInfo() {
     return activeTrackInfo;
   }
 
@@ -107,7 +107,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    * @param rendererIndex The renderer index.
    * @param disabled True if the renderer is disabled. False otherwise.
    */
-  public void setRendererDisabled(int rendererIndex, boolean disabled) {
+  public final void setRendererDisabled(int rendererIndex, boolean disabled) {
     if (rendererDisabledFlags.get(rendererIndex) == disabled) {
       // The disabled flag is unchanged.
       return;
@@ -122,7 +122,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    * @param rendererIndex The renderer index.
    * @return True if the renderer is disabled. False otherwise.
    */
-  public boolean getRendererDisabled(int rendererIndex) {
+  public final boolean getRendererDisabled(int rendererIndex) {
     return rendererDisabledFlags.get(rendererIndex);
   }
 
@@ -144,7 +144,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    */
   // TODO - Don't allow overrides that select unsupported tracks, unless some flag has been
   // explicitly set by the user to indicate that they want this.
-  public void setSelectionOverride(int rendererIndex, TrackGroupArray groups,
+  public final void setSelectionOverride(int rendererIndex, TrackGroupArray groups,
       TrackSelection override) {
     Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
     if (overrides == null) {
@@ -166,7 +166,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    * @param groups The {@link TrackGroupArray}.
    * @return True if there is an override. False otherwise.
    */
-  public boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+  public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
     Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
     return overrides != null && overrides.containsKey(groups);
   }
@@ -177,7 +177,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    * @param rendererIndex The renderer index.
    * @param groups The {@link TrackGroupArray} for which the override should be cleared.
    */
-  public void clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+  public final void clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
     Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
     if (overrides == null || !overrides.containsKey(groups)) {
       // Nothing to clear.
@@ -195,7 +195,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
    *
    * @param rendererIndex The renderer index.
    */
-  public void clearSelectionOverrides(int rendererIndex) {
+  public final void clearSelectionOverrides(int rendererIndex) {
     Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
     if (overrides == null || overrides.isEmpty()) {
       // Nothing to clear.
@@ -208,7 +208,7 @@ public final class DefaultTrackSelector extends TrackSelector implements
   /**
    * Clears all track selection overrides.
    */
-  public void clearSelectionOverrides() {
+  public final void clearSelectionOverrides() {
     if (trackSelectionOverrides.size() == 0) {
       // Nothing to clear.
       return;
@@ -217,24 +217,16 @@ public final class DefaultTrackSelector extends TrackSelector implements
     invalidate();
   }
 
-  /**
-   * Invoked when the {@link TrackSelectionPolicy} has changed.
-   */
-  @Override
-  public void invalidatePolicySelections() {
-    invalidate();
-  }
-
   // TrackSelector implementation.
 
   @Override
-  protected void onSelectionActivated(Object selectionInfo) {
+  public final void onSelectionActivated(Object selectionInfo) {
     activeTrackInfo = (TrackInfo) selectionInfo;
     notifyTrackInfoChanged(activeTrackInfo);
   }
 
   @Override
-  protected Pair<TrackSelectionArray, Object> selectTracks(Renderer[] renderers,
+  public final Pair<TrackSelectionArray, Object> selectTracks(Renderer[] renderers,
       TrackGroupArray trackGroups) throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
     // of each array is to store data associated with track groups that cannot be associated with
@@ -280,8 +272,8 @@ public final class DefaultTrackSelector extends TrackSelector implements
     TrackGroupArray unassociatedTrackGroupArray = new TrackGroupArray(
         Arrays.copyOf(rendererTrackGroups[renderers.length], unassociatedTrackGroupCount));
 
-    TrackSelection[] rendererTrackSelections = trackSelectionPolicy.selectTracks(renderers,
-        rendererTrackGroupArrays, rendererFormatSupports);
+    TrackSelection[] rendererTrackSelections = selectTracks(renderers, rendererTrackGroupArrays,
+        rendererFormatSupports);
 
     // Apply track disabling and overriding.
     for (int i = 0; i < renderers.length; i++) {
@@ -316,6 +308,21 @@ public final class DefaultTrackSelector extends TrackSelector implements
         mixedMimeTypeAdaptationSupport, rendererFormatSupports, unassociatedTrackGroupArray);
     return Pair.<TrackSelectionArray, Object>create(trackSelectionArray, trackInfo);
   }
+
+  /**
+   * Given an array of {@link Renderer}s and a set of {@link TrackGroup}s mapped to each of
+   * them, provides a {@link TrackSelection} per renderer.
+   *
+   * @param renderers The available {@link Renderer}s.
+   * @param rendererTrackGroupArrays An array of {@link TrackGroupArray}s where each entry
+   *     corresponds to the {@link Renderer} of equal index in {@code renderers}.
+   * @param rendererFormatSupports Maps every available track to a specific level of support as
+   *     defined by the {@link Renderer} {@code FORMAT_*} constants.
+   * @throws ExoPlaybackException If an error occurs while selecting the tracks.
+   */
+  protected abstract TrackSelection[] selectTracks(Renderer[] renderers,
+      TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
+      throws ExoPlaybackException;
 
   /**
    * Finds the renderer to which the provided {@link TrackGroup} should be associated.

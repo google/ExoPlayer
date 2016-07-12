@@ -89,7 +89,7 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
   }
 
   @Override
-  protected int supportsFormat(Format format) {
+  public int supportsFormat(Format format) {
     return metadataParser.canParse(format.sampleMimeType) ? Renderer.FORMAT_HANDLED
         : Renderer.FORMAT_UNSUPPORTED_TYPE;
   }
