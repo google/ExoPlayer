@@ -21,14 +21,14 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
-import com.google.android.exoplayer2.chunk.ChunkTrackStream;
+import com.google.android.exoplayer2.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.mpd.AdaptationSet;
@@ -66,7 +66,7 @@ import java.util.TimeZone;
  * A DASH {@link MediaSource}.
  */
 public final class DashMediaSource implements MediaPeriod, MediaSource,
-    SequenceableLoader.Callback<ChunkTrackStream<DashChunkSource>> {
+    SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -84,7 +84,7 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
 
   private DataSource dataSource;
   private Loader loader;
-  private ChunkTrackStream<DashChunkSource>[] trackStreams;
+  private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
 
   private Uri manifestUri;
@@ -139,8 +139,8 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
   public void prepare(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
-    trackStreams = newTrackStreamArray(0);
-    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
+    sampleStreams = newSampleStreamArray(0);
+    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     dataSource = dataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashMediaSource");
     manifestRefreshHandler = new Handler();
@@ -163,32 +163,32 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    int newEnabledSourceCount = trackStreams.length + newSelections.size() - oldStreams.size();
-    ChunkTrackStream<DashChunkSource>[] newTrackStreams =
-        newTrackStreamArray(newEnabledSourceCount);
+    int newEnabledSourceCount = sampleStreams.length + newSelections.size() - oldStreams.size();
+    ChunkSampleStream<DashChunkSource>[] newSampleStreams =
+        newSampleStreamArray(newEnabledSourceCount);
     int newEnabledSourceIndex = 0;
 
     // Iterate over currently enabled streams, either releasing them or adding them to the new list.
-    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-      if (oldStreams.contains(trackStream)) {
-        trackStream.release();
+    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+      if (oldStreams.contains(sampleStream)) {
+        sampleStream.release();
       } else {
-        newTrackStreams[newEnabledSourceIndex++] = trackStream;
+        newSampleStreams[newEnabledSourceIndex++] = sampleStream;
       }
     }
 
     // Instantiate and return new streams.
-    TrackStream[] streamsToReturn = new TrackStream[newSelections.size()];
+    SampleStream[] streamsToReturn = new SampleStream[newSelections.size()];
     for (int i = 0; i < newSelections.size(); i++) {
-      newTrackStreams[newEnabledSourceIndex] = buildTrackStream(newSelections.get(i), positionUs);
-      streamsToReturn[i] = newTrackStreams[newEnabledSourceIndex];
+      newSampleStreams[newEnabledSourceIndex] = buildSampleStream(newSelections.get(i), positionUs);
+      streamsToReturn[i] = newSampleStreams[newEnabledSourceIndex];
       newEnabledSourceIndex++;
     }
 
-    trackStreams = newTrackStreams;
-    sequenceableLoader = new CompositeSequenceableLoader(trackStreams);
+    sampleStreams = newSampleStreams;
+    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     return streamsToReturn;
   }
 
@@ -210,8 +210,8 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = Long.MAX_VALUE;
-    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-      long rendererBufferedPositionUs = trackStream.getBufferedPositionUs();
+    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+      long rendererBufferedPositionUs = sampleStream.getBufferedPositionUs();
       if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
@@ -221,8 +221,8 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
 
   @Override
   public long seekToUs(long positionUs) {
-    for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-      trackStream.seekToUs(positionUs);
+    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+      sampleStream.seekToUs(positionUs);
     }
     return positionUs;
   }
@@ -234,11 +234,11 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
       loader.release();
       loader = null;
     }
-    if (trackStreams != null) {
-      for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-        trackStream.release();
+    if (sampleStreams != null) {
+      for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+        sampleStream.release();
       }
-      trackStreams = null;
+      sampleStreams = null;
     }
     sequenceableLoader = null;
     manifestLoadStartTimestamp = 0;
@@ -260,7 +260,7 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
   // SequenceableLoader.Callback implementation.
 
   @Override
-  public void onContinueLoadingRequested(ChunkTrackStream<DashChunkSource> trackStream) {
+  public void onContinueLoadingRequested(ChunkSampleStream<DashChunkSource> sampleStream) {
     callback.onContinueLoadingRequested(this);
   }
 
@@ -285,8 +285,8 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
         finishPrepare();
       }
     } else {
-      for (ChunkTrackStream<DashChunkSource> trackStream : trackStreams) {
-        trackStream.getChunkSource().updateManifest(manifest);
+      for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+        sampleStream.getChunkSource().updateManifest(manifest);
       }
       callback.onContinueLoadingRequested(this);
       scheduleManifestRefresh();
@@ -432,7 +432,7 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
     trackGroups = new TrackGroupArray(trackGroupArray);
   }
 
-  private ChunkTrackStream<DashChunkSource> buildTrackStream(TrackSelection selection,
+  private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
@@ -445,13 +445,13 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
     DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);
-    return new ChunkTrackStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
+    return new ChunkSampleStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")
-  private static ChunkTrackStream<DashChunkSource>[] newTrackStreamArray(int length) {
-    return new ChunkTrackStream[length];
+  private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
+    return new ChunkSampleStream[length];
   }
 
   private final class ManifestCallback implements

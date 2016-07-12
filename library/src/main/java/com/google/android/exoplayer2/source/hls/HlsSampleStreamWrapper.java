@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.chunk.Chunk;
 import com.google.android.exoplayer2.chunk.ChunkHolder;
 import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
@@ -29,6 +28,7 @@ import com.google.android.exoplayer2.extractor.DefaultTrackOutput.UpstreamFormat
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -44,15 +44,15 @@ import java.util.List;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
- * {@link TrackStream}s from which the loaded media can be consumed.
+ * {@link SampleStream}s from which the loaded media can be consumed.
  */
-/* package */ final class HlsTrackStreamWrapper implements Loader.Callback<Chunk>,
+/* package */ final class HlsSampleStreamWrapper implements Loader.Callback<Chunk>,
     SequenceableLoader, ExtractorOutput, UpstreamFormatChangedListener {
 
   /**
    * A callback to be notified of events.
    */
-  public interface Callback extends SequenceableLoader.Callback<HlsTrackStreamWrapper> {
+  public interface Callback extends SequenceableLoader.Callback<HlsSampleStreamWrapper> {
 
     /**
      * Invoked when the wrapper has been prepared.
@@ -112,7 +112,7 @@ import java.util.List;
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public HlsTrackStreamWrapper(int trackType, Callback callback, HlsChunkSource chunkSource,
+  public HlsSampleStreamWrapper(int trackType, Callback callback, HlsChunkSource chunkSource,
       Allocator allocator, long positionUs, Format muxedAudioFormat, Format muxedCaptionFormat,
       int minLoadableRetryCount, EventDispatcher eventDispatcher) {
     this.trackType = trackType;
@@ -123,7 +123,7 @@ import java.util.List;
     this.muxedCaptionFormat = muxedCaptionFormat;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
-    loader = new Loader("Loader:HlsTrackStreamWrapper");
+    loader = new Loader("Loader:HlsSampleStreamWrapper");
     nextChunkHolder = new ChunkHolder();
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
@@ -151,17 +151,17 @@ import java.util.List;
     return trackGroups;
   }
 
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, boolean isFirstTrackSelection) {
     Assertions.checkState(prepared);
     // Unselect old tracks.
     for (int i = 0; i < oldStreams.size(); i++) {
-      int group = ((TrackStreamImpl) oldStreams.get(i)).group;
+      int group = ((SampleStreamImpl) oldStreams.get(i)).group;
       setTrackGroupEnabledState(group, false);
       sampleQueues.valueAt(group).disable();
     }
     // Select new tracks.
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    SampleStream[] newStreams = new SampleStream[newSelections.size()];
     for (int i = 0; i < newStreams.length; i++) {
       TrackSelection selection = newSelections.get(i);
       int group = selection.group;
@@ -170,7 +170,7 @@ import java.util.List;
       if (group == primaryTrackGroupIndex) {
         chunkSource.selectTracks(tracks);
       }
-      newStreams[i] = new TrackStreamImpl(group);
+      newStreams[i] = new SampleStreamImpl(group);
     }
     // At the time of the first track selection all queues will be enabled, so we need to disable
     // any that are no longer required.
@@ -239,7 +239,7 @@ import java.util.List;
     loader.release();
   }
 
-  // TrackStream implementation.
+  // SampleStream implementation.
 
   /* package */ boolean isReady(int group) {
     return loadingFinished || (!isPendingReset() && !sampleQueues.valueAt(group).isEmpty());
@@ -252,7 +252,7 @@ import java.util.List;
 
   /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (isPendingReset()) {
-      return TrackStream.NOTHING_READ;
+      return C.RESULT_NOTHING_READ;
     }
 
     while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
@@ -461,7 +461,7 @@ import java.util.List;
   }
 
   /**
-   * Builds tracks that are exposed by this {@link HlsTrackStreamWrapper} instance, as well as
+   * Builds tracks that are exposed by this {@link HlsSampleStreamWrapper} instance, as well as
    * internal data-structures required for operation.
    * <p>
    * Tracks in HLS are complicated. A HLS master playlist contains a number of "variants". Each
@@ -475,7 +475,7 @@ import java.util.List;
    * adaptive track defined to span all variants and a track for each individual variant. The
    * adaptive track is initially selected. The extractor is then prepared to discover the tracks
    * inside of each variant stream. The two sets of tracks are then combined by this method to
-   * create a third set, which is the set exposed by this {@link HlsTrackStreamWrapper}:
+   * create a third set, which is the set exposed by this {@link HlsSampleStreamWrapper}:
    * <ul>
    * <li>The extractor tracks are inspected to infer a "primary" track type. If a video track is
    * present then it is always the primary type. If not, audio is the primary type if present.
@@ -587,27 +587,27 @@ import java.util.List;
     return pendingResetPositionUs != C.UNSET_TIME_US;
   }
 
-  private final class TrackStreamImpl implements TrackStream {
+  private final class SampleStreamImpl implements SampleStream {
 
     private final int group;
 
-    public TrackStreamImpl(int group) {
+    public SampleStreamImpl(int group) {
       this.group = group;
     }
 
     @Override
     public boolean isReady() {
-      return HlsTrackStreamWrapper.this.isReady(group);
+      return HlsSampleStreamWrapper.this.isReady(group);
     }
 
     @Override
     public void maybeThrowError() throws IOException {
-      HlsTrackStreamWrapper.this.maybeThrowError();
+      HlsSampleStreamWrapper.this.maybeThrowError();
     }
 
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      return HlsTrackStreamWrapper.this.readData(group, formatHolder, buffer);
+      return HlsSampleStreamWrapper.this.readData(group, formatHolder, buffer);
     }
 
   }

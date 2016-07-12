@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2;
+package com.google.android.exoplayer2.source;
+
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DecoderInputBuffer;
+import com.google.android.exoplayer2.FormatHolder;
 
 import java.io.IOException;
 
 /**
- * A stream of media data.
+ * A stream of media samples (and associated format information).
  */
-public interface TrackStream {
-
-  /**
-   * Nothing was read.
-   */
-  int NOTHING_READ = -1;
-  /**
-   * The buffer was populated.
-   */
-  int BUFFER_READ = -2;
-  /**
-   * A format was read.
-   */
-  int FORMAT_READ = -3;
+public interface SampleStream {
 
   /**
    * Returns whether data is available to be read.
@@ -59,8 +50,8 @@ public interface TrackStream {
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
    *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
-   * @return The result, which can be {@link #NOTHING_READ}, {@link #FORMAT_READ} or
-   *     {@link #BUFFER_READ}.
+   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
+   *     {@link C#RESULT_BUFFER_READ}.
    */
   int readData(FormatHolder formatHolder, DecoderInputBuffer buffer);
 

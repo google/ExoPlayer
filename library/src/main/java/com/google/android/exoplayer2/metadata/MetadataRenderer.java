@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.util.Assertions;
 
 import android.os.Handler;
@@ -106,7 +105,7 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
     if (!inputStreamEnded && pendingMetadata == null) {
       buffer.clear();
       int result = readSource(formatHolder, buffer);
-      if (result == TrackStream.BUFFER_READ) {
+      if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           inputStreamEnded = true;
         } else {

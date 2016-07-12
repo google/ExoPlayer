@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
@@ -39,7 +38,7 @@ import java.util.List;
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
  */
-public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, TrackStream,
+public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, SampleStream,
     Loader.Callback<SingleSampleMediaSource.SourceLoadable> {
 
   /**
@@ -151,12 +150,12 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   }
 
   @Override
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(oldStreams.size() <= 1);
     Assertions.checkState(newSelections.size() <= 1);
     // Select new tracks.
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    SampleStream[] newStreams = new SampleStream[newSelections.size()];
     if (!newSelections.isEmpty()) {
       newStreams[0] = this;
       streamState = STREAM_STATE_SEND_FORMAT;
@@ -204,7 +203,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
     sampleSize = 0;
   }
 
-  // TrackStream implementation.
+  // SampleStream implementation.
 
   @Override
   public boolean isReady() {
@@ -225,23 +224,23 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (streamState == STREAM_STATE_END_OF_STREAM) {
       buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      return BUFFER_READ;
+      return C.RESULT_BUFFER_READ;
     } else if (streamState == STREAM_STATE_SEND_FORMAT) {
       formatHolder.format = format;
       streamState = STREAM_STATE_SEND_SAMPLE;
-      return FORMAT_READ;
+      return C.RESULT_FORMAT_READ;
     }
 
     Assertions.checkState(streamState == STREAM_STATE_SEND_SAMPLE);
     if (!loadingFinished) {
-      return NOTHING_READ;
+      return C.RESULT_NOTHING_READ;
     } else {
       buffer.timeUs = 0;
       buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       buffer.ensureSpaceForWrite(sampleSize);
       buffer.data.put(sampleData, 0, sampleSize);
       streamState = STREAM_STATE_END_OF_STREAM;
-      return BUFFER_READ;
+      return C.RESULT_BUFFER_READ;
     }
   }
 

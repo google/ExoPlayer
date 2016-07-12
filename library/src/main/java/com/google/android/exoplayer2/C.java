@@ -153,6 +153,21 @@ public interface C {
   int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
   /**
+   * A return value for methods where nothing was read.
+   */
+  int RESULT_NOTHING_READ = -3;
+
+  /**
+   * A return value for methods where a buffer was read.
+   */
+  int RESULT_BUFFER_READ = -4;
+
+  /**
+   * A return value for methods where a format was read.
+   */
+  int RESULT_FORMAT_READ = -5;
+
+  /**
    * A data type constant for data of unknown or unspecified type.
    */
   int DATA_TYPE_UNKNOWN = 0;

@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.upstream.Allocator;
 
 import java.io.IOException;
@@ -94,28 +93,28 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Modifies the selected tracks.
    * <p>
-   * {@link TrackStream}s corresponding to tracks being unselected are passed in {@code oldStreams}.
-   * Tracks being selected are specified in {@code newSelections}. Each new {@link TrackSelection}
-   * must have a {@link TrackSelection#group} index distinct from those of currently enabled tracks,
-   * except for those being unselected.
+   * {@link SampleStream}s corresponding to tracks being unselected are passed in
+   * {@code oldStreams}. Tracks being selected are specified in {@code newSelections}. Each new
+   * {@link TrackSelection} must have a {@link TrackSelection#group} index distinct from those of
+   * currently enabled tracks, except for those being unselected.
    * <p>
    * This method should only be called after the period has been prepared.
    *
-   * @param oldStreams {@link TrackStream}s corresponding to tracks being unselected. May be empty
+   * @param oldStreams {@link SampleStream}s corresponding to tracks being unselected. May be empty
    *     but must not be null.
    * @param newSelections {@link TrackSelection}s that define tracks being selected. May be empty
    *     but must not be null.
    * @param positionUs The current playback position in microseconds.
-   * @return The {@link TrackStream}s corresponding to each of the newly selected tracks.
+   * @return The {@link SampleStream}s corresponding to each of the newly selected tracks.
    */
-  TrackStream[] selectTracks(List<TrackStream> oldStreams, List<TrackSelection> newSelections,
+  SampleStream[] selectTracks(List<SampleStream> oldStreams, List<TrackSelection> newSelections,
       long positionUs);
 
   /**
    * Attempts to read a discontinuity.
    * <p>
    * After this method has returned a value other than {@link C#UNSET_TIME_US}, all
-   * {@link TrackStream}s provided by the period are guaranteed to start from a key frame.
+   * {@link SampleStream}s provided by the period are guaranteed to start from a key frame.
    *
    * @return If a discontinuity was read then the playback position in microseconds after the
    *     discontinuity. Else {@link C#UNSET_TIME_US}.
@@ -135,7 +134,7 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Attempts to seek to the specified position in microseconds.
    * <p>
-   * After this method has been called, all {@link TrackStream}s provided by the period are
+   * After this method has been called, all {@link SampleStream}s provided by the period are
    * guaranteed to start from a key frame.
    * <p>
    * This method should only be called when at least one track is selected.

@@ -357,7 +357,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Invoked when the {@link HlsTrackStreamWrapper} has finished loading a chunk obtained from this
+   * Invoked when the {@link HlsSampleStreamWrapper} has finished loading a chunk obtained from this
    * source.
    *
    * @param chunk The chunk whose load has been completed.
@@ -376,7 +376,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Invoked when the {@link HlsTrackStreamWrapper} encounters an error loading a chunk obtained
+   * Invoked when the {@link HlsSampleStreamWrapper} encounters an error loading a chunk obtained
    * from this source.
    *
    * @param chunk The chunk whose load encountered the error.

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.util.Assertions;
 
 import java.util.Arrays;
@@ -24,8 +23,8 @@ import java.util.Arrays;
 /**
  * Defines a group of tracks exposed by a {@link MediaPeriod}.
  * <p>
- * A {@link MediaPeriod} is only able to provide one {@link TrackStream} corresponding to a group
- * at any given time. If {@link #adaptive} is true this {@link TrackStream} can adapt between
+ * A {@link MediaPeriod} is only able to provide one {@link SampleStream} corresponding to a group
+ * at any given time. If {@link #adaptive} is true this {@link SampleStream} can adapt between
  * multiple tracks within the group. If {@link #adaptive} is false then it's only possible to
  * consume one track from the group at a given time.
  */

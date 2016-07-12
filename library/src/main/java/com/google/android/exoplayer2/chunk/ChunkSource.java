@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * A provider of {@link Chunk}s for a {@link ChunkTrackStream} to load.
+ * A provider of {@link Chunk}s for a {@link ChunkSampleStream} to load.
  */
 public interface ChunkSource {
 
@@ -62,7 +62,7 @@ public interface ChunkSource {
   void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out);
 
   /**
-   * Invoked when the {@link ChunkTrackStream} has finished loading a chunk obtained from this
+   * Invoked when the {@link ChunkSampleStream} has finished loading a chunk obtained from this
    * source.
    * <p>
    * This method should only be called when the source is enabled.
@@ -72,7 +72,7 @@ public interface ChunkSource {
   void onChunkLoadCompleted(Chunk chunk);
 
   /**
-   * Invoked when the {@link ChunkTrackStream} encounters an error loading a chunk obtained from
+   * Invoked when the {@link ChunkSampleStream} encounters an error loading a chunk obtained from
    * this source.
    * <p>
    * This method should only be called when the source is enabled.

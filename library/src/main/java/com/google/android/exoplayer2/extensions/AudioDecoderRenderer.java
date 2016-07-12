@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.MediaClock;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -241,10 +240,10 @@ public abstract class AudioDecoderRenderer extends Renderer implements MediaCloc
     }
 
     int result = readSource(formatHolder, inputBuffer);
-    if (result == TrackStream.NOTHING_READ) {
+    if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
-    if (result == TrackStream.FORMAT_READ) {
+    if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
       return true;
     }
@@ -354,7 +353,7 @@ public abstract class AudioDecoderRenderer extends Renderer implements MediaCloc
 
   private boolean readFormat() {
     int result = readSource(formatHolder, null);
-    if (result == TrackStream.FORMAT_READ) {
+    if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
       return true;
     }

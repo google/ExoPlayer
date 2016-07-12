@@ -69,9 +69,9 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param extractor The extractor to parse samples from the data.
    * @param extractorNeedsInit Whether the extractor needs initializing with the target
-   *     {@link HlsTrackStreamWrapper}.
+   *     {@link HlsSampleStreamWrapper}.
    * @param shouldSpliceIn Whether the samples parsed from this chunk should be spliced into any
-   *     samples already queued to the {@link HlsTrackStreamWrapper}.
+   *     samples already queued to the {@link HlsSampleStreamWrapper}.
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
@@ -92,12 +92,12 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Initializes the chunk for loading, setting the {@link HlsTrackStreamWrapper} that will receive
+   * Initializes the chunk for loading, setting the {@link HlsSampleStreamWrapper} that will receive
    * samples as they are loaded.
    *
    * @param output The output that will receive the loaded samples.
    */
-  public void init(HlsTrackStreamWrapper output) {
+  public void init(HlsSampleStreamWrapper output) {
     output.init(uid, shouldSpliceIn);
     if (extractorNeedsInit) {
       extractor.init(output);

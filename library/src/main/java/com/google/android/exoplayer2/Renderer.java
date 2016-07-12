@@ -16,13 +16,14 @@
 package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerComponent;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import java.io.IOException;
 
 /**
- * Renders a single component of media.
+ * Renders media samples read from a {@link SampleStream}.
  * <p>
  * Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The player will
  * transition its renderers through various states as the overall playback state changes. The valid
@@ -107,7 +108,7 @@ public abstract class Renderer implements ExoPlayerComponent {
 
   private int index;
   private int state;
-  private TrackStream stream;
+  private SampleStream stream;
   private long streamOffsetUs;
   private boolean readEndOfStream;
   private boolean streamIsFinal;
@@ -169,22 +170,22 @@ public abstract class Renderer implements ExoPlayerComponent {
   }
 
   /**
-   * Enable the renderer to consume from the specified {@link TrackStream}.
+   * Enable the renderer to consume from the specified {@link SampleStream}.
    *
    * @param formats The enabled formats.
-   * @param stream The track stream from which the renderer should consume.
+   * @param stream The {@link SampleStream} from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream}
-   *     before they are renderered.
+   *     before they are rendered.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void enable(Format[] formats, TrackStream stream, long positionUs,
+  /* package */ final void enable(Format[] formats, SampleStream stream, long positionUs,
       boolean joining, long offsetUs) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceTrackStream(formats, stream, offsetUs);
+    replaceSampleStream(formats, stream, offsetUs);
     onReset(positionUs, joining);
   }
 
@@ -201,15 +202,15 @@ public abstract class Renderer implements ExoPlayerComponent {
   }
 
   /**
-   * Sets the {@link TrackStream} from which samples will be consumed.
+   * Sets the {@link SampleStream} from which samples will be consumed.
    *
    * @param formats The enabled formats.
-   * @param stream The track stream from which the renderer should consume.
+   * @param stream The {@link SampleStream} from which the renderer should consume.
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
-   *     they are renderered.
+   *     they are rendered.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void replaceTrackStream(Format[] formats, TrackStream stream, long offsetUs)
+  /* package */ final void replaceSampleStream(Format[] formats, SampleStream stream, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -256,17 +257,17 @@ public abstract class Renderer implements ExoPlayerComponent {
   }
 
   /**
-   * Returns whether the renderer has read the current {@link TrackStream} to the end.
+   * Returns whether the renderer has read the current {@link SampleStream} to the end.
    */
   /* package */ final boolean hasReadStreamToEnd() {
     return readEndOfStream;
   }
 
   /**
-   * Signals to the renderer that the current {@link TrackStream} will be the final one supplied
+   * Signals to the renderer that the current {@link SampleStream} will be the final one supplied
    * before it is next disabled or reset.
    */
-  /* package */ final void setCurrentTrackStreamIsFinal() {
+  /* package */ final void setCurrentSampleStreamIsFinal() {
     streamIsFinal = true;
   }
 
@@ -338,7 +339,7 @@ public abstract class Renderer implements ExoPlayerComponent {
   // Methods to be called by subclasses.
 
   /**
-   * Throws an error that's preventing the renderer from reading from its {@link TrackStream}. Does
+   * Throws an error that's preventing the renderer from reading from its {@link SampleStream}. Does
    * nothing if no such error exists.
    * <p>
    * This method may be called when the renderer is in the following states:
@@ -354,14 +355,14 @@ public abstract class Renderer implements ExoPlayerComponent {
   /**
    * Reads from the enabled upstream source.
    *
-   * @see TrackStream#readData(FormatHolder, DecoderInputBuffer)
+   * @see SampleStream#readData(FormatHolder, DecoderInputBuffer)
    */
   protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
     int result = stream.readData(formatHolder, buffer);
-    if (result == TrackStream.BUFFER_READ) {
+    if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {
         readEndOfStream = true;
-        return streamIsFinal ? TrackStream.BUFFER_READ : TrackStream.NOTHING_READ;
+        return streamIsFinal ? C.RESULT_BUFFER_READ : C.RESULT_NOTHING_READ;
       }
       buffer.timeUs += streamOffsetUs;
     }
@@ -410,7 +411,7 @@ public abstract class Renderer implements ExoPlayerComponent {
   protected abstract int supportsFormat(Format format) throws ExoPlaybackException;
 
   /**
-   * Incrementally renders the {@link TrackStream}.
+   * Incrementally renders the {@link SampleStream}.
    * <p>
    * This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.

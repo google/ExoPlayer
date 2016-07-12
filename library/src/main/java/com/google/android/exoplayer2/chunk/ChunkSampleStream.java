@@ -20,9 +20,9 @@ import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SequenceableLoader;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.util.Assertions;
@@ -33,14 +33,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A {@link TrackStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
+ * A {@link SampleStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  */
-public class ChunkTrackStream<T extends ChunkSource> implements TrackStream, SequenceableLoader,
+public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, SequenceableLoader,
     Loader.Callback<Chunk> {
 
   private final int trackType;
   private final T chunkSource;
-  private final SequenceableLoader.Callback<ChunkTrackStream<T>> callback;
+  private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
   private final EventDispatcher eventDispatcher;
   private final int minLoadableRetryCount;
   private final LinkedList<BaseMediaChunk> mediaChunks;
@@ -66,15 +66,15 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream, Seq
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public ChunkTrackStream(int trackType, T chunkSource,
-      SequenceableLoader.Callback<ChunkTrackStream<T>> callback, Allocator allocator,
+  public ChunkSampleStream(int trackType, T chunkSource,
+      SequenceableLoader.Callback<ChunkSampleStream<T>> callback, Allocator allocator,
       long positionUs, int minLoadableRetryCount, EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.chunkSource = chunkSource;
     this.callback = callback;
     this.eventDispatcher = eventDispatcher;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    loader = new Loader("Loader:ChunkTrackStream");
+    loader = new Loader("Loader:ChunkSampleStream");
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
@@ -155,7 +155,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream, Seq
     loader.release();
   }
 
-  // TrackStream implementation.
+  // SampleStream implementation.
 
   @Override
   public boolean isReady() {
@@ -173,7 +173,7 @@ public class ChunkTrackStream<T extends ChunkSource> implements TrackStream, Seq
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (isPendingReset()) {
-      return NOTHING_READ;
+      return C.RESULT_NOTHING_READ;
     }
 
     while (mediaChunks.size() > 1

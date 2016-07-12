@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -159,7 +158,7 @@ public interface AdaptiveMediaSourceEventListener {
 
   /**
    * Invoked when a downstream format change occurs (i.e. when the format of the media being read
-   * from one or more {@link TrackStream}s provided by the source changes).
+   * from one or more {@link SampleStream}s provided by the source changes).
    *
    * @param trackType The type of the media. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param format The new format.

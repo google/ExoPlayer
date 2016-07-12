@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
@@ -234,19 +233,19 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     Assertions.checkState(prepared);
     // Unselect old tracks.
     for (int i = 0; i < oldStreams.size(); i++) {
-      int track = ((TrackStreamImpl) oldStreams.get(i)).track;
+      int track = ((SampleStreamImpl) oldStreams.get(i)).track;
       Assertions.checkState(trackEnabledStates[track]);
       enabledTrackCount--;
       trackEnabledStates[track] = false;
       sampleQueues[track].disable();
     }
     // Select new tracks.
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    SampleStream[] newStreams = new SampleStream[newSelections.size()];
     for (int i = 0; i < newStreams.length; i++) {
       TrackSelection selection = newSelections.get(i);
       Assertions.checkState(selection.length == 1);
@@ -255,7 +254,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       Assertions.checkState(!trackEnabledStates[track]);
       enabledTrackCount++;
       trackEnabledStates[track] = true;
-      newStreams[i] = new TrackStreamImpl(track);
+      newStreams[i] = new SampleStreamImpl(track);
     }
     // At the time of the first track selection all queues will be enabled, so we need to disable
     // any that are no longer required.
@@ -379,7 +378,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     loadingFinished = false;
   }
 
-  // TrackStream methods.
+  // SampleStream methods.
 
   /* package */ boolean isReady(int track) {
     return loadingFinished || (!isPendingReset() && !sampleQueues[track].isEmpty());
@@ -391,7 +390,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (notifyReset || isPendingReset()) {
-      return TrackStream.NOTHING_READ;
+      return C.RESULT_NOTHING_READ;
     }
 
     return sampleQueues[track].readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
@@ -580,11 +579,11 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     }
   }
 
-  private final class TrackStreamImpl implements TrackStream {
+  private final class SampleStreamImpl implements SampleStream {
 
     private final int track;
 
-    public TrackStreamImpl(int track) {
+    public SampleStreamImpl(int track) {
       this.track = track;
     }
 

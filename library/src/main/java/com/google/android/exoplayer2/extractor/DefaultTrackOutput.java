@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -252,22 +251,22 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
-   * @return The result, which can be {@link TrackStream#NOTHING_READ},
-   *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.
+   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
+   *     {@link C#RESULT_BUFFER_READ}.
    */
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean loadingFinished,
       long decodeOnlyUntilUs) {
     switch (infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder)) {
-      case TrackStream.NOTHING_READ:
+      case C.RESULT_NOTHING_READ:
         if (loadingFinished) {
           buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-          return TrackStream.BUFFER_READ;
+          return C.RESULT_BUFFER_READ;
         }
-        return TrackStream.NOTHING_READ;
-      case TrackStream.FORMAT_READ:
+        return C.RESULT_NOTHING_READ;
+      case C.RESULT_FORMAT_READ:
         downstreamFormat = formatHolder.format;
-        return TrackStream.FORMAT_READ;
-      case TrackStream.BUFFER_READ:
+        return C.RESULT_FORMAT_READ;
+      case C.RESULT_BUFFER_READ:
         if (buffer.timeUs < decodeOnlyUntilUs) {
           buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
         }
@@ -280,7 +279,7 @@ public final class DefaultTrackOutput implements TrackOutput {
         readData(extrasHolder.offset, buffer.data, extrasHolder.size);
         // Advance the read head.
         dropDownstreamTo(extrasHolder.nextOffset);
-        return TrackStream.BUFFER_READ;
+        return C.RESULT_BUFFER_READ;
       default:
         throw new IllegalStateException();
     }
@@ -747,22 +746,22 @@ public final class DefaultTrackOutput implements TrackOutput {
      * @param downstreamFormat The current downstream {@link Format}. If the format of the next
      *     sample is different to the current downstream format then a format will be read.
      * @param extrasHolder The holder into which extra sample information should be written.
-     * @return The result, which can be {@link TrackStream#NOTHING_READ},
-     *     {@link TrackStream#FORMAT_READ} or {@link TrackStream#BUFFER_READ}.
+     * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ}
+     *     or {@link C#RESULT_BUFFER_READ}.
      */
     public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
         Format downstreamFormat, BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
         if (upstreamFormat != null && upstreamFormat != downstreamFormat) {
           formatHolder.format = upstreamFormat;
-          return TrackStream.FORMAT_READ;
+          return C.RESULT_FORMAT_READ;
         }
-        return TrackStream.NOTHING_READ;
+        return C.RESULT_NOTHING_READ;
       }
 
       if (formats[relativeReadIndex] != downstreamFormat) {
         formatHolder.format = formats[relativeReadIndex];
-        return TrackStream.FORMAT_READ;
+        return C.RESULT_FORMAT_READ;
       }
 
       buffer.timeUs = timesUs[relativeReadIndex];
@@ -782,7 +781,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
       extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
           : extrasHolder.offset + extrasHolder.size;
-      return TrackStream.BUFFER_READ;
+      return C.RESULT_BUFFER_READ;
     }
 
     /**

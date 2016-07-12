@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.SequenceableLoader;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.upstream.Allocator;
 
 import android.util.Pair;
@@ -35,7 +34,7 @@ import java.util.List;
 public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   private final MediaPeriod[] periods;
-  private final IdentityHashMap<TrackStream, MediaPeriod> trackStreamPeriods;
+  private final IdentityHashMap<SampleStream, MediaPeriod> sampleStreamPeriods;
   private final int[] selectedTrackCounts;
 
   private Callback callback;
@@ -50,7 +49,7 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   public MergingMediaPeriod(MediaPeriod... periods) {
     this.periods = periods;
     pendingChildPrepareCount = periods.length;
-    trackStreamPeriods = new IdentityHashMap<>();
+    sampleStreamPeriods = new IdentityHashMap<>();
     selectedTrackCounts = new int[periods.length];
   }
 
@@ -80,9 +79,9 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    SampleStream[] newStreams = new SampleStream[newSelections.size()];
     // Select tracks for each period.
     int enabledPeriodCount = 0;
     for (int i = 0; i < periods.length; i++) {
@@ -206,15 +205,15 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
 
   // Internal methods.
 
-  private int selectTracks(MediaPeriod period, List<TrackStream> allOldStreams,
-      List<TrackSelection> allNewSelections, long positionUs, TrackStream[] allNewStreams,
+  private int selectTracks(MediaPeriod period, List<SampleStream> allOldStreams,
+      List<TrackSelection> allNewSelections, long positionUs, SampleStream[] allNewStreams,
       boolean seenFirstTrackSelection) {
     // Get the subset of the old streams for the period.
-    ArrayList<TrackStream> oldStreams = new ArrayList<>();
+    ArrayList<SampleStream> oldStreams = new ArrayList<>();
     for (int i = 0; i < allOldStreams.size(); i++) {
-      TrackStream stream = allOldStreams.get(i);
-      if (trackStreamPeriods.get(stream) == period) {
-        trackStreamPeriods.remove(stream);
+      SampleStream stream = allOldStreams.get(i);
+      if (sampleStreamPeriods.get(stream) == period) {
+        sampleStreamPeriods.remove(stream);
         oldStreams.add(stream);
       }
     }
@@ -234,10 +233,10 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
       return 0;
     }
     // Perform the selection.
-    TrackStream[] newStreams = period.selectTracks(oldStreams, newSelections, positionUs);
+    SampleStream[] newStreams = period.selectTracks(oldStreams, newSelections, positionUs);
     for (int j = 0; j < newStreams.length; j++) {
       allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
-      trackStreamPeriods.put(newStreams[j], period);
+      sampleStreamPeriods.put(newStreams[j], period);
     }
     return newSelections.size() - oldStreams.size();
   }

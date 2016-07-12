@@ -20,12 +20,12 @@ import com.google.android.exoplayer2.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.TrackSelection;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -56,7 +56,7 @@ import java.util.List;
  * An HLS {@link MediaSource}.
  */
 public final class HlsMediaSource implements MediaPeriod, MediaSource,
-    Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsTrackStreamWrapper.Callback {
+    Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsSampleStreamWrapper.Callback {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -68,7 +68,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private final BandwidthMeter bandwidthMeter;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
-  private final IdentityHashMap<TrackStream, HlsTrackStreamWrapper> trackStreamSources;
+  private final IdentityHashMap<SampleStream, HlsSampleStreamWrapper> sampleStreamSources;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final HlsPlaylistParser manifestParser;
 
@@ -85,8 +85,8 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private boolean isLive;
   private TrackGroupArray trackGroups;
   private int[] selectedTrackCounts;
-  private HlsTrackStreamWrapper[] trackStreamWrappers;
-  private HlsTrackStreamWrapper[] enabledTrackStreamWrappers;
+  private HlsSampleStreamWrapper[] sampleStreamWrappers;
+  private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
 
   public HlsMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
@@ -105,7 +105,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
 
-    trackStreamSources = new IdentityHashMap<>();
+    sampleStreamSources = new IdentityHashMap<>();
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     manifestParser = new HlsPlaylistParser();
   }
@@ -140,11 +140,11 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    if (trackStreamWrappers == null) {
+    if (sampleStreamWrappers == null) {
       manifestFetcher.maybeThrowError();
     } else {
-      for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-        trackStreamWrapper.maybeThrowPrepareError();
+      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+        sampleStreamWrapper.maybeThrowPrepareError();
       }
     }
   }
@@ -160,28 +160,29 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public TrackStream[] selectTracks(List<TrackStream> oldStreams,
+  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    TrackStream[] newStreams = new TrackStream[newSelections.size()];
+    SampleStream[] newStreams = new SampleStream[newSelections.size()];
     // Select tracks for each wrapper.
-    int enabledTrackStreamWrapperCount = 0;
-    for (int i = 0; i < trackStreamWrappers.length; i++) {
-      selectedTrackCounts[i] += selectTracks(trackStreamWrappers[i], oldStreams, newSelections,
+    int enabledSampleStreamWrapperCount = 0;
+    for (int i = 0; i < sampleStreamWrappers.length; i++) {
+      selectedTrackCounts[i] += selectTracks(sampleStreamWrappers[i], oldStreams, newSelections,
           newStreams);
       if (selectedTrackCounts[i] > 0) {
-        enabledTrackStreamWrapperCount++;
+        enabledSampleStreamWrapperCount++;
       }
     }
     // Update the enabled wrappers.
-    enabledTrackStreamWrappers = new HlsTrackStreamWrapper[enabledTrackStreamWrapperCount];
-    sequenceableLoader = new CompositeSequenceableLoader(enabledTrackStreamWrappers);
-    enabledTrackStreamWrapperCount = 0;
-    for (int i = 0; i < trackStreamWrappers.length; i++) {
+    enabledSampleStreamWrappers = new HlsSampleStreamWrapper[enabledSampleStreamWrapperCount];
+    sequenceableLoader = new CompositeSequenceableLoader(enabledSampleStreamWrappers);
+    enabledSampleStreamWrapperCount = 0;
+    for (int i = 0; i < sampleStreamWrappers.length; i++) {
       if (selectedTrackCounts[i] > 0) {
-        enabledTrackStreamWrappers[enabledTrackStreamWrapperCount++] = trackStreamWrappers[i];
+        enabledSampleStreamWrappers[enabledSampleStreamWrapperCount++] = sampleStreamWrappers[i];
       }
     }
-    if (enabledTrackStreamWrapperCount > 0 && seenFirstTrackSelection && !newSelections.isEmpty()) {
+    if (enabledSampleStreamWrapperCount > 0 && seenFirstTrackSelection
+        && !newSelections.isEmpty()) {
       seekToUs(positionUs);
     }
     seenFirstTrackSelection = true;
@@ -206,8 +207,8 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = Long.MAX_VALUE;
-    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
-      long rendererBufferedPositionUs = trackStreamWrapper.getBufferedPositionUs();
+    for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
+      long rendererBufferedPositionUs = sampleStreamWrapper.getBufferedPositionUs();
       if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
@@ -220,15 +221,15 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = isLive ? 0 : positionUs;
     timestampAdjusterProvider.reset();
-    for (HlsTrackStreamWrapper trackStreamWrapper : enabledTrackStreamWrappers) {
-      trackStreamWrapper.seekTo(positionUs);
+    for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
+      sampleStreamWrapper.seekTo(positionUs);
     }
     return positionUs;
   }
 
   @Override
   public void release() {
-    trackStreamSources.clear();
+    sampleStreamSources.clear();
     timestampAdjusterProvider.reset();
     manifestDataSource = null;
     if (manifestFetcher != null) {
@@ -244,13 +245,13 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     isLive = false;
     trackGroups = null;
     selectedTrackCounts = null;
-    if (trackStreamWrappers != null) {
-      for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-        trackStreamWrapper.release();
+    if (sampleStreamWrappers != null) {
+      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+        sampleStreamWrapper.release();
       }
-      trackStreamWrappers = null;
+      sampleStreamWrappers = null;
     }
-    enabledTrackStreamWrappers = null;
+    enabledSampleStreamWrappers = null;
     sequenceableLoader = null;
   }
 
@@ -262,13 +263,13 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
     HlsPlaylist playlist = loadable.getResult();
-    List<HlsTrackStreamWrapper> trackStreamWrapperList = buildTrackStreamWrappers(playlist);
-    trackStreamWrappers = new HlsTrackStreamWrapper[trackStreamWrapperList.size()];
-    trackStreamWrapperList.toArray(trackStreamWrappers);
-    selectedTrackCounts = new int[trackStreamWrappers.length];
-    pendingPrepareCount = trackStreamWrappers.length;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      trackStreamWrapper.prepare();
+    List<HlsSampleStreamWrapper> sampleStreamWrapperList = buildSampleStreamWrappers(playlist);
+    sampleStreamWrappers = new HlsSampleStreamWrapper[sampleStreamWrapperList.size()];
+    sampleStreamWrapperList.toArray(sampleStreamWrappers);
+    selectedTrackCounts = new int[sampleStreamWrappers.length];
+    pendingPrepareCount = sampleStreamWrappers.length;
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      sampleStreamWrapper.prepare();
     }
   }
 
@@ -288,7 +289,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
-  // HlsTrackStreamWrapper.Callback implementation.
+  // HlsSampleStreamWrapper.Callback implementation.
 
   @Override
   public void onPrepared() {
@@ -297,19 +298,19 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     }
 
     // The wrapper at index 0 is the one of type TRACK_TYPE_DEFAULT.
-    durationUs = trackStreamWrappers[0].getDurationUs();
-    isLive = trackStreamWrappers[0].isLive();
+    durationUs = sampleStreamWrappers[0].getDurationUs();
+    isLive = sampleStreamWrappers[0].isLive();
 
     int totalTrackGroupCount = 0;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      totalTrackGroupCount += trackStreamWrapper.getTrackGroups().length;
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      totalTrackGroupCount += sampleStreamWrapper.getTrackGroups().length;
     }
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
     int trackGroupIndex = 0;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      int wrapperTrackGroupCount = trackStreamWrapper.getTrackGroups().length;
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      int wrapperTrackGroupCount = sampleStreamWrapper.getTrackGroups().length;
       for (int j = 0; j < wrapperTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = trackStreamWrapper.getTrackGroups().get(j);
+        trackGroupArray[trackGroupIndex++] = sampleStreamWrapper.getTrackGroups().get(j);
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
@@ -317,7 +318,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public void onContinueLoadingRequested(HlsTrackStreamWrapper trackStreamWrapper) {
+  public void onContinueLoadingRequested(HlsSampleStreamWrapper sampleStreamWrapper) {
     if (trackGroups == null) {
       // Still preparing.
       return;
@@ -327,17 +328,17 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   // Internal methods.
 
-  private List<HlsTrackStreamWrapper> buildTrackStreamWrappers(HlsPlaylist playlist) {
-    ArrayList<HlsTrackStreamWrapper> trackStreamWrappers = new ArrayList<>();
+  private List<HlsSampleStreamWrapper> buildSampleStreamWrappers(HlsPlaylist playlist) {
+    ArrayList<HlsSampleStreamWrapper> sampleStreamWrappers = new ArrayList<>();
     String baseUri = playlist.baseUri;
 
     if (playlist instanceof HlsMediaPlaylist) {
       Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null,
           Format.NO_VALUE);
       Variant[] variants = new Variant[] {new Variant(playlist.baseUri, format, null)};
-      trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
+      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
           new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), null, null));
-      return trackStreamWrappers;
+      return sampleStreamWrappers;
     }
 
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
@@ -369,7 +370,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     if (!selectedVariants.isEmpty()) {
       Variant[] variants = new Variant[selectedVariants.size()];
       selectedVariants.toArray(variants);
-      trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
+      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
           new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), masterPlaylist.muxedAudioFormat,
           masterPlaylist.muxedCaptionFormat));
     }
@@ -379,7 +380,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     if (!audioVariants.isEmpty()) {
       Variant[] variants = new Variant[audioVariants.size()];
       audioVariants.toArray(variants);
-      trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
+      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
           null, null));
     }
 
@@ -388,33 +389,33 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     if (!subtitleVariants.isEmpty()) {
       Variant[] variants = new Variant[subtitleVariants.size()];
       subtitleVariants.toArray(variants);
-      trackStreamWrappers.add(buildTrackStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
+      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
           null, null));
     }
 
-    return trackStreamWrappers;
+    return sampleStreamWrappers;
   }
 
-  private HlsTrackStreamWrapper buildTrackStreamWrapper(int trackType, String baseUri,
+  private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, String baseUri,
       Variant[] variants, FormatEvaluator formatEvaluator, Format muxedAudioFormat,
       Format muxedCaptionFormat) {
     DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
-    return new HlsTrackStreamWrapper(trackType, this, defaultChunkSource, allocator,
+    return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator,
         preparePositionUs, muxedAudioFormat, muxedCaptionFormat, minLoadableRetryCount,
         eventDispatcher);
   }
 
-  private int selectTracks(HlsTrackStreamWrapper trackStreamWrapper,
-      List<TrackStream> allOldStreams, List<TrackSelection> allNewSelections,
-      TrackStream[] allNewStreams) {
+  private int selectTracks(HlsSampleStreamWrapper sampleStreamWrapper,
+      List<SampleStream> allOldStreams, List<TrackSelection> allNewSelections,
+      SampleStream[] allNewStreams) {
     // Get the subset of the old streams for the source.
-    ArrayList<TrackStream> oldStreams = new ArrayList<>();
+    ArrayList<SampleStream> oldStreams = new ArrayList<>();
     for (int i = 0; i < allOldStreams.size(); i++) {
-      TrackStream stream = allOldStreams.get(i);
-      if (trackStreamSources.get(stream) == trackStreamWrapper) {
-        trackStreamSources.remove(stream);
+      SampleStream stream = allOldStreams.get(i);
+      if (sampleStreamSources.get(stream) == sampleStreamWrapper) {
+        sampleStreamSources.remove(stream);
         oldStreams.add(stream);
       }
     }
@@ -423,8 +424,8 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      Pair<HlsTrackStreamWrapper, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
-      if (sourceAndGroup.first == trackStreamWrapper) {
+      Pair<HlsSampleStreamWrapper, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
+      if (sourceAndGroup.first == sampleStreamWrapper) {
         newSelectionOriginalIndices[newSelections.size()] = i;
         newSelections.add(new TrackSelection(sourceAndGroup.second, selection.getTracks()));
       }
@@ -434,21 +435,21 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       return 0;
     }
     // Perform the selection.
-    TrackStream[] newStreams = trackStreamWrapper.selectTracks(oldStreams, newSelections,
+    SampleStream[] newStreams = sampleStreamWrapper.selectTracks(oldStreams, newSelections,
         !seenFirstTrackSelection);
     for (int j = 0; j < newStreams.length; j++) {
       allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
-      trackStreamSources.put(newStreams[j], trackStreamWrapper);
+      sampleStreamSources.put(newStreams[j], sampleStreamWrapper);
     }
     return newSelections.size() - oldStreams.size();
   }
 
-  private Pair<HlsTrackStreamWrapper, Integer> getSourceAndGroup(int group) {
+  private Pair<HlsSampleStreamWrapper, Integer> getSourceAndGroup(int group) {
     int totalTrackGroupCount = 0;
-    for (HlsTrackStreamWrapper trackStreamWrapper : trackStreamWrappers) {
-      int sourceTrackGroupCount = trackStreamWrapper.getTrackGroups().length;
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      int sourceTrackGroupCount = sampleStreamWrapper.getTrackGroups().length;
       if (group < totalTrackGroupCount + sourceTrackGroupCount) {
-        return Pair.create(trackStreamWrapper, group - totalTrackGroupCount);
+        return Pair.create(sampleStreamWrapper, group - totalTrackGroupCount);
       }
       totalTrackGroupCount += sourceTrackGroupCount;
     }

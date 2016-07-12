@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.VideoRendererEventListener;
 import com.google.android.exoplayer2.VideoRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -289,10 +288,10 @@ public final class LibvpxVideoRenderer extends Renderer {
     }
 
     int result = readSource(formatHolder, inputBuffer);
-    if (result == TrackStream.NOTHING_READ) {
+    if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
-    if (result == TrackStream.FORMAT_READ) {
+    if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
       return true;
     }
@@ -396,7 +395,7 @@ public final class LibvpxVideoRenderer extends Renderer {
 
   private boolean readFormat() {
     int result = readSource(formatHolder, null);
-    if (result == TrackStream.FORMAT_READ) {
+    if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
       return true;
     }

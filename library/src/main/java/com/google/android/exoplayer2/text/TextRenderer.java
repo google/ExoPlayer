@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.TrackStream;
 import com.google.android.exoplayer2.extensions.Decoder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -203,7 +202,7 @@ public final class TextRenderer extends Renderer implements Callback {
         }
         // Try and read the next subtitle from the source.
         int result = readSource(formatHolder, nextInputBuffer);
-        if (result == TrackStream.BUFFER_READ) {
+        if (result == C.RESULT_BUFFER_READ) {
           // Clear BUFFER_FLAG_DECODE_ONLY (see [Internal: b/27893809]) and queue the buffer.
           nextInputBuffer.clearFlag(C.BUFFER_FLAG_DECODE_ONLY);
           if (nextInputBuffer.isEndOfStream()) {
@@ -214,7 +213,7 @@ public final class TextRenderer extends Renderer implements Callback {
           }
           parser.queueInputBuffer(nextInputBuffer);
           nextInputBuffer = null;
-        } else if (result == TrackStream.NOTHING_READ) {
+        } else if (result == C.RESULT_NOTHING_READ) {
           break;
         }
       }

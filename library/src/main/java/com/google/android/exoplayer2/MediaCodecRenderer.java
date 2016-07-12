@@ -461,7 +461,7 @@ public abstract class MediaCodecRenderer extends Renderer {
 
   private void readFormat() throws ExoPlaybackException {
     int result = readSource(formatHolder, null);
-    if (result == TrackStream.FORMAT_READ) {
+    if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
     }
   }
@@ -544,7 +544,7 @@ public abstract class MediaCodecRenderer extends Renderer {
     int adaptiveReconfigurationBytes = 0;
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
-      result = TrackStream.BUFFER_READ;
+      result = C.RESULT_BUFFER_READ;
     } else {
       // For adaptive reconfiguration OMX decoders expect all reconfiguration data to be supplied
       // at the start of the buffer that also contains the first frame in the new format.
@@ -559,10 +559,10 @@ public abstract class MediaCodecRenderer extends Renderer {
       result = readSource(formatHolder, buffer);
     }
 
-    if (result == TrackStream.NOTHING_READ) {
+    if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
-    if (result == TrackStream.FORMAT_READ) {
+    if (result == C.RESULT_FORMAT_READ) {
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received two formats in a row. Clear the current buffer of any reconfiguration data
         // associated with the first format.

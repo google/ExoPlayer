@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.PriorityHandlerThread;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -682,7 +683,7 @@ import java.util.ArrayList;
       }
       updateTimelineState();
       if (readingPeriod == null) {
-        // The renderers have their final TrackStreams.
+        // The renderers have their final SampleStreams.
         return;
       }
       for (Renderer renderer : enabledRenderers) {
@@ -701,18 +702,18 @@ import java.util.ArrayList;
           TrackSelection newSelection = newTrackSelections.get(i);
           if (oldSelection != null) {
             if (newSelection != null) {
-              // Replace the renderer's TrackStream so the transition to playing the next period can
-              // be seamless.
+              // Replace the renderer's SampleStream so the transition to playing the next period
+              // can be seamless.
               Format[] formats = new Format[newSelection.length];
               for (int j = 0; j < formats.length; j++) {
                 formats[j] = groups.get(newSelection.group).getFormat(newSelection.getTrack(j));
               }
-              renderer.replaceTrackStream(formats, readingPeriod.trackStreams[i],
+              renderer.replaceSampleStream(formats, readingPeriod.sampleStreams[i],
                   readingPeriod.offsetUs);
             } else {
               // The renderer will be disabled when transitioning to playing the next period. Mark
-              // the TrackStream as final to play out any remaining data.
-              renderer.setCurrentTrackStreamIsFinal();
+              // the SampleStream as final to play out any remaining data.
+              renderer.setCurrentSampleStreamIsFinal();
             }
           }
         }
@@ -721,7 +722,7 @@ import java.util.ArrayList;
         readingPeriod = null;
         // This is the last period, so signal the renderers to read the end of the stream.
         for (Renderer renderer : enabledRenderers) {
-          renderer.setCurrentTrackStreamIsFinal();
+          renderer.setCurrentSampleStreamIsFinal();
         }
       }
     }
@@ -964,7 +965,7 @@ import java.util.ArrayList;
               formats[j] = trackGroups.get(newSelection.group).getFormat(newSelection.getTrack(j));
             }
             // Enable the renderer.
-            renderer.enable(formats, playingPeriod.trackStreams[i], internalPositionUs, joining,
+            renderer.enable(formats, playingPeriod.sampleStreams[i], internalPositionUs, joining,
                 playingPeriod.offsetUs);
             MediaClock mediaClock = renderer.getMediaClock();
             if (mediaClock != null) {
@@ -996,7 +997,7 @@ import java.util.ArrayList;
 
     public final MediaPeriod mediaPeriod;
     public final int index;
-    public final TrackStream[] trackStreams;
+    public final SampleStream[] sampleStreams;
 
     public boolean prepared;
     public boolean hasEnabledTracks;
@@ -1014,7 +1015,7 @@ import java.util.ArrayList;
       this.trackSelector = trackSelector;
       this.mediaPeriod = mediaPeriod;
       this.index = index;
-      trackStreams = new TrackStream[renderers.length];
+      sampleStreams = new SampleStream[renderers.length];
     }
 
     public void setNextPeriod(Period nextPeriod) {
@@ -1049,7 +1050,7 @@ import java.util.ArrayList;
     public void updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
         boolean forceRecreateStreams) throws ExoPlaybackException {
       // Populate lists of streams that are being disabled/newly enabled.
-      ArrayList<TrackStream> oldStreams = new ArrayList<>();
+      ArrayList<SampleStream> oldStreams = new ArrayList<>();
       ArrayList<TrackSelection> newSelections = new ArrayList<>();
       for (int i = 0; i < trackSelections.length; i++) {
         TrackSelection oldSelection =
@@ -1057,7 +1058,7 @@ import java.util.ArrayList;
         TrackSelection newSelection = trackSelections.get(i);
         if (forceRecreateStreams || !Util.areEqual(oldSelection, newSelection)) {
           if (oldSelection != null) {
-            oldStreams.add(trackStreams[i]);
+            oldStreams.add(sampleStreams[i]);
           }
           if (newSelection != null) {
             newSelections.add(newSelection);
@@ -1066,7 +1067,7 @@ import java.util.ArrayList;
       }
 
       // Disable streams on the period and get new streams for updated/newly-enabled tracks.
-      TrackStream[] newStreams = mediaPeriod.selectTracks(oldStreams, newSelections, positionUs);
+      SampleStream[] newStreams = mediaPeriod.selectTracks(oldStreams, newSelections, positionUs);
       periodTrackSelections = trackSelections;
       hasEnabledTracks = false;
       for (int i = 0; i < trackSelections.length; i++) {
@@ -1075,12 +1076,12 @@ import java.util.ArrayList;
           hasEnabledTracks = true;
           int index = newSelections.indexOf(selection);
           if (index != -1) {
-            trackStreams[i] = newStreams[index];
+            sampleStreams[i] = newStreams[index];
           } else {
             // This selection/stream is unchanged.
           }
         } else {
-          trackStreams[i] = null;
+          sampleStreams[i] = null;
         }
       }
 
