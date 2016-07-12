@@ -822,8 +822,10 @@ public abstract class MediaCodecRenderer extends Renderer {
           // The dequeued buffer is a media buffer. Do some initial setup. The buffer will be
           // processed by calling processOutputBuffer (possibly multiple times) below.
           ByteBuffer outputBuffer = outputBuffers[outputIndex];
-          outputBuffer.position(outputBufferInfo.offset);
-          outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
+          if (outputBuffer != null) {
+            outputBuffer.position(outputBufferInfo.offset);
+            outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
+          }
           shouldSkipOutputBuffer = shouldSkipOutputBuffer(outputBufferInfo.presentationTimeUs);
         }
       } else if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
