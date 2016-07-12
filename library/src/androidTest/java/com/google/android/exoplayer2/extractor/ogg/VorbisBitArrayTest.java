@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.ogg;
 
 import com.google.android.exoplayer2.testutil.TestUtil;
-
 import junit.framework.TestCase;
 
 /**

@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.SubtitleDecoderException;
-
 import android.graphics.Typeface;
 import android.test.InstrumentationTestCase;
 import android.text.Layout.Alignment;
@@ -28,7 +24,9 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
-
+import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import java.io.IOException;
 import java.util.List;
 

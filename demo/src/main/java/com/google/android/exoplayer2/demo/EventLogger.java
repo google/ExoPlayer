@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import android.os.SystemClock;
+import android.util.Log;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -38,10 +40,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
-
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;

@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.os.SystemClock;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.util.Assertions;
-
-import android.os.SystemClock;
-
 import java.util.Arrays;
 import java.util.List;
 

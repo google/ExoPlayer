@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
-import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
-
 import android.util.SparseArray;
+import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
 
 /**
  * Provides {@link PtsTimestampAdjuster} instances for use during HLS playbacks.

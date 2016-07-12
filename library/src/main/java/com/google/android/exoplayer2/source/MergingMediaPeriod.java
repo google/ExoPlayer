@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;

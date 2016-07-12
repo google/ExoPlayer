@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
-
-import android.net.Uri;
 
 /**
  * Defines a range of data located at a {@link Uri}.

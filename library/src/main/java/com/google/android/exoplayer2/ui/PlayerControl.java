@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.widget.MediaController.MediaPlayerControl;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.util.Util;
-
-import android.widget.MediaController.MediaPlayerControl;
 
 /**
  * An implementation of {@link MediaPlayerControl} for controlling an {@link ExoPlayer} instance.

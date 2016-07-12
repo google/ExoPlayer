@@ -15,18 +15,16 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.DataSourceInputStream;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.Util;
-
 import android.annotation.TargetApi;
 import android.media.MediaDrm.KeyRequest;
 import android.media.MediaDrm.ProvisionRequest;
 import android.net.Uri;
 import android.text.TextUtils;
-
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSourceInputStream;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

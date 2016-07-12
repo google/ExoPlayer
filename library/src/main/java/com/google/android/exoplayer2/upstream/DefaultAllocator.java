@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.upstream;
 
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.Arrays;
 
 /**

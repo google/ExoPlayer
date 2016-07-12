@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.TestUtil;
-
-import android.test.InstrumentationTestCase;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;

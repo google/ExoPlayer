@@ -18,12 +18,10 @@ package com.google.android.exoplayer2.extractor.ogg;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
-
-import junit.framework.TestCase;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link DefaultOggSeeker} utility methods.

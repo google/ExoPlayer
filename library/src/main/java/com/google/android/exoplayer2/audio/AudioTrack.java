@@ -15,11 +15,6 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
-
 import android.annotation.TargetApi;
 import android.media.AudioFormat;
 import android.media.AudioTimestamp;
@@ -27,7 +22,10 @@ import android.media.PlaybackParams;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.util.Log;
-
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 

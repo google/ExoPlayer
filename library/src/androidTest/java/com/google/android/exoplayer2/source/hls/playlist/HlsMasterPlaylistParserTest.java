@@ -15,16 +15,13 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
-import com.google.android.exoplayer2.C;
-
 import android.net.Uri;
-
-import junit.framework.TestCase;
-
+import com.google.android.exoplayer2.C;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Test for {@link HlsMasterPlaylistParserTest}

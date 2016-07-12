@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
+import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-
-import android.util.Log;
 
 /**
  * Base class for actions to perform during playback tests.

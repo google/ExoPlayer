@@ -18,10 +18,8 @@ package com.google.android.exoplayer2.extractor.ogg;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.testutil.TestUtil;
-
-import junit.framework.TestCase;
-
 import java.io.IOException;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link OggPageHeader}.

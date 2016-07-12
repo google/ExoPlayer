@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.decoder;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-
 import java.util.LinkedList;
 
 /**

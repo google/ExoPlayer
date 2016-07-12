@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.net.Uri;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -22,10 +24,6 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
-
-import android.net.Uri;
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 

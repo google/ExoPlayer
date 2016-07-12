@@ -18,10 +18,8 @@ package com.google.android.exoplayer2.text.webvtt;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
-
-import junit.framework.TestCase;
-
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link Mp4WebvttDecoder}.

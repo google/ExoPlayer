@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
-
-import android.net.Uri;
-
 import java.io.IOException;
 import java.util.ArrayList;
 

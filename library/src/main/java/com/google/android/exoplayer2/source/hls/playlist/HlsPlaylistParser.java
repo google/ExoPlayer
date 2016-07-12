@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
-
-import android.net.Uri;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

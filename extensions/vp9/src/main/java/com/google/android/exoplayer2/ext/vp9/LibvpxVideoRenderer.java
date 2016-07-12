@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.view.Surface;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -27,12 +32,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
-
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.view.Surface;
 
 /**
  * Decodes and renders video using the native VP9 decoder.

@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.util;
 
-import junit.framework.TestCase;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import junit.framework.TestCase;
 
 /**
  * Tests for {@link ParsableByteArray}.

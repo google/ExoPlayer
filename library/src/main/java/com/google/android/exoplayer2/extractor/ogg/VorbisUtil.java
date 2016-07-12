@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import android.util.Log;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import android.util.Log;
-
 import java.util.Arrays;
 
 /**

@@ -16,12 +16,10 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.text.Cue;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link WebvttSubtitle}.

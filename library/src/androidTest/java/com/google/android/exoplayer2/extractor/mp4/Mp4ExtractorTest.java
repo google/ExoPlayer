@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.testutil.TestUtil;
-
 import android.annotation.TargetApi;
 import android.test.InstrumentationTestCase;
+import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.testutil.TestUtil;
 
 /**
  * Tests for {@link Mp4Extractor}.

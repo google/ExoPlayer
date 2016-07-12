@@ -19,13 +19,11 @@ import static com.google.android.exoplayer2.C.PLAYREADY_UUID;
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 
+import android.os.Parcel;
+import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.testutil.TestUtil;
-
-import android.os.Parcel;
-import android.test.MoreAsserts;
-
 import junit.framework.TestCase;
 
 /**

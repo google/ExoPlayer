@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.util;
 
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-
 import android.os.Looper;
 import android.text.TextUtils;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 
 /**
  * Provides methods for asserting the truth of expressions and properties.

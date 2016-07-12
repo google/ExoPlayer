@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.text.ttml;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

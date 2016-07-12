@@ -15,6 +15,15 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.annotation.TargetApi;
+import android.media.AudioManager;
+import android.media.MediaCodec;
+import android.media.MediaCrypto;
+import android.media.MediaFormat;
+import android.media.PlaybackParams;
+import android.media.audiofx.Virtualizer;
+import android.os.Handler;
+import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -27,17 +36,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-
-import android.annotation.TargetApi;
-import android.media.AudioManager;
-import android.media.MediaCodec;
-import android.media.MediaCrypto;
-import android.media.MediaFormat;
-import android.media.PlaybackParams;
-import android.media.audiofx.Virtualizer;
-import android.os.Handler;
-import android.os.SystemClock;
-
 import java.nio.ByteBuffer;
 
 /**

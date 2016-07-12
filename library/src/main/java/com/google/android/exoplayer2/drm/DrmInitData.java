@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;

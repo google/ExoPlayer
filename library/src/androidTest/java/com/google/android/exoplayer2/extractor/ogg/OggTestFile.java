@@ -16,11 +16,9 @@
 package com.google.android.exoplayer2.extractor.ogg;
 
 import com.google.android.exoplayer2.testutil.TestUtil;
-
-import junit.framework.Assert;
-
 import java.util.ArrayList;
 import java.util.Random;
+import junit.framework.Assert;
 
 /**
  * Generates test data.

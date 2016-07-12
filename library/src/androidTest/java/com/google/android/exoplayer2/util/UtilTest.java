@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.util;
 
-import junit.framework.TestCase;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link Util}.

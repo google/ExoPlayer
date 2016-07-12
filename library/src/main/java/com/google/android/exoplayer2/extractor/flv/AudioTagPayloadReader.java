@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import android.util.Pair;
-
 import java.util.Collections;
 
 /**

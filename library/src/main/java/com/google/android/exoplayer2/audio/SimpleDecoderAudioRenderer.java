@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.media.AudioManager;
+import android.media.PlaybackParams;
+import android.os.Handler;
+import android.os.SystemClock;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -28,11 +32,6 @@ import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
-
-import android.media.AudioManager;
-import android.media.PlaybackParams;
-import android.os.Handler;
-import android.os.SystemClock;
 
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.

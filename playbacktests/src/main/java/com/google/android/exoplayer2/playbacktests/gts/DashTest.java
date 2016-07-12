@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import android.annotation.TargetApi;
+import android.media.MediaDrm;
+import android.media.UnsupportedSchemeException;
+import android.net.Uri;
+import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -49,19 +55,11 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-
-import android.annotation.TargetApi;
-import android.media.MediaDrm;
-import android.media.UnsupportedSchemeException;
-import android.net.Uri;
-import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
-import junit.framework.AssertionFailedError;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import junit.framework.AssertionFailedError;
 
 /**
  * Tests DASH playbacks using {@link ExoPlayer}.

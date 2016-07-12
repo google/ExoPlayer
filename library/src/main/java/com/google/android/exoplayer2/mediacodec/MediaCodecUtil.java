@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
@@ -26,7 +23,8 @@ import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
-
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

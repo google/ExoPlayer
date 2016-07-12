@@ -15,17 +15,15 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.util.Util;
-
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
-
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 

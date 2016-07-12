@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
+import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
@@ -30,9 +31,6 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
-
-import android.util.Base64;
-
 import java.io.IOException;
 import java.util.List;
 

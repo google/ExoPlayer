@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import com.google.android.exoplayer2.util.Assertions;
-
 import android.os.ConditionVariable;
-
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

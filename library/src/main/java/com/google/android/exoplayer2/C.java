@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer2;
 
-import com.google.android.exoplayer2.util.Util;
-
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.view.Surface;
-
+import com.google.android.exoplayer2.util.Util;
 import java.util.UUID;
 
 /**

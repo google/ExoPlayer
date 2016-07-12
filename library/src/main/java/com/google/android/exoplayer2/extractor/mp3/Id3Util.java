@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-
-import android.util.Pair;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 

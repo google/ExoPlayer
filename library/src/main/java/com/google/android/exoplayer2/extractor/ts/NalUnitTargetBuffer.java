@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.util.Assertions;
-
 import java.util.Arrays;
 
 /**

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
-
 import junit.framework.TestCase;
 
 /**

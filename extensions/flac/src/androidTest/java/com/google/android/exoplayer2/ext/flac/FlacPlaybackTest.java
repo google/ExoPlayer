@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Looper;
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -24,11 +28,6 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-
-import android.content.Context;
-import android.net.Uri;
-import android.os.Looper;
-import android.test.InstrumentationTestCase;
 
 /**
  * Playback tests using {@link LibflacAudioRenderer}.

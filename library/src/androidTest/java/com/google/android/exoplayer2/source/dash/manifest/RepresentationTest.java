@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.util.MimeTypes;
-
 import junit.framework.TestCase;
 
 /**

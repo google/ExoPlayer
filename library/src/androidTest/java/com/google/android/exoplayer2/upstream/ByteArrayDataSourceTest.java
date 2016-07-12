@@ -16,10 +16,8 @@
 package com.google.android.exoplayer2.upstream;
 
 import com.google.android.exoplayer2.C;
-
-import junit.framework.TestCase;
-
 import java.io.IOException;
+import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link ByteArrayDataSource}.

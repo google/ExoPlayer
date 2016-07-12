@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import com.google.android.exoplayer2.ExoPlayer;
-
 import android.view.View;
 import android.view.View.OnClickListener;
+import com.google.android.exoplayer2.ExoPlayer;
 
 /**
  * An {@link OnClickListener} that can be passed to

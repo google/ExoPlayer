@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
+import android.os.Handler;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.playbacktests.util.Action.Seek;
 import com.google.android.exoplayer2.playbacktests.util.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.playbacktests.util.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.playbacktests.util.Action.Stop;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-
-import android.os.Handler;
 
 /**
  * Schedules a sequence of {@link Action}s for execution during a test.

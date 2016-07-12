@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
+import android.os.Handler;
+import android.os.SystemClock;
+import android.util.Log;
+import android.view.Surface;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -34,11 +38,6 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
-
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.Surface;
 import junit.framework.Assert;
 
 

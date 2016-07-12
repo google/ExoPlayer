@@ -20,7 +20,6 @@ import android.test.InstrumentationTestCase;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
-
 import java.util.Collections;
 
 /**

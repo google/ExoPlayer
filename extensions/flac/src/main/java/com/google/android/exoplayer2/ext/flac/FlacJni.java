@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.flac;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 

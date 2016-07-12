@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.SlidingPercentile;
-
 import android.os.Handler;
 import android.os.SystemClock;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.SlidingPercentile;
 
 /**
  * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using

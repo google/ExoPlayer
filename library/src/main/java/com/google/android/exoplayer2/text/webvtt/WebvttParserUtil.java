@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

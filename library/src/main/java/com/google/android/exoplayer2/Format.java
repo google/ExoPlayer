@@ -15,16 +15,14 @@
  */
 package com.google.android.exoplayer2;
 
-import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaFormat;
 import android.os.Parcel;
 import android.os.Parcelable;
-
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;

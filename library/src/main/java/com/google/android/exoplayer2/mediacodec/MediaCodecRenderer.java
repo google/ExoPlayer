@@ -15,6 +15,15 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import android.annotation.TargetApi;
+import android.media.MediaCodec;
+import android.media.MediaCodec.CodecException;
+import android.media.MediaCodec.CryptoException;
+import android.media.MediaCrypto;
+import android.media.MediaFormat;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.util.Log;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -30,17 +39,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
-
-import android.annotation.TargetApi;
-import android.media.MediaCodec;
-import android.media.MediaCodec.CodecException;
-import android.media.MediaCodec.CryptoException;
-import android.media.MediaCrypto;
-import android.media.MediaFormat;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;

@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import com.google.android.exoplayer2.upstream.DataSource.Factory;
-
 import android.content.Context;
+import com.google.android.exoplayer2.upstream.DataSource.Factory;
 
 /**
  * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to

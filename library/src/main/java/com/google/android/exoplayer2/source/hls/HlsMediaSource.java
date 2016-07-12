@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.net.Uri;
+import android.os.Handler;
+import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -40,11 +43,6 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-
-import android.net.Uri;
-import android.os.Handler;
-import android.text.TextUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;

@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -29,12 +33,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
-
-import android.net.Uri;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

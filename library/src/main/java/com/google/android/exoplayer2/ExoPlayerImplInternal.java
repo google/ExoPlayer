@@ -15,6 +15,13 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.os.Process;
+import android.os.SystemClock;
+import android.util.Log;
+import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -29,15 +36,6 @@ import com.google.android.exoplayer2.util.PriorityHandlerThread;
 import com.google.android.exoplayer2.util.StandaloneMediaClock;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
-
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.os.Process;
-import android.os.SystemClock;
-import android.util.Log;
-import android.util.Pair;
-
 import java.io.IOException;
 import java.util.ArrayList;
 

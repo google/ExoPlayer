@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import com.google.android.exoplayer2.util.Assertions;
-
 import android.graphics.Typeface;
 import android.text.Layout;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * Style object of a <code>TtmlNode</code>

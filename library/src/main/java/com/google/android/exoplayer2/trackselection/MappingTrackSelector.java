@@ -15,18 +15,16 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.os.Handler;
+import android.util.Pair;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
-import android.os.Handler;
-import android.util.Pair;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

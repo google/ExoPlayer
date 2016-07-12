@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.playbacktests.util;
 
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-
 import junit.framework.TestCase;
 
 /**

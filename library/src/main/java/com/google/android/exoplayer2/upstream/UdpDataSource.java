@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import com.google.android.exoplayer2.C;
-
 import android.net.Uri;
-
+import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

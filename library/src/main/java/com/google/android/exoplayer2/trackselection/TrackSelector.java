@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-
-import android.util.Pair;
 
 /**
  * Selects tracks to be consumed by available renderers.

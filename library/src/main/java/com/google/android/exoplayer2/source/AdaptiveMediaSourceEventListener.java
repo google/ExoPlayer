@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.Handler;
+import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
-
-import android.os.Handler;
-import android.os.SystemClock;
-
 import java.io.IOException;
 
 /**

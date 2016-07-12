@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.text.eia608;
 
+import android.text.TextUtils;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
-
-import android.text.TextUtils;
-
 import java.util.Collections;
 import java.util.List;
 

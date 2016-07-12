@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.util.Log;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
-
-import android.util.Log;
 
 /**
  * Helper class for blacklisting tracks in a {@link TrackSelection} when 404 (Not Found) and 410

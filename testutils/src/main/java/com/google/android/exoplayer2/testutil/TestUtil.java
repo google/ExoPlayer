@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.app.Instrumentation;
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
@@ -22,16 +24,12 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
-import android.app.Instrumentation;
-import android.test.InstrumentationTestCase;
-import junit.framework.Assert;
-import org.mockito.MockitoAnnotations;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
+import junit.framework.Assert;
+import org.mockito.MockitoAnnotations;
 
 /**
  * Utility methods for tests.

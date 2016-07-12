@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.TestUtil;
-
-import android.test.InstrumentationTestCase;
 
 /**
  * Unit test for {@link FlvExtractor}.

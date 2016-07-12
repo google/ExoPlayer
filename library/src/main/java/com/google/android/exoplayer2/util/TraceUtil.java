@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-
 import android.annotation.TargetApi;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 
 /**
  * Calls through to {@link android.os.Trace} methods on supported API levels.

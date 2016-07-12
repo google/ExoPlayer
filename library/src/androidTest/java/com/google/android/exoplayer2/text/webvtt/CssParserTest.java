@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import com.google.android.exoplayer2.util.ParsableByteArray;
-
 import android.test.InstrumentationTestCase;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Unit test for {@link CssParser}.

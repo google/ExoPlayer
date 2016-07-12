@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import android.os.Handler;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.util.MimeTypes;
-
-import android.os.Handler;
 
 /**
  * Decodes and renders audio using the native Flac decoder.

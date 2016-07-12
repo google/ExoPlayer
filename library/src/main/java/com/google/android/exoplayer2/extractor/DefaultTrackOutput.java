@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;

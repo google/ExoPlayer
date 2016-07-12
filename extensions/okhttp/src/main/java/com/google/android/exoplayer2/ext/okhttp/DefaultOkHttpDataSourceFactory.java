@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
+import android.content.Context;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
-
-import android.content.Context;
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 

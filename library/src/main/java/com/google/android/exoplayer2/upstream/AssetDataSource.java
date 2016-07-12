@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import com.google.android.exoplayer2.C;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
-
+import com.google.android.exoplayer2.C;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;

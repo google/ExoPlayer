@@ -15,17 +15,14 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-
-import android.net.Uri;
-
-import junit.framework.TestCase;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
+import junit.framework.TestCase;
 
 /**
  * Test for {@link DefaultExtractorInput}.

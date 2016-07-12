@@ -19,11 +19,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
-
-import junit.framework.TestCase;
-
 import java.io.EOFException;
 import java.io.IOException;
+import junit.framework.TestCase;
 
 /**
  * Tests for {@link VarintReader}.

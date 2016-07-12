@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import android.text.SpannableStringBuilder;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
-import android.text.SpannableStringBuilder;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

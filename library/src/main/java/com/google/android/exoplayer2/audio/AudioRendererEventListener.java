@@ -15,13 +15,12 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.os.Handler;
+import android.os.SystemClock;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.Assertions;
-
-import android.os.Handler;
-import android.os.SystemClock;
 
 /**
  * Listener of audio {@link Renderer} events.

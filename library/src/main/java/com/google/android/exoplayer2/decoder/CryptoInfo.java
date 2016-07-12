@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.decoder;
 
-import com.google.android.exoplayer2.util.Util;
-
 import android.annotation.TargetApi;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Compatibility wrapper around {@link android.media.MediaCodec.CryptoInfo}.

@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import android.test.InstrumentationTestCase;
+import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;

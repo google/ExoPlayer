@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.widget.TextView;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.source.Timeline;
-
-import android.widget.TextView;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from

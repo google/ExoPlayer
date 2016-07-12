@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.trackselection;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
-
 import java.util.List;
 
 /**

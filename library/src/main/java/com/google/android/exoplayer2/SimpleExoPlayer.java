@@ -15,6 +15,15 @@
  */
 package com.google.android.exoplayer2;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaCodec;
+import android.media.PlaybackParams;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
@@ -32,17 +41,6 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.media.AudioManager;
-import android.media.MediaCodec;
-import android.media.PlaybackParams;
-import android.os.Handler;
-import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;

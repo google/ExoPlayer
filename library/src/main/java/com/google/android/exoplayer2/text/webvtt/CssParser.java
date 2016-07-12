@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import android.text.TextUtils;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import android.text.TextUtils;
-
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

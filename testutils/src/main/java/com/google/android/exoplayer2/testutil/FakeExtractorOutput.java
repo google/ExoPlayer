@@ -15,17 +15,15 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import com.google.android.exoplayer2.extractor.ExtractorOutput;
-import com.google.android.exoplayer2.extractor.SeekMap;
-
 import android.app.Instrumentation;
 import android.util.SparseArray;
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.SeekMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 /**
  * A fake {@link ExtractorOutput}.

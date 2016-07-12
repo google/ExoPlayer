@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -27,9 +28,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-
-import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

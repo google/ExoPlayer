@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
-import com.google.android.exoplayer2.testutil.TestUtil;
-
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
-
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 
 /**

@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import com.google.android.exoplayer2.text.CaptionStyleCompat;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.util.Util;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -34,6 +30,9 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Paints subtitle {@link Cue}s.

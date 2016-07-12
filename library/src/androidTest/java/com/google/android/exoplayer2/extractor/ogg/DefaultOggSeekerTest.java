@@ -18,11 +18,9 @@ package com.google.android.exoplayer2.extractor.ogg;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.util.Random;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link DefaultOggSeeker}.

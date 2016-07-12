@@ -19,10 +19,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import junit.framework.TestCase;
-
 import java.util.Arrays;
+import junit.framework.TestCase;
 
 /**
  * Test for {@link AdtsReader}.

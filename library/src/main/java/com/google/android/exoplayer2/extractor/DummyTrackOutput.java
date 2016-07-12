@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.extractor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
 import java.io.EOFException;
 import java.io.IOException;
 

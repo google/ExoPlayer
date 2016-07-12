@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;

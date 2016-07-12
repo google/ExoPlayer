@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.Format;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

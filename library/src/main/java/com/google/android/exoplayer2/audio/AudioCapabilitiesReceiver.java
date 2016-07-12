@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Receives broadcast events indicating changes to the device's audio capabilities, notifying a

@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.util.Assertions;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;

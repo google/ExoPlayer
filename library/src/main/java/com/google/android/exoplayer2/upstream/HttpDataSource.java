@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.text.TextUtils;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
-
-import android.text.TextUtils;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
