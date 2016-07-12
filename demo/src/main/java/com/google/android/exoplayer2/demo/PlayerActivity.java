@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import com.google.android.exoplayer2.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultTrackSelectionPolicy;
@@ -47,11 +46,12 @@ import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingMedia
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleLayout;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.PlayerControl;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
-import com.google.android.exoplayer2.util.PlayerControl;
 import com.google.android.exoplayer2.util.Util;
 
 import android.Manifest.permission;
