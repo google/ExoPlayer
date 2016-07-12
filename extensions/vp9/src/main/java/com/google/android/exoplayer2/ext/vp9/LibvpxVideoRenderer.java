@@ -131,6 +131,13 @@ public final class LibvpxVideoRenderer extends Renderer {
     return isLibvpxAvailable() ? VpxDecoder.getLibvpxVersion() : null;
   }
 
+  /**
+   * Returns the configuration string with which the underlying libvpx library was built.
+   */
+  public static String getLibvpxConfig() {
+    return isLibvpxAvailable() ? VpxDecoder.getLibvpxConfig() : null;
+  }
+
   @Override
   public int getTrackType() {
     return C.TRACK_TYPE_VIDEO;
