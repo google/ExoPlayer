@@ -23,9 +23,12 @@ import com.google.android.exoplayer.util.Util;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,8 @@ import java.util.List;
  * Selects from possible video formats.
  */
 public final class VideoFormatSelectorUtil {
+
+  private static final String TAG = "VideoFormatSelectorUtil";
 
   /**
    * If a dimension (i.e. width or height) of a video is greater or equal to this fraction of the
@@ -56,7 +61,7 @@ public final class VideoFormatSelectorUtil {
   public static int[] selectVideoFormatsForDefaultDisplay(Context context,
       List<? extends FormatWrapper> formatWrappers, String[] allowedContainerMimeTypes,
       boolean filterHdFormats) throws DecoderQueryException {
-    Point viewportSize = getViewportSize(context);
+    Point viewportSize = getDisplaySize(context); // Assume the viewport is fullscreen.
     return selectVideoFormats(formatWrappers, allowedContainerMimeTypes, filterHdFormats, true,
         false, viewportSize.x, viewportSize.y);
   }
@@ -196,20 +201,45 @@ public final class VideoFormatSelectorUtil {
     }
   }
 
-  private static Point getViewportSize(Context context) {
-    // Before API 23 the platform Display object does not provide a way to identify Android TVs that
-    // can show 4k resolution in a SurfaceView, so check for supported devices here.
-    // See also https://developer.sony.com/develop/tvs/android-tv/design-guide/.
-    if (Util.SDK_INT < 23 && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
-        && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
-      return new Point(3840, 2160);
+  private static Point getDisplaySize(Context context) {
+    // Before API 25 the platform Display object does not provide a working way to identify Android
+    // TVs that can show 4k resolution in a SurfaceView, so check for supported devices here.
+    if (Util.SDK_INT < 25) {
+      if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+          && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
+        return new Point(3840, 2160);
+      } else if ("NVIDIA".equals(Util.MANUFACTURER) && Util.MODEL != null
+          && Util.MODEL.contains("SHIELD")) {
+        // Attempt to read sys.display-size.
+        String sysDisplaySize = null;
+        try {
+          Class<?> systemProperties = Class.forName("android.os.SystemProperties");
+          Method getMethod = systemProperties.getMethod("get", String.class);
+          sysDisplaySize = (String) getMethod.invoke(systemProperties, "sys.display-size");
+        } catch (Exception e) {
+          Log.e(TAG, "Failed to read sys.display-size", e);
+        }
+        // If we managed to read sys.display-size, attempt to parse it.
+        if (!TextUtils.isEmpty(sysDisplaySize)) {
+          try {
+            String[] sysDisplaySizeParts = sysDisplaySize.trim().split("x");
+            if (sysDisplaySizeParts.length == 2) {
+              int width = Integer.parseInt(sysDisplaySizeParts[0]);
+              int height = Integer.parseInt(sysDisplaySizeParts[1]);
+              if (width > 0 && height > 0) {
+                return new Point(width, height);
+              }
+            }
+          } catch (NumberFormatException e) {
+            // Do nothing.
+          }
+          Log.e(TAG, "Invalid sys.display-size: " + sysDisplaySize);
+        }
+      }
     }
 
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return getDisplaySize(windowManager.getDefaultDisplay());
-  }
-
-  private static Point getDisplaySize(Display display) {
+    Display display = windowManager.getDefaultDisplay();
     Point displaySize = new Point();
     if (Util.SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
