@@ -120,8 +120,8 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   private final EventListener eventListener;
 
   private DataSource dataSource;
-  private ExtractorHolder extractorHolder;
   private Loader loader;
+  private ExtractorHolder extractorHolder;
   private ConditionVariable loadCondition;
 
   private Callback callback;
@@ -205,8 +205,8 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     this.allocator = allocator;
 
     dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    loader = new Loader("Loader:ExtractorMediaSource");
     extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
-    loader = new Loader("Loader:ExtractorMediaSource", extractorHolder);
     loadCondition = new ConditionVariable();
     pendingResetPositionUs = C.UNSET_TIME_US;
     sampleQueues = new DefaultTrackOutput[0];
@@ -347,11 +347,17 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   @Override
   public void release() {
     dataSource = null;
-    extractorHolder = null;
     if (loader != null) {
-      loader.release(); // Releases extractorHolder via its own reference on the loader's thread.
+      final ExtractorHolder extractorHolder = this.extractorHolder;
+      loader.release(new Runnable() {
+        @Override
+        public void run() {
+          extractorHolder.release();
+        }
+      });
       loader = null;
     }
+    extractorHolder = null;
     loadCondition = null;
     callback = null;
     allocator = null;
@@ -693,7 +699,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   /**
    * Stores a list of extractors and a selected extractor when the format has been detected.
    */
-  private static final class ExtractorHolder implements Loader.Releasable {
+  private static final class ExtractorHolder {
 
     private final Extractor[] extractors;
     private final ExtractorOutput extractorOutput;
@@ -744,7 +750,6 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       return extractor;
     }
 
-    @Override
     public void release() {
       if (extractor != null) {
         extractor.release();

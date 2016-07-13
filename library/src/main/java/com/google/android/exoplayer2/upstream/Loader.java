@@ -73,18 +73,6 @@ public final class Loader {
   }
 
   /**
-   * An object that can be released on the loading thread when {@link Loader#release()} is called.
-   */
-  public interface Releasable {
-
-    /**
-     * Releases any resources associated with the instance.
-     */
-    void release();
-
-  }
-
-  /**
    * A callback to be notified of {@link Loader} events.
    */
   public interface Callback<T extends Loadable> {
@@ -147,7 +135,6 @@ public final class Loader {
   private static final int MSG_FATAL_ERROR = 4;
 
   private final ExecutorService downloadExecutorService;
-  private final Releasable releasable;
 
   private LoadTask<? extends Loadable> currentTask;
   private IOException fatalError;
@@ -156,17 +143,7 @@ public final class Loader {
    * @param threadName A name for the loader's thread.
    */
   public Loader(String threadName) {
-    this(threadName, null);
-  }
-
-  /**
-   * @param threadName A name for the loader's thread.
-   * @param releasable An object to release on the loader's thread when {@link Loader#release()} is
-   *     called.
-   */
-  public Loader(String threadName, Releasable releasable) {
     this.downloadExecutorService = Util.newSingleThreadExecutor(threadName);
-    this.releasable = releasable;
   }
 
   /**
@@ -243,16 +220,23 @@ public final class Loader {
    * This method should be called when the {@link Loader} is no longer required.
    */
   public void release() {
+    release(null);
+  }
+
+  /**
+   * Releases the {@link Loader}, running {@code postLoadAction} on its thread.
+   * <p>
+   * This method should be called when the {@link Loader} is no longer required.
+   *
+   * @param postLoadAction A {@link Runnable} to run on the loader's thread when
+   *     {@link Loadable#load()} is no longer running.
+   */
+  public void release(Runnable postLoadAction) {
     if (currentTask != null) {
       currentTask.cancel(true);
     }
-    if (releasable != null) {
-      downloadExecutorService.submit(new Runnable() {
-        @Override
-        public void run() {
-          releasable.release();
-        }
-      });
+    if (postLoadAction != null) {
+      downloadExecutorService.submit(postLoadAction);
     }
     downloadExecutorService.shutdown();
   }
