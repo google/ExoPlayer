@@ -171,8 +171,23 @@ public final class Loader {
    * This method should be called when the {@link Loader} is no longer required.
    */
   public void release() {
+    release(null);
+  }
+
+  /**
+   * Releases the {@link Loader}, running {@code postLoadAction} on its thread.
+   * <p>
+   * This method should be called when the {@link Loader} is no longer required.
+   *
+   * @param postLoadAction A {@link Runnable} to run on the loader's thread when
+   *     {@link Loadable#load()} is no longer running.
+   */
+  public void release(Runnable postLoadAction) {
     if (loading) {
       cancelLoading();
+    }
+    if (postLoadAction != null) {
+      downloadExecutorService.submit(postLoadAction);
     }
     downloadExecutorService.shutdown();
   }
