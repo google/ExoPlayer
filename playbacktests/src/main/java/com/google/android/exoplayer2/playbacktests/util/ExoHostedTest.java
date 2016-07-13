@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
@@ -127,7 +128,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     player = buildExoPlayer(host, surface, trackSelector);
     DataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(host, Util
         .getUserAgent(host, "ExoPlayerPlaybackTests"));
-    player.setMediaSource(buildSource(host, dataSourceFactory, player.getBandwidthMeter()));
+    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+    player.setMediaSource(buildSource(host, dataSourceFactory, bandwidthMeter));
     player.addListener(this);
     player.setDebugListener(this);
     player.setPlayWhenReady(true);

@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerControl;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.Util;
@@ -145,6 +146,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     super.onCreate(savedInstanceState);
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     dataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
+    bandwidthMeter = new DefaultBandwidthMeter();
     mainHandler = new Handler();
 
     setContentView(R.layout.player_activity);
@@ -291,7 +293,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       mediaController.setAnchorView(rootView);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
-      bandwidthMeter = player.getBandwidthMeter();
       playerNeedsSource = true;
     }
     if (playerNeedsSource) {

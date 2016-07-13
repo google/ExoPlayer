@@ -25,8 +25,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -95,7 +93,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final ExoPlayer player;
-  private final BandwidthMeter bandwidthMeter;
   private final Renderer[] renderers;
   private final ComponentListener componentListener;
   private final Handler mainHandler;
@@ -117,7 +114,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
       LoadControl loadControl, DrmSessionManager drmSessionManager,
       boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
     mainHandler = new Handler();
-    bandwidthMeter = new DefaultBandwidthMeter();
     componentListener = new ComponentListener();
 
     // Build the renderers.
@@ -223,13 +219,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
       }
     }
     player.sendMessages(messages);
-  }
-
-  /**
-   * @return The {@link BandwidthMeter} being used by the player.
-   */
-  public BandwidthMeter getBandwidthMeter() {
-    return bandwidthMeter;
   }
 
   /**

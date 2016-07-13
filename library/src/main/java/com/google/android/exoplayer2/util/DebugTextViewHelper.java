@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 
 import android.widget.TextView;
 
@@ -81,8 +80,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   private void updateTextView() {
-    textView.setText(getPlayerStateString() + getPlayerPeriodIndexString() + getBandwidthString()
-        + getVideoString() + getAudioString());
+    textView.setText(getPlayerStateString() + getPlayerPeriodIndexString() + getVideoString()
+        + getAudioString());
   }
 
   private String getPlayerStateString() {
@@ -109,16 +108,6 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
 
   private String getPlayerPeriodIndexString() {
     return " period:" + player.getCurrentPeriodIndex();
-  }
-
-  private String getBandwidthString() {
-    BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
-    if (bandwidthMeter == null
-        || bandwidthMeter.getBitrateEstimate() == BandwidthMeter.NO_ESTIMATE) {
-      return " bw:?";
-    } else {
-      return " bw:" + (bandwidthMeter.getBitrateEstimate() / 1000);
-    }
   }
 
   private String getVideoString() {
