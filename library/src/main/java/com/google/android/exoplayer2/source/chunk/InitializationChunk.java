@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * A {@link Chunk} that uses an {@link Extractor} to parse initialization data for single track.
+ * A {@link Chunk} that uses an {@link Extractor} to decode initialization data for single track.
  */
 public final class InitializationChunk extends Chunk implements SingleTrackMetadataOutput,
     TrackOutput {
@@ -140,7 +140,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
         // Set the target to ourselves.
         extractorWrapper.init(this, this);
       }
-      // Load and parse the initialization data.
+      // Load and decode the initialization data.
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {

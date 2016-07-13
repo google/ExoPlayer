@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import com.google.android.exoplayer2.CodecCounters;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -145,7 +145,7 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   // SimpleExoPlayer.DebugListener
 
   @Override
-  public void onAudioEnabled(CodecCounters counters) {
+  public void onAudioEnabled(DecoderCounters counters) {
     Log.d(TAG, "audioEnabled [" + getSessionTimeString() + "]");
   }
 
@@ -167,12 +167,12 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
-  public void onAudioDisabled(CodecCounters counters) {
+  public void onAudioDisabled(DecoderCounters counters) {
     Log.d(TAG, "audioDisabled [" + getSessionTimeString() + "]");
   }
 
   @Override
-  public void onVideoEnabled(CodecCounters counters) {
+  public void onVideoEnabled(DecoderCounters counters) {
     Log.d(TAG, "videoEnabled [" + getSessionTimeString() + "]");
   }
 
@@ -189,7 +189,7 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
-  public void onVideoDisabled(CodecCounters counters) {
+  public void onVideoDisabled(DecoderCounters counters) {
     Log.d(TAG, "videoDisabled [" + getSessionTimeString() + "]");
   }
 

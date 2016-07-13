@@ -16,9 +16,9 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;

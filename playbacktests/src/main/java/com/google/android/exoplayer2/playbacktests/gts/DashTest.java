@@ -16,15 +16,15 @@
 package com.google.android.exoplayer2.playbacktests.gts;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.CodecCounters;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaCodecDecoderInfo;
-import com.google.android.exoplayer2.MediaCodecUtil;
-import com.google.android.exoplayer2.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
-import com.google.android.exoplayer2.playbacktests.util.CodecCountersUtil;
+import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
 import com.google.android.exoplayer2.playbacktests.util.MetricsLogger;
@@ -365,7 +365,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   private boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecDecoderInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
+    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
       return false;
@@ -426,7 +426,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    protected void logMetrics(CodecCounters audioCounters, CodecCounters videoCounters) {
+    protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
           videoCounters.droppedOutputBufferCount);
@@ -440,27 +440,27 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    protected void assertPassed(CodecCounters audioCounters, CodecCounters videoCounters) {
+    protected void assertPassed(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       if (fullPlaybackNoSeeking) {
         // We shouldn't have skipped any output buffers.
-        CodecCountersUtil.assertSkippedOutputBufferCount(AUDIO_TAG, audioCounters, 0);
-        CodecCountersUtil.assertSkippedOutputBufferCount(VIDEO_TAG, videoCounters, 0);
+        DecoderCountersUtil.assertSkippedOutputBufferCount(AUDIO_TAG, audioCounters, 0);
+        DecoderCountersUtil.assertSkippedOutputBufferCount(VIDEO_TAG, videoCounters, 0);
         // We allow one fewer output buffer due to the way that MediaCodecRenderer and the
         // underlying decoders handle the end of stream. This should be tightened up in the future.
-        CodecCountersUtil.assertTotalOutputBufferCount(AUDIO_TAG, audioCounters,
+        DecoderCountersUtil.assertTotalOutputBufferCount(AUDIO_TAG, audioCounters,
             audioCounters.inputBufferCount - 1, audioCounters.inputBufferCount);
-        CodecCountersUtil.assertTotalOutputBufferCount(VIDEO_TAG, videoCounters,
+        DecoderCountersUtil.assertTotalOutputBufferCount(VIDEO_TAG, videoCounters,
             videoCounters.inputBufferCount - 1, videoCounters.inputBufferCount);
       }
       try {
         int droppedFrameLimit = (int) Math.ceil(MAX_DROPPED_VIDEO_FRAME_FRACTION
-            * CodecCountersUtil.getTotalOutputBuffers(videoCounters));
+            * DecoderCountersUtil.getTotalOutputBuffers(videoCounters));
         // Assert that performance is acceptable.
         // Assert that total dropped frames were within limit.
-        CodecCountersUtil.assertDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
+        DecoderCountersUtil.assertDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
             droppedFrameLimit);
         // Assert that consecutive dropped frames were within limit.
-        CodecCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
+        DecoderCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
             MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
       } catch (AssertionFailedError e) {
         if (trackSelector.includedAdditionalVideoFormats) {

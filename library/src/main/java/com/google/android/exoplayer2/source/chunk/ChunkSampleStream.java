@@ -16,9 +16,9 @@
 package com.google.android.exoplayer2.source.chunk;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;

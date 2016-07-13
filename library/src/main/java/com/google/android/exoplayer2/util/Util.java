@@ -49,7 +49,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Miscellaneous utility functions.
+ * Miscellaneous utility methods.
  */
 public final class Util {
 
@@ -346,7 +346,7 @@ public final class Util {
   /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
-   * @param value The attribute value to parse.
+   * @param value The attribute value to decode.
    * @return The parsed duration in milliseconds.
    */
   public static long parseXsDuration(String value) {
@@ -378,7 +378,7 @@ public final class Util {
    * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
    * the epoch.
    *
-   * @param value The attribute value to parse.
+   * @param value The attribute value to decode.
    * @return The parsed timestamp in milliseconds since the epoch.
    */
   public static long parseXsDateTime(String value) throws ParseException {

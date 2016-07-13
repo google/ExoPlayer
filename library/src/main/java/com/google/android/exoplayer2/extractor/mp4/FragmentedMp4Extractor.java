@@ -538,7 +538,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a saio atom (defined in 14496-12).
    *
-   * @param saio The saio atom to parse.
+   * @param saio The saio atom to decode.
    * @param out The {@link TrackFragment} to populate with data from the saio atom.
    */
   private static void parseSaio(ParsableByteArray saio, TrackFragment out) throws ParserException {
@@ -565,7 +565,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    * returns the {@link TrackBundle} of the corresponding {@link Track}. If the tfhd does not refer
    * to any {@link TrackBundle}, {@code null} is returned and no changes are made.
    *
-   * @param tfhd The tfhd atom to parse.
+   * @param tfhd The tfhd atom to decode.
    * @param trackBundles The track bundles, one of which corresponds to the tfhd atom being parsed.
    * @return The {@link TrackBundle} to which the {@link TrackFragment} belongs, or null if the tfhd
    *     does not refer to any {@link TrackBundle}.
@@ -621,7 +621,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    *     which parsed data should be placed.
    * @param decodeTime The decode time of the first sample in the fragment run.
    * @param flags Flags to allow any required workaround to be executed.
-   * @param trun The trun atom to parse.
+   * @param trun The trun atom to decode.
    */
   private static void parseTrun(TrackBundle trackBundle, long decodeTime, int flags,
       ParsableByteArray trun) {
@@ -681,7 +681,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       if (sampleCompositionTimeOffsetsPresent) {
         // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
         // version 0 trun boxes, however a significant number of streams violate the spec and use
-        // signed integers instead. It's safe to always parse sample offsets as signed integers
+        // signed integers instead. It's safe to always decode sample offsets as signed integers
         // here, because unsigned integers will still be parsed correctly (unless their top bit is
         // set, which is never true in practice because sample offsets are always small).
         int sampleOffset = trun.readInt();
@@ -926,7 +926,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     TrackOutput output = currentTrackBundle.output;
     int sampleIndex = currentTrackBundle.currentSampleIndex;
     if (track.nalUnitLengthFieldLength != -1) {
-      // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
+      // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
       byte[] nalLengthData = nalLength.data;
       nalLengthData[0] = 0;
@@ -1044,7 +1044,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     return 1 + vectorSize + subsampleDataLength;
   }
 
-  /** Returns whether the extractor should parse a leaf atom with type {@code atom}. */
+  /** Returns whether the extractor should decode a leaf atom with type {@code atom}. */
   private static boolean shouldParseLeafAtom(int atom) {
     return atom == Atom.TYPE_hdlr || atom == Atom.TYPE_mdhd || atom == Atom.TYPE_mvhd
         || atom == Atom.TYPE_sidx || atom == Atom.TYPE_stsd || atom == Atom.TYPE_tfdt
@@ -1055,7 +1055,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_mehd;
   }
 
-  /** Returns whether the extractor should parse a container atom with type {@code atom}. */
+  /** Returns whether the extractor should decode a container atom with type {@code atom}. */
   private static boolean shouldParseContainerAtom(int atom) {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
         || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_moof

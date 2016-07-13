@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
-import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.MediaCodecSelector;
-import com.google.android.exoplayer2.MediaCodecVideoRenderer;
-import com.google.android.exoplayer2.VideoRendererEventListener;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import android.annotation.TargetApi;
 import android.content.Context;

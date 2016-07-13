@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.Ac3Util;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
@@ -56,7 +56,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
    *
    * @param output Track output for extracted samples.
    * @param isEac3 Whether the stream is E-AC-3 (ETSI TS 102 366 Annex E). Specify {@code false} to
-   *     parse sample headers as AC-3.
+   *     decode sample headers as AC-3.
    */
   public Ac3Reader(TrackOutput output, boolean isEac3) {
     super(output);

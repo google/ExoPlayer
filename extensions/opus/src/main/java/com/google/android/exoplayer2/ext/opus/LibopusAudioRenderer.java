@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.opus;
 
-import com.google.android.exoplayer2.AudioRendererEventListener;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
-import com.google.android.exoplayer2.extensions.AudioDecoderRenderer;
+import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import android.os.Handler;
@@ -27,7 +27,7 @@ import android.os.Handler;
 /**
  * Decodes and renders audio using the native Opus decoder.
  */
-public final class LibopusAudioRenderer extends AudioDecoderRenderer {
+public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
   private static final int NUM_BUFFERS = 16;
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;

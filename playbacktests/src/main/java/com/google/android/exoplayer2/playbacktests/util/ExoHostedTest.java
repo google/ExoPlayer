@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
-import com.google.android.exoplayer2.CodecCounters;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioTrack;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -59,8 +59,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   private final String tag;
   private final boolean failOnPlayerError;
   private final long expectedPlayingTimeMs;
-  private final CodecCounters videoCodecCounters;
-  private final CodecCounters audioCodecCounters;
+  private final DecoderCounters videoDecoderCounters;
+  private final DecoderCounters audioDecoderCounters;
 
   private ActionSchedule pendingSchedule;
   private Handler actionHandler;
@@ -102,8 +102,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     this.tag = tag;
     this.expectedPlayingTimeMs = expectedPlayingTimeMs;
     this.failOnPlayerError = failOnPlayerError;
-    videoCodecCounters = new CodecCounters();
-    audioCodecCounters = new CodecCounters();
+    videoDecoderCounters = new DecoderCounters();
+    audioDecoderCounters = new DecoderCounters();
   }
 
   /**
@@ -159,7 +159,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     if (failOnPlayerError && playerError != null) {
       throw new Error(playerError);
     }
-    logMetrics(audioCodecCounters, videoCodecCounters);
+    logMetrics(audioDecoderCounters, videoDecoderCounters);
     if (expectedPlayingTimeMs != EXPECTED_PLAYING_TIME_UNSET) {
       long playingTimeToAssertMs = expectedPlayingTimeMs == EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
           ? sourceDurationMs : expectedPlayingTimeMs;
@@ -171,7 +171,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
           && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs);
     }
     // Make any additional assertions.
-    assertPassed(audioCodecCounters, videoCodecCounters);
+    assertPassed(audioDecoderCounters, videoDecoderCounters);
   }
 
   // ExoPlayer.EventListener
@@ -218,7 +218,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   // SimpleExoPlayer.DebugListener
 
   @Override
-  public void onAudioEnabled(CodecCounters counters) {
+  public void onAudioEnabled(DecoderCounters counters) {
     Log.d(tag, "audioEnabled");
   }
 
@@ -239,13 +239,13 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public void onAudioDisabled(CodecCounters counters) {
+  public void onAudioDisabled(DecoderCounters counters) {
     Log.d(tag, "audioDisabled");
-    audioCodecCounters.merge(counters);
+    audioDecoderCounters.merge(counters);
   }
 
   @Override
-  public void onVideoEnabled(CodecCounters counters) {
+  public void onVideoEnabled(DecoderCounters counters) {
     Log.d(tag, "videoEnabled");
   }
 
@@ -261,9 +261,9 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public void onVideoDisabled(CodecCounters counters) {
+  public void onVideoDisabled(DecoderCounters counters) {
     Log.d(tag, "videoDisabled");
-    videoCodecCounters.merge(counters);
+    videoDecoderCounters.merge(counters);
   }
 
   @Override
@@ -301,11 +301,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     // Do nothing. Interested subclasses may override.
   }
 
-  protected void logMetrics(CodecCounters audioCounters, CodecCounters videoCounters) {
+  protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
     // Do nothing. Subclasses may override to log metrics.
   }
 
-  protected void assertPassed(CodecCounters audioCounters, CodecCounters videoCounters) {
+  protected void assertPassed(DecoderCounters audioCounters, DecoderCounters videoCounters) {
     // Do nothing. Subclasses may override to add additional assertions.
   }
 

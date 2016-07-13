@@ -67,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
-   * @param extractor The extractor to parse samples from the data.
+   * @param extractor The extractor to decode samples from the data.
    * @param extractorNeedsInit Whether the extractor needs initializing with the target
    *     {@link HlsSampleStreamWrapper}.
    * @param shouldSpliceIn Whether the samples parsed from this chunk should be spliced into any

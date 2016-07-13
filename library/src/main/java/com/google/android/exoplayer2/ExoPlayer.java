@@ -39,15 +39,16 @@ import com.google.android.exoplayer2.source.MediaSource;
  * is created. Hence {@link ExoPlayer} is capable of loading and playing any media for which a
  * {@link Renderer} implementation can be provided.
  *
- * <p>{@link MediaCodecAudioRenderer} and {@link MediaCodecVideoRenderer} can be used for
- * the common cases of rendering audio and video. These components in turn require an
- * <i>upstream</i> {@link MediaPeriod} to be injected through their constructors, where upstream
- * is defined to denote a component that is closer to the source of the media. This pattern of
- * upstream dependency injection is actively encouraged, since it means that the functionality of
- * the player is built up through the composition of components that can easily be exchanged for
- * alternate implementations. For example a {@link MediaPeriod} implementation may require a
- * further upstream data loading component to be injected through its constructor, with different
- * implementations enabling the loading of data from various sources.
+ * <p>{@link com.google.android.exoplayer2.audio.MediaCodecAudioRenderer} and
+ * {@link com.google.android.exoplayer2.video.MediaCodecVideoRenderer} can be used for the common
+ * cases of rendering audio and video. These components in turn require an <i>upstream</i>
+ * {@link MediaPeriod} to be injected through their constructors, where upstream is defined to
+ * denote a component that is closer to the source of the media. This pattern of upstream dependency
+ * injection is actively encouraged, since it means that the functionality of the player is built up
+ * through the composition of components that can easily be exchanged for alternate implementations.
+ * For example a {@link MediaPeriod} implementation may require a further upstream data loading
+ * component to be injected through its constructor, with different implementations enabling the
+ * loading of data from various sources.
  *
  * <a name="Threading"></a>
  * <h3>Threading model</h3>

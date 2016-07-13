@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
+import com.google.android.exoplayer2.text.TextDecoderException;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -119,7 +120,11 @@ import java.util.regex.Pattern;
     ParsableByteArray webvttData = new ParsableByteArray(sampleData);
 
     // Validate the first line of the header.
-    WebvttParserUtil.validateWebvttHeaderLine(webvttData);
+    try {
+      WebvttParserUtil.validateWebvttHeaderLine(webvttData);
+    } catch (TextDecoderException e) {
+      throw new ParserException(e);
+    }
 
     // Defaults to use if the header doesn't contain an X-TIMESTAMP-MAP header.
     long vttTimestampUs = 0;

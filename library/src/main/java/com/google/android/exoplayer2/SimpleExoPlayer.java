@@ -16,16 +16,21 @@
 package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
-import com.google.android.exoplayer2.metadata.id3.Id3Parser;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-
+import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
@@ -60,17 +65,17 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * A listener for debugging information.
    */
   public interface DebugListener {
-    void onAudioEnabled(CodecCounters counters);
+    void onAudioEnabled(DecoderCounters counters);
     void onAudioSessionId(int audioSessionId);
     void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onAudioFormatChanged(Format format);
-    void onAudioDisabled(CodecCounters counters);
-    void onVideoEnabled(CodecCounters counters);
+    void onAudioDisabled(DecoderCounters counters);
+    void onVideoEnabled(DecoderCounters counters);
     void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onVideoFormatChanged(Format format);
-    void onVideoDisabled(CodecCounters counters);
+    void onVideoDisabled(DecoderCounters counters);
     void onDroppedFrames(int count, long elapsed);
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
   }
@@ -106,8 +111,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private Id3MetadataListener id3MetadataListener;
   private VideoListener videoListener;
   private DebugListener debugListener;
-  private CodecCounters videoCodecCounters;
-  private CodecCounters audioCodecCounters;
+  private DecoderCounters videoDecoderCounters;
+  private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
@@ -246,19 +251,19 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * @return The {@link CodecCounters} for video, or null if there is no video component to the
+   * @return The {@link DecoderCounters} for video, or null if there is no video component to the
    *     current media.
    */
-  public CodecCounters getVideoCodecCounters() {
-    return videoCodecCounters;
+  public DecoderCounters getVideoDecoderCounters() {
+    return videoDecoderCounters;
   }
 
   /**
-   * @return The {@link CodecCounters} for audio, or null if there is no audio component to the
+   * @return The {@link DecoderCounters} for audio, or null if there is no audio component to the
    *     current media.
    */
-  public CodecCounters getAudioCodecCounters() {
-    return audioCodecCounters;
+  public DecoderCounters getAudioDecoderCounters() {
+    return audioDecoderCounters;
   }
 
   /**
@@ -413,7 +418,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
     renderersList.add(textRenderer);
 
     MetadataRenderer<List<Id3Frame>> id3Renderer = new MetadataRenderer<>(componentListener,
-        mainHandler.getLooper(), new Id3Parser());
+        mainHandler.getLooper(), new Id3Decoder());
     renderersList.add(id3Renderer);
   }
 
@@ -482,8 +487,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
     // VideoRendererEventListener implementation
 
     @Override
-    public void onVideoEnabled(CodecCounters counters) {
-      videoCodecCounters = counters;
+    public void onVideoEnabled(DecoderCounters counters) {
+      videoDecoderCounters = counters;
       if (debugListener != null) {
         debugListener.onVideoEnabled(counters);
       }
@@ -530,19 +535,19 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onVideoDisabled(CodecCounters counters) {
+    public void onVideoDisabled(DecoderCounters counters) {
       if (debugListener != null) {
         debugListener.onVideoDisabled(counters);
       }
       videoFormat = null;
-      videoCodecCounters = null;
+      videoDecoderCounters = null;
     }
 
     // AudioRendererEventListener implementation
 
     @Override
-    public void onAudioEnabled(CodecCounters counters) {
-      audioCodecCounters = counters;
+    public void onAudioEnabled(DecoderCounters counters) {
+      audioDecoderCounters = counters;
       if (debugListener != null) {
         debugListener.onAudioEnabled(counters);
       }
@@ -582,12 +587,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onAudioDisabled(CodecCounters counters) {
+    public void onAudioDisabled(DecoderCounters counters) {
       if (debugListener != null) {
         debugListener.onAudioDisabled(counters);
       }
       audioFormat = null;
-      audioCodecCounters = null;
+      audioDecoderCounters = null;
       audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     }
 

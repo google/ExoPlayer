@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.util.Util;
 
 import android.widget.MediaController.MediaPlayerControl;

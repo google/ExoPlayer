@@ -16,9 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Ac3Util;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.DtsUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 

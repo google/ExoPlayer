@@ -19,9 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.extensions.Decoder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -31,15 +29,14 @@ import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * A {@link Renderer} for subtitles.
  * <p>
- * Text is parsed from sample data using {@link Decoder} instances obtained from a
- * {@link SubtitleParserFactory}. The actual rendering of each line of text is delegated to a
+ * Text is parsed from sample data using {@link SubtitleDecoder} instances obtained from a
+ * {@link SubtitleDecoderFactory}. The actual rendering of each line of text is delegated to a
  * {@link Output}.
  */
 @TargetApi(16)
@@ -63,12 +60,12 @@ public final class TextRenderer extends Renderer implements Callback {
 
   private final Handler outputHandler;
   private final Output output;
-  private final SubtitleParserFactory parserFactory;
+  private final SubtitleDecoderFactory decoderFactory;
   private final FormatHolder formatHolder;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private SubtitleParser parser;
+  private SubtitleDecoder decoder;
   private SubtitleInputBuffer nextInputBuffer;
   private SubtitleOutputBuffer subtitle;
   private SubtitleOutputBuffer nextSubtitle;
@@ -83,7 +80,7 @@ public final class TextRenderer extends Renderer implements Callback {
    *     should be invoked directly on the player's internal rendering thread.
    */
   public TextRenderer(Output output, Looper outputLooper) {
-    this(output, outputLooper, SubtitleParserFactory.DEFAULT);
+    this(output, outputLooper, SubtitleDecoderFactory.DEFAULT);
   }
 
   /**
@@ -93,12 +90,12 @@ public final class TextRenderer extends Renderer implements Callback {
    *     normally be the looper associated with the application's main thread, which can be obtained
    *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
    *     should be invoked directly on the player's internal rendering thread.
-   * @param parserFactory A factory from which to obtain {@link Decoder} instances.
+   * @param decoderFactory A factory from which to obtain {@link SubtitleDecoder} instances.
    */
-  public TextRenderer(Output output, Looper outputLooper, SubtitleParserFactory parserFactory) {
+  public TextRenderer(Output output, Looper outputLooper, SubtitleDecoderFactory decoderFactory) {
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
-    this.parserFactory = parserFactory;
+    this.decoderFactory = decoderFactory;
     formatHolder = new FormatHolder();
   }
 
@@ -109,17 +106,17 @@ public final class TextRenderer extends Renderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return parserFactory.supportsFormat(format) ? Renderer.FORMAT_HANDLED
+    return decoderFactory.supportsFormat(format) ? Renderer.FORMAT_HANDLED
         : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE
         : FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
   protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
-    if (parser != null) {
-      parser.release();
+    if (decoder != null) {
+      decoder.release();
     }
-    parser = parserFactory.createParser(formats[0]);
+    decoder = decoderFactory.createDecoder(formats[0]);
   }
 
   @Override
@@ -136,7 +133,7 @@ public final class TextRenderer extends Renderer implements Callback {
     }
     nextInputBuffer = null;
     clearOutput();
-    parser.flush();
+    decoder.flush();
   }
 
   @Override
@@ -146,10 +143,10 @@ public final class TextRenderer extends Renderer implements Callback {
     }
 
     if (nextSubtitle == null) {
-      parser.setPositionUs(positionUs);
+      decoder.setPositionUs(positionUs);
       try {
-        nextSubtitle = parser.dequeueOutputBuffer();
-      } catch (IOException e) {
+        nextSubtitle = decoder.dequeueOutputBuffer();
+      } catch (TextDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
     }
@@ -195,7 +192,7 @@ public final class TextRenderer extends Renderer implements Callback {
     try {
       while (!inputStreamEnded) {
         if (nextInputBuffer == null) {
-          nextInputBuffer = parser.dequeueInputBuffer();
+          nextInputBuffer = decoder.dequeueInputBuffer();
           if (nextInputBuffer == null) {
             return;
           }
@@ -211,13 +208,13 @@ public final class TextRenderer extends Renderer implements Callback {
             nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
             nextInputBuffer.flip();
           }
-          parser.queueInputBuffer(nextInputBuffer);
+          decoder.queueInputBuffer(nextInputBuffer);
           nextInputBuffer = null;
         } else if (result == C.RESULT_NOTHING_READ) {
           break;
         }
       }
-    } catch (ParserException e) {
+    } catch (TextDecoderException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }
@@ -232,8 +229,8 @@ public final class TextRenderer extends Renderer implements Callback {
       nextSubtitle.release();
       nextSubtitle = null;
     }
-    parser.release();
-    parser = null;
+    decoder.release();
+    decoder = null;
     nextInputBuffer = null;
     clearOutput();
     super.onDisabled();

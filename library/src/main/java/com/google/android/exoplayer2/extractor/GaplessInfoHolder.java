@@ -52,7 +52,7 @@ public final class GaplessInfoHolder {
   /**
    * Populates the holder with data from an MP3 Xing header, if valid and non-zero.
    *
-   * @param value The 24-bit value to parse.
+   * @param value The 24-bit value to decode.
    * @return Whether the holder was populated.
    */
   public boolean setFromXingHeaderValue(int value) {

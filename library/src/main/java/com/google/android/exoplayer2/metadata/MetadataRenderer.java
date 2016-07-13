@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.metadata;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 
 import android.os.Handler;
@@ -28,7 +28,6 @@ import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -56,7 +55,7 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
-  private final MetadataParser<T> metadataParser;
+  private final MetadataDecoder<T> metadataDecoder;
   private final Output<T> output;
   private final Handler outputHandler;
   private final FormatHolder formatHolder;
@@ -73,12 +72,13 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
    *     normally be the looper associated with the application's main thread, which can be obtained
    *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
    *     should be invoked directly on the player's internal rendering thread.
-   * @param metadataParser A parser for parsing the metadata.
+   * @param metadataDecoder A decoder for the metadata.
    */
-  public MetadataRenderer(Output<T> output, Looper outputLooper, MetadataParser<T> metadataParser) {
+  public MetadataRenderer(Output<T> output, Looper outputLooper,
+      MetadataDecoder<T> metadataDecoder) {
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
-    this.metadataParser = Assertions.checkNotNull(metadataParser);
+    this.metadataDecoder = Assertions.checkNotNull(metadataDecoder);
     formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
@@ -90,7 +90,7 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return metadataParser.canParse(format.sampleMimeType) ? Renderer.FORMAT_HANDLED
+    return metadataDecoder.canDecode(format.sampleMimeType) ? Renderer.FORMAT_HANDLED
         : Renderer.FORMAT_UNSUPPORTED_TYPE;
   }
 
@@ -113,8 +113,8 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
           try {
             buffer.flip();
             ByteBuffer bufferData = buffer.data;
-            pendingMetadata = metadataParser.parse(bufferData.array(), bufferData.limit());
-          } catch (IOException e) {
+            pendingMetadata = metadataDecoder.decode(bufferData.array(), bufferData.limit());
+          } catch (MetadataDecoderException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
           }
         }

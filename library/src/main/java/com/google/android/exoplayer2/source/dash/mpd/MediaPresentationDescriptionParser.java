@@ -28,9 +28,9 @@ import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SingleSegmentBa
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.ParserUtil;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.XmlPullParserUtil;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -120,16 +120,16 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "BaseURL")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "BaseURL")) {
         if (!seenFirstBaseUrl) {
           baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
-      } else if (ParserUtil.isStartTag(xpp, "UTCTiming")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "UTCTiming")) {
         utcTiming = parseUtcTiming(xpp);
-      } else if (ParserUtil.isStartTag(xpp, "Location")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Location")) {
         location = Uri.parse(xpp.nextText());
-      } else if (ParserUtil.isStartTag(xpp, "Period") && !seenEarlyAccessPeriod) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Period") && !seenEarlyAccessPeriod) {
         Pair<Period, Long> periodWithDurationMs = parsePeriod(xpp, baseUrl, nextPeriodStartMs);
         Period period = periodWithDurationMs.first;
         if (period.startMs == -1) {
@@ -146,7 +146,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
           periods.add(period);
         }
       }
-    } while (!ParserUtil.isEndTag(xpp, "MPD"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "MPD"));
 
     if (durationMs == -1) {
       if (nextPeriodStartMs != -1) {
@@ -193,21 +193,21 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "BaseURL")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "BaseURL")) {
         if (!seenFirstBaseUrl) {
           baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
-      } else if (ParserUtil.isStartTag(xpp, "AdaptationSet")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase));
-      } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, baseUrl, null);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentList")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, baseUrl, null);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, baseUrl, null);
       }
-    } while (!ParserUtil.isEndTag(xpp, "Period"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "Period"));
 
     return Pair.create(buildPeriod(id, startMs, adaptationSets), durationMs);
   }
@@ -237,37 +237,37 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "BaseURL")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "BaseURL")) {
         if (!seenFirstBaseUrl) {
           baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
-      } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         SchemeData contentProtection = parseContentProtection(xpp);
         if (contentProtection != null) {
           drmSchemeDatas.add(contentProtection);
         }
-      } else if (ParserUtil.isStartTag(xpp, "ContentComponent")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ContentComponent")) {
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
-      } else if (ParserUtil.isStartTag(xpp, "Representation")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Representation")) {
         RepresentationInfo representationInfo = parseRepresentation(xpp, baseUrl, mimeType, codecs,
             width, height, frameRate, audioChannels, audioSamplingRate, language, segmentBase);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
-      } else if (ParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentList")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
-      } else if (ParserUtil.isStartTag(xpp)) {
+      } else if (XmlPullParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
-    } while (!ParserUtil.isEndTag(xpp, "AdaptationSet"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "AdaptationSet"));
 
     List<Representation> representations = new ArrayList<>(representationInfos.size());
     for (int i = 0; i < representationInfos.size(); i++) {
@@ -321,7 +321,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     do {
       xpp.next();
       // The cenc:pssh element is defined in 23001-7:2015.
-      if (ParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
+      if (XmlPullParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
         seenPsshElement = true;
         byte[] data = Base64.decode(xpp.getText(), Base64.DEFAULT);
         UUID uuid = PsshAtomUtil.parseUuid(data);
@@ -329,7 +329,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
           schemeData = new SchemeData(uuid, MimeTypes.VIDEO_MP4, data);
         }
       }
-    } while (!ParserUtil.isEndTag(xpp, "ContentProtection"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
     if (seenPsshElement && schemeData == null) {
       Log.w(TAG, "Skipped unsupported ContentProtection element");
       return null;
@@ -371,26 +371,26 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "BaseURL")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "BaseURL")) {
         if (!seenFirstBaseUrl) {
           baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
-      } else if (ParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentList")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
-      } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         SchemeData contentProtection = parseContentProtection(xpp);
         if (contentProtection != null) {
           drmSchemeDatas.add(contentProtection);
         }
       }
-    } while (!ParserUtil.isEndTag(xpp, "Representation"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, adaptationSetLanguage, codecs);
@@ -453,10 +453,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     RangedUri initialization = parent != null ? parent.initialization : null;
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "Initialization")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
         initialization = parseInitialization(xpp, baseUrl);
       }
-    } while (!ParserUtil.isEndTag(xpp, "SegmentBase"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentBase"));
 
     return buildSingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
         indexStart, indexLength);
@@ -483,17 +483,17 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "Initialization")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
         initialization = parseInitialization(xpp, baseUrl);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentTimeline")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentURL")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentURL")) {
         if (segments == null) {
           segments = new ArrayList<>();
         }
         segments.add(parseSegmentUrl(xpp, baseUrl));
       }
-    } while (!ParserUtil.isEndTag(xpp, "SegmentList"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentList"));
 
     if (parent != null) {
       initialization = initialization != null ? initialization : parent.initialization;
@@ -530,12 +530,12 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "Initialization")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
         initialization = parseInitialization(xpp, baseUrl);
-      } else if (ParserUtil.isStartTag(xpp, "SegmentTimeline")) {
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
       }
-    } while (!ParserUtil.isEndTag(xpp, "SegmentTemplate"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentTemplate"));
 
     if (parent != null) {
       initialization = initialization != null ? initialization : parent.initialization;
@@ -560,7 +560,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long elapsedTime = 0;
     do {
       xpp.next();
-      if (ParserUtil.isStartTag(xpp, "S")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "S")) {
         elapsedTime = parseLong(xpp, "t", elapsedTime);
         long duration = parseLong(xpp, "d");
         int count = 1 + parseInt(xpp, "r", 0);
@@ -569,7 +569,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
           elapsedTime += duration;
         }
       }
-    } while (!ParserUtil.isEndTag(xpp, "SegmentTimeline"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentTimeline"));
     return segmentTimeline;
   }
 
@@ -628,7 +628,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
     do {
       xpp.next();
-    } while (!ParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
     return audioChannels;
   }
 

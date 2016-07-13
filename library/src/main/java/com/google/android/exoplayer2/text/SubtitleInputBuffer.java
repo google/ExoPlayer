@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text;
 
-import com.google.android.exoplayer2.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /**
  * An input buffer for a subtitle parser.

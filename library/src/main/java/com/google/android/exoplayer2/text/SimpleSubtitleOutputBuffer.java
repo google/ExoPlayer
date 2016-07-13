@@ -16,13 +16,13 @@
 package com.google.android.exoplayer2.text;
 
 /**
- * A {@link Subtitle} output from a subtitle parser that extends {@link SimpleSubtitleParser}.
+ * A {@link Subtitle} output from a subtitle parser that extends {@link SimpleSubtitleDecoder}.
  */
 public final class SimpleSubtitleOutputBuffer extends SubtitleOutputBuffer {
 
-  private SimpleSubtitleParser owner;
+  private SimpleSubtitleDecoder owner;
 
-  public SimpleSubtitleOutputBuffer(SimpleSubtitleParser owner) {
+  public SimpleSubtitleOutputBuffer(SimpleSubtitleDecoder owner) {
     super();
     this.owner = owner;
   }

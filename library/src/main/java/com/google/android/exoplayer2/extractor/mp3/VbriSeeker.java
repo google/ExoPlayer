@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.MpegAudioHeader;
+import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 

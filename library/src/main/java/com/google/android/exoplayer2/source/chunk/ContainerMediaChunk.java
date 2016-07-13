@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * A {@link BaseMediaChunk} that uses an {@link Extractor} to parse sample data.
+ * A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data.
  */
 public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMetadataOutput {
 
@@ -109,7 +109,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
         trackOutput.formatWithOffset(sampleFormat, sampleOffsetUs);
         extractorWrapper.init(this, trackOutput);
       }
-      // Load and parse the sample data.
+      // Load and decode the sample data.
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {

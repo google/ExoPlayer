@@ -16,9 +16,9 @@
 package com.google.android.exoplayer2.source.hls;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.text.TextDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import java.util.regex.Matcher;
@@ -35,12 +35,12 @@ public final class WebvttParserUtil {
    * Reads and validates the first line of a WebVTT file.
    *
    * @param input The input from which the line should be read.
-   * @throws ParserException If the line isn't the start of a valid WebVTT file.
+   * @throws TextDecoderException If the line isn't the start of a valid WebVTT file.
    */
-  public static void validateWebvttHeaderLine(ParsableByteArray input) throws ParserException {
+  public static void validateWebvttHeaderLine(ParsableByteArray input) throws TextDecoderException {
     String line = input.readLine();
     if (line == null || !HEADER.matcher(line).matches()) {
-      throw new ParserException("Expected WEBVTT. Got " + line);
+      throw new TextDecoderException("Expected WEBVTT. Got " + line);
     }
   }
 
@@ -62,10 +62,11 @@ public final class WebvttParserUtil {
   }
 
   /**
-   * Parses a percentage and returns a scaled float.
-   * @param s contains the number to parse.
-   * @return a float scaled number. 1.0 represents 100%.
-   * @throws NumberFormatException if the number format is invalid or does not end with '%'.
+   * Parses a percentage string.
+   *
+   * @param s The percentage string.
+   * @return The parsed value, where 1.0 represents 100%.
+   * @throws NumberFormatException If the percentage could not be parsed.
    */
   public static float parsePercentage(String s) throws NumberFormatException {
     if (!s.endsWith("%")) {

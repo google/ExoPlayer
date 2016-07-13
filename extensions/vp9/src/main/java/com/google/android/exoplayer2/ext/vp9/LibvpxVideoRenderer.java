@@ -16,17 +16,17 @@
 package com.google.android.exoplayer2.ext.vp9;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.CodecCounters;
-import com.google.android.exoplayer2.DecoderInputBuffer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.VideoRendererEventListener;
-import com.google.android.exoplayer2.VideoRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -60,7 +60,7 @@ public final class LibvpxVideoRenderer extends Renderer {
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
 
-  private CodecCounters codecCounters;
+  private DecoderCounters decoderCounters;
   private Format format;
   private VpxDecoder decoder;
   private DecoderInputBuffer inputBuffer;
@@ -172,7 +172,7 @@ public final class LibvpxVideoRenderer extends Renderer {
         long codecInitializedTimestamp = SystemClock.elapsedRealtime();
         eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
             codecInitializedTimestamp - codecInitializingTimestamp);
-        codecCounters.codecInitCount++;
+        decoderCounters.codecInitCount++;
       }
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs)) {}
@@ -181,7 +181,7 @@ public final class LibvpxVideoRenderer extends Renderer {
     } catch (VpxDecoderException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
-    codecCounters.ensureUpdated();
+    decoderCounters.ensureUpdated();
   }
 
   private boolean drainOutputBuffer(long positionUs) throws VpxDecoderException {
@@ -200,7 +200,7 @@ public final class LibvpxVideoRenderer extends Renderer {
       if (outputBuffer == null) {
         return false;
       }
-      codecCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
+      decoderCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
     }
 
     if (nextOutputBuffer == null) {
@@ -219,11 +219,12 @@ public final class LibvpxVideoRenderer extends Renderer {
     if ((joiningDeadlineMs != -1 && outputBuffer.timestampUs < positionUs - 30000)
         || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
         && nextOutputBuffer.timestampUs < positionUs)) {
-      codecCounters.droppedOutputBufferCount++;
+      decoderCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
       consecutiveDroppedFrameCount++;
-      codecCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(consecutiveDroppedFrameCount,
-          codecCounters.maxConsecutiveDroppedOutputBufferCount);
+      decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(
+          consecutiveDroppedFrameCount,
+          decoderCounters.maxConsecutiveDroppedOutputBufferCount);
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
         maybeNotifyDroppedFrameCount();
       }
@@ -248,7 +249,7 @@ public final class LibvpxVideoRenderer extends Renderer {
   }
 
   private void renderBuffer() {
-    codecCounters.renderedOutputBufferCount++;
+    decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
@@ -310,7 +311,7 @@ public final class LibvpxVideoRenderer extends Renderer {
     }
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
-    codecCounters.inputBufferCount++;
+    decoderCounters.inputBufferCount++;
     inputBuffer = null;
     return true;
   }
@@ -354,8 +355,8 @@ public final class LibvpxVideoRenderer extends Renderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    codecCounters = new CodecCounters();
-    eventDispatcher.enabled(codecCounters);
+    decoderCounters = new DecoderCounters();
+    eventDispatcher.enabled(decoderCounters);
   }
 
   @Override
@@ -392,11 +393,11 @@ public final class LibvpxVideoRenderer extends Renderer {
       if (decoder != null) {
         decoder.release();
         decoder = null;
-        codecCounters.codecReleaseCount++;
+        decoderCounters.codecReleaseCount++;
       }
     } finally {
-      codecCounters.ensureUpdated();
-      eventDispatcher.disabled(codecCounters);
+      decoderCounters.ensureUpdated();
+      eventDispatcher.disabled(decoderCounters);
     }
   }
 

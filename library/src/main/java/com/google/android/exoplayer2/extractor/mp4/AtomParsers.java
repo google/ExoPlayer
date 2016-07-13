@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.extractor.mp4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
-import com.google.android.exoplayer2.util.Ac3Util;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -49,7 +49,7 @@ import java.util.List;
   /**
    * Parses a trak atom (defined in 14496-12).
    *
-   * @param trak Atom to parse.
+   * @param trak Atom to decode.
    * @param mvhd Movie header atom, used to get the timescale.
    * @param duration The duration in units of the timescale declared in the mvhd atom, or -1 if the
    *     duration should be parsed from the tkhd atom.
@@ -93,7 +93,7 @@ import java.util.List;
    * Parses an stbl atom (defined in 14496-12).
    *
    * @param track Track to which this sample table corresponds.
-   * @param stblAtom stbl (sample table) atom to parse.
+   * @param stblAtom stbl (sample table) atom to decode.
    * @param gaplessInfoHolder Holder to populate with gapless playback information.
    * @return Sample table described by the stbl atom.
    * @throws ParserException If the resulting sample sequence does not contain a sync sample.
@@ -191,7 +191,7 @@ import java.util.List;
             remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
             // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers
             // in version 0 ctts boxes, however some streams violate the spec and use signed
-            // integers instead. It's safe to always parse sample offsets as signed integers here,
+            // integers instead. It's safe to always decode sample offsets as signed integers here,
             // because unsigned integers will still be parsed correctly (unless their top bit is
             // set, which is never true in practice because sample offsets are always small).
             timestampOffset = ctts.readInt();
@@ -378,14 +378,14 @@ import java.util.List;
   /**
    * Parses a udta atom.
    *
-   * @param udtaAtom The udta (user data) atom to parse.
+   * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @param out {@link GaplessInfoHolder} to populate with gapless playback information.
    */
   public static void parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime, GaplessInfoHolder out) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
-      // parse one.
+      // decode one.
       return;
     }
     ParsableByteArray udtaData = udtaAtom.data;
@@ -535,7 +535,7 @@ import java.util.List;
   /**
    * Parses an hdlr atom.
    *
-   * @param hdlr The hdlr atom to parse.
+   * @param hdlr The hdlr atom to decode.
    * @return The track type.
    */
   private static int parseHdlr(ParsableByteArray hdlr) {
@@ -556,7 +556,7 @@ import java.util.List;
   /**
    * Parses an mdhd atom (defined in 14496-12).
    *
-   * @param mdhd The mdhd atom to parse.
+   * @param mdhd The mdhd atom to decode.
    * @return A pair consisting of the media timescale defined as the number of time units that pass
    *     in one second, and the language code.
    */
@@ -577,7 +577,7 @@ import java.util.List;
   /**
    * Parses a stsd atom (defined in 14496-12).
    *
-   * @param stsd The stsd atom to parse.
+   * @param stsd The stsd atom to decode.
    * @param trackId The track's identifier in its container.
    * @param rotationDegrees The rotation of the track in degrees.
    * @param language The language of the track.
@@ -780,7 +780,7 @@ import java.util.List;
   /**
    * Parses the edts atom (defined in 14496-12 subsection 8.6.5).
    *
-   * @param edtsAtom edts (edit box) atom to parse.
+   * @param edtsAtom edts (edit box) atom to decode.
    * @return Pair of edit list durations and edit list media times, or a pair of nulls if they are
    *     not present.
    */

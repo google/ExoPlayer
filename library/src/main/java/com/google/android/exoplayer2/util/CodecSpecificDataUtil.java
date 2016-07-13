@@ -128,10 +128,10 @@ public final class CodecSpecificDataUtil {
    */
   public static byte[] buildAacAudioSpecificConfig(int audioObjectType, int sampleRateIndex,
       int channelConfig) {
-    byte[] audioSpecificConfig = new byte[2];
-    audioSpecificConfig[0] = (byte) ((audioObjectType << 3) & 0xF8 | (sampleRateIndex >> 1) & 0x07);
-    audioSpecificConfig[1] = (byte) ((sampleRateIndex << 7) & 0x80 | (channelConfig << 3) & 0x78);
-    return audioSpecificConfig;
+    byte[] specificConfig = new byte[2];
+    specificConfig[0] = (byte) (((audioObjectType << 3) & 0xF8) | ((sampleRateIndex >> 1) & 0x07));
+    specificConfig[1] = (byte) (((sampleRateIndex << 7) & 0x80) | ((channelConfig << 3) & 0x78));
+    return specificConfig;
   }
 
   /**

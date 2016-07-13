@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.text.eia608.Eia608Parser;
+import com.google.android.exoplayer2.text.eia608.Eia608Decoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
@@ -51,7 +51,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         payloadSize += b;
       } while (b == 0xFF);
       // Process the payload.
-      if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
+      if (Eia608Decoder.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
         // Ignore country_code (1) + provider_code (2) + user_identifier (4)
         // + user_data_type_code (1).
         seiBuffer.skipBytes(8);

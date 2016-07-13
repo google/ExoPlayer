@@ -330,7 +330,7 @@ import java.util.List;
       }
       int picParameterSetId = bitArray.readUnsignedExpGolombCodedInt();
       if (pps.indexOfKey(picParameterSetId) < 0) {
-        // We have not seen the PPS yet, so don't try to parse the slice header.
+        // We have not seen the PPS yet, so don't try to decode the slice header.
         isFilling = false;
         return;
       }

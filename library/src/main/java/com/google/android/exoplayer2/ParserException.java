@@ -18,7 +18,7 @@ package com.google.android.exoplayer2;
 import java.io.IOException;
 
 /**
- * Thrown when an error occurs parsing media data.
+ * Thrown when an error occurs parsing loaded data.
  */
 public class ParserException extends IOException {
 

@@ -401,7 +401,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
     input.skipFully((int) skipAmount);
     if (track.track.nalUnitLengthFieldLength != -1) {
-      // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
+      // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
       byte[] nalLengthData = nalLength.data;
       nalLengthData[0] = 0;
@@ -470,7 +470,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   /**
-   * Returns whether the extractor should parse a leaf atom with type {@code atom}.
+   * Returns whether the extractor should decode a leaf atom with type {@code atom}.
    */
   private static boolean shouldParseLeafAtom(int atom) {
     return atom == Atom.TYPE_mdhd || atom == Atom.TYPE_mvhd || atom == Atom.TYPE_hdlr
@@ -481,7 +481,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   /**
-   * Returns whether the extractor should parse a container atom with type {@code atom}.
+   * Returns whether the extractor should decode a container atom with type {@code atom}.
    */
   private static boolean shouldParseContainerAtom(int atom) {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
