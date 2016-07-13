@@ -569,10 +569,6 @@ public final class AudioTrack {
    */
   public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs)
       throws WriteException {
-    if (size == 0) {
-      return RESULT_BUFFER_CONSUMED;
-    }
-
     if (needsPassthroughWorkarounds()) {
       // An AC-3 audio track continues to play data written while it is paused. Stop writing so its
       // buffer empties. See [Internal: b/18899620].
@@ -593,6 +589,9 @@ public final class AudioTrack {
     if (bufferBytesRemaining == 0) {
       // The previous buffer (if there was one) was fully written to the audio track. We're now
       // seeing a new buffer for the first time.
+      if (size == 0) {
+        return RESULT_BUFFER_CONSUMED;
+      }
 
       useResampledBuffer = targetEncoding != sourceEncoding;
       if (useResampledBuffer) {
