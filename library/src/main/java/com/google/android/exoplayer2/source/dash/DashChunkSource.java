@@ -34,9 +34,7 @@ import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
-import com.google.android.exoplayer2.source.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
-import com.google.android.exoplayer2.source.dash.mpd.Period;
 import com.google.android.exoplayer2.source.dash.mpd.RangedUri;
 import com.google.android.exoplayer2.source.dash.mpd.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -84,11 +82,11 @@ public class DashChunkSource implements ChunkSource {
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
-   *     as the server's unix time minus the local elapsed time. It unknown, set to 0.
+   *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
    */
   public DashChunkSource(Loader manifestLoader, MediaPresentationDescription manifest,
       int adaptationSetIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs) {
+      FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs, int index) {
     this.manifestLoader = manifestLoader;
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
@@ -98,12 +96,10 @@ public class DashChunkSource implements ChunkSource {
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
     this.evaluation = new Evaluation();
 
-    Period period = manifest.getPeriod(0);
-    long periodDurationUs = getPeriodDurationUs(manifest, 0);
-    AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
-
-    List<Representation> representations = adaptationSet.representations;
+    long periodDurationUs = getPeriodDurationUs(index);
+    List<Representation> representations = getRepresentations(index);
     representationHolders = new RepresentationHolder[representations.size()];
+
     for (int i = 0; i < representations.size(); i++) {
       Representation representation = representations.get(i);
       representationHolders[i] = new RepresentationHolder(periodDurationUs, representation);
@@ -121,12 +117,11 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  public void updateManifest(MediaPresentationDescription newManifest) {
+  public void updateManifest(MediaPresentationDescription newManifest, int index) {
     try {
       manifest = newManifest;
-      long periodDurationUs = getPeriodDurationUs(manifest, 0);
-      List<Representation> representations = manifest.getPeriod(0).adaptationSets
-          .get(adaptationSetIndex).representations;
+      long periodDurationUs = getPeriodDurationUs(index);
+      List<Representation> representations = getRepresentations(index);
       for (int i = 0; i < representationHolders.length; i++) {
         Representation representation = representations.get(i);
         representationHolders[i].updateRepresentation(periodDurationUs, representation);
@@ -134,6 +129,10 @@ public class DashChunkSource implements ChunkSource {
     } catch (BehindLiveWindowException e) {
       fatalError = e;
     }
+  }
+
+  private List<Representation> getRepresentations(int index) {
+    return manifest.getPeriod(index).adaptationSets.get(adaptationSetIndex).representations;
   }
 
   // ChunkSource implementation.
@@ -356,7 +355,7 @@ public class DashChunkSource implements ChunkSource {
     throw new IllegalStateException("Invalid format: " + format);
   }
 
-  private static long getPeriodDurationUs(MediaPresentationDescription manifest, int index) {
+  private long getPeriodDurationUs(int index) {
     long durationMs = manifest.getPeriodDuration(index);
     if (durationMs == -1) {
       return C.UNSET_TIME_US;

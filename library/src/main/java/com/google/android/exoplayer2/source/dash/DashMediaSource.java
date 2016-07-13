@@ -16,34 +16,19 @@
 package com.google.android.exoplayer2.source.dash;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.SequenceableLoader;
-import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
-import com.google.android.exoplayer2.source.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescriptionParser;
-import com.google.android.exoplayer2.source.dash.mpd.Period;
-import com.google.android.exoplayer2.source.dash.mpd.Representation;
 import com.google.android.exoplayer2.source.dash.mpd.UtcTimingElement;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
 import android.net.Uri;
@@ -57,16 +42,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 /**
  * A DASH {@link MediaSource}.
  */
-public final class DashMediaSource implements MediaPeriod, MediaSource,
-    SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
+public final class DashMediaSource implements MediaSource {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -84,22 +66,14 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
 
   private DataSource dataSource;
   private Loader loader;
-  private ChunkSampleStream<DashChunkSource>[] sampleStreams;
-  private CompositeSequenceableLoader sequenceableLoader;
 
   private Uri manifestUri;
   private long manifestLoadStartTimestamp;
   private long manifestLoadEndTimestamp;
   private MediaPresentationDescription manifest;
-
-  private Callback callback;
-  private Allocator allocator;
   private Handler manifestRefreshHandler;
-  private boolean prepared;
-  private long durationUs;
+  private DashMediaPeriod[] periods;
   private long elapsedRealtimeOffset;
-  private TrackGroupArray trackGroups;
-  private int[] trackGroupAdaptationSetIndices;
 
   public DashMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
       BandwidthMeter bandwidthMeter, Handler eventHandler,
@@ -118,29 +92,14 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new MediaPresentationDescriptionParser();
     manifestCallback = new ManifestCallback();
+    // TODO: Remove this call when prepare() is a part of MediaSource.
+    prepare(dataSourceFactory);
   }
 
   // MediaSource implementation.
 
-  @Override
-  public int getPeriodCount() {
-    return 1;
-  }
-
-  @Override
-  public MediaPeriod createPeriod(int index) {
-    Assertions.checkArgument(index == 0);
-    return this;
-  }
-
-  // MediaPeriod implementation.
-
-  @Override
-  public void prepare(Callback callback, Allocator allocator, long positionUs) {
-    this.callback = callback;
-    this.allocator = allocator;
-    sampleStreams = newSampleStreamArray(0);
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+  // TODO @Override
+  public void prepare(DataSourceFactory dataSourceFactory) {
     dataSource = dataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashMediaSource");
     manifestRefreshHandler = new Handler();
@@ -148,120 +107,36 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public void maybeThrowPrepareError() throws IOException {
-    loader.maybeThrowError();
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs;
-  }
-
-  @Override
-  public TrackGroupArray getTrackGroups() {
-    return trackGroups;
-  }
-
-  @Override
-  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
-    int newEnabledSourceCount = sampleStreams.length + newSelections.size() - oldStreams.size();
-    ChunkSampleStream<DashChunkSource>[] newSampleStreams =
-        newSampleStreamArray(newEnabledSourceCount);
-    int newEnabledSourceIndex = 0;
-
-    // Iterate over currently enabled streams, either releasing them or adding them to the new list.
-    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      if (oldStreams.contains(sampleStream)) {
-        sampleStream.release();
-      } else {
-        newSampleStreams[newEnabledSourceIndex++] = sampleStream;
-      }
+  public int getPeriodCount() {
+    if (manifest == null) {
+      return UNKNOWN_PERIOD_COUNT;
     }
+    return manifest.getPeriodCount();
+  }
 
-    // Instantiate and return new streams.
-    SampleStream[] streamsToReturn = new SampleStream[newSelections.size()];
-    for (int i = 0; i < newSelections.size(); i++) {
-      newSampleStreams[newEnabledSourceIndex] = buildSampleStream(newSelections.get(i), positionUs);
-      streamsToReturn[i] = newSampleStreams[newEnabledSourceIndex];
-      newEnabledSourceIndex++;
+  @Override
+  public MediaPeriod createPeriod(int index) {
+    if (periods == null) {
+      return null;
     }
-
-    sampleStreams = newSampleStreams;
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    return streamsToReturn;
+    return periods[index];
   }
 
-  @Override
-  public boolean continueLoading(long positionUs) {
-    return sequenceableLoader.continueLoading(positionUs);
-  }
-
-  @Override
-  public long getNextLoadPositionUs() {
-    return sequenceableLoader.getNextLoadPositionUs();
-  }
-
-  @Override
-  public long readDiscontinuity() {
-    return C.UNSET_TIME_US;
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    long bufferedPositionUs = Long.MAX_VALUE;
-    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      long rendererBufferedPositionUs = sampleStream.getBufferedPositionUs();
-      if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
-        bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
-      }
-    }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.END_OF_SOURCE_US : bufferedPositionUs;
-  }
-
-  @Override
-  public long seekToUs(long positionUs) {
-    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      sampleStream.seekToUs(positionUs);
-    }
-    return positionUs;
-  }
-
-  @Override
+  // TODO @Override
   public void release() {
     dataSource = null;
     if (loader != null) {
       loader.release();
       loader = null;
     }
-    if (sampleStreams != null) {
-      for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-        sampleStream.release();
-      }
-      sampleStreams = null;
-    }
-    sequenceableLoader = null;
     manifestLoadStartTimestamp = 0;
     manifestLoadEndTimestamp = 0;
     manifest = null;
-    callback = null;
-    allocator = null;
     if (manifestRefreshHandler != null) {
       manifestRefreshHandler.removeCallbacksAndMessages(null);
       manifestRefreshHandler = null;
     }
-    prepared = false;
-    durationUs = 0;
     elapsedRealtimeOffset = 0;
-    trackGroups = null;
-    trackGroupAdaptationSetIndices = null;
-  }
-
-  // SequenceableLoader.Callback implementation.
-
-  @Override
-  public void onContinueLoadingRequested(ChunkSampleStream<DashChunkSource> sampleStream) {
-    callback.onContinueLoadingRequested(this);
   }
 
   // Loadable callbacks.
@@ -276,20 +151,17 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
     if (manifest.location != null) {
       manifestUri = manifest.location;
     }
-    if (!prepared) {
-      durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(0) * 1000;
-      buildTrackGroups(manifest);
+
+    if (periods == null) {
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
         finishPrepare();
       }
     } else {
-      for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-        sampleStream.getChunkSource().updateManifest(manifest);
+      for (int i = 0; i < periods.length; i++) {
+        periods[i].updateManifest(manifest, i);
       }
-      callback.onContinueLoadingRequested(this);
-      scheduleManifestRefresh();
     }
   }
 
@@ -371,8 +243,12 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
   }
 
   private void finishPrepare() {
-    prepared = true;
-    callback.onPeriodPrepared(this);
+    int periodCount = manifest.getPeriodCount();
+    periods = new DashMediaPeriod[periodCount];
+    for (int i = 0; i < periodCount; i++) {
+      periods[i] = new DashMediaPeriod(manifest, i, dataSourceFactory, bandwidthMeter,
+          minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffset, loader);
+    }
     scheduleManifestRefresh();
   }
 
@@ -402,56 +278,6 @@ public final class DashMediaSource implements MediaPeriod, MediaSource,
       Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
-  }
-
-  private void buildTrackGroups(MediaPresentationDescription manifest) {
-    Period period = manifest.getPeriod(0);
-    int trackGroupCount = 0;
-    trackGroupAdaptationSetIndices = new int[period.adaptationSets.size()];
-    TrackGroup[] trackGroupArray = new TrackGroup[period.adaptationSets.size()];
-    for (int i = 0; i < period.adaptationSets.size(); i++) {
-      AdaptationSet adaptationSet = period.adaptationSets.get(i);
-      int adaptationSetType = adaptationSet.type;
-      List<Representation> representations = adaptationSet.representations;
-      if (!representations.isEmpty() && (adaptationSetType == C.TRACK_TYPE_AUDIO
-          || adaptationSetType == C.TRACK_TYPE_VIDEO || adaptationSetType == C.TRACK_TYPE_TEXT)) {
-        Format[] formats = new Format[representations.size()];
-        for (int j = 0; j < formats.length; j++) {
-          formats[j] = representations.get(j).format;
-        }
-        trackGroupAdaptationSetIndices[trackGroupCount] = i;
-        boolean adaptive = adaptationSetType == C.TRACK_TYPE_VIDEO;
-        trackGroupArray[trackGroupCount++] = new TrackGroup(adaptive, formats);
-      }
-    }
-    if (trackGroupCount < trackGroupArray.length) {
-      trackGroupAdaptationSetIndices = Arrays.copyOf(trackGroupAdaptationSetIndices,
-          trackGroupCount);
-      trackGroupArray = Arrays.copyOf(trackGroupArray, trackGroupCount);
-    }
-    trackGroups = new TrackGroupArray(trackGroupArray);
-  }
-
-  private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
-      long positionUs) {
-    int[] selectedTracks = selection.getTracks();
-    FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
-        ? new AdaptiveEvaluator(bandwidthMeter) : null;
-    int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
-    AdaptationSet adaptationSet = manifest.getPeriod(0).adaptationSets.get(
-        adaptationSetIndex);
-    int adaptationSetType = adaptationSet.type;
-    DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
-        trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
-        elapsedRealtimeOffset);
-    return new ChunkSampleStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
-        minLoadableRetryCount, eventDispatcher);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
-    return new ChunkSampleStream[length];
   }
 
   private final class ManifestCallback implements
