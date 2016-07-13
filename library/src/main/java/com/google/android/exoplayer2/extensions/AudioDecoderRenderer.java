@@ -189,6 +189,7 @@ public abstract class AudioDecoderRenderer extends Renderer implements MediaCloc
         audioTrack.initialize(audioSessionId);
       } else {
         audioSessionId = audioTrack.initialize();
+        eventDispatcher.audioSessionId(audioSessionId);
         onAudioSessionId(audioSessionId);
       }
       audioTrackHasData = false;

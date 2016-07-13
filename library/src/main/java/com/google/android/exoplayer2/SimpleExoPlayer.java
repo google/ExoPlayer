@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
@@ -62,6 +63,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
    */
   public interface DebugListener {
     void onAudioEnabled(CodecCounters counters);
+    void onAudioSessionId(int audioSessionId);
     void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onAudioFormatChanged(Format format);
@@ -109,6 +111,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private DebugListener debugListener;
   private CodecCounters videoCodecCounters;
   private CodecCounters audioCodecCounters;
+  private int audioSessionId;
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
       LoadControl loadControl, DrmSessionManager drmSessionManager,
@@ -143,6 +146,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
     this.videoRendererCount = videoRendererCount;
     this.audioRendererCount = audioRendererCount;
+    this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
 
     // Build the player and associated objects.
     player = new ExoPlayerImpl(renderers, trackSelector, loadControl);
@@ -242,6 +246,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
    */
   public Format getAudioFormat() {
     return audioFormat;
+  }
+
+  /**
+   * @return The audio session identifier. If not set {@code AudioTrack.SESSION_ID_NOT_SET} is
+   *     returned.
+   */
+  public int getAudioSessionId() {
+    return audioSessionId;
   }
 
   /**
@@ -548,6 +560,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
+    public void onAudioSessionId(int sessionId) {
+      audioSessionId = sessionId;
+      if (debugListener != null) {
+        debugListener.onAudioSessionId(sessionId);
+      }
+    }
+
+    @Override
     public void onAudioDecoderInitialized(String decoderName, long initializedTimestampMs,
         long initializationDurationMs) {
       if (debugListener != null) {
@@ -579,6 +599,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
       }
       audioFormat = null;
       audioCodecCounters = null;
+      audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     }
 
     // TextRendererOutput implementation

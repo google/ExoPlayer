@@ -150,6 +150,11 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
+  public void onAudioSessionId(int audioSessionId) {
+    Log.d(TAG, "audioSessionId [" + audioSessionId + "]");
+  }
+
+  @Override
   public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
       long initializationDurationMs) {
     Log.d(TAG, "audioDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");

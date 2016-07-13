@@ -35,6 +35,13 @@ public interface AudioRendererEventListener {
   void onAudioEnabled(CodecCounters counters);
 
   /**
+   * Invoked when the audio session is set.
+   *
+   * @param audioSessionId The audio session id.
+   */
+  void onAudioSessionId(int audioSessionId);
+
+  /**
    * Invoked when a decoder is created.
    *
    * @param decoderName The decoder that was created.
@@ -142,6 +149,17 @@ public interface AudioRendererEventListener {
       }
     }
 
+    public void audioSessionId(final int audioSessionId) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onAudioSessionId(audioSessionId);
+          }
+        });
+      }
+    }
+    
   }
 
 }

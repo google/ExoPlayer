@@ -221,6 +221,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
+  public void onAudioSessionId(int audioSessionId) {
+    Log.d(tag, "audioSessionId [" + audioSessionId + "]");
+  }
+
+  @Override
   public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
       long initializationDurationMs) {
     Log.d(tag, "audioDecoderInitialized [" + decoderName + "]");

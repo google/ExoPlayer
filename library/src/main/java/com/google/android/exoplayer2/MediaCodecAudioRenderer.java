@@ -338,6 +338,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
           audioTrack.initialize(audioSessionId);
         } else {
           audioSessionId = audioTrack.initialize();
+          eventDispatcher.audioSessionId(audioSessionId);
           onAudioSessionId(audioSessionId);
         }
         audioTrackHasData = false;
