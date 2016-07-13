@@ -117,6 +117,7 @@ import java.util.List;
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
   public static final int TYPE_wvtt = Util.getIntegerCodeForString("wvtt");
   public static final int TYPE_stpp = Util.getIntegerCodeForString("stpp");
+  public static final int TYPE_c608 = Util.getIntegerCodeForString("c608");
   public static final int TYPE_samr = Util.getIntegerCodeForString("samr");
   public static final int TYPE_sawb = Util.getIntegerCodeForString("sawb");
   public static final int TYPE_udta = Util.getIntegerCodeForString("udta");

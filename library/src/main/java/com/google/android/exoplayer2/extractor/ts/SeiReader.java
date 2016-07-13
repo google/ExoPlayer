@@ -52,8 +52,26 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       } while (b == 0xFF);
       // Process the payload.
       if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
-        output.sampleData(seiBuffer, payloadSize);
-        output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, payloadSize, 0, null);
+        // Ignore country_code (1) + provider_code (2) + user_identifier (4)
+        // + user_data_type_code (1).
+        seiBuffer.skipBytes(8);
+        // Ignore first three bits: reserved (1) + process_cc_data_flag (1) + zero_bit (1).
+        int ccCount = seiBuffer.readUnsignedByte() & 0x1F;
+        seiBuffer.skipBytes(1);
+        int sampleBytes = 0;
+        for (int i = 0; i < ccCount; i++) {
+          int ccValidityAndType = seiBuffer.readUnsignedByte() & 0x07;
+          // Check that validity == 1 and type == 0.
+          if (ccValidityAndType != 0x04) {
+            seiBuffer.skipBytes(2);
+          } else {
+            sampleBytes += 2;
+            output.sampleData(seiBuffer, 2);
+          }
+        }
+        output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytes, 0, null);
+        // Ignore trailing information in SEI, if any.
+        seiBuffer.skipBytes(payloadSize - (10 + ccCount * 3));
       } else {
         seiBuffer.skipBytes(payloadSize);
       }

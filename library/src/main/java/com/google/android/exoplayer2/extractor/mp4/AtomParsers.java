@@ -44,6 +44,7 @@ import java.util.List;
   private static final int TYPE_text = Util.getIntegerCodeForString("text");
   private static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
   private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
+  private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
 
   /**
    * Parses a trak atom (defined in 14496-12).
@@ -84,8 +85,8 @@ import java.util.List;
     Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
     return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
-            stsdData.format, stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength,
-            edtsData.first, edtsData.second);
+            stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
+            stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
   }
 
   /**
@@ -544,7 +545,8 @@ import java.util.List;
       return C.TRACK_TYPE_AUDIO;
     } else if (trackType == TYPE_vide) {
       return C.TRACK_TYPE_VIDEO;
-    } else if (trackType == TYPE_text || trackType == TYPE_sbtl || trackType == TYPE_subt) {
+    } else if (trackType == TYPE_text || trackType == TYPE_sbtl || trackType == TYPE_subt
+        || trackType == TYPE_clcp) {
       return C.TRACK_TYPE_TEXT;
     } else {
       return C.TRACK_TYPE_UNKNOWN;
@@ -621,6 +623,10 @@ import java.util.List;
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_TTML, null, Format.NO_VALUE, 0, language, drmInitData,
             0 /* subsample timing is absolute */);
+      } else if (childAtomType == Atom.TYPE_c608) {
+        out.format = Format.createTextSampleFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE, 0, language, drmInitData);
+        out.requiredSampleTransformation = Track.TRANSFORMATION_CEA608_CDAT;
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -1173,10 +1179,12 @@ import java.util.List;
 
     public Format format;
     public int nalUnitLengthFieldLength;
+    public int requiredSampleTransformation;
 
     public StsdData(int numberOfEntries) {
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
       nalUnitLengthFieldLength = -1;
+      requiredSampleTransformation = Track.TRANSFORMATION_NONE;
     }
 
   }

@@ -387,13 +387,19 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     TrackOutput trackOutput = track.trackOutput;
     int sampleIndex = track.sampleIndex;
     long position = track.sampleTable.offsets[sampleIndex];
+    int sampleSize = track.sampleTable.sizes[sampleIndex];
+    if (track.track.sampleTransformation == Track.TRANSFORMATION_CEA608_CDAT) {
+      // The sample information is contained in a cdat atom. The header must be discarded for
+      // committing.
+      position += Atom.HEADER_SIZE;
+      sampleSize -= Atom.HEADER_SIZE;
+    }
     long skipAmount = position - input.getPosition() + sampleBytesWritten;
     if (skipAmount < 0 || skipAmount >= RELOAD_MINIMUM_SEEK_DISTANCE) {
       positionHolder.position = position;
       return RESULT_SEEK;
     }
     input.skipFully((int) skipAmount);
-    int sampleSize = track.sampleTable.sizes[sampleIndex];
     if (track.track.nalUnitLengthFieldLength != -1) {
       // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
       // they're only 1 or 2 bytes long.

@@ -24,6 +24,15 @@ import com.google.android.exoplayer2.Format;
 public final class Track {
 
   /**
+   * A no-op sample transformation.
+   */
+  public static final int TRANSFORMATION_NONE = 0;
+  /**
+   * A transformation for caption samples in cdat atoms.
+   */
+  public static final int TRANSFORMATION_CEA608_CDAT = 1;
+
+  /**
    * The track identifier.
    */
   public final int id;
@@ -54,6 +63,12 @@ public final class Track {
   public final Format format;
 
   /**
+   * One of {@code TRANSFORMATION_*}. Defines the transformation to apply before outputting each
+   * sample.
+   */
+  public final int sampleTransformation;
+
+  /**
    * Track encryption boxes for the different track sample descriptions. Entries may be null.
    */
   public final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
@@ -75,14 +90,16 @@ public final class Track {
   public final int nalUnitLengthFieldLength;
 
   public Track(int id, int type, long timescale, long movieTimescale, long durationUs,
-      Format format, TrackEncryptionBox[] sampleDescriptionEncryptionBoxes,
-      int nalUnitLengthFieldLength, long[] editListDurations, long[] editListMediaTimes) {
+      Format format, int sampleTransformation,
+      TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength,
+      long[] editListDurations, long[] editListMediaTimes) {
     this.id = id;
     this.type = type;
     this.timescale = timescale;
     this.movieTimescale = movieTimescale;
     this.durationUs = durationUs;
     this.format = format;
+    this.sampleTransformation = sampleTransformation;
     this.sampleDescriptionEncryptionBoxes = sampleDescriptionEncryptionBoxes;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.editListDurations = editListDurations;

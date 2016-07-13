@@ -21,12 +21,10 @@ import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import android.text.TextUtils;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -168,7 +166,7 @@ public final class Eia608Parser implements SubtitleParser {
   private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
   private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
 
-  private final ParsableBitArray seiBuffer;
+  private final ParsableByteArray ccData;
 
   private final StringBuilder captionStringBuilder;
 
@@ -197,7 +195,7 @@ public final class Eia608Parser implements SubtitleParser {
     }
     queuedInputBuffers = new TreeSet<>();
 
-    seiBuffer = new ParsableBitArray();
+    ccData = new ParsableByteArray();
 
     captionStringBuilder = new StringBuilder();
 
@@ -310,58 +308,30 @@ public final class Eia608Parser implements SubtitleParser {
   }
 
   private void decode(SubtitleInputBuffer inputBuffer) {
-    ByteBuffer inputData = inputBuffer.data;
-    int inputSize = inputData.limit();
-    if (inputSize < 10) {
-      return;
-    }
-
-    seiBuffer.reset(inputData.array(), inputSize);
-    // country_code (8) + provider_code (16) + user_identifier (32) + user_data_type_code (8) +
-    // reserved (1) + process_cc_data_flag (1) + zero_bit (1)
-    seiBuffer.skipBits(67);
-    int ccCount = seiBuffer.readBits(5);
-    seiBuffer.skipBits(8);
-
+    ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
     boolean isRepeatableControl = false;
-    for (int i = 0; i < ccCount; i++) {
-      seiBuffer.skipBits(5); // one_bit + reserved
-      boolean ccValid = seiBuffer.readBit();
-      if (!ccValid) {
-        seiBuffer.skipBits(18);
-        continue;
-      }
-      int ccType = seiBuffer.readBits(2);
-      if (ccType != 0) {
-        seiBuffer.skipBits(16);
-        continue;
-      }
-      seiBuffer.skipBits(1);
-      byte ccData1 = (byte) seiBuffer.readBits(7);
-      seiBuffer.skipBits(1);
-      byte ccData2 = (byte) seiBuffer.readBits(7);
+    while (ccData.bytesLeft() > 0) {
+      byte ccData1 = (byte) (ccData.readUnsignedByte() & 0x7F);
+      byte ccData2 = (byte) (ccData.readUnsignedByte() & 0x7F);
 
       // Ignore empty captions.
       if (ccData1 == 0 && ccData2 == 0) {
         continue;
       }
-
       // If we've reached this point then there is data to process; flag that work has been done.
       captionDataProcessed = true;
 
       // Special North American character set.
       // ccData2 - P|0|1|1|X|X|X|X
-      if ((ccData1 == 0x11 || ccData1 == 0x19)
-          && ((ccData2 & 0x70) == 0x30)) {
+      if ((ccData1 == 0x11 || ccData1 == 0x19) && ((ccData2 & 0x70) == 0x30)) {
         captionStringBuilder.append(getSpecialChar(ccData2));
         continue;
       }
 
       // Extended Spanish/Miscellaneous and French character set.
       // ccData2 - P|0|1|X|X|X|X|X
-      if ((ccData1 == 0x12 || ccData1 == 0x1A)
-          && ((ccData2 & 0x60) == 0x20)) {
+      if ((ccData1 == 0x12 || ccData1 == 0x1A) && ((ccData2 & 0x60) == 0x20)) {
         backspace(); // Remove standard equivalent of the special extended char.
         captionStringBuilder.append(getExtendedEsFrChar(ccData2));
         continue;
@@ -369,8 +339,7 @@ public final class Eia608Parser implements SubtitleParser {
 
       // Extended Portuguese and German/Danish character set.
       // ccData2 - P|0|1|X|X|X|X|X
-      if ((ccData1 == 0x13 || ccData1 == 0x1B)
-          && ((ccData2 & 0x60) == 0x20)) {
+      if ((ccData1 == 0x13 || ccData1 == 0x1B) && ((ccData2 & 0x60) == 0x20)) {
         backspace(); // Remove standard equivalent of the special extended char.
         captionStringBuilder.append(getExtendedPtDeChar(ccData2));
         continue;
