@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.Loader;
 
+import android.util.Pair;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -47,22 +49,22 @@ import java.util.List;
 /* package */ final class DashMediaPeriod implements MediaPeriod,
     SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
 
-  private final Loader loader;
   private final DataSourceFactory dataSourceFactory;
   private final BandwidthMeter bandwidthMeter;
+  private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
+  private final long elapsedRealtimeOffset;
+  private final Loader loader;
+  private final long durationUs;
+  private final TrackGroupArray trackGroups;
+  private final int[] trackGroupAdaptationSetIndices;
 
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
   private Callback callback;
   private Allocator allocator;
-  private long durationUs;
-  private TrackGroupArray trackGroups;
-  private int[] trackGroupAdaptationSetIndices;
   private MediaPresentationDescription manifest;
   private int index;
-  private int minLoadableRetryCount;
-  private long elapsedRealtimeOffset;
   private Period period;
 
   public DashMediaPeriod(MediaPresentationDescription manifest, int index,
@@ -77,8 +79,11 @@ import java.util.List;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.loader = loader;
-    period = manifest.getPeriod(index);
     durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(index) * 1000;
+    period = manifest.getPeriod(index);
+    Pair<TrackGroupArray, int[]> trackGroupsAndAdaptationSetIndices = buildTrackGroups(period);
+    trackGroups = trackGroupsAndAdaptationSetIndices.first;
+    trackGroupAdaptationSetIndices = trackGroupsAndAdaptationSetIndices.second;
   }
 
   public void updateManifest(MediaPresentationDescription manifest, int index) {
@@ -101,7 +106,6 @@ import java.util.List;
     this.allocator = allocator;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    buildTrackGroups();
     callback.onPeriodPrepared(this);
   }
 
@@ -198,9 +202,6 @@ import java.util.List;
     sequenceableLoader = null;
     callback = null;
     allocator = null;
-    durationUs = 0;
-    trackGroups = null;
-    trackGroupAdaptationSetIndices = null;
   }
 
   // SequenceableLoader.Callback implementation.
@@ -212,9 +213,9 @@ import java.util.List;
 
   // Internal methods.
 
-  private void buildTrackGroups() {
+  private static Pair<TrackGroupArray, int[]> buildTrackGroups(Period period) {
     int trackGroupCount = 0;
-    trackGroupAdaptationSetIndices = new int[period.adaptationSets.size()];
+    int[] trackGroupAdaptationSetIndices = new int[period.adaptationSets.size()];
     TrackGroup[] trackGroupArray = new TrackGroup[period.adaptationSets.size()];
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
@@ -236,7 +237,8 @@ import java.util.List;
           trackGroupCount);
       trackGroupArray = Arrays.copyOf(trackGroupArray, trackGroupCount);
     }
-    trackGroups = new TrackGroupArray(trackGroupArray);
+    TrackGroupArray trackGroups = new TrackGroupArray(trackGroupArray);
+    return Pair.create(trackGroups, trackGroupAdaptationSetIndices);
   }
 
   private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
@@ -245,14 +247,12 @@ import java.util.List;
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
         ? new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter) : null;
     int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
-    AdaptationSet adaptationSet = period.adaptationSets.get(
-        adaptationSetIndex);
+    AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
     int adaptationSetType = adaptationSet.type;
-    DataSource dataSource =
-        dataSourceFactory.createDataSource(bandwidthMeter);
-    DashChunkSource chunkSource = new DashChunkSource(loader, manifest, adaptationSetIndex,
+    DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    DashChunkSource chunkSource = new DashChunkSource(loader, manifest, index, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
-        elapsedRealtimeOffset, index);
+        elapsedRealtimeOffset);
     return new ChunkSampleStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }

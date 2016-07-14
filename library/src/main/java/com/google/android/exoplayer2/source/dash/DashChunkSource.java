@@ -75,7 +75,8 @@ public class DashChunkSource implements ChunkSource {
   /**
    * @param manifestLoader The {@link Loader} being used to load manifests.
    * @param manifest The initial manifest.
-   * @param adaptationSetIndex The index of the adaptation set in the manifest.
+   * @param periodIndex The index of the period in the manifest.
+   * @param adaptationSetIndex The index of the adaptation set in the period.
    * @param trackGroup The track group corresponding to the adaptation set.
    * @param tracks The indices of the selected tracks within the adaptation set.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
@@ -85,8 +86,9 @@ public class DashChunkSource implements ChunkSource {
    *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
    */
   public DashChunkSource(Loader manifestLoader, MediaPresentationDescription manifest,
-      int adaptationSetIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs, int index) {
+      int periodIndex, int adaptationSetIndex, TrackGroup trackGroup, int[] tracks,
+      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
+      long elapsedRealtimeOffsetMs) {
     this.manifestLoader = manifestLoader;
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
@@ -96,8 +98,8 @@ public class DashChunkSource implements ChunkSource {
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
     this.evaluation = new Evaluation();
 
-    long periodDurationUs = getPeriodDurationUs(index);
-    List<Representation> representations = getRepresentations(index);
+    long periodDurationUs = getPeriodDurationUs(periodIndex);
+    List<Representation> representations = getRepresentations(periodIndex);
     representationHolders = new RepresentationHolder[representations.size()];
 
     for (int i = 0; i < representations.size(); i++) {
@@ -117,11 +119,11 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  public void updateManifest(MediaPresentationDescription newManifest, int index) {
+  public void updateManifest(MediaPresentationDescription newManifest, int periodIndex) {
     try {
       manifest = newManifest;
-      long periodDurationUs = getPeriodDurationUs(index);
-      List<Representation> representations = getRepresentations(index);
+      long periodDurationUs = getPeriodDurationUs(periodIndex);
+      List<Representation> representations = getRepresentations(periodIndex);
       for (int i = 0; i < representationHolders.length; i++) {
         Representation representation = representations.get(i);
         representationHolders[i].updateRepresentation(periodDurationUs, representation);
@@ -131,8 +133,8 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  private List<Representation> getRepresentations(int index) {
-    return manifest.getPeriod(index).adaptationSets.get(adaptationSetIndex).representations;
+  private List<Representation> getRepresentations(int periodIndex) {
+    return manifest.getPeriod(periodIndex).adaptationSets.get(adaptationSetIndex).representations;
   }
 
   // ChunkSource implementation.
@@ -355,8 +357,8 @@ public class DashChunkSource implements ChunkSource {
     throw new IllegalStateException("Invalid format: " + format);
   }
 
-  private long getPeriodDurationUs(int index) {
-    long durationMs = manifest.getPeriodDuration(index);
+  private long getPeriodDurationUs(int periodIndex) {
+    long durationMs = manifest.getPeriodDuration(periodIndex);
     if (durationMs == -1) {
       return C.UNSET_TIME_US;
     } else {
