@@ -45,14 +45,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   /**
    * Factory that returns one extractor which is an {@link Mp4Extractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new Mp4Extractor()};
     }
 
-  }
+  };
 
   // Parser states.
   private static final int STATE_AFTER_SEEK = 0;

@@ -34,14 +34,14 @@ public final class FlvExtractor implements Extractor, SeekMap {
   /**
    * Factory that returns one extractor which is a {@link FlvExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new FlvExtractor()};
     }
 
-  }
+  };
 
   // Header sizes.
   private static final int FLV_HEADER_SIZE = 9;

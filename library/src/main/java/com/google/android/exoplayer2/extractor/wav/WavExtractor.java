@@ -35,14 +35,14 @@ public final class WavExtractor implements Extractor, SeekMap {
   /**
    * Factory that returns one extractor which is a {@link WavExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new WavExtractor()};
     }
 
-  }
+  };
 
   /** Arbitrary maximum input size of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
   private static final int MAX_INPUT_SIZE = 32 * 1024;

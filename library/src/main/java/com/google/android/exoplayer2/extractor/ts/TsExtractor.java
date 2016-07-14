@@ -42,14 +42,14 @@ public final class TsExtractor implements Extractor {
   /**
    * Factory that returns one extractor which is a {@link TsExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new TsExtractor()};
     }
 
-  }
+  };
 
   public static final int WORKAROUND_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;

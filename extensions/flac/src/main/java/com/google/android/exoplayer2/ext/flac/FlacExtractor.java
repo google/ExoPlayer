@@ -40,14 +40,14 @@ public final class FlacExtractor implements Extractor {
   /**
    * Factory that returns one extractor which is a {@link FlacExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new FlacExtractor()};
     }
 
-  }
+  };
 
   /**
    * FLAC signature: first 4 is the signature word, second 4 is the sizeof STREAMINFO. 0x22 is the

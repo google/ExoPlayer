@@ -37,14 +37,14 @@ public final class PsExtractor implements Extractor {
   /**
    * Factory that returns one extractor which is a {@link PsExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new PsExtractor()};
     }
 
-  }
+  };
 
   private static final int PACK_START_CODE = 0x000001BA;
   private static final int SYSTEM_HEADER_START_CODE = 0x000001BB;

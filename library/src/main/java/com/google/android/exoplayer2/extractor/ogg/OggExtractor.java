@@ -34,14 +34,14 @@ public class OggExtractor implements Extractor {
   /**
    * Factory that returns one extractor which is an {@link OggExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new OggExtractor()};
     }
 
-  }
+  };
 
   private static final int MAX_VERIFICATION_BYTES = 8;
 

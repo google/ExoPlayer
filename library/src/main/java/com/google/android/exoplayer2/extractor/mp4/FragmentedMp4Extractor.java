@@ -54,14 +54,14 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Factory that returns one extractor which is a {@link FragmentedMp4Extractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new FragmentedMp4Extractor()};
     }
 
-  }
+  };
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");

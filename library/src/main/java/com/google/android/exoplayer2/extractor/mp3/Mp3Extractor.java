@@ -41,14 +41,14 @@ public final class Mp3Extractor implements Extractor {
   /**
    * Factory that returns one extractor which is an {@link Mp3Extractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new Mp3Extractor()};
     }
 
-  }
+  };
 
   /**
    * The maximum number of bytes to search when synchronizing, before giving up.

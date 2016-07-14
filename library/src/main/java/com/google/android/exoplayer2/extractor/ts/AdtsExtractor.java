@@ -37,14 +37,14 @@ public final class AdtsExtractor implements Extractor {
   /**
    * Factory that returns one extractor which is an {@link AdtsExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new AdtsExtractor()};
     }
 
-  }
+  };
 
   private static final int MAX_PACKET_SIZE = 200;
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");

@@ -55,14 +55,14 @@ public final class MatroskaExtractor implements Extractor {
   /**
    * Factory that returns one extractor which is a {@link MatroskaExtractor}.
    */
-  public static final class Factory implements ExtractorsFactory {
+  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
       return new Extractor[] {new MatroskaExtractor()};
     }
 
-  }
+  };
 
   private static final int BLOCK_STATE_START = 0;
   private static final int BLOCK_STATE_HEADER = 1;
