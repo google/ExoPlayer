@@ -1001,9 +1001,6 @@ import java.util.ArrayList;
    */
   private static final class Period {
 
-    private final Renderer[] renderers;
-    private final TrackSelector trackSelector;
-
     public final MediaPeriod mediaPeriod;
     public final int index;
     public final SampleStream[] sampleStreams;
@@ -1013,6 +1010,9 @@ import java.util.ArrayList;
     public long offsetUs;
     public Period nextPeriod;
     public boolean needsContinueLoading;
+
+    private final Renderer[] renderers;
+    private final TrackSelector trackSelector;
 
     private Object trackSelectionData;
     private TrackSelectionArray trackSelections;

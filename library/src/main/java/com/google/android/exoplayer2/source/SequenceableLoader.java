@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.C;
 
 /**
- * An loader that can proceed in approximate synchronization with other loaders.
+ * A loader that can proceed in approximate synchronization with other loaders.
  */
 public interface SequenceableLoader {
 
