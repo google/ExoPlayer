@@ -314,6 +314,7 @@ import java.util.ArrayList;
     try {
       resetInternal();
       this.mediaSource = mediaSource;
+      mediaSource.prepareSource();
       setState(ExoPlayer.STATE_BUFFERING);
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } finally {
@@ -538,7 +539,10 @@ import java.util.ArrayList;
       }
     }
     enabledRenderers = new Renderer[0];
-    mediaSource = null;
+    if (mediaSource != null) {
+      mediaSource.releaseSource();
+      mediaSource = null;
+    }
     timeline.reset();
     loadControl.reset();
     setIsLoading(false);
@@ -654,7 +658,7 @@ import java.util.ArrayList;
             loadingPeriod = newPeriod;
             long startPositionUs = playingPeriod == null ? playbackInfo.positionUs : 0;
             setIsLoading(true);
-            loadingPeriod.mediaPeriod.prepare(ExoPlayerImplInternal.this,
+            loadingPeriod.mediaPeriod.preparePeriod(ExoPlayerImplInternal.this,
                 loadControl.getAllocator(), startPositionUs);
           }
         }
@@ -1096,7 +1100,7 @@ import java.util.ArrayList;
 
     public void release() {
       try {
-        mediaPeriod.release();
+        mediaPeriod.releasePeriod();
       } catch (RuntimeException e) {
         // There's nothing we can do.
         Log.e(TAG, "Period release failed.", e);

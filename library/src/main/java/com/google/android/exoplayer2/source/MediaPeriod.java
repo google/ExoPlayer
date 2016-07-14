@@ -55,7 +55,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The player's current playback position.
    */
-  void prepare(Callback callback, Allocator allocator, long positionUs);
+  void preparePeriod(Callback callback, Allocator allocator, long positionUs);
 
   /**
    * Throws an error that's preventing the period from becoming prepared. Does nothing if no such
@@ -149,6 +149,6 @@ public interface MediaPeriod extends SequenceableLoader {
    * This method should be called when the period is no longer required. It may be called in any
    * state.
    */
-  void release();
+  void releasePeriod();
 
 }

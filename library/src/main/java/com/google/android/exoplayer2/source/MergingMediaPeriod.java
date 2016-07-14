@@ -52,10 +52,10 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public void prepare(Callback callback, Allocator allocator, long positionUs) {
+  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     for (MediaPeriod period : periods) {
-      period.prepare(this, allocator, positionUs);
+      period.preparePeriod(this, allocator, positionUs);
     }
   }
 
@@ -157,9 +157,9 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public void release() {
+  public void releasePeriod() {
     for (MediaPeriod period : periods) {
-      period.release();
+      period.releasePeriod();
     }
   }
 

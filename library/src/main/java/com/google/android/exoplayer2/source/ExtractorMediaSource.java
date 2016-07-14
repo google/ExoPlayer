@@ -187,6 +187,11 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   // MediaSource implementation.
 
   @Override
+  public void prepareSource() {
+    // do nothing
+  }
+
+  @Override
   public int getPeriodCount() {
     return 1;
   }
@@ -197,10 +202,15 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     return this;
   }
 
+  @Override
+  public void releaseSource() {
+    // do nothing
+  }
+
   // MediaPeriod implementation.
 
   @Override
-  public void prepare(Callback callback, Allocator allocator, long positionUs) {
+  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
 
@@ -345,7 +355,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public void release() {
+  public void releasePeriod() {
     dataSource = null;
     if (loader != null) {
       final ExtractorHolder extractorHolder = this.extractorHolder;

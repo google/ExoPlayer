@@ -26,6 +26,13 @@ public interface MediaSource {
   int UNKNOWN_PERIOD_COUNT = -1;
 
   /**
+   * Starts preparation of the source.
+   */
+  void prepareSource();
+
+  // TODO add void maybeThrowError() throws IOException;
+
+  /**
    * Returns the number of periods in the source, or {@link #UNKNOWN_PERIOD_COUNT} if the number
    * of periods is not yet known.
    */
@@ -41,5 +48,13 @@ public interface MediaSource {
    *     available.
    */
   MediaPeriod createPeriod(int index);
+
+  /**
+   * Releases the source.
+   * <p>
+   * This method should be called when the source is no longer required. It may be called in any
+   * state.
+   */
+  void releaseSource();
 
 }

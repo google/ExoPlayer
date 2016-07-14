@@ -30,6 +30,13 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
+  public void prepareSource() {
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSource.prepareSource();
+    }
+  }
+
+  @Override
   public int getPeriodCount() {
     int sourceCount = 0;
     for (MediaSource mediaSource : mediaSources) {
@@ -53,6 +60,13 @@ public final class ConcatenatingMediaSource implements MediaSource {
       sourceCount += count;
     }
     throw new IndexOutOfBoundsException();
+  }
+
+  @Override
+  public void releaseSource() {
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSource.releaseSource();
+    }
   }
 
 }

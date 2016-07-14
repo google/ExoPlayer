@@ -116,6 +116,11 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   // MediaSource implementation.
 
   @Override
+  public void prepareSource() {
+    // do nothing
+  }
+
+  @Override
   public int getPeriodCount() {
     return 1;
   }
@@ -126,10 +131,15 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
     return this;
   }
 
+  @Override
+  public void releaseSource() {
+    // do nothing
+  }
+
   // MediaPeriod implementation.
 
   @Override
-  public void prepare(Callback callback, Allocator allocator, long positionUs) {
+  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
     loader = new Loader("Loader:SingleSampleMediaSource");
     callback.onPeriodPrepared(this);
   }
@@ -192,7 +202,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   }
 
   @Override
-  public void release() {
+  public void releasePeriod() {
     if (loader != null) {
       loader.release();
       loader = null;

@@ -36,9 +36,16 @@ public final class MergingMediaSource implements MediaSource {
     periodCount = mediaSources[0].getPeriodCount();
     Assertions.checkState(periodCount != UNKNOWN_PERIOD_COUNT,
         "Child sources must have known period counts");
-    for (int i = 1; i < mediaSources.length; i++) {
-      Assertions.checkState(mediaSources[i].getPeriodCount() == periodCount,
+    for (MediaSource mediaSource : mediaSources) {
+      Assertions.checkState(mediaSource.getPeriodCount() == periodCount,
           "Child sources must have equal period counts");
+    }
+  }
+
+  @Override
+  public void prepareSource() {
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSource.prepareSource();
     }
   }
 
@@ -55,6 +62,13 @@ public final class MergingMediaSource implements MediaSource {
       Assertions.checkState(periods[i] != null, "Child source must not return null period");
     }
     return new MergingMediaPeriod(periods);
+  }
+
+  @Override
+  public void releaseSource() {
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSource.releaseSource();
+    }
   }
 
 }

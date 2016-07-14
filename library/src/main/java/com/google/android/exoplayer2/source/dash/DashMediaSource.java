@@ -92,14 +92,12 @@ public final class DashMediaSource implements MediaSource {
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new MediaPresentationDescriptionParser();
     manifestCallback = new ManifestCallback();
-    // TODO: Remove this call when prepare() is a part of MediaSource.
-    prepare(dataSourceFactory);
   }
 
   // MediaSource implementation.
 
-  // TODO @Override
-  public void prepare(DataSourceFactory dataSourceFactory) {
+  @Override
+  public void prepareSource() {
     dataSource = dataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashMediaSource");
     manifestRefreshHandler = new Handler();
@@ -122,8 +120,8 @@ public final class DashMediaSource implements MediaSource {
     return periods[index];
   }
 
-  // TODO @Override
-  public void release() {
+  @Override
+  public void releaseSource() {
     dataSource = null;
     if (loader != null) {
       loader.release();

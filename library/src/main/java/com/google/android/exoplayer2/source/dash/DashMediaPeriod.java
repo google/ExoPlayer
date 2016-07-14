@@ -96,7 +96,7 @@ import java.util.List;
   // MediaPeriod implementation.
 
   @Override
-  public void prepare(Callback callback, Allocator allocator, long positionUs) {
+  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
     sampleStreams = newSampleStreamArray(0);
@@ -188,7 +188,7 @@ import java.util.List;
   }
 
   @Override
-  public void release() {
+  public void releasePeriod() {
     if (sampleStreams != null) {
       for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
         sampleStream.release();

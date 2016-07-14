@@ -113,6 +113,11 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   // MediaSource implementation.
 
   @Override
+  public void prepareSource() {
+    // do nothing
+  }
+
+  @Override
   public int getPeriodCount() {
     return 1;
   }
@@ -123,10 +128,15 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
     return this;
   }
 
+  @Override
+  public void releaseSource() {
+    // do nothing
+  }
+
   // MediaPeriod implementation.
 
   @Override
-  public void prepare(Callback callback, Allocator allocator, long positionUs) {
+  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
     this.allocator = allocator;
     sampleStreams = newSampleStreamArray(0);
@@ -218,7 +228,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   }
 
   @Override
-  public void release() {
+  public void releasePeriod() {
     manifestDataSource = null;
     if (manifestLoader != null) {
       manifestLoader.release();
