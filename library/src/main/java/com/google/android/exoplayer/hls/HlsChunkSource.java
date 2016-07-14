@@ -75,7 +75,9 @@ public class HlsChunkSource {
   private final Variant[] variants;
   private final HlsMediaPlaylist[] variantPlaylists;
   private final long[] variantLastPlaylistLoadTimesMs;
+  private final int initialEnabledVariantIndex;
 
+  private boolean seenFirstExternalTrackSelection;
   private byte[] scratchSpace;
   private boolean live;
   private long durationUs;
@@ -112,7 +114,12 @@ public class HlsChunkSource {
     evaluation = new Evaluation();
     variantPlaylists = new HlsMediaPlaylist[variants.length];
     variantLastPlaylistLoadTimesMs = new long[variants.length];
-    selectTracks(new int[] {0}, false);
+    int[] initialTrackSelection = new int[variants.length];
+    for (int i = 0; i < variants.length; i++) {
+      initialTrackSelection[i] = i;
+    }
+    selectTracksInternal(initialTrackSelection, false);
+    initialEnabledVariantIndex = getEnabledVariantIndex(variants[0].format);
   }
 
   /**
@@ -187,38 +194,9 @@ public class HlsChunkSource {
    * This method should only be called after the source has been prepared.
    *
    * @param tracks The track indices.
-   * @param isFirstTrackSelection True if this is the first selection, false otherwise.
    */
-  public void selectTracks(int[] tracks, boolean isFirstTrackSelection) {
-    // Construct and sort the enabled variants.
-    enabledVariants = new Variant[tracks.length];
-    for (int i = 0; i < tracks.length; i++) {
-      enabledVariants[i] = variants[tracks[i]];
-    }
-    Arrays.sort(enabledVariants, new Comparator<Variant>() {
-      private final Comparator<Format> formatComparator =
-          new Format.DecreasingBandwidthComparator();
-      @Override
-      public int compare(Variant first, Variant second) {
-        return formatComparator.compare(first.format, second.format);
-      }
-    });
-
-    // Reset the enabled variant blacklist flags.
-    enabledVariantBlacklistTimes = new long[enabledVariants.length];
-    enabledVariantBlacklistFlags = new boolean[enabledVariants.length];
-
-    if (enabledVariants.length > 1) {
-      Format[] formats = new Format[enabledVariants.length];
-      for (int i = 0; i < formats.length; i++) {
-        formats[i] = enabledVariants[i].format;
-      }
-      // TODO[REFACTOR]: We need to disable this at some point.
-      adaptiveFormatEvaluator.enable(formats);
-      if (!isFirstTrackSelection || !Util.contains(formats, evaluation.format)) {
-        evaluation.format = null;
-      }
-    }
+  public void selectTracks(int[] tracks) {
+    selectTracksInternal(tracks, true);
   }
 
   /**
@@ -441,9 +419,50 @@ public class HlsChunkSource {
 
   // Private methods.
 
+  private void selectTracksInternal(int[] tracks, boolean isExternal) {
+    seenFirstExternalTrackSelection |= isExternal;
+
+    // Construct and sort the enabled variants.
+    enabledVariants = new Variant[tracks.length];
+    for (int i = 0; i < tracks.length; i++) {
+      enabledVariants[i] = variants[tracks[i]];
+    }
+    Arrays.sort(enabledVariants, new Comparator<Variant>() {
+      private final Comparator<Format> formatComparator =
+          new Format.DecreasingBandwidthComparator();
+      @Override
+      public int compare(Variant first, Variant second) {
+        return formatComparator.compare(first.format, second.format);
+      }
+    });
+
+    // Reset the enabled variant blacklist flags.
+    enabledVariantBlacklistTimes = new long[enabledVariants.length];
+    enabledVariantBlacklistFlags = new boolean[enabledVariants.length];
+
+    if (enabledVariants.length > 1) {
+      Format[] formats = new Format[enabledVariants.length];
+      for (int i = 0; i < formats.length; i++) {
+        formats[i] = enabledVariants[i].format;
+      }
+      // TODO[REFACTOR]: We need to disable this at some point.
+      adaptiveFormatEvaluator.enable(formats);
+      if (!Util.contains(formats, evaluation.format)) {
+        evaluation.format = null;
+      }
+    } else {
+      evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
+      evaluation.data = null;
+    }
+  }
+
   private void updateFormatEvaluation(HlsMediaChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
-    if (enabledVariants.length > 1) {
+    if (!seenFirstExternalTrackSelection
+        && !enabledVariantBlacklistFlags[initialEnabledVariantIndex]) {
+      // Use the first variant prior to external track selection, unless it's been blacklisted.
+      evaluation.format = variants[0].format;
+    } else if (enabledVariants.length > 1) {
       long bufferedDurationUs;
       if (previous != null) {
         // Use start time of the previous chunk rather than its end time because switching format
@@ -456,8 +475,6 @@ public class HlsChunkSource {
           evaluation);
     } else {
       evaluation.format = enabledVariants[0].format;
-      evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
-      evaluation.data = null;
     }
   }
 

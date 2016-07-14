@@ -274,7 +274,7 @@ public final class HlsSampleSource implements SampleSource,
   }
 
   @Override
-  public void onContinueLoadingRequested(HlsTrackStreamWrapper trackStreanWrapper) {
+  public void onContinueLoadingRequested(HlsTrackStreamWrapper trackStreamWrapper) {
     callback.onContinueLoadingRequested(this);
   }
 

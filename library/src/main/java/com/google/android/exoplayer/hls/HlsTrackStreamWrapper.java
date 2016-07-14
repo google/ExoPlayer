@@ -168,7 +168,7 @@ import java.util.List;
       int[] tracks = selection.getTracks();
       setTrackGroupEnabledState(group, true);
       if (group == primaryTrackGroupIndex) {
-        chunkSource.selectTracks(tracks, isFirstTrackSelection);
+        chunkSource.selectTracks(tracks);
       }
       newStreams[i] = new TrackStreamImpl(group);
     }
@@ -379,7 +379,11 @@ import java.util.List;
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded(), error,
         canceled);
     if (canceled) {
-      callback.onContinueLoadingRequested(this);
+      if (!prepared) {
+        continueLoading(lastSeekPositionUs);
+      } else {
+        callback.onContinueLoadingRequested(this);
+      }
       return Loader.DONT_RETRY;
     } else {
       return Loader.RETRY;
