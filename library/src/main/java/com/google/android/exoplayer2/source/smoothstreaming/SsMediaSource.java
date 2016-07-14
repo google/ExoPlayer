@@ -51,10 +51,10 @@ public final class SsMediaSource implements MediaSource,
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
-   * The offset in milliseconds subtracted from the live edge position when calculating the default
-   * position returned by {@link #getDefaultStartPosition(int)}.
+   * A default live edge offset (the offset subtracted from the live edge when calculating the
+   * default position returned by {@link #getDefaultStartPosition(int)}).
    */
-  private static final long LIVE_EDGE_OFFSET_MS = 30000;
+  public static final long DEFAULT_LIVE_EDGE_OFFSET_MS = 30000;
 
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
 
@@ -62,6 +62,7 @@ public final class SsMediaSource implements MediaSource,
   private final DataSource.Factory dataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
+  private final long liveEdgeOffsetMs;
   private final EventDispatcher eventDispatcher;
   private final SsManifestParser manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
@@ -80,17 +81,18 @@ public final class SsMediaSource implements MediaSource,
       SsChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler, eventListener);
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_EDGE_OFFSET_MS, eventHandler, eventListener);
   }
 
   public SsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+      long liveEdgeOffsetMs, Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    this.liveEdgeOffsetMs = liveEdgeOffsetMs;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new SsManifestParser();
     mediaPeriods = new ArrayList<>();
@@ -119,7 +121,7 @@ public final class SsMediaSource implements MediaSource,
     }
     if (manifest.isLive) {
       long startPositionUs = Math.max(window.startTimeMs,
-          window.endTimeMs - LIVE_EDGE_OFFSET_MS) * 1000;
+          window.endTimeMs - liveEdgeOffsetMs) * 1000;
       return new Position(0, startPositionUs);
     }
     return Position.DEFAULT;
@@ -177,20 +179,25 @@ public final class SsMediaSource implements MediaSource,
     Timeline timeline;
     if (manifest.isLive) {
       long startTimeUs = Long.MAX_VALUE;
+      long endTimeUs = Long.MIN_VALUE;
       for (int i = 0; i < manifest.streamElements.length; i++) {
         StreamElement element = manifest.streamElements[i];
         if (element.chunkCount > 0) {
           startTimeUs = Math.min(startTimeUs, element.getStartTimeUs(0));
+          endTimeUs = Math.max(endTimeUs, element.getStartTimeUs(element.chunkCount - 1)
+              + element.getChunkDurationUs(element.chunkCount - 1));
         }
       }
-      if (startTimeUs == Long.MAX_VALUE || manifest.dvrWindowLengthUs == C.UNSET_TIME_US
-          || manifest.dvrWindowLengthUs == 0) {
+      if (startTimeUs == Long.MAX_VALUE) {
         timeline = new SinglePeriodTimeline(C.UNSET_TIME_US, false);
       } else {
-        long periodDurationUs = startTimeUs + manifest.dvrWindowLengthUs;
-        Window window = Window.createWindow(0, startTimeUs, 0, periodDurationUs,
-            manifest.dvrWindowLengthUs, true);
-        timeline = new SinglePeriodTimeline(periodDurationUs, window);
+        if (manifest.dvrWindowLengthUs != C.UNSET_TIME_US
+            && manifest.dvrWindowLengthUs > 0) {
+          startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
+        }
+        long durationUs = endTimeUs - startTimeUs;
+        Window window = Window.createWindow(0, startTimeUs, 0, endTimeUs, durationUs, true);
+        timeline = new SinglePeriodTimeline(endTimeUs, window);
       }
     } else {
       boolean isSeekable = manifest.durationUs != C.UNSET_TIME_US;

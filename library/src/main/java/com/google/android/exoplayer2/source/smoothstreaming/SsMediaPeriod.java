@@ -77,6 +77,7 @@ import java.util.ArrayList;
     this.manifest = manifest;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+    callback.onPrepared(this);
   }
 
   public void updateManifest(SsManifest manifest) {
