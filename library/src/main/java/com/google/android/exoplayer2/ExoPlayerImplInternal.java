@@ -72,10 +72,9 @@ import java.util.ArrayList;
   public static final int MSG_STATE_CHANGED = 1;
   public static final int MSG_LOADING_CHANGED = 2;
   public static final int MSG_SET_PLAY_WHEN_READY_ACK = 3;
-  public static final int MSG_SET_MEDIA_SOURCE_ACK = 4;
-  public static final int MSG_SEEK_ACK = 5;
-  public static final int MSG_PERIOD_CHANGED = 6;
-  public static final int MSG_ERROR = 7;
+  public static final int MSG_SEEK_ACK = 4;
+  public static final int MSG_PERIOD_CHANGED = 5;
+  public static final int MSG_ERROR = 6;
 
   // Internal messages
   private static final int MSG_SET_MEDIA_SOURCE = 0;
@@ -311,15 +310,11 @@ import java.util.ArrayList;
   }
 
   private void setMediaSourceInternal(MediaSource mediaSource) {
-    try {
-      resetInternal();
-      this.mediaSource = mediaSource;
-      mediaSource.prepareSource();
-      setState(ExoPlayer.STATE_BUFFERING);
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-    } finally {
-      eventHandler.sendEmptyMessage(MSG_SET_MEDIA_SOURCE_ACK);
-    }
+    resetInternal();
+    this.mediaSource = mediaSource;
+    mediaSource.prepareSource();
+    setState(ExoPlayer.STATE_BUFFERING);
+    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
   private void setPlayWhenReadyInternal(boolean playWhenReady) throws ExoPlaybackException {
@@ -596,7 +591,6 @@ import java.util.ArrayList;
     private Period readingPeriod;
     private Period loadingPeriod;
 
-    private int pendingPeriodIndex;
     private long playingPeriodEndPositionUs;
 
     public Timeline(Renderer[] renderers) {
@@ -651,7 +645,8 @@ import java.util.ArrayList;
           || (loadingPeriod.isFullyBuffered() && loadingPeriod.index
               - (playingPeriod != null ? playingPeriod.index : 0) < MAXIMUM_BUFFER_AHEAD_SOURCES)) {
         // Try and obtain the next period to start loading.
-        int periodIndex = loadingPeriod == null ? pendingPeriodIndex : loadingPeriod.index + 1;
+        int periodIndex = loadingPeriod == null ? playbackInfo.periodIndex
+            : loadingPeriod.index + 1;
         if (periodCount == MediaSource.UNKNOWN_PERIOD_COUNT || periodIndex < periodCount) {
           // Attempt to create the next period.
           MediaPeriod mediaPeriod = mediaSource.createPeriod(periodIndex);
@@ -817,7 +812,6 @@ import java.util.ArrayList;
         playingPeriod = null;
         readingPeriod = null;
         loadingPeriod = null;
-        pendingPeriodIndex = periodIndex;
         resetInternalPosition(seekPositionUs);
       }
       return seekPositionUs;
@@ -911,14 +905,12 @@ import java.util.ArrayList;
         period.release();
         period = period.nextPeriod;
       }
+      playingPeriodEndPositionUs = C.UNSET_TIME_US;
       isReady = false;
       isEnded = false;
       playingPeriod = null;
       readingPeriod = null;
       loadingPeriod = null;
-      playingPeriodEndPositionUs = C.UNSET_TIME_US;
-      pendingPeriodIndex = 0;
-      playbackInfo = new PlaybackInfo(0);
       eventHandler.obtainMessage(MSG_PERIOD_CHANGED, playbackInfo).sendToTarget();
     }
 

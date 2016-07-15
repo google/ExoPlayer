@@ -137,6 +137,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private BandwidthMeter bandwidthMeter;
   private boolean playerNeedsSource;
 
+  private int playerPeriodIndex;
   private long playerPosition;
 
   // Activity lifecycle
@@ -286,7 +287,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.setVideoListener(this);
       player.setCaptionListener(this);
       player.setMetadataListener(this);
-      player.seekTo(playerPosition);
+      player.seekTo(playerPeriodIndex, playerPosition);
       player.setSurface(surfaceView.getHolder().getSurface());
       player.setPlayWhenReady(true);
       mediaController.setMediaPlayer(new PlayerControl(player));
@@ -406,6 +407,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       shutterView.setVisibility(View.VISIBLE);
       debugViewHelper.stop();
       debugViewHelper = null;
+      playerPeriodIndex = player.getCurrentPeriodIndex();
       playerPosition = player.getCurrentPosition();
       player.release();
       player = null;

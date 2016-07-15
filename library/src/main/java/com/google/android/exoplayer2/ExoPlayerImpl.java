@@ -42,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean playWhenReady;
   private int playbackState;
   private int pendingPlayWhenReadyAcks;
-  private int pendingSetMediaSourceAndSeekAcks;
+  private int pendingSeekAcks;
   private boolean isLoading;
 
   // Playback information when there is no pending seek/set source operation.
@@ -97,15 +97,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void setMediaSource(MediaSource mediaSource) {
-    maskingPeriodIndex = 0;
-    maskingPositionMs = 0;
-    maskingDurationMs = ExoPlayer.UNKNOWN_TIME;
-
-    pendingSetMediaSourceAndSeekAcks++;
     internalPlayer.setMediaSource(mediaSource);
-    for (EventListener listener : listeners) {
-      listener.onPositionDiscontinuity(0, 0);
-    }
   }
 
   @Override
@@ -147,7 +139,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     maskingPositionMs = positionMs;
     maskingDurationMs = periodChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
 
-    pendingSetMediaSourceAndSeekAcks++;
+    pendingSeekAcks++;
     internalPlayer.seekTo(periodIndex, positionMs * 1000);
     for (EventListener listener : listeners) {
       listener.onPositionDiscontinuity(periodIndex, positionMs);
@@ -177,7 +169,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getDuration() {
-    if (pendingSetMediaSourceAndSeekAcks == 0) {
+    if (pendingSeekAcks == 0) {
       long durationUs = playbackInfo.durationUs;
       return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
     } else {
@@ -187,18 +179,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getCurrentPosition() {
-    return pendingSetMediaSourceAndSeekAcks == 0 ? playbackInfo.positionUs / 1000
+    return pendingSeekAcks == 0 ? playbackInfo.positionUs / 1000
         : maskingPositionMs;
   }
 
   @Override
   public int getCurrentPeriodIndex() {
-    return pendingSetMediaSourceAndSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
+    return pendingSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
   }
 
   @Override
   public long getBufferedPosition() {
-    if (pendingSetMediaSourceAndSeekAcks == 0) {
+    if (pendingSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
       return bufferedPositionUs == C.END_OF_SOURCE_US ? getDuration() : bufferedPositionUs / 1000;
     } else {
@@ -240,14 +232,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
-      case ExoPlayerImplInternal.MSG_SET_MEDIA_SOURCE_ACK: // Fall through.
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
-        pendingSetMediaSourceAndSeekAcks--;
+        pendingSeekAcks--;
         break;
       }
       case ExoPlayerImplInternal.MSG_PERIOD_CHANGED: {
         playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-        if (pendingSetMediaSourceAndSeekAcks == 0) {
+        if (pendingSeekAcks == 0) {
           for (EventListener listener : listeners) {
             listener.onPositionDiscontinuity(playbackInfo.periodIndex, 0);
           }

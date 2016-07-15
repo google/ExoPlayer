@@ -240,8 +240,6 @@ public interface ExoPlayer {
 
   /**
    * Sets the {@link MediaSource} to play.
-   * <p>
-   * The player's position will be reset to the start of the source.
    *
    * @param mediaSource The {@link MediaSource} to play.
    */
