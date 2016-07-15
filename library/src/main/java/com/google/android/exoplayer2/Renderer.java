@@ -32,7 +32,7 @@ import java.io.IOException;
  *     alt="Renderer state transitions"
  *     border="0"/></p>
  */
-public interface Renderer extends ExoPlayerComponent, RendererCapabilities {
+public interface Renderer extends ExoPlayerComponent {
 
   /**
    * The renderer is disabled.
@@ -47,6 +47,22 @@ public interface Renderer extends ExoPlayerComponent, RendererCapabilities {
    * The renderer is started. Calls to {@link #render(long, long)} will cause media to be rendered.
    */
   int STATE_STARTED = 2;
+
+  /**
+   * Returns the track type that the {@link Renderer} handles. For example, a video renderer will
+   * return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a
+   * text renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
+   *
+   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   */
+  int getTrackType();
+
+  /**
+   * Returns the capabilities of the renderer.
+   *
+   * @return The capabilities of the renderer.
+   */
+  RendererCapabilities getCapabilities();
 
   /**
    * Sets the index of this renderer within the player.

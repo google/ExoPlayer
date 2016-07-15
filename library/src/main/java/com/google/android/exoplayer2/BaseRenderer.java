@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * An abstract base class suitable for most {@link Renderer} implementations.
  */
-public abstract class BaseRenderer implements Renderer {
+public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private int index;
   private int state;
@@ -36,6 +36,11 @@ public abstract class BaseRenderer implements Renderer {
 
   public BaseRenderer() {
     readEndOfStream = true;
+  }
+
+  @Override
+  public final RendererCapabilities getCapabilities() {
+    return this;
   }
 
   @Override

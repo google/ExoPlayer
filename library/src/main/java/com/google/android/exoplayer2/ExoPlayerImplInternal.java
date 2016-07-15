@@ -587,6 +587,7 @@ import java.util.ArrayList;
   private final class Timeline {
 
     private final Renderer[] renderers;
+    private final RendererCapabilities[] rendererCapabilities;
 
     public boolean isReady;
     public boolean isEnded;
@@ -600,6 +601,10 @@ import java.util.ArrayList;
 
     public Timeline(Renderer[] renderers) {
       this.renderers = renderers;
+      rendererCapabilities = new RendererCapabilities[renderers.length];
+      for (int i = 0; i < renderers.length; i++) {
+        rendererCapabilities[i] = renderers[i].getCapabilities();
+      }
       playingPeriodEndPositionUs = C.UNSET_TIME_US;
     }
 
@@ -651,7 +656,8 @@ import java.util.ArrayList;
           // Attempt to create the next period.
           MediaPeriod mediaPeriod = mediaSource.createPeriod(periodIndex);
           if (mediaPeriod != null) {
-            Period newPeriod = new Period(renderers, trackSelector, mediaPeriod, periodIndex);
+            Period newPeriod = new Period(renderers, rendererCapabilities, trackSelector,
+                mediaPeriod, periodIndex);
             if (loadingPeriod != null) {
               loadingPeriod.setNextPeriod(newPeriod);
             }
@@ -1012,15 +1018,17 @@ import java.util.ArrayList;
     public boolean needsContinueLoading;
 
     private final Renderer[] renderers;
+    private final RendererCapabilities[] rendererCapabilities;
     private final TrackSelector trackSelector;
 
     private Object trackSelectionData;
     private TrackSelectionArray trackSelections;
     private TrackSelectionArray periodTrackSelections;
 
-    public Period(Renderer[] renderers, TrackSelector trackSelector, MediaPeriod mediaPeriod,
-        int index) {
+    public Period(Renderer[] renderers, RendererCapabilities[] rendererCapabilities,
+        TrackSelector trackSelector, MediaPeriod mediaPeriod, int index) {
       this.renderers = renderers;
+      this.rendererCapabilities = rendererCapabilities;
       this.trackSelector = trackSelector;
       this.mediaPeriod = mediaPeriod;
       this.index = index;
@@ -1046,7 +1054,7 @@ import java.util.ArrayList;
 
     public boolean selectTracks() throws ExoPlaybackException {
       Pair<TrackSelectionArray, Object> result =
-          trackSelector.selectTracks(renderers, mediaPeriod.getTrackGroups());
+          trackSelector.selectTracks(rendererCapabilities, mediaPeriod.getTrackGroups());
       TrackSelectionArray newTrackSelections = result.first;
       if (newTrackSelections.equals(periodTrackSelections)) {
         return false;

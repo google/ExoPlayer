@@ -78,13 +78,9 @@ public interface RendererCapabilities {
    * The {@link Renderer} does not support adaptation between formats.
    */
   int ADAPTIVE_NOT_SUPPORTED = 0b0000;
-  
+
   /**
-   * Returns the track type that the {@link Renderer} handles. For example, a video renderer will
-   * return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a
-   * text renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
-   *
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   * @see Renderer#getTrackType()
    */
   int getTrackType();
 
