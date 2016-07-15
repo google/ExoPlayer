@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.util.Assertions;
 
+import java.io.IOException;
+
 /**
  * Merges multiple {@link MediaPeriod} instances.
  * <p>
@@ -55,7 +57,7 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) {
+  public MediaPeriod createPeriod(int index) throws IOException {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
     for (int i = 0; i < periods.length; i++) {
       periods[i] = mediaSources[i].createPeriod(index);

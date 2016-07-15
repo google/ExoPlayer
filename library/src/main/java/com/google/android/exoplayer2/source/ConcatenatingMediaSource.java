@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import java.io.IOException;
+
 /**
  * Concatenates multiple {@link MediaSource}s.
  */
@@ -50,7 +52,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) {
+  public MediaPeriod createPeriod(int index) throws IOException {
     int sourceCount = 0;
     for (MediaSource mediaSource : mediaSources) {
       int count = mediaSource.getPeriodCount();

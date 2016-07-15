@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import java.io.IOException;
+
 /**
  * A source of media consisting of one or more {@link MediaPeriod}s.
  */
@@ -30,8 +32,6 @@ public interface MediaSource {
    */
   void prepareSource();
 
-  // TODO add void maybeThrowError() throws IOException;
-
   /**
    * Returns the number of periods in the source, or {@link #UNKNOWN_PERIOD_COUNT} if the number
    * of periods is not yet known.
@@ -46,8 +46,10 @@ public interface MediaSource {
    *     period count is {@link #UNKNOWN_PERIOD_COUNT}.
    * @return A {@link MediaPeriod}, or {@code null} if the source at the specified index is not yet
    *     available.
+   * @throws IOException If there is an error that's preventing the source from becoming prepared or
+   *     creating periods.
    */
-  MediaPeriod createPeriod(int index);
+  MediaPeriod createPeriod(int index) throws IOException;
 
   /**
    * Releases the source.

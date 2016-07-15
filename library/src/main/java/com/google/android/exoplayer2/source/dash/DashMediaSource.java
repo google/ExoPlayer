@@ -113,8 +113,9 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) {
+  public MediaPeriod createPeriod(int index) throws IOException {
     if (periods == null) {
+      loader.maybeThrowError();
       return null;
     }
     return periods[index];
