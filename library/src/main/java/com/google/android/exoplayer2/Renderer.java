@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
-import com.google.android.exoplayer2.util.MimeTypes;
 
 import java.io.IOException;
 
@@ -35,64 +34,7 @@ import java.io.IOException;
  *     alt="Renderer state transitions"
  *     border="0"/></p>
  */
-public abstract class Renderer implements ExoPlayerComponent {
-
-  /**
-   * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
-   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES},
-   * {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.
-   */
-  public static final int FORMAT_SUPPORT_MASK = 0b11;
-  /**
-   * The {@link Renderer} is capable of rendering the format.
-   */
-  public static final int FORMAT_HANDLED = 0b11;
-  /**
-   * The {@link Renderer} is capable of rendering formats with the same mimeType, but the
-   * properties of the format exceed the renderer's capability.
-   * <p>
-   * Example: The {@link Renderer} is capable of rendering H264 and the format's mimeType is
-   * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
-   * by the underlying H264 decoder.
-   */
-  public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b10;
-  /**
-   * The {@link Renderer} is a general purpose renderer for formats of the same top-level type,
-   * but is not capable of rendering the format or any other format with the same mimeType because
-   * the sub-type is not supported.
-   * <p>
-   * Example: The {@link Renderer} is a general purpose audio renderer and the format's
-   * mimeType matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
-   */
-  public static final int FORMAT_UNSUPPORTED_SUBTYPE = 0b01;
-  /**
-   * The {@link Renderer} is not capable of rendering the format, either because it does not
-   * support the format's top-level type, or because it's a specialized renderer for a different
-   * mimeType.
-   * <p>
-   * Example: The {@link Renderer} is a general purpose video renderer, but the format has an
-   * audio mimeType.
-   */
-  public static final int FORMAT_UNSUPPORTED_TYPE = 0b00;
-
-  /**
-   * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
-   * {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and {@link #ADAPTIVE_NOT_SUPPORTED}.
-   */
-  public static final int ADAPTIVE_SUPPORT_MASK = 0b1100;
-  /**
-   * The {@link Renderer} can seamlessly adapt between formats.
-   */
-  public static final int ADAPTIVE_SEAMLESS = 0b1000;
-  /**
-   * The {@link Renderer} can adapt between formats, but may suffer a brief discontinuity
-   * (~50-100ms) when adaptation occurs.
-   */
-  public static final int ADAPTIVE_NOT_SEAMLESS = 0b0100;
-  /**
-   * The {@link Renderer} does not support adaptation between formats.
-   */
-  public static final int ADAPTIVE_NOT_SUPPORTED = 0b0000;
+public abstract class Renderer implements ExoPlayerComponent, RendererCapabilities {
 
   /**
    * The renderer is disabled.
@@ -156,19 +98,6 @@ public abstract class Renderer implements ExoPlayerComponent {
    */
   protected final int getState() {
     return state;
-  }
-
-  /**
-   * Returns the extent to which the renderer supports adapting between supported formats that have
-   * different mimeTypes.
-   *
-   * @return The extent to which the renderer supports adapting between supported formats that have
-   *     different mimeTypes. One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
-   *     {@link #ADAPTIVE_NOT_SUPPORTED}.
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
-    return ADAPTIVE_NOT_SUPPORTED;
   }
 
   /**
@@ -383,36 +312,6 @@ public abstract class Renderer implements ExoPlayerComponent {
   // Abstract methods.
 
   /**
-   * Returns the track type that the renderer handles. For example, a video renderer will return
-   * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
-   * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
-   *
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
-   */
-  public abstract int getTrackType();
-
-  /**
-   * Returns the extent to which the renderer supports a given format.
-   * <p>
-   * The returned value is the bitwise OR of two properties:
-   * <ul>
-   * <li>The level of support for the format itself. One of {@code}link #FORMAT_HANDLED},
-   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
-   * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
-   * <li>The level of support for adapting from the format to another format of the same mimeType.
-   * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
-   * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
-   * </ul>
-   * The individual properties can be retrieved by performing a bitwise AND with
-   * {@link #FORMAT_SUPPORT_MASK} and {@link #ADAPTIVE_SUPPORT_MASK} respectively.
-   *
-   * @param format The format.
-   * @return The extent to which the renderer is capable of supporting the given format.
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  public abstract int supportsFormat(Format format) throws ExoPlaybackException;
-
-  /**
    * Incrementally renders the {@link SampleStream}.
    * <p>
    * This method should return quickly, and should not block if the renderer is unable to make
@@ -458,6 +357,13 @@ public abstract class Renderer implements ExoPlayerComponent {
    * @return Whether the renderer is ready for the player to transition to the ended state.
    */
   protected abstract boolean isEnded();
+
+  // RendererCapabilities implementation
+
+  @Override
+  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    return ADAPTIVE_NOT_SUPPORTED;
+  }
 
   // ExoPlayerComponent implementation.
 

@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
@@ -131,15 +131,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   // TrackSelectionPolicy implementation.
 
   @Override
-  protected TrackSelection[] selectTracks(Renderer[] renderers,
+  protected TrackSelection[] selectTracks(RendererCapabilities[] rendererCapabilities,
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
       throws ExoPlaybackException {
     // Make a track selection for each renderer.
-    TrackSelection[] rendererTrackSelections = new TrackSelection[renderers.length];
-    for (int i = 0; i < renderers.length; i++) {
-      switch (renderers[i].getTrackType()) {
+    TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCapabilities.length];
+    for (int i = 0; i < rendererCapabilities.length; i++) {
+      switch (rendererCapabilities[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
-          rendererTrackSelections[i] = selectTrackForVideoRenderer(renderers[i],
+          rendererTrackSelections[i] = selectTrackForVideoRenderer(rendererCapabilities[i],
               rendererTrackGroupArrays[i], rendererFormatSupports[i], maxVideoWidth, maxVideoHeight,
               allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness);
           if (rendererTrackSelections[i] == null && exceedVideoConstraintsIfNecessary) {
@@ -166,15 +166,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   // Video track selection implementation.
 
-  private static TrackSelection selectTrackForVideoRenderer(Renderer renderer,
-      TrackGroupArray trackGroups, int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
+  private static TrackSelection selectTrackForVideoRenderer(
+      RendererCapabilities rendererCapabilities, TrackGroupArray trackGroups,
+      int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
       boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness)
       throws ExoPlaybackException {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
-        ? (Renderer.ADAPTIVE_NOT_SEAMLESS | Renderer.ADAPTIVE_SEAMLESS)
-        : Renderer.ADAPTIVE_SEAMLESS;
+        ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
+        : RendererCapabilities.ADAPTIVE_SEAMLESS;
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
-        && (renderer.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
+        && (rendererCapabilities.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
     int largestAdaptiveGroup = -1;
     int[] largestAdaptiveGroupTracks = NO_TRACKS;
     for (int i = 0; i < trackGroups.length; i++) {
@@ -356,7 +357,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   private static boolean isSupported(int formatSupport) {
-    return (formatSupport & Renderer.FORMAT_SUPPORT_MASK) == Renderer.FORMAT_HANDLED;
+    return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
+        == RendererCapabilities.FORMAT_HANDLED;
   }
 
   private static boolean formatHasLanguage(Format format, String language) {

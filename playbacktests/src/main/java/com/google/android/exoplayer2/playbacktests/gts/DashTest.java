@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -44,7 +45,6 @@ import android.annotation.TargetApi;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
-
 import junit.framework.AssertionFailedError;
 
 import java.util.ArrayList;
@@ -492,14 +492,16 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    protected TrackSelection[] selectTracks(Renderer[] renderers,
+    protected TrackSelection[] selectTracks(RendererCapabilities[] rendererCapabilities,
         TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
         throws ExoPlaybackException {
-      Assertions.checkState(renderers[VIDEO_RENDERER_INDEX].getTrackType() == C.TRACK_TYPE_VIDEO);
-      Assertions.checkState(renderers[AUDIO_RENDERER_INDEX].getTrackType() == C.TRACK_TYPE_AUDIO);
+      Assertions.checkState(rendererCapabilities[VIDEO_RENDERER_INDEX].getTrackType()
+          == C.TRACK_TYPE_VIDEO);
+      Assertions.checkState(rendererCapabilities[AUDIO_RENDERER_INDEX].getTrackType()
+          == C.TRACK_TYPE_AUDIO);
       Assertions.checkState(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].length == 1);
       Assertions.checkState(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].length == 1);
-      TrackSelection[] selections = new TrackSelection[renderers.length];
+      TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
       selections[VIDEO_RENDERER_INDEX] = new TrackSelection(0,
           getTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
               rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
