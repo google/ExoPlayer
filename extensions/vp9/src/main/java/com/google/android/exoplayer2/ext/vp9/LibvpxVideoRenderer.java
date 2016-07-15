@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -37,7 +37,7 @@ import android.view.Surface;
 /**
  * Decodes and renders video using the native VP9 decoder.
  */
-public final class LibvpxVideoRenderer extends Renderer {
+public final class LibvpxVideoRenderer extends BaseRenderer {
 
   /**
    * The type of a message that can be passed to an instance of this class via
@@ -150,7 +150,7 @@ public final class LibvpxVideoRenderer extends Renderer {
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
     }
@@ -241,8 +241,7 @@ public final class LibvpxVideoRenderer extends Renderer {
       return false;
     }
 
-    if (getState() == Renderer.STATE_STARTED
-        && outputBuffer.timestampUs <= positionUs + 30000) {
+    if (getState() == STATE_STARTED && outputBuffer.timestampUs <= positionUs + 30000) {
       renderBuffer();
     }
     return false;
@@ -330,12 +329,12 @@ public final class LibvpxVideoRenderer extends Renderer {
   }
 
   @Override
-  protected boolean isEnded() {
+  public boolean isEnded() {
     return outputStreamEnded;
   }
 
   @Override
-  protected boolean isReady() {
+  public boolean isReady() {
     if (format != null && (isSourceReady() || outputBuffer != null) && renderedFirstFrame) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = -1;

@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.text;
 
+import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -33,14 +33,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link Renderer} for subtitles.
+ * A renderer for subtitles.
  * <p>
  * Text is parsed from sample data using {@link SubtitleDecoder} instances obtained from a
  * {@link SubtitleDecoderFactory}. The actual rendering of each line of text is delegated to a
  * {@link Output}.
  */
 @TargetApi(16)
-public final class TextRenderer extends Renderer implements Callback {
+public final class TextRenderer extends BaseRenderer implements Callback {
 
   /**
    * An output for the renderer.
@@ -106,7 +106,7 @@ public final class TextRenderer extends Renderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return decoderFactory.supportsFormat(format) ? Renderer.FORMAT_HANDLED
+    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED
         : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE
         : FORMAT_UNSUPPORTED_TYPE);
   }
@@ -137,7 +137,7 @@ public final class TextRenderer extends Renderer implements Callback {
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
     }
@@ -151,7 +151,7 @@ public final class TextRenderer extends Renderer implements Callback {
       }
     }
 
-    if (getState() != Renderer.STATE_STARTED) {
+    if (getState() != STATE_STARTED) {
       return;
     }
 
@@ -237,12 +237,12 @@ public final class TextRenderer extends Renderer implements Callback {
   }
 
   @Override
-  protected boolean isEnded() {
+  public boolean isEnded() {
     return outputStreamEnded;
   }
 
   @Override
-  protected boolean isReady() {
+  public boolean isReady() {
     // Don't block playback whilst subtitles are loading.
     // Note: To change this behavior, it will be necessary to consider [Internal: b/12949941].
     return true;

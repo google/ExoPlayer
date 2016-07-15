@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.demo;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
@@ -81,7 +81,7 @@ import java.util.Locale;
     trackGroupsAdaptive = new boolean[trackGroups.length];
     for (int i = 0; i < trackGroups.length; i++) {
       trackGroupsAdaptive[i] = trackInfo.getAdaptiveSupport(rendererIndex, i, false)
-          != Renderer.ADAPTIVE_NOT_SUPPORTED;
+          != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
     }
     isDisabled = selector.getRendererDisabled(rendererIndex);
     override = selector.hasSelectionOverride(rendererIndex, trackGroups)
@@ -133,7 +133,7 @@ import java.util.Locale;
             trackViewLayoutId, root, false);
         trackView.setText(buildTrackName(group.getFormat(trackIndex)));
         if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
-            == Renderer.FORMAT_HANDLED) {
+            == RendererCapabilities.FORMAT_HANDLED) {
           haveSupportedTracks = true;
           trackView.setTag(Pair.create(groupIndex, trackIndex));
           trackView.setOnClickListener(this);

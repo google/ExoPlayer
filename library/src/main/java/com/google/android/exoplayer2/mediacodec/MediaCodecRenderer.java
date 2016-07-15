@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -46,10 +46,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An abstract {@link Renderer} that uses {@link MediaCodec} to decode samples for rendering.
+ * An abstract renderer that uses {@link MediaCodec} to decode samples for rendering.
  */
 @TargetApi(16)
-public abstract class MediaCodecRenderer extends Renderer {
+public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * Thrown when a failure occurs instantiating a decoder.
@@ -361,7 +361,7 @@ public abstract class MediaCodecRenderer extends Renderer {
       throwDecoderInitError(new DecoderInitializationException(format, e,
           drmSessionRequiresSecureDecoder, codecName));
     }
-    codecHotswapDeadlineMs = getState() == Renderer.STATE_STARTED
+    codecHotswapDeadlineMs = getState() == STATE_STARTED
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;
     inputIndex = -1;
     outputIndex = -1;
@@ -452,7 +452,7 @@ public abstract class MediaCodecRenderer extends Renderer {
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (format == null) {
       readFormat();
     }
@@ -780,12 +780,12 @@ public abstract class MediaCodecRenderer extends Renderer {
   }
 
   @Override
-  protected boolean isEnded() {
+  public boolean isEnded() {
     return outputStreamEnded;
   }
 
   @Override
-  protected boolean isReady() {
+  public boolean isReady() {
     return format != null && !waitingForKeys && (isSourceReady() || outputIndex >= 0
         || (SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }

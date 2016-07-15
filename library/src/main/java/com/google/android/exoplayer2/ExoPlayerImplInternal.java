@@ -717,12 +717,12 @@ import java.util.ArrayList;
               for (int j = 0; j < formats.length; j++) {
                 formats[j] = groups.get(newSelection.group).getFormat(newSelection.getTrack(j));
               }
-              renderer.replaceSampleStream(formats, readingPeriod.sampleStreams[i],
+              renderer.replaceStream(formats, readingPeriod.sampleStreams[i],
                   readingPeriod.offsetUs);
             } else {
               // The renderer will be disabled when transitioning to playing the next period. Mark
               // the SampleStream as final to play out any remaining data.
-              renderer.setCurrentSampleStreamIsFinal();
+              renderer.setCurrentStreamIsFinal();
             }
           }
         }
@@ -731,7 +731,7 @@ import java.util.ArrayList;
         readingPeriod = null;
         // This is the last period, so signal the renderers to read the end of the stream.
         for (Renderer renderer : enabledRenderers) {
-          renderer.setCurrentSampleStreamIsFinal();
+          renderer.setCurrentStreamIsFinal();
         }
       }
     }

@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.playbacktests.gts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -535,8 +534,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
-          if (!trackIndices.contains(i) && (formatSupport[i] & Renderer.FORMAT_SUPPORT_MASK)
-              == Renderer.FORMAT_HANDLED) {
+          if (!trackIndices.contains(i) && isFormatHandled(formatSupport[i])) {
             Log.d(TAG, "Adding video format: " + trackGroup.getFormat(i).id);
             trackIndices.add(i);
           }
@@ -546,6 +544,11 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       int[] trackIndicesArray = Util.toArray(trackIndices);
       Arrays.sort(trackIndicesArray);
       return trackIndicesArray;
+    }
+
+    private static final boolean isFormatHandled(int formatSupport) {
+      return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
+          == RendererCapabilities.FORMAT_HANDLED;
     }
 
   }

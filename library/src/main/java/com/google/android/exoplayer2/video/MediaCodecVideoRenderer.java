@@ -244,7 +244,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected boolean isReady() {
+  public boolean isReady() {
     if (renderedFirstFrame && super.isReady()) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = -1;

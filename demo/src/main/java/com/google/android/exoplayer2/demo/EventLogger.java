@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.demo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -130,7 +130,8 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
         TrackGroup trackGroup = trackGroups.get(groupIndex);
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           String status = getTrackStatusString(false);
-          String formatSupport = getFormatSupportString(Renderer.FORMAT_UNSUPPORTED_TYPE);
+          String formatSupport = getFormatSupportString(
+              RendererCapabilities.FORMAT_UNSUPPORTED_TYPE);
           Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
               + getFormatString(trackGroup.getFormat(trackIndex))
               + ", supported=" + formatSupport);
@@ -296,13 +297,13 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
 
   private static String getFormatSupportString(int formatSupport) {
     switch (formatSupport) {
-      case Renderer.FORMAT_HANDLED:
+      case RendererCapabilities.FORMAT_HANDLED:
         return "YES";
-      case Renderer.FORMAT_EXCEEDS_CAPABILITIES:
+      case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:
         return "NO_EXCEEDS_CAPABILITIES";
-      case Renderer.FORMAT_UNSUPPORTED_SUBTYPE:
+      case RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE:
         return "NO_UNSUPPORTED_TYPE";
-      case Renderer.FORMAT_UNSUPPORTED_TYPE:
+      case RendererCapabilities.FORMAT_UNSUPPORTED_TYPE:
         return "NO";
       default:
         return "?";
@@ -314,11 +315,11 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
       return "N/A";
     }
     switch (adaptiveSupport) {
-      case Renderer.ADAPTIVE_SEAMLESS:
+      case RendererCapabilities.ADAPTIVE_SEAMLESS:
         return "YES";
-      case Renderer.ADAPTIVE_NOT_SEAMLESS:
+      case RendererCapabilities.ADAPTIVE_NOT_SEAMLESS:
         return "YES_NOT_SEAMLESS";
-      case Renderer.ADAPTIVE_NOT_SUPPORTED:
+      case RendererCapabilities.ADAPTIVE_NOT_SUPPORTED:
         return "NO";
       default:
         return "?";

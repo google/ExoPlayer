@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -35,7 +36,7 @@ import java.nio.ByteBuffer;
  *
  * @param <T> The type of the metadata.
  */
-public final class MetadataRenderer<T> extends Renderer implements Callback {
+public final class MetadataRenderer<T> extends BaseRenderer implements Callback {
 
   /**
    * An output for the renderer.
@@ -90,8 +91,8 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return metadataDecoder.canDecode(format.sampleMimeType) ? Renderer.FORMAT_HANDLED
-        : Renderer.FORMAT_UNSUPPORTED_TYPE;
+    return metadataDecoder.canDecode(format.sampleMimeType) ? FORMAT_HANDLED
+        : FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override
@@ -101,7 +102,7 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
   }
 
   @Override
-  protected void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
       buffer.clear();
       int result = readSource(formatHolder, buffer);
@@ -134,12 +135,12 @@ public final class MetadataRenderer<T> extends Renderer implements Callback {
   }
 
   @Override
-  protected boolean isEnded() {
+  public boolean isEnded() {
     return inputStreamEnded;
   }
 
   @Override
-  protected boolean isReady() {
+  public boolean isReady() {
     return true;
   }
 

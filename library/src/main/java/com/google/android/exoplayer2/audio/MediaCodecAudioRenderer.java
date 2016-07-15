@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.audio;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -210,7 +209,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected MediaClock getMediaClock() {
+  public MediaClock getMediaClock() {
     return this;
   }
 
@@ -300,12 +299,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected boolean isEnded() {
+  public boolean isEnded() {
     return super.isEnded() && !audioTrack.hasPendingData();
   }
 
   @Override
-  protected boolean isReady() {
+  public boolean isReady() {
     return audioTrack.hasPendingData() || super.isReady();
   }
 
@@ -351,14 +350,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       } catch (AudioTrack.InitializationException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
-      if (getState() == Renderer.STATE_STARTED) {
+      if (getState() == STATE_STARTED) {
         audioTrack.play();
       }
     } else {
       // Check for AudioTrack underrun.
       boolean audioTrackHadData = audioTrackHasData;
       audioTrackHasData = audioTrack.hasPendingData();
-      if (audioTrackHadData && !audioTrackHasData && getState() == Renderer.STATE_STARTED) {
+      if (audioTrackHadData && !audioTrackHasData && getState() == STATE_STARTED) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
         long bufferSizeUs = audioTrack.getBufferSizeUs();
         long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;
