@@ -809,10 +809,11 @@ import java.util.ArrayList;
         maybeContinueLoading();
       } else {
         for (Renderer renderer : enabledRenderers) {
-          ensureStopped(renderer);
           renderer.disable();
         }
         enabledRenderers = new Renderer[0];
+        rendererMediaClock = null;
+        rendererMediaClockSource = null;
         playingPeriod = null;
         readingPeriod = null;
         loadingPeriod = null;
