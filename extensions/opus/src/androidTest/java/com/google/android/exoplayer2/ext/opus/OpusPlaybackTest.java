@@ -77,7 +77,6 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(
           uri,
           new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
-          null,
           MatroskaExtractor.FACTORY,
           null,
           null);

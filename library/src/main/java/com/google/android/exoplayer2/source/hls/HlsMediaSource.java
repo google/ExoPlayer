@@ -34,9 +34,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.source.hls.playlist.Variant;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -64,8 +62,8 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private final Uri manifestUri;
-  private final DataSourceFactory dataSourceFactory;
-  private final BandwidthMeter bandwidthMeter;
+  private final DataSource.Factory dataSourceFactory;
+  private final FormatEvaluator.Factory formatEvaluatorFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final IdentityHashMap<SampleStream, HlsSampleStreamWrapper> sampleStreamSources;
@@ -89,19 +87,19 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
 
-  public HlsMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, Handler eventHandler,
+  public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      FormatEvaluator.Factory formatEvaluatorFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+    this(manifestUri, dataSourceFactory, formatEvaluatorFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
         eventHandler, eventListener);
   }
 
-  public HlsMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+  public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      FormatEvaluator.Factory formatEvaluatorFactory, int minLoadableRetryCount,
+      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
-    this.bandwidthMeter = bandwidthMeter;
+    this.formatEvaluatorFactory = formatEvaluatorFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
 
@@ -347,7 +345,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
           Format.NO_VALUE);
       Variant[] variants = new Variant[] {new Variant(playlist.baseUri, format, null)};
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), null, null));
+          formatEvaluatorFactory.createFormatEvaluator(), null, null));
       return sampleStreamWrappers;
     }
 
@@ -381,7 +379,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       Variant[] variants = new Variant[selectedVariants.size()];
       selectedVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter), masterPlaylist.muxedAudioFormat,
+          formatEvaluatorFactory.createFormatEvaluator(), masterPlaylist.muxedAudioFormat,
           masterPlaylist.muxedCaptionFormat));
     }
 
@@ -409,7 +407,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, String baseUri,
       Variant[] variants, FormatEvaluator formatEvaluator, Format muxedAudioFormat,
       Format muxedCaptionFormat) {
-    DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    DataSource dataSource = dataSourceFactory.createDataSource();
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider, formatEvaluator);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator,

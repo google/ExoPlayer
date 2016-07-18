@@ -26,17 +26,12 @@ import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
-
 import junit.framework.Assert;
 
 /**
@@ -126,10 +121,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     // Build the player.
     trackSelector = buildTrackSelector(host);
     player = buildExoPlayer(host, surface, trackSelector);
-    DataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(host, Util
-        .getUserAgent(host, "ExoPlayerPlaybackTests"));
-    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-    player.setMediaSource(buildSource(host, dataSourceFactory, bandwidthMeter));
+    player.setMediaSource(buildSource(host, Util.getUserAgent(host, "ExoPlayerPlaybackTests")));
     player.addListener(this);
     player.setDebugListener(this);
     player.setPlayWhenReady(true);
@@ -293,8 +285,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @SuppressWarnings("unused")
-  protected abstract MediaSource buildSource(HostActivity host, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter);
+  protected abstract MediaSource buildSource(HostActivity host, String userAgent);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {

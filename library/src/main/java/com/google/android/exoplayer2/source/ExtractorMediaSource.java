@@ -33,9 +33,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -112,8 +110,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
 
   private final Uri uri;
-  private final DataSourceFactory dataSourceFactory;
-  private final BandwidthMeter bandwidthMeter;
+  private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
@@ -148,23 +145,20 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
-   * @param bandwidthMeter A {@link BandwidthMeter} to notify of loads performed by the source.
    * @param extractorsFactory Factory for {@link Extractor}s to process the media stream. If the
    *     possible formats are known, pass a factory that instantiates extractors for those formats.
    *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ExtractorMediaSource(Uri uri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, Handler eventHandler,
-      EventListener eventListener) {
-    this(uri, dataSourceFactory, bandwidthMeter, extractorsFactory,
-        MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler, eventListener);
+  public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
+      ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener) {
+    this(uri, dataSourceFactory, extractorsFactory, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler,
+        eventListener);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
-   * @param bandwidthMeter A {@link BandwidthMeter} to notify of loads performed by the source.
    * @param extractorsFactory Factory for {@link Extractor}s to process the media stream. If the
    *     possible formats are known, pass a factory that instantiates extractors for those formats.
    *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
@@ -172,12 +166,11 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
    *     if a loading error occurs.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ExtractorMediaSource(Uri uri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, ExtractorsFactory extractorsFactory, int minLoadableRetryCount,
-      Handler eventHandler, EventListener eventListener) {
+  public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
+      ExtractorsFactory extractorsFactory, int minLoadableRetryCount, Handler eventHandler,
+      EventListener eventListener) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
-    this.bandwidthMeter = bandwidthMeter;
     this.extractorsFactory = extractorsFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
@@ -214,7 +207,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     this.callback = callback;
     this.allocator = allocator;
 
-    dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    dataSource = dataSourceFactory.createDataSource();
     loader = new Loader("Loader:ExtractorMediaSource");
     extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
     loadCondition = new ConditionVariable();

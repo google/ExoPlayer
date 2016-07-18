@@ -30,14 +30,11 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -68,8 +65,8 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
   private final Uri manifestUri;
-  private final DataSourceFactory dataSourceFactory;
-  private final BandwidthMeter bandwidthMeter;
+  private final DataSource.Factory dataSourceFactory;
+  private final FormatEvaluator.Factory formatEvaluatorFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final SmoothStreamingManifestParser manifestParser;
@@ -91,20 +88,20 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
 
-  public SmoothStreamingMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, Handler eventHandler,
+  public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      FormatEvaluator.Factory formatEvaluatorFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+    this(manifestUri, dataSourceFactory, formatEvaluatorFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
         eventHandler, eventListener);
   }
 
-  public SmoothStreamingMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+  public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      FormatEvaluator.Factory formatEvaluatorFactory, int minLoadableRetryCount,
+      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
-    this.bandwidthMeter = bandwidthMeter;
+    this.formatEvaluatorFactory = formatEvaluatorFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new SmoothStreamingManifestParser();
@@ -358,11 +355,11 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
-        ? new AdaptiveEvaluator(bandwidthMeter) : null;
+        ? formatEvaluatorFactory.createFormatEvaluator() : null;
     int streamElementIndex = trackGroupElementIndices[selection.group];
     StreamElement streamElement = manifest.streamElements[streamElementIndex];
     int streamElementType = streamElement.type;
-    DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    DataSource dataSource = dataSourceFactory.createDataSource();
     SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifestLoader,
         manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
         adaptiveEvaluator, trackEncryptionBoxes);

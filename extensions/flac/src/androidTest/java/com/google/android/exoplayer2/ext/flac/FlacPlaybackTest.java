@@ -77,7 +77,6 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(
           uri,
           new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"),
-          null,
           MatroskaExtractor.FACTORY,
           null,
           null);

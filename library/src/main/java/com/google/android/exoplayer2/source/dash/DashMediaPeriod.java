@@ -32,9 +32,7 @@ import com.google.android.exoplayer2.source.dash.mpd.Period;
 import com.google.android.exoplayer2.source.dash.mpd.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.Loader;
 
 import android.util.Pair;
@@ -49,8 +47,8 @@ import java.util.List;
 /* package */ final class DashMediaPeriod implements MediaPeriod,
     SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
 
-  private final DataSourceFactory dataSourceFactory;
-  private final BandwidthMeter bandwidthMeter;
+  private final DataSource.Factory dataSourceFactory;
+  private final FormatEvaluator.Factory formatEvaluatorFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
@@ -68,13 +66,13 @@ import java.util.List;
   private Period period;
 
   public DashMediaPeriod(MediaPresentationDescription manifest, int index,
-      DataSourceFactory dataSourceFactory, BandwidthMeter bandwidthMeter,
+      DataSource.Factory dataSourceFactory, FormatEvaluator.Factory formatEvaluatorFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
       Loader loader) {
     this.manifest = manifest;
     this.index = index;
     this.dataSourceFactory = dataSourceFactory;
-    this.bandwidthMeter = bandwidthMeter;
+    this.formatEvaluatorFactory = formatEvaluatorFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
@@ -245,11 +243,11 @@ import java.util.List;
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
     FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
-        ? new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter) : null;
+        ? formatEvaluatorFactory.createFormatEvaluator() : null;
     int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
     int adaptationSetType = adaptationSet.type;
-    DataSource dataSource = dataSourceFactory.createDataSource(bandwidthMeter);
+    DataSource dataSource = dataSourceFactory.createDataSource();
     DashChunkSource chunkSource = new DashChunkSource(loader, manifest, index, adaptationSetIndex,
         trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
         elapsedRealtimeOffset);

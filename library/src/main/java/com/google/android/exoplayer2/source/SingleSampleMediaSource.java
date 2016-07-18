@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -71,7 +70,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   private static final int STREAM_STATE_END_OF_STREAM = 2;
 
   private final Uri uri;
-  private final DataSourceFactory dataSourceFactory;
+  private final DataSource.Factory dataSourceFactory;
   private final Format format;
   private final long durationUs;
   private final int minLoadableRetryCount;
@@ -87,17 +86,17 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   private byte[] sampleData;
   private int sampleSize;
 
-  public SingleSampleMediaSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+  public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs) {
     this(uri, dataSourceFactory, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
-  public SingleSampleMediaSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+  public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount) {
     this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, 0);
   }
 
-  public SingleSampleMediaSource(Uri uri, DataSourceFactory dataSourceFactory, Format format,
+  public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
       int eventSourceId) {
     this.uri = uri;

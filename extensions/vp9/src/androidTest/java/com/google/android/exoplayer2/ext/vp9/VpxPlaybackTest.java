@@ -93,7 +93,6 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(
           uri,
           new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
-          null,
           MatroskaExtractor.FACTORY,
           null,
           null);

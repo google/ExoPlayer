@@ -27,6 +27,18 @@ import java.io.IOException;
 public interface DataSource {
 
   /**
+   * A factory for {@link DataSource} instances.
+   */
+  interface Factory {
+
+    /**
+     * Creates a {@link DataSource} instance.
+     */
+    DataSource createDataSource();
+
+  }
+
+  /**
    * Opens the {@link DataSource} to read the specified data.
    * <p>
    * Note: If an {@link IOException} is thrown, callers must still call {@link #close()} to ensure

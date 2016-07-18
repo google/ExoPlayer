@@ -21,12 +21,11 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer2.source.dash.mpd.UtcTimingElement;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
@@ -57,8 +56,8 @@ public final class DashMediaSource implements MediaSource {
 
   private static final String TAG = "DashMediaSource";
 
-  private final DataSourceFactory dataSourceFactory;
-  private final BandwidthMeter bandwidthMeter;
+  private final DataSource.Factory dataSourceFactory;
+  private final FormatEvaluator.Factory formatEvaluatorFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final MediaPresentationDescriptionParser manifestParser;
@@ -75,19 +74,19 @@ public final class DashMediaSource implements MediaSource {
   private DashMediaPeriod[] periods;
   private long elapsedRealtimeOffset;
 
-  public DashMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, Handler eventHandler,
+  public DashMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      FormatEvaluator.Factory formatEvaluatorFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifestUri, dataSourceFactory, bandwidthMeter, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+    this(manifestUri, dataSourceFactory, formatEvaluatorFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
         eventHandler, eventListener);
   }
 
-  public DashMediaSource(Uri manifestUri, DataSourceFactory dataSourceFactory,
-      BandwidthMeter bandwidthMeter, int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+  public DashMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      FormatEvaluator.Factory formatEvaluatorFactory, int minLoadableRetryCount,
+      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
-    this.bandwidthMeter = bandwidthMeter;
+    this.formatEvaluatorFactory = formatEvaluatorFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new MediaPresentationDescriptionParser();
@@ -245,7 +244,7 @@ public final class DashMediaSource implements MediaSource {
     int periodCount = manifest.getPeriodCount();
     periods = new DashMediaPeriod[periodCount];
     for (int i = 0; i < periodCount; i++) {
-      periods[i] = new DashMediaPeriod(manifest, i, dataSourceFactory, bandwidthMeter,
+      periods[i] = new DashMediaPeriod(manifest, i, dataSourceFactory, formatEvaluatorFactory,
           minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffset, loader);
     }
     scheduleManifestRefresh();

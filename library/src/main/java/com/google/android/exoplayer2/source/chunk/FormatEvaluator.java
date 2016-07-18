@@ -25,6 +25,18 @@ import java.util.Random;
  * Selects from a number of available formats during playback.
  */
 public interface FormatEvaluator {
+
+  /**
+   * A factory for {@link FormatEvaluator} instances.
+   */
+  interface Factory {
+
+    /**
+     * Creates a {@link FormatEvaluator} instance.
+     */
+    FormatEvaluator createFormatEvaluator();
+
+  }
   
   /**
    * A trigger for a load whose reason is unknown or unspecified.
@@ -124,6 +136,28 @@ public interface FormatEvaluator {
    */
   final class RandomEvaluator implements FormatEvaluator {
 
+    public static class Factory implements FormatEvaluator.Factory {
+
+      private final int seed;
+      private final boolean seedIsSet;
+
+      public Factory() {
+        seed = 0;
+        seedIsSet = false;
+      }
+
+      public Factory(int seed) {
+        this.seed = seed;
+        seedIsSet = true;
+      }
+
+      @Override
+      public FormatEvaluator createFormatEvaluator() {
+        return seedIsSet ? new RandomEvaluator(seed) : new RandomEvaluator();
+      }
+
+    }
+
     private final Random random;
 
     private Format[] formats;
@@ -195,6 +229,21 @@ public interface FormatEvaluator {
    * own adaptive evaluator to more precisely suit their use case.
    */
   final class AdaptiveEvaluator implements FormatEvaluator {
+
+    public static class Factory implements FormatEvaluator.Factory {
+
+      private final BandwidthMeter bandwidthMeter;
+
+      public Factory(BandwidthMeter bandwidthMeter) {
+        this.bandwidthMeter = bandwidthMeter;
+      }
+
+      @Override
+      public FormatEvaluator createFormatEvaluator() {
+        return new AdaptiveEvaluator(bandwidthMeter);
+      }
+
+    }
 
     private static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
 

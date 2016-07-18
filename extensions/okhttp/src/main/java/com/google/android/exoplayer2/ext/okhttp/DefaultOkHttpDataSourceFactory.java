@@ -15,51 +15,46 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Predicate;
 
 import android.content.Context;
-
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 
 /**
- * A {@link DataSourceFactory} that produces {@link DefaultDataSource} instances that delegate to
+ * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to
  * {@link OkHttpDataSource}s for non-file/asset/content URIs.
  */
-public final class DefaultOkHttpDataSourceFactory implements DataSourceFactory {
+public final class DefaultOkHttpDataSourceFactory implements Factory {
 
   private final Context context;
   private final OkHttpClient client;
   private final String userAgent;
-  private final Predicate<String> contentTypePredicate;
+  private final TransferListener transferListener;
   private final CacheControl cacheControl;
 
   public DefaultOkHttpDataSourceFactory(Context context, OkHttpClient client, String userAgent,
-      Predicate<String> contentTypePredicate) {
-    this(context, client, userAgent, contentTypePredicate, null);
+      TransferListener transferListener) {
+    this(context, client, userAgent, transferListener, null);
   }
 
   public DefaultOkHttpDataSourceFactory(Context context, OkHttpClient client, String userAgent,
-      Predicate<String> contentTypePredicate, CacheControl cacheControl) {
+      TransferListener transferListener, CacheControl cacheControl) {
     this.context = context.getApplicationContext();
     this.client = client;
     this.userAgent = userAgent;
-    this.contentTypePredicate = contentTypePredicate;
+    this.transferListener = transferListener;
     this.cacheControl = cacheControl;
   }
 
   @Override
   public DefaultDataSource createDataSource() {
-    return createDataSource(null);
-  }
-
-  @Override
-  public DefaultDataSource createDataSource(TransferListener listener) {
-    return new DefaultDataSource(context, listener,
-        new OkHttpDataSource(client, userAgent, contentTypePredicate, listener, cacheControl));
+    DataSource httpDataSource = new OkHttpDataSource(client, userAgent, null, transferListener,
+        cacheControl);
+    return new DefaultDataSource(context, transferListener, httpDataSource);
   }
 
 }

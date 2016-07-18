@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
+import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingMediaSource;
@@ -47,12 +49,12 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControl;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSourceFactory;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.Util;
 
 import android.Manifest.permission;
@@ -129,12 +131,12 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private SubtitleLayout subtitleLayout;
   private Button retryButton;
 
-  private DataSourceFactory dataSourceFactory;
+  private DataSource.Factory dataSourceFactory;
+  private FormatEvaluator.Factory formatEvaluatorFactory;
   private SimpleExoPlayer player;
   private MappingTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
-  private BandwidthMeter bandwidthMeter;
   private boolean playerNeedsSource;
 
   private int playerPeriodIndex;
@@ -146,10 +148,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-    dataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
-    bandwidthMeter = new DefaultBandwidthMeter();
-    mainHandler = new Handler();
+    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+    dataSourceFactory = new DefaultDataSourceFactory(this, userAgent, bandwidthMeter);
+    formatEvaluatorFactory = new AdaptiveEvaluator.Factory(bandwidthMeter);
 
+    mainHandler = new Handler();
     setContentView(R.layout.player_activity);
     rootView = findViewById(R.id.root);
     rootView.setOnTouchListener(new OnTouchListener() {
@@ -340,16 +343,17 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     int type = Util.inferContentType(lastPathSegment);
     switch (type) {
       case Util.TYPE_SS:
-        return new SmoothStreamingMediaSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
-            eventLogger);
+        return new SmoothStreamingMediaSource(uri, dataSourceFactory, formatEvaluatorFactory,
+            mainHandler, eventLogger);
       case Util.TYPE_DASH:
-        return new DashMediaSource(uri, dataSourceFactory, bandwidthMeter, mainHandler,
+        return new DashMediaSource(uri, dataSourceFactory, formatEvaluatorFactory, mainHandler,
             eventLogger);
       case Util.TYPE_HLS:
-        return new HlsMediaSource(uri, dataSourceFactory, bandwidthMeter, mainHandler, eventLogger);
+        return new HlsMediaSource(uri, dataSourceFactory, formatEvaluatorFactory, mainHandler,
+            eventLogger);
       case Util.TYPE_OTHER:
-        return new ExtractorMediaSource(uri, dataSourceFactory, bandwidthMeter,
-            new DefaultExtractorsFactory(), mainHandler, eventLogger);
+        return new ExtractorMediaSource(uri, dataSourceFactory, new DefaultExtractorsFactory(),
+            mainHandler, eventLogger);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }
