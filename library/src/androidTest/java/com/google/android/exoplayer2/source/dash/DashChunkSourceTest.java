@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import android.test.InstrumentationTestCase;
 
 /**
- * Tests {@link DashChunkSource}.
+ * Tests {@link DefaultDashChunkSource}.
  */
 public class DashChunkSourceTest extends InstrumentationTestCase {
 

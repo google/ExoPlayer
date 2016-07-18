@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -66,7 +65,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
 
   private final Uri manifestUri;
   private final DataSource.Factory dataSourceFactory;
-  private final FormatEvaluator.Factory formatEvaluatorFactory;
+  private final SmoothStreamingChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final SmoothStreamingManifestParser manifestParser;
@@ -88,20 +87,20 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
 
-  public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      FormatEvaluator.Factory formatEvaluatorFactory, Handler eventHandler,
+  public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+      SmoothStreamingChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifestUri, dataSourceFactory, formatEvaluatorFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler, eventListener);
+    this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler, eventListener);
   }
 
   public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      FormatEvaluator.Factory formatEvaluatorFactory, int minLoadableRetryCount,
+      SmoothStreamingChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
-    this.formatEvaluatorFactory = formatEvaluatorFactory;
+    this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new SmoothStreamingManifestParser();
@@ -354,17 +353,12 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   private ChunkSampleStream<SmoothStreamingChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
-    FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
-        ? formatEvaluatorFactory.createFormatEvaluator() : null;
     int streamElementIndex = trackGroupElementIndices[selection.group];
-    StreamElement streamElement = manifest.streamElements[streamElementIndex];
-    int streamElementType = streamElement.type;
-    DataSource dataSource = dataSourceFactory.createDataSource();
-    SmoothStreamingChunkSource chunkSource = new SmoothStreamingChunkSource(manifestLoader,
-        manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks, dataSource,
-        adaptiveEvaluator, trackEncryptionBoxes);
-    return new ChunkSampleStream<>(streamElementType, chunkSource, this, allocator, positionUs,
-        minLoadableRetryCount, eventDispatcher);
+    SmoothStreamingChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader,
+        manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks,
+        trackEncryptionBoxes);
+    return new ChunkSampleStream<>(manifest.streamElements[streamElementIndex].type, chunkSource,
+        this, allocator, positionUs, minLoadableRetryCount, eventDispatcher);
   }
 
   @SuppressWarnings("unchecked")

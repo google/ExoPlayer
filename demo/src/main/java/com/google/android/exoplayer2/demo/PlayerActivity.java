@@ -40,7 +40,9 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSmoothStreamingChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingMediaSource;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
@@ -131,7 +133,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private SubtitleLayout subtitleLayout;
   private Button retryButton;
 
-  private DataSource.Factory dataSourceFactory;
+  private DataSource.Factory manifestDataSourceFactory;
+  private DataSource.Factory mediaDataSourceFactory;
   private FormatEvaluator.Factory formatEvaluatorFactory;
   private SimpleExoPlayer player;
   private MappingTrackSelector trackSelector;
@@ -148,8 +151,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+    manifestDataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
     BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-    dataSourceFactory = new DefaultDataSourceFactory(this, userAgent, bandwidthMeter);
+    mediaDataSourceFactory = new DefaultDataSourceFactory(this, userAgent, bandwidthMeter);
     formatEvaluatorFactory = new AdaptiveEvaluator.Factory(bandwidthMeter);
 
     mainHandler = new Handler();
@@ -343,16 +347,21 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     int type = Util.inferContentType(lastPathSegment);
     switch (type) {
       case Util.TYPE_SS:
-        return new SmoothStreamingMediaSource(uri, dataSourceFactory, formatEvaluatorFactory,
-            mainHandler, eventLogger);
+        DefaultSmoothStreamingChunkSource.Factory factory =
+            new DefaultSmoothStreamingChunkSource.Factory(mediaDataSourceFactory,
+                formatEvaluatorFactory);
+        return new SmoothStreamingMediaSource(uri, manifestDataSourceFactory, factory, mainHandler,
+            eventLogger);
       case Util.TYPE_DASH:
-        return new DashMediaSource(uri, dataSourceFactory, formatEvaluatorFactory, mainHandler,
+        DefaultDashChunkSource.Factory factory2 = new DefaultDashChunkSource.Factory(
+            mediaDataSourceFactory, formatEvaluatorFactory);
+        return new DashMediaSource(uri, mediaDataSourceFactory, factory2, mainHandler,
             eventLogger);
       case Util.TYPE_HLS:
-        return new HlsMediaSource(uri, dataSourceFactory, formatEvaluatorFactory, mainHandler,
+        return new HlsMediaSource(uri, mediaDataSourceFactory, formatEvaluatorFactory, mainHandler,
             eventLogger);
       case Util.TYPE_OTHER:
-        return new ExtractorMediaSource(uri, dataSourceFactory, new DefaultExtractorsFactory(),
+        return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
       default:
         throw new IllegalStateException("Unsupported type: " + type);

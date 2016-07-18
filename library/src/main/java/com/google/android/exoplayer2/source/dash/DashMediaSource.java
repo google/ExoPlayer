@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer2.source.dash.mpd.UtcTimingElement;
@@ -56,8 +55,8 @@ public final class DashMediaSource implements MediaSource {
 
   private static final String TAG = "DashMediaSource";
 
-  private final DataSource.Factory dataSourceFactory;
-  private final FormatEvaluator.Factory formatEvaluatorFactory;
+  private final DataSource.Factory manifestDataSourceFactory;
+  private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final MediaPresentationDescriptionParser manifestParser;
@@ -74,19 +73,19 @@ public final class DashMediaSource implements MediaSource {
   private DashMediaPeriod[] periods;
   private long elapsedRealtimeOffset;
 
-  public DashMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      FormatEvaluator.Factory formatEvaluatorFactory, Handler eventHandler,
+  public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+      DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifestUri, dataSourceFactory, formatEvaluatorFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler, eventListener);
+    this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler, eventListener);
   }
 
-  public DashMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      FormatEvaluator.Factory formatEvaluatorFactory, int minLoadableRetryCount,
+  public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
-    this.dataSourceFactory = dataSourceFactory;
-    this.formatEvaluatorFactory = formatEvaluatorFactory;
+    this.manifestDataSourceFactory = manifestDataSourceFactory;
+    this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new MediaPresentationDescriptionParser();
@@ -97,7 +96,7 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void prepareSource() {
-    dataSource = dataSourceFactory.createDataSource();
+    dataSource = manifestDataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashMediaSource");
     manifestRefreshHandler = new Handler();
     startLoadingManifest();
@@ -244,8 +243,8 @@ public final class DashMediaSource implements MediaSource {
     int periodCount = manifest.getPeriodCount();
     periods = new DashMediaPeriod[periodCount];
     for (int i = 0; i < periodCount; i++) {
-      periods[i] = new DashMediaPeriod(manifest, i, dataSourceFactory, formatEvaluatorFactory,
-          minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffset, loader);
+      periods[i] = new DashMediaPeriod(manifest, i, chunkSourceFactory, minLoadableRetryCount,
+          eventDispatcher, elapsedRealtimeOffset, loader);
     }
     scheduleManifestRefresh();
   }

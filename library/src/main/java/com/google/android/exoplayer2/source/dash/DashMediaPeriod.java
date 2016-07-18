@@ -25,14 +25,12 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer2.source.dash.mpd.Period;
 import com.google.android.exoplayer2.source.dash.mpd.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 
 import android.util.Pair;
@@ -47,8 +45,7 @@ import java.util.List;
 /* package */ final class DashMediaPeriod implements MediaPeriod,
     SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
 
-  private final DataSource.Factory dataSourceFactory;
-  private final FormatEvaluator.Factory formatEvaluatorFactory;
+  private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
@@ -66,13 +63,11 @@ import java.util.List;
   private Period period;
 
   public DashMediaPeriod(MediaPresentationDescription manifest, int index,
-      DataSource.Factory dataSourceFactory, FormatEvaluator.Factory formatEvaluatorFactory,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
-      Loader loader) {
+      DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
+      EventDispatcher eventDispatcher, long elapsedRealtimeOffset, Loader loader) {
     this.manifest = manifest;
     this.index = index;
-    this.dataSourceFactory = dataSourceFactory;
-    this.formatEvaluatorFactory = formatEvaluatorFactory;
+    this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
@@ -242,16 +237,12 @@ import java.util.List;
   private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
-    FormatEvaluator adaptiveEvaluator = selectedTracks.length > 1
-        ? formatEvaluatorFactory.createFormatEvaluator() : null;
     int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
-    int adaptationSetType = adaptationSet.type;
-    DataSource dataSource = dataSourceFactory.createDataSource();
-    DashChunkSource chunkSource = new DashChunkSource(loader, manifest, index, adaptationSetIndex,
-        trackGroups.get(selection.group), selectedTracks, dataSource, adaptiveEvaluator,
+    DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(loader, manifest, index,
+        adaptationSetIndex, trackGroups.get(selection.group), selectedTracks,
         elapsedRealtimeOffset);
-    return new ChunkSampleStream<>(adaptationSetType, chunkSource, this, allocator, positionUs,
+    return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }
 
