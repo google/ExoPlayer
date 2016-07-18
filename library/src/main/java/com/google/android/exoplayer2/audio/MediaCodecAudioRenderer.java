@@ -132,15 +132,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
       Handler eventHandler, AudioRendererEventListener eventListener,
       AudioCapabilities audioCapabilities, int streamType) {
-    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
+    super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioTrack = new AudioTrack(audioCapabilities, streamType);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_AUDIO;
   }
 
   @Override
@@ -264,8 +259,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    super.onReset(positionUs, joining);
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+    super.onPositionReset(positionUs, joining);
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

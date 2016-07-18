@@ -77,16 +77,12 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
    */
   public MetadataRenderer(Output<T> output, Looper outputLooper,
       MetadataDecoder<T> metadataDecoder) {
+    super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
     this.metadataDecoder = Assertions.checkNotNull(metadataDecoder);
     formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_METADATA;
   }
 
   @Override
@@ -96,7 +92,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) {
+  protected void onPositionReset(long positionUs, boolean joining) {
     pendingMetadata = null;
     inputStreamEnded = false;
   }

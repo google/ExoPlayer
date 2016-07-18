@@ -85,6 +85,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
       int streamType) {
+    super(C.TRACK_TYPE_AUDIO);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioTrack = new AudioTrack(audioCapabilities, streamType);
@@ -135,11 +136,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     decoderCounters.ensureUpdated();
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_AUDIO;
   }
 
   protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
@@ -311,7 +307,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) {
+  protected void onPositionReset(long positionUs, boolean joining) {
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

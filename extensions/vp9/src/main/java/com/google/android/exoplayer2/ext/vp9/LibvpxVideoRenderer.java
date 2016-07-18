@@ -106,6 +106,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
       Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFrameCountToNotify) {
+    super(C.TRACK_TYPE_VIDEO);
     this.scaleToFit = scaleToFit;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
@@ -136,11 +137,6 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
    */
   public static String getLibvpxConfig() {
     return isLibvpxAvailable() ? VpxDecoder.getLibvpxConfig() : null;
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_VIDEO;
   }
 
   @Override
@@ -359,7 +355,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) {
+  protected void onPositionReset(long positionUs, boolean joining) {
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;

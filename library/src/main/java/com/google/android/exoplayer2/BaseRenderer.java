@@ -27,6 +27,8 @@ import java.io.IOException;
  */
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
+  private final int trackType;
+
   private int index;
   private int state;
   private SampleStream stream;
@@ -34,8 +36,18 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private boolean readEndOfStream;
   private boolean streamIsFinal;
 
-  public BaseRenderer() {
+  /**
+   * @param trackType The track type that the renderer handles. One of the {@link C}
+   * {@code TRACK_TYPE_*} constants.
+   */
+  public BaseRenderer(int trackType) {
+    this.trackType = trackType;
     readEndOfStream = true;
+  }
+
+  @Override
+  public final int getTrackType() {
+    return trackType;
   }
 
   @Override
@@ -46,11 +58,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void setIndex(int index) {
     this.index = index;
-  }
-
-  @Override
-  public final int getIndex() {
-    return index;
   }
 
   @Override
@@ -70,19 +77,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     state = STATE_ENABLED;
     onEnabled(joining);
     replaceStream(formats, stream, offsetUs);
-    onReset(positionUs, joining);
+    onPositionReset(positionUs, joining);
   }
 
-  /**
-   * Called when the renderer is enabled.
-   * <p>
-   * The default implementation is a no-op.
-   *
-   * @param joining Whether this renderer is being enabled to join an ongoing playback.
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    // Do nothing.
+  @Override
+  public final void start() throws ExoPlaybackException {
+    Assertions.checkState(state == STATE_ENABLED);
+    state = STATE_STARTED;
+    onStarted();
   }
 
   @Override
@@ -93,38 +95,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     readEndOfStream = false;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats);
-  }
-
-  /**
-   * Called when the renderer's stream has changed.
-   * <p>
-   * The default implementation is a no-op.
-   *
-   * @param formats The enabled formats.
-   * @throws ExoPlaybackException Thrown if an error occurs.
-   */
-  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  @Override
-  public final void reset(long positionUs) throws ExoPlaybackException {
-    streamIsFinal = false;
-    onReset(positionUs, false);
-  }
-
-  /**
-   * Invoked when a reset is encountered, and also when the renderer is enabled.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
-   *
-   * @param positionUs The playback position in microseconds.
-   * @param joining Whether this renderer is being enabled to join an ongoing playback.
-   * @throws ExoPlaybackException If an error occurs handling the reset.
-   */
-  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    // Do nothing.
   }
 
   @Override
@@ -138,21 +108,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void start() throws ExoPlaybackException {
-    Assertions.checkState(state == STATE_ENABLED);
-    state = STATE_STARTED;
-    onStarted();
+  public final void maybeThrowStreamError() throws IOException {
+    stream.maybeThrowError();
   }
 
-  /**
-   * Called when the renderer is started.
-   * <p>
-   * The default implementation is a no-op.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected void onStarted() throws ExoPlaybackException {
-    // Do nothing.
+  @Override
+  public final void resetPosition(long positionUs) throws ExoPlaybackException {
+    streamIsFinal = false;
+    onPositionReset(positionUs, false);
   }
 
   @Override
@@ -162,17 +125,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     onStopped();
   }
 
-  /**
-   * Called when the renderer is stopped.
-   * <p>
-   * The default implementation is a no-op.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected void onStopped() throws ExoPlaybackException {
-    // Do nothing.
-  }
-
   @Override
   public final void disable() {
     Assertions.checkState(state == STATE_ENABLED);
@@ -180,20 +132,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     onDisabled();
     stream = null;
     streamIsFinal = false;
-  }
-
-  /**
-   * Called when the renderer is disabled.
-   * <p>
-   * The default implementation is a no-op.
-   */
-  protected void onDisabled() {
-    // Do nothing.
-  }
-
-  @Override
-  public final void maybeThrowStreamError() throws IOException {
-    stream.maybeThrowError();
   }
 
   // RendererCapabilities implementation.
@@ -210,7 +148,94 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     // Do nothing.
   }
 
+  // Methods to be overridden by subclasses.
+
+  /**
+   * Called when the renderer is enabled.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param joining Whether this renderer is being enabled to join an ongoing playback.
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the renderer's stream has changed. This occurs when the renderer is enabled after
+   * {@link #onEnabled(boolean)} has been called, and also when the stream has been replaced whilst
+   * the renderer is enabled or started.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param formats The enabled formats.
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Invoked when the position is reset. This occurs when the renderer is enabled after
+   * {@link #onStreamChanged(Format[])} has been called, and also when a position discontinuity
+   * is encountered.
+   * <p>
+   * After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
+   * starting from a key frame.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param positionUs The new playback position in microseconds.
+   * @param joining Whether this renderer is being enabled to join an ongoing playback.
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected void onPositionReset(long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the renderer is started.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected void onStarted() throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the renderer is stopped.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected void onStopped() throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the renderer is disabled.
+   * <p>
+   * The default implementation is a no-op.
+   */
+  protected void onDisabled() {
+    // Do nothing.
+  }
+
   // Methods to be called by subclasses.
+
+  /**
+   * Returns the index of the renderer within the player.
+   *
+   * @return The index of the renderer within the player.
+   */
+  protected final int getIndex() {
+    return index;
+  }
 
   /**
    * Reads from the enabled upstream source.

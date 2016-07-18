@@ -151,7 +151,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       int videoScalingMode, long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
-    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
+    super(C.TRACK_TYPE_VIDEO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
@@ -166,11 +166,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_VIDEO;
   }
 
   @Override
@@ -235,8 +230,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    super.onReset(positionUs, joining);
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+    super.onPositionReset(positionUs, joining);
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineMs = joining && allowedJoiningTimeMs > 0

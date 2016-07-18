@@ -72,13 +72,6 @@ public interface Renderer extends ExoPlayerComponent {
   void setIndex(int index);
 
   /**
-   * Returns the index of the renderer within the player.
-   *
-   * @return The index of the renderer within the player.
-   */
-  int getIndex();
-
-  /**
    * If the renderer advances its own playback position then this method returns a corresponding
    * {@link MediaClock}. If provided, the player will use the returned {@link MediaClock} as its
    * source of time during playback. A player may have at most one renderer that returns a
@@ -97,6 +90,9 @@ public interface Renderer extends ExoPlayerComponent {
 
   /**
    * Enable the renderer to consume from the specified {@link SampleStream}.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_DISABLED}.
    *
    * @param formats The enabled formats.
    * @param stream The {@link SampleStream} from which the renderer should consume.
@@ -110,7 +106,21 @@ public interface Renderer extends ExoPlayerComponent {
       long offsetUs) throws ExoPlaybackException;
 
   /**
-   * Sets the {@link SampleStream} from which samples will be consumed.
+   * Starts the renderer, meaning that calls to {@link #render(long, long)} will cause media to be
+   * rendered.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}.
+   *
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  void start() throws ExoPlaybackException;
+
+  /**
+   * Replaces the {@link SampleStream} from which samples will be consumed.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param formats The enabled formats.
    * @param stream The {@link SampleStream} from which the renderer should consume.
@@ -122,50 +132,28 @@ public interface Renderer extends ExoPlayerComponent {
       throws ExoPlaybackException;
 
   /**
-   * Called when a reset is encountered.
-   *
-   * @param positionUs The playback position in microseconds.
-   * @throws ExoPlaybackException If an error occurs handling the reset.
-   */
-  void reset(long positionUs) throws ExoPlaybackException;
-
-  /**
    * Returns whether the renderer has read the current {@link SampleStream} to the end.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   boolean hasReadStreamToEnd();
 
   /**
    * Signals to the renderer that the current {@link SampleStream} will be the final one supplied
    * before it is next disabled or reset.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   void setCurrentStreamIsFinal();
-
-  /**
-   * Starts the renderer, meaning that calls to {@link #render(long, long)} will cause media to be
-   * rendered.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  void start() throws ExoPlaybackException;
-
-  /**
-   * Stops the renderer.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  void stop() throws ExoPlaybackException;
-
-  /**
-   * Disable the renderer.
-   */
-  void disable();
 
   /**
    * Throws an error that's preventing the renderer from reading from its {@link SampleStream}. Does
    * nothing if no such error exists.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}.
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @throws IOException An error that's preventing the renderer from making progress or buffering
    *     more data.
@@ -173,7 +161,27 @@ public interface Renderer extends ExoPlayerComponent {
   void maybeThrowStreamError() throws IOException;
 
   /**
+   * Called when a position discontinuity is encountered.
+   * <p>
+   * After a position discontinuity, the renderer's {@link SampleStream} is guaranteed to provide
+   * samples starting from a key frame.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * @param positionUs The new playback position in microseconds.
+   * @throws ExoPlaybackException If an error occurs handling the reset.
+   */
+  void resetPosition(long positionUs) throws ExoPlaybackException;
+
+  /**
    * Incrementally renders the {@link SampleStream}.
+   * <p>
+   * If the renderer is in the {@link #STATE_ENABLED} state then each call to this method will do
+   * work toward being ready to render the {@link SampleStream} when the renderer is started. It may
+   * also render the very start of the media, for example the first frame of a video stream. If the
+   * renderer is in the {@link #STATE_STARTED} state then calls to this method will render the
+   * {@link SampleStream} in sync with the specified media positions.
    * <p>
    * This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.
@@ -217,5 +225,23 @@ public interface Renderer extends ExoPlayerComponent {
    * @return Whether the renderer is ready for the player to transition to the ended state.
    */
   boolean isEnded();
+
+  /**
+   * Stops the renderer.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_STARTED}.
+   *
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  void stop() throws ExoPlaybackException;
+
+  /**
+   * Disable the renderer.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}.
+   */
+  void disable();
 
 }

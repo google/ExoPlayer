@@ -500,7 +500,7 @@ import java.util.ArrayList;
     internalPositionUs = sourceOffsetUs + periodPositionUs;
     standaloneMediaClock.setPositionUs(internalPositionUs);
     for (Renderer renderer : enabledRenderers) {
-      renderer.reset(internalPositionUs);
+      renderer.resetPosition(internalPositionUs);
     }
   }
 

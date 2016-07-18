@@ -205,6 +205,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
 
   /**
+   * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
+   *     constants defined in {@link C}.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
    *     media is not required.
@@ -214,8 +216,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
-  public MediaCodecRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecRenderer(int trackType, MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
+    super(trackType);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
@@ -383,7 +386,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) throws ExoPlaybackException {
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
     if (codec != null) {
@@ -899,8 +902,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * modified between successive calls. Hence an implementation can, for example, modify the
    * buffer's position to keep track of how much of the data it has processed.
    * <p>
-   * Note that the first call to this method following a call to {@link #onReset(long, boolean)}
-   * will always receive a new {@link ByteBuffer} to be processed.
+   * Note that the first call to this method following a call to
+   * {@link #onPositionReset(long, boolean)} will always receive a new {@link ByteBuffer} to be
+   * processed.
    *
    * @param positionUs The current media time in microseconds, measured at the start of the
    *     current iteration of the rendering loop.

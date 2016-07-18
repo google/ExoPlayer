@@ -93,15 +93,11 @@ public final class TextRenderer extends BaseRenderer implements Callback {
    * @param decoderFactory A factory from which to obtain {@link SubtitleDecoder} instances.
    */
   public TextRenderer(Output output, Looper outputLooper, SubtitleDecoderFactory decoderFactory) {
+    super(C.TRACK_TYPE_TEXT);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
     this.decoderFactory = decoderFactory;
     formatHolder = new FormatHolder();
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_TEXT;
   }
 
   @Override
@@ -120,7 +116,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
-  protected void onReset(long positionUs, boolean joining) {
+  protected void onPositionReset(long positionUs, boolean joining) {
     inputStreamEnded = false;
     outputStreamEnded = false;
     if (subtitle != null) {
