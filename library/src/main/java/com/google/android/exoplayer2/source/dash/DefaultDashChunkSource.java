@@ -288,18 +288,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
       DataSource dataSource, Format trackFormat, int trackSelectionReason,
       Object trackSelectionData, RangedUri initializationUri, RangedUri indexUri) {
     RangedUri requestUri;
+    String baseUrl = representationHolder.representation.baseUrl;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri);
+      requestUri = initializationUri.attemptMerge(indexUri, baseUrl);
       if (requestUri == null) {
         requestUri = initializationUri;
       }
     } else {
       requestUri = indexUri;
     }
-    DataSpec dataSpec = new DataSpec(requestUri.getUri(), requestUri.start, requestUri.length,
-        representationHolder.representation.getCacheKey());
+    DataSpec dataSpec = new DataSpec(requestUri.resolveUri(baseUrl), requestUri.start,
+        requestUri.length, representationHolder.representation.getCacheKey());
     return new InitializationChunk(dataSource, dataSpec, trackFormat,
         trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
@@ -311,8 +312,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(segmentNum);
-    DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
-        representation.getCacheKey());
+    DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(representation.baseUrl),
+        segmentUri.start, segmentUri.length, representation.getCacheKey());
 
     if (representationHolder.extractorWrapper == null) {
       return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,

@@ -28,6 +28,8 @@ public class DashManifestParserTest extends InstrumentationTestCase {
   private static final String SAMPLE_MPD_1 = "dash/sample_mpd_1";
   private static final String SAMPLE_MPD_2_UNKNOWN_MIME_TYPE =
       "dash/sample_mpd_2_unknown_mime_type";
+  private static final String SAMPLE_MPD_3_SEGMENT_TEMPLATE =
+      "dash/sample_mpd_3_segment_template";
 
   /**
    * Simple test to ensure the sample manifests parse without any exceptions being thrown.
@@ -38,6 +40,32 @@ public class DashManifestParserTest extends InstrumentationTestCase {
         TestUtil.getInputStream(getInstrumentation(), SAMPLE_MPD_1));
     parser.parse(Uri.parse("https://example.com/test.mpd"),
         TestUtil.getInputStream(getInstrumentation(), SAMPLE_MPD_2_UNKNOWN_MIME_TYPE));
+  }
+
+  public void testParseMediaPresentationDescriptionWithSegmentTemplate() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest mpd = parser.parse(Uri.parse("https://example.com/test.mpd"),
+        TestUtil.getInputStream(getInstrumentation(), SAMPLE_MPD_3_SEGMENT_TEMPLATE));
+
+    assertEquals(1, mpd.getPeriodCount());
+
+    Period period = mpd.getPeriod(0);
+    assertNotNull(period);
+    assertEquals(2, period.adaptationSets.size());
+
+    for (AdaptationSet adaptationSet : period.adaptationSets) {
+      assertNotNull(adaptationSet);
+      for (Representation representation : adaptationSet.representations) {
+        if (representation instanceof Representation.MultiSegmentRepresentation) {
+          Representation.MultiSegmentRepresentation multiSegmentRepresentation =
+              (Representation.MultiSegmentRepresentation) representation;
+          int firstSegmentIndex = multiSegmentRepresentation.getFirstSegmentNum();
+          RangedUri uri = multiSegmentRepresentation.getSegmentUrl(firstSegmentIndex);
+          assertTrue(uri.resolveUriString(representation.baseUrl).contains(
+              "redirector.googlevideo.com"));
+        }
+      }
+    }
   }
 
 }
