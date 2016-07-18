@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.upstream;
 /**
  * Provides estimates of the currently available bandwidth.
  */
-public interface BandwidthMeter extends TransferListener {
+public interface BandwidthMeter {
 
   /**
    * Interface definition for a callback to be notified of {@link BandwidthMeter} events.

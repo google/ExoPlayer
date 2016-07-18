@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -425,7 +424,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     public MediaSource buildSource(HostActivity host, String userAgent) {
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
-      BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+      DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
       DataSource.Factory mediaDataSourceFactory = new DefaultDataSourceFactory(host, userAgent,
           bandwidthMeter);
       FormatEvaluator.Factory formatEvaluatorFactory = new AdaptiveEvaluator.Factory(

@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackIn
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControl;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -152,7 +151,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     super.onCreate(savedInstanceState);
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     manifestDataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
-    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+    DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
     mediaDataSourceFactory = new DefaultDataSourceFactory(this, userAgent, bandwidthMeter);
     formatEvaluatorFactory = new AdaptiveEvaluator.Factory(bandwidthMeter);
 
