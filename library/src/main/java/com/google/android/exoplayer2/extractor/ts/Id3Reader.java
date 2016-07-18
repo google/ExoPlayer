@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -27,6 +28,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
  * Parses ID3 data and extracts individual text information frames.
  */
 /* package */ final class Id3Reader implements ElementaryStreamReader {
+
+  private static final String TAG = "Id3Reader";
 
   private static final int ID3_HEADER_SIZE = 10;
 
@@ -82,7 +85,14 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
           headerBytesAvailable);
       if (sampleBytesRead + headerBytesAvailable == ID3_HEADER_SIZE) {
         // We've finished reading the ID3 header. Extract the sample size.
-        id3Header.setPosition(6); // 'ID3' (3) + version (2) + flags (1)
+        id3Header.setPosition(0);
+        if ('I' != id3Header.readUnsignedByte() || 'D' != id3Header.readUnsignedByte()
+            || '3' != id3Header.readUnsignedByte()) {
+          Log.w(TAG, "Discarding invalid ID3 tag");
+          writingSample = false;
+          return;
+        }
+        id3Header.skipBytes(3); // version (2) + flags (1)
         sampleSize = ID3_HEADER_SIZE + id3Header.readSynchSafeInt();
       }
     }
