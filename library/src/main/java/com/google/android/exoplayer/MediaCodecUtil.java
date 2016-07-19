@@ -246,11 +246,17 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around an issue where the VP8 decoder on Samsung Galaxy S3/S4 Mini does not render
-    // video.
+    // Work around https://github.com/google/ExoPlayer/issues/548
+    // VP8 decoder on Samsung Galaxy S3/S4/S4 Mini/Tab 3 does not render video.
     if (Util.SDK_INT <= 19 && Util.DEVICE != null
-        && (Util.DEVICE.startsWith("d2") || Util.DEVICE.startsWith("serrano"))
+        && (Util.DEVICE.startsWith("d2") || Util.DEVICE.startsWith("serrano")
+            || Util.DEVICE.startsWith("jflte") || Util.DEVICE.startsWith("santos"))
         && "samsung".equals(Util.MANUFACTURER) && name.equals("OMX.SEC.vp8.dec")) {
+      return false;
+    }
+    // VP8 decoder on Samsung Galaxy S4 cannot be queried.
+    if (Util.SDK_INT <= 19 && Util.DEVICE != null && Util.DEVICE.startsWith("jflte")
+        && "OMX.qcom.video.decoder.vp8".equals(name)) {
       return false;
     }
 
