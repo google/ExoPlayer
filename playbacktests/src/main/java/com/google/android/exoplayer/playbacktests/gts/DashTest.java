@@ -719,17 +719,18 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       if (isWidevineEncrypted) {
         try {
           // Force L3 if secure decoder is not available.
-          boolean useL3Widevine = MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null;
-          String widevineContentId = getWidevineContentId(useL3Widevine);
+          boolean forceL3Widevine = MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null;
+          String widevineContentId = getWidevineContentId(forceL3Widevine);
           WidevineMediaDrmCallback drmCallback =
               new WidevineMediaDrmCallback(widevineContentId, WIDEVINE_PROVIDER);
           drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(
               player.getPlaybackLooper(), drmCallback, null, handler, null);
           String securityProperty = drmSessionManager.getPropertyString(SECURITY_LEVEL_PROPERTY);
-          if (useL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {
+          if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {
             drmSessionManager.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
           }
-          needsSecureVideoDecoder = !useL3Widevine;
+          securityProperty = drmSessionManager.getPropertyString(SECURITY_LEVEL_PROPERTY);
+          needsSecureVideoDecoder = WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
         } catch (IOException | UnsupportedDrmException e) {
           throw new IllegalStateException(e);
         }
