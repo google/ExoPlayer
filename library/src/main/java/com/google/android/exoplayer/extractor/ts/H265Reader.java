@@ -269,7 +269,8 @@ import java.util.Collections;
     bitArray.readUnsignedExpGolombCodedInt(); // max_transform_hierarchy_depth_inter
     bitArray.readUnsignedExpGolombCodedInt(); // max_transform_hierarchy_depth_intra
     // if (scaling_list_enabled_flag) { if (sps_scaling_list_data_present_flag) {...}}
-    if (bitArray.readBit() && bitArray.readBit()) {
+    boolean scalingListEnabled = bitArray.readBit();
+    if (scalingListEnabled && bitArray.readBit()) {
       skipScalingList(bitArray);
     }
     bitArray.skipBits(2); // amp_enabled_flag (1), sample_adaptive_offset_enabled_flag (1)
