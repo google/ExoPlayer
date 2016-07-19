@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -30,7 +31,6 @@ import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
 import com.google.android.exoplayer2.playbacktests.util.MetricsLogger;
-import com.google.android.exoplayer2.playbacktests.util.TestMediaDrmCallback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -43,6 +43,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -195,7 +197,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           WIDEVINE_VP9_180P_VIDEO_REPRESENTATION_ID,
           WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID};
 
-  private static final String WIDEVINE_PROVIDER = "widevine_test";
+  private static final String WIDEVINE_LICENSE_URL =
+      "https://proxy.uat.widevine.com/proxy?provider=widevine_test&video_id=";
   private static final String WIDEVINE_SW_CRYPTO_CONTENT_ID = "exoplayer_test_1";
   private static final String WIDEVINE_HW_SECURE_DECODE_CONTENT_ID = "exoplayer_test_2";
   private static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
@@ -692,7 +695,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     @Override
     @TargetApi(18)
-    protected final StreamingDrmSessionManager buildDrmSessionManager() {
+    protected final StreamingDrmSessionManager buildDrmSessionManager(final String userAgent) {
       StreamingDrmSessionManager drmSessionManager = null;
       if (isWidevineEncrypted) {
         try {
@@ -703,8 +706,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           String widevineContentId = forceL3Widevine ? WIDEVINE_SW_CRYPTO_CONTENT_ID
               : WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty)
               ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID;
-          TestMediaDrmCallback drmCallback = TestMediaDrmCallback.newWidevineInstance(
-              widevineContentId, WIDEVINE_PROVIDER);
+          HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(
+              WIDEVINE_LICENSE_URL + widevineContentId,
+              new HttpDataSource.Factory() {
+                @Override
+                public HttpDataSource createDataSource() {
+                  return new DefaultHttpDataSource(userAgent, null);
+                }
+              });
           drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(drmCallback, null,
               null, null);
           if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {

@@ -189,7 +189,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
           currentChunk.startTimeUs);
     }
     downstreamFormat = format;
-
     return sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }
 

@@ -30,6 +30,16 @@ import java.util.Map;
 public interface HttpDataSource extends DataSource {
 
   /**
+   * A factory for {@link HttpDataSource} instances.
+   */
+  interface Factory extends DataSource.Factory {
+
+    @Override
+    HttpDataSource createDataSource();
+
+  }
+
+  /**
    * A {@link Predicate} that rejects content types often used for pay-walls.
    */
   Predicate<String> REJECT_PAYWALL_TYPES = new Predicate<String>() {

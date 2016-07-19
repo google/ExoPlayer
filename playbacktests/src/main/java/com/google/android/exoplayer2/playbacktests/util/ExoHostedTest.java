@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.playbacktests.util;
 
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.Surface;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -34,6 +30,10 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Util;
 
+import android.os.Handler;
+import android.os.SystemClock;
+import android.util.Log;
+import android.view.Surface;
 import junit.framework.Assert;
 
 
@@ -123,9 +123,10 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   public final void onStart(HostActivity host, Surface surface) {
     // Build the player.
     trackSelector = buildTrackSelector(host);
-    DrmSessionManager drmSessionManager = buildDrmSessionManager();
+    String userAgent = "ExoPlayerPlaybackTests";
+    DrmSessionManager drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
-    player.setMediaSource(buildSource(host, Util.getUserAgent(host, "ExoPlayerPlaybackTests")));
+    player.setMediaSource(buildSource(host, Util.getUserAgent(host, userAgent)));
     player.addListener(this);
     player.setDebugListener(this);
     player.setPlayWhenReady(true);
@@ -275,7 +276,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   // Internal logic
 
-  protected DrmSessionManager buildDrmSessionManager() {
+  protected DrmSessionManager buildDrmSessionManager(String userAgent) {
     // Do nothing. Interested subclasses may override.
     return null;
   }

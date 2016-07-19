@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -56,6 +57,8 @@ import com.google.android.exoplayer2.ui.PlayerControl;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import android.Manifest.permission;
@@ -131,6 +134,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private SubtitleLayout subtitleLayout;
   private Button retryButton;
 
+  private String userAgent;
   private DataSource.Factory manifestDataSourceFactory;
   private DataSource.Factory mediaDataSourceFactory;
   private FormatEvaluator.Factory formatEvaluatorFactory;
@@ -148,7 +152,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+    userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     manifestDataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
     mediaDataSourceFactory = new DefaultDataSourceFactory(this, userAgent, bandwidthMeter);
@@ -371,15 +375,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (Util.SDK_INT < 18) {
       return null;
     }
-    if (C.PLAYREADY_UUID.equals(uuid)) {
-      return StreamingDrmSessionManager.newPlayReadyInstance(
-          TestMediaDrmCallback.newPlayReadyInstance(licenseUrl), null, mainHandler, eventLogger);
-    } else if (C.WIDEVINE_UUID.equals(uuid)) {
-      return StreamingDrmSessionManager.newWidevineInstance(
-          TestMediaDrmCallback.newWidevineInstance(licenseUrl), null, mainHandler, eventLogger);
-    } else {
-      throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
-    }
+    HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
+        new HttpDataSource.Factory() {
+          @Override
+          public HttpDataSource createDataSource() {
+            return new DefaultHttpDataSource(userAgent, null);
+          }
+        });
+    return new StreamingDrmSessionManager(uuid, drmCallback, null, mainHandler, eventLogger);
   }
 
   private void onUnsupportedDrmError(UnsupportedDrmException e) {

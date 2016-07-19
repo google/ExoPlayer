@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.demo;
+package com.google.android.exoplayer2.drm;
 
-import com.google.android.exoplayer2.drm.MediaDrmCallback;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSourceInputStream;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.MediaDrm.KeyRequest;
 import android.media.MediaDrm.ProvisionRequest;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * A {@link MediaDrmCallback} for test content.
+ * A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances.
  */
 @TargetApi(18)
-/* package */ final class TestMediaDrmCallback implements MediaDrmCallback {
+public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final Map<String, String> PLAYREADY_KEY_REQUEST_PROPERTIES;
   static {
@@ -47,20 +47,16 @@ import java.util.UUID;
     PLAYREADY_KEY_REQUEST_PROPERTIES = keyRequestProperties;
   }
 
+  private final HttpDataSource.Factory dataSourceFactory;
   private final String defaultUrl;
-  private final Map<String, String> keyRequestProperties;
 
-  public static TestMediaDrmCallback newWidevineInstance(String defaultUrl) {
-    return new TestMediaDrmCallback(defaultUrl, null);
-  }
-
-  public static TestMediaDrmCallback newPlayReadyInstance(String defaultUrl) {
-    return new TestMediaDrmCallback(defaultUrl, PLAYREADY_KEY_REQUEST_PROPERTIES);
-  }
-
-  private TestMediaDrmCallback(String defaultUrl, Map<String, String> keyRequestProperties) {
+  /**
+   * @param defaultUrl The default license URL.
+   * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   */
+  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory) {
+    this.dataSourceFactory = dataSourceFactory;
     this.defaultUrl = defaultUrl;
-    this.keyRequestProperties = keyRequestProperties;
   }
 
   @Override
@@ -75,42 +71,26 @@ import java.util.UUID;
     if (TextUtils.isEmpty(url)) {
       url = defaultUrl;
     }
+    Map<String, String> keyRequestProperties = C.PLAYREADY_UUID.equals(uuid)
+        ? PLAYREADY_KEY_REQUEST_PROPERTIES : null;
     return executePost(url, request.getData(), keyRequestProperties);
   }
 
-  private static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
+  private byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
       throws IOException {
-    HttpURLConnection urlConnection = null;
+    HttpDataSource dataSource = dataSourceFactory.createDataSource();
+    if (requestProperties != null) {
+      for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
+        dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+      }
+    }
+    DataSpec dataSpec = new DataSpec(Uri.parse(url), data, 0, 0, C.LENGTH_UNBOUNDED, null,
+        DataSpec.FLAG_ALLOW_GZIP);
+    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     try {
-      urlConnection = (HttpURLConnection) new URL(url).openConnection();
-      urlConnection.setRequestMethod("POST");
-      urlConnection.setDoOutput(data != null);
-      urlConnection.setDoInput(true);
-      if (requestProperties != null) {
-        for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
-          urlConnection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-        }
-      }
-      // Write the request body, if there is one.
-      if (data != null) {
-        OutputStream out = urlConnection.getOutputStream();
-        try {
-          out.write(data);
-        } finally {
-          out.close();
-        }
-      }
-      // Read and return the response body.
-      InputStream inputStream = urlConnection.getInputStream();
-      try {
-        return Util.toByteArray(inputStream);
-      } finally {
-        inputStream.close();
-      }
+      return Util.toByteArray(inputStream);
     } finally {
-      if (urlConnection != null) {
-        urlConnection.disconnect();
-      }
+      inputStream.close();
     }
   }
 
