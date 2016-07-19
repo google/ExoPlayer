@@ -27,6 +27,7 @@ public interface MetricsLogger {
   String KEY_FRAMES_SKIPPED_COUNT = "frames_skipped_count";
   String KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT = "maximum_consecutive_frames_dropped_count";
   String KEY_TEST_NAME = "test_name";
+  String KEY_IS_CDD_LIMITED_RETRY = "is_cdd_limited_retry";
 
   /**
    * Logs an int metric provided from a test.
@@ -51,6 +52,14 @@ public interface MetricsLogger {
    * @param value The value of the metric to be logged.
    */
   void logMetric(String key, String value);
+
+  /**
+   * Logs a boolean metric provided from a test.
+   *
+   * @param key The key of the metric to be logged.
+   * @param value The value of the metric to be logged.
+   */
+  void logMetric(String key, boolean value);
 
   /**
    * Closes the logger.

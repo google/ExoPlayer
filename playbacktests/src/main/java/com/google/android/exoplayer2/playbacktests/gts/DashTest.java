@@ -20,6 +20,8 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -28,6 +30,7 @@ import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
 import com.google.android.exoplayer2.playbacktests.util.MetricsLogger;
+import com.google.android.exoplayer2.playbacktests.util.TestMediaDrmCallback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -45,6 +48,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
 import android.annotation.TargetApi;
+import android.media.MediaDrm;
+import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -53,6 +58,7 @@ import junit.framework.AssertionFailedError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Tests DASH playbacks using {@link ExoPlayer}.
@@ -63,6 +69,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   private static final String VIDEO_TAG = TAG + ":Video";
   private static final String AUDIO_TAG = TAG + ":Audio";
   private static final String REPORT_NAME = "GtsExoPlayerTestCases";
+  private static final String REPORT_OBJECT_NAME = "playbacktest";
   private static final int VIDEO_RENDERER_INDEX = 0;
   private static final int AUDIO_RENDERER_INDEX = 1;
 
@@ -73,12 +80,22 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   private static final String MANIFEST_URL_PREFIX = "https://storage.googleapis.com/exoplayer-test-"
       + "media-1/gen-3/screens/dash-vod-single-segment/";
+  // Clear content manifests.
   private static final String H264_MANIFEST = "manifest-h264.mpd";
   private static final String H265_MANIFEST = "manifest-h265.mpd";
   private static final String VP9_MANIFEST = "manifest-vp9.mpd";
   private static final String H264_23_MANIFEST = "manifest-h264-23.mpd";
   private static final String H264_24_MANIFEST = "manifest-h264-24.mpd";
   private static final String H264_29_MANIFEST = "manifest-h264-29.mpd";
+  // Widevine encrypted content manifests.
+  private static final String WIDEVINE_H264_MANIFEST_PREFIX = "manifest-h264-enc";
+  private static final String WIDEVINE_H265_MANIFEST_PREFIX = "manifest-h265-enc";
+  private static final String WIDEVINE_VP9_MANIFEST_PREFIX = "manifest-vp9-enc";
+  private static final String WIDEVINE_H264_23_MANIFEST_PREFIX = "manifest-h264-23-enc";
+  private static final String WIDEVINE_H264_24_MANIFEST_PREFIX = "manifest-h264-24-enc";
+  private static final String WIDEVINE_H264_29_MANIFEST_PREFIX = "manifest-h264-29-enc";
+  private static final String WIDEVINE_L1_SUFFIX = "-hw.mpd";
+  private static final String WIDEVINE_L3_SUFFIX = "-sw.mpd";
 
   private static final String AAC_AUDIO_REPRESENTATION_ID = "141";
   private static final String H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "avc-baseline-240";
@@ -128,6 +145,63 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       new String[] {
           VP9_180P_VIDEO_REPRESENTATION_ID,
           VP9_360P_VIDEO_REPRESENTATION_ID};
+
+  // Widevine encrypted content representation ids.
+  private static final String WIDEVINE_AAC_AUDIO_REPRESENTATION_ID = "0";
+  private static final String WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "1";
+  private static final String WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID = "2";
+  private static final String WIDEVINE_H264_MAIN_240P_VIDEO_REPRESENTATION_ID = "3";
+  private static final String WIDEVINE_H264_MAIN_480P_VIDEO_REPRESENTATION_ID = "4";
+  // The highest quality H264 format mandated by the Android CDD.
+  private static final String WIDEVINE_H264_CDD_FIXED = Util.SDK_INT < 23
+      ? WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID
+      : WIDEVINE_H264_MAIN_480P_VIDEO_REPRESENTATION_ID;
+  // Multiple H264 formats mandated by the Android CDD. Note: The CDD actually mandated main profile
+  // support from API level 23, but we opt to test only from 24 due to known issues on API level 23
+  // when switching between baseline and main profiles on certain devices.
+  private static final String[] WIDEVINE_H264_CDD_ADAPTIVE = Util.SDK_INT < 24
+      ? new String[] {
+      WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
+      WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID}
+      : new String[] {
+      WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
+      WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID,
+      WIDEVINE_H264_MAIN_240P_VIDEO_REPRESENTATION_ID,
+      WIDEVINE_H264_MAIN_480P_VIDEO_REPRESENTATION_ID};
+
+  private static final String WIDEVINE_H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID = "2";
+  private static final String WIDEVINE_H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID = "2";
+  private static final String WIDEVINE_H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID = "2";
+
+  private static final String WIDEVINE_H265_BASELINE_288P_VIDEO_REPRESENTATION_ID = "1";
+  private static final String WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID = "2";
+  // The highest quality H265 format mandated by the Android CDD.
+  private static final String WIDEVINE_H265_CDD_FIXED =
+      WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID;
+  // Multiple H265 formats mandated by the Android CDD.
+  private static final String[] WIDEVINE_H265_CDD_ADAPTIVE =
+      new String[] {
+          WIDEVINE_H265_BASELINE_288P_VIDEO_REPRESENTATION_ID,
+          WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID};
+
+  private static final String WIDEVINE_VORBIS_AUDIO_REPRESENTATION_ID = "0";
+  private static final String WIDEVINE_VP9_180P_VIDEO_REPRESENTATION_ID = "1";
+  private static final String WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID = "2";
+  // The highest quality VP9 format mandated by the Android CDD.
+  private static final String WIDEVINE_VP9_CDD_FIXED = VP9_360P_VIDEO_REPRESENTATION_ID;
+  // Multiple VP9 formats mandated by the Android CDD.
+  private static final String[] WIDEVINE_VP9_CDD_ADAPTIVE =
+      new String[] {
+          WIDEVINE_VP9_180P_VIDEO_REPRESENTATION_ID,
+          WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID};
+
+  private static final String WIDEVINE_PROVIDER = "widevine_test";
+  private static final String WIDEVINE_SW_CRYPTO_CONTENT_ID = "exoplayer_test_1";
+  private static final String WIDEVINE_HW_SECURE_DECODE_CONTENT_ID = "exoplayer_test_2";
+  private static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+  private static final String WIDEVINE_SECURITY_LEVEL_1 = "L1";
+  private static final String WIDEVINE_SECURITY_LEVEL_3 = "L3";
+  private static final String SECURITY_LEVEL_PROPERTY = "securityLevel";
 
   // Whether adaptive tests should enable video formats beyond those mandated by the Android CDD
   // if the device advertises support for them.
@@ -184,7 +258,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h264_fixed";
     testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-        H264_CDD_FIXED);
+        MimeTypes.VIDEO_H264, false, H264_CDD_FIXED);
   }
 
   public void testH264Adaptive() throws DecoderQueryException {
@@ -193,8 +267,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String streamName = "test_h264_adaptive";
-    testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
-        ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
+    testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+            MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
   public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
@@ -204,7 +278,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h264_adaptive_with_seeking";
     testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false, H264_MANIFEST,
-        AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
+        AAC_AUDIO_REPRESENTATION_ID, false, MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS,
+        H264_CDD_ADAPTIVE);
   }
 
   public void testH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -214,7 +289,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h264_adaptive_with_renderer_disabling";
     testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false, H264_MANIFEST,
-        AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
+        AAC_AUDIO_REPRESENTATION_ID, false, MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS,
+        H264_CDD_ADAPTIVE);
   }
 
   // H265 CDD.
@@ -226,7 +302,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h265_fixed";
     testDashPlayback(getActivity(), streamName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-        H265_CDD_FIXED);
+        MimeTypes.VIDEO_H265, false, H265_CDD_FIXED);
   }
 
   public void testH265Adaptive() throws DecoderQueryException {
@@ -235,8 +311,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String streamName = "test_h265_adaptive";
-    testDashPlayback(getActivity(), streamName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
-        ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
+    testDashPlayback(getActivity(), streamName, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+        MimeTypes.VIDEO_H265, ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
   }
 
   public void testH265AdaptiveWithSeeking() throws DecoderQueryException {
@@ -246,7 +322,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h265_adaptive_with_seeking";
     testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false, H265_MANIFEST,
-        AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
+        AAC_AUDIO_REPRESENTATION_ID, false, MimeTypes.VIDEO_H265, ALLOW_ADDITIONAL_VIDEO_FORMATS,
+        H265_CDD_ADAPTIVE);
   }
 
   public void testH265AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -256,8 +333,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h265_adaptive_with_renderer_disabling";
     testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
-        H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
-        H265_CDD_ADAPTIVE);
+        H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false, MimeTypes.VIDEO_H265,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
   }
 
   // VP9 (CDD).
@@ -269,7 +346,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_vp9_fixed_360p";
     testDashPlayback(getActivity(), streamName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, false,
-        VP9_CDD_FIXED);
+        MimeTypes.VIDEO_VP9, false, VP9_CDD_FIXED);
   }
 
   public void testVp9Adaptive() throws DecoderQueryException {
@@ -278,8 +355,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String streamName = "test_vp9_adaptive";
-    testDashPlayback(getActivity(), streamName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
-        ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
+    testDashPlayback(getActivity(), streamName, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, false,
+        MimeTypes.VIDEO_VP9, ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
   }
 
   public void testVp9AdaptiveWithSeeking() throws DecoderQueryException {
@@ -289,7 +366,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_vp9_adaptive_with_seeking";
     testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false, VP9_MANIFEST,
-        VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
+        VORBIS_AUDIO_REPRESENTATION_ID, false, MimeTypes.VIDEO_VP9, ALLOW_ADDITIONAL_VIDEO_FORMATS,
+        VP9_CDD_ADAPTIVE);
   }
 
   public void testVp9AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -299,8 +377,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_vp9_adaptive_with_renderer_disabling";
     testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
-        VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
-        VP9_CDD_ADAPTIVE);
+        VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, false, MimeTypes.VIDEO_VP9,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
   }
 
   // H264: Other frame-rates for output buffer count assertions.
@@ -313,7 +391,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_23fps_h264_fixed";
     testDashPlayback(getActivity(), streamName, H264_23_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
-        false, H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID);
+        false, MimeTypes.VIDEO_H264, false, H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // 24 fps.
@@ -324,7 +402,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_24fps_h264_fixed";
     testDashPlayback(getActivity(), streamName, H264_24_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
-        false, H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID);
+        false, MimeTypes.VIDEO_H264, false, H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // 29.97 fps.
@@ -335,39 +413,219 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_29fps_h264_fixed";
     testDashPlayback(getActivity(), streamName, H264_29_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
-        false, H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
+        false, MimeTypes.VIDEO_H264, false, H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
+  }
+
+  // Widevine encrypted media tests.
+  // H264 CDD.
+
+  public void testWidevineH264Fixed() throws DecoderQueryException {
+    if (Util.SDK_INT < 18) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_fixed";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H264_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H264, false,
+        WIDEVINE_H264_CDD_FIXED);
+  }
+
+  public void testWidevineH264Adaptive() throws DecoderQueryException {
+    if (Util.SDK_INT < 18 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_adaptive";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H264_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H264,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_H264_CDD_ADAPTIVE);
+  }
+
+  public void testWidevineH264AdaptiveWithSeeking() throws DecoderQueryException {
+    if (Util.SDK_INT < 18 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_adaptive_with_seeking";
+    testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false,
+        WIDEVINE_H264_MANIFEST_PREFIX, WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true,
+        MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_H264_CDD_ADAPTIVE);
+  }
+
+  public void testWidevineH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
+    if (Util.SDK_INT < 18 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_adaptive_with_renderer_disabling";
+    testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
+        WIDEVINE_H264_MANIFEST_PREFIX, WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true,
+        MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_H264_CDD_ADAPTIVE);
+  }
+
+  // H265 CDD.
+
+  public void testWidevineH265Fixed() throws DecoderQueryException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h265_fixed";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H265_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H265, false,
+        WIDEVINE_H265_CDD_FIXED);
+  }
+
+  public void testWidevineH265Adaptive() throws DecoderQueryException {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h265_adaptive";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H265_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H265,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_H265_CDD_ADAPTIVE);
+  }
+
+  public void testWidevineH265AdaptiveWithSeeking() throws DecoderQueryException {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h265_adaptive_with_seeking";
+    testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false,
+        WIDEVINE_H265_MANIFEST_PREFIX, WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true,
+        MimeTypes.VIDEO_H265, ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_H265_CDD_ADAPTIVE);
+  }
+
+  public void testWidevineH265AdaptiveWithRendererDisabling() throws DecoderQueryException {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h265_adaptive_with_renderer_disabling";
+    testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
+        WIDEVINE_H265_MANIFEST_PREFIX, WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true,
+        MimeTypes.VIDEO_H265, ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_H265_CDD_ADAPTIVE);
+  }
+
+  // VP9 (CDD).
+
+  public void testWidevineVp9Fixed360p() throws DecoderQueryException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_vp9_fixed_360p";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_VP9_MANIFEST_PREFIX,
+        WIDEVINE_VORBIS_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_VP9, false,
+        WIDEVINE_VP9_CDD_FIXED);
+  }
+
+  public void testWidevineVp9Adaptive() throws DecoderQueryException {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_vp9_adaptive";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_VP9_MANIFEST_PREFIX,
+        WIDEVINE_VORBIS_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_VP9,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_VP9_CDD_ADAPTIVE);
+  }
+
+  public void testWidevineVp9AdaptiveWithSeeking() throws DecoderQueryException {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_vp9_adaptive_with_seeking";
+    testDashPlayback(getActivity(), streamName, SEEKING_SCHEDULE, false,
+        WIDEVINE_VP9_MANIFEST_PREFIX, WIDEVINE_VORBIS_AUDIO_REPRESENTATION_ID, true,
+        MimeTypes.VIDEO_VP9, ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_VP9_CDD_ADAPTIVE);
+  }
+
+  public void testWidevineVp9AdaptiveWithRendererDisabling() throws DecoderQueryException {
+    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_vp9_adaptive_with_renderer_disabling";
+    testDashPlayback(getActivity(), streamName, RENDERER_DISABLING_SCHEDULE, false,
+        WIDEVINE_VP9_MANIFEST_PREFIX, WIDEVINE_VORBIS_AUDIO_REPRESENTATION_ID, true,
+        MimeTypes.VIDEO_VP9, ALLOW_ADDITIONAL_VIDEO_FORMATS, WIDEVINE_VP9_CDD_ADAPTIVE);
+  }
+
+  // H264: Other frame-rates for output buffer count assertions.
+
+  // 23.976 fps.
+  public void testWidevine23FpsH264Fixed() throws DecoderQueryException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_23fps_h264_fixed";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H264_23_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H264, false,
+        WIDEVINE_H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID);
+  }
+
+  // 24 fps.
+  public void testWidevine24FpsH264Fixed() throws DecoderQueryException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_24fps_h264_fixed";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H264_24_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H264, false,
+        WIDEVINE_H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID);
+  }
+
+  // 29.97 fps.
+  public void testWidevine29FpsH264Fixed() throws DecoderQueryException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_29fps_h264_fixed";
+    testDashPlayback(getActivity(), streamName, WIDEVINE_H264_29_MANIFEST_PREFIX,
+        WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, true, MimeTypes.VIDEO_H264, false,
+        WIDEVINE_H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // Internal.
 
   private void testDashPlayback(HostActivity activity, String streamName, String manifestFileName,
-      String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats) {
+      String audioFormat, boolean isWidevineEncrypted, String videoMimeType,
+      boolean canIncludeAdditionalVideoFormats, String... videoFormats) {
     testDashPlayback(activity, streamName, null, true, manifestFileName, audioFormat,
-        canIncludeAdditionalVideoFormats, videoFormats);
+        isWidevineEncrypted, videoMimeType, canIncludeAdditionalVideoFormats, videoFormats);
   }
 
   private void testDashPlayback(HostActivity activity, String streamName,
       ActionSchedule actionSchedule, boolean fullPlaybackNoSeeking, String manifestFileName,
-      String audioFormat, boolean canIncludeAdditionalVideoFormats, String... videoFormats) {
-    Uri manifestUri = Uri.parse(MANIFEST_URL_PREFIX + manifestFileName);
+      String audioFormat, boolean isWidevineEncrypted, String videoMimeType,
+      boolean canIncludeAdditionalVideoFormats, String... videoFormats) {
     MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG,
-        REPORT_NAME, streamName);
-    DashHostedTest test = new DashHostedTest(streamName, manifestUri, metricsLogger,
-        fullPlaybackNoSeeking, audioFormat, canIncludeAdditionalVideoFormats, false, actionSchedule,
-        videoFormats);
+        REPORT_NAME, REPORT_OBJECT_NAME);
+    String manifestPath = MANIFEST_URL_PREFIX + manifestFileName;
+    DashHostedTest test = new DashHostedTest(streamName, manifestPath, metricsLogger,
+        fullPlaybackNoSeeking, audioFormat, isWidevineEncrypted, videoMimeType,
+        canIncludeAdditionalVideoFormats, false, actionSchedule, videoFormats);
     activity.runTest(test, TEST_TIMEOUT_MS);
     // Retry test exactly once if adaptive test fails due to excessive dropped buffers when playing
     // non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
       metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG, REPORT_NAME,
-          streamName + "_cdd_limited_retry");
-      test = new DashHostedTest(streamName, manifestUri, metricsLogger, fullPlaybackNoSeeking,
-          audioFormat, false, true, actionSchedule, videoFormats);
+          REPORT_OBJECT_NAME);
+      test = new DashHostedTest(streamName, manifestPath, metricsLogger, fullPlaybackNoSeeking,
+          audioFormat, isWidevineEncrypted, videoMimeType, false, true, actionSchedule,
+          videoFormats);
       activity.runTest(test, TEST_TIMEOUT_MS);
     }
   }
 
-  private boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
+  private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
     MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
@@ -381,34 +639,45 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   private static class DashHostedTest extends ExoHostedTest {
 
     private final String streamName;
-    private final Uri manifestUri;
+    private final String videoMimeType;
+    private final String manifestPath;
     private final MetricsLogger metricsLogger;
     private final boolean fullPlaybackNoSeeking;
+    private final boolean isCddLimitedRetry;
+    private final boolean isWidevineEncrypted;
     private final DashTestTrackSelector trackSelector;
 
     private boolean needsCddLimitedRetry;
+    private boolean needsSecureVideoDecoder;
 
     /**
      * @param streamName The name of the test stream for metric logging.
-     * @param manifestUri The manifest uri.
+     * @param manifestPath The manifest path.
      * @param metricsLogger Logger to log metrics from the test.
      * @param fullPlaybackNoSeeking True if the test will play the entire source with no seeking.
      *     False otherwise.
      * @param audioFormat The audio format.
+     * @param isWidevineEncrypted Whether the video is Widevine encrypted.
+     * @param videoMimeType The video mime type.
      * @param canIncludeAdditionalVideoFormats Whether to use video formats in addition to those
      *     listed in the videoFormats argument, if the device is capable of playing them.
      * @param isCddLimitedRetry Whether this is a CDD limited retry following a previous failure.
+     * @param actionSchedule The action schedule for the test.
      * @param videoFormats The video formats.
      */
-    public DashHostedTest(String streamName, Uri manifestUri, MetricsLogger metricsLogger,
-        boolean fullPlaybackNoSeeking, String audioFormat, boolean canIncludeAdditionalVideoFormats,
-        boolean isCddLimitedRetry, ActionSchedule actionSchedule, String... videoFormats) {
+    public DashHostedTest(String streamName, String manifestPath, MetricsLogger metricsLogger,
+        boolean fullPlaybackNoSeeking, String audioFormat, boolean isWidevineEncrypted,
+        String videoMimeType, boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry,
+        ActionSchedule actionSchedule, String... videoFormats) {
       super(TAG, fullPlaybackNoSeeking);
       Assertions.checkArgument(!(isCddLimitedRetry && canIncludeAdditionalVideoFormats));
       this.streamName = streamName;
-      this.manifestUri = manifestUri;
+      this.manifestPath = manifestPath;
       this.metricsLogger = metricsLogger;
       this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
+      this.isWidevineEncrypted = isWidevineEncrypted;
+      this.videoMimeType = videoMimeType;
+      this.isCddLimitedRetry = isCddLimitedRetry;
       trackSelector = new DashTestTrackSelector(new String[] {audioFormat},
           videoFormats, canIncludeAdditionalVideoFormats);
       if (actionSchedule != null) {
@@ -422,6 +691,37 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
+    @TargetApi(18)
+    protected final StreamingDrmSessionManager buildDrmSessionManager() {
+      StreamingDrmSessionManager drmSessionManager = null;
+      if (isWidevineEncrypted) {
+        try {
+          // Force L3 if secure decoder is not available.
+          boolean forceL3Widevine = MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null;
+          MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
+          String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
+          String widevineContentId = forceL3Widevine ? WIDEVINE_SW_CRYPTO_CONTENT_ID
+              : WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty)
+              ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID;
+          TestMediaDrmCallback drmCallback = TestMediaDrmCallback.newWidevineInstance(
+              widevineContentId, WIDEVINE_PROVIDER);
+          drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(drmCallback, null,
+              null, null);
+          if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {
+            drmSessionManager.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
+          }
+          // Check if secure video decoder is required.
+          securityProperty = drmSessionManager.getPropertyString(SECURITY_LEVEL_PROPERTY);
+          needsSecureVideoDecoder = WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
+        } catch (MediaCodecUtil.DecoderQueryException | UnsupportedSchemeException
+            | UnsupportedDrmException e) {
+          throw new IllegalStateException(e);
+        }
+      }
+      return drmSessionManager;
+    }
+
+    @Override
     public MediaSource buildSource(HostActivity host, String userAgent) {
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
       DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -429,6 +729,10 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           bandwidthMeter);
       FormatEvaluator.Factory formatEvaluatorFactory = new AdaptiveEvaluator.Factory(
           bandwidthMeter);
+      String manifestUrl = manifestPath;
+      manifestUrl += isWidevineEncrypted ? (needsSecureVideoDecoder ? WIDEVINE_L1_SUFFIX
+          : WIDEVINE_L3_SUFFIX) : "";
+      Uri manifestUri = Uri.parse(manifestUrl);
       DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
           mediaDataSourceFactory, formatEvaluatorFactory);
       return new DashMediaSource(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
@@ -438,6 +742,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
+      metricsLogger.logMetric(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
           videoCounters.droppedOutputBufferCount);
       metricsLogger.logMetric(MetricsLogger.KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT,
