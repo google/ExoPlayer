@@ -28,7 +28,7 @@ import java.io.IOException;
  * transition its renderers through various states as the overall playback state changes. The valid
  * state transitions are shown below, annotated with the methods that are invoked during each
  * transition.
- * <p align="center"><img src="../../../../../images/trackrenderer_state.png"
+ * <p align="center"><img src="doc-files/renderer-states.png"
  *     alt="Renderer state transitions"
  *     border="0"/></p>
  */
