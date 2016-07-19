@@ -69,6 +69,12 @@ android.libraryVariants.all { variant ->
         }
         exclude '**/BuildConfig.java'
         exclude '**/R.java'
+        doLast {
+            copy {
+                from "src/main/javadoc"
+                into "$buildDir/docs/javadoc"
+            }
+        }
     }
 }
 
