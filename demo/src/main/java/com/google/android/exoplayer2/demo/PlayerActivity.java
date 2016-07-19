@@ -99,8 +99,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     SimpleExoPlayer.Id3MetadataListener, MappingTrackSelector.EventListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
-  public static final String DRM_CONTENT_ID_EXTRA = "drm_content_id";
-  public static final String DRM_PROVIDER_EXTRA = "drm_provider";
+  public static final String DRM_LICENSE_URL = "drm_license_url";
   public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
@@ -267,13 +266,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     Intent intent = getIntent();
     if (player == null) {
       boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
-      UUID drmSchemeUuid = (UUID) intent.getSerializableExtra(DRM_SCHEME_UUID_EXTRA);
+      UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
+          ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
       DrmSessionManager drmSessionManager = null;
       if (drmSchemeUuid != null) {
-        String drmContentId = intent.getStringExtra(DRM_CONTENT_ID_EXTRA);
-        String drmProvider = intent.getStringExtra(DRM_PROVIDER_EXTRA);
+        String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         try {
-          drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmContentId, drmProvider);
+          drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl);
         } catch (UnsupportedDrmException e) {
           onUnsupportedDrmError(e);
           return;
@@ -367,17 +366,17 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
-  private DrmSessionManager buildDrmSessionManager(UUID uuid, String id, String provider)
+  private DrmSessionManager buildDrmSessionManager(UUID uuid, String licenseUrl)
       throws UnsupportedDrmException {
     if (Util.SDK_INT < 18) {
       return null;
     }
     if (C.PLAYREADY_UUID.equals(uuid)) {
       return StreamingDrmSessionManager.newPlayReadyInstance(
-          TestMediaDrmCallback.newPlayReadyInstance(), null, mainHandler, eventLogger);
+          TestMediaDrmCallback.newPlayReadyInstance(licenseUrl), null, mainHandler, eventLogger);
     } else if (C.WIDEVINE_UUID.equals(uuid)) {
       return StreamingDrmSessionManager.newWidevineInstance(
-          TestMediaDrmCallback.newWidevineInstance(id, provider), null, mainHandler, eventLogger);
+          TestMediaDrmCallback.newWidevineInstance(licenseUrl), null, mainHandler, eventLogger);
     } else {
       throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
     }

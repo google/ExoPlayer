@@ -38,9 +38,6 @@ import java.util.UUID;
 @TargetApi(18)
 /* package */ final class TestMediaDrmCallback implements MediaDrmCallback {
 
-  private static final String WIDEVINE_BASE_URL = "https://proxy.uat.widevine.com/proxy";
-  private static final String PLAYREADY_BASE_URL =
-      "http://playready.directtaps.net/pr/svc/rightsmanager.asmx";
   private static final Map<String, String> PLAYREADY_KEY_REQUEST_PROPERTIES;
   static {
     HashMap<String, String> keyRequestProperties = new HashMap<>();
@@ -53,13 +50,12 @@ import java.util.UUID;
   private final String defaultUrl;
   private final Map<String, String> keyRequestProperties;
 
-  public static TestMediaDrmCallback newWidevineInstance(String contentId, String provider) {
-    String defaultUrl = WIDEVINE_BASE_URL + "?video_id=" + contentId + "&provider=" + provider;
+  public static TestMediaDrmCallback newWidevineInstance(String defaultUrl) {
     return new TestMediaDrmCallback(defaultUrl, null);
   }
 
-  public static TestMediaDrmCallback newPlayReadyInstance() {
-    return new TestMediaDrmCallback(PLAYREADY_BASE_URL, PLAYREADY_KEY_REQUEST_PROPERTIES);
+  public static TestMediaDrmCallback newPlayReadyInstance(String defaultUrl) {
+    return new TestMediaDrmCallback(defaultUrl, PLAYREADY_KEY_REQUEST_PROPERTIES);
   }
 
   private TestMediaDrmCallback(String defaultUrl, Map<String, String> keyRequestProperties) {

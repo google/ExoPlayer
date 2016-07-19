@@ -177,6 +177,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private Format format;
   private MediaCodec codec;
   private DrmSession drmSession;
+  private DrmSession pendingDrmSession;
   private boolean codecIsAdaptive;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
@@ -287,17 +288,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
+    drmSession = pendingDrmSession;
     String mimeType = format.sampleMimeType;
     MediaCrypto mediaCrypto = null;
     boolean drmSessionRequiresSecureDecoder = false;
-    if (format.drmInitData != null) {
-      if (drmSessionManager == null) {
-        throw ExoPlaybackException.createForRenderer(
-            new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-      }
-      if (drmSession == null) {
-        drmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
-      }
+    if (drmSession != null) {
       int drmSessionState = drmSession.getState();
       if (drmSessionState == DrmSession.STATE_ERROR) {
         throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
@@ -400,9 +395,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       releaseCodec();
     } finally {
-      if (drmSession != null) {
-        drmSessionManager.releaseSession(drmSession);
-        drmSession = null;
+      try {
+        if (drmSession != null) {
+          drmSessionManager.releaseSession(drmSession);
+        }
+      } finally {
+        try {
+          if (pendingDrmSession != null && pendingDrmSession != drmSession) {
+            drmSessionManager.releaseSession(pendingDrmSession);
+          }
+        } finally {
+          drmSession = null;
+          pendingDrmSession = null;
+        }
       }
     }
   }
@@ -439,6 +444,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           codec.release();
         } finally {
           codec = null;
+          if (drmSession != null && pendingDrmSession != drmSession) {
+            try {
+              drmSessionManager.releaseSession(drmSession);
+            } finally {
+              drmSession = null;
+            }
+          }
         }
       }
     }
@@ -700,7 +712,26 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     Format oldFormat = format;
     format = newFormat;
-    if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
+
+    boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
+        : oldFormat.drmInitData);
+    if (drmInitDataChanged) {
+      if (format.drmInitData != null) {
+        if (drmSessionManager == null) {
+          throw ExoPlaybackException.createForRenderer(
+              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+        }
+        pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
+        if (pendingDrmSession == drmSession) {
+          drmSessionManager.releaseSession(pendingDrmSession);
+        }
+      } else {
+        pendingDrmSession = null;
+      }
+    }
+
+    if (pendingDrmSession == drmSession && codec != null
+        && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       codecNeedsAdaptationWorkaroundBuffer = codecNeedsAdaptationWorkaround

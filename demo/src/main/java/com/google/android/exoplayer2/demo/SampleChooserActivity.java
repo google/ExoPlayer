@@ -162,8 +162,7 @@ public class SampleChooserActivity extends Activity {
       String uri = null;
       String extension = null;
       UUID drmUuid = null;
-      String drmContentId = null;
-      String drmProvider = null;
+      String drmLicenseUrl = null;
       boolean preferExtensionDecoders = false;
       ArrayList<UriSample> playlistSamples = null;
 
@@ -180,17 +179,22 @@ public class SampleChooserActivity extends Activity {
           case "extension":
             extension = reader.nextString();
             break;
-          case "drm":
-            String[] drmComponents = reader.nextString().split(":", -1);
-            drmUuid = getDrmUuid(drmComponents[0]);
-            drmContentId = drmComponents[1];
-            drmProvider = drmComponents[2];
+          case "drm_scheme":
+            Assertions.checkState(!insidePlaylist, "Invalid attribute on nested item: drm_scheme");
+            drmUuid = getDrmUuid(reader.nextString());
+            break;
+          case "drm_license_url":
+            Assertions.checkState(!insidePlaylist,
+                "Invalid attribute on nested item: drm_license_url");
+            drmLicenseUrl = reader.nextString();
             break;
           case "prefer_extension_decoders":
+            Assertions.checkState(!insidePlaylist,
+                "Invalid attribute on nested item: prefer_extension_decoders");
             preferExtensionDecoders = reader.nextBoolean();
             break;
           case "playlist":
-            Assertions.checkState(!insidePlaylist, "Nested playlists are invalid");
+            Assertions.checkState(!insidePlaylist, "Invalid nesting of playlists");
             playlistSamples = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {
@@ -207,11 +211,11 @@ public class SampleChooserActivity extends Activity {
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(
             new UriSample[playlistSamples.size()]);
-        return new PlaylistSample(sampleName, drmUuid, drmContentId, drmProvider,
-            preferExtensionDecoders, playlistSamplesArray);
+        return new PlaylistSample(sampleName, drmUuid, drmLicenseUrl, preferExtensionDecoders,
+            playlistSamplesArray);
       } else {
-        return new UriSample(sampleName, drmUuid, drmContentId, drmProvider,
-            preferExtensionDecoders, uri, extension);
+        return new UriSample(sampleName, drmUuid, drmLicenseUrl, preferExtensionDecoders, uri,
+            extension);
       }
     }
 
@@ -233,7 +237,11 @@ public class SampleChooserActivity extends Activity {
         case "playready":
           return C.PLAYREADY_UUID;
         default:
-          throw new ParserException("Unsupported drm type: " + typeString);
+          try {
+            return UUID.fromString(typeString);
+          } catch (RuntimeException e) {
+            throw new ParserException("Unsupported drm type: " + typeString);
+          }
       }
     }
 
@@ -331,24 +339,26 @@ public class SampleChooserActivity extends Activity {
 
     public final String name;
     public final boolean preferExtensionDecoders;
-
-    // TODO: DRM properties should be specified on UriSample only. This requires changes to
-    // PlayerActivity and beyond to be able to handle playlists containing multiple DRM protected
-    // items that have different DRM properties.
     public final UUID drmSchemeUuid;
-    public final String drmContentId;
-    public final String drmProvider;
+    public final String drmLicenseUrl;
 
-    public Sample(String name, UUID drmSchemeUuid, String drmContentId, String drmProvider,
+    public Sample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
         boolean preferExtensionDecoders) {
       this.name = name;
       this.drmSchemeUuid = drmSchemeUuid;
-      this.drmContentId = drmContentId;
-      this.drmProvider = drmProvider;
+      this.drmLicenseUrl = drmLicenseUrl;
       this.preferExtensionDecoders = preferExtensionDecoders;
     }
 
-    public abstract Intent buildIntent(Context context);
+    public Intent buildIntent(Context context) {
+      Intent intent = new Intent(context, PlayerActivity.class);
+      intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders);
+      if (drmSchemeUuid != null) {
+        intent.putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid.toString());
+        intent.putExtra(PlayerActivity.DRM_LICENSE_URL, drmLicenseUrl);
+      }
+      return intent;
+    }
 
   }
 
@@ -357,21 +367,16 @@ public class SampleChooserActivity extends Activity {
     public final String uri;
     public final String extension;
 
-    public UriSample(String name, UUID drmSchemeUuid, String drmContentId, String drmProvider,
+    public UriSample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
         boolean preferExtensionDecoders, String uri, String extension) {
-      super(name, drmSchemeUuid, drmContentId, drmProvider, preferExtensionDecoders);
+      super(name, drmSchemeUuid, drmLicenseUrl, preferExtensionDecoders);
       this.uri = uri;
       this.extension = extension;
     }
 
     @Override
     public Intent buildIntent(Context context) {
-      return new Intent(context, PlayerActivity.class)
-          .setAction(PlayerActivity.ACTION_VIEW)
-          .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid)
-          .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, drmContentId)
-          .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, drmProvider)
-          .putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders)
+      return super.buildIntent(context)
           .setData(Uri.parse(uri))
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
           .setAction(PlayerActivity.ACTION_VIEW);
@@ -383,9 +388,9 @@ public class SampleChooserActivity extends Activity {
 
     public final UriSample[] children;
 
-    public PlaylistSample(String name, UUID drmSchemeUuid, String drmContentId, String drmProvider,
+    public PlaylistSample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
         boolean preferExtensionDecoders, UriSample... children) {
-      super(name, drmSchemeUuid, drmContentId, drmProvider, preferExtensionDecoders);
+      super(name, drmSchemeUuid, drmLicenseUrl, preferExtensionDecoders);
       this.children = children;
     }
 
@@ -397,12 +402,7 @@ public class SampleChooserActivity extends Activity {
         uris[i] = children[i].uri;
         extensions[i] = children[i].extension;
       }
-      return new Intent(context, PlayerActivity.class)
-          .setAction(PlayerActivity.ACTION_VIEW)
-          .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid)
-          .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, drmContentId)
-          .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, drmProvider)
-          .putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders)
+      return super.buildIntent(context)
           .putExtra(PlayerActivity.URI_LIST_EXTRA, uris)
           .putExtra(PlayerActivity.EXTENSION_LIST_EXTRA, extensions)
           .setAction(PlayerActivity.ACTION_VIEW_LIST);
