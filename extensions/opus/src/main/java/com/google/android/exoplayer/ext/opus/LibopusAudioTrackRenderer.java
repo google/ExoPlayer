@@ -196,7 +196,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
     // Rendering loop.
     try {
-      renderBuffer();
+      while (renderBuffer()) {};
       while (feedInputBuffer(positionUs)) {}
     } catch (AudioTrack.InitializationException e) {
       notifyAudioTrackInitializationError(e);
@@ -211,16 +211,24 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     codecCounters.ensureUpdated();
   }
 
-  private void renderBuffer() throws OpusDecoderException, AudioTrack.InitializationException,
+  /**
+   * Render decoded output buffer, and release the output buffer to available pool.
+   *
+   * @return True if it may be possible to render more output data. False otherwise.
+   * @throws OpusDecoderException
+   * @throws AudioTrack.InitializationException
+   * @throws AudioTrack.WriteException
+   */
+  private boolean renderBuffer() throws OpusDecoderException, AudioTrack.InitializationException,
       AudioTrack.WriteException {
     if (outputStreamEnded) {
-      return;
+      return false;
     }
 
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
-        return;
+        return false;
       }
     }
 
@@ -229,7 +237,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       audioTrack.handleEndOfStream();
       outputBuffer.release();
       outputBuffer = null;
-      return;
+      return false;
     }
 
     if (!audioTrack.isInitialized()) {
@@ -257,7 +265,9 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       codecCounters.renderedOutputBufferCount++;
       outputBuffer.release();
       outputBuffer = null;
+      return true;
     }
+    return false;
   }
 
   private boolean feedInputBuffer(long positionUs) throws OpusDecoderException {
