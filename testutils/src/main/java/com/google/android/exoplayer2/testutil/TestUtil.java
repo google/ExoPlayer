@@ -180,8 +180,12 @@ public class TestUtil {
 
   public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
       throws IOException {
-    InputStream is = instrumentation.getContext().getResources().getAssets().open(fileName);
-    return Util.toByteArray(is);
+    return Util.toByteArray(getInputStream(instrumentation, fileName));
+  }
+
+  public static InputStream getInputStream(Instrumentation instrumentation, String fileName)
+      throws IOException {
+    return instrumentation.getContext().getResources().getAssets().open(fileName);
   }
 
   public static String getString(Instrumentation instrumentation, String fileName)

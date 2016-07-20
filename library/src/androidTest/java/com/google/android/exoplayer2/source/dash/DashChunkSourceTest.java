@@ -74,7 +74,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testGetAvailableRangeOnLiveWithTimeline() {
-    MediaPresentationDescription mpd = buildLiveMpdWithTimeline(LIVE_DURATION_MS, 0);
+    DashManifest mpd = buildLiveMpdWithTimeline(LIVE_DURATION_MS, 0);
     DashChunkSource chunkSource = buildDashChunkSource(mpd);
     TimeRange availableRange = chunkSource.getAvailableRange();
     checkAvailableRange(availableRange, 0, LIVE_DURATION_MS * 1000);
@@ -90,7 +90,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testGetSeekRangeOnMultiPeriodLiveWithTimeline() {
-    MediaPresentationDescription mpd = buildMultiPeriodLiveMpdWithTimeline();
+    DashManifest mpd = buildMultiPeriodLiveMpdWithTimeline();
     DashChunkSource chunkSource = buildDashChunkSource(mpd);
     TimeRange availableRange = chunkSource.getAvailableRange();
     checkAvailableRange(availableRange, 0, MULTI_PERIOD_LIVE_DURATION_MS * 1000);
@@ -113,13 +113,13 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testSegmentRequestSequenceOnMultiPeriodLiveWithTimeline() {
-    MediaPresentationDescription mpd = buildMultiPeriodLiveMpdWithTimeline();
+    DashManifest mpd = buildMultiPeriodLiveMpdWithTimeline();
     DashChunkSource chunkSource = buildDashChunkSource(mpd);
     checkSegmentRequestSequenceOnMultiPeriodLive(chunkSource);
   }
 
   public void testSegmentRequestSequenceOnMultiPeriodLiveWithTemplate() {
-    MediaPresentationDescription mpd = buildMultiPeriodLiveMpdWithTemplate();
+    DashManifest mpd = buildMultiPeriodLiveMpdWithTemplate();
     DashChunkSource chunkSource = buildDashChunkSource(mpd);
     checkSegmentRequestSequenceOnMultiPeriodLive(chunkSource);
   }
@@ -208,30 +208,30 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     return Representation.newInstance(null, 0, REGULAR_VIDEO, segmentBase);
   }
 
-  private static MediaPresentationDescription buildMpd(long durationMs,
+  private static DashManifest buildMpd(long durationMs,
       List<Representation> representations, boolean live, boolean limitTimeshiftBuffer) {
     AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_VIDEO, representations);
     Period period = new Period(null, 0, Collections.singletonList(adaptationSet));
-    return new MediaPresentationDescription(AVAILABILITY_START_TIME_MS, durationMs, -1, live, -1,
+    return new DashManifest(AVAILABILITY_START_TIME_MS, durationMs, -1, live, -1,
         (limitTimeshiftBuffer) ? LIVE_TIMESHIFT_BUFFER_DEPTH_MS : -1, null, null,
         Collections.singletonList(period));
   }
 
-  private static MediaPresentationDescription buildMultiPeriodMpd(long durationMs,
+  private static DashManifest buildMultiPeriodMpd(long durationMs,
       List<Period> periods, boolean live, boolean limitTimeshiftBuffer) {
-    return new MediaPresentationDescription(AVAILABILITY_START_TIME_MS, durationMs, -1, live, -1,
+    return new DashManifest(AVAILABILITY_START_TIME_MS, durationMs, -1, live, -1,
         (limitTimeshiftBuffer) ? LIVE_TIMESHIFT_BUFFER_DEPTH_MS : -1,
         null, null, periods);
   }
 
-  private static MediaPresentationDescription buildVodMpd() {
+  private static DashManifest buildVodMpd() {
     List<Representation> representations = new ArrayList<>();
     representations.add(buildVodRepresentation(TALL_VIDEO));
     representations.add(buildVodRepresentation(WIDE_VIDEO));
     return buildMpd(VOD_DURATION_MS, representations, false, false);
   }
 
-  private static MediaPresentationDescription buildMultiPeriodVodMpd() {
+  private static DashManifest buildMultiPeriodVodMpd() {
     List<Period> periods = new ArrayList<>();
     long timeMs = 0;
     long periodDurationMs = VOD_DURATION_MS;
@@ -246,21 +246,21 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     return buildMultiPeriodMpd(timeMs, periods, false, false);
   }
 
-  private static MediaPresentationDescription buildLiveMpdWithTimeline(long durationMs,
+  private static DashManifest buildLiveMpdWithTimeline(long durationMs,
       long timelineStartTimeMs) {
     Representation representation = buildSegmentTimelineRepresentation(
         durationMs - timelineStartTimeMs, timelineStartTimeMs);
     return buildMpd(durationMs, Collections.singletonList(representation), true, false);
   }
 
-  private static MediaPresentationDescription buildLiveMpdWithTemplate(long durationMs,
+  private static DashManifest buildLiveMpdWithTemplate(long durationMs,
       boolean limitTimeshiftBuffer) {
     Representation representation = buildSegmentTemplateRepresentation();
     return buildMpd(durationMs, Collections.singletonList(representation), true,
         limitTimeshiftBuffer);
   }
 
-  private static MediaPresentationDescription buildMultiPeriodLiveMpdWithTimeline() {
+  private static DashManifest buildMultiPeriodLiveMpdWithTimeline() {
     List<Period> periods = new ArrayList<>();
     long periodStartTimeMs = 0;
     long periodDurationMs = LIVE_DURATION_MS;
@@ -275,7 +275,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     return buildMultiPeriodMpd(periodDurationMs, periods, true, false);
   }
 
-  private static MediaPresentationDescription buildMultiPeriodLiveMpdWithTemplate() {
+  private static DashManifest buildMultiPeriodLiveMpdWithTemplate() {
     List<Period> periods = new ArrayList<>();
     long periodStartTimeMs = 0;
     long periodDurationMs = LIVE_DURATION_MS;
@@ -290,14 +290,14 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     return buildMultiPeriodMpd(MULTI_PERIOD_LIVE_DURATION_MS, periods, true, false);
   }
 
-  private static DashChunkSource buildDashChunkSource(MediaPresentationDescription mpd) {
+  private static DashChunkSource buildDashChunkSource(DashManifest mpd) {
     return buildDashChunkSource(mpd, false, 0);
   }
 
-  private static DashChunkSource buildDashChunkSource(MediaPresentationDescription mpd,
+  private static DashChunkSource buildDashChunkSource(DashManifest mpd,
       boolean startAtLiveEdge, long liveEdgeLatencyMs) {
     @SuppressWarnings("unchecked")
-    ManifestFetcher<MediaPresentationDescription> manifestFetcher = mock(ManifestFetcher.class);
+    ManifestFetcher<DashManifest> manifestFetcher = mock(ManifestFetcher.class);
     when(manifestFetcher.getManifest()).thenReturn(mpd);
     DashChunkSource chunkSource = new DashChunkSource(manifestFetcher, mpd,
         AdaptationSet.TYPE_VIDEO, mock(DataSource.class), null,
@@ -331,7 +331,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static void checkLiveEdgeConsistencyWithTimeline(long durationMs, long timelineStartMs,
       long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
       long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
-    MediaPresentationDescription mpd = buildLiveMpdWithTimeline(durationMs, timelineStartMs);
+    DashManifest mpd = buildLiveMpdWithTimeline(durationMs, timelineStartMs);
     checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, seekPositionMs,
         availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
   }
@@ -339,7 +339,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static void checkLiveEdgeConsistencyWithTemplateAndUnlimitedTimeshift(long durationMs,
       long liveEdgeLatencyMs, long availablePositionMs, long availableRangeEndMs,
       long chunkStartTimeMs, long chunkEndTimeMs) {
-    MediaPresentationDescription mpd = buildLiveMpdWithTemplate(durationMs, false);
+    DashManifest mpd = buildLiveMpdWithTemplate(durationMs, false);
     checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, availablePositionMs, 0,
         availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
   }
@@ -347,12 +347,12 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static void checkLiveEdgeConsistencyWithTemplateAndLimitedTimeshift(long durationMs,
       long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
       long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
-    MediaPresentationDescription mpd = buildLiveMpdWithTemplate(durationMs, true);
+    DashManifest mpd = buildLiveMpdWithTemplate(durationMs, true);
     checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, seekPositionMs, availableRangeStartMs,
         availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
   }
 
-  private static void checkLiveEdgeConsistency(MediaPresentationDescription mpd,
+  private static void checkLiveEdgeConsistency(DashManifest mpd,
       long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
       long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
     DashChunkSource chunkSource = buildDashChunkSource(mpd, true, liveEdgeLatencyMs);

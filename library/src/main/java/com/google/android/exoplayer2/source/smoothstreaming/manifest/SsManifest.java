@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.smoothstreaming;
+package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -32,7 +32,7 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
  * IIS Smooth Streaming Client Manifest Format</a>
  */
-public class SmoothStreamingManifest {
+public class SsManifest {
 
   /**
    * The client manifest major version.
@@ -92,7 +92,7 @@ public class SmoothStreamingManifest {
    *     protected.
    * @param streamElements The contained stream elements.
    */
-  public SmoothStreamingManifest(int majorVersion, int minorVersion, long timescale, long duration,
+  public SsManifest(int majorVersion, int minorVersion, long timescale, long duration,
       long dvrWindowLength, int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
       StreamElement[] streamElements) {
     this.majorVersion = majorVersion;

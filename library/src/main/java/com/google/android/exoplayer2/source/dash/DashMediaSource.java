@@ -21,9 +21,9 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
-import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescriptionParser;
-import com.google.android.exoplayer2.source.dash.mpd.UtcTimingElement;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -59,7 +59,7 @@ public final class DashMediaSource implements MediaSource {
   private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
-  private final MediaPresentationDescriptionParser manifestParser;
+  private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
 
   private DataSource dataSource;
@@ -68,7 +68,7 @@ public final class DashMediaSource implements MediaSource {
   private Uri manifestUri;
   private long manifestLoadStartTimestamp;
   private long manifestLoadEndTimestamp;
-  private MediaPresentationDescription manifest;
+  private DashManifest manifest;
   private Handler manifestRefreshHandler;
   private DashMediaPeriod[] periods;
   private long elapsedRealtimeOffset;
@@ -88,7 +88,7 @@ public final class DashMediaSource implements MediaSource {
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    manifestParser = new MediaPresentationDescriptionParser();
+    manifestParser = new DashManifestParser();
     manifestCallback = new ManifestCallback();
   }
 
@@ -138,7 +138,7 @@ public final class DashMediaSource implements MediaSource {
 
   // Loadable callbacks.
 
-  /* package */ void onManifestLoadCompleted(ParsingLoadable<MediaPresentationDescription> loadable,
+  /* package */ void onManifestLoadCompleted(ParsingLoadable<DashManifest> loadable,
       long elapsedRealtimeMs, long loadDurationMs) {
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
@@ -162,7 +162,7 @@ public final class DashMediaSource implements MediaSource {
     }
   }
 
-  /* package */ int onManifestLoadError(ParsingLoadable<MediaPresentationDescription> loadable,
+  /* package */ int onManifestLoadError(ParsingLoadable<DashManifest> loadable,
       long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     boolean isFatal = error instanceof ParserException;
     eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
@@ -278,22 +278,22 @@ public final class DashMediaSource implements MediaSource {
   }
 
   private final class ManifestCallback implements
-      Loader.Callback<ParsingLoadable<MediaPresentationDescription>> {
+      Loader.Callback<ParsingLoadable<DashManifest>> {
 
     @Override
-    public void onLoadCompleted(ParsingLoadable<MediaPresentationDescription> loadable,
+    public void onLoadCompleted(ParsingLoadable<DashManifest> loadable,
         long elapsedRealtimeMs, long loadDurationMs) {
       onManifestLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
-    public void onLoadCanceled(ParsingLoadable<MediaPresentationDescription> loadable,
+    public void onLoadCanceled(ParsingLoadable<DashManifest> loadable,
         long elapsedRealtimeMs, long loadDurationMs, boolean released) {
       DashMediaSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
-    public int onLoadError(ParsingLoadable<MediaPresentationDescription> loadable,
+    public int onLoadError(ParsingLoadable<DashManifest> loadable,
         long elapsedRealtimeMs, long loadDurationMs, IOException error) {
       return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }

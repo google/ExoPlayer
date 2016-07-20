@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
 
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Represents a DASH media presentation description (mpd).
  */
-public class MediaPresentationDescription {
+public class DashManifest {
 
   public final long availabilityStartTime;
 
@@ -43,7 +43,7 @@ public class MediaPresentationDescription {
 
   private final List<Period> periods;
 
-  public MediaPresentationDescription(long availabilityStartTime, long duration, long minBufferTime,
+  public DashManifest(long availabilityStartTime, long duration, long minBufferTime,
       boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, UtcTimingElement utcTiming,
       Uri location, List<Period> periods) {
     this.availabilityStartTime = availabilityStartTime;

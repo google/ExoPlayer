@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.smoothstreaming;
+package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -21,8 +21,8 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
-import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
-import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
@@ -52,12 +52,11 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
  * IIS Smooth Streaming Client Manifest Format</a>
  */
-public class SmoothStreamingManifestParser implements
-    ParsingLoadable.Parser<SmoothStreamingManifest> {
+public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
 
   private final XmlPullParserFactory xmlParserFactory;
 
-  public SmoothStreamingManifestParser() {
+  public SsManifestParser() {
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
     } catch (XmlPullParserException e) {
@@ -66,13 +65,13 @@ public class SmoothStreamingManifestParser implements
   }
 
   @Override
-  public SmoothStreamingManifest parse(Uri uri, InputStream inputStream) throws IOException {
+  public SsManifest parse(Uri uri, InputStream inputStream) throws IOException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, null);
-      SmoothStreamMediaParser smoothStreamMediaParser =
-          new SmoothStreamMediaParser(null, uri.toString());
-      return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
+      SmoothStreamingMediaParser smoothStreamingMediaParser =
+          new SmoothStreamingMediaParser(null, uri.toString());
+      return (SsManifest) smoothStreamingMediaParser.parse(xmlParser);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);
     }
@@ -163,12 +162,12 @@ public class SmoothStreamingManifestParser implements
     }
 
     private ElementParser newChildParser(ElementParser parent, String name, String baseUri) {
-      if (TrackElementParser.TAG.equals(name)) {
-        return new TrackElementParser(parent, baseUri);
-      } else if (ProtectionElementParser.TAG.equals(name)) {
-        return new ProtectionElementParser(parent, baseUri);
-      } else if (StreamElementParser.TAG.equals(name)) {
-        return new StreamElementParser(parent, baseUri);
+      if (QualityLevelParser.TAG.equals(name)) {
+        return new QualityLevelParser(parent, baseUri);
+      } else if (ProtectionParser.TAG.equals(name)) {
+        return new ProtectionParser(parent, baseUri);
+      } else if (StreamIndexParser.TAG.equals(name)) {
+        return new StreamIndexParser(parent, baseUri);
       }
       return null;
     }
@@ -322,7 +321,7 @@ public class SmoothStreamingManifestParser implements
 
   }
 
-  private static class SmoothStreamMediaParser extends ElementParser {
+  private static class SmoothStreamingMediaParser extends ElementParser {
 
     public static final String TAG = "SmoothStreamingMedia";
 
@@ -345,7 +344,7 @@ public class SmoothStreamingManifestParser implements
     private boolean isLive;
     private ProtectionElement protectionElement;
 
-    public SmoothStreamMediaParser(ElementParser parent, String baseUri) {
+    public SmoothStreamingMediaParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
       lookAheadCount = -1;
       protectionElement = null;
@@ -387,13 +386,13 @@ public class SmoothStreamingManifestParser implements
           }
         }
       }
-      return new SmoothStreamingManifest(majorVersion, minorVersion, timescale, duration,
-          dvrWindowLength, lookAheadCount, isLive, protectionElement, streamElementArray);
+      return new SsManifest(majorVersion, minorVersion, timescale, duration, dvrWindowLength,
+          lookAheadCount, isLive, protectionElement, streamElementArray);
     }
 
   }
 
-  private static class ProtectionElementParser extends ElementParser {
+  private static class ProtectionParser extends ElementParser {
 
     public static final String TAG = "Protection";
     public static final String TAG_PROTECTION_HEADER = "ProtectionHeader";
@@ -404,7 +403,7 @@ public class SmoothStreamingManifestParser implements
     private UUID uuid;
     private byte[] initData;
 
-    public ProtectionElementParser(ElementParser parent, String baseUri) {
+    public ProtectionParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
     }
 
@@ -450,7 +449,7 @@ public class SmoothStreamingManifestParser implements
     }
   }
 
-  private static class StreamElementParser extends ElementParser {
+  private static class StreamIndexParser extends ElementParser {
 
     public static final String TAG = "StreamIndex";
     private static final String TAG_STREAM_FRAGMENT = "c";
@@ -492,7 +491,7 @@ public class SmoothStreamingManifestParser implements
 
     private long lastChunkDuration;
 
-    public StreamElementParser(ElementParser parent, String baseUri) {
+    public StreamIndexParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
       this.baseUri = baseUri;
       formats = new LinkedList<>();
@@ -599,7 +598,7 @@ public class SmoothStreamingManifestParser implements
 
   }
 
-  private static class TrackElementParser extends ElementParser {
+  private static class QualityLevelParser extends ElementParser {
 
     public static final String TAG = "QualityLevel";
 
@@ -616,7 +615,7 @@ public class SmoothStreamingManifestParser implements
 
     private Format format;
 
-    public TrackElementParser(ElementParser parent, String baseUri) {
+    public QualityLevelParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
     }
 

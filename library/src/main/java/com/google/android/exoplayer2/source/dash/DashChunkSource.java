@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.source.dash;
 
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
-import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.upstream.Loader;
 
 /**
@@ -27,12 +27,12 @@ public interface DashChunkSource extends ChunkSource {
 
   interface Factory {
 
-    DashChunkSource createDashChunkSource(Loader manifestLoader,
-        MediaPresentationDescription manifest, int periodIndex, int adaptationSetIndex,
-        TrackGroup trackGroup, int[] tracks, long elapsedRealtimeOffsetMs);
+    DashChunkSource createDashChunkSource(Loader manifestLoader, DashManifest manifest,
+        int periodIndex, int adaptationSetIndex, TrackGroup trackGroup, int[] tracks,
+        long elapsedRealtimeOffsetMs);
 
   }
 
-  void updateManifest(MediaPresentationDescription newManifest, int periodIndex);
+  void updateManifest(DashManifest newManifest, int periodIndex);
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
 
 import java.util.Locale;
 

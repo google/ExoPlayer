@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.dash;
 
 import com.google.android.exoplayer2.extractor.ChunkIndex;
-import com.google.android.exoplayer2.source.dash.mpd.RangedUri;
+import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
 /**
  * An implementation of {@link DashSegmentIndex} that wraps a {@link ChunkIndex} parsed from a

@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Represents a UTCTiming element.
+ * Represents a set of interchangeable encoded versions of a media content component.
  */
-public final class UtcTimingElement {
+public class AdaptationSet {
 
-  public final String schemeIdUri;
-  public final String value;
+  public final int id;
 
-  public UtcTimingElement(String schemeIdUri, String value) {
-    this.schemeIdUri = schemeIdUri;
-    this.value = value;
-  }
+  public final int type;
 
-  @Override
-  public String toString() {
-    return schemeIdUri + ", " + value;
+  public final List<Representation> representations;
+
+  public AdaptationSet(int id, int type, List<Representation> representations) {
+    this.id = id;
+    this.type = type;
+    this.representations = Collections.unmodifiableList(representations);
   }
 
 }

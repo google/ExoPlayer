@@ -29,8 +29,10 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
-import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -51,9 +53,9 @@ import java.util.List;
 /**
  * A SmoothStreaming {@link MediaSource}.
  */
-public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSource,
-    SequenceableLoader.Callback<ChunkSampleStream<SmoothStreamingChunkSource>>,
-    Loader.Callback<ParsingLoadable<SmoothStreamingManifest>> {
+public final class SsMediaSource implements MediaPeriod, MediaSource,
+    SequenceableLoader.Callback<ChunkSampleStream<SsChunkSource>>,
+    Loader.Callback<ParsingLoadable<SsManifest>> {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -65,18 +67,18 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
 
   private final Uri manifestUri;
   private final DataSource.Factory dataSourceFactory;
-  private final SmoothStreamingChunkSource.Factory chunkSourceFactory;
+  private final SsChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
-  private final SmoothStreamingManifestParser manifestParser;
+  private final SsManifestParser manifestParser;
 
   private DataSource manifestDataSource;
   private Loader manifestLoader;
-  private ChunkSampleStream<SmoothStreamingChunkSource>[] sampleStreams;
+  private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
 
   private long manifestLoadStartTimestamp;
-  private SmoothStreamingManifest manifest;
+  private SsManifest manifest;
 
   private Callback callback;
   private Allocator allocator;
@@ -87,15 +89,15 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   private TrackGroupArray trackGroups;
   private int[] trackGroupElementIndices;
 
-  public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      SmoothStreamingChunkSource.Factory chunkSourceFactory, Handler eventHandler,
+  public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+      SsChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
         DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler, eventListener);
   }
 
-  public SmoothStreamingMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      SmoothStreamingChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+  public SsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
@@ -103,7 +105,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    manifestParser = new SmoothStreamingManifestParser();
+    manifestParser = new SsManifestParser();
   }
 
   // MediaSource implementation.
@@ -162,12 +164,12 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
     int newEnabledSourceCount = sampleStreams.length + newSelections.size() - oldStreams.size();
-    ChunkSampleStream<SmoothStreamingChunkSource>[] newSampleStreams =
+    ChunkSampleStream<SsChunkSource>[] newSampleStreams =
         newSampleStreamArray(newEnabledSourceCount);
     int newEnabledSourceIndex = 0;
 
     // Iterate over currently enabled streams, either releasing them or adding them to the new list.
-    for (ChunkSampleStream<SmoothStreamingChunkSource> sampleStream : sampleStreams) {
+    for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       if (oldStreams.contains(sampleStream)) {
         sampleStream.release();
       } else {
@@ -206,7 +208,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = Long.MAX_VALUE;
-    for (ChunkSampleStream<SmoothStreamingChunkSource> sampleStream : sampleStreams) {
+    for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       long rendererBufferedPositionUs = sampleStream.getBufferedPositionUs();
       if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
@@ -217,7 +219,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
 
   @Override
   public long seekToUs(long positionUs) {
-    for (ChunkSampleStream<SmoothStreamingChunkSource> sampleStream : sampleStreams) {
+    for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.seekToUs(positionUs);
     }
     return positionUs;
@@ -231,7 +233,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
       manifestLoader = null;
     }
     if (sampleStreams != null) {
-      for (ChunkSampleStream<SmoothStreamingChunkSource> sampleStream : sampleStreams) {
+      for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
         sampleStream.release();
       }
       sampleStreams = null;
@@ -256,15 +258,15 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
 
   @Override
   public void onContinueLoadingRequested(
-      ChunkSampleStream<SmoothStreamingChunkSource> sampleStream) {
+      ChunkSampleStream<SsChunkSource> sampleStream) {
     callback.onContinueLoadingRequested(this);
   }
 
   // Loader.Callback implementation
 
   @Override
-  public void onLoadCompleted(ParsingLoadable<SmoothStreamingManifest> loadable,
-      long elapsedRealtimeMs, long loadDurationMs) {
+  public void onLoadCompleted(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
+      long loadDurationMs) {
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
     manifest = loadable.getResult();
@@ -281,7 +283,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
       prepared = true;
       callback.onPeriodPrepared(this);
     } else {
-      for (ChunkSampleStream<SmoothStreamingChunkSource> sampleStream : sampleStreams) {
+      for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
         sampleStream.getChunkSource().updateManifest(manifest);
       }
       callback.onContinueLoadingRequested(this);
@@ -290,14 +292,14 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   }
 
   @Override
-  public void onLoadCanceled(ParsingLoadable<SmoothStreamingManifest> loadable,
-      long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+  public void onLoadCanceled(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, boolean released) {
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
   }
 
   @Override
-  public int onLoadError(ParsingLoadable<SmoothStreamingManifest> loadable, long elapsedRealtimeMs,
+  public int onLoadError(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
       long loadDurationMs, IOException error) {
     boolean isFatal = error instanceof ParserException;
     eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
@@ -322,13 +324,13 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   }
 
   private void startLoadingManifest() {
-    ParsingLoadable<SmoothStreamingManifest> loadable = new ParsingLoadable<>(manifestDataSource,
+    ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, minLoadableRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
-  private void buildTrackGroups(SmoothStreamingManifest manifest) {
+  private void buildTrackGroups(SsManifest manifest) {
     int trackGroupCount = 0;
     trackGroupElementIndices = new int[manifest.streamElements.length];
     TrackGroup[] trackGroupArray = new TrackGroup[manifest.streamElements.length];
@@ -350,11 +352,11 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
     trackGroups = new TrackGroupArray(trackGroupArray);
   }
 
-  private ChunkSampleStream<SmoothStreamingChunkSource> buildSampleStream(TrackSelection selection,
+  private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
     int[] selectedTracks = selection.getTracks();
     int streamElementIndex = trackGroupElementIndices[selection.group];
-    SmoothStreamingChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader,
+    SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader,
         manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks,
         trackEncryptionBoxes);
     return new ChunkSampleStream<>(manifest.streamElements[streamElementIndex].type, chunkSource,
@@ -362,7 +364,7 @@ public final class SmoothStreamingMediaSource implements MediaPeriod, MediaSourc
   }
 
   @SuppressWarnings("unchecked")
-  private static ChunkSampleStream<SmoothStreamingChunkSource>[] newSampleStreamArray(int length) {
+  private static ChunkSampleStream<SsChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }
 

@@ -25,10 +25,10 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.source.dash.mpd.AdaptationSet;
-import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
-import com.google.android.exoplayer2.source.dash.mpd.Period;
-import com.google.android.exoplayer2.source.dash.mpd.Representation;
+import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
+import com.google.android.exoplayer2.source.dash.manifest.Period;
+import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -58,11 +58,11 @@ import java.util.List;
   private CompositeSequenceableLoader sequenceableLoader;
   private Callback callback;
   private Allocator allocator;
-  private MediaPresentationDescription manifest;
+  private DashManifest manifest;
   private int index;
   private Period period;
 
-  public DashMediaPeriod(MediaPresentationDescription manifest, int index,
+  public DashMediaPeriod(DashManifest manifest, int index,
       DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
       EventDispatcher eventDispatcher, long elapsedRealtimeOffset, Loader loader) {
     this.manifest = manifest;
@@ -79,7 +79,7 @@ import java.util.List;
     trackGroupAdaptationSetIndices = trackGroupsAndAdaptationSetIndices.second;
   }
 
-  public void updateManifest(MediaPresentationDescription manifest, int index) {
+  public void updateManifest(DashManifest manifest, int index) {
     this.manifest = manifest;
     this.index = index;
     period = manifest.getPeriod(index);

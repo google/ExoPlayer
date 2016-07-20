@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
 
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 
 /**
  * A {@link DashSegmentIndex} that defines a single segment.
  */
-/* package */ final class DashSingleSegmentIndex implements DashSegmentIndex {
+/* package */ final class SingleSegmentIndex implements DashSegmentIndex {
 
   private final RangedUri uri;
 
   /**
    * @param uri A {@link RangedUri} defining the location of the segment data.
    */
-  public DashSingleSegmentIndex(RangedUri uri) {
+  public SingleSegmentIndex(RangedUri uri) {
     this.uri = uri;
   }
 

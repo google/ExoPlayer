@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import junit.framework.TestCase;

@@ -30,7 +30,8 @@ import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
-import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingManifest.StreamElement;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -43,11 +44,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A default {@link SmoothStreamingChunkSource} implementation.
+ * A default {@link SsChunkSource} implementation.
  */
-public class DefaultSmoothStreamingChunkSource implements SmoothStreamingChunkSource {
+public class DefaultSsChunkSource implements SsChunkSource {
 
-  public static final class Factory implements SmoothStreamingChunkSource.Factory {
+  public static final class Factory implements SsChunkSource.Factory {
 
     private final FormatEvaluator.Factory formatEvaluatorFactory;
     private final DataSource.Factory dataSourceFactory;
@@ -59,13 +60,13 @@ public class DefaultSmoothStreamingChunkSource implements SmoothStreamingChunkSo
     }
 
     @Override
-    public SmoothStreamingChunkSource createChunkSource(Loader manifestLoader,
-        SmoothStreamingManifest manifest, int elementIndex, TrackGroup trackGroup, int[] tracks,
+    public SsChunkSource createChunkSource(Loader manifestLoader, SsManifest manifest,
+        int elementIndex, TrackGroup trackGroup, int[] tracks,
         TrackEncryptionBox[] trackEncryptionBoxes) {
       FormatEvaluator adaptiveEvaluator = tracks.length > 1
           ? formatEvaluatorFactory.createFormatEvaluator() : null;
       DataSource dataSource = dataSourceFactory.createDataSource();
-      return new DefaultSmoothStreamingChunkSource(manifestLoader, manifest, elementIndex,
+      return new DefaultSsChunkSource(manifestLoader, manifest, elementIndex,
           trackGroup, tracks, dataSource, adaptiveEvaluator,
           trackEncryptionBoxes);
     }
@@ -82,7 +83,7 @@ public class DefaultSmoothStreamingChunkSource implements SmoothStreamingChunkSo
   private final Evaluation evaluation;
   private final FormatEvaluator adaptiveFormatEvaluator;
 
-  private SmoothStreamingManifest manifest;
+  private SsManifest manifest;
   private int currentManifestChunkOffset;
 
   private IOException fatalError;
@@ -97,8 +98,8 @@ public class DefaultSmoothStreamingChunkSource implements SmoothStreamingChunkSo
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param trackEncryptionBoxes Track encryption boxes for the stream.
    */
-  public DefaultSmoothStreamingChunkSource(Loader manifestLoader, SmoothStreamingManifest manifest,
-      int elementIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
+  public DefaultSsChunkSource(Loader manifestLoader, SsManifest manifest, int elementIndex,
+      TrackGroup trackGroup, int[] tracks, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes) {
     this.manifestLoader = manifestLoader;
     this.manifest = manifest;
@@ -136,7 +137,7 @@ public class DefaultSmoothStreamingChunkSource implements SmoothStreamingChunkSo
   }
 
   @Override
-  public void updateManifest(SmoothStreamingManifest newManifest) {
+  public void updateManifest(SsManifest newManifest) {
     StreamElement currentElement = manifest.streamElements[elementIndex];
     int currentElementChunkCount = currentElement.chunkCount;
     StreamElement newElement = newManifest.streamElements[elementIndex];

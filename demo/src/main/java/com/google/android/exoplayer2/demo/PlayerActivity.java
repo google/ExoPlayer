@@ -43,8 +43,8 @@ import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvalua
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSmoothStreamingChunkSource;
-import com.google.android.exoplayer2.source.smoothstreaming.SmoothStreamingMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleLayout;
@@ -349,16 +349,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     int type = Util.inferContentType(lastPathSegment);
     switch (type) {
       case Util.TYPE_SS:
-        DefaultSmoothStreamingChunkSource.Factory factory =
-            new DefaultSmoothStreamingChunkSource.Factory(mediaDataSourceFactory,
-                formatEvaluatorFactory);
-        return new SmoothStreamingMediaSource(uri, manifestDataSourceFactory, factory, mainHandler,
-            eventLogger);
+        DefaultSsChunkSource.Factory factory = new DefaultSsChunkSource.Factory(
+            mediaDataSourceFactory, formatEvaluatorFactory);
+        return new SsMediaSource(uri, manifestDataSourceFactory, factory, mainHandler, eventLogger);
       case Util.TYPE_DASH:
         DefaultDashChunkSource.Factory factory2 = new DefaultDashChunkSource.Factory(
             mediaDataSourceFactory, formatEvaluatorFactory);
-        return new DashMediaSource(uri, mediaDataSourceFactory, factory2, mainHandler,
-            eventLogger);
+        return new DashMediaSource(uri, mediaDataSourceFactory, factory2, mainHandler, eventLogger);
       case Util.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, formatEvaluatorFactory, mainHandler,
             eventLogger);

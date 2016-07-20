@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.MultiSegmentBase;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 
 import android.net.Uri;
 
@@ -156,7 +156,7 @@ public abstract class Representation {
     public final long contentLength;
 
     private final RangedUri indexUri;
-    private final DashSingleSegmentIndex segmentIndex;
+    private final SingleSegmentIndex segmentIndex;
 
     /**
      * @param contentId Identifies the piece of content to which this representation belongs.
@@ -198,7 +198,7 @@ public abstract class Representation {
       // If we have an index uri then the index is defined externally, and we shouldn't return one
       // directly. If we don't, then we can't do better than an index defining a single segment.
       segmentIndex = indexUri != null ? null
-          : new DashSingleSegmentIndex(new RangedUri(segmentBase.uri, null, 0, contentLength));
+          : new SingleSegmentIndex(new RangedUri(segmentBase.uri, null, 0, contentLength));
     }
 
     @Override

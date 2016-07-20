@@ -33,9 +33,9 @@ import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
-import com.google.android.exoplayer2.source.dash.mpd.MediaPresentationDescription;
-import com.google.android.exoplayer2.source.dash.mpd.RangedUri;
-import com.google.android.exoplayer2.source.dash.mpd.Representation;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
+import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
+import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -66,9 +66,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     @Override
-    public DashChunkSource createDashChunkSource(Loader manifestLoader,
-        MediaPresentationDescription manifest, int periodIndex, int adaptationSetIndex,
-        TrackGroup trackGroup, int[] tracks, long elapsedRealtimeOffsetMs) {
+    public DashChunkSource createDashChunkSource(Loader manifestLoader, DashManifest manifest,
+        int periodIndex, int adaptationSetIndex, TrackGroup trackGroup, int[] tracks,
+        long elapsedRealtimeOffsetMs) {
       FormatEvaluator adaptiveEvaluator = tracks.length > 1
           ? formatEvaluatorFactory.createFormatEvaluator() : null;
       DataSource dataSource = dataSourceFactory.createDataSource();
@@ -89,7 +89,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final long elapsedRealtimeOffsetUs;
   private final Evaluation evaluation;
 
-  private MediaPresentationDescription manifest;
+  private DashManifest manifest;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
@@ -108,10 +108,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
    *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
    */
-  public DefaultDashChunkSource(Loader manifestLoader, MediaPresentationDescription manifest,
-      int periodIndex, int adaptationSetIndex, TrackGroup trackGroup, int[] tracks,
-      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long elapsedRealtimeOffsetMs) {
+  public DefaultDashChunkSource(Loader manifestLoader, DashManifest manifest, int periodIndex,
+      int adaptationSetIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs) {
     this.manifestLoader = manifestLoader;
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
@@ -143,7 +142,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public void updateManifest(MediaPresentationDescription newManifest, int periodIndex) {
+  public void updateManifest(DashManifest newManifest, int periodIndex) {
     try {
       manifest = newManifest;
       long periodDurationUs = getPeriodDurationUs(periodIndex);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.mpd;
+package com.google.android.exoplayer2.source.dash.manifest;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -21,10 +21,10 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SegmentList;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SegmentTemplate;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SegmentTimelineElement;
-import com.google.android.exoplayer2.source.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -55,8 +55,8 @@ import java.util.regex.Pattern;
 /**
  * A parser of media presentation description files.
  */
-public class MediaPresentationDescriptionParser extends DefaultHandler
-    implements ParsingLoadable.Parser<MediaPresentationDescription> {
+public class DashManifestParser extends DefaultHandler
+    implements ParsingLoadable.Parser<DashManifest> {
 
   private static final String TAG = "MpdParser";
 
@@ -66,16 +66,16 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   private final XmlPullParserFactory xmlParserFactory;
 
   /**
-   * Equivalent to calling {@code new MediaPresentationDescriptionParser(null)}.
+   * Equivalent to calling {@code new DashManifestParser(null)}.
    */
-  public MediaPresentationDescriptionParser() {
+  public DashManifestParser() {
     this(null);
   }
 
   /**
    * @param contentId An optional content identifier to include in the parsed manifest.
    */
-  public MediaPresentationDescriptionParser(String contentId) {
+  public DashManifestParser(String contentId) {
     this.contentId = contentId;
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
@@ -87,7 +87,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   // MPD parsing.
 
   @Override
-  public MediaPresentationDescription parse(Uri uri, InputStream inputStream) throws IOException {
+  public DashManifest parse(Uri uri, InputStream inputStream) throws IOException {
     try {
       XmlPullParser xpp = xmlParserFactory.newPullParser();
       xpp.setInput(inputStream, null);
@@ -102,7 +102,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
   }
 
-  protected MediaPresentationDescription parseMediaPresentationDescription(XmlPullParser xpp,
+  protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp,
       String baseUrl) throws XmlPullParserException, IOException, ParseException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", -1);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", -1);
@@ -165,11 +165,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }
 
-  protected MediaPresentationDescription buildMediaPresentationDescription(
-      long availabilityStartTime, long durationMs, long minBufferTimeMs, boolean dynamic,
-      long minUpdateTimeMs, long timeShiftBufferDepthMs, UtcTimingElement utcTiming,
-      Uri location, List<Period> periods) {
-    return new MediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
+  protected DashManifest buildMediaPresentationDescription(long availabilityStartTime,
+      long durationMs, long minBufferTimeMs, boolean dynamic, long minUpdateTimeMs,
+      long timeShiftBufferDepthMs, UtcTimingElement utcTiming, Uri location, List<Period> periods) {
+    return new DashManifest(availabilityStartTime, durationMs, minBufferTimeMs,
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }
 
