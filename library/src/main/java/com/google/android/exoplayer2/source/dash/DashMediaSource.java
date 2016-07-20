@@ -170,10 +170,12 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
-    DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + index, manifest, index,
-        chunkSourceFactory, minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffsetMs, loader,
-        allocator);
+  public MediaPeriod createPeriod(int periodIndex, Allocator allocator, long positionUs) {
+    EventDispatcher periodEventDispatcher = eventDispatcher.copyWithMediaTimeOffsetMs(
+        manifest.getPeriod(periodIndex).startMs);
+    DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + periodIndex, manifest,
+        periodIndex, chunkSourceFactory, minLoadableRetryCount, periodEventDispatcher,
+        elapsedRealtimeOffsetMs, loader, allocator);
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }
