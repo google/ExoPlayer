@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -40,78 +41,53 @@ import java.util.regex.Pattern;
  */
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
 
-  private static final String VERSION_TAG = "#EXT-X-VERSION";
-  private static final String STREAM_INF_TAG = "#EXT-X-STREAM-INF";
-  private static final String MEDIA_TAG = "#EXT-X-MEDIA";
-  private static final String DISCONTINUITY_TAG = "#EXT-X-DISCONTINUITY";
-  private static final String DISCONTINUITY_SEQUENCE_TAG = "#EXT-X-DISCONTINUITY-SEQUENCE";
-  private static final String MEDIA_DURATION_TAG = "#EXTINF";
-  private static final String MEDIA_SEQUENCE_TAG = "#EXT-X-MEDIA-SEQUENCE";
-  private static final String TARGET_DURATION_TAG = "#EXT-X-TARGETDURATION";
-  private static final String ENDLIST_TAG = "#EXT-X-ENDLIST";
-  private static final String KEY_TAG = "#EXT-X-KEY";
-  private static final String BYTERANGE_TAG = "#EXT-X-BYTERANGE";
+  private static final String TAG_VERSION = "#EXT-X-VERSION";
+  private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
+  private static final String TAG_MEDIA = "#EXT-X-MEDIA";
+  private static final String TAG_DISCONTINUITY = "#EXT-X-DISCONTINUITY";
+  private static final String TAG_DISCONTINUITY_SEQUENCE = "#EXT-X-DISCONTINUITY-SEQUENCE";
+  private static final String TAG_MEDIA_DURATION = "#EXTINF";
+  private static final String TAG_MEDIA_SEQUENCE = "#EXT-X-MEDIA-SEQUENCE";
+  private static final String TAG_TARGET_DURATION = "#EXT-X-TARGETDURATION";
+  private static final String TAG_ENDLIST = "#EXT-X-ENDLIST";
+  private static final String TAG_KEY = "#EXT-X-KEY";
+  private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
 
-  private static final String BANDWIDTH_ATTR = "BANDWIDTH";
-  private static final String CODECS_ATTR = "CODECS";
-  private static final String RESOLUTION_ATTR = "RESOLUTION";
-  private static final String LANGUAGE_ATTR = "LANGUAGE";
-  private static final String NAME_ATTR = "NAME";
-  private static final String TYPE_ATTR = "TYPE";
-  private static final String METHOD_ATTR = "METHOD";
-  private static final String URI_ATTR = "URI";
-  private static final String IV_ATTR = "IV";
-  private static final String INSTREAM_ID_ATTR = "INSTREAM-ID";
-  private static final String AUTOSELECT_ATTR = "AUTOSELECT";
-  private static final String DEFAULT_ATTR = "DEFAULT";
-  private static final String FORCED_ATTR = "FORCED";
-
-  private static final String AUDIO_TYPE = "AUDIO";
-  private static final String VIDEO_TYPE = "VIDEO";
-  private static final String SUBTITLES_TYPE = "SUBTITLES";
-  private static final String CLOSED_CAPTIONS_TYPE = "CLOSED-CAPTIONS";
+  private static final String TYPE_AUDIO = "AUDIO";
+  private static final String TYPE_VIDEO = "VIDEO";
+  private static final String TYPE_SUBTITLES = "SUBTITLES";
+  private static final String TYPE_CLOSED_CAPTIONS = "CLOSED-CAPTIONS";
 
   private static final String METHOD_NONE = "NONE";
   private static final String METHOD_AES128 = "AES-128";
 
-  private static final Pattern BANDWIDTH_ATTR_REGEX =
-      Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
-  private static final Pattern CODECS_ATTR_REGEX =
-      Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
-  private static final Pattern RESOLUTION_ATTR_REGEX =
-      Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
-  private static final Pattern MEDIA_DURATION_REGEX =
-      Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+)\\b");
-  private static final Pattern MEDIA_SEQUENCE_REGEX =
-      Pattern.compile(MEDIA_SEQUENCE_TAG + ":(\\d+)\\b");
-  private static final Pattern TARGET_DURATION_REGEX =
-      Pattern.compile(TARGET_DURATION_TAG + ":(\\d+)\\b");
-  private static final Pattern VERSION_REGEX =
-      Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
-  private static final Pattern BYTERANGE_REGEX =
-      Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
+  private static final String BOOLEAN_TRUE = "YES";
+  private static final String BOOLEAN_FALSE = "NO";
 
-  private static final Pattern METHOD_ATTR_REGEX =
-      Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
-  private static final Pattern URI_ATTR_REGEX =
-      Pattern.compile(URI_ATTR + "=\"(.+?)\"");
-  private static final Pattern IV_ATTR_REGEX =
-      Pattern.compile(IV_ATTR + "=([^,.*]+)");
-  private static final Pattern TYPE_ATTR_REGEX =
-      Pattern.compile(TYPE_ATTR + "=(" + AUDIO_TYPE + "|" + VIDEO_TYPE + "|" + SUBTITLES_TYPE + "|"
-          + CLOSED_CAPTIONS_TYPE + ")");
-  private static final Pattern LANGUAGE_ATTR_REGEX =
-      Pattern.compile(LANGUAGE_ATTR + "=\"(.+?)\"");
-  private static final Pattern NAME_ATTR_REGEX =
-      Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
-  private static final Pattern INSTREAM_ID_ATTR_REGEX =
-      Pattern.compile(INSTREAM_ID_ATTR + "=\"(.+?)\"");
-  private static final Pattern AUTOSELECT_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
-  private static final Pattern DEFAULT_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
-  private static final Pattern FORCED_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(FORCED_ATTR);
+  private static final Pattern REGEX_BANDWIDTH = Pattern.compile("BANDWIDTH=(\\d+)\\b");
+  private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
+  private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
+  private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
+  private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
+      + ":(\\d+)\\b");
+  private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
+      + ":(\\d+)\\b");
+  private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
+      + ":([\\d\\.]+)\\b");
+  private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
+      + ":(\\d+(?:@\\d+)?)\\b");
+  private static final Pattern REGEX_METHOD = Pattern.compile("METHOD=(" + METHOD_NONE + "|"
+      + METHOD_AES128 + ")");
+  private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
+  private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
+  private static final Pattern REGEX_TYPE = Pattern.compile("TYPE=(" + TYPE_AUDIO + "|" + TYPE_VIDEO
+      + "|" + TYPE_SUBTITLES + "|" + TYPE_CLOSED_CAPTIONS + ")");
+  private static final Pattern REGEX_LANGUAGE = Pattern.compile("LANGUAGE=\"(.+?)\"");
+  private static final Pattern REGEX_NAME = Pattern.compile("NAME=\"(.+?)\"");
+  private static final Pattern REGEX_INSTREAM_ID = Pattern.compile("INSTREAM-ID=\"(.+?)\"");
+  private static final Pattern REGEX_AUTOSELECT = compileBooleanAttrPattern("AUTOSELECT");
+  private static final Pattern REGEX_DEFAULT = compileBooleanAttrPattern("DEFAULT");
+  private static final Pattern REGEX_FORCED = compileBooleanAttrPattern("FORCED");
 
   @Override
   public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
@@ -123,17 +99,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         line = line.trim();
         if (line.isEmpty()) {
           // Do nothing.
-        } else if (line.startsWith(STREAM_INF_TAG)) {
+        } else if (line.startsWith(TAG_STREAM_INF)) {
           extraLines.add(line);
           return parseMasterPlaylist(new LineIterator(extraLines, reader), uri.toString());
-        } else if (line.startsWith(TARGET_DURATION_TAG)
-            || line.startsWith(MEDIA_SEQUENCE_TAG)
-            || line.startsWith(MEDIA_DURATION_TAG)
-            || line.startsWith(KEY_TAG)
-            || line.startsWith(BYTERANGE_TAG)
-            || line.equals(DISCONTINUITY_TAG)
-            || line.equals(DISCONTINUITY_SEQUENCE_TAG)
-            || line.equals(ENDLIST_TAG)) {
+        } else if (line.startsWith(TAG_TARGET_DURATION)
+            || line.startsWith(TAG_MEDIA_SEQUENCE)
+            || line.startsWith(TAG_MEDIA_DURATION)
+            || line.startsWith(TAG_KEY)
+            || line.startsWith(TAG_BYTERANGE)
+            || line.equals(TAG_DISCONTINUITY)
+            || line.equals(TAG_DISCONTINUITY_SEQUENCE)
+            || line.equals(TAG_ENDLIST)) {
           extraLines.add(line);
           return parseMediaPlaylist(new LineIterator(extraLines, reader), uri.toString());
         } else {
@@ -163,39 +139,38 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
-      if (line.startsWith(MEDIA_TAG)) {
-        boolean isDefault = HlsParserUtil.parseBooleanAttribute(line, DEFAULT_ATTR_REGEX, false);
-        boolean isForced = HlsParserUtil.parseBooleanAttribute(line, FORCED_ATTR_REGEX, false);
-        boolean isAutoselect = HlsParserUtil.parseBooleanAttribute(line, AUTOSELECT_ATTR_REGEX,
+      if (line.startsWith(TAG_MEDIA)) {
+        boolean isDefault = parseBooleanAttribute(line, REGEX_DEFAULT, false);
+        boolean isForced = parseBooleanAttribute(line, REGEX_FORCED, false);
+        boolean isAutoselect = parseBooleanAttribute(line, REGEX_AUTOSELECT,
             false);
         int selectionFlags = (isDefault ? Format.SELECTION_FLAG_DEFAULT : 0)
             | (isForced ? Format.SELECTION_FLAG_FORCED : 0)
             | (isAutoselect ? Format.SELECTION_FLAG_AUTOSELECT : 0);
-        String type = HlsParserUtil.parseStringAttr(line, TYPE_ATTR_REGEX, TYPE_ATTR);
-        if (CLOSED_CAPTIONS_TYPE.equals(type)) {
-          String instreamId = HlsParserUtil.parseStringAttr(line, INSTREAM_ID_ATTR_REGEX,
-              INSTREAM_ID_ATTR);
+        String type = parseStringAttr(line, REGEX_TYPE);
+        if (TYPE_CLOSED_CAPTIONS.equals(type)) {
+          String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID);
           if ("CC1".equals(instreamId)) {
             // We assume all subtitles belong to the same group.
-            String captionName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
-            String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
+            String captionName = parseStringAttr(line, REGEX_NAME);
+            String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
             muxedCaptionFormat = Format.createTextContainerFormat(captionName,
                 MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, -1, selectionFlags,
                 language);
           }
-        } else if (SUBTITLES_TYPE.equals(type)) {
+        } else if (TYPE_SUBTITLES.equals(type)) {
           // We assume all subtitles belong to the same group.
-          String subtitleName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
-          String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
-          String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
+          String subtitleName = parseStringAttr(line, REGEX_NAME);
+          String uri = parseStringAttr(line, REGEX_URI);
+          String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
           Format format = Format.createTextContainerFormat(subtitleName, MimeTypes.APPLICATION_M3U8,
               MimeTypes.TEXT_VTT, null, bitrate, selectionFlags, language);
           subtitles.add(new Variant(uri, format, codecs));
-        } else if (AUDIO_TYPE.equals(type)) {
+        } else if (TYPE_AUDIO.equals(type)) {
           // We assume all audios belong to the same group.
-          String uri = HlsParserUtil.parseOptionalStringAttr(line, URI_ATTR_REGEX);
-          String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
-          String audioName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
+          String uri = parseOptionalStringAttr(line, REGEX_URI);
+          String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
+          String audioName = parseStringAttr(line, REGEX_NAME);
           int audioBitrate = uri != null ? bitrate : -1;
           Format format = Format.createAudioContainerFormat(audioName, MimeTypes.APPLICATION_M3U8,
               null, null, audioBitrate, -1, -1, null, selectionFlags, language);
@@ -205,12 +180,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             muxedAudioFormat = format;
           }
         }
-      } else if (line.startsWith(STREAM_INF_TAG)) {
-        bitrate = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
-        codecs = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
-        name = HlsParserUtil.parseOptionalStringAttr(line, NAME_ATTR_REGEX);
-        String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
-            RESOLUTION_ATTR_REGEX);
+      } else if (line.startsWith(TAG_STREAM_INF)) {
+        bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
+        codecs = parseOptionalStringAttr(line, REGEX_CODECS);
+        name = parseOptionalStringAttr(line, REGEX_NAME);
+        String resolutionString = parseOptionalStringAttr(line, REGEX_RESOLUTION);
         if (resolutionString != null) {
           String[] widthAndHeight = resolutionString.split("x");
           width = Integer.parseInt(widthAndHeight[0]);
@@ -269,37 +243,35 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
-      if (line.startsWith(TARGET_DURATION_TAG)) {
-        targetDurationSecs = HlsParserUtil.parseIntAttr(line, TARGET_DURATION_REGEX,
-            TARGET_DURATION_TAG);
-      } else if (line.startsWith(MEDIA_SEQUENCE_TAG)) {
-        mediaSequence = HlsParserUtil.parseIntAttr(line, MEDIA_SEQUENCE_REGEX, MEDIA_SEQUENCE_TAG);
+      if (line.startsWith(TAG_TARGET_DURATION)) {
+        targetDurationSecs = parseIntAttr(line, REGEX_TARGET_DURATION);
+      } else if (line.startsWith(TAG_MEDIA_SEQUENCE)) {
+        mediaSequence = parseIntAttr(line, REGEX_MEDIA_SEQUENCE);
         segmentMediaSequence = mediaSequence;
-      } else if (line.startsWith(VERSION_TAG)) {
-        version = HlsParserUtil.parseIntAttr(line, VERSION_REGEX, VERSION_TAG);
-      } else if (line.startsWith(MEDIA_DURATION_TAG)) {
-        segmentDurationSecs = HlsParserUtil.parseDoubleAttr(line, MEDIA_DURATION_REGEX,
-            MEDIA_DURATION_TAG);
-      } else if (line.startsWith(KEY_TAG)) {
-        String method = HlsParserUtil.parseStringAttr(line, METHOD_ATTR_REGEX, METHOD_ATTR);
+      } else if (line.startsWith(TAG_VERSION)) {
+        version = parseIntAttr(line, REGEX_VERSION);
+      } else if (line.startsWith(TAG_MEDIA_DURATION)) {
+        segmentDurationSecs = parseDoubleAttr(line, REGEX_MEDIA_DURATION);
+      } else if (line.startsWith(TAG_KEY)) {
+        String method = parseStringAttr(line, REGEX_METHOD);
         isEncrypted = METHOD_AES128.equals(method);
         if (isEncrypted) {
-          encryptionKeyUri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
-          encryptionIV = HlsParserUtil.parseOptionalStringAttr(line, IV_ATTR_REGEX);
+          encryptionKeyUri = parseStringAttr(line, REGEX_URI);
+          encryptionIV = parseOptionalStringAttr(line, REGEX_IV);
         } else {
           encryptionKeyUri = null;
           encryptionIV = null;
         }
-      } else if (line.startsWith(BYTERANGE_TAG)) {
-        String byteRange = HlsParserUtil.parseStringAttr(line, BYTERANGE_REGEX, BYTERANGE_TAG);
+      } else if (line.startsWith(TAG_BYTERANGE)) {
+        String byteRange = parseStringAttr(line, REGEX_BYTERANGE);
         String[] splitByteRange = byteRange.split("@");
         segmentByterangeLength = Long.parseLong(splitByteRange[0]);
         if (splitByteRange.length > 1) {
           segmentByterangeOffset = Long.parseLong(splitByteRange[1]);
         }
-      } else if (line.startsWith(DISCONTINUITY_SEQUENCE_TAG)) {
+      } else if (line.startsWith(TAG_DISCONTINUITY_SEQUENCE)) {
         discontinuitySequenceNumber = Integer.parseInt(line.substring(line.indexOf(':') + 1));
-      } else if (line.equals(DISCONTINUITY_TAG)) {
+      } else if (line.equals(TAG_DISCONTINUITY)) {
         discontinuitySequenceNumber++;
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
@@ -323,12 +295,48 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           segmentByterangeOffset += segmentByterangeLength;
         }
         segmentByterangeLength = C.LENGTH_UNBOUNDED;
-      } else if (line.equals(ENDLIST_TAG)) {
+      } else if (line.equals(TAG_ENDLIST)) {
         live = false;
       }
     }
     return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live,
         Collections.unmodifiableList(segments));
+  }
+
+  private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find() && matcher.groupCount() == 1) {
+      return matcher.group(1);
+    }
+    throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
+  }
+
+  private static int parseIntAttr(String line, Pattern pattern) throws ParserException {
+    return Integer.parseInt(parseStringAttr(line, pattern));
+  }
+
+  private static double parseDoubleAttr(String line, Pattern pattern) throws ParserException {
+    return Double.parseDouble(parseStringAttr(line, pattern));
+  }
+
+  private static String parseOptionalStringAttr(String line, Pattern pattern) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find()) {
+      return matcher.group(1);
+    }
+    return null;
+  }
+
+  private static boolean parseBooleanAttribute(String line, Pattern pattern, boolean defaultValue) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find()) {
+      return matcher.group(1).equals(BOOLEAN_TRUE);
+    }
+    return defaultValue;
+  }
+
+  private static Pattern compileBooleanAttrPattern(String attribute) {
+    return Pattern.compile(attribute + "=(" + BOOLEAN_FALSE + "|" + BOOLEAN_TRUE + ")");
   }
 
   private static class LineIterator {
