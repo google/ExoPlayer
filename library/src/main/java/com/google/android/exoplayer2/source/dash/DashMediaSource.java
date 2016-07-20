@@ -159,6 +159,7 @@ public final class DashMediaSource implements MediaSource {
       for (int i = 0; i < periods.length; i++) {
         periods[i].updateManifest(manifest, i);
       }
+      scheduleManifestRefresh();
     }
   }
 
