@@ -145,7 +145,12 @@ import java.util.List;
     if (stss != null) {
       stss.setPosition(Atom.FULL_HEADER_SIZE);
       remainingSynchronizationSamples = stss.readUnsignedIntToInt();
-      nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+      if (remainingSynchronizationSamples > 0) {
+        nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+      } else {
+        // Ignore empty stss boxes, which causes all samples to be treated as sync samples.
+        stss = null;
+      }
     }
 
     // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
