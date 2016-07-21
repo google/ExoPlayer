@@ -46,6 +46,7 @@ public abstract class TrackSelector<T> {
      * @param trackSelections The new track selections.
      */
     void onTrackSelectionsChanged(TrackSelections<? extends T> trackSelections);
+
   }
 
   private final Handler eventHandler;
