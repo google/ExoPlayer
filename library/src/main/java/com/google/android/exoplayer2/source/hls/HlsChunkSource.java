@@ -59,7 +59,11 @@ public class HlsChunkSource {
    * The default time for which a media playlist should be blacklisted.
    */
   public static final long DEFAULT_PLAYLIST_BLACKLIST_MS = 60000;
-
+  /**
+   * Subtracted value to lookup position when switching between variants in live streams to avoid
+   * gaps in playback in case playlist drift apart.
+   */
+  private static final double LIVE_VARIANT_SWITCH_SAFETY_EXTRA_SECS = 2.0;
   private static final String TAG = "HlsChunkSource";
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final String MP3_FILE_EXTENSION = ".mp3";
@@ -220,33 +224,41 @@ public class HlsChunkSource {
    * @param out A holder to populate.
    */
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
+    int previousChunkVariantIndex =
+        previous != null ? getVariantIndex(previous.format) : -1;
     updateFormatEvaluation(previous, playbackPositionUs);
-    int variantIndex = 0;
-    for (int i = 0; i < variants.length; i++) {
-      if (variants[i].format == evaluation.format) {
-        variantIndex = i;
-        break;
-      }
-    }
-    boolean switchingVariant = previous != null
-        && variants[variantIndex].format != previous.format;
-
-    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
+    int newVariantIndex = getVariantIndex(evaluation.format);
+    boolean switchingVariant = previousChunkVariantIndex != newVariantIndex;
+    HlsMediaPlaylist mediaPlaylist = variantPlaylists[newVariantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
-      out.chunk = newMediaPlaylistChunk(variantIndex, evaluation.trigger, evaluation.data);
+      out.chunk = newMediaPlaylistChunk(newVariantIndex, evaluation.trigger, evaluation.data);
       return;
     }
 
     int chunkMediaSequence;
-    if (previous == null) {
-      chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
-          true, true) + mediaPlaylist.mediaSequence;
+    if (live) {
+      if (previous == null) {
+        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
+            true, true) + mediaPlaylist.mediaSequence;
+      } else {
+        chunkMediaSequence = getLiveNextChunkSequenceNumber(previous.chunkIndex,
+            previousChunkVariantIndex, newVariantIndex);
+        if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
+          fatalError = new BehindLiveWindowException();
+          return;
+        }
+      }
     } else {
-      chunkMediaSequence = switchingVariant ? previous.chunkIndex : previous.chunkIndex + 1;
-      if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-        fatalError = new BehindLiveWindowException();
-        return;
+      // Not live.
+      if (previous == null) {
+        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
+            true, true) + mediaPlaylist.mediaSequence;
+      } else if (switchingVariant) {
+        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments,
+            previous.startTimeUs, true, true) + mediaPlaylist.mediaSequence;
+      } else {
+        chunkMediaSequence = previous.getNextChunkIndex();
       }
     }
 
@@ -254,8 +266,8 @@ public class HlsChunkSource {
     if (chunkIndex >= mediaPlaylist.segments.size()) {
       if (!mediaPlaylist.live) {
         out.endOfStream = true;
-      } else if (shouldRerequestLiveMediaPlaylist(variantIndex)) {
-        out.chunk = newMediaPlaylistChunk(variantIndex, evaluation.trigger, evaluation.data);
+      } else if (shouldRerequestLiveMediaPlaylist(newVariantIndex)) {
+        out.chunk = newMediaPlaylistChunk(newVariantIndex, evaluation.trigger, evaluation.data);
       }
       return;
     }
@@ -268,7 +280,7 @@ public class HlsChunkSource {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, variantIndex,
+        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, newVariantIndex,
             evaluation.trigger, evaluation.data);
         return;
       }
@@ -289,15 +301,15 @@ public class HlsChunkSource {
       if (previous == null) {
         startTimeUs = 0;
       } else if (switchingVariant) {
-        startTimeUs = previous.startTimeUs;
+        startTimeUs = previous.getAdjustedStartTimeUs();
       } else {
-        startTimeUs = previous.endTimeUs;
+        startTimeUs = previous.getAdjustedEndTimeUs();
       }
     } else /* Not live */ {
       startTimeUs = segment.startTimeUs;
     }
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
-    Format format = variants[variantIndex].format;
+    Format format = variants[newVariantIndex].format;
 
     // Configure the extractor that will read the chunk.
     Extractor extractor;
@@ -332,7 +344,7 @@ public class HlsChunkSource {
         return;
       }
       int workaroundFlags = 0;
-      String codecs = variants[variantIndex].codecs;
+      String codecs = variants[newVariantIndex].codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
         // exist. If we know from the codec attribute that they don't exist, then we can explicitly
@@ -354,6 +366,48 @@ public class HlsChunkSource {
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, format, evaluation.trigger, evaluation.data,
         startTimeUs, endTimeUs, chunkMediaSequence, segment.discontinuitySequenceNumber, extractor,
         extractorNeedsInit, switchingVariant, encryptionKey, encryptionIv);
+  }
+
+  /**
+   * Returns the media sequence number of a chunk in a new variant for a live stream variant switch.
+   *
+   * @param previousChunkIndex The index of the last chunk in the old variant.
+   * @param oldVariantIndex The index of the old variant.
+   * @param newVariantIndex The index of the new variant.
+   * @return Media sequence number of the chunk to switch to in a live stream in the variant that
+   *     corresponds to the given {@code newVariantIndex}.
+   */
+  private int getLiveNextChunkSequenceNumber(int previousChunkIndex, int oldVariantIndex,
+      int newVariantIndex) {
+    if (oldVariantIndex == newVariantIndex) {
+      return previousChunkIndex + 1;
+    }
+    HlsMediaPlaylist oldMediaPlaylist = variantPlaylists[oldVariantIndex];
+    HlsMediaPlaylist newMediaPlaylist = variantPlaylists[newVariantIndex];
+    double offsetToLiveInstantSecs = 0;
+    for (int i = previousChunkIndex - oldMediaPlaylist.mediaSequence;
+         i < oldMediaPlaylist.segments.size(); i++) {
+      offsetToLiveInstantSecs += oldMediaPlaylist.segments.get(i).durationSecs;
+    }
+    long currentTimeMs = SystemClock.elapsedRealtime();
+    offsetToLiveInstantSecs +=
+        (double) (currentTimeMs - variantLastPlaylistLoadTimesMs[oldVariantIndex]) / 1000;
+    offsetToLiveInstantSecs += LIVE_VARIANT_SWITCH_SAFETY_EXTRA_SECS;
+    offsetToLiveInstantSecs -=
+        (double) (currentTimeMs - variantLastPlaylistLoadTimesMs[newVariantIndex]) / 1000;
+    if (offsetToLiveInstantSecs < 0) {
+      // The instant we are looking for is not contained in the playlist, we need it to be
+      // refreshed.
+      return newMediaPlaylist.mediaSequence + newMediaPlaylist.segments.size() + 1;
+    }
+    for (int i = newMediaPlaylist.segments.size() - 1; i >= 0; i--) {
+      offsetToLiveInstantSecs -= newMediaPlaylist.segments.get(i).durationSecs;
+      if (offsetToLiveInstantSecs < 0) {
+        return newMediaPlaylist.mediaSequence + i;
+      }
+    }
+    // We have fallen behind the live window.
+    return newMediaPlaylist.mediaSequence - 1;
   }
 
   /**
@@ -484,7 +538,7 @@ public class HlsChunkSource {
     if (previous != null) {
       // Use start time of the previous chunk rather than its end time because switching format
       // will require downloading overlapping segments.
-      bufferedDurationUs = Math.max(0, previous.startTimeUs - playbackPositionUs);
+      bufferedDurationUs = Math.max(0, previous.getAdjustedStartTimeUs() - playbackPositionUs);
     } else {
       bufferedDurationUs = 0;
     }
@@ -573,6 +627,16 @@ public class HlsChunkSource {
   private int getEnabledVariantIndex(Format format) {
     for (int i = 0; i < enabledVariants.length; i++) {
       if (enabledVariants[i].format == format) {
+        return i;
+      }
+    }
+    // Should never happen.
+    throw new IllegalStateException("Invalid format: " + format);
+  }
+
+  private int getVariantIndex(Format format) {
+    for (int i = 0; i < variants.length; i++) {
+      if (variants[i].format == format) {
         return i;
       }
     }

@@ -239,6 +239,15 @@ import java.util.List;
     loader.release();
   }
 
+  public long getLargestQueuedTimestampUs() {
+    long largestQueuedTimestampUs = Long.MIN_VALUE;
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
+          sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
+    }
+    return largestQueuedTimestampUs;
+  }
+
   // SampleStream implementation.
 
   /* package */ boolean isReady(int group) {

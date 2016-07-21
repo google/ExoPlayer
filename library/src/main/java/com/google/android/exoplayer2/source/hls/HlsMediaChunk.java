@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean shouldSpliceIn;
 
   private int bytesLoaded;
+  private HlsSampleStreamWrapper extractorOutput;
+  private long adjustedEndTimeUs;
   private volatile boolean loadCanceled;
   private volatile boolean loadCompleted;
 
@@ -65,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param formatEvaluatorData See {@link #formatEvaluatorData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param chunkIndex The index of the chunk.
+   * @param chunkIndex The media sequence number of the chunk.
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param extractor The extractor to decode samples from the data.
    * @param extractorNeedsInit Whether the extractor needs initializing with the target
@@ -87,6 +89,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.extractorNeedsInit = extractorNeedsInit;
     this.shouldSpliceIn = shouldSpliceIn;
     // Note: this.dataSource and dataSource may be different.
+    adjustedEndTimeUs = startTimeUs;
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
     uid = UID_SOURCE.getAndIncrement();
   }
@@ -98,10 +101,29 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param output The output that will receive the loaded samples.
    */
   public void init(HlsSampleStreamWrapper output) {
+    extractorOutput = output;
     output.init(uid, shouldSpliceIn);
     if (extractorNeedsInit) {
       extractor.init(output);
     }
+  }
+
+  /**
+   * Gets the start time in microseconds by subtracting the duration from the adjusted end time.
+   *
+   * @return The start time in microseconds.
+   */
+  public long getAdjustedStartTimeUs() {
+    return adjustedEndTimeUs - getDurationUs();
+  }
+
+  /**
+   * Gets the presentation time in microseconds of the last sample contained in the chunk
+   *
+   * @return The presentation time in microseconds of the last sample contained in the chunk.
+   */
+  public long getAdjustedEndTimeUs() {
+    return adjustedEndTimeUs;
   }
 
   @Override
@@ -151,6 +173,10 @@ import java.util.concurrent.atomic.AtomicInteger;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractor.read(input, null);
+        }
+        long adjustedEndTimeUs = extractorOutput.getLargestQueuedTimestampUs();
+        if (adjustedEndTimeUs != Long.MIN_VALUE) {
+          this.adjustedEndTimeUs = adjustedEndTimeUs;
         }
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
