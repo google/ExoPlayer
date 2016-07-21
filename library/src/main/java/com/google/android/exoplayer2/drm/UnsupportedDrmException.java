@@ -30,12 +30,22 @@ public final class UnsupportedDrmException extends Exception {
    */
   public static final int REASON_INSTANTIATION_ERROR = 2;
 
+  /**
+   * {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
+   */
   public final int reason;
 
+  /**
+   * @param reason {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
+   */
   public UnsupportedDrmException(int reason) {
     this.reason = reason;
   }
 
+  /**
+   * @param reason {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
+   * @param cause The cause of this exception.
+   */
   public UnsupportedDrmException(int reason, Exception cause) {
     super(cause);
     this.reason = reason;

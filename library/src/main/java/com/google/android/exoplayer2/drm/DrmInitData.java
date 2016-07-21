@@ -38,10 +38,16 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   // Lazily initialized hashcode.
   private int hashCode;
 
+  /**
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
   public DrmInitData(List<SchemeData> schemeDatas) {
     this(false, schemeDatas.toArray(new SchemeData[schemeDatas.size()]));
   }
 
+  /**
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
   public DrmInitData(SchemeData... schemeDatas) {
     this(true, schemeDatas);
   }
