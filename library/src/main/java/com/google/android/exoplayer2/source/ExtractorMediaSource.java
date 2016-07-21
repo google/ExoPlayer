@@ -610,6 +610,11 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       return ExtractorMediaSource.this.readData(track, formatHolder, buffer);
     }
 
+    @Override
+    public void skipToKeyframeBefore(long timeUs) {
+      sampleQueues[track].skipToKeyframeBefore(timeUs);
+    }
+
   }
 
   /**

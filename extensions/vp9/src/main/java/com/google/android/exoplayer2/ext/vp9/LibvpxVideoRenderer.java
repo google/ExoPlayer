@@ -157,25 +157,29 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return;
     }
 
-    try {
-      if (decoder == null) {
-        // If we don't have a decoder yet, we need to instantiate one.
-        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-        TraceUtil.beginSection("createVpxDecoder");
-        decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
-        decoder.setOutputMode(outputMode);
+    if (isRendererAvailable()) {
+      try {
+        if (decoder == null) {
+          // If we don't have a decoder yet, we need to instantiate one.
+          long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+          TraceUtil.beginSection("createVpxDecoder");
+          decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
+          decoder.setOutputMode(outputMode);
+          TraceUtil.endSection();
+          long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+          eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
+              codecInitializedTimestamp - codecInitializingTimestamp);
+          decoderCounters.codecInitCount++;
+        }
+        TraceUtil.beginSection("drainAndFeed");
+        while (drainOutputBuffer(positionUs)) {}
+        while (feedInputBuffer()) {}
         TraceUtil.endSection();
-        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-        eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
-            codecInitializedTimestamp - codecInitializingTimestamp);
-        decoderCounters.codecInitCount++;
+      } catch (VpxDecoderException e) {
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
-      TraceUtil.beginSection("drainAndFeed");
-      while (drainOutputBuffer(positionUs)) {}
-      while (feedInputBuffer()) {}
-      TraceUtil.endSection();
-    } catch (VpxDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+    } else {
+      skipToKeyframeBefore(positionUs);
     }
     decoderCounters.ensureUpdated();
   }
@@ -331,7 +335,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   public boolean isReady() {
-    if (format != null && (isSourceReady() || outputBuffer != null) && renderedFirstFrame) {
+    if (format != null && (isSourceReady() || outputBuffer != null)
+        && (renderedFirstFrame || !isRendererAvailable())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = -1;
       return true;
@@ -385,14 +390,18 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     outputBuffer = null;
     format = null;
     try {
-      if (decoder != null) {
-        decoder.release();
-        decoder = null;
-        decoderCounters.codecReleaseCount++;
-      }
+      releaseDecoder();
     } finally {
       decoderCounters.ensureUpdated();
       eventDispatcher.disabled(decoderCounters);
+    }
+  }
+
+  private void releaseDecoder() {
+    if (decoder != null) {
+      decoder.release();
+      decoder = null;
+      decoderCounters.codecReleaseCount++;
     }
   }
 
@@ -428,9 +437,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     this.surface = surface;
     outputBufferRenderer = null;
     outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
-    if (decoder != null) {
-      decoder.setOutputMode(outputMode);
-    }
+    updateDecoder();
     drawnToSurface = false;
   }
 
@@ -442,9 +449,21 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     surface = null;
     outputMode = (outputBufferRenderer != null) ? VpxDecoder.OUTPUT_MODE_YUV
         : VpxDecoder.OUTPUT_MODE_NONE;
+    updateDecoder();
+  }
+
+  private void updateDecoder() {
     if (decoder != null) {
-      decoder.setOutputMode(outputMode);
+      if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
+        releaseDecoder();
+      } else {
+        decoder.setOutputMode(outputMode);
+      }
     }
+  }
+
+  private boolean isRendererAvailable() {
+    return surface != null || outputBufferRenderer != null;
   }
 
   private void maybeNotifyVideoSizeChanged(final int width, final int height) {

@@ -192,6 +192,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     return sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }
 
+  @Override
+  public void skipToKeyframeBefore(long timeUs) {
+    sampleQueue.skipToKeyframeBefore(timeUs);
+  }
+
   // Loader.Callback implementation.
 
   @Override

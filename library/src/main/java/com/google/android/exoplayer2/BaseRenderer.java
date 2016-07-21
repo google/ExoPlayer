@@ -263,4 +263,13 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return readEndOfStream ? streamIsFinal : stream.isReady();
   }
 
+  /**
+   * Attempts to skip to the keyframe before the specified time.
+   *
+   * @param timeUs The specified time.
+   */
+  protected void skipToKeyframeBefore(long timeUs) {
+    stream.skipToKeyframeBefore(timeUs);
+  }
+
 }

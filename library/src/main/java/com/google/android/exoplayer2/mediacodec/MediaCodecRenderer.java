@@ -477,6 +477,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
       while (feedInputBuffer()) {}
       TraceUtil.endSection();
+    } else if (format != null) {
+      skipToKeyframeBefore(positionUs);
     }
     decoderCounters.ensureUpdated();
   }

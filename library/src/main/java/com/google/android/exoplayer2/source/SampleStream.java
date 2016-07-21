@@ -55,4 +55,11 @@ public interface SampleStream {
    */
   int readData(FormatHolder formatHolder, DecoderInputBuffer buffer);
 
+  /**
+   * Attempts to skip to the keyframe before the specified time.
+   *
+   * @param timeUs The specified time.
+   */
+  void skipToKeyframeBefore(long timeUs);
+
 }

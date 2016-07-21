@@ -619,6 +619,11 @@ import java.util.List;
       return HlsSampleStreamWrapper.this.readData(group, formatHolder, buffer);
     }
 
+    @Override
+    public void skipToKeyframeBefore(long timeUs) {
+      sampleQueues.valueAt(group).skipToKeyframeBefore(timeUs);
+    }
+
   }
 
 }

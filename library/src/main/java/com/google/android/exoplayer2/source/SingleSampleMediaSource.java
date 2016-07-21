@@ -253,6 +253,11 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
     }
   }
 
+  @Override
+  public void skipToKeyframeBefore(long timeUs) {
+    // do nothing
+  }
+
   // Loader.Callback implementation.
 
   @Override
