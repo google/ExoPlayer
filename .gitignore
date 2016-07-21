@@ -23,6 +23,7 @@ gen-external-apklibs
 # Gradle
 .gradle
 build
+buildout
 out
 
 # Maven
