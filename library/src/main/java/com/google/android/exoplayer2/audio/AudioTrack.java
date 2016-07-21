@@ -325,6 +325,14 @@ public final class AudioTrack {
   }
 
   /**
+   * Returns the configured playback speed according to the used Playback Parameters. If these are
+   * not supported, 1.0f(normal speed) is returned.
+   *
+   * @return The speed factor used by the underlying {@link android.media.AudioTrack}.
+   */
+  public float getPlaybackSpeed() { return audioTrackUtil.getPlaybackSpeed(); }
+
+  /**
    * Configures (or reconfigures) the audio track, inferring a suitable buffer size automatically.
    *
    * @param mimeType The mime type.

@@ -101,7 +101,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     if (outputStreamEnded) {
       return;
     }
-
     // Try and read a format if we don't have one already.
     if (inputFormat == null && !readFormat()) {
       // We can't make progress without one.
@@ -290,6 +289,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
     return currentPositionUs;
   }
+
+  @Override
+  public float getPlaybackSpeed() { return 1.0f; }
 
   /**
    * Invoked when the audio session id becomes known. Once the id is known it will not change

@@ -25,4 +25,8 @@ public interface MediaClock {
    */
   long getPositionUs();
 
+  /**
+   * @return the speed factor: speed_of_this_clock / speed_of_real_clock
+   */
+  public float getPlaybackSpeed();
 }

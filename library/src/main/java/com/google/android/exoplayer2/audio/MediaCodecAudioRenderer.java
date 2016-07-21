@@ -320,6 +320,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  public float getPlaybackSpeed() {  return audioTrack.getPlaybackSpeed(); }
+
+  @Override
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
       ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
       boolean shouldSkip) throws ExoPlaybackException {
