@@ -394,6 +394,10 @@ public class DashChunkSource implements ChunkSource, Output {
     availableRange.getCurrentBoundsUs(availableRangeValues);
     if (queue.isEmpty()) {
       if (live) {
+        if (playbackPositionUs != 0) {
+          // If the position is non-zero then assume the client knows where it's seeking.
+          startAtLiveEdge = false;
+        }
         if (startAtLiveEdge) {
           // We want live streams to start at the live edge instead of the beginning of the
           // manifest
