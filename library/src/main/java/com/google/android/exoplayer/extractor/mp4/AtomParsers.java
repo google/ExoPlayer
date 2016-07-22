@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
+import android.util.Pair;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
@@ -27,8 +29,6 @@ import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
-import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,8 +92,7 @@ import java.util.List;
    */
   public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
       throws ParserException {
-    // Array of sample sizes.
-    ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
+    final SampleSizeBox sampleSizeBox = sampleSizeBoxFor(stblAtom);
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
@@ -114,10 +113,10 @@ import java.util.List;
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
+    int fixedSampleSize = sampleSizeBox.getFixedSampleSize();
+    int sampleCount = sampleSizeBox.getSampleCount();
+
     // Skip full atom.
-    stsz.setPosition(Atom.FULL_HEADER_SIZE);
-    int fixedSampleSize = stsz.readUnsignedIntToInt();
-    int sampleCount = stsz.readUnsignedIntToInt();
     if (sampleCount == 0) {
       return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
     }
@@ -195,7 +194,8 @@ import java.util.List;
         }
 
         offsets[i] = offset;
-        sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+        sizes[i] = fixedSampleSize == 0 ? sampleSizeBox.getSampleSizeAt(i): fixedSampleSize;
+
         if (sizes[i] > maximumSize) {
           maximumSize = sizes[i];
         }
@@ -1154,4 +1154,119 @@ import java.util.List;
 
   }
 
+  /**
+   * Creates a {@link SampleSizeBox} for the stblAtom passed in.
+   * @param stblAtom the atom to read the sample size atoms from.
+   * @return an implementation of {@link SampleSizeBox} that can be used to parse sample information.
+   * @throws ParserException if no suitable {@link Atom}s are found for parsing.
+     */
+  public static SampleSizeBox sampleSizeBoxFor(Atom.ContainerAtom stblAtom) throws ParserException {
+      // Array of sample sizes.
+      final Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+      final Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+
+      if (stszAtom == null && stz2Atom == null) {
+        throw new ParserException("Track has no sample table size information");
+      }
+
+    return stszAtom != null ? new StszSampleSizeBox(stszAtom) : new Stz2SampleSizeBox(stz2Atom);
+  }
+
+  /**
+   * Interface that allows us to abstract away the various implementations of sample size boxes. (IE: stsz and stz2)
+   */
+  interface SampleSizeBox {
+    /**
+     * @return the number of samples in this atom.
+     */
+    int getSampleCount();
+
+    /**
+     * @return the fixed sample size read from the atom. If 0, the atom has non-fixed sample sizes.
+     */
+    int getFixedSampleSize();
+
+    /**
+     * @param i the index in the sample size array we wish to get the size from.
+     * @return the size for the sample at the index passed.
+     */
+    int getSampleSizeAt(int i);
+  }
+
+  /**
+   * Reads sample sizes out of a 'stsz' atom.
+   */
+  static final class StszSampleSizeBox implements SampleSizeBox {
+    public final Atom.LeafAtom atom;
+    public final int fixedSampleSize;
+    public final int sampleCount;
+    public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
+      atom = stszAtom;
+      atom.data.setPosition(Atom.FULL_HEADER_SIZE);
+      fixedSampleSize = atom.data.readUnsignedIntToInt();
+      sampleCount = atom.data.readUnsignedIntToInt();
+    }
+
+    @Override
+    public int getSampleCount() {
+      return sampleCount;
+    }
+
+    @Override
+    public int getFixedSampleSize() {
+      return fixedSampleSize;
+    }
+
+    @Override
+    public int getSampleSizeAt(int i) {
+      return atom.data.readUnsignedIntToInt() ;
+    }
+  }
+
+  /**
+   * Reads samples out of a 'stz2' atom.
+   */
+  static final class Stz2SampleSizeBox implements SampleSizeBox {
+    private static final int FIRST_DATA_POSITION = Atom.FULL_HEADER_SIZE + 8;
+    public final Atom.LeafAtom atom;
+    public final int sampleCount;
+    public final int fieldSize;  // 4, 8, or 16.
+    public Stz2SampleSizeBox(Atom.LeafAtom stz2Atom) {
+      atom = stz2Atom;
+      atom.data.setPosition(Atom.FULL_HEADER_SIZE);
+      // mask out the reserved bits (24) and read just the field_size bits (8).
+      fieldSize = atom.data.readUnsignedIntToInt() & 0x000000FF;
+      sampleCount = atom.data.readUnsignedIntToInt();
+    }
+
+    @Override
+    public int getSampleCount() {
+      return sampleCount;
+    }
+
+    @Override
+    public int getFixedSampleSize() {
+      return 0; // not fixed size.
+    }
+
+    @Override
+    public int getSampleSizeAt(int i) {
+      if (fieldSize == 8) {
+        return atom.data.readUnsignedByte();
+      } else if (fieldSize == 16) {
+        return atom.data.readUnsignedShort();
+      } else {
+        // The field size is 4.
+        final boolean isUpperBits = i % 2 == 0;
+        atom.data.setPosition(FIRST_DATA_POSITION + i / 2);
+        if (isUpperBits) {
+          // Read the upper bits from the byte and shift them to the lower 4 bits.
+          return (atom.data.readUnsignedByte() & 0xF0) >> 4;
+        } else {
+          // Mask out the upper 4 bits.
+          return atom.data.readUnsignedByte() & 0x0F;
+        }
+      }
+    }
+  }
 }
