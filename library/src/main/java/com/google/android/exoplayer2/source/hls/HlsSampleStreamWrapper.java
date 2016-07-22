@@ -232,6 +232,7 @@ import java.util.List;
   }
 
   public void release() {
+    chunkSource.release();
     int sampleQueueCount = sampleQueues.size();
     for (int i = 0; i < sampleQueueCount; i++) {
       sampleQueues.valueAt(i).disable();

@@ -73,7 +73,7 @@ public class HlsChunkSource {
 
   private final String baseUri;
   private final DataSource dataSource;
-  private final FormatEvaluator adaptiveFormatEvaluator;
+  private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
   private final HlsPlaylistParser playlistParser;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
@@ -83,6 +83,7 @@ public class HlsChunkSource {
   private final long[] variantLastPlaylistLoadTimesMs;
 
   private boolean seenFirstExternalTrackSelection;
+  private boolean formatEvaluatorEnabled;
   private byte[] scratchSpace;
   private boolean live;
   private long durationUs;
@@ -105,15 +106,14 @@ public class HlsChunkSource {
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
-   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
+   * @param formatEvaluator For adaptive tracks, selects from the available formats.
    */
   public HlsChunkSource(String baseUri, Variant[] variants, DataSource dataSource,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider,
-      FormatEvaluator adaptiveFormatEvaluator) {
+      PtsTimestampAdjusterProvider timestampAdjusterProvider, FormatEvaluator formatEvaluator) {
     this.baseUri = baseUri;
     this.variants = variants;
     this.dataSource = dataSource;
-    this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
+    this.formatEvaluator = formatEvaluator;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     playlistParser = new HlsPlaylistParser();
     evaluation = new Evaluation();
@@ -126,7 +126,7 @@ public class HlsChunkSource {
       variantFormats[i] = variants[i].format;
       initialTrackSelection[i] = i;
     }
-    trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, variantFormats);
+    trackGroup = new TrackGroup(formatEvaluator != null, variantFormats);
     selectTracksInternal(new TrackSelection(trackGroup, initialTrackSelection), false);
   }
 
@@ -443,6 +443,10 @@ public class HlsChunkSource {
     return false;
   }
 
+  public void release() {
+    disableFormatEvaluator();
+  }
+
   // Private methods.
 
   private void selectTracksInternal(TrackSelection trackSelection, boolean isExternal) {
@@ -457,10 +461,11 @@ public class HlsChunkSource {
       return;
     }
 
+    disableFormatEvaluator();
     if (trackSelection.length > 1) {
-      // TODO[REFACTOR]: We need to disable this at some point.
       Format[] formats = trackSelection.getFormats();
-      adaptiveFormatEvaluator.enable(formats);
+      formatEvaluator.enable(formats);
+      formatEvaluatorEnabled = true;
       if (!Util.contains(formats, evaluation.format)) {
         evaluation.format = null;
       }
@@ -500,8 +505,7 @@ public class HlsChunkSource {
     } else {
       bufferedDurationUs = 0;
     }
-    adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, enabledVariantBlacklistFlags,
-        evaluation);
+    formatEvaluator.evaluateFormat(bufferedDurationUs, enabledVariantBlacklistFlags, evaluation);
   }
 
   private boolean shouldRerequestLiveMediaPlaylist(int variantIndex) {
@@ -579,6 +583,13 @@ public class HlsChunkSource {
           && currentTime - enabledVariantBlacklistTimes[i] > DEFAULT_PLAYLIST_BLACKLIST_MS) {
         enabledVariantBlacklistFlags[i] = false;
       }
+    }
+  }
+
+  private void disableFormatEvaluator() {
+    if (formatEvaluatorEnabled) {
+      formatEvaluator.disable();
+      formatEvaluatorEnabled = false;
     }
   }
 
