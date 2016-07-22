@@ -33,12 +33,12 @@ public class SimpleOutputBuffer extends OutputBuffer {
   /**
    * Initializes the buffer.
    *
-   * @param timestampUs The presentation timestamp for the buffer, in microseconds.
+   * @param timeUs The presentation timestamp for the buffer, in microseconds.
    * @param size An upper bound on the size of the data that will be written to the buffer.
    * @return The {@link #data} buffer, for convenience.
    */
-  public ByteBuffer init(long timestampUs, int size) {
-    this.timestampUs = timestampUs;
+  public ByteBuffer init(long timeUs, int size) {
+    this.timeUs = timeUs;
     if (data == null || data.capacity() < size) {
       data = ByteBuffer.allocateDirect(size);
     }

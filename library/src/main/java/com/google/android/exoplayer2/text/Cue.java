@@ -58,7 +58,7 @@ public class Cue {
    */
   public final CharSequence text;
   /**
-   * The alignment of the cue text within the cue box.
+   * The alignment of the cue text within the cue box, or null if the alignment is undefined.
    */
   public final Alignment textAlignment;
   /**
@@ -117,16 +117,28 @@ public class Cue {
    */
   public final float size;
 
-  public Cue() {
-    this(null);
-  }
-
+  /**
+   * Constructs a cue whose {@link #textAlignment} is null, whose type parameters are set to
+   * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
+   *
+   * @param text See {@link #text}.
+   */
   public Cue(CharSequence text) {
     this(text, null, DIMEN_UNSET, TYPE_UNSET, TYPE_UNSET, DIMEN_UNSET, TYPE_UNSET, DIMEN_UNSET);
   }
 
-  public Cue(CharSequence text, Alignment textAlignment, float line, int lineType,
-      int lineAnchor, float position, int positionAnchor, float size) {
+  /**
+   * @param text See {@link #text}.
+   * @param textAlignment See {@link #textAlignment}.
+   * @param line See {@link #line}.
+   * @param lineType See {@link #lineType}.
+   * @param lineAnchor See {@link #lineAnchor}.
+   * @param position See {@link #position}.
+   * @param positionAnchor See {@link #positionAnchor}.
+   * @param size See {@link #size}.
+   */
+  public Cue(CharSequence text, Alignment textAlignment, float line, int lineType, int lineAnchor,
+      float position, int positionAnchor, float size) {
     this.text = text;
     this.textAlignment = textAlignment;
     this.line = line;

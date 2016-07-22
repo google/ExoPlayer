@@ -21,20 +21,26 @@ import com.google.android.exoplayer2.decoder.OutputBuffer;
 import java.util.List;
 
 /**
- * Base class for a {@link Subtitle} output from a subtitle parser.
+ * Base class for {@link SubtitleDecoder} output buffers.
  */
 public abstract class SubtitleOutputBuffer extends OutputBuffer implements Subtitle {
 
   private Subtitle subtitle;
-  private long offsetUs;
+  private long subsampleOffsetUs;
 
-  public SubtitleOutputBuffer() {
-  }
-
-  public void setOutput(long timestampUs, Subtitle subtitle, long subsampleOffsetUs) {
-    this.timestampUs = timestampUs;
+  /**
+   * Sets the content of the output buffer, consisting of a {@link Subtitle} and associated
+   * metadata.
+   *
+   * @param timeUs The time of the start of the subtitle in microseconds.
+   * @param subtitle The subtitle.
+   * @param subsampleOffsetUs An offset that must be added to the subtitle's event times, or
+   *     {@link Format#OFFSET_SAMPLE_RELATIVE} if {@code timeUs} should be added.
+   */
+  public void setContent(long timeUs, Subtitle subtitle, long subsampleOffsetUs) {
+    this.timeUs = timeUs;
     this.subtitle = subtitle;
-    this.offsetUs = subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE ? timestampUs
+    this.subsampleOffsetUs = subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE ? this.timeUs
         : subsampleOffsetUs;
   }
 
@@ -45,17 +51,17 @@ public abstract class SubtitleOutputBuffer extends OutputBuffer implements Subti
 
   @Override
   public long getEventTime(int index) {
-    return subtitle.getEventTime(index) + offsetUs;
+    return subtitle.getEventTime(index) + subsampleOffsetUs;
   }
 
   @Override
   public int getNextEventTimeIndex(long timeUs) {
-    return subtitle.getNextEventTimeIndex(timeUs - offsetUs);
+    return subtitle.getNextEventTimeIndex(timeUs - subsampleOffsetUs);
   }
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    return subtitle.getCues(timeUs - offsetUs);
+    return subtitle.getCues(timeUs - subsampleOffsetUs);
   }
 
   @Override

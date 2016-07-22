@@ -18,13 +18,20 @@ package com.google.android.exoplayer2.text;
 /**
  * Thrown when an error occurs decoding text data.
  */
-public class TextDecoderException extends Exception {
+public class SubtitleDecoderException extends Exception {
 
-  public TextDecoderException(String message) {
+  /**
+   * @param message The detail message.
+   */
+  public SubtitleDecoderException(String message) {
     super(message);
   }
 
-  public TextDecoderException(String message, Throwable cause) {
+  /**
+   * @param message The detail message.
+   * @param cause The cause.
+   */
+  public SubtitleDecoderException(String message, Throwable cause) {
     super(message, cause);
   }
 

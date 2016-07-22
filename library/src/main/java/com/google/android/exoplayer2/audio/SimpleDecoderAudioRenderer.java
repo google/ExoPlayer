@@ -204,7 +204,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       }
     }
 
-    int handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timestampUs);
+    int handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timeUs);
     lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
     // If we are out of sync, allow currentPositionUs to jump backwards.

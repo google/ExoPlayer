@@ -21,10 +21,13 @@ import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 /**
  * A {@link Subtitle} output from an {@link Eia608Decoder}.
  */
-public final class Eia608SubtitleOutputBuffer extends SubtitleOutputBuffer {
+/* package */ final class Eia608SubtitleOutputBuffer extends SubtitleOutputBuffer {
 
   private Eia608Decoder owner;
 
+  /**
+   * @param owner The decoder that owns this buffer.
+   */
   public Eia608SubtitleOutputBuffer(Eia608Decoder owner) {
     super();
     this.owner = owner;

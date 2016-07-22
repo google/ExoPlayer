@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 
-import android.annotation.TargetApi;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -33,13 +32,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A renderer for subtitles.
+ * A renderer for text.
  * <p>
- * Text is parsed from sample data using {@link SubtitleDecoder} instances obtained from a
- * {@link SubtitleDecoderFactory}. The actual rendering of each line of text is delegated to a
- * {@link Output}.
+ * {@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances obtained
+ * from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s is
+ * delegated to an {@link Output}.
  */
-@TargetApi(16)
 public final class TextRenderer extends BaseRenderer implements Callback {
 
   /**
@@ -142,7 +140,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       decoder.setPositionUs(positionUs);
       try {
         nextSubtitle = decoder.dequeueOutputBuffer();
-      } catch (TextDecoderException e) {
+      } catch (SubtitleDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
     }
@@ -163,7 +161,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       }
     }
 
-    if (nextSubtitle != null && nextSubtitle.timestampUs <= positionUs) {
+    if (nextSubtitle != null && nextSubtitle.timeUs <= positionUs) {
       // Advance to the next subtitle. Sync the next event index and trigger an update.
       if (subtitle != null) {
         subtitle.release();
@@ -210,7 +208,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
           break;
         }
       }
-    } catch (TextDecoderException e) {
+    } catch (SubtitleDecoderException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }

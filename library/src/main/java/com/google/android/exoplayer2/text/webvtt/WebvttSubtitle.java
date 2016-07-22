@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * A representation of a WebVTT subtitle.
  */
-public final class WebvttSubtitle implements Subtitle {
+/* package */ final class WebvttSubtitle implements Subtitle {
 
   private final List<WebvttCue> cues;
   private final int numCues;

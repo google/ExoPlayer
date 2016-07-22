@@ -216,9 +216,9 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
     // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
     // and that's also late. Else we'll render what we have.
-    if ((joiningDeadlineMs != -1 && outputBuffer.timestampUs < positionUs - 30000)
+    if ((joiningDeadlineMs != -1 && outputBuffer.timeUs < positionUs - 30000)
         || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
-        && nextOutputBuffer.timestampUs < positionUs)) {
+        && nextOutputBuffer.timeUs < positionUs)) {
       decoderCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
       consecutiveDroppedFrameCount++;
@@ -241,7 +241,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
 
-    if (getState() == STATE_STARTED && outputBuffer.timestampUs <= positionUs + 30000) {
+    if (getState() == STATE_STARTED && outputBuffer.timeUs <= positionUs + 30000) {
       renderBuffer();
     }
     return false;

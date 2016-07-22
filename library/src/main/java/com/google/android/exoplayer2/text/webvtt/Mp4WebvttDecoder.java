@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
@@ -46,14 +46,14 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Mp4WebvttSubtitle decode(byte[] bytes, int length) throws TextDecoderException {
+  protected Mp4WebvttSubtitle decode(byte[] bytes, int length) throws SubtitleDecoderException {
     // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box parsing:
     // first 4 bytes size and then 4 bytes type.
     sampleData.reset(bytes, length);
     List<Cue> resultingCueList = new ArrayList<>();
     while (sampleData.bytesLeft() > 0) {
       if (sampleData.bytesLeft() < BOX_HEADER_SIZE) {
-        throw new TextDecoderException("Incomplete Mp4Webvtt Top Level box header found.");
+        throw new SubtitleDecoderException("Incomplete Mp4Webvtt Top Level box header found.");
       }
       int boxSize = sampleData.readInt();
       int boxType = sampleData.readInt();
@@ -68,11 +68,11 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   }
 
   private static Cue parseVttCueBox(ParsableByteArray sampleData, WebvttCue.Builder builder,
-        int remainingCueBoxBytes) throws TextDecoderException {
+        int remainingCueBoxBytes) throws SubtitleDecoderException {
     builder.reset();
     while (remainingCueBoxBytes > 0) {
       if (remainingCueBoxBytes < BOX_HEADER_SIZE) {
-        throw new TextDecoderException("Incomplete vtt cue box header found.");
+        throw new SubtitleDecoderException("Incomplete vtt cue box header found.");
       }
       int boxSize = sampleData.readInt();
       int boxType = sampleData.readInt();

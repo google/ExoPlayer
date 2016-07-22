@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 
 import junit.framework.TestCase;
 
@@ -81,14 +81,14 @@ public final class Mp4WebvttDecoderTest extends TestCase {
 
   // Positive tests.
 
-  public void testSingleCueSample() throws TextDecoderException {
+  public void testSingleCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length);
     Cue expectedCue = new Cue("Hello World"); // Line feed must be trimmed by the decoder
     assertMp4WebvttSubtitleEquals(result, expectedCue);
   }
 
-  public void testTwoCuesSample() throws TextDecoderException {
+  public void testTwoCuesSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length);
     Cue firstExpectedCue = new Cue("Hello World");
@@ -96,7 +96,7 @@ public final class Mp4WebvttDecoderTest extends TestCase {
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
   }
 
-  public void testNoCueSample() throws TextDecoderException {
+  public void testNoCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length);
     assertMp4WebvttSubtitleEquals(result, new Cue[0]);
@@ -108,7 +108,7 @@ public final class Mp4WebvttDecoderTest extends TestCase {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     try {
       decoder.decode(INCOMPLETE_HEADER_SAMPLE, INCOMPLETE_HEADER_SAMPLE.length);
-    } catch (TextDecoderException e) {
+    } catch (SubtitleDecoderException e) {
       return;
     }
     fail();

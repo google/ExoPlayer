@@ -56,12 +56,12 @@ import java.nio.ByteBuffer;
   /**
    * Initializes the buffer.
    *
-   * @param timestampUs The presentation timestamp for the buffer, in microseconds.
+   * @param timeUs The presentation timestamp for the buffer, in microseconds.
    * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE},
    *     {@link VpxDecoder#OUTPUT_MODE_RGB} and {@link VpxDecoder#OUTPUT_MODE_YUV}.
    */
-  public void init(long timestampUs, int mode) {
-    this.timestampUs = timestampUs;
+  public void init(long timeUs, int mode) {
+    this.timeUs = timeUs;
     this.mode = mode;
   }
 

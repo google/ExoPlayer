@@ -433,7 +433,7 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Gets the tag name for the given tag contents.
+   * Returns the tag name for the given tag contents.
    *
    * @param tagExpression Characters between &amp;lt: and &amp;gt; of a start or end tag.
    * @return The name of tag.

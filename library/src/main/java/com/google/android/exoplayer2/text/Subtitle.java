@@ -23,7 +23,7 @@ import java.util.List;
 public interface Subtitle {
 
   /**
-   * Gets the index of the first event that occurs after a given time (exclusive).
+   * Returns the index of the first event that occurs after a given time (exclusive).
    *
    * @param timeUs The time in microseconds.
    * @return The index of the next event, or -1 if there are no events after the specified time.
@@ -31,7 +31,7 @@ public interface Subtitle {
   int getNextEventTimeIndex(long timeUs);
 
   /**
-   * Gets the number of event times, where events are defined as points in time at which the cues
+   * Returns the number of event times, where events are defined as points in time at which the cues
    * returned by {@link #getCues(long)} changes.
    *
    * @return The number of event times.
@@ -39,7 +39,7 @@ public interface Subtitle {
   int getEventTimeCount();
 
   /**
-   * Gets the event time at a specified index.
+   * Returns the event time at a specified index.
    *
    * @param index The index of the event time to obtain.
    * @return The event time in microseconds.

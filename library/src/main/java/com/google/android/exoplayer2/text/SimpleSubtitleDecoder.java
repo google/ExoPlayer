@@ -23,11 +23,14 @@ import java.nio.ByteBuffer;
  * Base class for subtitle parsers that use their own decode thread.
  */
 public abstract class SimpleSubtitleDecoder extends
-    SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, TextDecoderException> implements
+    SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, SubtitleDecoderException> implements
     SubtitleDecoder {
 
   private final String name;
 
+  /**
+   * @param name The name of the decoder.
+   */
   protected SimpleSubtitleDecoder(String name) {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     this.name = name;
@@ -60,26 +63,26 @@ public abstract class SimpleSubtitleDecoder extends
   }
 
   @Override
-  protected final TextDecoderException decode(SubtitleInputBuffer inputBuffer,
+  protected final SubtitleDecoderException decode(SubtitleInputBuffer inputBuffer,
       SubtitleOutputBuffer outputBuffer, boolean reset) {
     try {
       ByteBuffer inputData = inputBuffer.data;
       Subtitle subtitle = decode(inputData.array(), inputData.limit());
-      outputBuffer.setOutput(inputBuffer.timeUs, subtitle, inputBuffer.subsampleOffsetUs);
+      outputBuffer.setContent(inputBuffer.timeUs, subtitle, inputBuffer.subsampleOffsetUs);
       return null;
-    } catch (TextDecoderException e) {
+    } catch (SubtitleDecoderException e) {
       return e;
     }
   }
 
   /**
-   * Decodes the data and converts it into a {@link Subtitle}.
+   * Decodes data into a {@link Subtitle}.
    *
-   * @param data The data to be decoded.
-   * @param size The size of the data.
-   * @return A {@link Subtitle} to rendered.
-   * @throws TextDecoderException If a decoding error occurs.
+   * @param data An array holding the data to be decoded, starting at position 0.
+   * @param size The size of the data to be decoded.
+   * @return The decoded {@link Subtitle}.
+   * @throws SubtitleDecoderException If a decoding error occurs.
    */
-  protected abstract Subtitle decode(byte[] data, int size) throws TextDecoderException;
+  protected abstract Subtitle decode(byte[] data, int size) throws SubtitleDecoderException;
 
 }

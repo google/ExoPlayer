@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import android.text.TextUtils;
@@ -55,7 +55,7 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected WebvttSubtitle decode(byte[] bytes, int length) throws TextDecoderException {
+  protected WebvttSubtitle decode(byte[] bytes, int length) throws SubtitleDecoderException {
     parsableWebvttData.reset(bytes, length);
     // Initialization for consistent starting state.
     webvttCueBuilder.reset();
@@ -72,7 +72,7 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
         skipComment(parsableWebvttData);
       } else if (eventFound == STYLE_BLOCK_FOUND) {
         if (!subtitles.isEmpty()) {
-          throw new TextDecoderException("A style block was found after the first cue.");
+          throw new SubtitleDecoderException("A style block was found after the first cue.");
         }
         parsableWebvttData.readLine(); // Consume the "STYLE" header.
         WebvttCssStyle styleBlock = cssParser.parseBlock(parsableWebvttData);

@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -122,7 +122,7 @@ import java.util.regex.Pattern;
     // Validate the first line of the header.
     try {
       WebvttParserUtil.validateWebvttHeaderLine(webvttData);
-    } catch (TextDecoderException e) {
+    } catch (SubtitleDecoderException e) {
       throw new ParserException(e);
     }
 

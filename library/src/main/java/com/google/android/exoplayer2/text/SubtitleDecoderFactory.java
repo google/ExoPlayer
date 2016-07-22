@@ -31,19 +31,19 @@ import com.google.android.exoplayer2.util.MimeTypes;
 public interface SubtitleDecoderFactory {
 
   /**
-   * Returns whether the factory is able to instantiate a {@link Decoder} for the given
+   * Returns whether the factory is able to instantiate a {@link SubtitleDecoder} for the given
    * {@link Format}.
    *
    * @param format The {@link Format}.
-   * @return True if the factory can instantiate a suitable {@link Decoder}. False otherwise.
+   * @return Whether the factory can instantiate a suitable {@link SubtitleDecoder}.
    */
   boolean supportsFormat(Format format);
 
   /**
-   * Creates a {@link Decoder} for the given {@link Format}.
+   * Creates a {@link SubtitleDecoder} for the given {@link Format}.
    *
    * @param format The {@link Format}.
-   * @return A new {@link Decoder}.
+   * @return A new {@link SubtitleDecoder}.
    * @throws IllegalArgumentException If the {@link Format} is not supported.
    */
   SubtitleDecoder createDecoder(Format format);

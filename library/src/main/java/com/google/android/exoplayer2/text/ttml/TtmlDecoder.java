@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.text.ttml;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
@@ -99,7 +99,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected TtmlSubtitle decode(byte[] bytes, int length) throws TextDecoderException {
+  protected TtmlSubtitle decode(byte[] bytes, int length) throws SubtitleDecoderException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       Map<String, TtmlStyle> globalStyles = new HashMap<>();
@@ -132,7 +132,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
                 if (parent != null) {
                   parent.addChild(node);
                 }
-              } catch (TextDecoderException e) {
+              } catch (SubtitleDecoderException e) {
                 Log.w(TAG, "Suppressing parser error", e);
                 // Treat the node (and by extension, all of its children) as unsupported.
                 unsupportedNodeDepth++;
@@ -158,14 +158,14 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
       return ttmlSubtitle;
     } catch (XmlPullParserException xppe) {
-      throw new TextDecoderException("Unable to decode source", xppe);
+      throw new SubtitleDecoderException("Unable to decode source", xppe);
     } catch (IOException e) {
       throw new IllegalStateException("Unexpected error when reading input.", e);
     }
   }
 
   private FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser)
-      throws TextDecoderException {
+      throws SubtitleDecoderException {
     int frameRate = DEFAULT_FRAME_RATE;
     String frameRateString = xmlParser.getAttributeValue(TTP, "frameRate");
     if (frameRateString != null) {
@@ -177,7 +177,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     if (frameRateMultiplierString != null) {
       String[] parts = frameRateMultiplierString.split(" ");
       if (parts.length != 2) {
-        throw new TextDecoderException("frameRateMultiplier doesn't have 2 parts");
+        throw new SubtitleDecoderException("frameRateMultiplier doesn't have 2 parts");
       }
       float numerator = Integer.parseInt(parts[0]);
       float denominator = Integer.parseInt(parts[1]);
@@ -299,7 +299,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           try {
             style = createIfNull(style);
             parseFontSize(attributeValue, style);
-          } catch (TextDecoderException e) {
+          } catch (SubtitleDecoderException e) {
             Log.w(TAG, "failed parsing fontSize value: '" + attributeValue + "'");
           }
           break;
@@ -360,7 +360,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
   private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent,
       Map<String, TtmlRegion> regionMap, FrameAndTickRate frameAndTickRate)
-      throws TextDecoderException {
+      throws SubtitleDecoderException {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
@@ -438,7 +438,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         || tag.equals(TtmlNode.TAG_SMPTE_INFORMATION);
   }
 
-  private static void parseFontSize(String expression, TtmlStyle out) throws TextDecoderException {
+  private static void parseFontSize(String expression, TtmlStyle out) throws
+      SubtitleDecoderException {
     String[] expressions = expression.split("\\s+");
     Matcher matcher;
     if (expressions.length == 1) {
@@ -448,8 +449,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       Log.w(TAG, "Multiple values in fontSize attribute. Picking the second value for vertical font"
           + " size and ignoring the first.");
     } else {
-      throw new TextDecoderException("Invalid number of entries for fontSize: " + expressions.length
-          + ".");
+      throw new SubtitleDecoderException("Invalid number of entries for fontSize: "
+          + expressions.length + ".");
     }
 
     if (matcher.matches()) {
@@ -465,11 +466,11 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           out.setFontSizeUnit(TtmlStyle.FONT_SIZE_UNIT_PERCENT);
           break;
         default:
-          throw new TextDecoderException("Invalid unit for fontSize: '" + unit + "'.");
+          throw new SubtitleDecoderException("Invalid unit for fontSize: '" + unit + "'.");
       }
       out.setFontSize(Float.valueOf(matcher.group(1)));
     } else {
-      throw new TextDecoderException("Invalid expression for fontSize: '" + expression + "'.");
+      throw new SubtitleDecoderException("Invalid expression for fontSize: '" + expression + "'.");
     }
   }
 
@@ -482,10 +483,10 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
    * @param time A string that includes the time expression.
    * @param frameAndTickRate The effective frame and tick rates of the stream.
    * @return The parsed timestamp in microseconds.
-   * @throws TextDecoderException If the given string does not contain a valid time expression.
+   * @throws SubtitleDecoderException If the given string does not contain a valid time expression.
    */
   private static long parseTimeExpression(String time, FrameAndTickRate frameAndTickRate)
-      throws TextDecoderException {
+      throws SubtitleDecoderException {
     Matcher matcher = CLOCK_TIME.matcher(time);
     if (matcher.matches()) {
       String hours = matcher.group(1);
@@ -533,7 +534,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
       return (long) (offsetSeconds * C.MICROS_PER_SECOND);
     }
-    throw new TextDecoderException("Malformed time expression: " + time);
+    throw new SubtitleDecoderException("Malformed time expression: " + time);
   }
 
   private static final class FrameAndTickRate {

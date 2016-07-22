@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text;
+package com.google.android.exoplayer2.ui;
+
+import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.text.Cue;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -28,7 +31,7 @@ import java.util.List;
 /**
  * A view for rendering rich-formatted captions.
  */
-public final class SubtitleLayout extends View {
+public final class SubtitleView extends View {
 
   /**
    * The default fractional text size.
@@ -49,7 +52,7 @@ public final class SubtitleLayout extends View {
   private static final int FRACTIONAL_IGNORE_PADDING = 1;
   private static final int ABSOLUTE = 2;
 
-  private final List<CuePainter> painters;
+  private final List<SubtitleCuePainter> painters;
 
   private List<Cue> cues;
   private int textSizeType;
@@ -58,11 +61,11 @@ public final class SubtitleLayout extends View {
   private CaptionStyleCompat style;
   private float bottomPaddingFraction;
 
-  public SubtitleLayout(Context context) {
+  public SubtitleView(Context context) {
     this(context, null);
   }
 
-  public SubtitleLayout(Context context, AttributeSet attrs) {
+  public SubtitleView(Context context, AttributeSet attrs) {
     super(context, attrs);
     painters = new ArrayList<>();
     textSizeType = FRACTIONAL;
@@ -85,7 +88,7 @@ public final class SubtitleLayout extends View {
     // Ensure we have sufficient painters.
     int cueCount = (cues == null) ? 0 : cues.size();
     while (painters.size() < cueCount) {
-      painters.add(new CuePainter(getContext()));
+      painters.add(new SubtitleCuePainter(getContext()));
     }
     // Invalidate to trigger drawing.
     invalidate();

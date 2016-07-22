@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
@@ -213,7 +213,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
   }
 
   @Override
-  public SubtitleInputBuffer dequeueInputBuffer() throws TextDecoderException {
+  public SubtitleInputBuffer dequeueInputBuffer() throws SubtitleDecoderException {
     Assertions.checkState(dequeuedInputBuffer == null);
     if (availableInputBuffers.isEmpty()) {
       return null;
@@ -223,7 +223,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
   }
 
   @Override
-  public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws TextDecoderException {
+  public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws SubtitleDecoderException {
     Assertions.checkArgument(inputBuffer != null);
     Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
     queuedInputBuffers.add(inputBuffer);
@@ -231,7 +231,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
   }
 
   @Override
-  public SubtitleOutputBuffer dequeueOutputBuffer() throws TextDecoderException {
+  public SubtitleOutputBuffer dequeueOutputBuffer() throws SubtitleDecoderException {
     if (availableOutputBuffers.isEmpty()) {
       return null;
     }
@@ -259,7 +259,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
         lastCaptionString = captionString;
         if (!inputBuffer.isDecodeOnly()) {
           SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-          outputBuffer.setOutput(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
+          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
           releaseInputBuffer(inputBuffer);
           return outputBuffer;
         }

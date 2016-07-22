@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text;
+package com.google.android.exoplayer2.ui;
 
+import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Util;
 
 import android.content.Context;
@@ -34,11 +36,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 /**
- * Draws {@link Cue}s.
+ * Draws subtitle {@link Cue}s.
  */
-/* package */ final class CuePainter {
+/* package */ final class SubtitleCuePainter {
 
-  private static final String TAG = "CuePainter";
+  private static final String TAG = "SubtitleCuePainter";
 
   /**
    * Ratio of inner padding to font size.
@@ -89,7 +91,7 @@ import android.util.Log;
   private int textTop;
   private int textPaddingX;
 
-  public CuePainter(Context context) {
+  public SubtitleCuePainter(Context context) {
     int[] viewAttr = {android.R.attr.lineSpacingExtra, android.R.attr.lineSpacingMultiplier};
     TypedArray styledAttributes = context.obtainStyledAttributes(null, viewAttr, 0, 0);
     spacingAdd = styledAttributes.getDimensionPixelSize(0, 0);

@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer2.metadata;
 
+import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -32,7 +31,7 @@ import android.os.Message;
 import java.nio.ByteBuffer;
 
 /**
- * A {@link Renderer} for metadata embedded in a media stream.
+ * A renderer for metadata.
  *
  * @param <T> The type of the metadata.
  */

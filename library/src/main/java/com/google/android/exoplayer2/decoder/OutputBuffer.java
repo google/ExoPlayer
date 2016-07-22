@@ -23,7 +23,7 @@ public abstract class OutputBuffer extends Buffer {
   /**
    * The presentation timestamp for the buffer, in microseconds.
    */
-  public long timestampUs;
+  public long timeUs;
 
   /**
    * The number of buffers immediately prior to this one that were skipped in the {@link Decoder}.

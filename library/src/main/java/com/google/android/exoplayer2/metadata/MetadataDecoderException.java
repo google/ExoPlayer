@@ -20,10 +20,17 @@ package com.google.android.exoplayer2.metadata;
  */
 public class MetadataDecoderException extends Exception {
 
+  /**
+   * @param message The detail message.
+   */
   public MetadataDecoderException(String message) {
     super(message);
   }
 
+  /**
+   * @param message The detail message.
+   * @param cause The cause.
+   */
   public MetadataDecoderException(String message, Throwable cause) {
     super(message, cause);
   }

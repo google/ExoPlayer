@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.text.ttml;
 
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ColorParser;
 
 import android.test.InstrumentationTestCase;
@@ -61,7 +61,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
   private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
   private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
 
-  public void testInlineAttributes() throws IOException, TextDecoderException {
+  public void testInlineAttributes() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
@@ -77,7 +77,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertTrue(firstPStyle.isUnderline());
   }
 
-  public void testInheritInlineAttributes() throws IOException, TextDecoderException {
+  public void testInheritInlineAttributes() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
@@ -95,14 +95,14 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
    *     Kitkat Color</a>
    * @throws IOException thrown if reading subtitle file fails.
    */
-  public void testLime() throws IOException, TextDecoderException {
+  public void testLime() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, 0xFF00FFFF, 0xFF00FF00,
         false, true, null);
   }
 
-  public void testInheritGlobalStyle() throws IOException, TextDecoderException {
+  public void testInheritGlobalStyle() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
     assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, 0xFF0000FF,
@@ -110,7 +110,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
   }
 
   public void testInheritGlobalStyleOverriddenByInlineAttributes() throws IOException,
-      TextDecoderException {
+      SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_OVERRIDE_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
@@ -120,7 +120,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
         true, false, null);
   }
 
-  public void testInheritGlobalAndParent() throws IOException, TextDecoderException {
+  public void testInheritGlobalAndParent() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
@@ -130,7 +130,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
         0xFFFFFF00, true, true, Layout.Alignment.ALIGN_CENTER);
   }
 
-  public void testInheritMultipleStyles() throws IOException, TextDecoderException {
+  public void testInheritMultipleStyles() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
     assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC, 0xFF0000FF,
@@ -138,21 +138,22 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
   }
 
   public void testInheritMultipleStylesWithoutLocalAttributes() throws IOException,
-      TextDecoderException {
+      SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC, 0xFF0000FF,
         0xFF000000, false, true, null);
   }
 
-  public void testMergeMultipleStylesWithParentStyle() throws IOException, TextDecoderException {
+  public void testMergeMultipleStylesWithParentStyle() throws IOException,
+      SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
     assertSpans(subtitle, 30, "text 2.5", "sansSerifInline", TtmlStyle.STYLE_ITALIC, 0xFFFF0000,
         0xFFFFFF00, true, true, null);
   }
 
-  public void testMultipleRegions() throws IOException, TextDecoderException {
+  public void testMultipleRegions() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(MULTIPLE_REGIONS_TTML_FILE);
     List<Cue> output = subtitle.getCues(1000000);
     assertEquals(2, output.size());
@@ -202,7 +203,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertEquals(45.f / 100.f, ttmlCue.line);
   }
 
-  public void testEmptyStyleAttribute() throws IOException, TextDecoderException {
+  public void testEmptyStyleAttribute() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
@@ -213,7 +214,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertNull(queryChildrenForTag(fourthDiv, TtmlNode.TAG_P, 0).getStyleIds());
   }
 
-  public void testNonexistingStyleId() throws IOException, TextDecoderException {
+  public void testNonexistingStyleId() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
@@ -225,7 +226,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
   }
 
   public void testNonExistingAndExistingStyleIdWithRedundantSpaces() throws IOException,
-      TextDecoderException {
+      SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
@@ -237,7 +238,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertEquals(2, styleIds.length);
   }
 
-  public void testMultipleChaining() throws IOException, TextDecoderException {
+  public void testMultipleChaining() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(CHAIN_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
 
@@ -259,7 +260,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertTrue(style.isLinethrough());
   }
 
-  public void testNoUnderline() throws IOException, TextDecoderException {
+  public void testNoUnderline() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
@@ -271,7 +272,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertFalse("noUnderline from inline attribute expected", style.isUnderline());
   }
 
-  public void testNoLinethrough() throws IOException, TextDecoderException {
+  public void testNoLinethrough() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
@@ -284,7 +285,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
         style.isLinethrough());
   }
 
-  public void testFontSizeSpans() throws IOException, TextDecoderException {
+  public void testFontSizeSpans() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_TTML_FILE);
     assertEquals(10, subtitle.getEventTimeCount());
 
@@ -319,7 +320,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertRelativeFontSize(spannable, 0.5f);
   }
 
-  public void testFontSizeWithMissingUnitIsIgnored() throws IOException, TextDecoderException {
+  public void testFontSizeWithMissingUnitIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_MISSING_UNIT_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
     List<Cue> cues = subtitle.getCues(10 * 1000000);
@@ -330,7 +331,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
   }
 
-  public void testFontSizeWithInvalidValueIsIgnored() throws IOException, TextDecoderException {
+  public void testFontSizeWithInvalidValueIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_INVALID_TTML_FILE);
     assertEquals(6, subtitle.getEventTimeCount());
 
@@ -358,7 +359,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
   }
 
-  public void testFontSizeWithEmptyValueIsIgnored() throws IOException, TextDecoderException {
+  public void testFontSizeWithEmptyValueIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_EMPTY_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
     List<Cue> cues = subtitle.getCues(10 * 1000000);
@@ -369,7 +370,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
   }
 
-  public void testFrameRate() throws IOException, TextDecoderException {
+  public void testFrameRate() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FRAME_RATE_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
     assertEquals(1_000_000, subtitle.getEventTime(0));
@@ -480,7 +481,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
     throw new IllegalStateException("tag not found");
   }
 
-  private TtmlSubtitle getSubtitle(String file) throws IOException, TextDecoderException {
+  private TtmlSubtitle getSubtitle(String file) throws IOException, SubtitleDecoderException {
     TtmlDecoder ttmlDecoder = new TtmlDecoder();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), file);
     return ttmlDecoder.decode(bytes, bytes.length);

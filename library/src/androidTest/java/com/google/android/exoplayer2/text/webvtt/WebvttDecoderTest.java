@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 
 import android.graphics.Typeface;
 import android.test.InstrumentationTestCase;
@@ -53,12 +53,12 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     try {
       decoder.decode(bytes, bytes.length);
       fail();
-    } catch (TextDecoderException expected) {
+    } catch (SubtitleDecoderException expected) {
       // Do nothing.
     }
   }
 
-  public void testDecodeTypical() throws IOException, TextDecoderException {
+  public void testDecodeTypical() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_FILE);
 
     // Test event count.
@@ -69,7 +69,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     assertCue(subtitle, 2, 2345000, 3456000, "This is the second subtitle.");
   }
 
-  public void testDecodeTypicalWithIds() throws IOException, TextDecoderException {
+  public void testDecodeTypicalWithIds() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_IDS_FILE);
 
     // Test event count.
@@ -80,7 +80,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     assertCue(subtitle, 2, 2345000, 3456000, "This is the second subtitle.");
   }
 
-  public void testDecodeTypicalWithComments() throws IOException, TextDecoderException {
+  public void testDecodeTypicalWithComments() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_COMMENTS_FILE);
 
     // test event count
@@ -91,7 +91,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     assertCue(subtitle, 2, 2345000, 3456000, "This is the second subtitle.");
   }
 
-  public void testDecodeWithTags() throws IOException, TextDecoderException {
+  public void testDecodeWithTags() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_TAGS_FILE);
 
     // Test event count.
@@ -104,7 +104,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     assertCue(subtitle, 6, 6000000, 7000000, "This is the <fourth> &subtitle.");
   }
 
-  public void testDecodeWithPositioning() throws IOException, TextDecoderException {
+  public void testDecodeWithPositioning() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
     // Test event count.
     assertEquals(12, subtitle.getEventTimeCount());
@@ -128,7 +128,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
         Cue.TYPE_UNSET, 0.35f);
   }
 
-  public void testDecodeWithBadCueHeader() throws IOException, TextDecoderException {
+  public void testDecodeWithBadCueHeader() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BAD_CUE_HEADER_FILE);
 
     // Test event count.
@@ -139,7 +139,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     assertCue(subtitle, 2, 4000000, 5000000, "This is the third subtitle.");
   }
 
-  public void testWebvttWithCssStyle() throws IOException, TextDecoderException {
+  public void testWebvttWithCssStyle() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_STYLES);
 
     // Test event count.
@@ -162,7 +162,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     assertEquals(Typeface.BOLD, s4.getSpans(17, s4.length(), StyleSpan.class)[0].getStyle());
   }
 
-  public void testWithComplexCssSelectors() throws IOException, TextDecoderException {
+  public void testWithComplexCssSelectors() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
     Spanned text = getUniqueSpanTextAt(subtitle, 0);
     assertEquals(1, text.getSpans(30, text.length(), ForegroundColorSpan.class).length);
@@ -193,7 +193,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
   }
 
   private WebvttSubtitle getSubtitleForTestAsset(String asset) throws IOException,
-      TextDecoderException {
+      SubtitleDecoderException {
     WebvttDecoder decoder = new WebvttDecoder();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), asset);
     return decoder.decode(bytes, bytes.length);

@@ -18,18 +18,23 @@ package com.google.android.exoplayer2.text.eia608;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 
+import android.text.TextUtils;
+
 import java.util.Collections;
 import java.util.List;
 
 /**
  * A representation of an EIA-608 subtitle.
  */
-public final class Eia608Subtitle implements Subtitle {
+/* package */ final class Eia608Subtitle implements Subtitle {
 
-  private final String caption;
+  private final String text;
 
-  public Eia608Subtitle(String caption) {
-    this.caption = caption;
+  /**
+   * @param text The subtitle text.
+   */
+  public Eia608Subtitle(String text) {
+    this.text = text;
   }
 
   @Override
@@ -49,10 +54,10 @@ public final class Eia608Subtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    if (caption == null || caption.isEmpty()) {
+    if (TextUtils.isEmpty(text)) {
       return Collections.emptyList();
     } else {
-      return Collections.singletonList(new Cue(caption));
+      return Collections.singletonList(new Cue(text));
     }
   }
 

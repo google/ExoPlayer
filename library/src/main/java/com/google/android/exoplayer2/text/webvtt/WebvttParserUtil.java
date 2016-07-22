@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import com.google.android.exoplayer2.text.TextDecoderException;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import java.util.regex.Matcher;
@@ -35,12 +35,13 @@ public final class WebvttParserUtil {
    * Reads and validates the first line of a WebVTT file.
    *
    * @param input The input from which the line should be read.
-   * @throws TextDecoderException If the line isn't the start of a valid WebVTT file.
+   * @throws SubtitleDecoderException If the line isn't the start of a valid WebVTT file.
    */
-  public static void validateWebvttHeaderLine(ParsableByteArray input) throws TextDecoderException {
+  public static void validateWebvttHeaderLine(ParsableByteArray input)
+      throws SubtitleDecoderException {
     String line = input.readLine();
     if (line == null || !HEADER.matcher(line).matches()) {
-      throw new TextDecoderException("Expected WEBVTT. Got " + line);
+      throw new SubtitleDecoderException("Expected WEBVTT. Got " + line);
     }
   }
 

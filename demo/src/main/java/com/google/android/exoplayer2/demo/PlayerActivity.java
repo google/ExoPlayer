@@ -47,7 +47,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.SubtitleLayout;
+import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
@@ -131,7 +131,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private AspectRatioFrameLayout videoFrame;
   private SurfaceView surfaceView;
   private TextView debugTextView;
-  private SubtitleLayout subtitleLayout;
+  private SubtitleView subtitleView;
   private Button retryButton;
 
   private String userAgent;
@@ -187,7 +187,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
-    subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
+    subtitleView = (SubtitleView) findViewById(R.id.subtitles);
     mediaController = new KeyCompatibleMediaController(this);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
@@ -582,7 +582,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onCues(List<Cue> cues) {
-    subtitleLayout.setCues(cues);
+    subtitleView.setCues(cues);
   }
 
   // SimpleExoPlayer.MetadataListener implementation
@@ -646,8 +646,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       style = CaptionStyleCompat.DEFAULT;
       fontScale = 1.0f;
     }
-    subtitleLayout.setStyle(style);
-    subtitleLayout.setFractionalTextSize(SubtitleLayout.DEFAULT_TEXT_SIZE_FRACTION * fontScale);
+    subtitleView.setStyle(style);
+    subtitleView.setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * fontScale);
   }
 
   @TargetApi(19)

@@ -15,14 +15,19 @@
  */
 package com.google.android.exoplayer2.text;
 
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /**
- * An input buffer for a subtitle parser.
+ * A {@link DecoderInputBuffer} for a {@link SubtitleDecoder}.
  */
 public final class SubtitleInputBuffer extends DecoderInputBuffer
     implements Comparable<SubtitleInputBuffer> {
 
+  /**
+   * An offset that must be added to the subtitle's event times after it's been decoded, or
+   * {@link Format#OFFSET_SAMPLE_RELATIVE} if {@link #timeUs} should be added.
+   */
   public long subsampleOffsetUs;
 
   public SubtitleInputBuffer() {
