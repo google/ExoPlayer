@@ -58,7 +58,6 @@ SmoothStreaming manifest. The contained sample formats must also be supported (s
 | **Closed&nbsp;captions/subtitles**           |||
 | TTML | YES | Embedded in FMP4 |
 | **Content protection**                    |||
-| Widevine | YES | API 18 and higher |
 | PlayReady SL2000                        | YES          | Android TV only      |
 
 ### HLS ###
