@@ -826,11 +826,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       Assertions.checkState(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].length == 1);
       Assertions.checkState(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].length == 1);
       TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
-      selections[VIDEO_RENDERER_INDEX] = new TrackSelection(0,
+      selections[VIDEO_RENDERER_INDEX] = new TrackSelection(
+          rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
           getTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
               rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
               canIncludeAdditionalVideoFormats));
-      selections[AUDIO_RENDERER_INDEX] = new TrackSelection(0,
+      selections[AUDIO_RENDERER_INDEX] = new TrackSelection(
+          rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0),
           getTrackIndices(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0),
               rendererFormatSupports[AUDIO_RENDERER_INDEX][0], audioFormatIds, false));
       includedAdditionalVideoFormats =

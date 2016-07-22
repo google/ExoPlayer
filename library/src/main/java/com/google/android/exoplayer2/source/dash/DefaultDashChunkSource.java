@@ -17,13 +17,11 @@ package com.google.android.exoplayer2.source.dash;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
@@ -36,6 +34,7 @@ import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -46,7 +45,6 @@ import com.google.android.exoplayer2.util.Util;
 import android.os.SystemClock;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -67,22 +65,21 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     @Override
     public DashChunkSource createDashChunkSource(Loader manifestLoader, DashManifest manifest,
-        int periodIndex, int adaptationSetIndex, TrackGroup trackGroup, int[] tracks,
+        int periodIndex, int adaptationSetIndex, TrackSelection trackSelection,
         long elapsedRealtimeOffsetMs) {
-      FormatEvaluator adaptiveEvaluator = tracks.length > 1
+      FormatEvaluator adaptiveEvaluator = trackSelection.length > 1
           ? formatEvaluatorFactory.createFormatEvaluator() : null;
       DataSource dataSource = dataSourceFactory.createDataSource();
      return new DefaultDashChunkSource(manifestLoader, manifest, periodIndex, adaptationSetIndex,
-         trackGroup, tracks, dataSource, adaptiveEvaluator, elapsedRealtimeOffsetMs);
+         trackSelection, dataSource, adaptiveEvaluator, elapsedRealtimeOffsetMs);
     }
 
   }
 
   private final Loader manifestLoader;
   private final int adaptationSetIndex;
-  private final TrackGroup trackGroup;
+  private final TrackSelection trackSelection;
   private final RepresentationHolder[] representationHolders;
-  private final Format[] enabledFormats;
   private final boolean[] adaptiveFormatBlacklistFlags;
   private final DataSource dataSource;
   private final FormatEvaluator adaptiveFormatEvaluator;
@@ -100,8 +97,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param manifest The initial manifest.
    * @param periodIndex The index of the period in the manifest.
    * @param adaptationSetIndex The index of the adaptation set in the period.
-   * @param trackGroup The track group corresponding to the adaptation set.
-   * @param tracks The indices of the selected tracks within the adaptation set.
+   * @param trackSelection The track selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
@@ -109,12 +105,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
    */
   public DefaultDashChunkSource(Loader manifestLoader, DashManifest manifest, int periodIndex,
-      int adaptationSetIndex, TrackGroup trackGroup, int[] tracks, DataSource dataSource,
+      int adaptationSetIndex, TrackSelection trackSelection, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs) {
     this.manifestLoader = manifestLoader;
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
-    this.trackGroup = trackGroup;
+    this.trackSelection = trackSelection;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
@@ -122,20 +118,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     long periodDurationUs = getPeriodDurationUs(periodIndex);
     List<Representation> representations = getRepresentations(periodIndex);
-    representationHolders = new RepresentationHolder[representations.size()];
-
-    for (int i = 0; i < representations.size(); i++) {
-      Representation representation = representations.get(i);
+    representationHolders = new RepresentationHolder[trackSelection.length];
+    for (int i = 0; i < trackSelection.length; i++) {
+      Representation representation = representations.get(trackSelection.getTrack(i));
       representationHolders[i] = new RepresentationHolder(periodDurationUs, representation);
     }
-    enabledFormats = new Format[tracks.length];
-    for (int i = 0; i < tracks.length; i++) {
-      enabledFormats[i] = trackGroup.getFormat(tracks[i]);
-    }
-    Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
     if (adaptiveFormatEvaluator != null) {
-      adaptiveFormatEvaluator.enable(enabledFormats);
-      adaptiveFormatBlacklistFlags = new boolean[tracks.length];
+      adaptiveFormatEvaluator.enable(trackSelection.getFormats());
+      adaptiveFormatBlacklistFlags = new boolean[trackSelection.length];
     } else {
       adaptiveFormatBlacklistFlags = null;
     }
@@ -147,8 +137,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       manifest = newManifest;
       long periodDurationUs = getPeriodDurationUs(periodIndex);
       List<Representation> representations = getRepresentations(periodIndex);
-      for (int i = 0; i < representationHolders.length; i++) {
-        Representation representation = representations.get(i);
+      for (int i = 0; i < trackSelection.length; i++) {
+        Representation representation = representations.get(trackSelection.getTrack(i));
         representationHolders[i].updateRepresentation(periodDurationUs, representation);
       }
     } catch (BehindLiveWindowException e) {
@@ -167,7 +157,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   @Override
   public int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
-    if (fatalError != null || enabledFormats.length < 2) {
+    if (fatalError != null || trackSelection.length < 2) {
       return queue.size();
     }
     return adaptiveFormatEvaluator.evaluateQueueSize(playbackPositionUs, queue,
@@ -181,12 +171,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     if (evaluation.format == null || !lastChunkWasInitialization) {
-      if (enabledFormats.length > 1) {
+      if (trackSelection.length > 1) {
         long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
         adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, adaptiveFormatBlacklistFlags,
             evaluation);
       } else {
-        evaluation.format = enabledFormats[0];
+        evaluation.format = trackSelection.getFormat(0);
         evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
         evaluation.data = null;
       }
@@ -198,7 +188,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     RepresentationHolder representationHolder =
-        representationHolders[getTrackIndex(selectedFormat)];
+        representationHolders[trackSelection.indexOf(selectedFormat)];
     Representation selectedRepresentation = representationHolder.representation;
     DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
 
@@ -270,7 +260,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (chunk instanceof InitializationChunk) {
       InitializationChunk initializationChunk = (InitializationChunk) chunk;
       RepresentationHolder representationHolder =
-          representationHolders[getTrackIndex(initializationChunk.format)];
+          representationHolders[trackSelection.indexOf(initializationChunk.format)];
       Format sampleFormat = initializationChunk.getSampleFormat();
       if (sampleFormat != null) {
         representationHolder.setSampleFormat(sampleFormat);
@@ -295,7 +285,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && e instanceof InvalidResponseCodeException
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
-          representationHolders[getTrackIndex(chunk.format)];
+          representationHolders[trackSelection.indexOf(chunk.format)];
       int lastAvailableSegmentNum = representationHolder.getLastSegmentNum();
       if (((MediaChunk) chunk).chunkIndex >= lastAvailableSegmentNum) {
         missingLastSegment = true;
@@ -366,16 +356,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
           formatEvaluatorData, startTimeUs, endTimeUs, segmentNum, sampleOffsetUs,
           representationHolder.extractorWrapper, sampleFormat);
     }
-  }
-
-  private int getTrackIndex(Format format) {
-    for (int i = 0; i < trackGroup.length; i++) {
-      if (trackGroup.getFormat(i) == format) {
-        return i;
-      }
-    }
-    // Should never happen.
-    throw new IllegalStateException("Invalid format: " + format);
   }
 
   private long getPeriodDurationUs(int periodIndex) {

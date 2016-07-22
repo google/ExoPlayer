@@ -252,7 +252,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       TrackSelection selection = newSelections.get(i);
       Assertions.checkState(selection.length == 1);
       Assertions.checkState(selection.getTrack(0) == 0);
-      int track = selection.group;
+      int track = tracks.indexOf(selection.group);
       Assertions.checkState(!trackEnabledStates[track]);
       enabledTrackCount++;
       trackEnabledStates[track] = true;

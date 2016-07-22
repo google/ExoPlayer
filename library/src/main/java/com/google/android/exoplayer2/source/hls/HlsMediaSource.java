@@ -43,7 +43,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -429,13 +428,13 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     }
     // Get the subset of the new selections for the wrapper.
     ArrayList<TrackSelection> newSelections = new ArrayList<>();
+    TrackGroupArray sampleStreamWrapperTrackGroups = sampleStreamWrapper.getTrackGroups();
     int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      Pair<HlsSampleStreamWrapper, Integer> sourceAndGroup = getSourceAndGroup(selection.group);
-      if (sourceAndGroup.first == sampleStreamWrapper) {
+      if (sampleStreamWrapperTrackGroups.indexOf(selection.group) != -1) {
         newSelectionOriginalIndices[newSelections.size()] = i;
-        newSelections.add(new TrackSelection(sourceAndGroup.second, selection.getTracks()));
+        newSelections.add(selection);
       }
     }
     // Do nothing if nothing has changed, except during the first selection.
@@ -450,18 +449,6 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       sampleStreamSources.put(newStreams[j], sampleStreamWrapper);
     }
     return newSelections.size() - oldStreams.size();
-  }
-
-  private Pair<HlsSampleStreamWrapper, Integer> getSourceAndGroup(int group) {
-    int totalTrackGroupCount = 0;
-    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      int sourceTrackGroupCount = sampleStreamWrapper.getTrackGroups().length;
-      if (group < totalTrackGroupCount + sourceTrackGroupCount) {
-        return Pair.create(sampleStreamWrapper, group - totalTrackGroupCount);
-      }
-      totalTrackGroupCount += sourceTrackGroupCount;
-    }
-    throw new IndexOutOfBoundsException();
   }
 
   private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {

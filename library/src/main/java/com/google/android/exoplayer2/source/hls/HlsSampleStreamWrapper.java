@@ -164,11 +164,11 @@ import java.util.List;
     SampleStream[] newStreams = new SampleStream[newSelections.size()];
     for (int i = 0; i < newStreams.length; i++) {
       TrackSelection selection = newSelections.get(i);
-      int group = selection.group;
+      int group = trackGroups.indexOf(selection.group);
       int[] tracks = selection.getTracks();
       setTrackGroupEnabledState(group, true);
       if (group == primaryTrackGroupIndex) {
-        chunkSource.selectTracks(tracks);
+        chunkSource.selectTracks(new TrackSelection(chunkSource.getTrackGroup(), tracks));
       }
       newStreams[i] = new SampleStreamImpl(group);
     }
@@ -526,8 +526,8 @@ import java.util.List;
       }
     }
 
-    // Calculate the number of tracks that will be exposed.
-    int chunkSourceTrackCount = chunkSource.getTrackCount();
+    TrackGroup chunkSourceTrackGroup = chunkSource.getTrackGroup();
+    int chunkSourceTrackCount = chunkSourceTrackGroup.length;
 
     // Instantiate the necessary internal data-structures.
     primaryTrackGroupIndex = -1;
@@ -540,9 +540,9 @@ import java.util.List;
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
-          formats[j] = getSampleFormat(chunkSource.getTrackFormat(j), sampleFormat);
+          formats[j] = getSampleFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat);
         }
-        trackGroups[i] = new TrackGroup(chunkSource.isAdaptive(), formats);
+        trackGroups[i] = new TrackGroup(chunkSourceTrackGroup.adaptive, formats);
         primaryTrackGroupIndex = i;
       } else {
         Format trackFormat = null;

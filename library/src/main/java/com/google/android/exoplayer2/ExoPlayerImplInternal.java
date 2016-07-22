@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -705,7 +704,6 @@ import java.util.ArrayList;
         TrackSelectionArray oldTrackSelections = readingPeriod.trackSelections;
         readingPeriod = readingPeriod.nextPeriod;
         TrackSelectionArray newTrackSelections = readingPeriod.trackSelections;
-        TrackGroupArray groups = readingPeriod.mediaPeriod.getTrackGroups();
         for (int i = 0; i < renderers.length; i++) {
           Renderer renderer = renderers[i];
           TrackSelection oldSelection = oldTrackSelections.get(i);
@@ -716,7 +714,7 @@ import java.util.ArrayList;
               // can be seamless.
               Format[] formats = new Format[newSelection.length];
               for (int j = 0; j < formats.length; j++) {
-                formats[j] = groups.get(newSelection.group).getFormat(newSelection.getTrack(j));
+                formats[j] = newSelection.group.getFormat(newSelection.getTrack(j));
               }
               renderer.replaceStream(formats, readingPeriod.sampleStreams[i],
                   readingPeriod.offsetUs);
@@ -956,7 +954,6 @@ import java.util.ArrayList;
         throws ExoPlaybackException {
       enabledRenderers = new Renderer[enabledRendererCount];
       enabledRendererCount = 0;
-      TrackGroupArray trackGroups = playingPeriod.mediaPeriod.getTrackGroups();
       for (int i = 0; i < renderers.length; i++) {
         Renderer renderer = renderers[i];
         TrackSelection newSelection = playingPeriod.trackSelections.get(i);
@@ -970,7 +967,7 @@ import java.util.ArrayList;
             // Build an array of formats contained by the selection.
             Format[] formats = new Format[newSelection.length];
             for (int j = 0; j < formats.length; j++) {
-              formats[j] = trackGroups.get(newSelection.group).getFormat(newSelection.getTrack(j));
+              formats[j] = newSelection.group.getFormat(newSelection.getTrack(j));
             }
             // Enable the renderer.
             renderer.enable(formats, playingPeriod.sampleStreams[i], internalPositionUs, joining,

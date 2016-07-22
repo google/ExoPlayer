@@ -236,12 +236,10 @@ import java.util.List;
 
   private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
-    int[] selectedTracks = selection.getTracks();
-    int adaptationSetIndex = trackGroupAdaptationSetIndices[selection.group];
+    int adaptationSetIndex = trackGroupAdaptationSetIndices[trackGroups.indexOf(selection.group)];
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(loader, manifest, index,
-        adaptationSetIndex, trackGroups.get(selection.group), selectedTracks,
-        elapsedRealtimeOffset);
+        adaptationSetIndex, selection, elapsedRealtimeOffset);
     return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }

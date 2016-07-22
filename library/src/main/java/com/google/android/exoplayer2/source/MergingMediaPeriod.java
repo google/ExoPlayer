@@ -19,8 +19,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 
-import android.util.Pair;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -183,9 +181,10 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
     int trackGroupIndex = 0;
     for (MediaPeriod period : periods) {
-      int periodTrackGroupCount = period.getTrackGroups().length;
+      TrackGroupArray periodTrackGroups = period.getTrackGroups();
+      int periodTrackGroupCount = periodTrackGroups.length;
       for (int j = 0; j < periodTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = period.getTrackGroups().get(j);
+        trackGroupArray[trackGroupIndex++] = periodTrackGroups.get(j);
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
@@ -218,12 +217,12 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     // Get the subset of the new selections for the period.
     ArrayList<TrackSelection> newSelections = new ArrayList<>();
     int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
+    TrackGroupArray periodTrackGroups = period.getTrackGroups();
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      Pair<MediaPeriod, Integer> periodAndGroup = getPeriodAndGroup(selection.group);
-      if (periodAndGroup.first == period) {
+      if (periodTrackGroups.indexOf(selection.group) != -1) {
         newSelectionOriginalIndices[newSelections.size()] = i;
-        newSelections.add(new TrackSelection(periodAndGroup.second, selection.getTracks()));
+        newSelections.add(selection);
       }
     }
     // Do nothing if nothing has changed, except during the first selection.
@@ -237,18 +236,6 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
       sampleStreamPeriods.put(newStreams[j], period);
     }
     return newSelections.size() - oldStreams.size();
-  }
-
-  private Pair<MediaPeriod, Integer> getPeriodAndGroup(int group) {
-    int totalTrackGroupCount = 0;
-    for (MediaPeriod period : periods) {
-      int periodTrackGroupCount = period.getTrackGroups().length;
-      if (group < totalTrackGroupCount + periodTrackGroupCount) {
-        return Pair.create(period, group - totalTrackGroupCount);
-      }
-      totalTrackGroupCount += periodTrackGroupCount;
-    }
-    throw new IndexOutOfBoundsException();
   }
 
 }

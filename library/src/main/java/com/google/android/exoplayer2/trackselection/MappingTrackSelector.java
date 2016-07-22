@@ -272,39 +272,26 @@ public abstract class MappingTrackSelector extends TrackSelector {
     TrackGroupArray unassociatedTrackGroupArray = new TrackGroupArray(Arrays.copyOf(
         rendererTrackGroups[rendererCapabilities.length], unassociatedTrackGroupCount));
 
-    TrackSelection[] rendererTrackSelections = selectTracks(rendererCapabilities,
-        rendererTrackGroupArrays, rendererFormatSupports);
+    TrackSelection[] trackSelections = selectTracks(rendererCapabilities, rendererTrackGroupArrays,
+        rendererFormatSupports);
 
     // Apply track disabling and overriding.
     for (int i = 0; i < rendererCapabilities.length; i++) {
       if (rendererDisabledFlags.get(i)) {
-        rendererTrackSelections[i] = null;
+        trackSelections[i] = null;
       } else {
         Map<TrackGroupArray, TrackSelection> override = trackSelectionOverrides.get(i);
         TrackSelection overrideSelection = override == null ? null
             : override.get(rendererTrackGroupArrays[i]);
         if (overrideSelection != null) {
-          rendererTrackSelections[i] = overrideSelection;
+          trackSelections[i] = overrideSelection;
         }
-      }
-    }
-
-    // The track selections above index into the track group arrays associated to each renderer,
-    // and not to the original track groups passed to this method. Build the corresponding track
-    // selections into the original track groups to pass back as the final selection.
-    TrackSelection[] trackSelections = new TrackSelection[rendererCapabilities.length];
-    for (int i = 0; i < rendererCapabilities.length; i++) {
-      TrackSelection selection = rendererTrackSelections[i];
-      if (selection != null) {
-        TrackGroup group = rendererTrackGroupArrays[i].get(selection.group);
-        int originalGroupIndex = findGroupInGroupArray(trackGroups, group);
-        trackSelections[i] = new TrackSelection(originalGroupIndex, selection.getTracks());
       }
     }
 
     // Package up the track information and selections.
     TrackSelectionArray trackSelectionArray = new TrackSelectionArray(trackSelections);
-    TrackInfo trackInfo = new TrackInfo(rendererTrackGroupArrays, rendererTrackSelections,
+    TrackInfo trackInfo = new TrackInfo(rendererTrackGroupArrays, trackSelections,
         mixedMimeTypeAdaptationSupport, rendererFormatSupports, unassociatedTrackGroupArray);
     return Pair.<TrackSelectionArray, Object>create(trackSelectionArray, trackInfo);
   }
@@ -401,23 +388,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
       mixedMimeTypeAdaptationSupport[i] = rendererCapabilities[i].supportsMixedMimeTypeAdaptation();
     }
     return mixedMimeTypeAdaptationSupport;
-  }
-
-  /**
-   * Finds the specified group in a group array, using referential equality.
-   *
-   * @param groupArray The group array to search.
-   * @param group The group to search for.
-   * @return The index of the group in the group array.
-   * @throws IllegalStateException If the group was not found.
-   */
-  private static int findGroupInGroupArray(TrackGroupArray groupArray, TrackGroup group) {
-    for (int i = 0; i < groupArray.length; i++) {
-      if (groupArray.get(i) == group) {
-        return i;
-      }
-    }
-    throw new IllegalStateException();
   }
 
   private void notifyTrackInfoChanged(final TrackInfo trackInfo) {

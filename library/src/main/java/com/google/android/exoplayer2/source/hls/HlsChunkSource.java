@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
+import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.source.hls.playlist.Variant;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -47,7 +49,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -78,6 +79,7 @@ public class HlsChunkSource {
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final Variant[] variants;
   private final HlsMediaPlaylist[] variantPlaylists;
+  private final TrackGroup trackGroup;
   private final long[] variantLastPlaylistLoadTimesMs;
 
   private boolean seenFirstExternalTrackSelection;
@@ -92,7 +94,7 @@ public class HlsChunkSource {
   private byte[] encryptionIv;
 
   // Properties of enabled variants.
-  private Variant[] enabledVariants;
+  private TrackSelection trackSelection;
   private long[] enabledVariantBlacklistTimes;
   private boolean[] enabledVariantBlacklistFlags;
 
@@ -117,11 +119,15 @@ public class HlsChunkSource {
     evaluation = new Evaluation();
     variantPlaylists = new HlsMediaPlaylist[variants.length];
     variantLastPlaylistLoadTimesMs = new long[variants.length];
+
+    Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
     for (int i = 0; i < variants.length; i++) {
+      variantFormats[i] = variants[i].format;
       initialTrackSelection[i] = i;
     }
-    selectTracksInternal(initialTrackSelection, false);
+    trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, variantFormats);
+    selectTracksInternal(new TrackSelection(trackGroup, initialTrackSelection), false);
   }
 
   /**
@@ -137,18 +143,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Returns whether this source supports adaptation between its tracks.
-   *
-   * @return Whether this source supports adaptation between its tracks.
-   */
-  public boolean isAdaptive() {
-    return adaptiveFormatEvaluator != null;
-  }
-
-  /**
    * Returns whether this is a live playback.
-   * <p>
-   * This method should only be called after the source has been prepared.
    *
    * @return True if this is a live playback. False otherwise.
    */
@@ -158,8 +153,6 @@ public class HlsChunkSource {
 
   /**
    * Returns the duration of the source, or {@link C#UNSET_TIME_US} if the duration is unknown.
-   * <p>
-   * This method should only be called after the source has been prepared.
    *
    * @return The number of tracks.
    */
@@ -168,43 +161,25 @@ public class HlsChunkSource {
   }
 
   /**
-   * Returns the number of tracks exposed by the source.
-   * <p>
-   * This method should only be called after the source has been prepared.
+   * Returns the track group exposed by the source.
    *
-   * @return The number of tracks.
+   * @return The track group.
    */
-  public int getTrackCount() {
-    return variants.length;
-  }
-
-  /**
-   * Returns the format of the track at the specified index.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @param index The track index.
-   * @return The format of the track.
-   */
-  public Format getTrackFormat(int index) {
-    return variants[index].format;
+  public TrackGroup getTrackGroup() {
+    return trackGroup;
   }
 
   /**
    * Selects tracks for use.
-   * <p>
-   * This method should only be called after the source has been prepared.
    *
-   * @param tracks The track indices.
+   * @param trackSelection The track selection.
    */
-  public void selectTracks(int[] tracks) {
-    selectTracksInternal(tracks, true);
+  public void selectTracks(TrackSelection trackSelection) {
+    selectTracksInternal(trackSelection, true);
   }
 
   /**
    * Resets the source.
-   * <p>
-   * This method should only be called after the source has been prepared.
    */
   public void reset() {
     fatalError = null;
@@ -224,10 +199,9 @@ public class HlsChunkSource {
    * @param out A holder to populate.
    */
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
-    int previousChunkVariantIndex =
-        previous != null ? getVariantIndex(previous.format) : -1;
+    int previousChunkVariantIndex = previous != null ? trackGroup.indexOf(previous.format) : -1;
     updateFormatEvaluation(previous, playbackPositionUs);
-    int newVariantIndex = getVariantIndex(evaluation.format);
+    int newVariantIndex = trackGroup.indexOf(evaluation.format);
     boolean switchingVariant = previousChunkVariantIndex != newVariantIndex;
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[newVariantIndex];
     if (mediaPlaylist == null) {
@@ -443,7 +417,7 @@ public class HlsChunkSource {
       InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
       int responseCode = responseCodeException.responseCode;
       if (responseCode == 404 || responseCode == 410) {
-        int enabledVariantIndex = getEnabledVariantIndex(chunk.format);
+        int enabledVariantIndex = trackSelection.indexOf(chunk.format);
         boolean alreadyBlacklisted = enabledVariantBlacklistFlags[enabledVariantIndex];
         enabledVariantBlacklistFlags[enabledVariantIndex] = true;
         enabledVariantBlacklistTimes[enabledVariantIndex] = SystemClock.elapsedRealtime();
@@ -471,37 +445,21 @@ public class HlsChunkSource {
 
   // Private methods.
 
-  private void selectTracksInternal(int[] tracks, boolean isExternal) {
+  private void selectTracksInternal(TrackSelection trackSelection, boolean isExternal) {
+    this.trackSelection = trackSelection;
     seenFirstExternalTrackSelection |= isExternal;
 
-    // Construct and sort the enabled variants.
-    enabledVariants = new Variant[tracks.length];
-    for (int i = 0; i < tracks.length; i++) {
-      enabledVariants[i] = variants[tracks[i]];
-    }
-    Arrays.sort(enabledVariants, new Comparator<Variant>() {
-      private final Comparator<Format> formatComparator =
-          new Format.DecreasingBandwidthComparator();
-      @Override
-      public int compare(Variant first, Variant second) {
-        return formatComparator.compare(first.format, second.format);
-      }
-    });
-
     // Reset the enabled variant blacklist flags.
-    enabledVariantBlacklistTimes = new long[enabledVariants.length];
-    enabledVariantBlacklistFlags = new boolean[enabledVariants.length];
+    enabledVariantBlacklistTimes = new long[trackSelection.length];
+    enabledVariantBlacklistFlags = new boolean[trackSelection.length];
 
     if (!isExternal) {
       return;
     }
 
-    if (enabledVariants.length > 1) {
-      Format[] formats = new Format[enabledVariants.length];
-      for (int i = 0; i < formats.length; i++) {
-        formats[i] = enabledVariants[i].format;
-      }
+    if (trackSelection.length > 1) {
       // TODO[REFACTOR]: We need to disable this at some point.
+      Format[] formats = trackSelection.getFormats();
       adaptiveFormatEvaluator.enable(formats);
       if (!Util.contains(formats, evaluation.format)) {
         evaluation.format = null;
@@ -515,23 +473,23 @@ public class HlsChunkSource {
   private void updateFormatEvaluation(HlsMediaChunk previous, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
     if (!seenFirstExternalTrackSelection) {
-      if (!enabledVariantBlacklistFlags[getEnabledVariantIndex(variants[0].format)]) {
+      if (!enabledVariantBlacklistFlags[trackSelection.indexOf(variants[0].format)]) {
         // Use the first variant prior to external track selection, unless it's been blacklisted.
         evaluation.format = variants[0].format;
         return;
       }
       // Try from lowest bitrate to highest.
-      for (int i = enabledVariants.length - 1; i >= 0; i--) {
+      for (int i = trackSelection.length - 1; i >= 0; i--) {
         if (!enabledVariantBlacklistFlags[i]) {
-          evaluation.format = enabledVariants[i].format;
+          evaluation.format = trackSelection.getFormat(i);
           return;
         }
       }
       // Should never happen.
       throw new IllegalStateException();
     }
-    if (enabledVariants.length == 1) {
-      evaluation.format = enabledVariants[0].format;
+    if (trackSelection.length == 1) {
+      evaluation.format = trackSelection.getFormat(0);
       return;
     }
     long bufferedDurationUs;
@@ -622,26 +580,6 @@ public class HlsChunkSource {
         enabledVariantBlacklistFlags[i] = false;
       }
     }
-  }
-
-  private int getEnabledVariantIndex(Format format) {
-    for (int i = 0; i < enabledVariants.length; i++) {
-      if (enabledVariants[i].format == format) {
-        return i;
-      }
-    }
-    // Should never happen.
-    throw new IllegalStateException("Invalid format: " + format);
-  }
-
-  private int getVariantIndex(Format format) {
-    for (int i = 0; i < variants.length; i++) {
-      if (variants[i].format == format) {
-        return i;
-      }
-    }
-    // Should never happen.
-    throw new IllegalStateException("Invalid format: " + format);
   }
 
   // Private classes.

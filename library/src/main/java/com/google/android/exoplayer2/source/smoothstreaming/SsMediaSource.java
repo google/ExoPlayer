@@ -354,11 +354,9 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
 
   private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
-    int[] selectedTracks = selection.getTracks();
-    int streamElementIndex = trackGroupElementIndices[selection.group];
-    SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader,
-        manifest, streamElementIndex, trackGroups.get(selection.group), selectedTracks,
-        trackEncryptionBoxes);
+    int streamElementIndex = trackGroupElementIndices[trackGroups.indexOf(selection.group)];
+    SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader, manifest,
+        streamElementIndex, selection, trackEncryptionBoxes);
     return new ChunkSampleStream<>(manifest.streamElements[streamElementIndex].type, chunkSource,
         this, allocator, positionUs, minLoadableRetryCount, eventDispatcher);
   }

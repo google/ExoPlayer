@@ -176,17 +176,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         : RendererCapabilities.ADAPTIVE_SEAMLESS;
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
         && (rendererCapabilities.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
-    int largestAdaptiveGroup = -1;
+    TrackGroup largestAdaptiveGroup = null;
     int[] largestAdaptiveGroupTracks = NO_TRACKS;
     for (int i = 0; i < trackGroups.length; i++) {
-      int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroups.get(i), formatSupport[i],
+      TrackGroup trackGroup = trackGroups.get(i);
+      int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroup, formatSupport[i],
           allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight);
       if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
-        largestAdaptiveGroup = i;
+        largestAdaptiveGroup = trackGroup;
         largestAdaptiveGroupTracks = adaptiveTracks;
       }
     }
-    if (largestAdaptiveGroup != -1) {
+    if (largestAdaptiveGroup != null) {
       return new TrackSelection(largestAdaptiveGroup, largestAdaptiveGroupTracks);
     }
 
@@ -197,7 +198,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupportedVideoTrack(trackFormatSupport[trackIndex], trackGroup.getFormat(trackIndex),
             maxVideoWidth, maxVideoHeight)) {
-          return new TrackSelection(groupIndex, trackIndex);
+          return new TrackSelection(trackGroup, trackIndex);
         }
       }
     }
@@ -267,7 +268,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static TrackSelection selectSmallestSupportedVideoTrack(TrackGroupArray trackGroups,
       int[][] formatSupport) {
     int smallestPixelCount = Integer.MAX_VALUE;
-    int trackGroupIndexSelection = -1;
+    TrackGroup trackGroupSelection = null;
     int trackIndexSelection = -1;
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup trackGroup = trackGroups.get(groupIndex);
@@ -279,13 +280,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             && isSupportedVideoTrack(trackFormatSupport[trackIndex], format, Integer.MAX_VALUE,
                 Integer.MAX_VALUE)) {
           smallestPixelCount = pixelCount;
-          trackGroupIndexSelection = groupIndex;
+          trackGroupSelection = trackGroup;
           trackIndexSelection = trackIndex;
         }
       }
     }
-    return trackIndexSelection != -1
-        ? new TrackSelection(trackGroupIndexSelection, trackIndexSelection) : null;
+    return trackGroupSelection != null
+        ? new TrackSelection(trackGroupSelection, trackIndexSelection) : null;
   }
 
   private static boolean isSupportedVideoTrack(int formatSupport, Format format, int maxVideoWidth,
@@ -305,7 +306,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           if (isSupported(trackFormatSupport[trackIndex])
               && formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new TrackSelection(groupIndex, trackIndex);
+            return new TrackSelection(trackGroup, trackIndex);
           }
         }
       }
@@ -318,7 +319,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   private static TrackSelection selectTrackForTextRenderer(TrackGroupArray trackGroups,
       int[][] formatSupport, String preferredLanguage) {
-    int firstForcedGroup = -1;
+    TrackGroup firstForcedGroup = null;
     int firstForcedTrack = -1;
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup trackGroup = trackGroups.get(groupIndex);
@@ -327,17 +328,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         if (isSupported(trackFormatSupport[trackIndex])
             && (trackGroup.getFormat(trackIndex).selectionFlags
                 & Format.SELECTION_FLAG_FORCED) != 0) {
-          if (firstForcedGroup == -1) {
-            firstForcedGroup = groupIndex;
+          if (firstForcedGroup == null) {
+            firstForcedGroup = trackGroup;
             firstForcedTrack = trackIndex;
           }
           if (formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new TrackSelection(groupIndex, trackIndex);
+            return new TrackSelection(trackGroup, trackIndex);
           }
         }
       }
     }
-    return firstForcedGroup != -1 ? new TrackSelection(firstForcedGroup, firstForcedTrack) : null;
+    return firstForcedGroup != null ? new TrackSelection(firstForcedGroup, firstForcedTrack) : null;
   }
 
   // General track selection methods.
@@ -349,7 +350,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int[] trackFormatSupport = formatSupport[groupIndex];
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupported(trackFormatSupport[trackIndex])) {
-          return new TrackSelection(groupIndex, trackIndex);
+          return new TrackSelection(trackGroup, trackIndex);
         }
       }
     }

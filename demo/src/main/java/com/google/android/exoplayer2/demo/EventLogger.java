@@ -109,7 +109,7 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
               trackGroup.length, trackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false));
           Log.d(TAG, "    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-            String status = getTrackStatusString(trackSelection, groupIndex, trackIndex);
+            String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport = getFormatSupportString(
                 trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
             Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
@@ -353,9 +353,9 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
     return builder.toString();
   }
 
-  private static String getTrackStatusString(TrackSelection selection, int groupIndex,
+  private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
       int trackIndex) {
-    boolean groupEnabled = selection != null && selection.group == groupIndex;
+    boolean groupEnabled = selection != null && selection.group == group;
     if (groupEnabled) {
       for (int i = 0; i < selection.length; i++) {
         if (selection.getTrack(i) == trackIndex) {

@@ -135,7 +135,7 @@ import java.util.Locale;
         if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           haveSupportedTracks = true;
-          trackView.setTag(Pair.create(groupIndex, trackIndex));
+          trackView.setTag(Pair.create(group, trackIndex));
           trackView.setOnClickListener(this);
         } else {
           trackView.setEnabled(false);
@@ -160,7 +160,7 @@ import java.util.Locale;
     for (int i = 0; i < trackViews.length; i++) {
       for (int j = 0; j < trackViews[i].length; j++) {
         trackViews[i][j].setChecked(
-            override != null && override.group == i && override.containsTrack(j));
+            override != null && override.group == trackGroups.get(i) && override.indexOf(j) != -1);
       }
     }
   }
@@ -194,11 +194,11 @@ import java.util.Locale;
     } else {
       isDisabled = false;
       @SuppressWarnings("unchecked")
-      Pair<Integer, Integer> tag = (Pair<Integer, Integer>) view.getTag();
-      int groupIndex = tag.first;
+      Pair<TrackGroup, Integer> tag = (Pair<TrackGroup, Integer>) view.getTag();
+      TrackGroup group = tag.first;
       int trackIndex = tag.second;
-      if (!trackGroupsAdaptive[groupIndex] || override == null) {
-        override = new TrackSelection(groupIndex, trackIndex);
+      if (!trackGroupsAdaptive[trackGroups.indexOf(group)] || override == null) {
+        override = new TrackSelection(group, trackIndex);
       } else {
         // The group being modified is adaptive and we already have a non-null override.
         boolean isEnabled = ((CheckedTextView) view).isChecked();
@@ -216,13 +216,13 @@ import java.util.Locale;
                 tracks[trackCount++] = override.getTrack(i);
               }
             }
-            override = new TrackSelection(groupIndex, tracks);
+            override = new TrackSelection(group, tracks);
           }
         } else {
           // Add the track to the override.
           int[] tracks = Arrays.copyOf(override.getTracks(), override.length + 1);
           tracks[tracks.length - 1] = trackIndex;
-          override = new TrackSelection(groupIndex, tracks);
+          override = new TrackSelection(group, tracks);
         }
       }
     }

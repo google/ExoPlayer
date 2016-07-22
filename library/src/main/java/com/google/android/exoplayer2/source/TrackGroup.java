@@ -72,6 +72,21 @@ public final class TrackGroup {
     return formats[index];
   }
 
+  /**
+   * Gets the index of the track with the given format in the group.
+   *
+   * @param format The format.
+   * @return The index of the track, or -1 if no such track exists.
+   */
+  public int indexOf(Format format) {
+    for (int i = 0; i < formats.length; i++) {
+      if (format == formats[i]) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   @Override
   public int hashCode() {
     if (hashCode == 0) {
