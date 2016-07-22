@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
+import android.util.Pair;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
@@ -27,8 +29,6 @@ import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
-import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,7 +93,19 @@ import java.util.List;
   public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
       throws ParserException {
     // Array of sample sizes.
-    ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
+    final SampleSizeBox sampleSizeBox;
+
+    final Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+    if (stszAtom != null) {
+      sampleSizeBox = new StszSampleSizeBox(stszAtom);
+    } else {
+      final Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+      if (stz2Atom == null) {
+        throw new ParserException("Track has no sample table size information");
+      }
+
+      sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
+    }
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
@@ -114,10 +126,9 @@ import java.util.List;
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
+    int sampleCount = sampleSizeBox.getSampleCount();
+
     // Skip full atom.
-    stsz.setPosition(Atom.FULL_HEADER_SIZE);
-    int fixedSampleSize = stsz.readUnsignedIntToInt();
-    int sampleCount = stsz.readUnsignedIntToInt();
     if (sampleCount == 0) {
       return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
     }
@@ -150,7 +161,7 @@ import java.util.List;
 
     // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
     boolean isRechunkable =
-        fixedSampleSize != 0
+        sampleSizeBox.isFixedSampleSize()
         && MimeTypes.AUDIO_RAW.equals(track.mediaFormat.mimeType)
         && remainingTimestampDeltaChanges == 0
         && remainingTimestampOffsetChanges == 0
@@ -195,7 +206,8 @@ import java.util.List;
         }
 
         offsets[i] = offset;
-        sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+        sizes[i] = sampleSizeBox.readNextSampleSize();
+
         if (sizes[i] > maximumSize) {
           maximumSize = sizes[i];
         }
@@ -245,7 +257,8 @@ import java.util.List;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
       FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
-          fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
+              sampleSizeBox.readNextSampleSize(), chunkOffsetsBytes, chunkSampleCounts,
+              timestampDeltaInTimeUnits);
       offsets = rechunkedResults.offsets;
       sizes = rechunkedResults.sizes;
       maximumSize = rechunkedResults.maximumSize;
@@ -1154,4 +1167,103 @@ import java.util.List;
 
   }
 
+  /**
+   * Interface that allows us to abstract away the various implementations of sample size boxes. (IE: stsz and stz2)
+   */
+  interface SampleSizeBox {
+    /**
+     * @return the number of samples in this atom.
+     */
+    int getSampleCount();
+
+    /**
+     * @return the size for the next sample in the box.
+     */
+    int readNextSampleSize();
+
+    /**
+     * @return if this box holds samples of a fixed size.
+     */
+    boolean isFixedSampleSize();
+  }
+
+  /**
+   * Reads sample sizes out of a 'stsz' atom.
+   */
+  static final class StszSampleSizeBox implements SampleSizeBox {
+    public final int fixedSampleSize;
+    public final int sampleCount;
+    public final ParsableByteArray data;
+    public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
+      data = stszAtom.data;
+      data.setPosition(Atom.FULL_HEADER_SIZE);
+      fixedSampleSize = data.readUnsignedIntToInt();
+      sampleCount = data.readUnsignedIntToInt();
+    }
+
+    @Override
+    public int getSampleCount() {
+      return sampleCount;
+    }
+
+    @Override
+    public int readNextSampleSize() {
+      return fixedSampleSize == 0 ? data.readUnsignedIntToInt() : fixedSampleSize;
+    }
+
+    @Override
+    public boolean isFixedSampleSize() {
+      return fixedSampleSize != 0;
+    }
+  }
+
+  /**
+   * Reads samples out of a 'stz2' atom.
+   */
+  static final class Stz2SampleSizeBox implements SampleSizeBox {
+    public final ParsableByteArray data;
+    public final int sampleCount;
+    public final int fieldSize;  // 4, 8, or 16.
+    private int mIndex = 0;     // Our current index in the samples.
+    private int mCurrentByte;  // used only for the 4 bit scenario.
+    public Stz2SampleSizeBox(Atom.LeafAtom stz2Atom) {
+      data = stz2Atom.data;
+      data.setPosition(Atom.FULL_HEADER_SIZE);
+      // mask out the reserved bits (24) and read just the field_size bits (8).
+      fieldSize = data.readUnsignedIntToInt() & 0x000000FF;
+      sampleCount = data.readUnsignedIntToInt();
+    }
+
+    @Override
+    public int getSampleCount() {
+      return sampleCount;
+    }
+
+    @Override
+    public int readNextSampleSize() {
+      final int i = mIndex++;
+      if (fieldSize == 8) {
+        return data.readUnsignedByte();
+      } else if (fieldSize == 16) {
+        return data.readUnsignedShort();
+      } else {
+        // The field size is 4.
+        final boolean isUpperBits = i % 2 == 0;
+        if (isUpperBits) {
+          // Read the next byte into our cached byte when we are reading the upper bits.
+          mCurrentByte = data.readUnsignedByte();
+          // Read the upper bits from the byte and shift them to the lower 4 bits.
+          return (mCurrentByte & 0xF0) >> 4;
+        } else {
+          // Mask out the upper 4 bits of the last byte we read.
+          return mCurrentByte & 0x0F;
+        }
+      }
+    }
+
+    @Override
+    public boolean isFixedSampleSize() {
+      return false;
+    }
+  }
 }
