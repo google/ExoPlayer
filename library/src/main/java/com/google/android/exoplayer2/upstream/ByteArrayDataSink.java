@@ -29,14 +29,13 @@ public final class ByteArrayDataSink implements DataSink {
   private ByteArrayOutputStream stream;
 
   @Override
-  public DataSink open(DataSpec dataSpec) throws IOException {
+  public void open(DataSpec dataSpec) throws IOException {
     if (dataSpec.length == C.LENGTH_UNBOUNDED) {
       stream = new ByteArrayOutputStream();
     } else {
       Assertions.checkArgument(dataSpec.length <= Integer.MAX_VALUE);
       stream = new ByteArrayOutputStream((int) dataSpec.length);
     }
-    return this;
   }
 
   @Override
@@ -50,9 +49,8 @@ public final class ByteArrayDataSink implements DataSink {
   }
 
   /**
-   * Returns the data written to the sink since the last call to {@link #open(DataSpec)}.
-   *
-   * @return The data, or null if {@link #open(DataSpec)} has never been called.
+   * Returns the data written to the sink since the last call to {@link #open(DataSpec)}, or null if
+   * {@link #open(DataSpec)} has never been called.
    */
   public byte[] getData() {
     return stream == null ? null : stream.toByteArray();

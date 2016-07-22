@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * A local file {@link DataSource}.
+ * A {@link DataSource} for reading local files.
  */
 public final class FileDataSource implements DataSource {
 
@@ -46,17 +46,12 @@ public final class FileDataSource implements DataSource {
   private long bytesRemaining;
   private boolean opened;
 
-  /**
-   * Constructs a new {@link DataSource} that retrieves data from a file.
-   */
   public FileDataSource() {
     this(null);
   }
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a file.
-   *
-   * @param listener An optional listener. Specify {@code null} for no listener.
+   * @param listener An optional listener.
    */
   public FileDataSource(TransferListener listener) {
     this.listener = listener;

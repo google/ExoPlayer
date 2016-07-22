@@ -23,7 +23,7 @@ import android.net.Uri;
 import java.util.Arrays;
 
 /**
- * Defines a region of media data.
+ * Defines a region of data.
  */
 public final class DataSpec {
 
@@ -41,7 +41,7 @@ public final class DataSpec {
   public static final int FLAG_ALLOW_GZIP = 1;
 
   /**
-   * Identifies the source from which data should be read.
+   * The source from which data should be read.
    */
   public final Uri uri;
   /**

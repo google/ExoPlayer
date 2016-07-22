@@ -31,22 +31,22 @@ public interface Allocator {
   Allocation allocate();
 
   /**
-   * Return an {@link Allocation}.
+   * Releases an {@link Allocation} back to the allocator.
    *
-   * @param allocation The {@link Allocation} being returned.
+   * @param allocation The {@link Allocation} being released.
    */
   void release(Allocation allocation);
 
   /**
-   * Return an array of {@link Allocation}s.
+   * Releases an array of {@link Allocation}s back to the allocator.
    *
-   * @param allocations The array of {@link Allocation}s being returned.
+   * @param allocations The array of {@link Allocation}s being released.
    */
   void release(Allocation[] allocations);
 
   /**
-   * Hints to the {@link Allocator} that it should make a best effort to release any memory that it
-   * has allocated beyond the target buffer size.
+   * Hints to the allocator that it should make a best effort to release any excess
+   * {@link Allocation}s.
    */
   void trim();
 

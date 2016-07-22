@@ -22,11 +22,14 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 /**
- * Counts transferred bytes while transfers are open and creates a bandwidth sample and updated
- * bandwidth estimate each time a transfer ends.
+ * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using
+ * a {@link SlidingPercentile} and is updated each time a transfer ends.
  */
 public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
 
+  /**
+   * The default maximum weight for the sliding window.
+   */
   public static final int DEFAULT_MAX_WEIGHT = 2000;
 
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;

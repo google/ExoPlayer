@@ -51,7 +51,7 @@ public final class LongArray {
   }
 
   /**
-   * Gets a value.
+   * Returns the value at a specified index.
    *
    * @param index The index.
    * @return The corresponding value.
@@ -66,9 +66,7 @@ public final class LongArray {
   }
 
   /**
-   * Gets the current size of the array.
-   *
-   * @return The current size of the array.
+   * Returns the current size of the array.
    */
   public int size() {
     return size;

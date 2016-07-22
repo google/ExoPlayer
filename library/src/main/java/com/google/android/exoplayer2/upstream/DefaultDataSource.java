@@ -54,7 +54,7 @@ public final class DefaultDataSource implements DataSource {
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
    *
    * @param context A context.
-   * @param listener An optional {@link TransferListener}.
+   * @param listener An optional listener.
    * @param userAgent The User-Agent string that should be used when requesting remote data.
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data..
@@ -72,7 +72,7 @@ public final class DefaultDataSource implements DataSource {
    * than file, asset and content.
    *
    * @param context A context.
-   * @param listener An optional {@link TransferListener}.
+   * @param listener An optional listener.
    * @param baseDataSource A {@link DataSource} to use for URI schemes other than file, asset and
    *     content. This {@link DataSource} should normally support at least http(s).
    */

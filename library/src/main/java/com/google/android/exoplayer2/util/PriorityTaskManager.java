@@ -52,9 +52,7 @@ public final class PriorityTaskManager {
   }
 
   /**
-   * Register a new task.
-   * <p>
-   * The task must call {@link #remove(int)} when done.
+   * Register a new task. The task must call {@link #remove(int)} when done.
    *
    * @param priority The priority of the task.
    */

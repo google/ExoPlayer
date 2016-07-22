@@ -22,7 +22,7 @@ import android.net.Uri;
 import java.io.IOException;
 
 /**
- * A component that provides media data.
+ * A component from which streams of data can be read.
  */
 public interface DataSource {
 
@@ -39,11 +39,10 @@ public interface DataSource {
   }
 
   /**
-   * Opens the {@link DataSource} to read the specified data.
+   * Opens the source to read the specified data.
    * <p>
    * Note: If an {@link IOException} is thrown, callers must still call {@link #close()} to ensure
-   * that any partial effects of the invocation are cleaned up. Implementations of this class can
-   * assume that callers will call {@link #close()} in this case.
+   * that any partial effects of the invocation are cleaned up.
    *
    * @param dataSpec Defines the data to be read.
    * @throws IOException If an error occurs opening the source.
@@ -57,10 +56,8 @@ public interface DataSource {
 
   /**
    * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
-   * index {@code offset}.
-   * <p>
-   * This method blocks until at least one byte of data can be read, the end of the opened range is
-   * detected, or an exception is thrown.
+   * index {@code offset}. Blocks until at least one byte of data can be read, the end of the opened
+   * range is detected, or an exception is thrown.
    *
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
@@ -72,20 +69,19 @@ public interface DataSource {
   int read(byte[] buffer, int offset, int readLength) throws IOException;
 
   /**
-   * When the source is open, returns the {@link Uri} from which data is being read.
-   * <p>
-   * The returned {@link Uri} will be identical to the one passed {@link #open(DataSpec)} in the
-   * {@link DataSpec} unless redirection has occurred. If redirection has occurred, the {@link Uri}
-   * after redirection is returned.
+   * When the source is open, returns the {@link Uri} from which data is being read. The returned
+   * {@link Uri} will be identical to the one passed {@link #open(DataSpec)} in the {@link DataSpec}
+   * unless redirection has occurred. If redirection has occurred, the {@link Uri} after redirection
+   * is returned.
    *
-   * @return When the source is open, the {@link Uri} from which data is being read. Null otherwise.
+   * @return The {@link Uri} from which data is being read, or null if the source is not open.
    */
   Uri getUri();
 
   /**
-   * Closes the {@link DataSource}.
+   * Closes the source.
    * <p>
-   * Note: This method will be called even if the corresponding call to {@link #open(DataSpec)}
+   * Note: This method must be called even if the corresponding call to {@link #open(DataSpec)}
    * threw an {@link IOException}. See {@link #open(DataSpec)} for more details.
    *
    * @throws IOException If an error occurs closing the source.

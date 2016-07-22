@@ -29,16 +29,22 @@ public final class ParsableByteArray {
   private int position;
   private int limit;
 
-  /** Creates a new instance that initially has no backing data. */
+  /**
+   * Creates a new instance that initially has no backing data.
+   */
   public ParsableByteArray() {}
 
-  /** Creates a new instance with {@code length} bytes. */
+  /**
+   * Creates a new instance with {@code length} bytes.
+   */
   public ParsableByteArray(int length) {
     this.data = new byte[length];
     limit = data.length;
   }
 
-  /** Creates a new instance wrapping {@code data}. */
+  /**
+   * Creates a new instance wrapping {@code data}.
+   */
   public ParsableByteArray(byte[] data) {
     this.data = data;
     limit = data.length;
@@ -75,12 +81,16 @@ public final class ParsableByteArray {
     limit = 0;
   }
 
-  /** Returns the number of bytes yet to be read. */
+  /**
+   * Returns the number of bytes yet to be read.
+   */
   public int bytesLeft() {
     return limit - position;
   }
 
-  /** Returns the limit. */
+  /**
+   * Returns the limit.
+   */
   public int limit() {
     return limit;
   }
@@ -95,12 +105,16 @@ public final class ParsableByteArray {
     this.limit = limit;
   }
 
-  /** Returns the current offset in the array, in bytes. */
+  /**
+   * Returns the current offset in the array, in bytes.
+   */
   public int getPosition() {
     return position;
   }
 
-  /** Returns the capacity of the array, which may be larger than the limit. */
+  /**
+   * Returns the capacity of the array, which may be larger than the limit.
+   */
   public int capacity() {
     return data == null ? 0 : data.length;
   }
@@ -160,55 +174,73 @@ public final class ParsableByteArray {
     position += length;
   }
 
-  /** Reads the next byte as an unsigned value. */
+  /**
+   * Reads the next byte as an unsigned value.
+   */
   public int readUnsignedByte() {
     return (data[position++] & 0xFF);
   }
 
-  /** Reads the next two bytes as an unsigned value. */
+  /**
+   * Reads the next two bytes as an unsigned value.
+   */
   public int readUnsignedShort() {
     return (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
   }
 
-  /** Reads the next two bytes as an unsigned value. */
+  /**
+   * Reads the next two bytes as an unsigned value.
+   */
   public int readLittleEndianUnsignedShort() {
     return (data[position++] & 0xFF) | (data[position++] & 0xFF) << 8;
   }
 
-  /** Reads the next two bytes as an signed value. */
+  /**
+   * Reads the next two bytes as an signed value.
+   */
   public short readShort() {
     return (short) ((data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF));
   }
 
-  /** Reads the next two bytes as a signed value. */
+  /**
+   * Reads the next two bytes as a signed value.
+   */
   public short readLittleEndianShort() {
     return (short) ((data[position++] & 0xFF) | (data[position++] & 0xFF) << 8);
   }
 
-  /** Reads the next three bytes as an unsigned value. */
+  /**
+   * Reads the next three bytes as an unsigned value.
+   */
   public int readUnsignedInt24() {
     return (data[position++] & 0xFF) << 16
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
   }
 
-  /** Reads the next three bytes as a signed value in little endian order. */
+  /**
+   * Reads the next three bytes as a signed value in little endian order.
+   */
   public int readLittleEndianInt24() {
     return (data[position++] & 0xFF)
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF) << 16;
   }
 
-  /**  Reads the next three bytes as an unsigned value in little endian order. */
+  /**
+   * Reads the next three bytes as an unsigned value in little endian order.
+   */
   public int readLittleEndianUnsignedInt24() {
     return (data[position++] & 0xFF)
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF) << 16;
   }
 
-  /** Reads the next four bytes as an unsigned value. */
+  /**
+   * Reads the next four bytes as an unsigned value.
+   */
   public long readUnsignedInt() {
     return (data[position++] & 0xFFL) << 24
         | (data[position++] & 0xFFL) << 16
@@ -216,7 +248,9 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL);
   }
 
-  /** Reads the next four bytes as an unsigned value in little endian order. */
+  /**
+   * Reads the next four bytes as an unsigned value in little endian order.
+   */
   public long readLittleEndianUnsignedInt() {
     return (data[position++] & 0xFFL)
         | (data[position++] & 0xFFL) << 8
@@ -224,7 +258,9 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL) << 24;
   }
 
-  /** Reads the next four bytes as a signed value. */
+  /**
+   * Reads the next four bytes as a signed value
+   */
   public int readInt() {
     return (data[position++] & 0xFF) << 24
         | (data[position++] & 0xFF) << 16
@@ -232,7 +268,9 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFF);
   }
 
-  /** Reads the next four bytes as an signed value in little endian order. */
+  /**
+   * Reads the next four bytes as an signed value in little endian order.
+   */
   public int readLittleEndianInt() {
     return (data[position++] & 0xFF)
         | (data[position++]  & 0xFF) << 8
@@ -240,7 +278,9 @@ public final class ParsableByteArray {
         | (data[position++]  & 0xFF) << 24;
   }
 
-  /** Reads the next eight bytes as a signed value. */
+  /**
+   * Reads the next eight bytes as a signed value.
+   */
   public long readLong() {
     return (data[position++] & 0xFFL) << 56
         | (data[position++] & 0xFFL) << 48
@@ -252,7 +292,9 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL);
   }
 
-  /** Reads the next eight bytes as a signed value in little endian order. */
+  /**
+   * Reads the next eight bytes as a signed value in little endian order.
+   */
   public long readLittleEndianLong() {
     return (data[position++] & 0xFFL)
         | (data[position++] & 0xFFL) << 8
@@ -264,7 +306,9 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL) << 56;
   }
 
-  /** Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer. */
+  /**
+   * Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer.
+   */
   public int readUnsignedFixedPoint1616() {
     int result = (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
@@ -328,7 +372,9 @@ public final class ParsableByteArray {
     return result;
   }
 
-  /** Reads the next eight bytes as a 64-bit floating point value. */
+  /**
+   * Reads the next eight bytes as a 64-bit floating point value.
+   */
   public double readDouble() {
     return Double.longBitsToDouble(readLong());
   }
@@ -398,6 +444,7 @@ public final class ParsableByteArray {
 
   /**
    * Reads a long value encoded by UTF-8 encoding
+   *
    * @throws NumberFormatException if there is a problem with decoding
    * @return Decoded long value
    */

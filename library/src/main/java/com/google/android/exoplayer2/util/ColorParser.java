@@ -44,10 +44,22 @@ public final class ColorParser {
 
   private static final Map<String, Integer> COLOR_MAP;
 
+  /**
+   * Parses a TTML color expression.
+   *
+   * @param colorExpression The color expression.
+   * @return The parsed ARGB color.
+   */
   public static int parseTtmlColor(String colorExpression) {
     return parseColorInternal(colorExpression, false);
   }
 
+  /**
+   * Parses a CSS color expression.
+   *
+   * @param colorExpression The color expression.
+   * @return The parsed ARGB color.
+   */
   public static int parseCssColor(String colorExpression) {
     return parseColorInternal(colorExpression, true);
   }

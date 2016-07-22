@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2.upstream;
 
 /**
- * Interface definition for a callback to be notified of data transfer events.
+ * A listener of data transfer events.
  */
 public interface TransferListener {
 
   /**
-   * Invoked when a transfer starts.
+   * Called when a transfer starts.
    */
   void onTransferStart();
 
@@ -34,7 +34,7 @@ public interface TransferListener {
   void onBytesTransferred(int bytesTransferred);
 
   /**
-   * Invoked when a transfer ends.
+   * Called when a transfer ends.
    */
   void onTransferEnd();
 

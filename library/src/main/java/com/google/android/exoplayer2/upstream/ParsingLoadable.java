@@ -39,7 +39,7 @@ public final class ParsingLoadable<T> implements Loadable {
     /**
      * Parses an object from a response.
      *
-     * @param uri The source of the response, after any redirection.
+     * @param uri The source {@link Uri} of the response, after any redirection.
      * @param inputStream An {@link InputStream} from which the response data can be read.
      * @return The parsed object.
      * @throws ParserException If an error occurs parsing the data.
@@ -87,10 +87,8 @@ public final class ParsingLoadable<T> implements Loadable {
   }
 
   /**
-   * Returns the number of bytes loaded.
-   * <p>
-   * In the case that the network response was compressed, the value returned is the size of the
-   * data <em>after</em> decompression.
+   * Returns the number of bytes loaded. In the case that the network response was compressed, the
+   * value returned is the size of the data <em>after</em> decompression.
    *
    * @return The number of bytes loaded.
    */

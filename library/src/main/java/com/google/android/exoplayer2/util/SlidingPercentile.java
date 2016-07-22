@@ -20,13 +20,14 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- * Calculate any percentile over a sliding window of weighted values. A maximum total weight is
- * configured. Once the maximum weight is reached, the oldest value is reduced in weight until it
- * reaches zero and is removed. This maintains a constant total weight at steady state.
+ * Calculate any percentile over a sliding window of weighted values. A maximum weight is
+ * configured. Once the total weight of the values reaches the maximum weight, the oldest value is
+ * reduced in weight until it reaches zero and is removed. This maintains a constant total weight,
+ * equal to the maximum allowed, at the steady state.
  * <p>
- * SlidingPercentile can be used for bandwidth estimation based on a sliding window of past
- * download rate observations. This is an alternative to sliding mean and exponential averaging
- * which suffer from susceptibility to outliers and slow adaptation to step functions.
+ * This class can be used for bandwidth estimation based on a sliding window of past transfer rate
+ * observations. This is an alternative to sliding mean and exponential averaging which suffer from
+ * susceptibility to outliers and slow adaptation to step functions.
  *
  * @see <a href="http://en.wikipedia.org/wiki/Moving_average">Wiki: Moving average</a>
  * @see <a href="http://en.wikipedia.org/wiki/Selection_algorithm">Wiki: Selection algorithm</a>
@@ -64,6 +65,9 @@ public final class SlidingPercentile {
   private int totalWeight;
   private int recycledSampleCount;
 
+  /**
+   * @param maxWeight The maximum weight.
+   */
   public SlidingPercentile(int maxWeight) {
     this.maxWeight = maxWeight;
     recycledSamples = new Sample[MAX_RECYCLED_SAMPLES];
@@ -72,8 +76,7 @@ public final class SlidingPercentile {
   }
 
   /**
-   * Record a new observation. Respect the configured total weight by reducing in weight or
-   * removing the oldest observations as required.
+   * Adds a new weighted value.
    *
    * @param weight The weight of the new observation.
    * @param value The value of the new observation.
@@ -106,10 +109,10 @@ public final class SlidingPercentile {
   }
 
   /**
-   * Compute the percentile by integration.
+   * Computes a percentile by integration.
    *
    * @param percentile The desired percentile, expressed as a fraction in the range (0,1].
-   * @return The requested percentile value or Float.NaN.
+   * @return The requested percentile value or {@link Float#NaN} if no samples have been added.
    */
   public float getPercentile(float percentile) {
     ensureSortedByValue();
@@ -127,7 +130,7 @@ public final class SlidingPercentile {
   }
 
   /**
-   * Sort the samples by index, if not already.
+   * Sorts the samples by index.
    */
   private void ensureSortedByIndex() {
     if (currentSortOrder != SORT_ORDER_BY_INDEX) {
@@ -137,7 +140,7 @@ public final class SlidingPercentile {
   }
 
   /**
-   * Sort the samples by value, if not already.
+   * Sorts the samples by value.
    */
   private void ensureSortedByValue() {
     if (currentSortOrder != SORT_ORDER_BY_VALUE) {

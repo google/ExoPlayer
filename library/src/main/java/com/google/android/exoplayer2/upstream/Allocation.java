@@ -24,7 +24,7 @@ package com.google.android.exoplayer2.upstream;
 public final class Allocation {
 
   /**
-   * The array containing the allocated space. The allocated space may not be at the start of the
+   * The array containing the allocated space. The allocated space might not be at the start of the
    * array, and so {@link #translateOffset(int)} method must be used when indexing into it.
    */
   public final byte[] data;

@@ -42,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
+ * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
  * <p>
  * By default this implementation will not follow cross-protocol redirects (i.e. redirects from
  * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the

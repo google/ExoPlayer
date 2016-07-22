@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A local asset {@link DataSource}.
+ * A {@link DataSource} for reading from a local asset.
  */
 public final class AssetDataSource implements DataSource {
 
@@ -50,16 +50,15 @@ public final class AssetDataSource implements DataSource {
   private boolean opened;
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a local asset.
+   * @param context A context.
    */
   public AssetDataSource(Context context) {
     this(context, null);
   }
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a local asset.
-   *
-   * @param listener An optional listener. Specify {@code null} for no listener.
+   * @param context A context.
+   * @param listener An optional listener.
    */
   public AssetDataSource(Context context, TransferListener listener) {
     this.assetManager = context.getAssets();

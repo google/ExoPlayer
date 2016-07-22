@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A content URI {@link DataSource}.
+ * A {@link DataSource} for reading from a content URI.
  */
 public final class ContentDataSource implements DataSource {
 
@@ -52,16 +52,15 @@ public final class ContentDataSource implements DataSource {
   private boolean opened;
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a content provider.
+   * @param context A context.
    */
   public ContentDataSource(Context context) {
     this(context, null);
   }
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a content provider.
-   *
-   * @param listener An optional listener. Specify {@code null} for no listener.
+   * @param context A context.
+   * @param listener An optional listener.
    */
   public ContentDataSource(Context context, TransferListener listener) {
     this.resolver = context.getContentResolver();

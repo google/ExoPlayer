@@ -27,29 +27,44 @@ public final class DefaultDataSourceFactory implements Factory {
 
   private final Context context;
   private final String userAgent;
-  private final TransferListener transferListener;
+  private final TransferListener listener;
   private final boolean allowCrossProtocolRedirects;
 
+  /**
+   * @param context A context.
+   * @param userAgent The User-Agent string that should be used.
+   */
   public DefaultDataSourceFactory(Context context, String userAgent) {
     this(context, userAgent, null);
   }
 
-  public DefaultDataSourceFactory(Context context, String userAgent,
-      TransferListener transferListener) {
-    this(context, userAgent, transferListener, false);
+  /**
+   * @param context A context.
+   * @param userAgent The User-Agent string that should be used.
+   * @param listener An optional listener.
+   */
+  public DefaultDataSourceFactory(Context context, String userAgent, TransferListener listener) {
+    this(context, userAgent, listener, false);
   }
 
-  public DefaultDataSourceFactory(Context context, String userAgent,
-      TransferListener transferListener, boolean allowCrossProtocolRedirects) {
+  /**
+   * @param context A context.
+   * @param userAgent The User-Agent string that should be used.
+   * @param listener An optional listener.
+   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
+   *     to HTTPS and vice versa) are enabled.
+   */
+  public DefaultDataSourceFactory(Context context, String userAgent, TransferListener listener,
+      boolean allowCrossProtocolRedirects) {
     this.context = context.getApplicationContext();
     this.userAgent = userAgent;
-    this.transferListener = transferListener;
+    this.listener = listener;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
   }
 
   @Override
   public DefaultDataSource createDataSource() {
-    return new DefaultDataSource(context, transferListener, userAgent, allowCrossProtocolRedirects);
+    return new DefaultDataSource(context, listener, userAgent, allowCrossProtocolRedirects);
   }
 
 }

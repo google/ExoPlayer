@@ -56,14 +56,12 @@ public final class Loader {
     void cancelLoad();
 
     /**
-     * Whether the load has been canceled.
-     *
-     * @return True if the load has been canceled. False otherwise.
+     * Returns whether the load has been canceled.
      */
     boolean isLoadCanceled();
 
     /**
-     * Performs the load, returning on completion or cancelation.
+     * Performs the load, returning on completion or cancellation.
      *
      * @throws IOException
      * @throws InterruptedException
@@ -78,10 +76,10 @@ public final class Loader {
   public interface Callback<T extends Loadable> {
 
     /**
-     * Invoked when a load has completed.
+     * Called when a load has completed.
      * <p>
-     * There is guaranteed to exist a memory barrier between {@link Loadable#load()} exiting and
-     * this callback being invoked.
+     * Note: There is guaranteed to be a memory barrier between {@link Loadable#load()} exiting and
+     * this callback being called.
      *
      * @param loadable The loadable whose load has completed.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load ended.
@@ -90,11 +88,11 @@ public final class Loader {
     void onLoadCompleted(T loadable, long elapsedRealtimeMs, long loadDurationMs);
 
     /**
-     * Invoked when a load has been canceled.
+     * Called when a load has been canceled.
      * <p>
-     * If the {@link Loader} has not been released then there is guaranteed to exist a memory
-     * barrier between {@link Loadable#load()} exiting and this callback being invoked. If the
-     * {@link Loader} has been released then this callback may be invoked before
+     * Note: If the {@link Loader} has not been released then there is guaranteed to be a memory
+     * barrier between {@link Loadable#load()} exiting and this callback being called. If the
+     * {@link Loader} has been released then this callback may be called before
      * {@link Loadable#load()} exits.
      *
      * @param loadable The loadable whose load has been canceled.
@@ -106,10 +104,10 @@ public final class Loader {
     void onLoadCanceled(T loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released);
 
     /**
-     * Invoked when a load encounters an error.
+     * Called when a load encounters an error.
      * <p>
-     * There is guaranteed to exist a memory barrier between {@link Loadable#load()} exiting and
-     * this callback being invoked.
+     * Note: There is guaranteed to be a memory barrier between {@link Loadable#load()} exiting and
+     * this callback being called.
      *
      * @param loadable The loadable whose load has encountered an error.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
@@ -147,13 +145,13 @@ public final class Loader {
   }
 
   /**
-   * Start loading a {@link Loadable}.
+   * Starts loading a {@link Loadable}.
    * <p>
    * The calling thread must be a {@link Looper} thread, which is the thread on which the
-   * {@link Callback} will be invoked.
+   * {@link Callback} will be called.
    *
    * @param loadable The {@link Loadable} to load.
-   * @param callback A callback to invoke when the load ends.
+   * @param callback A callback to called when the load ends.
    * @param defaultMinRetryCount The minimum number of times the load must be retried before
    *     {@link #maybeThrowError()} will propagate an error.
    * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
@@ -169,18 +167,16 @@ public final class Loader {
   }
 
   /**
-   * Whether the {@link Loader} is currently loading a {@link Loadable}.
-   *
-   * @return Whether the {@link Loader} is currently loading a {@link Loadable}.
+   * Returns whether the {@link Loader} is currently loading a {@link Loadable}.
    */
   public boolean isLoading() {
     return currentTask != null;
   }
 
   /**
-   * If a fatal error has been encountered, or if the current {@link Loadable} has incurred a number
-   * of errors greater than its default minimum number of retries and if the load is currently
-   * backed off, then an error is thrown. Else does nothing.
+   * Throws an error if a fatal error has been encountered, or if the current {@link Loadable} has
+   * incurred a number of errors greater than its default minimum number of retries and if the load
+   * is currently backed off, then an error is thrown. Else does nothing.
    *
    * @throws IOException The error.
    */
@@ -189,9 +185,9 @@ public final class Loader {
   }
 
   /**
-   * If a fatal error has been encountered, or if the current {@link Loadable} has incurred a number
-   * of errors greater than the specified minimum number of retries and if the load is currently
-   * backed off, then an error is thrown. Else does nothing.
+   * Throws an error if a fatal error has been encountered, or if the current {@link Loadable} has
+   * incurred a number of errors greater than the specified minimum number of retries and if the
+   * load is currently backed off, then an error is thrown.
    *
    * @param minRetryCount A minimum retry count that must be exceeded.
    * @throws IOException The error.
@@ -206,27 +202,23 @@ public final class Loader {
   }
 
   /**
-   * Cancels the current load.
-   * <p>
-   * This method should only be called when a load is in progress.
+   * Cancels the current load. This method should only be called when a load is in progress.
    */
   public void cancelLoading() {
     currentTask.cancel(false);
   }
 
   /**
-   * Releases the {@link Loader}.
-   * <p>
-   * This method should be called when the {@link Loader} is no longer required.
+   * Releases the {@link Loader}. This method should be called when the {@link Loader} is no longer
+   * required.
    */
   public void release() {
     release(null);
   }
 
   /**
-   * Releases the {@link Loader}, running {@code postLoadAction} on its thread.
-   * <p>
-   * This method should be called when the {@link Loader} is no longer required.
+   * Releases the {@link Loader}, running {@code postLoadAction} on its thread. This method should
+   * be called when the {@link Loader} is no longer required.
    *
    * @param postLoadAction A {@link Runnable} to run on the loader's thread when
    *     {@link Loadable#load()} is no longer running.

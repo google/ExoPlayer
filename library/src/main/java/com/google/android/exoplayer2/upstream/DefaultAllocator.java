@@ -37,20 +37,20 @@ public final class DefaultAllocator implements Allocator {
   private Allocation[] availableAllocations;
 
   /**
-   * Constructs an initially empty pool.
+   * Constructs an instance without creating any {@link Allocation}s up front.
    *
-   * @param individualAllocationSize The length of each individual allocation.
+   * @param individualAllocationSize The length of each individual {@link Allocation}.
    */
   public DefaultAllocator(int individualAllocationSize) {
     this(individualAllocationSize, 0);
   }
 
   /**
-   * Constructs a pool with some {@link Allocation}s created up front.
+   * Constructs an instance with some {@link Allocation}s created up front.
    * <p>
-   * Note: Initial {@link Allocation}s will never be discarded by {@link #trim()}.
+   * Note: {@link Allocation}s created up front will never be discarded by {@link #trim()}.
    *
-   * @param individualAllocationSize The length of each individual allocation.
+   * @param individualAllocationSize The length of each individual {@link Allocation}.
    * @param initialAllocationCount The number of allocations to create up front.
    */
   public DefaultAllocator(int individualAllocationSize, int initialAllocationCount) {

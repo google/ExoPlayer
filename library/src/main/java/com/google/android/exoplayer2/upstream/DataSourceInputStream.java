@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 /**
  * Allows data corresponding to a given {@link DataSpec} to be read from a {@link DataSource} and
- * consumed as an {@link InputStream}.
+ * consumed through an {@link InputStream}.
  */
 public final class DataSourceInputStream extends InputStream {
 

@@ -64,7 +64,7 @@ public final class CacheDataSink implements DataSink {
   }
 
   @Override
-  public DataSink open(DataSpec dataSpec) throws CacheDataSinkException {
+  public void open(DataSpec dataSpec) throws CacheDataSinkException {
     // TODO: Support caching for unbounded requests. See TODO in {@link CacheDataSource} for
     // more details.
     Assertions.checkState(dataSpec.length != C.LENGTH_UNBOUNDED);
@@ -72,7 +72,6 @@ public final class CacheDataSink implements DataSink {
       this.dataSpec = dataSpec;
       dataSpecBytesWritten = 0;
       openNextOutputStream();
-      return this;
     } catch (FileNotFoundException e) {
       throw new CacheDataSinkException(e);
     }

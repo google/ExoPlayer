@@ -21,7 +21,7 @@ package com.google.android.exoplayer2.util;
 public interface MediaClock {
 
   /**
-   * @return The current media position in microseconds.
+   * Returns the current media position in microseconds.
    */
   long getPositionUs();
 

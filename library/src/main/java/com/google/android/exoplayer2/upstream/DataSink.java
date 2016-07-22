@@ -18,25 +18,17 @@ package com.google.android.exoplayer2.upstream;
 import java.io.IOException;
 
 /**
- * A component that consumes media data.
+ * A component to which streams of data can be written.
  */
 public interface DataSink {
 
   /**
-   * Opens the {@link DataSink} to consume the specified data.
+   * Opens the sink to consume the specified data.
    *
    * @param dataSpec Defines the data to be consumed.
-   * @return This {@link DataSink}, for convenience.
-   * @throws IOException
+   * @throws IOException If an error occurs opening the sink.
    */
-  DataSink open(DataSpec dataSpec) throws IOException;
-
-  /**
-   * Closes the {@link DataSink}.
-   *
-   * @throws IOException
-   */
-  void close() throws IOException;
+  void open(DataSpec dataSpec) throws IOException;
 
   /**
    * Consumes the provided data.
@@ -44,8 +36,15 @@ public interface DataSink {
    * @param buffer The buffer from which data should be consumed.
    * @param offset The offset of the data to consume in {@code buffer}.
    * @param length The length of the data to consume, in bytes.
-   * @throws IOException
+   * @throws IOException If an error occurs writing to the sink.
    */
   void write(byte[] buffer, int offset, int length) throws IOException;
+
+  /**
+   * Closes the sink.
+   *
+   * @throws IOException If an error occurs closing the sink.
+   */
+  void close() throws IOException;
 
 }
