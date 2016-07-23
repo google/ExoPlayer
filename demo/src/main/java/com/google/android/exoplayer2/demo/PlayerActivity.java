@@ -281,7 +281,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setVideoListener(this);
       player.setVideoSurfaceHolder(surfaceView.getHolder());
       if (shouldRestorePosition) {
-        player.seekTo(playerPeriodIndex, playerPosition);
+        player.seekInPeriod(playerPeriodIndex, playerPosition);
       }
       player.setPlayWhenReady(true);
       mediaController.setMediaPlayer(new PlayerControl(player));
@@ -371,7 +371,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       debugViewHelper.stop();
       debugViewHelper = null;
       playerPeriodIndex = player.getCurrentPeriodIndex();
-      playerPosition = player.getCurrentPosition();
+      playerPosition = player.getCurrentPositionInPeriod();
       shouldRestorePosition = false;
       Timeline playerTimeline = player.getCurrentTimeline();
       if (playerTimeline != null) {

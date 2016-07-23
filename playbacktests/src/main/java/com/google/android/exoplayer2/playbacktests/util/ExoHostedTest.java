@@ -150,7 +150,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public final void onStop() {
     actionHandler.removeCallbacksAndMessages(null);
-    sourceDurationMs = player.getDuration();
+    sourceDurationMs = player.getCurrentPeriodDuration();
     player.release();
     player = null;
   }

@@ -245,7 +245,7 @@ public interface ExoPlayer {
    * @param mediaSource The {@link MediaSource} to play.
    * @param resetPosition Whether the playback position should be reset to the source's default
    *     position. If false, playback will start from the position defined by
-   *     {@link #getCurrentPeriodIndex()} and {@link #getCurrentPosition()}.
+   *     {@link #getCurrentPeriodIndex()} and {@link #getCurrentPositionInPeriod()}.
    */
   void setMediaSource(MediaSource mediaSource, boolean resetPosition);
 
@@ -278,26 +278,52 @@ public interface ExoPlayer {
    *
    * @param positionMs The seek position.
    */
-  void seekTo(long positionMs);
-
-  /**
-   * Seeks to a position specified in milliseconds in the specified period.
-   *
-   * @param periodIndex The index of the period to seek to.
-   * @param positionMs The seek position relative to the start of the specified period.
-   */
-  void seekTo(int periodIndex, long positionMs);
+  void seekInCurrentPeriod(long positionMs);
 
   /**
    * Seeks to the default position associated with the specified period. The position can depend on
    * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
-   * typically be the live edge. For other types of streams it will typically be the start of the
-   * stream.
+   * typically be the live edge of the window to which the period belongs. For other streams it will
+   * typically be the start of the period.
    *
    * @param periodIndex The index of the period whose associated default position should be seeked
    *     to.
    */
-  void seekToDefaultPosition(int periodIndex);
+  void seekToDefaultPositionForPeriod(int periodIndex);
+
+  /**
+   * Seeks to a position specified in milliseconds in the specified period.
+   *
+   * @param periodIndex The index of the period.
+   * @param positionMs The seek position relative to the start of the period.
+   */
+  void seekInPeriod(int periodIndex, long positionMs);
+
+  /**
+   * Seeks to a position specified in milliseconds in the current window.
+   *
+   * @param positionMs The seek position.
+   */
+  void seekInCurrentWindow(long positionMs);
+
+  /**
+   * Seeks to the default position associated with the specified window. The position can depend on
+   * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
+   * typically be the live edge of the window. For other streams it will typically be the start of
+   * the window.
+   *
+   * @param windowIndex The index of the window whose associated default position should be seeked
+   *     to.
+   */
+  void seekToDefaultPositionForWindow(int windowIndex);
+
+  /**
+   * Seeks to a position specified in milliseconds in the specified seek window.
+   *
+   * @param seekWindowIndex The index of the seek window.
+   * @param positionMs The seek position relative to the start of the window.
+   */
+  void seekInWindow(int seekWindowIndex, long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -335,22 +361,6 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Returns the duration of the current period in milliseconds, or {@link #UNKNOWN_TIME} if the
-   * duration is not known.
-   */
-  long getDuration();
-
-  /**
-   * Returns the playback position in the current period, in milliseconds.
-   */
-  long getCurrentPosition();
-
-  /**
-   * Returns the index of the current period.
-   */
-  int getCurrentPeriodIndex();
-
-  /**
    * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
    */
   Timeline getCurrentTimeline();
@@ -361,16 +371,71 @@ public interface ExoPlayer {
    */
   Object getCurrentManifest();
 
-  /**
-   * Returns an estimate of the absolute position in milliseconds up to which data is buffered,
-   * or {@link #UNKNOWN_TIME} if no estimate is available.
-   */
-  long getBufferedPosition();
+  // Period based.
 
   /**
-   * Returns an estimate of the percentage into the media up to which data is buffered, or 0 if no
-   * estimate is available.
+   * Returns the index of the current period.
    */
-  int getBufferedPercentage();
+  int getCurrentPeriodIndex();
+
+  /**
+   * Returns the duration of the current period in milliseconds, or {@link #UNKNOWN_TIME} if the
+   * duration is not known.
+   */
+  long getCurrentPeriodDuration();
+
+  /**
+   * Returns the playback position in the current period, in milliseconds.
+   */
+  long getCurrentPositionInPeriod();
+
+  /**
+   * Returns an estimate of the position in the current period up to which data is buffered, or
+   * {@link #UNKNOWN_TIME} if no estimate is available.
+   */
+  long getBufferedPositionInPeriod();
+
+  /**
+   * Returns an estimate of the percentage in the current period up to which data is buffered, or 0
+   * if no estimate is available.
+   */
+  int getBufferedPercentageInPeriod();
+
+  // Window based.
+
+  /**
+   * Returns the index of the seek window associated with the current period, or -1 if the timeline
+   * is not set.
+   */
+  int getCurrentWindowIndex();
+
+  /**
+   * Returns the duration of the current window in milliseconds, or {@link #UNKNOWN_TIME} if the
+   * duration is not known.
+   */
+  long getCurrentWindowDuration();
+
+  /**
+   * Returns the playback position in the current seek window, in milliseconds, or
+   * {@link #UNKNOWN_TIME} if the timeline is not set.
+   */
+  long getCurrentPositionInWindow();
+
+  /**
+   * Returns an estimate of the position in the current window up to which data is buffered, or
+   * {@link #UNKNOWN_TIME} if no estimate is available.
+   */
+  long getBufferedPositionInWindow();
+
+  /**
+   * Returns an estimate of the percentage in the current window up to which data is buffered, or 0
+   * if no estimate is available.
+   */
+  int getBufferedPercentageInWindow();
+
+  // Misc methods
+
+  // TODO - Add a method/methods to expose this.
+  // getBufferedPosition -> periodIndex,position
 
 }

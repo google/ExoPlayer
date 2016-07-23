@@ -127,12 +127,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekTo(long positionMs) {
-    seekTo(getCurrentPeriodIndex(), positionMs);
+  public void seekInCurrentPeriod(long positionMs) {
+    seekInPeriod(getCurrentPeriodIndex(), positionMs);
   }
 
   @Override
-  public void seekTo(int periodIndex, long positionMs) {
+  public void seekToDefaultPositionForPeriod(int periodIndex) {
+    seekInPeriod(periodIndex, UNKNOWN_TIME);
+  }
+
+  @Override
+  public void seekInPeriod(int periodIndex, long positionMs) {
     boolean seekToDefaultPosition = positionMs == UNKNOWN_TIME;
     maskingPeriodIndex = periodIndex;
     maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
@@ -146,8 +151,41 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekToDefaultPosition(int periodIndex) {
-    seekTo(periodIndex, UNKNOWN_TIME);
+  public void seekInCurrentWindow(long positionMs) {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline == null) {
+      throw new IllegalArgumentException("Windows are not yet known");
+    }
+    int windowIndex = timeline.getPeriodWindowIndex(getCurrentPeriodIndex());
+    seekInWindow(windowIndex, positionMs);
+  }
+
+  @Override
+  public void seekToDefaultPositionForWindow(int windowIndex) {
+    if (timeline == null) {
+      throw new IllegalArgumentException("Windows are not yet known");
+    }
+    Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
+    Window window = timeline.getWindow(windowIndex);
+    seekToDefaultPositionForPeriod(window.startPeriodIndex);
+  }
+
+  @Override
+  public void seekInWindow(int windowIndex, long positionMs) {
+    if (timeline == null) {
+      throw new IllegalArgumentException("Windows are not yet known");
+    }
+    Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
+    Window window = timeline.getWindow(windowIndex);
+    int periodIndex = window.startPeriodIndex;
+    long periodPositionMs = window.startTimeMs + positionMs;
+    long periodDurationMs = timeline.getPeriodDurationMs(periodIndex);
+    while (periodDurationMs != UNKNOWN_TIME && periodPositionMs >= periodDurationMs
+        && periodIndex < window.endPeriodIndex) {
+      periodPositionMs -= periodDurationMs;
+      periodDurationMs = timeline.getPeriodDurationMs(++periodIndex);
+    }
+    seekInPeriod(periodIndex, periodPositionMs);
   }
 
   @Override
@@ -172,7 +210,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public long getDuration() {
+  public int getCurrentPeriodIndex() {
+    return pendingSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
+  }
+
+  @Override
+  public long getCurrentPeriodDuration() {
     if (timeline == null) {
       return UNKNOWN_TIME;
     }
@@ -180,14 +223,89 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public long getCurrentPosition() {
+  public long getCurrentPositionInPeriod() {
     return pendingSeekAcks > 0 ? maskingPositionMs
         : playbackInfo.positionUs == C.UNSET_TIME_US ? 0 : (playbackInfo.positionUs / 1000);
   }
 
   @Override
-  public int getCurrentPeriodIndex() {
-    return pendingSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
+  public long getBufferedPositionInPeriod() {
+    if (pendingSeekAcks == 0) {
+      long bufferedPositionUs = playbackInfo.bufferedPositionUs;
+      return bufferedPositionUs == C.UNSET_TIME_US ? UNKNOWN_TIME : (bufferedPositionUs / 1000);
+    } else {
+      return maskingPositionMs;
+    }
+  }
+
+  @Override
+  public int getBufferedPercentageInPeriod() {
+    if (timeline == null) {
+      return 0;
+    }
+    long bufferedPosition = getBufferedPositionInPeriod();
+    long duration = getCurrentPeriodDuration();
+    return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
+        : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
+  }
+
+  @Override
+  public int getCurrentWindowIndex() {
+    if (timeline == null) {
+      return -1;
+    }
+    return timeline.getPeriodWindowIndex(getCurrentPeriodIndex());
+  }
+
+  @Override
+  public long getCurrentWindowDuration() {
+    if (timeline == null) {
+      return UNKNOWN_TIME;
+    }
+    return timeline.getWindow(getCurrentWindowIndex()).durationMs;
+  }
+
+  @Override
+  public long getCurrentPositionInWindow() {
+    if (timeline == null) {
+      return UNKNOWN_TIME;
+    }
+    int periodIndex = getCurrentPeriodIndex();
+    int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
+    Window window = timeline.getWindow(windowIndex);
+    long position = getCurrentPositionInPeriod();
+    for (int i = window.startPeriodIndex; i < periodIndex; i++) {
+      position += timeline.getPeriodDurationMs(i);
+    }
+    position -= window.startTimeMs;
+    return position;
+  }
+
+  @Override
+  public long getBufferedPositionInWindow() {
+    // TODO - Implement this properly.
+    if (timeline == null) {
+      return UNKNOWN_TIME;
+    }
+    int periodIndex = getCurrentPeriodIndex();
+    int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
+    Window window = timeline.getWindow(windowIndex);
+    if (window.startPeriodIndex == periodIndex && window.endPeriodIndex == periodIndex
+        && window.startTimeMs == 0 && window.durationMs == getCurrentPeriodDuration()) {
+      return getBufferedPositionInPeriod();
+    }
+    return getCurrentPositionInWindow();
+  }
+
+  @Override
+  public int getBufferedPercentageInWindow() {
+    if (timeline == null) {
+      return 0;
+    }
+    long bufferedPosition = getBufferedPositionInWindow();
+    long duration = getCurrentWindowDuration();
+    return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
+        : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
 
   @Override
@@ -198,24 +316,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public Object getCurrentManifest() {
     return manifest;
-  }
-
-  @Override
-  public long getBufferedPosition() {
-    if (pendingSeekAcks == 0) {
-      long bufferedPositionUs = playbackInfo.bufferedPositionUs;
-      return bufferedPositionUs == C.UNSET_TIME_US ? UNKNOWN_TIME : (bufferedPositionUs / 1000);
-    } else {
-      return maskingPositionMs;
-    }
-  }
-
-  @Override
-  public int getBufferedPercentage() {
-    long bufferedPosition = getBufferedPosition();
-    long duration = getDuration();
-    return bufferedPosition == UNKNOWN_TIME || duration == UNKNOWN_TIME ? 0
-        : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
 
   // Not private so it can be called from an inner class without going through a thunk method.

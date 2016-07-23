@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ui;
 import android.widget.MediaController.MediaPlayerControl;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
-import com.google.android.exoplayer2.util.Util;
 
 /**
  * An implementation of {@link MediaPlayerControl} for controlling an {@link ExoPlayer} instance.
@@ -65,19 +64,19 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getBufferPercentage() {
-    return exoPlayer.getBufferedPercentage();
+    return exoPlayer.getBufferedPercentageInWindow();
   }
 
   @Override
   public int getCurrentPosition() {
-    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
-        : (int) exoPlayer.getCurrentPosition();
+    long position = exoPlayer.getCurrentPositionInWindow();
+    return position == ExoPlayer.UNKNOWN_TIME ? 0 : (int) position;
   }
 
   @Override
   public int getDuration() {
-    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
-        : (int) exoPlayer.getDuration();
+    long duration = exoPlayer.getCurrentWindowDuration();
+    return duration == ExoPlayer.UNKNOWN_TIME ? 0 : (int) duration;
   }
 
   @Override
@@ -97,9 +96,11 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public void seekTo(int timeMillis) {
-    long seekPosition = exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
-        : Util.constrainValue(timeMillis, 0, getDuration());
-    exoPlayer.seekTo(seekPosition);
+    int windowIndex = exoPlayer.getCurrentWindowIndex();
+    if (windowIndex == -1) {
+      return;
+    }
+    exoPlayer.seekInWindow(windowIndex, timeMillis);
   }
 
 }

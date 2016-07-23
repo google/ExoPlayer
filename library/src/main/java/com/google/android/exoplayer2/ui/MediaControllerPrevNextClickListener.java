@@ -48,17 +48,20 @@ public class MediaControllerPrevNextClickListener implements OnClickListener {
 
   @Override
   public void onClick(View v) {
-    int currentPeriodIndex = player.getCurrentPeriodIndex();
+    int currentWindowIndex = player.getCurrentWindowIndex();
+    if (currentWindowIndex == -1) {
+      return;
+    }
     if (isNext) {
-      if (currentPeriodIndex < player.getCurrentTimeline().getPeriodCount() - 1) {
-        player.seekTo(currentPeriodIndex + 1, 0);
+      if (currentWindowIndex < player.getCurrentTimeline().getWindowCount() - 1) {
+        player.seekToDefaultPositionForWindow(currentWindowIndex + 1);
       }
     } else {
-      if (currentPeriodIndex > 0
-          && player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS_PERIOD) {
-        player.seekTo(currentPeriodIndex - 1, 0);
+      if (currentWindowIndex > 0
+          && player.getCurrentPositionInWindow() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS_PERIOD) {
+        player.seekToDefaultPositionForWindow(currentWindowIndex - 1);
       } else {
-        player.seekTo(currentPeriodIndex, 0);
+        player.seekInWindow(currentWindowIndex, 0);
       }
     }
   }
