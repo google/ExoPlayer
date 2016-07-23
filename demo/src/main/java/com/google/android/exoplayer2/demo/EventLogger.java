@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
@@ -85,6 +86,14 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   @Override
   public void onPlayWhenReadyCommitted() {
     // Do nothing.
+  }
+
+  @Override
+  public void onTimelineChanged(Timeline timeline) {
+    boolean isFinal = timeline.isFinal();
+    int periodCount = timeline.getPeriodCount();
+    Log.d(TAG, "timelineChanged [" + isFinal + ", "
+        + (periodCount == Timeline.UNKNOWN_PERIOD_COUNT ? "?" : periodCount) + "]");
   }
 
   @Override

@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
+import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
@@ -72,6 +74,7 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
   private final EventDispatcher eventDispatcher;
   private final SsManifestParser manifestParser;
 
+  private MediaSource.InvalidationListener invalidationListener;
   private DataSource manifestDataSource;
   private Loader manifestLoader;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
@@ -111,13 +114,13 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
   // MediaSource implementation.
 
   @Override
-  public void prepareSource() {
-    // do nothing
+  public void prepareSource(InvalidationListener listener) {
+    this.invalidationListener = listener;
   }
 
   @Override
-  public int getPeriodCount() {
-    return 1;
+  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
+    return oldPlayingPeriodIndex;
   }
 
   @Override
@@ -273,6 +276,9 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
     if (!prepared) {
       durationUs = manifest.durationUs;
+      Timeline timeline = durationUs == C.UNSET_TIME_US ? new SinglePeriodTimeline(this, manifest)
+          : new SinglePeriodTimeline(this, manifest, durationUs / 1000);
+      invalidationListener.onTimelineChanged(timeline);
       buildTrackGroups(manifest);
       ProtectionElement protectionElement = manifest.protectionElement;
       if (protectionElement != null) {

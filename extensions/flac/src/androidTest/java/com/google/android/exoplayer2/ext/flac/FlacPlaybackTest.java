@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
@@ -97,6 +98,11 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
 
     @Override
     public void onPositionDiscontinuity(int periodIndex, long positionMs) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onTimelineChanged(Timeline timeline) {
       // Do nothing.
     }
 

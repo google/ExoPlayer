@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as
@@ -137,6 +138,13 @@ public interface ExoPlayer {
      * @param positionMs The playback position in that period, in milliseconds.
      */
     void onPositionDiscontinuity(int periodIndex, long positionMs);
+
+    /**
+     * Invoked when the timeline changes.
+     *
+     * @param timeline The new timeline.
+     */
+    void onTimelineChanged(Timeline timeline);
 
     /**
      * Invoked when an error occurs. The playback state will transition to
@@ -329,10 +337,10 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Gets the duration of the track in milliseconds.
+   * Gets the duration of the current period in milliseconds.
    *
-   * @return The duration of the track in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME} if the
-   *     duration is not known.
+   * @return The duration of the current period in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME}
+   *     if the duration is not known.
    */
   long getDuration();
 
@@ -349,6 +357,13 @@ public interface ExoPlayer {
    * @return The index of the current period.
    */
   int getCurrentPeriodIndex();
+
+  /**
+   * Gets the current {@link Timeline}, or {@code null} if there is no timeline.
+   *
+   * @return The current {@link Timeline}, or {@code null} if there is no timeline.
+   */
+  Timeline getCurrentTimeline();
 
   /**
    * Gets an estimate of the absolute position in milliseconds up to which data is buffered.

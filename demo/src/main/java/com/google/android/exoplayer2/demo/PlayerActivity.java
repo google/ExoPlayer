@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
@@ -455,6 +456,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       // The MediaController is visible, so force it to show the updated position immediately.
       mediaController.show();
     }
+  }
+
+  @Override
+  public void onTimelineChanged(Timeline timeline) {
+    // Do nothing.
   }
 
   @Override

@@ -26,11 +26,13 @@ import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
@@ -387,6 +389,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   @Override
   public int getCurrentPeriodIndex() {
     return player.getCurrentPeriodIndex();
+  }
+
+  @Override
+  public Timeline getCurrentTimeline() {
+    return player.getCurrentTimeline();
   }
 
   @Override

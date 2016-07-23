@@ -22,38 +22,47 @@ import java.io.IOException;
 /**
  * Merges multiple {@link MediaPeriod} instances.
  * <p>
- * The {@link MediaSource}s being merged must have known and equal period counts, and may not return
- * {@code null} from {@link #createPeriod(int)}.
+ * The {@link MediaSource}s being merged must have final timelines and equal period counts.
  */
 public final class MergingMediaSource implements MediaSource {
 
   private final MediaSource[] mediaSources;
-  private final int periodCount;
+
+  private int periodCount;
 
   /**
    * @param mediaSources The {@link MediaSource}s to merge.
    */
   public MergingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
-    periodCount = mediaSources[0].getPeriodCount();
-    Assertions.checkState(periodCount != UNKNOWN_PERIOD_COUNT,
-        "Child sources must have known period counts");
-    for (MediaSource mediaSource : mediaSources) {
-      Assertions.checkState(mediaSource.getPeriodCount() == periodCount,
-          "Child sources must have equal period counts");
+    periodCount = -1;
+  }
+
+  @Override
+  public void prepareSource(final InvalidationListener listener) {
+    mediaSources[0].prepareSource(new InvalidationListener() {
+      @Override
+      public void onTimelineChanged(Timeline timeline) {
+        checkConsistentTimeline(timeline);
+
+        // All source timelines must match.
+        listener.onTimelineChanged(timeline);
+      }
+    });
+    for (int i = 1; i < mediaSources.length; i++) {
+      mediaSources[i].prepareSource(new InvalidationListener() {
+        @Override
+        public void onTimelineChanged(Timeline timeline) {
+          checkConsistentTimeline(timeline);
+        }
+      });
     }
   }
 
   @Override
-  public void prepareSource() {
-    for (MediaSource mediaSource : mediaSources) {
-      mediaSource.prepareSource();
-    }
-  }
-
-  @Override
-  public int getPeriodCount() {
-    return periodCount;
+  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline)
+      throws IOException {
+    return mediaSources[0].getNewPlayingPeriodIndex(oldPlayingPeriodIndex, oldTimeline);
   }
 
   @Override
@@ -70,6 +79,16 @@ public final class MergingMediaSource implements MediaSource {
   public void releaseSource() {
     for (MediaSource mediaSource : mediaSources) {
       mediaSource.releaseSource();
+    }
+  }
+
+  private void checkConsistentTimeline(Timeline timeline) {
+    Assertions.checkArgument(timeline.isFinal());
+    int periodCount = timeline.getPeriodCount();
+    if (this.periodCount == -1) {
+      this.periodCount = periodCount;
+    } else {
+      Assertions.checkState(this.periodCount == periodCount);
     }
   }
 

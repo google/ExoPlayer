@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Util;
@@ -34,6 +35,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+
 import junit.framework.Assert;
 
 
@@ -209,6 +211,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public final void onPositionDiscontinuity(int periodIndex, long positionMs) {
+    // Do nothing.
+  }
+
+  @Override
+  public final void onTimelineChanged(Timeline timeline) {
     // Do nothing.
   }
 

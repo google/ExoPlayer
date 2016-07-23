@@ -24,6 +24,8 @@ import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
@@ -110,13 +112,14 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   // MediaSource implementation.
 
   @Override
-  public void prepareSource() {
-    // do nothing
+  public void prepareSource(InvalidationListener listener) {
+    // TODO: Defer until the playlist has been loaded.
+    listener.onTimelineChanged(new SinglePeriodTimeline(this));
   }
 
   @Override
-  public int getPeriodCount() {
-    return 1;
+  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
+    return oldPlayingPeriodIndex;
   }
 
   @Override

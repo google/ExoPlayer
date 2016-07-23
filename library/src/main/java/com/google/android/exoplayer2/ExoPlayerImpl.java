@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -44,6 +45,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int pendingPlayWhenReadyAcks;
   private int pendingSeekAcks;
   private boolean isLoading;
+  private Timeline timeline;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -75,9 +77,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
-        eventHandler);
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0);
+    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
+        eventHandler, playbackInfo);
   }
 
   @Override
@@ -97,6 +99,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void setMediaSource(MediaSource mediaSource) {
+    timeline = null;
     internalPlayer.setMediaSource(mediaSource);
   }
 
@@ -189,6 +192,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public Timeline getCurrentTimeline() {
+    return timeline;
+  }
+
+  @Override
   public long getBufferedPosition() {
     if (pendingSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
@@ -242,6 +250,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
           for (EventListener listener : listeners) {
             listener.onPositionDiscontinuity(playbackInfo.periodIndex, 0);
           }
+        }
+        break;
+      }
+      case ExoPlayerImplInternal.MSG_TIMELINE_CHANGED: {
+        timeline = (Timeline) msg.obj;
+        for (EventListener listener : listeners) {
+          listener.onTimelineChanged(timeline);
         }
         break;
       }

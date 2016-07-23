@@ -23,28 +23,44 @@ import java.io.IOException;
 public interface MediaSource {
 
   /**
-   * Returned by {@link #getPeriodCount()} if the number of periods is not known.
+   * Listener for invalidation events.
    */
-  int UNKNOWN_PERIOD_COUNT = -1;
+  interface InvalidationListener {
+
+    /**
+     * Invoked when the timeline is invalidated.
+     * <p>
+     * May only be called on the player's thread.
+     *
+     * @param timeline The new timeline.
+     */
+    void onTimelineChanged(Timeline timeline);
+
+  }
 
   /**
    * Starts preparation of the source.
+   *
+   * @param listener The listener for source invalidation events.
    */
-  void prepareSource();
+  void prepareSource(InvalidationListener listener);
 
   /**
-   * Returns the number of periods in the source, or {@link #UNKNOWN_PERIOD_COUNT} if the number
-   * of periods is not yet known.
+   * Returns the period index to play in this source's new timeline.
+   *
+   * @param oldPlayingPeriodIndex The period index that was being played in the old timeline.
+   * @param oldTimeline The old timeline.
+   * @return The period index to play in this source's new timeline.
+   * @throws IOException Thrown if the required period can't be loaded.
    */
-  int getPeriodCount();
+  int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) throws IOException;
 
   /**
    * Returns a {@link MediaPeriod} corresponding to the period at the specified index, or
    * {@code null} if the period at the specified index is not yet available.
    *
-   * @param index The index of the period. Must be less than {@link #getPeriodCount()} unless the
-   *     period count is {@link #UNKNOWN_PERIOD_COUNT}.
-   * @return A {@link MediaPeriod}, or {@code null} if the source at the specified index is not yet
+   * @param index The index of the period.
+   * @return A {@link MediaPeriod}, or {@code null} if the source at the specified index is not
    *     available.
    * @throws IOException If there is an error that's preventing the source from becoming prepared or
    *     creating periods.

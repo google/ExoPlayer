@@ -269,6 +269,26 @@ public final class Util {
    * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
    *     the smallest value in the array. If false then -1 will be returned.
    */
+  public static int binarySearchFloor(int[] a, int key, boolean inclusive, boolean stayInBounds) {
+    int index = Arrays.binarySearch(a, key);
+    index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
+    return stayInBounds ? Math.max(0, index) : index;
+  }
+
+  /**
+   * Returns the index of the largest value in an array that is less than (or optionally equal to)
+   * a specified key.
+   * <p>
+   * The search is performed using a binary search algorithm, and so the array must be sorted.
+   *
+   * @param a The array to search.
+   * @param key The key being searched for.
+   * @param inclusive If the key is present in the array, whether to return the corresponding index.
+   *     If false then the returned index corresponds to the largest value in the array that is
+   *     strictly less than the key.
+   * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
+   *     the smallest value in the array. If false then -1 will be returned.
+   */
   public static int binarySearchFloor(long[] a, long key, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(a, key);
     index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));

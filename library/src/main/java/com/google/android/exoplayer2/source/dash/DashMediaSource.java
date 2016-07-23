@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
@@ -62,6 +63,7 @@ public final class DashMediaSource implements MediaSource {
   private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
 
+  private MediaSource.InvalidationListener invalidationListener;
   private DataSource dataSource;
   private Loader loader;
 
@@ -95,7 +97,8 @@ public final class DashMediaSource implements MediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSource() {
+  public void prepareSource(InvalidationListener listener) {
+    invalidationListener = listener;
     dataSource = manifestDataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashMediaSource");
     manifestRefreshHandler = new Handler();
@@ -103,11 +106,22 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public int getPeriodCount() {
-    if (manifest == null) {
-      return UNKNOWN_PERIOD_COUNT;
+  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
+    int periodIndex = oldPlayingPeriodIndex;
+    int oldPeriodCount = oldTimeline.getPeriodCount();
+    while (oldPeriodCount == Timeline.UNKNOWN_PERIOD_COUNT || periodIndex < oldPeriodCount) {
+      Object id = oldTimeline.getPeriodId(periodIndex);
+      if (id == null) {
+        break;
+      }
+      for (int i = 0; i < periods.length; i++) {
+        if (periods[i] == id) {
+          return i;
+        }
+      }
+      periodIndex++;
     }
-    return manifest.getPeriodCount();
+    return Timeline.NO_PERIOD_INDEX;
   }
 
   @Override
@@ -161,6 +175,8 @@ public final class DashMediaSource implements MediaSource {
       }
       scheduleManifestRefresh();
     }
+
+    invalidationListener.onTimelineChanged(new DashTimeline(manifest, periods));
   }
 
   /* package */ int onManifestLoadError(ParsingLoadable<DashManifest> loadable,
@@ -276,6 +292,53 @@ public final class DashMediaSource implements MediaSource {
       Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+  }
+
+  private static final class DashTimeline implements Timeline {
+
+    private final DashManifest manifest;
+    private final DashMediaPeriod[] periods;
+
+    public DashTimeline(DashManifest manifest, DashMediaPeriod[] periods) {
+      this.manifest = manifest;
+      this.periods = periods;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return manifest.getPeriodCount();
+    }
+
+    @Override
+    public boolean isFinal() {
+      return !manifest.dynamic;
+    }
+
+    @Override
+    public long getPeriodDuration(int index) {
+      return manifest.getPeriodDuration(index);
+    }
+
+    @Override
+    public Object getPeriodId(int index) {
+      return index >= periods.length ? null : periods[index];
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object id) {
+      for (int i = 0; i < periods.length; i++) {
+        if (id == periods[i]) {
+          return i;
+        }
+      }
+      return Timeline.NO_PERIOD_INDEX;
+    }
+
+    @Override
+    public Object getManifest() {
+      return manifest;
+    }
+
   }
 
   private final class ManifestCallback implements
