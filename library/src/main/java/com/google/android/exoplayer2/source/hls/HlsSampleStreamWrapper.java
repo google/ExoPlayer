@@ -143,6 +143,10 @@ import java.util.List;
     return chunkSource.getDurationUs();
   }
 
+  public int getEnabledTrackCount() {
+    return enabledTrackCount;
+  }
+
   public boolean isLive() {
     return chunkSource.isLive();
   }

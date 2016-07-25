@@ -81,6 +81,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   private boolean seenFirstTrackSelection;
   private long durationUs;
+  private long pendingDiscontinuityPositionUs;
   private boolean isLive;
   private TrackGroupArray trackGroups;
   private int[] selectedTrackCounts;
@@ -104,6 +105,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
 
+    pendingDiscontinuityPositionUs = C.UNSET_TIME_US;
     sampleStreamSources = new IdentityHashMap<>();
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     manifestParser = new HlsPlaylistParser();
@@ -177,7 +179,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     int enabledSampleStreamWrapperCount = 0;
     for (int i = 0; i < sampleStreamWrappers.length; i++) {
       selectedTrackCounts[i] += selectTracks(sampleStreamWrappers[i], oldStreams, newSelections,
-          newStreams);
+          newStreams, positionUs);
       if (selectedTrackCounts[i] > 0) {
         enabledSampleStreamWrapperCount++;
       }
@@ -191,8 +193,9 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
         enabledSampleStreamWrappers[enabledSampleStreamWrapperCount++] = sampleStreamWrappers[i];
       }
     }
-    if (enabledSampleStreamWrapperCount > 0 && seenFirstTrackSelection
-        && !newSelections.isEmpty()) {
+    if (enabledSampleStreamWrapperCount == 0) {
+      pendingDiscontinuityPositionUs = C.UNSET_TIME_US;
+    } else if (seenFirstTrackSelection && !newSelections.isEmpty()) {
       seekToUs(positionUs);
     }
     seenFirstTrackSelection = true;
@@ -211,7 +214,9 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   @Override
   public long readDiscontinuity() {
-    return C.UNSET_TIME_US;
+    long result = pendingDiscontinuityPositionUs;
+    pendingDiscontinuityPositionUs = C.UNSET_TIME_US;
+    return result;
   }
 
   @Override
@@ -419,7 +424,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   private int selectTracks(HlsSampleStreamWrapper sampleStreamWrapper,
       List<SampleStream> allOldStreams, List<TrackSelection> allNewSelections,
-      SampleStream[] allNewStreams) {
+      SampleStream[] allNewStreams, long positionUs) {
     // Get the subset of the old streams for the source.
     ArrayList<SampleStream> oldStreams = new ArrayList<>();
     for (int i = 0; i < allOldStreams.size(); i++) {
@@ -443,6 +448,11 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     // Do nothing if nothing has changed, except during the first selection.
     if (seenFirstTrackSelection && oldStreams.isEmpty() && newSelections.isEmpty()) {
       return 0;
+    }
+    // If there are other active SampleStreams provided by the wrapper then we need to report a
+    // discontinuity so that the consuming renderers are reset.
+    if (sampleStreamWrapper.getEnabledTrackCount() > oldStreams.size()) {
+      pendingDiscontinuityPositionUs = positionUs;
     }
     // Perform the selection.
     SampleStream[] newStreams = sampleStreamWrapper.selectTracks(oldStreams, newSelections,
