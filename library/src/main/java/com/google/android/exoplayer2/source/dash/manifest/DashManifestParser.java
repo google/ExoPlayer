@@ -299,7 +299,8 @@ public class DashManifestParser extends DefaultHandler
       return C.TRACK_TYPE_VIDEO;
     } else if (MimeTypes.isAudio(sampleMimeType)) {
       return C.TRACK_TYPE_AUDIO;
-    } else if (mimeTypeIsRawText(sampleMimeType)) {
+    } else if (mimeTypeIsRawText(sampleMimeType)
+        || MimeTypes.APPLICATION_RAWCC.equals(format.containerMimeType)) {
       return C.TRACK_TYPE_TEXT;
     }
     return C.TRACK_TYPE_UNKNOWN;
@@ -650,6 +651,12 @@ public class DashManifestParser extends DefaultHandler
       return MimeTypes.getAudioMediaMimeType(codecs);
     } else if (MimeTypes.isVideo(containerMimeType)) {
       return MimeTypes.getVideoMediaMimeType(codecs);
+    } else if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
+      // We currently only support EIA-608 through RawCC
+      if (codecs != null && codecs.contains("eia608")) {
+        return MimeTypes.APPLICATION_EIA608;
+      }
+      return null;
     } else if (mimeTypeIsRawText(containerMimeType)) {
       return containerMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {

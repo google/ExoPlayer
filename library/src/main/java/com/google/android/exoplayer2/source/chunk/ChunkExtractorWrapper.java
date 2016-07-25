@@ -50,10 +50,12 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   private final Extractor extractor;
   private final Format manifestFormat;
   private final boolean preferManifestDrmInitData;
+  private final boolean resendFormatOnInit;
 
   private boolean extractorInitialized;
   private SingleTrackMetadataOutput metadataOutput;
   private TrackOutput trackOutput;
+  private Format sentFormat;
 
   // Accessed only on the loader thread.
   private boolean seenTrack;
@@ -67,9 +69,24 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
    */
   public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
       boolean preferManifestDrmInitData) {
+    this(extractor, manifestFormat, preferManifestDrmInitData, true);
+  }
+
+  /**
+   * @param extractor The extractor to wrap.
+   * @param manifestFormat A manifest defined {@link Format} whose data should be merged into any
+   *     sample {@link Format} output from the {@link Extractor}.
+   * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
+   *     should be preferred when the sample and manifest {@link Format}s are merged.
+   * @param resendFormatOnInit Whether the extractor should resend the previous {@link Format} when
+   *     it is initialized via {@link #init(SingleTrackMetadataOutput, TrackOutput)}.
+   */
+  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
+      boolean preferManifestDrmInitData, boolean resendFormatOnInit) {
     this.extractor = extractor;
     this.manifestFormat = manifestFormat;
     this.preferManifestDrmInitData = preferManifestDrmInitData;
+    this.resendFormatOnInit = resendFormatOnInit;
   }
 
   /**
@@ -87,6 +104,9 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
       extractorInitialized = true;
     } else {
       extractor.seek(0);
+      if (resendFormatOnInit && sentFormat != null) {
+        trackOutput.format(sentFormat);
+      }
     }
   }
 
@@ -127,8 +147,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void format(Format format) {
-    trackOutput.format(format.copyWithManifestFormatInfo(manifestFormat,
-        preferManifestDrmInitData));
+    sentFormat = format.copyWithManifestFormatInfo(manifestFormat, preferManifestDrmInitData);
+    trackOutput.format(sentFormat);
   }
 
   @Override

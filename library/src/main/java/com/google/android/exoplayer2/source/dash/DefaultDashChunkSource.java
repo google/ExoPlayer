@@ -15,12 +15,15 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer2.extractor.rawcc.RawCcExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
@@ -41,9 +44,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCode
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-
-import android.os.SystemClock;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -384,12 +384,25 @@ public class DefaultDashChunkSource implements DashChunkSource {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
       String containerMimeType = representation.format.containerMimeType;
-      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-      extractorWrapper = mimeTypeIsRawText(containerMimeType) ? null : new ChunkExtractorWrapper(
-          mimeTypeIsWebm(containerMimeType) ? new MatroskaExtractor()
-              : new FragmentedMp4Extractor(),
-          representation.format, true /* preferManifestDrmInitData */);
+      if (mimeTypeIsRawText(containerMimeType)) {
+        extractorWrapper = null;
+      } else {
+        boolean resendFormatOnInit = false;
+        Extractor extractor;
+        if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
+          extractor = new RawCcExtractor();
+          resendFormatOnInit = true;
+        } else if (mimeTypeIsWebm(containerMimeType)) {
+          extractor = new MatroskaExtractor();
+        } else {
+          extractor = new FragmentedMp4Extractor();
+        }
+        // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
+        // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
+        extractorWrapper = new ChunkExtractorWrapper(extractor,
+            representation.format, true /* preferManifestDrmInitData */,
+            resendFormatOnInit);
+      }
       segmentIndex = representation.getIndex();
     }
 
