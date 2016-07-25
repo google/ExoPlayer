@@ -10,7 +10,6 @@ track 0:
     containerMimeType = null
     sampleMimeType = audio/mpeg
     maxInputSize = 4096
-    requiresSecureDecryption = false
     width = -1
     height = -1
     frameRate = -1.0

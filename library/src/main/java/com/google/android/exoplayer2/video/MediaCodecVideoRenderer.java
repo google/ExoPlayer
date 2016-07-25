@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.video;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -175,8 +176,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!MimeTypes.isVideo(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
+    DrmInitData drmInitData = format.drmInitData;
+    boolean requiresSecureDecryption = false;
+    for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+      requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
+    }
     MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        format.requiresSecureDecryption);
+        requiresSecureDecryption);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }

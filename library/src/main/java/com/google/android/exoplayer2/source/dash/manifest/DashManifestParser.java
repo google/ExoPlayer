@@ -315,25 +315,30 @@ public class DashManifestParser extends DefaultHandler
    **/
   protected SchemeData parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    SchemeData schemeData = null;
+    byte[] data = null;
+    UUID uuid = null;
     boolean seenPsshElement = false;
+    boolean requiresSecureDecoder = false;
     do {
       xpp.next();
       // The cenc:pssh element is defined in 23001-7:2015.
       if (XmlPullParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
         seenPsshElement = true;
-        byte[] data = Base64.decode(xpp.getText(), Base64.DEFAULT);
-        UUID uuid = PsshAtomUtil.parseUuid(data);
-        if (uuid != null) {
-          schemeData = new SchemeData(uuid, MimeTypes.VIDEO_MP4, data);
-        }
+        data = Base64.decode(xpp.getText(), Base64.DEFAULT);
+        uuid = PsshAtomUtil.parseUuid(data);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
+        String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
+        requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
-    if (seenPsshElement && schemeData == null) {
+    if (!seenPsshElement) {
+      return null;
+    } else if (uuid != null) {
+      return new SchemeData(uuid, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder);
+    } else {
       Log.w(TAG, "Skipped unsupported ContentProtection element");
       return null;
     }
-    return schemeData;
   }
 
   /**

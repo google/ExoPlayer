@@ -10,7 +10,6 @@ track 2:
     containerMimeType = null
     sampleMimeType = video/mpeg2
     maxInputSize = -1
-    requiresSecureDecryption = false
     width = 640
     height = 426
     frameRate = -1.0
@@ -43,7 +42,6 @@ track 3:
     containerMimeType = null
     sampleMimeType = audio/mpeg-L2
     maxInputSize = 4096
-    requiresSecureDecryption = false
     width = -1
     height = -1
     frameRate = -1.0
@@ -83,7 +81,6 @@ track 21:
     containerMimeType = null
     sampleMimeType = application/id3
     maxInputSize = -1
-    requiresSecureDecryption = false
     width = -1
     height = -1
     frameRate = -1.0

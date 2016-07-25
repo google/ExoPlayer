@@ -145,7 +145,6 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
         .add("containerMimeType", format.containerMimeType)
         .add("sampleMimeType", format.sampleMimeType)
         .add("maxInputSize", format.maxInputSize)
-        .add("requiresSecureDecryption", format.requiresSecureDecryption)
         .add("width", format.width)
         .add("height", format.height)
         .add("frameRate", format.frameRate)

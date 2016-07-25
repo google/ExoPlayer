@@ -105,10 +105,6 @@ public final class Format implements Parcelable {
    */
   public final int maxInputSize;
   /**
-   * Whether the decoder is required to support secure decryption.
-   */
-  public final boolean requiresSecureDecryption;
-  /**
    * Initialization data that must be provided to the decoder. Will not be null, but may be empty
    * if initialization data is not required.
    */
@@ -203,7 +199,7 @@ public final class Format implements Parcelable {
       float frameRate, List<byte[]> initializationData) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, width,
         height, frameRate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0,
-        null, OFFSET_SAMPLE_RELATIVE, initializationData, null, false);
+        null, OFFSET_SAMPLE_RELATIVE, initializationData, null);
   }
 
   public static Format createVideoSampleFormat(String id, String sampleMimeType, String codecs,
@@ -219,7 +215,7 @@ public final class Format implements Parcelable {
       DrmInitData drmInitData) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, width, height,
         frameRate, rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, 0, null, OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData, false);
+        NO_VALUE, 0, null, OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData);
   }
 
   // Audio.
@@ -229,8 +225,7 @@ public final class Format implements Parcelable {
       List<byte[]> initializationData, int selectionFlags, String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, NO_VALUE, NO_VALUE,
-        NO_VALUE, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData, null,
-        false);
+        NO_VALUE, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData, null);
   }
 
   public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
@@ -257,7 +252,7 @@ public final class Format implements Parcelable {
     return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, pcmEncoding, encoderDelay,
         encoderPadding, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData,
-        drmInitData, false);
+        drmInitData);
   }
 
   // Text.
@@ -266,7 +261,7 @@ public final class Format implements Parcelable {
       String sampleMimeType, String codecs, int bitrate, int selectionFlags, String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        selectionFlags, language, OFFSET_SAMPLE_RELATIVE, null, null, false);
+        selectionFlags, language, OFFSET_SAMPLE_RELATIVE, null, null);
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
@@ -280,7 +275,7 @@ public final class Format implements Parcelable {
       long subsampleOffsetUs) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        selectionFlags, language, subsampleOffsetUs, null, drmInitData, false);
+        selectionFlags, language, subsampleOffsetUs, null, drmInitData);
   }
 
   // Image.
@@ -289,7 +284,7 @@ public final class Format implements Parcelable {
       int bitrate, List<byte[]> initializationData, String language, DrmInitData drmInitData) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, language,
-        OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData, false);
+        OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData);
   }
 
   // Generic.
@@ -298,22 +293,21 @@ public final class Format implements Parcelable {
       String sampleMimeType, int bitrate) {
     return new Format(id, containerMimeType, sampleMimeType, null, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        0, null, OFFSET_SAMPLE_RELATIVE, null, null, false);
+        0, null, OFFSET_SAMPLE_RELATIVE, null, null);
   }
 
   public static Format createSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, DrmInitData drmInitData) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, null,
-        OFFSET_SAMPLE_RELATIVE, null, drmInitData, false);
+        OFFSET_SAMPLE_RELATIVE, null, drmInitData);
   }
 
   /* package */ Format(String id, String containerMimeType, String sampleMimeType, String codecs,
       int bitrate, int maxInputSize, int width, int height, float frameRate, int rotationDegrees,
       float pixelWidthHeightRatio, int channelCount, int sampleRate, int pcmEncoding,
       int encoderDelay, int encoderPadding, int selectionFlags, String language,
-      long subsampleOffsetUs, List<byte[]> initializationData, DrmInitData drmInitData,
-      boolean requiresSecureDecryption) {
+      long subsampleOffsetUs, List<byte[]> initializationData, DrmInitData drmInitData) {
     this.id = id;
     this.containerMimeType = containerMimeType;
     this.sampleMimeType = sampleMimeType;
@@ -336,7 +330,6 @@ public final class Format implements Parcelable {
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
         : initializationData;
     this.drmInitData = drmInitData;
-    this.requiresSecureDecryption = requiresSecureDecryption;
   }
 
   /* package */ Format(Parcel in) {
@@ -365,21 +358,20 @@ public final class Format implements Parcelable {
       initializationData.add(in.createByteArray());
     }
     drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
-    requiresSecureDecryption = in.readInt() == 1;
   }
 
   public Format copyWithMaxInputSize(int maxInputSize) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
-        initializationData, drmInitData, requiresSecureDecryption);
+        initializationData, drmInitData);
   }
 
   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
-        initializationData, drmInitData, requiresSecureDecryption);
+        initializationData, drmInitData);
   }
 
   public Format copyWithContainerInfo(String id, int bitrate, int width, int height,
@@ -387,7 +379,7 @@ public final class Format implements Parcelable {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
-        initializationData, drmInitData, requiresSecureDecryption);
+        initializationData, drmInitData);
   }
 
   public Format copyWithManifestFormatInfo(Format manifestFormat,
@@ -400,26 +392,24 @@ public final class Format implements Parcelable {
     String language = this.language == null ? manifestFormat.language : this.language;
     DrmInitData drmInitData = (preferManifestDrmInitData && manifestFormat.drmInitData != null)
         || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;
-    boolean requiresSecureDecryption = this.requiresSecureDecryption
-        || manifestFormat.requiresSecureDecryption;
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
-        initializationData, drmInitData, requiresSecureDecryption);
+        initializationData, drmInitData);
   }
 
   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
-        initializationData, drmInitData, requiresSecureDecryption);
+        initializationData, drmInitData);
   }
 
   public Format copyWithDrmInitData(DrmInitData drmInitData) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
         pcmEncoding, encoderDelay, encoderPadding, selectionFlags, language, subsampleOffsetUs,
-        initializationData, drmInitData, requiresSecureDecryption);
+        initializationData, drmInitData);
   }
 
   /**
@@ -486,7 +476,6 @@ public final class Format implements Parcelable {
     }
     Format other = (Format) obj;
     if (bitrate != other.bitrate || maxInputSize != other.maxInputSize
-        || requiresSecureDecryption != other.requiresSecureDecryption
         || width != other.width || height != other.height || frameRate != other.frameRate
         || rotationDegrees != other.rotationDegrees
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
@@ -565,7 +554,6 @@ public final class Format implements Parcelable {
       dest.writeByteArray(initializationData.get(i));
     }
     dest.writeParcelable(drmInitData, 0);
-    dest.writeInt(requiresSecureDecryption ? 1 : 0);
   }
 
   public static final Creator<Format> CREATOR = new Creator<Format>() {

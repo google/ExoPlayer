@@ -61,7 +61,7 @@ public final class FormatTest extends TestCase {
 
     Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null,
         1024, 2048, 1920, 1080, 24, 90, 2, 6, 44100, C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und",
-        Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData, false);
+        Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);
