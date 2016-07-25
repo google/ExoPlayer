@@ -208,10 +208,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static int[] getAdaptiveTracksOfGroup(TrackGroup trackGroup, int[] formatSupport,
       boolean allowMixedMimeTypes, int requiredAdaptiveSupport, int maxVideoWidth,
       int maxVideoHeight) {
-    if (!trackGroup.adaptive) {
-      return NO_TRACKS;
-    }
-
     String mimeType = null;
     int adaptiveTracksCount = 0;
     if (allowMixedMimeTypes) {

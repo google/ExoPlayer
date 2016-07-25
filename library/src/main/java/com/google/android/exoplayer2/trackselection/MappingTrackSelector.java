@@ -560,10 +560,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     {@link RendererCapabilities#ADAPTIVE_NOT_SUPPORTED}.
      */
     public int getAdaptiveSupport(int rendererIndex, int groupIndex, int[] trackIndices) {
-      TrackGroup trackGroup = trackGroups[rendererIndex].get(groupIndex);
-      if (!trackGroup.adaptive) {
-        return RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
-      }
       int handledTrackCount = 0;
       int adaptiveSupport = RendererCapabilities.ADAPTIVE_SEAMLESS;
       boolean multipleMimeTypes = false;

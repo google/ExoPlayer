@@ -20,24 +20,21 @@ import com.google.android.exoplayer2.util.Assertions;
 
 import java.util.Arrays;
 
+// TODO: Add an allowMultipleStreams boolean to indicate where the one stream per group restriction
+// does not apply.
 /**
  * Defines a group of tracks exposed by a {@link MediaPeriod}.
  * <p>
  * A {@link MediaPeriod} is only able to provide one {@link SampleStream} corresponding to a group
- * at any given time. If {@link #adaptive} is true this {@link SampleStream} can adapt between
- * multiple tracks within the group. If {@link #adaptive} is false then it's only possible to
- * consume one track from the group at a given time.
+ * at any given time, however this {@link SampleStream} may adapt between multiple tracks within the
+ * group.
  */
 public final class TrackGroup {
 
   /**
-   * The number of tracks in the group. Always greater than zero.
+   * The number of tracks in the group.
    */
   public final int length;
-  /**
-   * Whether it's possible to adapt between multiple tracks in the group.
-   */
-  public final boolean adaptive;
 
   private final Format[] formats;
 
@@ -45,19 +42,10 @@ public final class TrackGroup {
   private int hashCode;
 
   /**
-   * @param format The format of the single track.
+   * @param formats The track formats. Must not be null or contain null elements.
    */
-  public TrackGroup(Format format) {
-    this(false, Assertions.checkNotNull(format));
-  }
-
-  /**
-   * @param adaptive Whether it's possible to adapt between multiple tracks in the group.
-   * @param formats The track formats. Must not be null or empty. Must not contain null elements.
-   */
-  public TrackGroup(boolean adaptive, Format... formats) {
+  public TrackGroup(Format... formats) {
     Assertions.checkState(formats.length > 0);
-    this.adaptive = adaptive;
     this.formats = formats;
     this.length = formats.length;
   }
@@ -91,7 +79,6 @@ public final class TrackGroup {
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
-      result = 31 * result + (adaptive ? 1231 : 1237);
       result = 31 * result + Arrays.hashCode(formats);
       hashCode = result;
     }
@@ -107,8 +94,7 @@ public final class TrackGroup {
       return false;
     }
     TrackGroup other = (TrackGroup) obj;
-    return adaptive == other.adaptive && length == other.length
-        && Arrays.equals(formats, other.formats);
+    return length == other.length && Arrays.equals(formats, other.formats);
   }
 
 }

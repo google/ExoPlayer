@@ -543,7 +543,7 @@ import java.util.List;
         for (int j = 0; j < chunkSourceTrackCount; j++) {
           formats[j] = getSampleFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat);
         }
-        trackGroups[i] = new TrackGroup(chunkSourceTrackGroup.adaptive, formats);
+        trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
       } else {
         Format trackFormat = null;

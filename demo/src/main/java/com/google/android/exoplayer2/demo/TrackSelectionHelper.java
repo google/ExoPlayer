@@ -123,7 +123,7 @@ import java.util.Locale;
       TrackGroup group = trackGroups.get(groupIndex);
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
-        if (trackIndex == 0 || !group.adaptive) {
+        if (trackIndex == 0) {
           root.addView(inflater.inflate(R.layout.list_divider, root, false));
         }
         int trackViewLayoutId = group.length < 2 || !trackGroupsAdaptive[groupIndex]

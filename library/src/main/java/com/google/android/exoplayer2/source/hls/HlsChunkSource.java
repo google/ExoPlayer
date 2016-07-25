@@ -126,7 +126,7 @@ public class HlsChunkSource {
       variantFormats[i] = variants[i].format;
       initialTrackSelection[i] = i;
     }
-    trackGroup = new TrackGroup(formatEvaluator != null, variantFormats);
+    trackGroup = new TrackGroup(variantFormats);
     selectTracksInternal(new TrackSelection(trackGroup, initialTrackSelection), false);
   }
 

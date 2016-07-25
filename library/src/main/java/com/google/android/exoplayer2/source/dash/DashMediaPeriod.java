@@ -33,10 +33,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
 
-import android.util.Pair;
-
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -52,7 +49,6 @@ import java.util.List;
   private final Loader loader;
   private final long durationUs;
   private final TrackGroupArray trackGroups;
-  private final int[] trackGroupAdaptationSetIndices;
 
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
@@ -74,9 +70,7 @@ import java.util.List;
     this.loader = loader;
     durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(index) * 1000;
     period = manifest.getPeriod(index);
-    Pair<TrackGroupArray, int[]> trackGroupsAndAdaptationSetIndices = buildTrackGroups(period);
-    trackGroups = trackGroupsAndAdaptationSetIndices.first;
-    trackGroupAdaptationSetIndices = trackGroupsAndAdaptationSetIndices.second;
+    trackGroups = buildTrackGroups(period);
   }
 
   public void updateManifest(DashManifest manifest, int index) {
@@ -206,37 +200,23 @@ import java.util.List;
 
   // Internal methods.
 
-  private static Pair<TrackGroupArray, int[]> buildTrackGroups(Period period) {
-    int trackGroupCount = 0;
-    int[] trackGroupAdaptationSetIndices = new int[period.adaptationSets.size()];
+  private static TrackGroupArray buildTrackGroups(Period period) {
     TrackGroup[] trackGroupArray = new TrackGroup[period.adaptationSets.size()];
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
-      int adaptationSetType = adaptationSet.type;
       List<Representation> representations = adaptationSet.representations;
-      if (!representations.isEmpty() && (adaptationSetType == C.TRACK_TYPE_AUDIO
-          || adaptationSetType == C.TRACK_TYPE_VIDEO || adaptationSetType == C.TRACK_TYPE_TEXT)) {
-        Format[] formats = new Format[representations.size()];
-        for (int j = 0; j < formats.length; j++) {
-          formats[j] = representations.get(j).format;
-        }
-        trackGroupAdaptationSetIndices[trackGroupCount] = i;
-        boolean adaptive = adaptationSetType == C.TRACK_TYPE_VIDEO;
-        trackGroupArray[trackGroupCount++] = new TrackGroup(adaptive, formats);
+      Format[] formats = new Format[representations.size()];
+      for (int j = 0; j < formats.length; j++) {
+        formats[j] = representations.get(j).format;
       }
+      trackGroupArray[i] = new TrackGroup(formats);
     }
-    if (trackGroupCount < trackGroupArray.length) {
-      trackGroupAdaptationSetIndices = Arrays.copyOf(trackGroupAdaptationSetIndices,
-          trackGroupCount);
-      trackGroupArray = Arrays.copyOf(trackGroupArray, trackGroupCount);
-    }
-    TrackGroupArray trackGroups = new TrackGroupArray(trackGroupArray);
-    return Pair.create(trackGroups, trackGroupAdaptationSetIndices);
+    return new TrackGroupArray(trackGroupArray);
   }
 
   private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
-    int adaptationSetIndex = trackGroupAdaptationSetIndices[trackGroups.indexOf(selection.group)];
+    int adaptationSetIndex = trackGroups.indexOf(selection.group);
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(loader, manifest, index,
         adaptationSetIndex, selection, elapsedRealtimeOffset);

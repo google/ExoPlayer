@@ -49,7 +49,6 @@ import android.os.SystemClock;
 import android.util.Base64;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -90,7 +89,6 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
   private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
   private TrackGroupArray trackGroups;
-  private int[] trackGroupElementIndices;
 
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory, Handler eventHandler,
@@ -254,7 +252,6 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
     durationUs = 0;
     trackEncryptionBoxes = null;
     trackGroups = null;
-    trackGroupElementIndices = null;
   }
 
   // SequenceableLoader.Callback implementation
@@ -337,30 +334,18 @@ public final class SsMediaSource implements MediaPeriod, MediaSource,
   }
 
   private void buildTrackGroups(SsManifest manifest) {
-    int trackGroupCount = 0;
-    trackGroupElementIndices = new int[manifest.streamElements.length];
     TrackGroup[] trackGroupArray = new TrackGroup[manifest.streamElements.length];
     for (int i = 0; i < manifest.streamElements.length; i++) {
       StreamElement streamElement = manifest.streamElements[i];
-      int streamElementType = streamElement.type;
       Format[] formats = streamElement.formats;
-      if (formats.length > 0 && (streamElementType == C.TRACK_TYPE_AUDIO
-          || streamElementType == C.TRACK_TYPE_VIDEO || streamElementType == C.TRACK_TYPE_TEXT)) {
-        trackGroupElementIndices[trackGroupCount] = i;
-        boolean adaptive = streamElementType == C.TRACK_TYPE_VIDEO;
-        trackGroupArray[trackGroupCount++] = new TrackGroup(adaptive, formats);
-      }
-    }
-    if (trackGroupCount < trackGroupArray.length) {
-      trackGroupElementIndices = Arrays.copyOf(trackGroupElementIndices, trackGroupCount);
-      trackGroupArray = Arrays.copyOf(trackGroupArray, trackGroupCount);
+      trackGroupArray[i] = new TrackGroup(formats);
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
   }
 
   private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
-    int streamElementIndex = trackGroupElementIndices[trackGroups.indexOf(selection.group)];
+    int streamElementIndex = trackGroups.indexOf(selection.group);
     SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader, manifest,
         streamElementIndex, selection, trackEncryptionBoxes);
     return new ChunkSampleStream<>(manifest.streamElements[streamElementIndex].type, chunkSource,
