@@ -113,7 +113,6 @@ import java.util.List;
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
-    int fixedSampleSize = sampleSizeBox.getFixedSampleSize();
     int sampleCount = sampleSizeBox.getSampleCount();
 
     // Skip full atom.
@@ -149,7 +148,7 @@ import java.util.List;
 
     // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
     boolean isRechunkable =
-        fixedSampleSize != 0
+        sampleSizeBox.isFixedSampleSize()
         && MimeTypes.AUDIO_RAW.equals(track.mediaFormat.mimeType)
         && remainingTimestampDeltaChanges == 0
         && remainingTimestampOffsetChanges == 0
@@ -194,7 +193,7 @@ import java.util.List;
         }
 
         offsets[i] = offset;
-        sizes[i] = fixedSampleSize == 0 ? sampleSizeBox.getSampleSizeAt(i): fixedSampleSize;
+        sizes[i] = sampleSizeBox.readNextSampleSize();
 
         if (sizes[i] > maximumSize) {
           maximumSize = sizes[i];
@@ -245,7 +244,8 @@ import java.util.List;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
       FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
-          fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
+              sampleSizeBox.readNextSampleSize(), chunkOffsetsBytes, chunkSampleCounts,
+              timestampDeltaInTimeUnits);
       offsets = rechunkedResults.offsets;
       sizes = rechunkedResults.sizes;
       maximumSize = rechunkedResults.maximumSize;
@@ -1182,29 +1182,28 @@ import java.util.List;
     int getSampleCount();
 
     /**
-     * @return the fixed sample size read from the atom. If 0, the atom has non-fixed sample sizes.
+     * @return the size for the next sample in the box.
      */
-    int getFixedSampleSize();
+    int readNextSampleSize();
 
     /**
-     * @param i the index in the sample size array we wish to get the size from.
-     * @return the size for the sample at the index passed.
+     * @return if this box holds samples of a fixed size.
      */
-    int getSampleSizeAt(int i);
+    boolean isFixedSampleSize();
   }
 
   /**
    * Reads sample sizes out of a 'stsz' atom.
    */
   static final class StszSampleSizeBox implements SampleSizeBox {
-    public final Atom.LeafAtom atom;
     public final int fixedSampleSize;
     public final int sampleCount;
+    public final ParsableByteArray data;
     public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
-      atom = stszAtom;
-      atom.data.setPosition(Atom.FULL_HEADER_SIZE);
-      fixedSampleSize = atom.data.readUnsignedIntToInt();
-      sampleCount = atom.data.readUnsignedIntToInt();
+      data = stszAtom.data;
+      data.setPosition(Atom.FULL_HEADER_SIZE);
+      fixedSampleSize = data.readUnsignedIntToInt();
+      sampleCount = data.readUnsignedIntToInt();
     }
 
     @Override
@@ -1213,13 +1212,13 @@ import java.util.List;
     }
 
     @Override
-    public int getFixedSampleSize() {
-      return fixedSampleSize;
+    public int readNextSampleSize() {
+      return fixedSampleSize == 0 ? data.readUnsignedIntToInt() : fixedSampleSize;
     }
 
     @Override
-    public int getSampleSizeAt(int i) {
-      return atom.data.readUnsignedIntToInt() ;
+    public boolean isFixedSampleSize() {
+      return fixedSampleSize != 0;
     }
   }
 
@@ -1227,16 +1226,17 @@ import java.util.List;
    * Reads samples out of a 'stz2' atom.
    */
   static final class Stz2SampleSizeBox implements SampleSizeBox {
-    private static final int FIRST_DATA_POSITION = Atom.FULL_HEADER_SIZE + 8;
-    public final Atom.LeafAtom atom;
+    public final ParsableByteArray data;
     public final int sampleCount;
     public final int fieldSize;  // 4, 8, or 16.
+    private int mIndex = 0;     // Our current index in the samples.
+    private int mCurrentByte;  // used only for the 4 bit scenario.
     public Stz2SampleSizeBox(Atom.LeafAtom stz2Atom) {
-      atom = stz2Atom;
-      atom.data.setPosition(Atom.FULL_HEADER_SIZE);
+      data = stz2Atom.data;
+      data.setPosition(Atom.FULL_HEADER_SIZE);
       // mask out the reserved bits (24) and read just the field_size bits (8).
-      fieldSize = atom.data.readUnsignedIntToInt() & 0x000000FF;
-      sampleCount = atom.data.readUnsignedIntToInt();
+      fieldSize = data.readUnsignedIntToInt() & 0x000000FF;
+      sampleCount = data.readUnsignedIntToInt();
     }
 
     @Override
@@ -1245,28 +1245,30 @@ import java.util.List;
     }
 
     @Override
-    public int getFixedSampleSize() {
-      return 0; // not fixed size.
-    }
-
-    @Override
-    public int getSampleSizeAt(int i) {
+    public int readNextSampleSize() {
+      final int i = mIndex++;
       if (fieldSize == 8) {
-        return atom.data.readUnsignedByte();
+        return data.readUnsignedByte();
       } else if (fieldSize == 16) {
-        return atom.data.readUnsignedShort();
+        return data.readUnsignedShort();
       } else {
         // The field size is 4.
         final boolean isUpperBits = i % 2 == 0;
-        atom.data.setPosition(FIRST_DATA_POSITION + i / 2);
         if (isUpperBits) {
+          // Read the next byte into our cached byte when we are reading the upper bits.
+          mCurrentByte = data.readUnsignedByte();
           // Read the upper bits from the byte and shift them to the lower 4 bits.
-          return (atom.data.readUnsignedByte() & 0xF0) >> 4;
+          return (mCurrentByte & 0xF0) >> 4;
         } else {
-          // Mask out the upper 4 bits.
-          return atom.data.readUnsignedByte() & 0x0F;
+          // Mask out the upper 4 bits of the last byte we read.
+          return mCurrentByte & 0x0F;
         }
       }
+    }
+
+    @Override
+    public boolean isFixedSampleSize() {
+      return false;
     }
   }
 }
