@@ -1018,8 +1018,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static boolean codecNeedsAdaptationWorkaround(String name) {
     return Util.SDK_INT < 24
         && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name))
-        && (Util.DEVICE.equals("flounder") || Util.DEVICE.equals("flounder_lte")
-            || Util.DEVICE.equals("grouper") || Util.DEVICE.equals("tilapia"));
+        && ("flounder".equals(Util.DEVICE) || "flounder_lte".equals(Util.DEVICE)
+            || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE));
   }
 
   /**
