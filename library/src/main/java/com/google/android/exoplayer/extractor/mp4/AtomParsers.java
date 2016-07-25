@@ -92,7 +92,20 @@ import java.util.List;
    */
   public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
       throws ParserException {
-    final SampleSizeBox sampleSizeBox = sampleSizeBoxFor(stblAtom);
+    // Array of sample sizes.
+    final SampleSizeBox sampleSizeBox;
+
+    final Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+    if (stszAtom != null) {
+      sampleSizeBox = new StszSampleSizeBox(stszAtom);
+    } else {
+      final Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+      if (stz2Atom == null) {
+        throw new ParserException("Track has no sample table size information");
+      }
+
+      sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
+    }
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
@@ -1152,24 +1165,6 @@ import java.util.List;
       this.pixelWidthAspectRatio = pixelWidthAspectRatio;
     }
 
-  }
-
-  /**
-   * Creates a {@link SampleSizeBox} for the stblAtom passed in.
-   * @param stblAtom the atom to read the sample size atoms from.
-   * @return an implementation of {@link SampleSizeBox} that can be used to parse sample information.
-   * @throws ParserException if no suitable {@link Atom}s are found for parsing.
-     */
-  public static SampleSizeBox sampleSizeBoxFor(Atom.ContainerAtom stblAtom) throws ParserException {
-      // Array of sample sizes.
-      final Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
-      final Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
-
-      if (stszAtom == null && stz2Atom == null) {
-        throw new ParserException("Track has no sample table size information");
-      }
-
-    return stszAtom != null ? new StszSampleSizeBox(stszAtom) : new Stz2SampleSizeBox(stz2Atom);
   }
 
   /**
