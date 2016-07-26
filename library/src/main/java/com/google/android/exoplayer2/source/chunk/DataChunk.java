@@ -40,14 +40,14 @@ public abstract class DataChunk extends Chunk {
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
    * @param type See {@link #type}.
-   * @param format See {@link #format}.
-   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
-   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
-  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, byte[] data) {
-    super(dataSource, dataSpec, type, format, formatEvaluatorTrigger, formatEvaluatorData,
+  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, byte[] data) {
+    super(dataSource, dataSpec, type, trackFormat, trackSelectionReason, trackSelectionData,
         C.UNSET_TIME_US, C.UNSET_TIME_US);
     this.data = data;
   }

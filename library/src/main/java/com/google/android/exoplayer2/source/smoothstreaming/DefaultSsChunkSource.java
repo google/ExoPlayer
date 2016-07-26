@@ -181,7 +181,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
           evaluation);
     } else {
       evaluation.format = trackSelection.getFormat(0);
-      evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
+      evaluation.reason = C.SELECTION_REASON_UNKNOWN;
       evaluation.data = null;
     }
 
@@ -226,7 +226,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
     out.chunk = newMediaChunk(selectedFormat, dataSource, uri, null, currentAbsoluteChunkIndex,
-        chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, evaluation.data, extractorWrapper);
+        chunkStartTimeUs, chunkEndTimeUs, evaluation.reason, evaluation.data, extractorWrapper);
   }
 
   @Override
@@ -251,14 +251,13 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   private static MediaChunk newMediaChunk(Format format, DataSource dataSource, Uri uri,
       String cacheKey, int chunkIndex, long chunkStartTimeUs, long chunkEndTimeUs,
-      int formatEvaluatorTrigger, Object formatEvaluatorData,
-      ChunkExtractorWrapper extractorWrapper) {
+      int trackSelectionReason, Object trackSelectionData, ChunkExtractorWrapper extractorWrapper) {
     DataSpec dataSpec = new DataSpec(uri, 0, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;
-    return new ContainerMediaChunk(dataSource, dataSpec, format, formatEvaluatorTrigger,
-        formatEvaluatorData, chunkStartTimeUs, chunkEndTimeUs, chunkIndex, sampleOffsetUs,
+    return new ContainerMediaChunk(dataSource, dataSpec, format, trackSelectionReason,
+        trackSelectionData, chunkStartTimeUs, chunkEndTimeUs, chunkIndex, sampleOffsetUs,
         extractorWrapper, format);
   }
 

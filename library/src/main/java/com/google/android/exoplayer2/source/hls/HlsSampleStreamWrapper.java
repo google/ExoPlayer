@@ -83,7 +83,7 @@ import java.util.List;
 
   private boolean prepared;
   private int enabledTrackCount;
-  private Format downstreamFormat;
+  private Format downstreamTrackFormat;
   private int upstreamChunkUid;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
@@ -189,7 +189,7 @@ import java.util.List;
     // Cancel requests if necessary.
     if (enabledTrackCount == 0) {
       chunkSource.reset();
-      downstreamFormat = null;
+      downstreamTrackFormat = null;
       mediaChunks.clear();
       if (loader.isLoading()) {
         loader.cancelLoading();
@@ -273,13 +273,13 @@ import java.util.List;
       mediaChunks.removeFirst();
     }
     HlsMediaChunk currentChunk = mediaChunks.getFirst();
-    Format format = currentChunk.format;
-    if (!format.equals(downstreamFormat)) {
-      eventDispatcher.downstreamFormatChanged(trackType, format,
-          currentChunk.formatEvaluatorTrigger, currentChunk.formatEvaluatorData,
+    Format trackFormat = currentChunk.trackFormat;
+    if (!trackFormat.equals(downstreamTrackFormat)) {
+      eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
+          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
           currentChunk.startTimeUs);
     }
-    downstreamFormat = format;
+    downstreamTrackFormat = trackFormat;
 
     return sampleQueues.valueAt(group).readData(formatHolder, buffer, loadingFinished,
         lastSeekPositionUs);
@@ -326,8 +326,8 @@ import java.util.List;
       mediaChunks.add(mediaChunk);
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs);
     return true;
   }
@@ -346,8 +346,8 @@ import java.util.List;
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     if (!prepared) {
       continueLoading(lastSeekPositionUs);
@@ -359,8 +359,8 @@ import java.util.List;
   @Override
   public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
       boolean released) {
-    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     if (!released) {
       int sampleQueueCount = sampleQueues.size();
@@ -388,8 +388,8 @@ import java.util.List;
       }
       canceled = true;
     }
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded(), error,
         canceled);
     if (canceled) {

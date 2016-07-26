@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 
@@ -37,33 +38,7 @@ public interface FormatEvaluator {
     FormatEvaluator createFormatEvaluator();
 
   }
-  
-  /**
-   * A trigger for a load whose reason is unknown or unspecified.
-   */
-  int TRIGGER_UNKNOWN = 0;
-  /**
-   * A trigger for a load triggered by an initial format selection.
-   */
-  int TRIGGER_INITIAL = 1;
-  /**
-   * A trigger for a load triggered by a user initiated format selection.
-   */
-  int TRIGGER_MANUAL = 2;
-  /**
-   * A trigger for a load triggered by an adaptive format selection.
-   */
-  int TRIGGER_ADAPTIVE = 3;
-  /**
-   * A trigger for a load triggered whilst in a trick play mode.
-   */
-  int TRIGGER_TRICK_PLAY = 4;
-  /**
-   * Applications or extensions may define custom {@code TRIGGER_*} constants greater than or equal
-   * to this value.
-   */
-  int TRIGGER_CUSTOM_BASE = 10000;
-  
+
   /**
    * Enables the evaluator.
    *
@@ -80,8 +55,8 @@ public interface FormatEvaluator {
    * Update the supplied evaluation.
    * <p>
    * When invoked, {@code evaluation} must contain the currently selected format (null for an
-   * initial evaluation), the most recent trigger {@link #TRIGGER_INITIAL} for an initial
-   * evaluation) and the most recent evaluation data (null for an initial evaluation).
+   * initial evaluation), the most recent reason ({@link C#SELECTION_REASON_INITIAL} for an
+   * initial evaluation) and the most recent evaluation data (null for an initial evaluation).
    *
    * @param bufferedDurationUs The duration of media currently buffered in microseconds.
    * @param blacklistFlags An array whose length is equal to the number of available formats. A
@@ -118,7 +93,7 @@ public interface FormatEvaluator {
     /**
      * The sticky reason for the format selection.
      */
-    public int trigger;
+    public int reason;
 
     /**
      * Sticky optional data relating to the evaluation.
@@ -126,7 +101,7 @@ public interface FormatEvaluator {
     public Object data;
 
     public Evaluation() {
-      trigger = TRIGGER_INITIAL;
+      reason = C.SELECTION_REASON_INITIAL;
     }
 
   }
@@ -207,7 +182,7 @@ public interface FormatEvaluator {
       }
       Format newFormat = formats[formatIndex];
       if (evaluation.format != null && evaluation.format != newFormat) {
-        evaluation.trigger = TRIGGER_ADAPTIVE;
+        evaluation.reason = C.SELECTION_REASON_ADAPTIVE;
       }
       evaluation.format = newFormat;
     }
@@ -331,7 +306,7 @@ public interface FormatEvaluator {
         }
       }
       if (current != null && selected != current) {
-        evaluation.trigger = TRIGGER_ADAPTIVE;
+        evaluation.reason = C.SELECTION_REASON_ADAPTIVE;
       }
       evaluation.format = selected;
     }
@@ -347,7 +322,7 @@ public interface FormatEvaluator {
       if (bufferedDurationUs < minDurationToRetainAfterDiscardUs) {
         return queueSize;
       }
-      Format current = queue.get(queueSize - 1).format;
+      Format current = queue.get(queueSize - 1).trackFormat;
       Format ideal = determineIdealFormat(formats, blacklistFlags,
           bandwidthMeter.getBitrateEstimate());
       if (ideal.bitrate <= current.bitrate) {
@@ -359,10 +334,10 @@ public interface FormatEvaluator {
         MediaChunk thisChunk = queue.get(i);
         long durationBeforeThisSegmentUs = thisChunk.startTimeUs - playbackPositionUs;
         if (durationBeforeThisSegmentUs >= minDurationToRetainAfterDiscardUs
-            && thisChunk.format.bitrate < ideal.bitrate
-            && thisChunk.format.height < ideal.height
-            && thisChunk.format.height < 720
-            && thisChunk.format.width < 1280) {
+            && thisChunk.trackFormat.bitrate < ideal.bitrate
+            && thisChunk.trackFormat.height < ideal.height
+            && thisChunk.trackFormat.height < 720
+            && thisChunk.trackFormat.width < 1280) {
           // Discard chunks from this one onwards.
           return i;
         }

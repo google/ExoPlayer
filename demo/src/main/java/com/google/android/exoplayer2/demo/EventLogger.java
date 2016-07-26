@@ -236,30 +236,30 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   // AdaptiveMediaSourceEventListener
 
   @Override
-  public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+  public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
       long mediaEndTimeMs, long elapsedRealtimeMs) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+  public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
       long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded,
       IOException error, boolean wasCanceled) {
     printInternalError("loadError", error);
   }
 
   @Override
-  public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+  public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
       long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long mediaStartTimeMs,
+  public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
       long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
     // Do nothing.
   }
@@ -270,8 +270,8 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   @Override
-  public void onDownstreamFormatChanged(int trackType, Format format, int formatEvaluatorTrigger,
-      Object formatEvaluatorData, long mediaTimeMs) {
+  public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason,
+      Object trackSelectionData, long mediaTimeMs) {
     // Do nothing.
   }
 

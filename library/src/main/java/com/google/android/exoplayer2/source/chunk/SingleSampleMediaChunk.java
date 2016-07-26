@@ -40,17 +40,17 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param format See {@link #format}.
-   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
-   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    */
-  public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs,
+  public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
       int chunkIndex, Format sampleFormat) {
-    super(dataSource, dataSpec, format, formatEvaluatorTrigger, formatEvaluatorData, startTimeUs,
+    super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
         endTimeUs, chunkIndex);
     this.sampleFormat = sampleFormat;
   }

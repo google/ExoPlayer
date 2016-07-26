@@ -62,9 +62,9 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param format See {@link #format}.
-   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
-   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The media sequence number of the chunk.
@@ -77,13 +77,13 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
-  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs,
+  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
       int chunkIndex, int discontinuitySequenceNumber, Extractor extractor,
       boolean extractorNeedsInit, boolean shouldSpliceIn, byte[] encryptionKey,
       byte[] encryptionIv) {
-    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, format,
-        formatEvaluatorTrigger, formatEvaluatorData, startTimeUs, endTimeUs, chunkIndex);
+    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, trackFormat,
+        trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.extractor = extractor;
     this.extractorNeedsInit = extractorNeedsInit;

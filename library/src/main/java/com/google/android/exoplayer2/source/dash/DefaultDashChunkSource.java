@@ -177,7 +177,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             evaluation);
       } else {
         evaluation.format = trackSelection.getFormat(0);
-        evaluation.trigger = FormatEvaluator.TRIGGER_UNKNOWN;
+        evaluation.reason = C.SELECTION_REASON_UNKNOWN;
         evaluation.data = null;
       }
     }
@@ -204,8 +204,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (pendingInitializationUri != null || pendingIndexUri != null) {
       // We have initialization and/or index requests to make.
       Chunk initializationChunk = newInitializationChunk(representationHolder, dataSource,
-          selectedFormat, pendingInitializationUri, pendingIndexUri, evaluation.trigger,
-          evaluation.data);
+          selectedFormat, evaluation.reason, evaluation.data, pendingInitializationUri,
+          pendingIndexUri);
       lastChunkWasInitialization = true;
       out.chunk = initializationChunk;
       return;
@@ -250,7 +250,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     Chunk nextMediaChunk = newMediaChunk(representationHolder, dataSource, selectedFormat,
-        sampleFormat, segmentNum, evaluation.trigger, evaluation.data);
+        evaluation.reason, evaluation.data, sampleFormat, segmentNum);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -260,7 +260,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (chunk instanceof InitializationChunk) {
       InitializationChunk initializationChunk = (InitializationChunk) chunk;
       RepresentationHolder representationHolder =
-          representationHolders[trackSelection.indexOf(initializationChunk.format)];
+          representationHolders[trackSelection.indexOf(initializationChunk.trackFormat)];
       Format sampleFormat = initializationChunk.getSampleFormat();
       if (sampleFormat != null) {
         representationHolder.setSampleFormat(sampleFormat);
@@ -285,7 +285,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && e instanceof InvalidResponseCodeException
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
-          representationHolders[trackSelection.indexOf(chunk.format)];
+          representationHolders[trackSelection.indexOf(chunk.trackFormat)];
       int lastAvailableSegmentNum = representationHolder.getLastSegmentNum();
       if (((MediaChunk) chunk).chunkIndex >= lastAvailableSegmentNum) {
         missingLastSegment = true;
@@ -318,8 +318,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private Chunk newInitializationChunk(RepresentationHolder representationHolder,
-      DataSource dataSource, Format trackFormat, RangedUri initializationUri, RangedUri indexUri,
-      int formatEvaluatorTrigger, Object formatEvaluatorData) {
+      DataSource dataSource, Format trackFormat, int trackSelectionReason,
+      Object trackSelectionData, RangedUri initializationUri, RangedUri indexUri) {
     RangedUri requestUri;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
@@ -334,12 +334,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     DataSpec dataSpec = new DataSpec(requestUri.getUri(), requestUri.start, requestUri.length,
         representationHolder.representation.getCacheKey());
     return new InitializationChunk(dataSource, dataSpec, trackFormat,
-        formatEvaluatorTrigger, formatEvaluatorData, representationHolder.extractorWrapper);
+        trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
 
   private Chunk newMediaChunk(RepresentationHolder representationHolder, DataSource dataSource,
-      Format trackFormat, Format sampleFormat, int segmentNum, int formatEvaluatorTrigger,
-      Object formatEvaluatorData) {
+      Format trackFormat, int trackSelectionReason,
+      Object trackSelectionData, Format sampleFormat, int segmentNum) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
@@ -348,12 +348,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
         representation.getCacheKey());
 
     if (representationHolder.extractorWrapper == null) {
-      return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, formatEvaluatorTrigger,
-          formatEvaluatorData, startTimeUs, endTimeUs, segmentNum, trackFormat);
+      return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
+          trackSelectionData, startTimeUs, endTimeUs, segmentNum, trackFormat);
     } else {
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
-      return new ContainerMediaChunk(dataSource, dataSpec, trackFormat, formatEvaluatorTrigger,
-          formatEvaluatorData, startTimeUs, endTimeUs, segmentNum, sampleOffsetUs,
+      return new ContainerMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
+          trackSelectionData, startTimeUs, endTimeUs, segmentNum, sampleOffsetUs,
           representationHolder.extractorWrapper, sampleFormat);
     }
   }

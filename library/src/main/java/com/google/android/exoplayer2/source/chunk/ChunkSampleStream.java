@@ -49,7 +49,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final ChunkHolder nextChunkHolder;
   private final Loader loader;
 
-  private Format downstreamFormat;
+  private Format downstreamTrackFormat;
 
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
@@ -182,13 +182,13 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
     BaseMediaChunk currentChunk = mediaChunks.getFirst();
 
-    Format format = currentChunk.format;
-    if (!format.equals(downstreamFormat)) {
-      eventDispatcher.downstreamFormatChanged(trackType, format,
-          currentChunk.formatEvaluatorTrigger, currentChunk.formatEvaluatorData,
+    Format trackFormat = currentChunk.trackFormat;
+    if (!trackFormat.equals(downstreamTrackFormat)) {
+      eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
+          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
           currentChunk.startTimeUs);
     }
-    downstreamFormat = format;
+    downstreamTrackFormat = trackFormat;
     return sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
   }
 
@@ -202,8 +202,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     callback.onContinueLoadingRequested(this);
   }
@@ -211,8 +211,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
       boolean released) {
-    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     if (!released) {
       sampleQueue.reset(true);
@@ -238,8 +238,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         }
       }
     }
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, bytesLoaded, error,
         canceled);
     if (canceled) {
@@ -281,8 +281,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       mediaChunks.add(mediaChunk);
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.format,
-        loadable.formatEvaluatorTrigger, loadable.formatEvaluatorData, loadable.startTimeUs,
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
+        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs);
     return true;
   }

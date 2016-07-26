@@ -234,8 +234,45 @@ public interface C {
   int TRACK_TYPE_METADATA = 4;
 
   /**
-  * A default size in bytes for an individual allocation that forms part of a larger buffer.
-  */
+   * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
+   * equal to this value.
+   */
+  int TRACK_TYPE_CUSTOM_BASE = 10000;
+
+  /**
+   * A selection reason constant for selections whose reasons are unknown or unspecified.
+   */
+  int SELECTION_REASON_UNKNOWN = 0;
+
+  /**
+   * A selection reason constant for an initial track selection.
+   */
+  int SELECTION_REASON_INITIAL = 1;
+
+  /**
+   * A selection reason constant for an manual (i.e. user initiated) track selection.
+   */
+  int SELECTION_REASON_MANUAL = 2;
+
+  /**
+   * A selection reason constant for an adaptive track selection.
+   */
+  int SELECTION_REASON_ADAPTIVE = 3;
+
+  /**
+   * A selection reason constant for a trick play track selection.
+   */
+  int SELECTION_REASON_TRICK_PLAY = 4;
+
+  /**
+   * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
+   * or equal to this value.
+   */
+  int SELECTION_REASON_CUSTOM_BASE = 10000;
+
+  /**
+   * A default size in bytes for an individual allocation that forms part of a larger buffer.
+   */
   int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
   /**

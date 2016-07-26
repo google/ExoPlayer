@@ -38,21 +38,20 @@ public abstract class Chunk implements Loadable {
    */
   public final int type;
   /**
-   * One of the {@link FormatEvaluator} {@code TRIGGER_*} constants if a format evaluation was
-   * performed to determine that this chunk should be loaded.
-   * {@link FormatEvaluator#TRIGGER_UNKNOWN} otherwise.
+   * The format of the track to which this chunk belongs, or null if the chunk does not belong to
+   * a track.
    */
-  public final int formatEvaluatorTrigger;
+  public final Format trackFormat;
   /**
-   * Optional data set by a {@link FormatEvaluator} if a format evaluation was performed to
-   * determine that this chunk should be loaded. Null otherwise.
+   * One of the {@link C} {@code SELECTION_REASON_*} constants if the chunk belongs to a track.
+   * {@link C#SELECTION_REASON_UNKNOWN} if the chunk does not belong to a track.
    */
-  public final Object formatEvaluatorData;
+  public final int trackSelectionReason;
   /**
-   * The format associated with the data being loaded, or null if the data being loaded is not
-   * associated with a specific format.
+   * Optional data associated with the selection of the track to which this chunk belongs. Null if
+   * the chunk does not belong to a track.
    */
-  public final Format format;
+  public final Object trackSelectionData;
   /**
    * The start time of the media contained by the chunk, or {@link C#UNSET_TIME_US} if the data
    * being loaded does not contain media samples.
@@ -70,20 +69,20 @@ public abstract class Chunk implements Loadable {
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
    * @param type See {@link #type}.
-   * @param format See {@link #format}.
-   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
-   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs See {@link #startTimeUs}.
    * @param endTimeUs See {@link #endTimeUs}.
    */
-  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs) {
+  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs) {
     this.dataSource = Assertions.checkNotNull(dataSource);
     this.dataSpec = Assertions.checkNotNull(dataSpec);
     this.type = type;
-    this.format = format;
-    this.formatEvaluatorTrigger = formatEvaluatorTrigger;
-    this.formatEvaluatorData = formatEvaluatorData;
+    this.trackFormat = trackFormat;
+    this.trackSelectionReason = trackSelectionReason;
+    this.trackSelectionData = trackSelectionData;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
   }

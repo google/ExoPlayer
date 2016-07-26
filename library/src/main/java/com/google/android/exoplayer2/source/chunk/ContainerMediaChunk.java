@@ -44,9 +44,9 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param format See {@link #format}.
-   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
-   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
@@ -55,11 +55,11 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    * @param sampleFormat The {@link Format} of the samples in the chunk, if known. May be null if
    *     the data is known to define its own sample format.
    */
-  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData, long startTimeUs, long endTimeUs,
+  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
       int chunkIndex, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
       Format sampleFormat) {
-    super(dataSource, dataSpec, format, formatEvaluatorTrigger, formatEvaluatorData, startTimeUs,
+    super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
         endTimeUs, chunkIndex);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;

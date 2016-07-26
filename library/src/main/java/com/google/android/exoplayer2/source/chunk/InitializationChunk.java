@@ -50,16 +50,16 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param format See {@link #format}.
-   * @param formatEvaluatorTrigger See {@link #formatEvaluatorTrigger}.
-   * @param formatEvaluatorData See {@link #formatEvaluatorData}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
    * @param extractorWrapper A wrapped extractor to use for parsing the initialization data.
    */
-  public InitializationChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int formatEvaluatorTrigger, Object formatEvaluatorData,
+  public InitializationChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
+      int trackSelectionReason, Object trackSelectionData,
       ChunkExtractorWrapper extractorWrapper) {
-    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, format, formatEvaluatorTrigger,
-        formatEvaluatorData, C.UNSET_TIME_US, C.UNSET_TIME_US);
+    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, trackFormat, trackSelectionReason,
+        trackSelectionData, C.UNSET_TIME_US, C.UNSET_TIME_US);
     this.extractorWrapper = extractorWrapper;
   }
 
