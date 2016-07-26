@@ -560,7 +560,8 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
-          || childAtomType == Atom.TYPE_s263) {
+          || childAtomType == Atom.TYPE_s263 || childAtomType == Atom.TYPE_vp08
+          || childAtomType == Atom.TYPE_vp09) {
         parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             durationUs, rotationDegrees, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
@@ -646,6 +647,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
         pixelWidthHeightRatioFromPasp = true;
+      } else if (childAtomType == Atom.TYPE_vpcC) {
+        Assertions.checkState(mimeType == null);
+        mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
       }
       childPosition += childAtomSize;
     }
