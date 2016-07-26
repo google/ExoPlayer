@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 
 /**
  * A {@link ChunkSource} for SmoothStreaming.
@@ -28,8 +28,9 @@ public interface SsChunkSource extends ChunkSource {
 
   interface Factory {
 
-    SsChunkSource createChunkSource(Loader manifestLoader, SsManifest manifest, int elementIndex,
-        TrackSelection trackSelection, TrackEncryptionBox[] trackEncryptionBoxes);
+    SsChunkSource createChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
+        SsManifest manifest, int elementIndex, TrackSelection trackSelection,
+        TrackEncryptionBox[] trackEncryptionBoxes);
 
   }
 

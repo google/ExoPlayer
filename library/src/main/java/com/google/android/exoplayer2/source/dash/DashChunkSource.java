@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.source.dash;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 
 /**
  * An {@link ChunkSource} for DASH streams.
@@ -27,9 +27,9 @@ public interface DashChunkSource extends ChunkSource {
 
   interface Factory {
 
-    DashChunkSource createDashChunkSource(Loader manifestLoader, DashManifest manifest,
-        int periodIndex, int adaptationSetIndex, TrackSelection trackSelection,
-        long elapsedRealtimeOffsetMs);
+    DashChunkSource createDashChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
+        DashManifest manifest, int periodIndex, int adaptationSetIndex,
+        TrackSelection trackSelection, long elapsedRealtimeOffsetMs);
 
   }
 

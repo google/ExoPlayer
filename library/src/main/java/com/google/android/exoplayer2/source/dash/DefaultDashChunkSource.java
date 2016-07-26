@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -41,9 +40,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
-import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+
+import android.os.SystemClock;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -64,19 +66,20 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     @Override
-    public DashChunkSource createDashChunkSource(Loader manifestLoader, DashManifest manifest,
-        int periodIndex, int adaptationSetIndex, TrackSelection trackSelection,
-        long elapsedRealtimeOffsetMs) {
+    public DashChunkSource createDashChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
+        DashManifest manifest, int periodIndex, int adaptationSetIndex,
+        TrackSelection trackSelection, long elapsedRealtimeOffsetMs) {
       FormatEvaluator adaptiveEvaluator = trackSelection.length > 1
           ? formatEvaluatorFactory.createFormatEvaluator() : null;
       DataSource dataSource = dataSourceFactory.createDataSource();
-     return new DefaultDashChunkSource(manifestLoader, manifest, periodIndex, adaptationSetIndex,
-         trackSelection, dataSource, adaptiveEvaluator, elapsedRealtimeOffsetMs);
+     return new DefaultDashChunkSource(manifestLoaderErrorThrower, manifest, periodIndex,
+         adaptationSetIndex, trackSelection, dataSource, adaptiveEvaluator,
+         elapsedRealtimeOffsetMs);
     }
 
   }
 
-  private final Loader manifestLoader;
+  private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int adaptationSetIndex;
   private final TrackSelection trackSelection;
   private final RepresentationHolder[] representationHolders;
@@ -93,7 +96,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private boolean missingLastSegment;
 
   /**
-   * @param manifestLoader The {@link Loader} being used to load manifests.
+   * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
    * @param periodIndex The index of the period in the manifest.
    * @param adaptationSetIndex The index of the adaptation set in the period.
@@ -104,10 +107,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
    *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
    */
-  public DefaultDashChunkSource(Loader manifestLoader, DashManifest manifest, int periodIndex,
-      int adaptationSetIndex, TrackSelection trackSelection, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, long elapsedRealtimeOffsetMs) {
-    this.manifestLoader = manifestLoader;
+  public DefaultDashChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
+      DashManifest manifest, int periodIndex, int adaptationSetIndex, TrackSelection trackSelection,
+      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
+      long elapsedRealtimeOffsetMs) {
+    this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.adaptationSetIndex = adaptationSetIndex;
     this.trackSelection = trackSelection;
@@ -151,7 +155,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (fatalError != null) {
       throw fatalError;
     } else {
-      manifestLoader.maybeThrowError();
+      manifestLoaderErrorThrower.maybeThrowError();
     }
   }
 

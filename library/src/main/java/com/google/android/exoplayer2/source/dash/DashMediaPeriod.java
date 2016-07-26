@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 
 import java.io.IOException;
 import java.util.List;
@@ -46,7 +46,7 @@ import java.util.List;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
-  private final Loader loader;
+  private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final TrackGroupArray trackGroups;
 
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -60,14 +60,15 @@ import java.util.List;
 
   public DashMediaPeriod(DashManifest manifest, int index,
       DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
-      EventDispatcher eventDispatcher, long elapsedRealtimeOffset, Loader loader) {
+      EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
+      LoaderErrorThrower manifestLoaderErrorThrower) {
     this.manifest = manifest;
     this.index = index;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
-    this.loader = loader;
+    this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(index) * 1000;
     period = manifest.getPeriod(index);
     trackGroups = buildTrackGroups(period);
@@ -99,7 +100,7 @@ import java.util.List;
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    loader.maybeThrowError();
+    manifestLoaderErrorThrower.maybeThrowError();
   }
 
   @Override
@@ -219,8 +220,9 @@ import java.util.List;
       long positionUs) {
     int adaptationSetIndex = trackGroups.indexOf(selection.group);
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
-    DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(loader, manifest, index,
-        adaptationSetIndex, selection, elapsedRealtimeOffset);
+    DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
+        manifestLoaderErrorThrower, manifest, index, adaptationSetIndex, selection,
+        elapsedRealtimeOffset);
     return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }

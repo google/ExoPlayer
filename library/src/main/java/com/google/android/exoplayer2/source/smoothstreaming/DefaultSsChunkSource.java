@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 
 import android.net.Uri;
 
@@ -57,19 +57,19 @@ public class DefaultSsChunkSource implements SsChunkSource {
     }
 
     @Override
-    public SsChunkSource createChunkSource(Loader manifestLoader, SsManifest manifest,
-        int elementIndex, TrackSelection trackSelection,
+    public SsChunkSource createChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
+        SsManifest manifest, int elementIndex, TrackSelection trackSelection,
         TrackEncryptionBox[] trackEncryptionBoxes) {
       FormatEvaluator adaptiveEvaluator = trackSelection.length > 1
           ? formatEvaluatorFactory.createFormatEvaluator() : null;
       DataSource dataSource = dataSourceFactory.createDataSource();
-      return new DefaultSsChunkSource(manifestLoader, manifest, elementIndex, trackSelection,
-          dataSource, adaptiveEvaluator, trackEncryptionBoxes);
+      return new DefaultSsChunkSource(manifestLoaderErrorThrower, manifest, elementIndex,
+          trackSelection, dataSource, adaptiveEvaluator, trackEncryptionBoxes);
     }
 
   }
 
-  private final Loader manifestLoader;
+  private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int elementIndex;
   private final TrackSelection trackSelection;
   private final ChunkExtractorWrapper[] extractorWrappers;
@@ -84,7 +84,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private IOException fatalError;
 
   /**
-   * @param manifestLoader The {@link Loader} being used to load manifests.
+   * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
    * @param elementIndex The index of the stream element in the manifest.
    * @param trackSelection The track selection.
@@ -92,10 +92,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param trackEncryptionBoxes Track encryption boxes for the stream.
    */
-  public DefaultSsChunkSource(Loader manifestLoader, SsManifest manifest, int elementIndex,
-      TrackSelection trackSelection, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      TrackEncryptionBox[] trackEncryptionBoxes) {
-    this.manifestLoader = manifestLoader;
+  public DefaultSsChunkSource(LoaderErrorThrower manifestLoaderErrorThrower, SsManifest manifest,
+      int elementIndex, TrackSelection trackSelection, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes) {
+    this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.elementIndex = elementIndex;
     this.trackSelection = trackSelection;
@@ -156,7 +156,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     if (fatalError != null) {
       throw fatalError;
     } else {
-      manifestLoader.maybeThrowError();
+      manifestLoaderErrorThrower.maybeThrowError();
     }
   }
 

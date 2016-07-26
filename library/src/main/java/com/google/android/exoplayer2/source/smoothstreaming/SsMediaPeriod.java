@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 
 import android.util.Base64;
 
@@ -45,7 +45,7 @@ import java.util.List;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
   private final SsChunkSource.Factory chunkSourceFactory;
-  private final Loader manifestLoader;
+  private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final TrackGroupArray trackGroups;
@@ -58,10 +58,11 @@ import java.util.List;
   private Allocator allocator;
 
   public SsMediaPeriod(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher, Loader manifestLoader) {
+      int minLoadableRetryCount, EventDispatcher eventDispatcher,
+      LoaderErrorThrower manifestLoaderErrorThrower) {
     this.manifest = manifest;
     this.chunkSourceFactory = chunkSourceFactory;
-    this.manifestLoader = manifestLoader;
+    this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     trackGroups = buildTrackGroups(manifest);
@@ -96,7 +97,7 @@ import java.util.List;
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    manifestLoader.maybeThrowError();
+    manifestLoaderErrorThrower.maybeThrowError();
   }
 
   @Override
@@ -199,8 +200,8 @@ import java.util.List;
   private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
     int streamElementIndex = trackGroups.indexOf(selection.group);
-    SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoader, manifest,
-        streamElementIndex, selection, trackEncryptionBoxes);
+    SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoaderErrorThrower,
+        manifest, streamElementIndex, selection, trackEncryptionBoxes);
     return new ChunkSampleStream<>(manifest.streamElements[streamElementIndex].type, chunkSource,
         this, allocator, positionUs, minLoadableRetryCount, eventDispatcher);
   }

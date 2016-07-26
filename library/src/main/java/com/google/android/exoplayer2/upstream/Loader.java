@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Manages the background loading of {@link Loadable}s.
  */
-public final class Loader {
+public final class Loader implements LoaderErrorThrower {
 
   /**
    * Thrown when an unexpected exception is encountered during loading.
@@ -174,34 +174,6 @@ public final class Loader {
   }
 
   /**
-   * Throws an error if a fatal error has been encountered, or if the current {@link Loadable} has
-   * incurred a number of errors greater than its default minimum number of retries and if the load
-   * is currently backed off, then an error is thrown. Else does nothing.
-   *
-   * @throws IOException The error.
-   */
-  public void maybeThrowError() throws IOException {
-    maybeThrowError(Integer.MIN_VALUE);
-  }
-
-  /**
-   * Throws an error if a fatal error has been encountered, or if the current {@link Loadable} has
-   * incurred a number of errors greater than the specified minimum number of retries and if the
-   * load is currently backed off, then an error is thrown.
-   *
-   * @param minRetryCount A minimum retry count that must be exceeded.
-   * @throws IOException The error.
-   */
-  public void maybeThrowError(int minRetryCount) throws IOException {
-    if (fatalError != null) {
-      throw fatalError;
-    } else if (currentTask != null) {
-      currentTask.maybeThrowError(minRetryCount == Integer.MIN_VALUE
-          ? currentTask.defaultMinRetryCount : minRetryCount);
-    }
-  }
-
-  /**
    * Cancels the current load. This method should only be called when a load is in progress.
    */
   public void cancelLoading() {
@@ -232,6 +204,25 @@ public final class Loader {
     }
     downloadExecutorService.shutdown();
   }
+
+  // LoaderErrorThrower implementation.
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    maybeThrowError(Integer.MIN_VALUE);
+  }
+
+  @Override
+  public void maybeThrowError(int minRetryCount) throws IOException {
+    if (fatalError != null) {
+      throw fatalError;
+    } else if (currentTask != null) {
+      currentTask.maybeThrowError(minRetryCount == Integer.MIN_VALUE
+          ? currentTask.defaultMinRetryCount : minRetryCount);
+    }
+  }
+
+  // Internal classes.
 
   @SuppressLint("HandlerLeak")
   private final class LoadTask<T extends Loadable> extends Handler implements Runnable {
