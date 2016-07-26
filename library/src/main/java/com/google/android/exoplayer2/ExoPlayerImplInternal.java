@@ -693,7 +693,7 @@ import java.util.ArrayList;
 
         Period previousPeriod = playingPeriod;
         boolean seenReadingPeriod = false;
-        while (previousPeriod != null) {
+        while (previousPeriod.nextPeriod != null) {
           Period period = previousPeriod.nextPeriod;
           index++;
           if (!period.id.equals(timeline.getPeriodId(index))) {
