@@ -47,7 +47,6 @@ import java.util.List;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
   private final Loader loader;
-  private final long durationUs;
   private final TrackGroupArray trackGroups;
 
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -55,6 +54,7 @@ import java.util.List;
   private Callback callback;
   private Allocator allocator;
   private DashManifest manifest;
+  private long durationUs;
   private int index;
   private Period period;
 
@@ -76,6 +76,7 @@ import java.util.List;
   public void updateManifest(DashManifest manifest, int index) {
     this.manifest = manifest;
     this.index = index;
+    durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(index) * 1000;
     period = manifest.getPeriod(index);
     if (sampleStreams != null) {
       for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {

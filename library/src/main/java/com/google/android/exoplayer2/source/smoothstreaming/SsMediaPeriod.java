@@ -48,7 +48,6 @@ import java.util.List;
   private final Loader manifestLoader;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
-  private final long durationUs;
   private final TrackGroupArray trackGroups;
   private final TrackEncryptionBox[] trackEncryptionBoxes;
 
@@ -65,7 +64,6 @@ import java.util.List;
     this.manifestLoader = manifestLoader;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
-    durationUs = manifest.durationUs;
     trackGroups = buildTrackGroups(manifest);
     ProtectionElement protectionElement = manifest.protectionElement;
     if (protectionElement != null) {
@@ -103,7 +101,7 @@ import java.util.List;
 
   @Override
   public long getDurationUs() {
-    return durationUs;
+    return manifest.durationUs;
   }
 
   @Override
