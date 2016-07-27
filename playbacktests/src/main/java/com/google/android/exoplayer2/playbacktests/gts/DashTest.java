@@ -695,6 +695,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     @Override
     @TargetApi(18)
+    @SuppressWarnings("ResourceType")
     protected final StreamingDrmSessionManager buildDrmSessionManager(final String userAgent) {
       StreamingDrmSessionManager drmSessionManager = null;
       if (isWidevineEncrypted) {
@@ -873,7 +874,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return trackIndicesArray;
     }
 
-    private static final boolean isFormatHandled(int formatSupport) {
+    private static boolean isFormatHandled(int formatSupport) {
       return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
           == RendererCapabilities.FORMAT_HANDLED;
     }

@@ -70,9 +70,7 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param client An {@link OkHttpClient} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a
-   *     {@link com.google.android.exoplayer2.upstream.HttpDataSource.InvalidContentTypeException} is
-   *     thrown from {@link #open(DataSpec)}.
+   *     predicate then a InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
    */
   public OkHttpDataSource(OkHttpClient client, String userAgent,
       Predicate<String> contentTypePredicate) {
@@ -83,9 +81,8 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param client An {@link OkHttpClient} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a
-   *     {@link com.google.android.exoplayer2.upstream.HttpDataSource.InvalidContentTypeException} is
-   *     thrown from {@link #open(DataSpec)}.
+   *     predicate then a {@link InvalidContentTypeException} is thrown from
+   *     {@link #open(DataSpec)}.
    * @param listener An optional listener.
    */
   public OkHttpDataSource(OkHttpClient client, String userAgent,
@@ -97,9 +94,8 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param client An {@link OkHttpClient} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a
-   *     {@link com.google.android.exoplayer2.upstream.HttpDataSource.InvalidContentTypeException} is
-   *     thrown from {@link #open(DataSpec)}.
+   *     predicate then a {@link InvalidContentTypeException} is thrown from
+   *     {@link #open(DataSpec)}.
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} which sets all requests' Cache-Control
    *     header. For example, you could force the network response for all requests.
