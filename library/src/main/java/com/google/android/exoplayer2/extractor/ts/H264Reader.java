@@ -172,7 +172,7 @@ import java.util.List;
           output.format(Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
               Format.NO_VALUE, Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE,
               initializationData, Format.NO_VALUE, spsData.pixelWidthAspectRatio, null));
-          hasOutputFormat = true;
+          sampleReader.hasOutputFormat = hasOutputFormat = true;
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);
           sps.reset();
@@ -232,6 +232,7 @@ import java.util.List;
     private long samplePosition;
     private long sampleTimeUs;
     private boolean sampleIsKeyframe;
+    private boolean hasOutputFormat;
 
     public SampleReader(TrackOutput output, boolean allowNonIdrKeyframes,
         boolean detectAccessUnits) {
@@ -422,7 +423,12 @@ import java.util.List;
     }
 
     private void outputSample(int offset) {
-      int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
+      int flags = 0;
+      if (sampleIsKeyframe) {
+        flags |= C.BUFFER_FLAG_KEY_FRAME;
+      } else if (allowNonIdrKeyframes && hasOutputFormat) {
+        flags |= C.BUFFER_FLAG_INTRA_REFRESH;
+      }
       int size = (int) (nalUnitStartPosition - samplePosition);
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
     }

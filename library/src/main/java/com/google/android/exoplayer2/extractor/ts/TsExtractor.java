@@ -98,7 +98,7 @@ public final class TsExtractor implements Extractor {
   }
 
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster) {
-    this(ptsTimestampAdjuster, 0);
+    this(ptsTimestampAdjuster, WORKAROUND_ALLOW_NON_IDR_KEYFRAMES);
   }
 
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, int workaroundFlags) {

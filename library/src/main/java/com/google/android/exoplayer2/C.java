@@ -143,6 +143,11 @@ public interface C {
   int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
+   * H.264 may be with intra-refresh enabled.
+   */
+  int BUFFER_FLAG_INTRA_REFRESH = 0x02000000;
+
+  /**
    * A return value for methods where the end of an input was encountered.
    */
   int RESULT_END_OF_INPUT = -1;

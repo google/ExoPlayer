@@ -521,7 +521,7 @@ public final class DefaultTrackOutput implements TrackOutput {
         pendingSplice = false;
       }
       if (needKeyframe) {
-        if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
+        if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 && (flags & C.BUFFER_FLAG_INTRA_REFRESH) == 0) {
           // TODO - As above, although this case is probably less worthwhile.
           return;
         }

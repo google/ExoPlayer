@@ -87,7 +87,7 @@ public abstract class Buffer {
    * @param flag The flag to check.
    * @return Whether the flag is set.
    */
-  protected final boolean getFlag(int flag) {
+  public final boolean getFlag(int flag) {
     return (flags & flag) == flag;
   }
 

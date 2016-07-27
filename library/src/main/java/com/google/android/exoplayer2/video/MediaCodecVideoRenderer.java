@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.video;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -33,6 +34,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
@@ -82,6 +84,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int lastReportedHeight;
   private int lastReportedUnappliedRotationDegrees;
   private float lastReportedPixelWidthHeightRatio;
+  private boolean maybeSynthesizeKeyFrame;
 
   /**
    * @param context A context.
@@ -166,6 +169,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
+    maybeSynthesizeKeyFrame = true;
   }
 
   @Override
@@ -241,6 +245,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
         ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : -1;
+    maybeSynthesizeKeyFrame = true;
   }
 
   @Override
@@ -390,6 +395,127 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return newFormat.sampleMimeType.equals(oldFormat.sampleMimeType)
         && (codecIsAdaptive
         || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
+  }
+
+  @Override
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    if (maybeSynthesizeKeyFrame) {
+      if (buffer.getFlag(C.BUFFER_FLAG_INTRA_REFRESH)) {
+        synthesizeKeyFrame(buffer);
+      }
+      maybeSynthesizeKeyFrame = false;
+    }
+  }
+
+  /**
+   * Synthesize a encoded key frame with same dimension of the buffer and replace its data.
+   * H.264 video with intra-refresh enabled only has one key frame at the start; if the key frame was
+   * missed (e.g. start to play a live stream at the middle), Some implementations of MediaCodec can't
+   * handle the stream. So we synthesize a key frame to make them happy. Note that some implementations
+   * of MediaCodec still can't decode with a synthesized key frame.
+   *
+   * The key frame is encoded by a MediaCodec encoder. However not all resolutions that MediaCodec
+   * decoders support are also supported by MediaCodec encoders. It is also possible that the encoding
+   * takes too long time and we decide not to wait anymore. If the MediaCodec encoder failed to encode
+   * a key frame, the buffer is kept untouched.
+   * @param buffer the input buffer.
+   */
+  private void synthesizeKeyFrame(DecoderInputBuffer buffer) {
+    Format format = getFormat();
+    MediaCodec encoder = null;
+    try {
+      encoder = MediaCodec.createEncoderByType(format.sampleMimeType);
+
+      // Figure out what input color format should be used.
+      // TODO no way to ensure the output color format is the same as the input buffer?
+      int colorFormat = CodecCapabilities.COLOR_FormatYUV420Planar;
+      if (Util.SDK_INT >= 18) {
+        int[] colorFormats
+                = encoder.getCodecInfo().getCapabilitiesForType(format.sampleMimeType).colorFormats;
+        for (int cf : colorFormats) {
+          if (cf == CodecCapabilities.COLOR_FormatYUV420Flexible ||
+                  cf == CodecCapabilities.COLOR_FormatYUV420Planar ||
+                  cf == CodecCapabilities.COLOR_FormatYUV420SemiPlanar) {
+            colorFormat = cf;
+            break;
+          }
+        }
+      }
+
+      MediaFormat mf = MediaFormat.createVideoFormat(format.sampleMimeType, format.width,
+              format.height);
+      mf.setInteger(MediaFormat.KEY_FRAME_RATE, 25);
+      mf.setInteger(MediaFormat.KEY_BIT_RATE, 500000);
+      mf.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+      mf.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
+      encoder.configure(mf, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+      encoder.start();
+      MediaCodec.BufferInfo bufInfo = new MediaCodec.BufferInfo();
+
+      // It unusually requires more than one input frames (2 on some devices) to produces the first
+      // output frame. Not sure about the upper limits on all devices, so retry up to 10 times.
+      // Also note that dequeueInputBuffer(n)/dequeueOutputBuffer(n) (n > 0) is not reliable on all
+      // devices so we use dequeueInputBuffer(0)/dequeueOutputBuffer(0) and Thread.sleep(n) instead.
+      outer:
+      for(int i = 0; i < 10; i++) {
+        int inputIdx = -1;
+        for (int j = 0; j < 10; j++) {
+          inputIdx = encoder.dequeueInputBuffer(0);
+          if (inputIdx < 0) {
+            Log.d(TAG, "synthesizeKeyFrame: dequeueInputBuffer failed: round=" + j);
+            Thread.sleep(50);
+          } else {
+            Log.d(TAG, "synthesizeKeyFrame: dequeueInputBuffer ok");
+            ByteBuffer inBuf = encoder.getInputBuffers()[inputIdx];
+            encoder.queueInputBuffer(inputIdx, 0, inBuf.limit(), 0, 0);
+            break;
+          }
+        }
+        if (inputIdx < 0) {
+          Log.w(TAG, "synthesizeKeyFrame: can't dequeueInputBuffer, abort!");
+          break;
+        }
+        for (int k = 0; k < 20; k++) {
+          int outputIdx = encoder.dequeueOutputBuffer(bufInfo, 0);
+          if (outputIdx < 0) {
+            Log.d(TAG, "synthesizeKeyFrame: dequeueOutputBuffer failed: round=" + k);
+            Thread.sleep(50);
+            continue;
+          }
+          Log.d(TAG, "synthesizeKeyFrame: dequeueOutputBuffer ok: flags=" + bufInfo.flags);
+          if ((bufInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0) {
+            ByteBuffer outBuf = encoder.getOutputBuffers()[outputIdx];
+            if (buffer.data.capacity() < bufInfo.size) {
+              buffer.data = ByteBuffer.allocate(bufInfo.size);
+            }
+            buffer.data.clear();
+            // On some devices, outBuf's limit is inconsistent with bufInfo.size
+            outBuf.limit(outBuf.position() + bufInfo.size);
+            buffer.data.put(outBuf);
+            buffer.data.flip();
+            buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+            buffer.clearFlag(C.BUFFER_FLAG_INTRA_REFRESH);
+            encoder.releaseOutputBuffer(outputIdx, false);
+            Log.d(TAG, "synthesizeKeyFrame: add key frame: size=" + buffer.data.limit());
+            break outer;
+          } else {
+            encoder.releaseOutputBuffer(outputIdx, false);
+            break;
+          }
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    if (encoder != null) {
+      try {
+        encoder.stop();
+        encoder.release();
+      } catch (Exception e) {}
+    }
+    if (!buffer.isKeyFrame()) {
+      Log.w(TAG, "synthesizeKeyFrame: failed, intra-refresh video may not play!");
+    }
   }
 
   @Override

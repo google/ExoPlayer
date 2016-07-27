@@ -441,6 +441,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
   }
 
+  protected final Format getFormat() { return format; }
+
   @Override
   protected void onStarted() {
     // Do nothing. Overridden to remove throws clause.
@@ -850,7 +852,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return false;
       }
     }
-
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
         outputIndex, outputBufferInfo.flags, outputBufferInfo.presentationTimeUs,
         shouldSkipOutputBuffer)) {
