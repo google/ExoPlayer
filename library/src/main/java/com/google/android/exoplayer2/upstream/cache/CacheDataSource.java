@@ -37,12 +37,12 @@ import java.io.InterruptedIOException;
 public final class CacheDataSource implements DataSource {
 
   /**
-   * Interface definition for a callback to be notified of {@link CacheDataSource} events.
+   * Listener of {@link CacheDataSource} events.
    */
   public interface EventListener {
 
     /**
-     * Invoked when bytes have been read from the cache.
+     * Called when bytes have been read from the cache.
      *
      * @param cacheSizeBytes Current cache size in bytes.
      * @param cachedBytesRead Total bytes read from the cache since this method was last invoked.

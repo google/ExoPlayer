@@ -47,18 +47,17 @@ import java.util.UUID;
 public class StreamingDrmSessionManager implements DrmSessionManager, DrmSession {
 
   /**
-   * Interface definition for a callback to be notified of {@link StreamingDrmSessionManager}
-   * events.
+   * Listener of {@link StreamingDrmSessionManager} events.
    */
   public interface EventListener {
 
     /**
-     * Invoked each time keys are loaded.
+     * Called each time keys are loaded.
      */
     void onDrmKeysLoaded();
 
     /**
-     * Invoked when a drm error occurs.
+     * Called when a drm error occurs.
      *
      * @param e The corresponding exception.
      */

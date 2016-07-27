@@ -47,9 +47,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   /**
-   * Starts periodic updates of the {@link TextView}.
-   * <p>
-   * Should be called from the application's main thread.
+   * Starts periodic updates of the {@link TextView}. Must be called from the application's main
+   * thread.
    */
   public void start() {
     if (started) {
@@ -61,9 +60,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   /**
-   * Stops periodic updates of the {@link TextView}.
-   * <p>
-   * Should be called from the application's main thread.
+   * Stops periodic updates of the {@link TextView}. Must be called from the application's main
+   * thread.
    */
   public void stop() {
     if (!started) {

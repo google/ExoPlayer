@@ -20,6 +20,9 @@ package com.google.android.exoplayer2.audio;
  */
 public abstract class AudioDecoderException extends Exception {
 
+  /**
+   * @param detailMessage The detail message for this exception.
+   */
   public AudioDecoderException(String detailMessage) {
     super(detailMessage);
   }

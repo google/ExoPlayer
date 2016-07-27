@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A view for rendering rich-formatted captions.
+ * A view for displaying subtitle {@link Cue}s.
  */
 public final class SubtitleView extends View {
 
@@ -52,7 +52,7 @@ public final class SubtitleView extends View {
   private static final int FRACTIONAL_IGNORE_PADDING = 1;
   private static final int ABSOLUTE = 2;
 
-  private final List<SubtitleCuePainter> painters;
+  private final List<SubtitlePainter> painters;
 
   private List<Cue> cues;
   private int textSizeType;
@@ -88,7 +88,7 @@ public final class SubtitleView extends View {
     // Ensure we have sufficient painters.
     int cueCount = (cues == null) ? 0 : cues.size();
     while (painters.size() < cueCount) {
-      painters.add(new SubtitleCuePainter(getContext()));
+      painters.add(new SubtitlePainter(getContext()));
     }
     // Invalidate to trigger drawing.
     invalidate();

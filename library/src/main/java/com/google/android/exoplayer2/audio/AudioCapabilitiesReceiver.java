@@ -25,8 +25,8 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 
 /**
- * Notifies a listener when the audio playback capabilities change. Call {@link #register} to start
- * (or resume) receiving notifications, and {@link #unregister} to stop.
+ * Receives broadcast events indicating changes to the device's audio capabilities, notifying a
+ * {@link Listener} when audio capability changes occur.
  */
 public final class AudioCapabilitiesReceiver {
 
@@ -38,7 +38,7 @@ public final class AudioCapabilitiesReceiver {
     /**
      * Called when the audio capabilities change.
      *
-     * @param audioCapabilities Current audio capabilities for the device.
+     * @param audioCapabilities The current audio capabilities for the device.
      */
     void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities);
 
@@ -51,10 +51,8 @@ public final class AudioCapabilitiesReceiver {
   /* package */ AudioCapabilities audioCapabilities;
 
   /**
-   * Constructs a new audio capabilities receiver.
-   *
-   * @param context Context for registering to receive broadcasts.
-   * @param listener Listener to notify when audio capabilities change.
+   * @param context A context for registering the receiver.
+   * @param listener The listener to notify when audio capabilities change.
    */
   public AudioCapabilitiesReceiver(Context context, Listener listener) {
     this.context = Assertions.checkNotNull(context);
@@ -63,11 +61,11 @@ public final class AudioCapabilitiesReceiver {
   }
 
   /**
-   * Registers to notify the listener when audio capabilities change. The current capabilities will
-   * be returned. It is important to call {@link #unregister} so that the listener can be garbage
-   * collected.
+   * Registers the receiver, meaning it will notify the listener when audio capability changes
+   * occur. The current audio capabilities will be returned. It is important to call
+   * {@link #unregister} when the receiver is no longer required.
    *
-   * @return Current audio capabilities for the device.
+   * @return The current audio capabilities for the device.
    */
   @SuppressWarnings("InlinedApi")
   public AudioCapabilities register() {
@@ -78,7 +76,8 @@ public final class AudioCapabilitiesReceiver {
   }
 
   /**
-   * Unregisters to stop notifying the listener when audio capabilities change.
+   * Unregisters the receiver, meaning it will no longer notify the listener when audio capability
+   * changes occur.
    */
   public void unregister() {
     if (receiver != null) {

@@ -36,11 +36,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 /**
- * Draws subtitle {@link Cue}s.
+ * Paints subtitle {@link Cue}s.
  */
-/* package */ final class SubtitleCuePainter {
+/* package */ final class SubtitlePainter {
 
-  private static final String TAG = "SubtitleCuePainter";
+  private static final String TAG = "SubtitlePainter";
 
   /**
    * Ratio of inner padding to font size.
@@ -91,7 +91,7 @@ import android.util.Log;
   private int textTop;
   private int textPaddingX;
 
-  public SubtitleCuePainter(Context context) {
+  public SubtitlePainter(Context context) {
     int[] viewAttr = {android.R.attr.lineSpacingExtra, android.R.attr.lineSpacingMultiplier};
     TypedArray styledAttributes = context.obtainStyledAttributes(null, viewAttr, 0, 0);
     spacingAdd = styledAttributes.getDimensionPixelSize(0, 0);

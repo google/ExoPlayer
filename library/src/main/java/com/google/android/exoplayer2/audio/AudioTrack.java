@@ -35,28 +35,28 @@ import java.nio.ByteBuffer;
  * Plays audio data. The implementation delegates to an {@link android.media.AudioTrack} and handles
  * playback position smoothing, non-blocking writes and reconfiguration.
  * <p>
- * Before starting playback, specify the input audio format by calling one of the {@link #configure}
- * methods and {@link #initialize} the instance, optionally specifying an audio session.
+ * Before starting playback, specify the input format by calling
+ * {@link #configure(String, int, int, int, int)}. Next call {@link #initialize(int)}, optionally
+ * specifying an audio session.
  * <p>
- * Call {@link #handleBuffer(ByteBuffer, long)} to write data to play back, and
- * {@link #handleDiscontinuity()} when a buffer is skipped. Call {@link #play()} to start playing
- * back written data.
+ * Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
+ * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
  * <p>
- * Call {@link #configure} again whenever the input format changes. If {@link #isInitialized()}
- * returns false after calling {@link #configure}, it is necessary to re-{@link #initialize} the
- * instance before writing more data.
+ * Call {@link #configure(String, int, int, int, int)} whenever the input format changes. If
+ * {@link #isInitialized()} returns {@code false} after the call, it is necessary to call
+ * {@link #initialize(int)} before writing more data.
  * <p>
- * The underlying framework audio track is created by {@link #initialize} and released
- * asynchronously by {@link #reset} (and {@link #configure}, unless the format is unchanged).
- * Reinitialization blocks until releasing the old audio track completes. It is safe to
- * re-{@link #initialize} the instance after calling {@link #reset()}, without reconfiguration.
+ * The underlying {@link android.media.AudioTrack} is created by {@link #initialize(int)} and
+ * released by {@link #reset()} (and {@link #configure(String, int, int, int, int)} unless the input
+ * format is unchanged). It is safe to call {@link #initialize(int)} after calling {@link #reset()}
+ * without reconfiguration.
  * <p>
- * Call {@link #release()} when the instance will no longer be used.
+ * Call {@link #release()} when the instance is no longer required.
  */
 public final class AudioTrack {
 
   /**
-   * Thrown when a failure occurs instantiating an {@link android.media.AudioTrack}.
+   * Thrown when a failure occurs initializing an {@link android.media.AudioTrack}.
    */
   public static final class InitializationException extends Exception {
 
@@ -65,8 +65,14 @@ public final class AudioTrack {
      */
     public final int audioTrackState;
 
-    public InitializationException(
-        int audioTrackState, int sampleRate, int channelConfig, int bufferSize) {
+    /**
+     * @param audioTrackState The state as reported by {@link android.media.AudioTrack#getState()}.
+     * @param sampleRate The requested sample rate in Hz.
+     * @param channelConfig The requested channel configuration.
+     * @param bufferSize The requested buffer size in bytes.
+     */
+    public InitializationException(int audioTrackState, int sampleRate, int channelConfig,
+        int bufferSize) {
       super("AudioTrack init failed: " + audioTrackState + ", Config(" + sampleRate + ", "
           + channelConfig + ", " + bufferSize + ")");
       this.audioTrackState = audioTrackState;
@@ -80,10 +86,14 @@ public final class AudioTrack {
   public static final class WriteException extends Exception {
 
     /**
-     * The value returned from {@link android.media.AudioTrack#write(byte[], int, int)}.
+     * An error value returned from {@link android.media.AudioTrack#write(byte[], int, int)}.
      */
     public final int errorCode;
 
+    /**
+     * @param errorCode An error value returned from
+     *     {@link android.media.AudioTrack#write(byte[], int, int)}.
+     */
     public WriteException(int errorCode) {
       super("AudioTrack write failed: " + errorCode);
       this.errorCode = errorCode;
@@ -97,8 +107,11 @@ public final class AudioTrack {
    */
   public static final class InvalidAudioTrackTimestampException extends RuntimeException {
 
-    public InvalidAudioTrackTimestampException(String message) {
-      super(message);
+    /**
+     * @param detailMessage The detail message for this exception.
+     */
+    public InvalidAudioTrackTimestampException(String detailMessage) {
+      super(detailMessage);
     }
 
   }
@@ -189,7 +202,7 @@ public final class AudioTrack {
   private final AudioTrackUtil audioTrackUtil;
 
   /**
-   * Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}).
+   * Used to keep the audio session active on pre-V21 builds (see {@link #initialize(int)}).
    */
   private android.media.AudioTrack keepSessionIdAudioTrack;
 
@@ -228,9 +241,7 @@ public final class AudioTrack {
   private boolean useResampledBuffer;
 
   /**
-   * Creates an audio track using the specified audio capabilities and stream type.
-   *
-   * @param audioCapabilities The current audio playback capabilities.
+   * @param audioCapabilities The current audio capabilities.
    * @param streamType The type of audio stream for the underlying {@link android.media.AudioTrack}.
    */
   public AudioTrack(AudioCapabilities audioCapabilities, int streamType) {
@@ -322,20 +333,6 @@ public final class AudioTrack {
     }
 
     return currentPositionUs;
-  }
-
-  /**
-   * Configures (or reconfigures) the audio track, inferring a suitable buffer size automatically.
-   *
-   * @param mimeType The mime type.
-   * @param channelCount The number of channels.
-   * @param sampleRate The sample rate in Hz.
-   * @param pcmEncoding For PCM formats, the encoding used. One of {@link C#ENCODING_PCM_16BIT},
-   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
-   *     {@link C#ENCODING_PCM_32BIT}.
-   */
-  public void configure(String mimeType, int channelCount, int sampleRate, int pcmEncoding) {
-    configure(mimeType, channelCount, sampleRate, pcmEncoding, 0);
   }
 
   /**
@@ -438,15 +435,6 @@ public final class AudioTrack {
   /**
    * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
    *
-   * @return The audio track session identifier.
-   */
-  public int initialize() throws InitializationException {
-    return initialize(SESSION_ID_NOT_SET);
-  }
-
-  /**
-   * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
-   *
    * @param sessionId Audio track session identifier to re-use, or {@link #SESSION_ID_NOT_SET} to
    *     create a new one.
    * @return The new (or re-used) session identifier.
@@ -491,7 +479,6 @@ public final class AudioTrack {
 
     audioTrackUtil.reconfigure(audioTrack, needsPassthroughWorkarounds());
     setAudioTrackVolume();
-
     return sessionId;
   }
 
@@ -705,6 +692,8 @@ public final class AudioTrack {
 
   /**
    * Sets the playback volume.
+   *
+   * @param volume A volume in the range [0.0, 1.0].
    */
   public void setVolume(float volume) {
     if (this.volume != volume) {
@@ -734,9 +723,11 @@ public final class AudioTrack {
   }
 
   /**
-   * Releases the underlying audio track asynchronously. Calling {@link #initialize} will block
-   * until the audio track has been released, so it is safe to initialize immediately after
-   * resetting. The audio session may remain active until the instance is {@link #release}d.
+   * Releases the underlying audio track asynchronously.
+   * <p>
+   * Calling {@link #initialize(int)} will block until the audio track has been released, so it is
+   * safe to initialize immediately after a reset. The audio session may remain active until
+   * {@link #release()} is called.
    */
   public void reset() {
     if (isInitialized()) {

@@ -24,12 +24,12 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 /**
- * Interface definition for a callback to be notified of audio {@link Renderer} events.
+ * Listener of audio {@link Renderer} events.
  */
 public interface AudioRendererEventListener {
 
   /**
-   * Invoked when the renderer is enabled.
+   * Called when the renderer is enabled.
    *
    * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
    *     remains enabled.
@@ -37,14 +37,14 @@ public interface AudioRendererEventListener {
   void onAudioEnabled(DecoderCounters counters);
 
   /**
-   * Invoked when the audio session is set.
+   * Called when the audio session is set.
    *
    * @param audioSessionId The audio session id.
    */
   void onAudioSessionId(int audioSessionId);
 
   /**
-   * Invoked when a decoder is created.
+   * Called when a decoder is created.
    *
    * @param decoderName The decoder that was created.
    * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
@@ -55,14 +55,14 @@ public interface AudioRendererEventListener {
       long initializationDurationMs);
 
   /**
-   * Invoked when the format of the media being consumed by the renderer changes.
+   * Called when the format of the media being consumed by the renderer changes.
    *
    * @param format The new format.
    */
   void onAudioInputFormatChanged(Format format);
 
   /**
-   * Invoked when an {@link AudioTrack} underrun occurs.
+   * Called when an {@link AudioTrack} underrun occurs.
    *
    * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
    * @param bufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds, if it is
@@ -73,7 +73,7 @@ public interface AudioRendererEventListener {
   void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
   /**
-   * Invoked when the renderer is disabled.
+   * Called when the renderer is disabled.
    *
    * @param counters {@link DecoderCounters} that were updated by the renderer.
    */
@@ -87,11 +87,19 @@ public interface AudioRendererEventListener {
     private final Handler handler;
     private final AudioRendererEventListener listener;
 
+    /**
+     * @param handler A handler for dispatching events, or null if creating a dummy instance.
+     * @param listener The listener to which events should be dispatched, or null if creating a
+     *     dummy instance.
+     */
     public EventDispatcher(Handler handler, AudioRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }
 
+    /**
+     * Invokes {@link AudioRendererEventListener#onAudioEnabled(DecoderCounters)}.
+     */
     public void enabled(final DecoderCounters decoderCounters) {
       if (listener != null) {
         handler.post(new Runnable() {
@@ -103,6 +111,9 @@ public interface AudioRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link AudioRendererEventListener#onAudioDecoderInitialized(String, long, long)}.
+     */
     public void decoderInitialized(final String decoderName,
         final long initializedTimestampMs, final long initializationDurationMs) {
       if (listener != null) {
@@ -116,6 +127,9 @@ public interface AudioRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}.
+     */
     public void inputFormatChanged(final Format format) {
       if (listener != null) {
         handler.post(new Runnable() {
@@ -127,6 +141,9 @@ public interface AudioRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link AudioRendererEventListener#onAudioTrackUnderrun(int, long, long)}.
+     */
     public void audioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
         final long elapsedSinceLastFeedMs) {
       if (listener != null) {
@@ -139,6 +156,9 @@ public interface AudioRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link AudioRendererEventListener#onAudioDisabled(DecoderCounters)}.
+     */
     public void disabled(final DecoderCounters counters) {
       if (listener != null) {
         handler.post(new Runnable() {
@@ -151,6 +171,9 @@ public interface AudioRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link AudioRendererEventListener#onAudioSessionId(int)}.
+     */
     public void audioSessionId(final int audioSessionId) {
       if (listener != null) {
         handler.post(new Runnable() {

@@ -40,12 +40,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public abstract class MappingTrackSelector extends TrackSelector {
 
   /**
-   * Interface definition for a callback to be notified of {@link MappingTrackSelector} events.
+   * Listener of {@link MappingTrackSelector} events.
    */
   public interface EventListener {
 
     /**
-     * Invoked when the track information has changed.
+     * Called when the track information has changed.
      *
      * @param trackInfo Contains the new track and track selection information.
      */

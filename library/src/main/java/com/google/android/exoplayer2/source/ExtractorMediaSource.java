@@ -66,12 +66,12 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     UpstreamFormatChangedListener {
 
   /**
-   * Interface definition for a callback to be notified of {@link ExtractorMediaSource} events.
+   * Listener of {@link ExtractorMediaSource} events.
    */
   public interface EventListener {
 
     /**
-     * Invoked when an error occurs loading media data.
+     * Called when an error occurs loading media data.
      *
      * @param error The load error.
      */

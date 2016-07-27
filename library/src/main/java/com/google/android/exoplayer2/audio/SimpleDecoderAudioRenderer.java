@@ -119,7 +119,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         long codecInitializedTimestamp = SystemClock.elapsedRealtime();
         eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
             codecInitializedTimestamp - codecInitializingTimestamp);
-        decoderCounters.codecInitCount++;
+        decoderCounters.decoderInitCount++;
       } catch (AudioDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
@@ -138,6 +138,13 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     decoderCounters.ensureUpdated();
   }
 
+  /**
+   * Creates a decoder for the given format.
+   *
+   * @param format The format for which a decoder is required.
+   * @return The decoder.
+   * @throws AudioDecoderException If an error occurred creating a suitable decoder.
+   */
   protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
       ? extends AudioDecoderException> createDecoder(Format format) throws AudioDecoderException;
 
@@ -179,13 +186,13 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     if (!audioTrack.isInitialized()) {
       Format outputFormat = getOutputFormat();
       audioTrack.configure(outputFormat.sampleMimeType, outputFormat.channelCount,
-          outputFormat.sampleRate, outputFormat.pcmEncoding);
-      if (audioSessionId != AudioTrack.SESSION_ID_NOT_SET) {
-        audioTrack.initialize(audioSessionId);
-      } else {
-        audioSessionId = audioTrack.initialize();
+          outputFormat.sampleRate, outputFormat.pcmEncoding, 0);
+      if (audioSessionId == AudioTrack.SESSION_ID_NOT_SET) {
+        audioSessionId = audioTrack.initialize(AudioTrack.SESSION_ID_NOT_SET);
         eventDispatcher.audioSessionId(audioSessionId);
         onAudioSessionId(audioSessionId);
+      } else {
+        audioTrack.initialize(audioSessionId);
       }
       audioTrackHasData = false;
       if (getState() == STATE_STARTED) {
@@ -338,7 +345,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       if (decoder != null) {
         decoder.release();
         decoder = null;
-        decoderCounters.codecReleaseCount++;
+        decoderCounters.decoderReleaseCount++;
       }
       audioTrack.release();
     } finally {

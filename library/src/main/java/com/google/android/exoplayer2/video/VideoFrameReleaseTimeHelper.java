@@ -51,16 +51,16 @@ public final class VideoFrameReleaseTimeHelper {
   private long frameCount;
 
   /**
-   * Constructs an instance that smoothes frame release but does not snap release to the default
-   * display's vsync signal.
+   * Constructs an instance that smoothes frame release timestamps but does not align them with
+   * the default display's vsync signal.
    */
   public VideoFrameReleaseTimeHelper() {
     this(-1, false);
   }
 
   /**
-   * Constructs an instance that smoothes frame release and snaps release to the default display's
-   * vsync signal.
+   * Constructs an instance that smoothes frame release timestamps and aligns them with the default
+   * display's vsync signal.
    *
    * @param context A context from which information about the default display can be retrieved.
    */
@@ -102,12 +102,12 @@ public final class VideoFrameReleaseTimeHelper {
   }
 
   /**
-   * Called to make a fine-grained adjustment to a frame release time.
+   * Adjusts a frame release timestamp.
    *
-   * @param framePresentationTimeUs The frame's media presentation time, in microseconds.
+   * @param framePresentationTimeUs The frame's presentation time, in microseconds.
    * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in
    *     the same time base as {@link System#nanoTime()}.
-   * @return An adjusted release time for the frame, in nanoseconds and in the same time base as
+   * @return The adjusted frame release timestamp, in nanoseconds and in the same time base as
    *     {@link System#nanoTime()}.
    */
   public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedReleaseTimeNs) {
@@ -205,9 +205,9 @@ public final class VideoFrameReleaseTimeHelper {
   }
 
   /**
-   * Manages the lifecycle of a single {@link Choreographer} to be shared among all
-   * {@link VideoFrameReleaseTimeHelper} instances. This is done to avoid a bug fixed in platform
-   * API version 23 that causes resource leakage. See [Internal: b/12455729].
+   * Samples display vsync timestamps. A single instance using a single {@link Choreographer} is
+   * shared by all {@link VideoFrameReleaseTimeHelper} instances. This is done to avoid a resource
+   * leak in the platform on API levels prior to 23. See [Internal: b/12455729].
    */
   private static final class VSyncSampler implements FrameCallback, Handler.Callback {
 
@@ -236,17 +236,16 @@ public final class VideoFrameReleaseTimeHelper {
     }
 
     /**
-     * Tells the {@link VSyncSampler} that there is a new {@link VideoFrameReleaseTimeHelper}
-     * instance observing the currentSampledVsyncTimeNs value. As a consequence, if necessary, it
-     * will register itself as a {@code doFrame} callback listener.
+     * Notifies the sampler that a {@link VideoFrameReleaseTimeHelper} is observing
+     * {@link #sampledVsyncTimeNs}, and hence that the value should be periodically updated.
      */
     public void addObserver() {
       handler.sendEmptyMessage(MSG_ADD_OBSERVER);
     }
 
     /**
-     * Counterpart of {@code addNewObservingHelper}. This method should be called once the observer
-     * no longer needs to read {@link #sampledVsyncTimeNs}
+     * Notifies the sampler that a {@link VideoFrameReleaseTimeHelper} is no longer observing
+     * {@link #sampledVsyncTimeNs}.
      */
     public void removeObserver() {
       handler.sendEmptyMessage(MSG_REMOVE_OBSERVER);

@@ -46,13 +46,9 @@ public final class DtsUtil {
       384, 448, 512, 640, 768, 896, 1024, 1152, 1280, 1536, 1920, 2048, 2304, 2560, 2688, 2816,
       2823, 2944, 3072, 3840, 4096, 6144, 7680};
 
-  private static final ParsableBitArray SCRATCH_BITS = new ParsableBitArray();
-
   /**
    * Returns the DTS format given {@code data} containing the DTS frame according to ETSI TS 102 114
    * subsections 5.3/5.4.
-   * <p>
-   * This method may only be called from one thread at a time.
    *
    * @param frame The DTS frame to parse.
    * @param trackId The track identifier to set on the format, or null.
@@ -62,8 +58,7 @@ public final class DtsUtil {
    */
   public static Format parseDtsFormat(byte[] frame, String trackId, String language,
       DrmInitData drmInitData) {
-    ParsableBitArray frameBits = SCRATCH_BITS;
-    frameBits.reset(frame);
+    ParsableBitArray frameBits = new ParsableBitArray(frame);
     frameBits.skipBits(4 * 8 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
     int amode = frameBits.readBits(6);
     int channelCount = CHANNELS_BY_AMODE[amode];
@@ -91,14 +86,17 @@ public final class DtsUtil {
   }
 
   /**
-   * Like {@link #parseDtsAudioSampleCount(byte[])} but reads from a byte buffer. The buffer
-   * position is not modified.
+   * Like {@link #parseDtsAudioSampleCount(byte[])} but reads from a {@link ByteBuffer}. The
+   * buffer's position is not modified.
+   *
+   * @param buffer The {@link ByteBuffer} from which to read.
+   * @return The number of audio samples represented by the syncframe.
    */
-  public static int parseDtsAudioSampleCount(ByteBuffer data) {
+  public static int parseDtsAudioSampleCount(ByteBuffer buffer) {
     // See ETSI TS 102 114 subsection 5.4.1.
-    int position = data.position();
-    int nblks = ((data.get(position + 4) & 0x01) << 6)
-        | ((data.get(position + 5) & 0xFC) >> 2);
+    int position = buffer.position();
+    int nblks = ((buffer.get(position + 4) & 0x01) << 6)
+        | ((buffer.get(position + 5) & 0xFC) >> 2);
     return (nblks + 1) * 32;
   }
 

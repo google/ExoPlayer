@@ -97,7 +97,7 @@ import com.google.android.exoplayer2.source.Timeline;
 public interface ExoPlayer {
 
   /**
-   * Interface definition for a callback to be notified of changes in player state.
+   * Listener of changes in player state.
    */
   interface EventListener {
 

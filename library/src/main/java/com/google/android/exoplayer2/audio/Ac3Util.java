@@ -214,10 +214,11 @@ public final class Ac3Util {
   }
 
   /**
-   * Like {@link #parseEAc3SyncframeAudioSampleCount(byte[])} but reads from a byte buffer. The
-   * buffer position is not modified.
+   * Like {@link #parseEAc3SyncframeAudioSampleCount(byte[])} but reads from a {@link ByteBuffer}.
+   * The buffer's position is not modified.
    *
-   * @see #parseEAc3SyncframeAudioSampleCount(byte[])
+   * @param buffer The {@link ByteBuffer} from which to read.
+   * @return The number of audio samples represented by the syncframe.
    */
   public static int parseEAc3SyncframeAudioSampleCount(ByteBuffer buffer) {
     // See ETSI TS 102 366 subsection E.1.2.2.

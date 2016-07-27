@@ -41,12 +41,12 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
     Loader.Callback<SingleSampleMediaSource.SourceLoadable> {
 
   /**
-   * Interface definition for a callback to be notified of {@link SingleSampleMediaSource} events.
+   * Listener of {@link SingleSampleMediaSource} events.
    */
   public interface EventListener {
 
     /**
-     * Invoked when an error occurs loading media data.
+     * Called when an error occurs loading media data.
      *
      * @param sourceId The id of the reporting {@link SingleSampleMediaSource}.
      * @param e The cause of the failure.

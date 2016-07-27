@@ -26,7 +26,7 @@ import android.media.AudioManager;
 import java.util.Arrays;
 
 /**
- * Represents the set of audio formats a device is capable of playing back.
+ * Represents the set of audio formats that a device is capable of playing.
  */
 @TargetApi(21)
 public final class AudioCapabilities {
@@ -38,11 +38,10 @@ public final class AudioCapabilities {
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, 2);
 
   /**
-   * Gets the current audio capabilities. Note that to be notified when audio capabilities change,
-   * you can create an instance of {@link AudioCapabilitiesReceiver} and register a listener.
+   * Returns the current audio capabilities for the device.
    *
-   * @param context Context for receiving the initial broadcast.
-   * @return Current audio capabilities for the device.
+   * @param context A context for obtaining the current audio capabilities.
+   * @return The current audio capabilities for the device.
    */
   @SuppressWarnings("InlinedApi")
   public static AudioCapabilities getCapabilities(Context context) {
@@ -90,7 +89,9 @@ public final class AudioCapabilities {
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
-  /** Returns the maximum number of channels the device can play at the same time. */
+  /**
+   * Returns the maximum number of channels the device can play at the same time.
+   */
   public int getMaxChannelCount() {
     return maxChannelCount;
   }

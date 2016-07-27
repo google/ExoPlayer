@@ -21,15 +21,15 @@ package com.google.android.exoplayer2.text;
 public class SubtitleDecoderException extends Exception {
 
   /**
-   * @param message The detail message.
+   * @param message The detail message for this exception.
    */
   public SubtitleDecoderException(String message) {
     super(message);
   }
 
   /**
-   * @param message The detail message.
-   * @param cause The cause.
+   * @param message The detail message for this exception.
+   * @param cause The cause of this exception.
    */
   public SubtitleDecoderException(String message, Throwable cause) {
     super(message, cause);

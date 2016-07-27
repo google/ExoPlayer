@@ -26,12 +26,12 @@ import android.view.Surface;
 import android.view.TextureView;
 
 /**
- * Interface definition for a callback to be notified of video {@link Renderer} events.
+ * Listener of video {@link Renderer} events.
  */
 public interface VideoRendererEventListener {
 
   /**
-   * Invoked when the renderer is enabled.
+   * Called when the renderer is enabled.
    *
    * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
    *     remains enabled.
@@ -39,7 +39,7 @@ public interface VideoRendererEventListener {
   void onVideoEnabled(DecoderCounters counters);
 
   /**
-   * Invoked when a decoder is created.
+   * Called when a decoder is created.
    *
    * @param decoderName The decoder that was created.
    * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
@@ -50,14 +50,14 @@ public interface VideoRendererEventListener {
       long initializationDurationMs);
 
   /**
-   * Invoked when the format of the media being consumed by the renderer changes.
+   * Called when the format of the media being consumed by the renderer changes.
    *
    * @param format The new format.
    */
   void onVideoInputFormatChanged(Format format);
 
   /**
-   * Invoked to report the number of frames dropped by the renderer. Dropped frames are reported
+   * Called to report the number of frames dropped by the renderer. Dropped frames are reported
    * whenever the renderer is stopped having dropped frames, and optionally, whenever the count
    * reaches a specified threshold whilst the renderer is started.
    *
@@ -70,7 +70,7 @@ public interface VideoRendererEventListener {
   void onDroppedFrames(int count, long elapsedMs);
 
   /**
-   * Invoked each time there's a change in the size of the video being rendered.
+   * Called each time there's a change in the size of the video being rendered.
    *
    * @param width The video width in pixels.
    * @param height The video height in pixels.
@@ -89,7 +89,7 @@ public interface VideoRendererEventListener {
       float pixelWidthHeightRatio);
 
   /**
-   * Invoked when a frame is rendered to a surface for the first time following that surface
+   * Called when a frame is rendered to a surface for the first time following that surface
    * having been set as the target for the renderer.
    *
    * @param surface The surface to which a first frame has been rendered.
@@ -97,7 +97,7 @@ public interface VideoRendererEventListener {
   void onDrawnToSurface(Surface surface);
 
   /**
-   * Invoked when the renderer is disabled.
+   * Called when the renderer is disabled.
    *
    * @param counters {@link DecoderCounters} that were updated by the renderer.
    */
@@ -111,11 +111,19 @@ public interface VideoRendererEventListener {
     private final Handler handler;
     private final VideoRendererEventListener listener;
 
+    /**
+     * @param handler A handler for dispatching events, or null if creating a dummy instance.
+     * @param listener The listener to which events should be dispatched, or null if creating a
+     *     dummy instance.
+     */
     public EventDispatcher(Handler handler, VideoRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }
 
+    /**
+     * Invokes {@link VideoRendererEventListener#onVideoEnabled(DecoderCounters)}.
+     */
     public void enabled(final DecoderCounters decoderCounters) {
       if (listener != null) {
         handler.post(new Runnable() {
@@ -127,6 +135,9 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link VideoRendererEventListener#onVideoDecoderInitialized(String, long, long)}.
+     */
     public void decoderInitialized(final String decoderName,
         final long initializedTimestampMs, final long initializationDurationMs) {
       if (listener != null) {
@@ -140,6 +151,9 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format)}.
+     */
     public void inputFormatChanged(final Format format) {
       if (listener != null) {
         handler.post(new Runnable() {
@@ -151,7 +165,10 @@ public interface VideoRendererEventListener {
       }
     }
 
-    public void droppedFrameCount(final int droppedFrameCount, final long elapsedMs) {
+    /**
+     * Invokes {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+     */
+    public void droppedFrames(final int droppedFrameCount, final long elapsedMs) {
       if (listener != null) {
         handler.post(new Runnable()  {
           @Override
@@ -162,6 +179,9 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link VideoRendererEventListener#onVideoSizeChanged(int, int, int, float)}.
+     */
     public void videoSizeChanged(final int width, final int height,
         final int unappliedRotationDegrees, final float pixelWidthHeightRatio) {
       if (listener != null) {
@@ -175,6 +195,9 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link VideoRendererEventListener#onDrawnToSurface(Surface)}.
+     */
     public void drawnToSurface(final Surface surface) {
       if (listener != null) {
         handler.post(new Runnable()  {
@@ -186,6 +209,9 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /**
+     * Invokes {@link VideoRendererEventListener#onVideoDisabled(DecoderCounters)}.
+     */
     public void disabled(final DecoderCounters counters) {
       if (listener != null) {
         handler.post(new Runnable() {

@@ -363,7 +363,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;
     inputIndex = -1;
     outputIndex = -1;
-    decoderCounters.codecInitCount++;
+    decoderCounters.decoderInitCount++;
   }
 
   private void throwDecoderInitError(DecoderInitializationException e)
@@ -436,7 +436,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecReceivedEos = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecReinitializationState = REINITIALIZATION_STATE_NONE;
-      decoderCounters.codecReleaseCount++;
+      decoderCounters.decoderReleaseCount++;
       try {
         codec.stop();
       } finally {

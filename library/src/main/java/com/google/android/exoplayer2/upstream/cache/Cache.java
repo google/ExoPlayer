@@ -25,12 +25,12 @@ import java.util.Set;
 public interface Cache {
 
   /**
-   * Interface definition for a callback to be notified of {@link Cache} events.
+   * Listener of {@link Cache} events.
    */
   interface Listener {
 
     /**
-     * Invoked when a {@link CacheSpan} is added to the cache.
+     * Called when a {@link CacheSpan} is added to the cache.
      *
      * @param cache The source of the event.
      * @param span The added {@link CacheSpan}.
@@ -38,7 +38,7 @@ public interface Cache {
     void onSpanAdded(Cache cache, CacheSpan span);
 
     /**
-     * Invoked when a {@link CacheSpan} is removed from the cache.
+     * Called when a {@link CacheSpan} is removed from the cache.
      *
      * @param cache The source of the event.
      * @param span The removed {@link CacheSpan}.
@@ -46,7 +46,7 @@ public interface Cache {
     void onSpanRemoved(Cache cache, CacheSpan span);
 
     /**
-     * Invoked when an existing {@link CacheSpan} is accessed, causing it to be replaced. The new
+     * Called when an existing {@link CacheSpan} is accessed, causing it to be replaced. The new
      * {@link CacheSpan} is guaranteed to represent the same data as the one it replaces, however
      * {@link CacheSpan#file} and {@link CacheSpan#lastAccessTimestamp} may have changed.
      * <p>

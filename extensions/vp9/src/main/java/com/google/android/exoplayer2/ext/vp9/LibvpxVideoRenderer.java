@@ -56,7 +56,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   private final boolean scaleToFit;
   private final long allowedJoiningTimeMs;
-  private final int maxDroppedFrameCountToNotify;
+  private final int maxDroppedFramesToNotify;
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
 
@@ -81,7 +81,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private int previousHeight;
 
   private long droppedFrameAccumulationStartTimeMs;
-  private int droppedFrameCount;
+  private int droppedFrames;
   private int consecutiveDroppedFrameCount;
 
   /**
@@ -100,16 +100,16 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
   public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
       Handler eventHandler, VideoRendererEventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
+      int maxDroppedFramesToNotify) {
     super(C.TRACK_TYPE_VIDEO);
     this.scaleToFit = scaleToFit;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
-    this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
+    this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     joiningDeadlineMs = -1;
     previousWidth = -1;
     previousHeight = -1;
@@ -169,7 +169,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
           long codecInitializedTimestamp = SystemClock.elapsedRealtime();
           eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
               codecInitializedTimestamp - codecInitializingTimestamp);
-          decoderCounters.codecInitCount++;
+          decoderCounters.decoderInitCount++;
         }
         TraceUtil.beginSection("drainAndFeed");
         while (drainOutputBuffer(positionUs)) {}
@@ -220,13 +220,13 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
         || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
         && nextOutputBuffer.timeUs < positionUs)) {
       decoderCounters.droppedOutputBufferCount++;
-      droppedFrameCount++;
+      droppedFrames++;
       consecutiveDroppedFrameCount++;
       decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(
           consecutiveDroppedFrameCount,
           decoderCounters.maxConsecutiveDroppedOutputBufferCount);
-      if (droppedFrameCount == maxDroppedFrameCountToNotify) {
-        maybeNotifyDroppedFrameCount();
+      if (droppedFrames == maxDroppedFramesToNotify) {
+        maybeNotifyDroppedFrames();
       }
       outputBuffer.release();
       outputBuffer = null;
@@ -374,14 +374,14 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   protected void onStarted() {
-    droppedFrameCount = 0;
+    droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
   }
 
   @Override
   protected void onStopped() {
     joiningDeadlineMs = -1;
-    maybeNotifyDroppedFrameCount();
+    maybeNotifyDroppedFrames();
   }
 
   @Override
@@ -401,7 +401,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     if (decoder != null) {
       decoder.release();
       decoder = null;
-      decoderCounters.codecReleaseCount++;
+      decoderCounters.decoderReleaseCount++;
     }
   }
 
@@ -474,12 +474,12 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     }
   }
 
-  private void maybeNotifyDroppedFrameCount() {
-    if (droppedFrameCount > 0) {
+  private void maybeNotifyDroppedFrames() {
+    if (droppedFrames > 0) {
       long now = SystemClock.elapsedRealtime();
       long elapsedMs = now - droppedFrameAccumulationStartTimeMs;
-      eventDispatcher.droppedFrameCount(droppedFrameCount, elapsedMs);
-      droppedFrameCount = 0;
+      eventDispatcher.droppedFrames(droppedFrames, elapsedMs);
+      droppedFrames = 0;
       droppedFrameAccumulationStartTimeMs = now;
     }
   }
