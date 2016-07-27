@@ -74,7 +74,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final TrackSelection trackSelection;
   private final RepresentationHolder[] representationHolders;
   private final DataSource dataSource;
-  private final long elapsedRealtimeOffsetUs;
+  private final long elapsedRealtimeOffsetMs;
 
   private DashManifest manifest;
   private int periodIndex;
@@ -102,7 +102,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
     this.periodIndex = periodIndex;
-    this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
+    this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
 
     long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
     List<Representation> representations = getRepresentations();
@@ -274,8 +274,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private long getNowUnixTimeUs() {
-    if (elapsedRealtimeOffsetUs != 0) {
-      return (SystemClock.elapsedRealtime() * 1000) + elapsedRealtimeOffsetUs;
+    if (elapsedRealtimeOffsetMs != 0) {
+      return (SystemClock.elapsedRealtime() + elapsedRealtimeOffsetMs) * 1000;
     } else {
       return System.currentTimeMillis() * 1000;
     }

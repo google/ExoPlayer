@@ -434,7 +434,7 @@ public final class DashMediaSource implements MediaSource {
 
   private long getNowUnixTimeUs() {
     if (elapsedRealtimeOffsetMs != 0) {
-      return SystemClock.elapsedRealtime() * 1000 + elapsedRealtimeOffsetMs;
+      return (SystemClock.elapsedRealtime() + elapsedRealtimeOffsetMs) * 1000;
     } else {
       return System.currentTimeMillis() * 1000;
     }
