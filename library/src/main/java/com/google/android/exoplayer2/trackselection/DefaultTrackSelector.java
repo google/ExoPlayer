@@ -23,8 +23,18 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.graphics.Point;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -32,14 +42,27 @@ import java.util.Locale;
  */
 public class DefaultTrackSelector extends MappingTrackSelector {
 
+  /**
+   * If a dimension (i.e. width or height) of a video is greater or equal to this fraction of the
+   * corresponding viewport dimension, then the video is considered as filling the viewport (in that
+   * dimension).
+   */
+  private static final float FRACTION_TO_CONSIDER_FULLSCREEN = 0.98f;
   private static final int[] NO_TRACKS = new int[0];
+  private static final String TAG = "DefaultTrackSelector";
 
+  // Audio and text.
   private String preferredLanguage;
+
+  //Video.
   private boolean allowMixedMimeAdaptiveness;
   private boolean allowNonSeamlessAdaptiveness;
   private int maxVideoWidth;
   private int maxVideoHeight;
   private boolean exceedVideoConstraintsIfNecessary;
+  private boolean orientationMayChange;
+  private int viewportWidth;
+  private int viewportHeight;
 
   public DefaultTrackSelector(Handler eventHandler) {
     super(eventHandler);
@@ -47,6 +70,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     exceedVideoConstraintsIfNecessary = true;
     maxVideoWidth = Integer.MAX_VALUE;
     maxVideoHeight = Integer.MAX_VALUE;
+    viewportWidth = Integer.MAX_VALUE;
+    viewportHeight = Integer.MAX_VALUE;
+    orientationMayChange = true;
   }
 
   /**
@@ -128,7 +154,43 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
   }
 
-  // TrackSelectionPolicy implementation.
+  /**
+   * Sets the target viewport size for selecting video tracks.
+   *
+   * @param viewportWidth Viewport width in pixels.
+   * @param viewportHeight Viewport height in pixels.
+   * @param orientationMayChange Whether orientation may change during playback.
+   */
+  public void setViewportSize(int viewportWidth, int viewportHeight, boolean orientationMayChange) {
+    if (this.viewportWidth != viewportWidth || this.viewportHeight != viewportHeight
+        || this.orientationMayChange != orientationMayChange) {
+      this.viewportWidth = viewportWidth;
+      this.viewportHeight = viewportHeight;
+      this.orientationMayChange = orientationMayChange;
+      invalidate();
+    }
+  }
+
+  /**
+   * Retrieves the viewport size from the provided {@link Context} and calls
+   * {@link #setViewportSize(int, int, boolean)} with this information.
+   *
+   * @param context The context to obtain the viewport size from.
+   * @param orientationMayChange Whether orientation may change during playback.
+   */
+  public void setViewportSizeFromContext(Context context, boolean orientationMayChange) {
+    Point viewportSize = getDisplaySize(context); // Assume the viewport is fullscreen.
+    setViewportSize(viewportSize.x, viewportSize.y, orientationMayChange);
+  }
+
+  /**
+   * Equivalent to {@code setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true)}.
+   */
+  public void clearViewportConstrains() {
+    setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+  }
+
+  // MappingTrackSelector implementation.
 
   @Override
   protected TrackSelection[] selectTracks(RendererCapabilities[] rendererCapabilities,
@@ -141,7 +203,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         case C.TRACK_TYPE_VIDEO:
           rendererTrackSelections[i] = selectTrackForVideoRenderer(rendererCapabilities[i],
               rendererTrackGroupArrays[i], rendererFormatSupports[i], maxVideoWidth, maxVideoHeight,
-              allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness);
+              allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness, viewportWidth,
+              viewportHeight, orientationMayChange);
           if (rendererTrackSelections[i] == null && exceedVideoConstraintsIfNecessary) {
             rendererTrackSelections[i] = selectSmallestSupportedVideoTrack(
                 rendererTrackGroupArrays[i], rendererFormatSupports[i]);
@@ -169,8 +232,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static TrackSelection selectTrackForVideoRenderer(
       RendererCapabilities rendererCapabilities, TrackGroupArray trackGroups,
       int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
-      boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness)
-      throws ExoPlaybackException {
+      boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness, int viewportWidth,
+      int viewportHeight, boolean orientationMayChange) throws ExoPlaybackException {
     int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
         ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
         : RendererCapabilities.ADAPTIVE_SEAMLESS;
@@ -181,7 +244,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     for (int i = 0; i < trackGroups.length; i++) {
       TrackGroup trackGroup = trackGroups.get(i);
       int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroup, formatSupport[i],
-          allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight);
+          allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight,
+          viewportWidth, viewportHeight, orientationMayChange);
       if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
         largestAdaptiveGroup = trackGroup;
         largestAdaptiveGroupTracks = adaptiveTracks;
@@ -207,13 +271,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   private static int[] getAdaptiveTracksOfGroup(TrackGroup trackGroup, int[] formatSupport,
       boolean allowMixedMimeTypes, int requiredAdaptiveSupport, int maxVideoWidth,
-      int maxVideoHeight) {
+      int maxVideoHeight, int viewportWidth, int viewportHeight, boolean orientationMayChange) {
+
+    ArrayList<Integer> adaptiveTracksOfGroup = new ArrayList<>(formatSupport.length);
+    for (int i = 0; i < formatSupport.length; i++) {
+      adaptiveTracksOfGroup.add(i);
+    }
+
+    if (viewportWidth != Integer.MAX_VALUE && viewportHeight != Integer.MAX_VALUE) {
+      filterFormatsForViewport(trackGroup, orientationMayChange, viewportWidth, viewportHeight,
+          adaptiveTracksOfGroup);
+    }
+
     String mimeType = null;
     int adaptiveTracksCount = 0;
-    if (allowMixedMimeTypes) {
-      adaptiveTracksCount = getAdaptiveTrackCountForMimeType(trackGroup, formatSupport,
-          requiredAdaptiveSupport, mimeType, maxVideoWidth, maxVideoHeight);
-    } else {
+    if (!allowMixedMimeTypes) {
       for (int i = 0; i < trackGroup.length; i++) {
         if (!Util.areEqual(mimeType, trackGroup.getFormat(i).sampleMimeType)) {
           int countForMimeType = getAdaptiveTrackCountForMimeType(trackGroup, formatSupport,
@@ -227,26 +299,24 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
     }
 
-    if (adaptiveTracksCount <= 1) {
+    for (int i = adaptiveTracksOfGroup.size() - 1; i >= 0; i--) {
+      if (!isSupportedAdaptiveTrack(trackGroup.getFormat(adaptiveTracksOfGroup.get(i)), mimeType,
+          formatSupport[i], requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight)) {
+        adaptiveTracksOfGroup.remove(i);
+      }
+    }
+    if (adaptiveTracksOfGroup.isEmpty()) {
       // Not enough tracks to allow adaptation.
       return NO_TRACKS;
     }
-    int[] adaptiveTracks = new int[adaptiveTracksCount];
-    adaptiveTracksCount = 0;
-    for (int i = 0; i < trackGroup.length; i++) {
-      if (isAdaptiveTrack(trackGroup.getFormat(i), mimeType, formatSupport[i],
-          requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight)) {
-        adaptiveTracks[adaptiveTracksCount++] = i;
-      }
-    }
-    return adaptiveTracks;
+    return Util.toArray(adaptiveTracksOfGroup);
   }
 
   private static int getAdaptiveTrackCountForMimeType(TrackGroup trackGroup, int[] formatSupport,
       int requiredAdaptiveSupport, String mimeType, int maxVideoWidth, int maxVideoHeight) {
     int adaptiveTracksCount = 0;
     for (int i = 0; i < trackGroup.length; i++) {
-      if (isAdaptiveTrack(trackGroup.getFormat(i), mimeType, formatSupport[i],
+      if (isSupportedAdaptiveTrack(trackGroup.getFormat(i), mimeType, formatSupport[i],
           requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight)) {
         adaptiveTracksCount++;
       }
@@ -254,7 +324,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     return adaptiveTracksCount;
   }
 
-  private static boolean isAdaptiveTrack(Format format, String mimeType, int formatSupport,
+  private static boolean isSupportedAdaptiveTrack(Format format, String mimeType, int formatSupport,
       int requiredAdaptiveSupport, int maxVideoWidth, int maxVideoHeight) {
     return isSupportedVideoTrack(formatSupport, format, maxVideoWidth, maxVideoHeight)
         && (formatSupport & requiredAdaptiveSupport) != 0
@@ -360,6 +430,138 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   private static boolean formatHasLanguage(Format format, String language) {
     return language != null && language.equals(new Locale(format.language).getLanguage());
+  }
+
+  // Viewport size util methods.
+
+  private static void filterFormatsForViewport(TrackGroup trackGroup, boolean orientationMayChange,
+      int viewportWidth, int viewportHeight, List<Integer> allowedSizeTrackIndices) {
+    int maxVideoPixelsToRetain = Integer.MAX_VALUE;
+
+    for (int i = 0; i < trackGroup.length; i++) {
+      Format format = trackGroup.getFormat(i);
+      // Keep track of the number of pixels of the selected format whose resolution is the
+      // smallest to exceed the maximum size at which it can be displayed within the viewport.
+      // We'll discard formats of higher resolution.
+      if (format.width > 0 && format.height > 0) {
+        Point maxVideoSizeInViewport = getMaxVideoSizeInViewport(orientationMayChange,
+            viewportWidth, viewportHeight, format.width, format.height);
+        int videoPixels = format.width * format.height;
+        if (format.width >= (int) (maxVideoSizeInViewport.x * FRACTION_TO_CONSIDER_FULLSCREEN)
+            && format.height >= (int) (maxVideoSizeInViewport.y * FRACTION_TO_CONSIDER_FULLSCREEN)
+            && videoPixels < maxVideoPixelsToRetain) {
+          maxVideoPixelsToRetain = videoPixels;
+        }
+      }
+    }
+
+    // Filter out formats that exceed maxVideoPixelsToRetain. These formats have an unnecessarily
+    // high resolution given the size at which the video will be displayed within the viewport.
+    if (maxVideoPixelsToRetain != Integer.MAX_VALUE) {
+      for (int i = allowedSizeTrackIndices.size() - 1; i >= 0; i--) {
+        Format format = trackGroup.getFormat(allowedSizeTrackIndices.get(i));
+        if (format.width * format.height > maxVideoPixelsToRetain) {
+          allowedSizeTrackIndices.remove(i);
+        }
+      }
+    }
+  }
+
+  /**
+   * Given viewport dimensions and video dimensions, computes the maximum size of the video as it
+   * will be rendered to fit inside of the viewport.
+   */
+  private static Point getMaxVideoSizeInViewport(boolean orientationMayChange, int viewportWidth,
+      int viewportHeight, int videoWidth, int videoHeight) {
+    if (orientationMayChange && (videoWidth > videoHeight) != (viewportWidth > viewportHeight)) {
+      // Rotation is allowed, and the video will be larger in the rotated viewport.
+      int tempViewportWidth = viewportWidth;
+      viewportWidth = viewportHeight;
+      viewportHeight = tempViewportWidth;
+    }
+
+    if (videoWidth * viewportHeight >= videoHeight * viewportWidth) {
+      // Horizontal letter-boxing along top and bottom.
+      return new Point(viewportWidth, Util.ceilDivide(viewportWidth * videoHeight, videoWidth));
+    } else {
+      // Vertical letter-boxing along edges.
+      return new Point(Util.ceilDivide(viewportHeight * videoWidth, videoHeight), viewportHeight);
+    }
+  }
+
+  private static Point getDisplaySize(Context context) {
+    // Before API 25 the platform Display object does not provide a working way to identify Android
+    // TVs that can show 4k resolution in a SurfaceView, so check for supported devices here.
+    if (Util.SDK_INT < 25) {
+      if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+          && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
+        return new Point(3840, 2160);
+      } else if ("NVIDIA".equals(Util.MANUFACTURER) && Util.MODEL != null
+          && Util.MODEL.contains("SHIELD")) {
+        // Attempt to read sys.display-size.
+        String sysDisplaySize = null;
+        try {
+          Class<?> systemProperties = Class.forName("android.os.SystemProperties");
+          Method getMethod = systemProperties.getMethod("get", String.class);
+          sysDisplaySize = (String) getMethod.invoke(systemProperties, "sys.display-size");
+        } catch (Exception e) {
+          Log.e(TAG, "Failed to read sys.display-size", e);
+        }
+        // If we managed to read sys.display-size, attempt to parse it.
+        if (!TextUtils.isEmpty(sysDisplaySize)) {
+          try {
+            String[] sysDisplaySizeParts = sysDisplaySize.trim().split("x");
+            if (sysDisplaySizeParts.length == 2) {
+              int width = Integer.parseInt(sysDisplaySizeParts[0]);
+              int height = Integer.parseInt(sysDisplaySizeParts[1]);
+              if (width > 0 && height > 0) {
+                return new Point(width, height);
+              }
+            }
+          } catch (NumberFormatException e) {
+            // Do nothing.
+          }
+          Log.e(TAG, "Invalid sys.display-size: " + sysDisplaySize);
+        }
+      }
+    }
+
+    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    Display display = windowManager.getDefaultDisplay();
+      Point displaySize = new Point();
+    if (Util.SDK_INT >= 23) {
+      getDisplaySizeV23(display, displaySize);
+    } else if (Util.SDK_INT >= 17) {
+      getDisplaySizeV17(display, displaySize);
+    } else if (Util.SDK_INT >= 16) {
+      getDisplaySizeV16(display, displaySize);
+    } else {
+      getDisplaySizeV9(display, displaySize);
+    }
+    return displaySize;
+  }
+
+  @TargetApi(23)
+  private static void getDisplaySizeV23(Display display, Point outSize) {
+    Display.Mode mode = display.getMode();
+    outSize.x = mode.getPhysicalWidth();
+    outSize.y = mode.getPhysicalHeight();
+  }
+
+  @TargetApi(17)
+  private static void getDisplaySizeV17(Display display, Point outSize) {
+    display.getRealSize(outSize);
+  }
+
+  @TargetApi(16)
+  private static void getDisplaySizeV16(Display display, Point outSize) {
+    display.getSize(outSize);
+  }
+
+  @SuppressWarnings("deprecation")
+  private static void getDisplaySizeV9(Display display, Point outSize) {
+    outSize.x = display.getWidth();
+    outSize.y = display.getHeight();
   }
 
 }
