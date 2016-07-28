@@ -17,8 +17,9 @@ gives some examples of what to include.
 ## Pull requests ##
 
 We will also consider high quality pull requests. These should normally merge
-into the [dev][] branch rather than master. To contribute in this way you must
-first submit a Contributor License Agreement, as described below.
+into the `dev-vX` branch with the highest major version number. Bug fixes may
+be suitable for merging into older `dev-vX` branches. Before a pull request can
+be accepted you must submit a Contributor License Agreement, as described below.
 
 [dev]: https://github.com/google/ExoPlayer/tree/dev
 

@@ -64,12 +64,15 @@ and copy `library.jar` to the libs folder of your new project.
 
 #### Project branches ####
 
-  * The [`master`][master] branch holds the most recent minor release.
-  * Most development work happens on the [`dev`][dev] branch.
-  * Additional development branches may be established for major features.
-
-[master]: https://github.com/google/ExoPlayer/tree/master
-[dev]: https://github.com/google/ExoPlayer/tree/dev
+  * The project has `dev-vX` and `release-vX` branches, where `X` is the major
+    version number.
+  * Most development work happens on the `dev-vX` branch with the highest major
+    version number. Pull requests should normally be made to this branch.
+  * Bug fixes may be submitted to older `dev-vX` branches. When doing this, the
+    same (or an equivalent) fix should also be submitted to all subsequent
+    `dev-vX` branches.
+  * A `release-vX` branch holds the most recent stable release for major version
+    `X`.
 
 #### Using Android Studio ####
 
