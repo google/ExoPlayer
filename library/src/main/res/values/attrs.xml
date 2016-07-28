@@ -20,15 +20,27 @@
     <enum name="fixed_width" value="1"/>
     <enum name="fixed_height" value="2"/>
   </attr>
+  <attr name="show_timeout" format="integer"/>
+  <attr name="rewind_increment" format="integer"/>
+  <attr name="fastforward_increment" format="integer"/>
 
   <declare-styleable name="SimpleExoPlayerView">
     <attr name="use_controller" format="boolean"/>
     <attr name="use_texture_view" format="boolean"/>
+    <attr name="show_timeout"/>
+    <attr name="rewind_increment"/>
+    <attr name="fastforward_increment"/>
     <attr name="resize_mode"/>
   </declare-styleable>
 
   <declare-styleable name="AspectRatioFrameLayout">
     <attr name="resize_mode"/>
+  </declare-styleable>
+
+  <declare-styleable name="PlaybackControlView">
+    <attr name="show_timeout"/>
+    <attr name="rewind_increment"/>
+    <attr name="fastforward_increment"/>
   </declare-styleable>
 
 </resources>
