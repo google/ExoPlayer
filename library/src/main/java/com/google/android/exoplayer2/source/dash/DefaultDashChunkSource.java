@@ -90,6 +90,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final Evaluation evaluation;
 
   private DashManifest manifest;
+  private int periodIndex;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
@@ -117,11 +118,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
+    this.periodIndex = periodIndex;
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
     this.evaluation = new Evaluation();
 
-    long periodDurationUs = getPeriodDurationUs(periodIndex);
-    List<Representation> representations = getRepresentations(periodIndex);
+    long periodDurationUs = getPeriodDurationUs();
+    List<Representation> representations = getRepresentations();
     representationHolders = new RepresentationHolder[trackSelection.length];
     for (int i = 0; i < trackSelection.length; i++) {
       Representation representation = representations.get(trackSelection.getTrack(i));
@@ -136,11 +138,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public void updateManifest(DashManifest newManifest, int periodIndex) {
+  public void updateManifest(DashManifest newManifest, int newPeriodIndex) {
     try {
       manifest = newManifest;
-      long periodDurationUs = getPeriodDurationUs(periodIndex);
-      List<Representation> representations = getRepresentations(periodIndex);
+      periodIndex = newPeriodIndex;
+      long periodDurationUs = getPeriodDurationUs();
+      List<Representation> representations = getRepresentations();
       for (int i = 0; i < trackSelection.length; i++) {
         Representation representation = representations.get(trackSelection.getTrack(i));
         representationHolders[i].updateRepresentation(periodDurationUs, representation);
@@ -249,7 +252,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (segmentNum > lastAvailableSegmentNum
         || (missingLastSegment && segmentNum >= lastAvailableSegmentNum)) {
       // This is beyond the last chunk in the current manifest.
-      out.endOfStream = !manifest.dynamic;
+      out.endOfStream = !manifest.dynamic || (periodIndex < manifest.getPeriodCount() - 1);
       return;
     }
 
@@ -309,7 +312,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   // Private methods.
 
-  private List<Representation> getRepresentations(int periodIndex) {
+  private List<Representation> getRepresentations() {
     return manifest.getPeriod(periodIndex).adaptationSets.get(adaptationSetIndex).representations;
   }
 
@@ -362,7 +365,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
   }
 
-  private long getPeriodDurationUs(int periodIndex) {
+  private long getPeriodDurationUs() {
     long durationMs = manifest.getPeriodDuration(periodIndex);
     if (durationMs == -1) {
       return C.UNSET_TIME_US;

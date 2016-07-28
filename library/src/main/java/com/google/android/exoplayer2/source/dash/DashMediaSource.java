@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -72,7 +73,7 @@ public final class DashMediaSource implements MediaSource {
   private long manifestLoadEndTimestamp;
   private DashManifest manifest;
   private Handler manifestRefreshHandler;
-  private DashMediaPeriod[] periods;
+  private ArrayList<DashMediaPeriod> periods;
   private long elapsedRealtimeOffset;
 
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
@@ -114,10 +115,9 @@ public final class DashMediaSource implements MediaSource {
       if (id == null) {
         break;
       }
-      for (int i = 0; i < periods.length; i++) {
-        if (periods[i] == id) {
-          return i;
-        }
+      int index = periods.indexOf(id);
+      if (index != -1) {
+        return index;
       }
       periodIndex++;
     }
@@ -126,11 +126,11 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public MediaPeriod createPeriod(int index) throws IOException {
-    if (periods == null) {
+    if (periods == null || periods.size() <= index) {
       loader.maybeThrowError();
       return null;
     }
-    return periods[index];
+    return periods.get(index);
   }
 
   @Override
@@ -156,7 +156,29 @@ public final class DashMediaSource implements MediaSource {
       long elapsedRealtimeMs, long loadDurationMs) {
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
-    manifest = loadable.getResult();
+    DashManifest newManifest = loadable.getResult();
+
+    int periodsToRemoveCount = 0;
+    if (periods != null) {
+      int periodCount = periods.size();
+      long newFirstPeriodStartTimeUs = newManifest.getPeriod(0).startMs * 1000;
+      while (periodsToRemoveCount < periodCount
+          && periods.get(periodsToRemoveCount).getStartUs() < newFirstPeriodStartTimeUs) {
+        periodsToRemoveCount++;
+      }
+
+      // After discarding old periods, we should never have more periods than listed in the new
+      // manifest. That would mean that a previously announced period is no longer advertised. If
+      // this condition occurs, assume that we are hitting a manifest server that is out of sync and
+      // behind, discard this manifest, and try again later.
+      if (periodCount - periodsToRemoveCount > newManifest.getPeriodCount()) {
+        Log.w(TAG, "Out of sync manifest");
+        scheduleManifestRefresh();
+        return;
+      }
+    }
+
+    manifest = newManifest;
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
     manifestLoadEndTimestamp = elapsedRealtimeMs;
     if (manifest.location != null) {
@@ -167,16 +189,29 @@ public final class DashMediaSource implements MediaSource {
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
-        finishPrepare();
+        finishManifestProcessing();
       }
     } else {
-      for (int i = 0; i < periods.length; i++) {
-        periods[i].updateManifest(manifest, i);
+      // Remove old periods.
+      while (periodsToRemoveCount-- > 0) {
+        periods.remove(0);
       }
-      scheduleManifestRefresh();
-    }
 
-    invalidationListener.onTimelineChanged(new DashTimeline(manifest, periods));
+      // Update existing periods. Only the first and the last periods can change.
+      int periodCount = periods.size();
+      if (periodCount > 0) {
+        updatePeriod(0);
+        if (periodCount > 1) {
+          updatePeriod(periodCount - 1);
+        }
+      }
+
+      finishManifestProcessing();
+    }
+  }
+
+  private void updatePeriod(int index) {
+    periods.get(index).updateManifest(manifest, index);
   }
 
   /* package */ int onManifestLoadError(ParsingLoadable<DashManifest> loadable,
@@ -247,22 +282,26 @@ public final class DashMediaSource implements MediaSource {
 
   private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
     this.elapsedRealtimeOffset = elapsedRealtimeOffsetMs;
-    finishPrepare();
+    finishManifestProcessing();
   }
 
   private void onUtcTimestampResolutionError(IOException error) {
     Log.e(TAG, "Failed to resolve UtcTiming element.", error);
     // Be optimistic and continue in the hope that the device clock is correct.
-    finishPrepare();
+    finishManifestProcessing();
   }
 
-  private void finishPrepare() {
-    int periodCount = manifest.getPeriodCount();
-    periods = new DashMediaPeriod[periodCount];
-    for (int i = 0; i < periodCount; i++) {
-      periods[i] = new DashMediaPeriod(manifest, i, chunkSourceFactory, minLoadableRetryCount,
-          eventDispatcher, elapsedRealtimeOffset, loader);
+  private void finishManifestProcessing() {
+    if (periods == null) {
+      periods = new ArrayList<>();
     }
+    int periodCount = manifest.getPeriodCount();
+    for (int i = periods.size(); i < periodCount; i++) {
+      periods.add(new DashMediaPeriod(manifest, i, chunkSourceFactory, minLoadableRetryCount,
+          eventDispatcher, elapsedRealtimeOffset, loader));
+    }
+    invalidationListener.onTimelineChanged(new DashTimeline(manifest,
+        periods.toArray(new DashMediaPeriod[periods.size()])));
     scheduleManifestRefresh();
   }
 
