@@ -190,6 +190,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
     subtitleView = (SubtitleView) findViewById(R.id.subtitles);
     mediaController = new KeyCompatibleMediaController(this);
+    mediaController.setPrevNextListeners(this, this);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
 
@@ -301,6 +302,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.setSurface(surfaceView.getHolder().getSurface());
       player.setPlayWhenReady(true);
       mediaController.setMediaPlayer(new PlayerControl(player));
+      mediaController.setPrevNextListeners(new PrevNextClickListener(player, true),
+          new PrevNextClickListener(player, false));
       mediaController.setAnchorView(rootView);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
@@ -676,6 +679,37 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void showToast(String message) {
     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+  }
+
+  private static final class PrevNextClickListener implements OnClickListener {
+
+    private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS_PERIOD = 3000;
+
+    private final SimpleExoPlayer player;
+    private final boolean forward;
+
+    public PrevNextClickListener(SimpleExoPlayer player, boolean forward) {
+      this.player = player;
+      this.forward = forward;
+    }
+
+    @Override
+    public void onClick(View v) {
+      int currentPeriodIndex = player.getCurrentPeriodIndex();
+      if (forward) {
+        if (currentPeriodIndex < player.getCurrentTimeline().getPeriodCount() - 1) {
+          player.seekTo(currentPeriodIndex + 1, 0);
+        }
+      } else {
+        if (currentPeriodIndex > 0
+            && player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS_PERIOD) {
+          player.seekTo(currentPeriodIndex - 1, 0);
+        } else {
+          player.seekTo(currentPeriodIndex, 0);
+        }
+      }
+    }
+
   }
 
   private static final class KeyCompatibleMediaController extends MediaController {
