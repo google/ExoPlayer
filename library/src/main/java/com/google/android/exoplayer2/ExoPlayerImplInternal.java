@@ -612,6 +612,8 @@ import java.util.ArrayList;
     public boolean isReady;
     public boolean isEnded;
 
+    private int bufferAheadPeriodCount;
+
     private Period playingPeriod;
     private Period readingPeriod;
     private Period loadingPeriod;
@@ -693,6 +695,7 @@ import java.util.ArrayList;
 
         Period previousPeriod = playingPeriod;
         boolean seenReadingPeriod = false;
+        bufferAheadPeriodCount = 0;
         while (previousPeriod.nextPeriod != null) {
           Period period = previousPeriod.nextPeriod;
           index++;
@@ -716,6 +719,7 @@ import java.util.ArrayList;
             break;
           }
 
+          bufferAheadPeriodCount++;
           period.index = index;
           period.isLast = timeline.isFinal() && index == periodCount - 1;
           if (period == readingPeriod) {
@@ -729,6 +733,7 @@ import java.util.ArrayList;
         if (index == Timeline.NO_PERIOD_INDEX) {
           loadingPeriod.release();
           loadingPeriod = null;
+          bufferAheadPeriodCount = 0;
         } else {
           int periodCount = timeline.getPeriodCount();
           loadingPeriod.index = index;
@@ -758,8 +763,7 @@ import java.util.ArrayList;
 
       // Update the loading period.
       if (loadingPeriod == null || (loadingPeriod.isFullyBuffered() && !loadingPeriod.isLast
-          && (playingPeriod == null || loadingPeriod.index - playingPeriod.index
-              < MAXIMUM_BUFFER_AHEAD_PERIODS))) {
+          && bufferAheadPeriodCount < MAXIMUM_BUFFER_AHEAD_PERIODS)) {
         // Try to obtain the next period to start loading.
         int periodIndex = loadingPeriod == null ? playbackInfo.periodIndex
             : loadingPeriod.index + 1;
@@ -772,6 +776,7 @@ import java.util.ArrayList;
           if (loadingPeriod != null) {
             loadingPeriod.setNextPeriod(newPeriod);
           }
+          bufferAheadPeriodCount++;
           loadingPeriod = newPeriod;
           long startPositionUs = playingPeriod == null ? playbackInfo.positionUs : 0;
           setIsLoading(true);
@@ -802,6 +807,7 @@ import java.util.ArrayList;
         // reached the end of the playing period, so advance playback to the next period.
         playingPeriod.release();
         setPlayingPeriod(playingPeriod.nextPeriod);
+        bufferAheadPeriodCount--;
         playbackInfo = new PlaybackInfo(playingPeriod.index);
         updatePlaybackPositions();
         eventHandler.obtainMessage(MSG_PERIOD_CHANGED, playbackInfo).sendToTarget();
@@ -903,6 +909,7 @@ import java.util.ArrayList;
         period = period.nextPeriod;
       }
 
+      bufferAheadPeriodCount = 0;
       if (newPlayingPeriod != null) {
         newPlayingPeriod.nextPeriod = null;
         setPlayingPeriod(newPlayingPeriod);
@@ -957,6 +964,7 @@ import java.util.ArrayList;
         readingPeriod = playingPeriod;
         loadingPeriod = playingPeriod;
         playingPeriodEndPositionUs = C.UNSET_TIME_US;
+        bufferAheadPeriodCount = 0;
 
         // Update streams for the new selection, recreating all streams if reading ahead.
         boolean recreateStreams = readingPeriod != playingPeriod;
@@ -1000,6 +1008,7 @@ import java.util.ArrayList;
         while (period != null) {
           period.release();
           period = period.nextPeriod;
+          bufferAheadPeriodCount--;
         }
         loadingPeriod.nextPeriod = null;
         long positionUs = Math.max(0, internalPositionUs - loadingPeriod.offsetUs);
@@ -1017,6 +1026,7 @@ import java.util.ArrayList;
       readingPeriod = null;
       loadingPeriod = null;
       timeline = null;
+      bufferAheadPeriodCount = 0;
     }
 
     private void releasePeriodsFrom(Period period) {
