@@ -302,7 +302,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
       MappingTrackSelector trackSelector, DrmSessionManager drmSessionManager) {
     SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector,
         new DefaultLoadControl(), drmSessionManager);
-    player.setSurface(surface);
+    player.setVideoSurface(surface);
     return player;
   }
 

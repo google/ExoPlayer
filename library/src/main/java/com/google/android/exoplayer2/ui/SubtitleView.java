@@ -17,13 +17,17 @@ package com.google.android.exoplayer2.ui;
 
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.util.Util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.accessibility.CaptioningManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +35,7 @@ import java.util.List;
 /**
  * A view for displaying subtitle {@link Cue}s.
  */
-public final class SubtitleView extends View {
+public final class SubtitleView extends View implements TextRenderer.Output {
 
   /**
    * The default fractional text size.
@@ -75,6 +79,11 @@ public final class SubtitleView extends View {
     bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
   }
 
+  @Override
+  public void onCues(List<Cue> cues) {
+    setCues(cues);
+  }
+
   /**
    * Sets the cues to be displayed by the view.
    *
@@ -111,6 +120,15 @@ public final class SubtitleView extends View {
       resources = context.getResources();
     }
     setTextSize(ABSOLUTE, TypedValue.applyDimension(unit, size, resources.getDisplayMetrics()));
+  }
+
+  /**
+   * Sets the text size to one derived from {@link CaptioningManager#getFontScale()}, or to a
+   * default size on API level 19 and earlier.
+   */
+  public void setUserDefaultTextSize() {
+    float fontScale = Util.SDK_INT >= 19 ? getUserCaptionFontScaleV19() : 1f;
+    setFractionalTextSize(DEFAULT_TEXT_SIZE_FRACTION * fontScale);
   }
 
   /**
@@ -160,6 +178,14 @@ public final class SubtitleView extends View {
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     // Invalidate to trigger drawing.
     invalidate();
+  }
+
+  /**
+   * Sets the caption style to be equivalent to the one returned by
+   * {@link CaptioningManager#getUserStyle()}, or to a default style on API level 19 and earlier.
+   */
+  public void setUserDefaultStyle() {
+    setStyle(Util.SDK_INT >= 19 ? getUserCaptionStyleV19() : CaptionStyleCompat.DEFAULT);
   }
 
   /**
@@ -221,6 +247,20 @@ public final class SubtitleView extends View {
       painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, textSizePx,
           bottomPaddingFraction, canvas, left, top, right, bottom);
     }
+  }
+
+  @TargetApi(19)
+  private float getUserCaptionFontScaleV19() {
+    CaptioningManager captioningManager =
+        (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
+    return captioningManager.getFontScale();
+  }
+
+  @TargetApi(19)
+  private CaptionStyleCompat getUserCaptionStyleV19() {
+    CaptioningManager captioningManager =
+        (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
+    return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
   }
 
 }

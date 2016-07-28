@@ -20,8 +20,12 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
+import android.Manifest.permission;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
@@ -127,6 +131,31 @@ public final class Util {
       outputStream.write(buffer, 0, bytesRead);
     }
     return outputStream.toByteArray();
+  }
+
+  /**
+   * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
+   * permission read the specified {@link Uri}s, requesting the permission if necessary.
+   *
+   * @param uris {@link Uri}s that may require {@link permission#READ_EXTERNAL_STORAGE} to read.
+   * @return Whether a permission request was made.
+   */
+  @TargetApi(23)
+  public static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri... uris) {
+    if (Util.SDK_INT < 23) {
+      return false;
+    }
+    for (Uri uri : uris) {
+      if (Util.isLocalFileUri(uri)) {
+        if (activity.checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+          activity.requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
+          return true;
+        }
+        break;
+      }
+    }
+    return false;
   }
 
   /**

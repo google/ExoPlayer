@@ -22,6 +22,13 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.metadata.id3.ApicFrame;
+import com.google.android.exoplayer2.metadata.id3.GeobFrame;
+import com.google.android.exoplayer2.metadata.id3.Id3Frame;
+import com.google.android.exoplayer2.metadata.id3.PrivFrame;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.Timeline;
@@ -37,14 +44,16 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * Logs player events using {@link Log}.
  */
-public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.DebugListener,
-    AdaptiveMediaSourceEventListener, ExtractorMediaSource.EventListener,
-    StreamingDrmSessionManager.EventListener, MappingTrackSelector.EventListener {
+/* package */ final class EventLogger implements ExoPlayer.EventListener,
+    SimpleExoPlayer.DebugListener, AdaptiveMediaSourceEventListener,
+    ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
+    MappingTrackSelector.EventListener, MetadataRenderer.Output<List<Id3Frame>> {
 
   private static final String TAG = "EventLogger";
   private static final NumberFormat TIME_FORMAT;
@@ -54,15 +63,10 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
     TIME_FORMAT.setMaximumFractionDigits(2);
   }
 
-  private long sessionStartTimeMs;
+  private final long startTimeMs;
 
-  public void startSession() {
-    sessionStartTimeMs = SystemClock.elapsedRealtime();
-    Log.d(TAG, "start [0]");
-  }
-
-  public void endSession() {
-    Log.d(TAG, "end [" + getSessionTimeString() + "]");
+  public EventLogger() {
+    startTimeMs = SystemClock.elapsedRealtime();
   }
 
   // ExoPlayer.EventListener
@@ -150,6 +154,36 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
       Log.d(TAG, "  ]");
     }
     Log.d(TAG, "]");
+  }
+
+  // MetadataRenderer.Output<List<Id3Frame>>
+
+  @Override
+  public void onMetadata(List<Id3Frame> id3Frames) {
+    for (Id3Frame id3Frame : id3Frames) {
+      if (id3Frame instanceof TxxxFrame) {
+        TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s", txxxFrame.id,
+            txxxFrame.description, txxxFrame.value));
+      } else if (id3Frame instanceof PrivFrame) {
+        PrivFrame privFrame = (PrivFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s", privFrame.id, privFrame.owner));
+      } else if (id3Frame instanceof GeobFrame) {
+        GeobFrame geobFrame = (GeobFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
+            geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
+      } else if (id3Frame instanceof ApicFrame) {
+        ApicFrame apicFrame = (ApicFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, description=%s",
+            apicFrame.id, apicFrame.mimeType, apicFrame.description));
+      } else if (id3Frame instanceof TextInformationFrame) {
+        TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s", textInformationFrame.id,
+            textInformationFrame.description));
+      } else {
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
+      }
+    }
   }
 
   // SimpleExoPlayer.DebugListener
@@ -282,7 +316,7 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
   }
 
   private String getSessionTimeString() {
-    return getTimeString(SystemClock.elapsedRealtime() - sessionStartTimeMs);
+    return getTimeString(SystemClock.elapsedRealtime() - startTimeMs);
   }
 
   private static String getTimeString(long timeMs) {

@@ -41,6 +41,7 @@ import android.media.PlaybackParams;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -82,20 +83,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
     void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
   }
 
-  /**
-   * A listener for receiving notifications of timed text.
-   */
-  public interface CaptionListener {
-    void onCues(List<Cue> cues);
-  }
-
-  /**
-   * A listener for receiving ID3 metadata parsed from the media stream.
-   */
-  public interface Id3MetadataListener {
-    void onId3Metadata(List<Id3Frame> id3Frames);
-  }
-
   private static final String TAG = "SimpleExoPlayer";
   private static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
@@ -109,8 +96,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private Format videoFormat;
   private Format audioFormat;
 
-  private CaptionListener captionListener;
-  private Id3MetadataListener id3MetadataListener;
+  private SurfaceHolder surfaceHolder;
+  private TextRenderer.Output textOutput;
+  private MetadataRenderer.Output<List<Id3Frame>> id3Output;
   private VideoListener videoListener;
   private DebugListener debugListener;
   private DecoderCounters videoDecoderCounters;
@@ -176,23 +164,40 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Sets the {@link Surface} onto which video will be rendered.
+   * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
+   * tracking the lifecycle of the surface, and must clear the surface by calling
+   * {@code setVideoSurface(null)} if the surface is destroyed.
+   * <p>
+   * If the surface is held by a {@link SurfaceHolder} then it's recommended to use
+   * {@link #setVideoSurfaceHolder(SurfaceHolder)} rather than this method, since passing the
+   * holder allows the player to track the lifecycle of the surface automatically.
    *
    * @param surface The {@link Surface}.
    */
-  public void setSurface(Surface surface) {
-    ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
-    int count = 0;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SURFACE, surface);
-      }
+  public void setVideoSurface(Surface surface) {
+    if (surfaceHolder != null) {
+      surfaceHolder.removeCallback(componentListener);
+      surfaceHolder = null;
     }
-    if (surface == null) {
-      // Block to ensure that the surface is not accessed after the method returns.
-      player.blockingSendMessages(messages);
+    setVideoSurfaceInternal(surface);
+  }
+
+  /**
+   * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
+   * rendered. The player will track the lifecycle of the surface automatically.
+   *
+   * @param surfaceHolder The surface holder.
+   */
+  public void setVideoSurfaceHolder(SurfaceHolder surfaceHolder) {
+    if (this.surfaceHolder != null) {
+      this.surfaceHolder.removeCallback(componentListener);
+    }
+    this.surfaceHolder = surfaceHolder;
+    if (surfaceHolder == null) {
+      setVideoSurfaceInternal(null);
     } else {
-      player.sendMessages(messages);
+      setVideoSurfaceInternal(surfaceHolder.getSurface());
+      surfaceHolder.addCallback(componentListener);
     }
   }
 
@@ -287,21 +292,21 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Sets a listener to receive caption events.
+   * Sets an output to receive text events.
    *
-   * @param listener The listener.
+   * @param output The output.
    */
-  public void setCaptionListener(CaptionListener listener) {
-    captionListener = listener;
+  public void setTextOutput(TextRenderer.Output output) {
+    textOutput = output;
   }
 
   /**
-   * Sets a listener to receive metadata events.
+   * Sets a listener to receive ID3 metadata events.
    *
-   * @param listener The listener.
+   * @param output The output.
    */
-  public void setMetadataListener(Id3MetadataListener listener) {
-    id3MetadataListener = listener;
+  public void setId3Output(MetadataRenderer.Output<List<Id3Frame>> output) {
+    id3Output = output;
   }
 
   // ExoPlayer implementation
@@ -488,8 +493,25 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
   }
 
+  private void setVideoSurfaceInternal(Surface surface) {
+    ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
+    int count = 0;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SURFACE, surface);
+      }
+    }
+    if (surface == null) {
+      // Block to ensure that the surface is not accessed after the method returns.
+      player.blockingSendMessages(messages);
+    } else {
+      player.sendMessages(messages);
+    }
+  }
+
   private final class ComponentListener implements VideoRendererEventListener,
-      AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output<List<Id3Frame>> {
+      AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output<List<Id3Frame>>,
+      SurfaceHolder.Callback {
 
     // VideoRendererEventListener implementation
 
@@ -603,21 +625,42 @@ public final class SimpleExoPlayer implements ExoPlayer {
       audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     }
 
-    // TextRendererOutput implementation
+    // TextRenderer.Output implementation
 
     @Override
     public void onCues(List<Cue> cues) {
-      if (captionListener != null) {
-        captionListener.onCues(cues);
+      if (textOutput != null) {
+        textOutput.onCues(cues);
       }
     }
 
-    // MetadataRenderer implementation
+    // MetadataRenderer.Output<List<Id3Frame>> implementation
 
     @Override
     public void onMetadata(List<Id3Frame> id3Frames) {
-      if (id3MetadataListener != null) {
-        id3MetadataListener.onId3Metadata(id3Frames);
+      if (id3Output != null) {
+        id3Output.onMetadata(id3Frames);
+      }
+    }
+
+    // SurfaceHolder.Callback implementation
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+      if (player != null) {
+        setVideoSurfaceInternal(holder.getSurface());
+      }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+      // Do nothing.
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+      if (player != null) {
+        setVideoSurfaceInternal(null);
       }
     }
 
