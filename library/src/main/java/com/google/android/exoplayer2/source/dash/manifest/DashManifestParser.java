@@ -673,7 +673,7 @@ public class DashManifestParser extends DefaultHandler
    * Returns whether a mimeType is a text sample mimeType.
    *
    * @param mimeType The mimeType.
-   * @return True if the mimeType is a text sample mimeType. False otherwise.
+   * @return Whether the mimeType is a text sample mimeType.
    */
   private static boolean mimeTypeIsRawText(String mimeType) {
     return MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);

@@ -41,7 +41,7 @@ public final class TrackSelectionArray {
   }
 
   /**
-   * Gets the selection at a given index.
+   * Returns the selection at a given index.
    *
    * @param index The index of the selection.
    * @return The selection.

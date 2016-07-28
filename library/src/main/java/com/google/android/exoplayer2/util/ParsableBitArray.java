@@ -118,7 +118,7 @@ public final class ParsableBitArray {
   /**
    * Reads a single bit.
    *
-   * @return True if the bit is set. False otherwise.
+   * @return Whether the bit is set.
    */
   public boolean readBit() {
     return readBits(1) == 1;

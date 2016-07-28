@@ -31,7 +31,7 @@ import java.io.IOException;
 public interface AdaptiveMediaSourceEventListener {
 
   /**
-   * Invoked when a load begins.
+   * Called when a load begins.
    *
    * @param dataSpec Defines the data being loaded.
    * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
@@ -55,7 +55,7 @@ public interface AdaptiveMediaSourceEventListener {
       long mediaEndTimeMs, long elapsedRealtimeMs);
 
   /**
-   * Invoked when a load ends.
+   * Called when a load ends.
    *
    * @param dataSpec Defines the data being loaded.
    * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
@@ -81,7 +81,7 @@ public interface AdaptiveMediaSourceEventListener {
       long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded);
 
   /**
-   * Invoked when a load is canceled.
+   * Called when a load is canceled.
    *
    * @param dataSpec Defines the data being loaded.
    * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
@@ -108,11 +108,11 @@ public interface AdaptiveMediaSourceEventListener {
       long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded);
 
   /**
-   * Invoked when a load error occurs.
+   * Called when a load error occurs.
    * <p>
    * The error may or may not have resulted in the load being canceled, as indicated by the
    * {@code wasCanceled} parameter. If the load was canceled, {@link #onLoadCanceled} will
-   * <em>not</em> be invoked in addition to this method.
+   * <em>not</em> be called in addition to this method.
    *
    * @param dataSpec Defines the data being loaded.
    * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
@@ -134,7 +134,7 @@ public interface AdaptiveMediaSourceEventListener {
    * @param loadDurationMs The duration of the load up to the point at which the error occurred.
    * @param bytesLoaded The number of bytes that were loaded prior to the error.
    * @param error The load error.
-   * @param wasCanceled True if the load was canceled as a result of the error. False otherwise.
+   * @param wasCanceled Whether the load was canceled as a result of the error.
    */
   void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
       int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
@@ -142,7 +142,7 @@ public interface AdaptiveMediaSourceEventListener {
       IOException error, boolean wasCanceled);
 
   /**
-   * Invoked when data is removed from the back of a media buffer, typically so that it can be
+   * Called when data is removed from the back of a media buffer, typically so that it can be
    * re-buffered in a different format.
    *
    * @param trackType The type of the media. One of the {@link C} {@code TRACK_TYPE_*} constants.
@@ -152,7 +152,7 @@ public interface AdaptiveMediaSourceEventListener {
   void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs);
 
   /**
-   * Invoked when a downstream format change occurs (i.e. when the format of the media being read
+   * Called when a downstream format change occurs (i.e. when the format of the media being read
    * from one or more {@link SampleStream}s provided by the source changes).
    *
    * @param trackType The type of the media. One of the {@link C} {@code TRACK_TYPE_*} constants.

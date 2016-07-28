@@ -41,7 +41,7 @@ public final class TrackGroupArray {
   }
 
   /**
-   * Gets the group at a given index.
+   * Returns the group at a given index.
    *
    * @param index The index of the group.
    * @return The group.
@@ -51,7 +51,7 @@ public final class TrackGroupArray {
   }
 
   /**
-   * Gets the index of a group within the array.
+   * Returns the index of a group within the array.
    *
    * @param group The group.
    * @return The index of the group, or -1 if no such group exists.

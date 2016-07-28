@@ -182,7 +182,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * passthrough is supported.
    *
    * @param mimeType The type of input media.
-   * @return True if passthrough playback should be used. False otherwise.
+   * @return Whether passthrough playback should be used.
    */
   protected boolean allowPassthrough(String mimeType) {
     return audioTrack.isPassthroughSupported(mimeType);
@@ -236,7 +236,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   /**
    * Called when the audio session id becomes known. Once the id is known it will not change (and
-   * hence this method will not be invoked again) unless the renderer is disabled and then
+   * hence this method will not be called again) unless the renderer is disabled and then
    * subsequently re-enabled.
    * <p>
    * The default implementation is a no-op. One reason for overriding this method would be to

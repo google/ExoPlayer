@@ -65,7 +65,7 @@ import java.io.IOException;
    * input being a fragmented MP4 file.
    *
    * @param input The extractor input from which to peek data. The peek position will be modified.
-   * @return True if the input appears to be in the fragmented MP4 format. False otherwise.
+   * @return Whether the input appears to be in the fragmented MP4 format.
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread has been interrupted.
    */
@@ -79,7 +79,7 @@ import java.io.IOException;
    * input being an unfragmented MP4 file.
    *
    * @param input The extractor input from which to peek data. The peek position will be modified.
-   * @return True if the input appears to be in the unfragmented MP4 format. False otherwise.
+   * @return Whether the input appears to be in the unfragmented MP4 format.
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread has been interrupted.
    */

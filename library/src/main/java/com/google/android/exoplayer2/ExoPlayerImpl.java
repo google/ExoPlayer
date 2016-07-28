@@ -56,7 +56,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private long maskingDurationMs;
 
   /**
-   * Constructs an instance. Must be invoked from a thread that has an associated {@link Looper}.
+   * Constructs an instance. Must be called from a thread that has an associated {@link Looper}.
    *
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.

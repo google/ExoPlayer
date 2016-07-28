@@ -72,7 +72,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
   }
 
   /**
-   * Register a listener to receive events from the selector. The listener's methods will be invoked
+   * Register a listener to receive events from the selector. The listener's methods will be called
    * using the {@link Handler} that was passed to the constructor.
    *
    * @param listener The listener to register.
@@ -92,9 +92,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
   }
 
   /**
-   * Gets information about the current tracks and track selection for each renderer.
-   *
-   * @return Contains the current tracks and track selection information.
+   * Returns information about the current tracks and track selection for each renderer.
    */
   public final TrackInfo getTrackInfo() {
     return activeTrackInfo;
@@ -104,7 +102,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * Sets whether the renderer at the specified index is disabled.
    *
    * @param rendererIndex The renderer index.
-   * @param disabled True if the renderer is disabled. False otherwise.
+   * @param disabled Whether the renderer is disabled.
    */
   public final void setRendererDisabled(int rendererIndex, boolean disabled) {
     if (rendererDisabledFlags.get(rendererIndex) == disabled) {
@@ -119,7 +117,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * Returns whether the renderer is disabled.
    *
    * @param rendererIndex The renderer index.
-   * @return True if the renderer is disabled. False otherwise.
+   * @return Whether the renderer is disabled.
    */
   public final boolean getRendererDisabled(int rendererIndex) {
     return rendererDisabledFlags.get(rendererIndex);
@@ -163,7 +161,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *
    * @param rendererIndex The renderer index.
    * @param groups The {@link TrackGroupArray}.
-   * @return True if there is an override. False otherwise.
+   * @return Whether there is an override.
    */
   public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
     Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
@@ -453,7 +451,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the array of {@link TrackGroup}s associated to the renderer at a specified index.
+     * Returns the array of {@link TrackGroup}s associated to the renderer at a specified index.
      *
      * @param rendererIndex The renderer index.
      * @return The corresponding {@link TrackGroup}s.
@@ -463,7 +461,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the current {@link TrackSelection} for the renderer at a specified index.
+     * Returns the current {@link TrackSelection} for the renderer at a specified index.
      *
      * @param rendererIndex The renderer index.
      * @return The corresponding {@link TrackSelection}, or null if the renderer is disabled.
@@ -473,7 +471,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the extent to which a renderer can support playback of the tracks associated to it.
+     * Returns the extent to which a renderer can support playback of the tracks associated to it.
      *
      * @param rendererIndex The renderer index.
      * @return One of {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS},
@@ -495,7 +493,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the extent to which the format of an individual track is supported by the renderer.
+     * Returns the extent to which the format of an individual track is supported by the renderer.
      *
      * @param rendererIndex The renderer index.
      * @param groupIndex The index of the group to which the track belongs.
@@ -511,7 +509,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the extent to which the renderer supports adaptation between supported tracks in a
+     * Returns the extent to which the renderer supports adaptation between supported tracks in a
      * specified {@link TrackGroup}.
      * <p>
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
@@ -550,8 +548,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the extent to which the renderer supports adaptation between specified tracks within a
-     * {@link TrackGroup}.
+     * Returns the extent to which the renderer supports adaptation between specified tracks within
+     * a {@link TrackGroup}.
      *
      * @param rendererIndex The renderer index.
      * @param groupIndex The index of the group.
@@ -582,9 +580,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
-     * Gets the {@link TrackGroup}s not associated with any renderer.
-     *
-     * @return The {@link TrackGroup}s not associated with any renderer.
+     * Returns the {@link TrackGroup}s not associated with any renderer.
      */
     public TrackGroupArray getUnassociatedTrackGroups() {
       return unassociatedTrackGroups;

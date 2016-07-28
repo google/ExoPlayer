@@ -102,7 +102,7 @@ public abstract class DataChunk extends Chunk {
   }
 
   /**
-   * Invoked by {@link #load()}. Implementations should override this method to consume the loaded
+   * Called by {@link #load()}. Implementations should override this method to consume the loaded
    * data.
    *
    * @param data An array containing the data.

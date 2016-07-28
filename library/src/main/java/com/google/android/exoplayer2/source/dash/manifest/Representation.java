@@ -105,36 +105,27 @@ public abstract class Representation {
   }
 
   /**
-   * Gets a {@link RangedUri} defining the location of the representation's initialization data.
-   * May be null if no initialization data exists.
-   *
-   * @return A {@link RangedUri} defining the location of the initialization data, or null.
+   * Returns a {@link RangedUri} defining the location of the representation's initialization data,
+   * or null if no initialization data exists.
    */
   public RangedUri getInitializationUri() {
     return initializationUri;
   }
 
   /**
-   * Gets a {@link RangedUri} defining the location of the representation's segment index. Null if
-   * the representation provides an index directly.
-   *
-   * @return The location of the segment index, or null.
+   * Returns a {@link RangedUri} defining the location of the representation's segment index, or
+   * null if the representation provides an index directly.
    */
   public abstract RangedUri getIndexUri();
 
   /**
-   * Gets a segment index, if the representation is able to provide one directly. Null if the
-   * segment index is defined externally.
-   *
-   * @return The segment index, or null.
+   * Returns an index if the representation provides one directly, or null otherwise.
    */
   public abstract DashSegmentIndex getIndex();
 
   /**
-   * A cache key for the {@link Representation}, in the format
+   * Returns a cache key for the representation, in the format
    * {@code contentId + "." + format.id + "." + revisionId}.
-   *
-   * @return A cache key.
    */
   public String getCacheKey() {
     return cacheKey;

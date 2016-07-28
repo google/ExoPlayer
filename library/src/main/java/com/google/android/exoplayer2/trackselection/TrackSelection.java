@@ -66,7 +66,7 @@ public final class TrackSelection {
   }
 
   /**
-   * Gets the format of the track at a given index in the selection.
+   * Returns the format of the track at a given index in the selection.
    *
    * @param index The index in the selection.
    * @return The format of the selected track.
@@ -76,16 +76,14 @@ public final class TrackSelection {
   }
 
   /**
-   * Gets a copy of the formats of the selected tracks.
-   *
-   * @return The track formats.
+   * Returns a copy of the formats of the selected tracks.
    */
   public Format[] getFormats() {
     return formats.clone();
   }
 
   /**
-   * Gets the index in the selection of the track with the specified format.
+   * Returns the index in the selection of the track with the specified format.
    *
    * @param format The format.
    * @return The index in the selection, or -1 if the track with the specified format is not part of
@@ -101,7 +99,7 @@ public final class TrackSelection {
   }
 
   /**
-   * Gets the index in the track group of the track at a given index in the selection.
+   * Returns the index in the track group of the track at a given index in the selection.
    *
    * @param index The index in the selection.
    * @return The index of the selected track.
@@ -111,16 +109,14 @@ public final class TrackSelection {
   }
 
   /**
-   * Gets a copy of the selected tracks in the track group.
-   *
-   * @return The track indices.
+   * Returns a copy of the selected tracks in the track group.
    */
   public int[] getTracks() {
     return tracks.clone();
   }
 
   /**
-   * Gets the index in the selection of the track with the specified index in the track group.
+   * Returns the index in the selection of the track with the specified index in the track group.
    *
    * @param trackIndex The index in the track group.
    * @return The index in the selection, or -1 if the track with the specified index is not part of

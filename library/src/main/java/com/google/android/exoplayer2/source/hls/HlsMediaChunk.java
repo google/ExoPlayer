@@ -109,18 +109,14 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Gets the start time in microseconds by subtracting the duration from the adjusted end time.
-   *
-   * @return The start time in microseconds.
+   * Returns the presentation time in microseconds of the first sample in the chunk.
    */
   public long getAdjustedStartTimeUs() {
     return adjustedEndTimeUs - getDurationUs();
   }
 
   /**
-   * Gets the presentation time in microseconds of the last sample contained in the chunk
-   *
-   * @return The presentation time in microseconds of the last sample contained in the chunk.
+   * Returns the presentation time in microseconds of the last sample in the chunk
    */
   public long getAdjustedEndTimeUs() {
     return adjustedEndTimeUs;

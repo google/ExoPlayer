@@ -46,7 +46,7 @@ public interface DrmSession {
   int STATE_OPENED_WITH_KEYS = 4;
 
   /**
-   * Gets the current state of the session.
+   * Returns the current state of the session.
    *
    * @return One of {@link #STATE_ERROR}, {@link #STATE_CLOSED}, {@link #STATE_OPENING},
    *     {@link #STATE_OPENED} and {@link #STATE_OPENED_WITH_KEYS}.
@@ -54,7 +54,7 @@ public interface DrmSession {
   int getState();
 
   /**
-   * Gets a {@link MediaCrypto} for the open session.
+   * Returns a {@link MediaCrypto} for the open session.
    * <p>
    * This method may be called when the manager is in the following states:
    * {@link #STATE_OPENED}, {@link #STATE_OPENED_WITH_KEYS}
@@ -80,7 +80,7 @@ public interface DrmSession {
   boolean requiresSecureDecoderComponent(String mimeType);
 
   /**
-   * Gets the cause of the error state.
+   * Returns the cause of the error state.
    * <p>
    * This method may be called when the manager is in any state.
    *

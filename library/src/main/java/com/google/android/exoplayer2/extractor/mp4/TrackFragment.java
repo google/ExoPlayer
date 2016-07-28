@@ -58,7 +58,7 @@ import java.io.IOException;
    */
   public boolean[] sampleIsSyncFrameTable;
   /**
-   * True if the fragment defines encryption data. False otherwise.
+   * Whether the fragment defines encryption data.
    */
   public boolean definesEncryptionData;
   /**

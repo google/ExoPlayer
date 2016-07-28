@@ -28,8 +28,8 @@ public interface SequenceableLoader {
   interface Callback<T extends SequenceableLoader> {
 
     /**
-     * Invoked by the loader to indicate that it wishes for its {@link #continueLoading(long)}
-     * method to be called when it can continue to load data.
+     * Called by the loader to indicate that it wishes for its {@link #continueLoading(long)} method
+     * to be called when it can continue to load data.
      */
     void onContinueLoadingRequested(T source);
 

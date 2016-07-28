@@ -222,7 +222,7 @@ import java.io.IOException;
    * @param packet An ogg packet.
    * @param position Position of the given header packet.
    * @param setupData Setup data to be filled.
-   * @return True if the packet contains header data. False otherwise.
+   * @return Whether the packet contains header data.
    */
   protected abstract boolean readHeaders(ParsableByteArray packet, long position,
       SetupData setupData) throws IOException, InterruptedException;

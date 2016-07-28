@@ -1070,7 +1070,7 @@ public final class MatroskaExtractor implements Extractor {
    *
    * @param seekPosition The holder whose position will be updated.
    * @param currentPosition Current position of the input.
-   * @return true if the seek position was updated, false otherwise.
+   * @return Whether the seek position was updated.
    */
   private boolean maybeSeekForCues(PositionHolder seekPosition, long currentPosition) {
     if (seekForCues) {
@@ -1553,7 +1553,7 @@ public final class MatroskaExtractor implements Extractor {
     /**
      * Parses an MS/ACM codec private, returning whether it indicates PCM audio.
      *
-     * @return True if the codec private indicates PCM audio. False otherwise.
+     * @return Whether the codec private indicates PCM audio.
      * @throws ParserException If a parsing error occurs.
      */
     private static boolean parseMsAcmCodecPrivate(ParsableByteArray buffer) throws ParserException {

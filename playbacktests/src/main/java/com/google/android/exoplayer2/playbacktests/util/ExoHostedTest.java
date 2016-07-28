@@ -95,8 +95,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
    *     expected playing time equals the duration of the media being played. Else
    *     {@link #EXPECTED_PLAYING_TIME_UNSET} should be passed to indicate that the test should not
    *     assert an expected playing time.
-   * @param failOnPlayerError True if a player error should be considered a test failure. False
-   *     otherwise.
+   * @param failOnPlayerError Whether a player error should be considered a test failure.
    */
   public ExoHostedTest(String tag, long expectedPlayingTimeMs, boolean failOnPlayerError) {
     this.tag = tag;

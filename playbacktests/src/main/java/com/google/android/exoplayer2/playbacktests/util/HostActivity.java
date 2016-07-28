@@ -61,7 +61,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     /**
      * Called on the main thread to check whether the test is ready to be stopped.
      *
-     * @return True if the test is ready to be stopped. False otherwise.
+     * @return Whether the test is ready to be stopped.
      */
     boolean canStop();
 
@@ -222,7 +222,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       mainHandler.removeCallbacks(checkCanStopRunnable);
       // We post opening of the stopped condition so that any events posted to the main thread as a
       // result of hostedTest.onStop() are guaranteed to be handled before hostedTest.onFinished()
-      // is invoked from runTest.
+      // is called from runTest.
       mainHandler.post(new Runnable() {
         @Override
         public void run() {

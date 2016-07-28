@@ -21,7 +21,7 @@ package com.google.android.exoplayer2.extractor;
 public interface ExtractorOutput {
 
   /**
-   * Invoked when the {@link Extractor} identifies the existence of a track in the stream.
+   * Called when the {@link Extractor} identifies the existence of a track in the stream.
    * <p>
    * Returns a {@link TrackOutput} that will receive track level data belonging to the track.
    *
@@ -31,13 +31,13 @@ public interface ExtractorOutput {
   TrackOutput track(int trackId);
 
   /**
-   * Invoked when all tracks have been identified, meaning that {@link #track(int)} will not be
-   * invoked again.
+   * Called when all tracks have been identified, meaning that {@link #track(int)} will not be
+   * called again.
    */
   void endTracks();
 
   /**
-   * Invoked when a {@link SeekMap} has been extracted from the stream.
+   * Called when a {@link SeekMap} has been extracted from the stream.
    *
    * @param seekMap The extracted {@link SeekMap}.
    */

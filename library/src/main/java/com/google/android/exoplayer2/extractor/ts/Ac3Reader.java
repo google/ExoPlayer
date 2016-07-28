@@ -138,7 +138,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
    * syncword was not located, the position is advanced to the limit.
    *
    * @param pesBuffer The buffer whose position should be advanced.
-   * @return True if a syncword position was found. False otherwise.
+   * @return Whether a syncword position was found.
    */
   private boolean skipToNextSync(ParsableByteArray pesBuffer) {
     while (pesBuffer.bytesLeft() > 0) {

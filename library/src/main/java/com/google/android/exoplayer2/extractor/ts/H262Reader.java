@@ -231,12 +231,12 @@ import java.util.Collections;
     }
 
     /**
-     * Invoked when a start code is encountered in the stream.
+     * Called when a start code is encountered in the stream.
      *
      * @param startCodeValue The start code value.
      * @param bytesAlreadyPassed The number of bytes of the start code that have already been
      *     passed to {@link #onData(byte[], int, int)}, or 0.
-     * @return True if the csd data is now complete. False otherwise. If true is returned, neither
+     * @return Whether the csd data is now complete. If true is returned, neither
      *     this method or {@link #onData(byte[], int, int)} should be called again without an
      *     interleaving call to {@link #reset()}.
      */
@@ -256,7 +256,7 @@ import java.util.Collections;
     }
 
     /**
-     * Invoked to pass stream data.
+     * Called to pass stream data.
      *
      * @param newData Holds the data being passed.
      * @param offset The offset of the data in {@code data}.

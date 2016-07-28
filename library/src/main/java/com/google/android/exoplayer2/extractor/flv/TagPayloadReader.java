@@ -70,8 +70,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
    * Parses tag header.
    *
    * @param data Buffer where the tag header is stored.
-   * @return True if the header was parsed successfully and the payload should be read. False
-   *     otherwise.
+   * @return Whether the header was parsed successfully.
    * @throws ParserException If an error occurs parsing the header.
    */
   protected abstract boolean parseHeader(ParsableByteArray data) throws ParserException;

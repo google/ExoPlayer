@@ -322,7 +322,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * Discard upstream media chunks until the queue length is equal to the length specified.
    *
    * @param queueLength The desired length of the queue.
-   * @return True if chunks were discarded. False otherwise.
+   * @return Whether chunks were discarded.
    */
   private boolean discardUpstreamMediaChunks(int queueLength) {
     if (mediaChunks.size() <= queueLength) {

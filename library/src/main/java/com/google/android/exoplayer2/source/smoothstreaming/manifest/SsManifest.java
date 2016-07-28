@@ -50,7 +50,7 @@ public class SsManifest {
   public final int lookAheadCount;
 
   /**
-   * True if the manifest describes a live presentation still in progress. False otherwise.
+   * Whether the manifest describes a live presentation still in progress.
    */
   public final boolean isLive;
 
@@ -176,7 +176,7 @@ public class SsManifest {
     }
 
     /**
-     * Gets the index of the chunk that contains the specified time.
+     * Returns the index of the chunk that contains the specified time.
      *
      * @param timeUs The time in microseconds.
      * @return The index of the corresponding chunk.
@@ -186,7 +186,7 @@ public class SsManifest {
     }
 
     /**
-     * Gets the start time of the specified chunk.
+     * Returns the start time of the specified chunk.
      *
      * @param chunkIndex The index of the chunk.
      * @return The start time of the chunk, in microseconds.
@@ -196,7 +196,7 @@ public class SsManifest {
     }
 
     /**
-     * Gets the duration of the specified chunk.
+     * Returns the duration of the specified chunk.
      *
      * @param chunkIndex The index of the chunk.
      * @return The duration of the chunk, in microseconds.

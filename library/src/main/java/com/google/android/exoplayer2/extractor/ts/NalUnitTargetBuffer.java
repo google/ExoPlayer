@@ -57,7 +57,7 @@ import java.util.Arrays;
   }
 
   /**
-   * Invoked to indicate that a NAL unit has started.
+   * Called to indicate that a NAL unit has started.
    *
    * @param type The type of the NAL unit.
    */
@@ -72,7 +72,7 @@ import java.util.Arrays;
   }
 
   /**
-   * Invoked to pass stream data. The data passed should not include the 3 byte start code.
+   * Called to pass stream data. The data passed should not include the 3 byte start code.
    *
    * @param data Holds the data being passed.
    * @param offset The offset of the data in {@code data}.
@@ -91,11 +91,11 @@ import java.util.Arrays;
   }
 
   /**
-   * Invoked to indicate that a NAL unit has ended.
+   * Called to indicate that a NAL unit has ended.
    *
    * @param discardPadding The number of excess bytes that were passed to
    *     {@link #appendToNalUnit(byte[], int, int)}, which should be discarded.
-   * @return True if the ended NAL unit is of the target type. False otherwise.
+   * @return Whether the ended NAL unit is of the target type.
    */
   public boolean endNalUnit(int discardPadding) {
     if (!isFilling) {

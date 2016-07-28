@@ -521,7 +521,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * @return True if it may be possible to feed more input data. False otherwise.
+   * @return Whether it may be possible to feed more input data.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer() throws ExoPlaybackException {
@@ -691,7 +691,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Invoked when a {@link MediaCodec} has been created and configured.
+   * Called when a {@link MediaCodec} has been created and configured.
    * <p>
    * The default implementation is a no-op.
    *
@@ -706,7 +706,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Invoked when a new format is read from the upstream {@link MediaPeriod}.
+   * Called when a new format is read from the upstream {@link MediaPeriod}.
    *
    * @param newFormat The new format.
    * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.
@@ -751,7 +751,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Invoked when the output format of the {@link MediaCodec} changes.
+   * Called when the output format of the {@link MediaCodec} changes.
    * <p>
    * The default implementation is a no-op.
    *
@@ -763,9 +763,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Invoked when the output stream ends, meaning that the last output buffer has been processed
-   * and the {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag has been propagated through the
-   * decoder.
+   * Called when the output stream ends, meaning that the last output buffer has been processed and
+   * the {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag has been propagated through the decoder.
    * <p>
    * The default implementation is a no-op.
    */
@@ -774,7 +773,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Invoked immediately before an input buffer is queued into the codec.
+   * Called immediately before an input buffer is queued into the codec.
    * <p>
    * The default implementation is a no-op.
    *
@@ -785,7 +784,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Invoked when an output buffer is successfully processed.
+   * Called when an output buffer is successfully processed.
    * <p>
    * The default implementation is a no-op.
    *
@@ -808,7 +807,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param codecIsAdaptive Whether the codec is adaptive.
    * @param oldFormat The format for which the existing instance is configured.
    * @param newFormat The new format.
-   * @return True if the existing instance can be reconfigured. False otherwise.
+   * @return Whether the existing instance can be reconfigured.
    */
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive, Format oldFormat,
       Format newFormat) {
@@ -836,7 +835,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * @return True if it may be possible to drain more output data. False otherwise.
+   * @return Whether it may be possible to drain more output data.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
   @SuppressWarnings("deprecation")
@@ -948,7 +947,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param bufferIndex The index of the output buffer.
    * @param bufferFlags The flags attached to the output buffer.
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
-   * @param shouldSkip True if the buffer should be skipped (i.e. not rendered). False otherwise.
+   * @param shouldSkip Whether the buffer should be skipped (i.e. not rendered).
    *
    * @return Whether the output buffer was fully processed (e.g. rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.

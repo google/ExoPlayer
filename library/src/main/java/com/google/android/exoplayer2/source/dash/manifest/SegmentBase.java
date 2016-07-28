@@ -44,8 +44,8 @@ public abstract class SegmentBase {
   }
 
   /**
-   * Gets the {@link RangedUri} defining the location of initialization data for a given
-   * representation. May be null if no initialization data exists.
+   * Returns the {@link RangedUri} defining the location of initialization data for a given
+   * representation, or null if no initialization data exists.
    *
    * @param representation The {@link Representation} for which initialization data is required.
    * @return A {@link RangedUri} defining the location of the initialization data, or null.
@@ -55,9 +55,7 @@ public abstract class SegmentBase {
   }
 
   /**
-   * Gets the presentation time offset, in microseconds.
-   *
-   * @return The presentation time offset, in microseconds.
+   * Returns the presentation time offset, in microseconds.
    */
   public long getPresentationTimeOffsetUs() {
     return Util.scaleLargeTimestamp(presentationTimeOffset, C.MICROS_PER_SECOND, timescale);

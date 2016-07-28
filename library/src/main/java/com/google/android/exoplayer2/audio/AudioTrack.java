@@ -1177,7 +1177,7 @@ public final class AudioTrack {
      * Updates the values returned by {@link #getTimestampNanoTime()} and
      * {@link #getTimestampFramePosition()}.
      *
-     * @return True if the timestamp values were updated. False otherwise.
+     * @return Whether the timestamp values were updated.
      */
     public boolean updateTimestamp() {
       return false;

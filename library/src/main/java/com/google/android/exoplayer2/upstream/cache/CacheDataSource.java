@@ -45,7 +45,7 @@ public final class CacheDataSource implements DataSource {
      * Called when bytes have been read from the cache.
      *
      * @param cacheSizeBytes Current cache size in bytes.
-     * @param cachedBytesRead Total bytes read from the cache since this method was last invoked.
+     * @param cachedBytesRead Total bytes read from the cache since this method was last called.
      */
     void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead);
 

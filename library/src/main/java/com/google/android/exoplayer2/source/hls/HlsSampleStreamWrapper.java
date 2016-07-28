@@ -55,7 +55,7 @@ import java.util.List;
   public interface Callback extends SequenceableLoader.Callback<HlsSampleStreamWrapper> {
 
     /**
-     * Invoked when the wrapper has been prepared.
+     * Called when the wrapper has been prepared.
      */
     void onPrepared();
 

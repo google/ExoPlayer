@@ -28,7 +28,7 @@ public interface MediaSource {
   interface InvalidationListener {
 
     /**
-     * Invoked when the timeline is invalidated.
+     * Called when the timeline is invalidated.
      * <p>
      * May only be called on the player's thread.
      *

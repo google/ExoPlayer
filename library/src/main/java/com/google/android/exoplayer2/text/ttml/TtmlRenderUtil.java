@@ -112,7 +112,7 @@ import java.util.Map;
   }
 
   /**
-   * Invoked when the end of a paragraph is encountered. Adds a newline if there are one or more
+   * Called when the end of a paragraph is encountered. Adds a newline if there are one or more
    * non-space characters since the previous newline.
    *
    * @param builder The builder.

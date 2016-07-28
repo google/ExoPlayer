@@ -51,7 +51,7 @@ public final class TrackGroup {
   }
 
   /**
-   * Gets the format of the track at a given index.
+   * Returns the format of the track at a given index.
    *
    * @param index The index of the track.
    * @return The track's format.
@@ -61,7 +61,7 @@ public final class TrackGroup {
   }
 
   /**
-   * Gets the index of the track with the given format in the group.
+   * Returns the index of the track with the given format in the group.
    *
    * @param format The format.
    * @return The index of the track, or -1 if no such track exists.

@@ -26,7 +26,7 @@ public interface BandwidthMeter {
   interface EventListener {
 
     /**
-     * Invoked periodically to indicate that bytes have been transferred.
+     * Called periodically to indicate that bytes have been transferred.
      * <p>
      * Note: The estimated bitrate is typically derived from more information than just
      * {@code bytes} and {@code elapsedMs}.

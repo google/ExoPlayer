@@ -426,7 +426,7 @@ import java.util.ArrayList;
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
     for (Renderer renderer : enabledRenderers) {
-      // TODO: Each renderer should return the maximum delay before which it wishes to be invoked
+      // TODO: Each renderer should return the maximum delay before which it wishes to be called
       // again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
       renderer.render(internalPositionUs, elapsedRealtimeUs);

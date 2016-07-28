@@ -43,7 +43,7 @@ public final class DefaultTrackOutput implements TrackOutput {
   public interface UpstreamFormatChangedListener {
 
     /**
-     * Invoked on the loading thread when an upstream format change occurs.
+     * Called on the loading thread when an upstream format change occurs.
      *
      * @param format The new upstream format.
      */
@@ -99,7 +99,7 @@ public final class DefaultTrackOutput implements TrackOutput {
   /**
    * Resets the output.
    *
-   * @param enable True if the output should be enabled. False if it should be disabled.
+   * @param enable Whether the output should be enabled. False if it should be disabled.
    */
   public void reset(boolean enable) {
     int previousState = state.getAndSet(enable ? STATE_ENABLED : STATE_DISABLED);
@@ -230,7 +230,7 @@ public final class DefaultTrackOutput implements TrackOutput {
    * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
    *
    * @param timeUs The seek time.
-   * @return True if the skip was successful. False otherwise.
+   * @return Whether the skip was successful.
    */
   public boolean skipToKeyframeBefore(long timeUs) {
     long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);

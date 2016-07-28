@@ -21,11 +21,13 @@ package com.google.android.exoplayer2.upstream.cache;
  */
 public interface CacheEvictor extends Cache.Listener {
 
-  /** Invoked when cache has beeen initialized. */
+  /**
+   * Called when cache has beeen initialized.
+   */
   void onCacheInitialized();
 
   /**
-   * Invoked when a writer starts writing to the cache.
+   * Called when a writer starts writing to the cache.
    *
    * @param cache The source of the event.
    * @param key The key being written.

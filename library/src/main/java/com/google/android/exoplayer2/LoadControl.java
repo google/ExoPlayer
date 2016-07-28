@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 public interface LoadControl {
 
   /**
-   * Invoked by the player when a track selection occurs.
+   * Called by the player when a track selection occurs.
    *
    * @param renderers The renderers.
    * @param trackGroups The available {@link TrackGroup}s.
@@ -37,32 +37,30 @@ public interface LoadControl {
       TrackSelectionArray trackSelections);
 
   /**
-   * Invoked by the player when a reset occurs, meaning all renderers have been disabled.
+   * Called by the player when a reset occurs, meaning all renderers have been disabled.
    */
   void reset();
 
   /**
-   * Gets the {@link Allocator} that should be used to obtain media buffer allocations.
-   *
-   * @return The {@link Allocator}.
+   * Returns the {@link Allocator} that should be used to obtain media buffer allocations.
    */
   Allocator getAllocator();
 
   /**
-   * Invoked by the player to determine whether sufficient media is buffered for playback to be
+   * Called by the player to determine whether sufficient media is buffered for playback to be
    * started or resumed.
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
    * @param rebuffering Whether the player is re-buffering.
-   * @return True if playback should be allowed to start or resume. False otherwise.
+   * @return Whether playback should be allowed to start or resume.
    */
   boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering);
 
   /**
-   * Invoked by the player to determine whether it should continue to load the source.
+   * Called by the player to determine whether it should continue to load the source.
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
-   * @return True if the loading should continue. False otherwise.
+   * @return Whether the loading should continue.
    */
   boolean shouldContinueLoading(long bufferedDurationUs);
 

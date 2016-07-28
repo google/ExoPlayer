@@ -30,7 +30,7 @@ public final class XmlPullParserUtil {
    *
    * @param xpp The {@link XmlPullParser} to query.
    * @param name The specified name.
-   * @return True if the current event is an end tag with the specified name. False otherwise.
+   * @return Whether the current event is an end tag with the specified name.
    * @throws XmlPullParserException If an error occurs querying the parser.
    */
   public static boolean isEndTag(XmlPullParser xpp, String name) throws XmlPullParserException {
@@ -41,7 +41,7 @@ public final class XmlPullParserUtil {
    * Returns whether the current event is an end tag.
    *
    * @param xpp The {@link XmlPullParser} to query.
-   * @return True if the current event is an end tag. False otherwise.
+   * @return Whether the current event is an end tag.
    * @throws XmlPullParserException If an error occurs querying the parser.
    */
   public static boolean isEndTag(XmlPullParser xpp) throws XmlPullParserException {
@@ -53,7 +53,7 @@ public final class XmlPullParserUtil {
    *
    * @param xpp The {@link XmlPullParser} to query.
    * @param name The specified name.
-   * @return True if the current event is a start tag with the specified name. False otherwise.
+   * @return Whether the current event is a start tag with the specified name.
    * @throws XmlPullParserException If an error occurs querying the parser.
    */
   public static boolean isStartTag(XmlPullParser xpp, String name)
@@ -65,7 +65,7 @@ public final class XmlPullParserUtil {
    * Returns whether the current event is a start tag.
    *
    * @param xpp The {@link XmlPullParser} to query.
-   * @return True if the current event is a start tag. False otherwise.
+   * @return Whether the current event is a start tag.
    * @throws XmlPullParserException If an error occurs querying the parser.
    */
   public static boolean isStartTag(XmlPullParser xpp) throws XmlPullParserException {

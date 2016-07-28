@@ -40,7 +40,7 @@ import java.io.IOException;
    * Checks if the given id is that of a level 1 element.
    *
    * @param id The element ID.
-   * @return True the given id is that of a level 1 element. false otherwise.
+   * @return Whether the given id is that of a level 1 element.
    */
   boolean isLevel1Element(int id);
 
@@ -102,7 +102,7 @@ import java.io.IOException;
    * Implementations are required to consume the whole remainder of the element, which is
    * {@code contentSize} bytes in length, before returning. Implementations are permitted to fail
    * (by throwing an exception) having partially consumed the data, however if they do this, they
-   * must consume the remainder of the content when invoked again.
+   * must consume the remainder of the content when called again.
    *
    * @param id The element ID.
    * @param contentsSize The element's content size.

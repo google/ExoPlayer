@@ -28,14 +28,14 @@ import java.io.IOException;
 public interface TrackOutput {
 
   /**
-   * Invoked when the {@link Format} of the track has been extracted from the stream.
+   * Called when the {@link Format} of the track has been extracted from the stream.
    *
    * @param format The extracted {@link Format}.
    */
   void format(Format format);
 
   /**
-   * Invoked to write sample data to the output.
+   * Called to write sample data to the output.
    *
    * @param input An {@link ExtractorInput} from which to read the sample data.
    * @param length The maximum length to read from the input.
@@ -50,7 +50,7 @@ public interface TrackOutput {
       throws IOException, InterruptedException;
 
   /**
-   * Invoked to write sample data to the output.
+   * Called to write sample data to the output.
    *
    * @param data A {@link ParsableByteArray} from which to read the sample data.
    * @param length The number of bytes to read.
@@ -58,7 +58,7 @@ public interface TrackOutput {
   void sampleData(ParsableByteArray data, int length);
 
   /**
-   * Invoked when metadata associated with a sample has been extracted from the stream.
+   * Called when metadata associated with a sample has been extracted from the stream.
    * <p>
    * The corresponding sample data will have already been passed to the output via calls to
    * {@link #sampleData(ExtractorInput, int, boolean)} or

@@ -51,7 +51,7 @@ public interface Cache {
      * {@link CacheSpan#file} and {@link CacheSpan#lastAccessTimestamp} may have changed.
      * <p>
      * Note that for span replacement, {@link #onSpanAdded(Cache, CacheSpan)} and
-     * {@link #onSpanRemoved(Cache, CacheSpan)} are not invoked in addition to this method.
+     * {@link #onSpanRemoved(Cache, CacheSpan)} are not called in addition to this method.
      *
      * @param cache The source of the event.
      * @param oldSpan The old {@link CacheSpan}, which has been removed from the cache.
@@ -64,9 +64,9 @@ public interface Cache {
   /**
    * Registers a listener to listen for changes to a given key.
    * <p>
-   * No guarantees are made about the thread or threads on which the listener is invoked, but it
-   * is guaranteed that listener methods will be invoked in a serial fashion (i.e. one at a time)
-   * and in the same order as events occurred.
+   * No guarantees are made about the thread or threads on which the listener is called, but it is
+   * guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and in
+   * the same order as events occurred.
    *
    * @param key The key to listen to.
    * @param listener The listener to add.

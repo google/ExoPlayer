@@ -45,7 +45,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
   public interface Output<T> {
 
     /**
-     * Invoked each time there is a metadata associated with current playback time.
+     * Called each time there is a metadata associated with current playback time.
      *
      * @param metadata The metadata to process.
      */
@@ -67,11 +67,11 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
 
   /**
    * @param output The output.
-   * @param outputLooper The looper associated with the thread on which the output should be
-   *     invoked. If the output makes use of standard Android UI components, then this should
-   *     normally be the looper associated with the application's main thread, which can be obtained
-   *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
-   *     should be invoked directly on the player's internal rendering thread.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using
+   *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
+   *     called directly on the player's internal rendering thread.
    * @param metadataDecoder A decoder for the metadata.
    */
   public MetadataRenderer(Output<T> output, Looper outputLooper,

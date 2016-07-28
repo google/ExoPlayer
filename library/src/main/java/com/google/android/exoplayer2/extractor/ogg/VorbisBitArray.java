@@ -50,7 +50,9 @@ import com.google.android.exoplayer2.util.Assertions;
     this.limit = limit * 8;
   }
 
-  /** Resets the reading position to zero. */
+  /**
+   * Resets the reading position to zero.
+   */
   public void reset() {
     byteOffset = 0;
     bitOffset = 0;
@@ -69,7 +71,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * Reads up to 32 bits.
    *
    * @param numBits The number of bits to read.
-   * @return An int whose bottom {@code numBits} bits hold the read data.
+   * @return An integer whose bottom {@code numBits} bits hold the read data.
    */
   public int readBits(int numBits) {
     Assertions.checkState(getPosition() + numBits <= limit);
@@ -109,7 +111,7 @@ import com.google.android.exoplayer2.util.Assertions;
   /**
    * Skips {@code numberOfBits} bits.
    *
-   * @param numberOfBits the number of bits to skip.
+   * @param numberOfBits The number of bits to skip.
    */
   public void skipBits(int numberOfBits) {
     Assertions.checkState(getPosition() + numberOfBits <= limit);
@@ -122,18 +124,16 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   /**
-   * Gets the current reading position in bits.
-   *
-   * @return the current reading position in bits.
+   * Returns the reading position in bits.
    */
   public int getPosition() {
     return byteOffset * 8 + bitOffset;
   }
 
   /**
-   * Sets the index of the current reading position in bits.
+   * Sets the reading position in bits.
    *
-   * @param position the new reading position in bits.
+   * @param position The new reading position in bits.
    */
   public void setPosition(int position) {
     Assertions.checkArgument(position < limit && position >= 0);
@@ -142,9 +142,7 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   /**
-   * Gets the number of remaining bits.
-   *
-   * @return number of remaining bits.
+   * Returns the number of remaining bits.
    */
   public int bitsLeft() {
     return limit - getPosition();
@@ -152,8 +150,6 @@ import com.google.android.exoplayer2.util.Assertions;
 
   /**
    * Returns the limit in bits.
-   *
-   * @return the limit in bits.
    **/
   public int limit() {
     return limit;

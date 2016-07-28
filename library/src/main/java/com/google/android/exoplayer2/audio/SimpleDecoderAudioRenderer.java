@@ -295,8 +295,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   /**
-   * Invoked when the audio session id becomes known. Once the id is known it will not change
-   * (and hence this method will not be invoked again) unless the renderer is disabled and then
+   * Called when the audio session id becomes known. Once the id is known it will not change (and
+   * hence this method will not be called again) unless the renderer is disabled and then
    * subsequently re-enabled.
    * <p>
    * The default implementation is a no-op.

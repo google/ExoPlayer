@@ -26,7 +26,7 @@ import java.io.IOException;
  * <p>
  * Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The player will
  * transition its renderers through various states as the overall playback state changes. The valid
- * state transitions are shown below, annotated with the methods that are invoked during each
+ * state transitions are shown below, annotated with the methods that are called during each
  * transition.
  * <p align="center"><img src="doc-files/renderer-states.png"
  *     alt="Renderer state transitions"
@@ -210,7 +210,7 @@ public interface Renderer extends ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
-   * @return True if the renderer is ready to render media. False otherwise.
+   * @return Whether the renderer is ready to render media.
    */
   boolean isReady();
 

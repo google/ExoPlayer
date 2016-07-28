@@ -89,9 +89,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * Sets whether selections may contain mixed mime types.
+   * Sets whether to allow selections to contain mixed mime types.
    *
-   * @param allowMixedMimeAdaptiveness True to allow mixed mime types, false otherwise.
+   * @param allowMixedMimeAdaptiveness Whether to allow selections to contain mixed mime types.
    */
   public void allowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
     if (this.allowMixedMimeAdaptiveness != allowMixedMimeAdaptiveness) {
@@ -101,10 +101,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * Sets whether non seamless adaptation is allowed.
+   * Sets whether non-seamless adaptation is allowed.
    *
-   * @param allowNonSeamlessAdaptiveness True to allow non seamless adaptation between tracks, false
-   *     otherwise.
+   * @param allowNonSeamlessAdaptiveness Whether non-seamless adaptation is allowed.
    */
   public void allowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
     if (this.allowNonSeamlessAdaptiveness != allowNonSeamlessAdaptiveness) {

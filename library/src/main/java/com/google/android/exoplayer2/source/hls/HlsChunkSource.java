@@ -144,8 +144,6 @@ public class HlsChunkSource {
 
   /**
    * Returns whether this is a live playback.
-   *
-   * @return True if this is a live playback. False otherwise.
    */
   public boolean isLive() {
     return live;
@@ -153,8 +151,6 @@ public class HlsChunkSource {
 
   /**
    * Returns the duration of the source, or {@link C#UNSET_TIME_US} if the duration is unknown.
-   *
-   * @return The number of tracks.
    */
   public long getDurationUs() {
     return durationUs;
@@ -162,8 +158,6 @@ public class HlsChunkSource {
 
   /**
    * Returns the track group exposed by the source.
-   *
-   * @return The track group.
    */
   public TrackGroup getTrackGroup() {
     return trackGroup;
@@ -186,7 +180,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Gets the next chunk to load.
+   * Returns the next chunk to load.
    * <p>
    * If a chunk is available then {@link ChunkHolder#chunk} is set. If the end of the stream has
    * been reached then {@link ChunkHolder#endOfStream} is set. If a chunk is not available but the
@@ -386,7 +380,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Invoked when the {@link HlsSampleStreamWrapper} has finished loading a chunk obtained from this
+   * Called when the {@link HlsSampleStreamWrapper} has finished loading a chunk obtained from this
    * source.
    *
    * @param chunk The chunk whose load has been completed.
@@ -405,13 +399,13 @@ public class HlsChunkSource {
   }
 
   /**
-   * Invoked when the {@link HlsSampleStreamWrapper} encounters an error loading a chunk obtained
+   * Called when the {@link HlsSampleStreamWrapper} encounters an error loading a chunk obtained
    * from this source.
    *
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
    * @param e The error.
-   * @return True if the load should be canceled. False otherwise.
+   * @return Whether the load should be canceled.
    */
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException e) {
     if (cancelable && e instanceof InvalidResponseCodeException) {

@@ -54,9 +54,9 @@ public interface FormatEvaluator {
   /**
    * Update the supplied evaluation.
    * <p>
-   * When invoked, {@code evaluation} must contain the currently selected format (null for an
-   * initial evaluation), the most recent reason ({@link C#SELECTION_REASON_INITIAL} for an
-   * initial evaluation) and the most recent evaluation data (null for an initial evaluation).
+   * When called, {@code evaluation} must contain the currently selected format (null for an initial
+   * evaluation), the most recent reason ({@link C#SELECTION_REASON_INITIAL} for an initial
+   * evaluation) and the most recent evaluation data (null for an initial evaluation).
    *
    * @param bufferedDurationUs The duration of media currently buffered in microseconds.
    * @param blacklistFlags An array whose length is equal to the number of available formats. A

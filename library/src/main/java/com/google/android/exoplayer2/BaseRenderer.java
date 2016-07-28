@@ -177,7 +177,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   /**
-   * Invoked when the position is reset. This occurs when the renderer is enabled after
+   * Called when the position is reset. This occurs when the renderer is enabled after
    * {@link #onStreamChanged(Format[])} has been called, and also when a position discontinuity
    * is encountered.
    * <p>
@@ -257,7 +257,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   /**
    * Returns whether the upstream source is ready.
    *
-   * @return True if the source is ready. False otherwise.
+   * @return Whether the source is ready.
    */
   protected final boolean isSourceReady() {
     return readEndOfStream ? streamIsFinal : stream.isReady();

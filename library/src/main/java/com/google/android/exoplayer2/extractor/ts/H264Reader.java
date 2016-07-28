@@ -284,7 +284,7 @@ import java.util.List;
     }
 
     /**
-     * Invoked to pass stream data. The data passed should not include the 3 byte start code.
+     * Called to pass stream data. The data passed should not include the 3 byte start code.
      *
      * @param data Holds the data being passed.
      * @param offset The offset of the data in {@code data}.

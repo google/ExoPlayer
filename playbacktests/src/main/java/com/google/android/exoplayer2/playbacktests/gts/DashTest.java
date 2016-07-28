@@ -657,8 +657,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
      * @param streamName The name of the test stream for metric logging.
      * @param manifestPath The manifest path.
      * @param metricsLogger Logger to log metrics from the test.
-     * @param fullPlaybackNoSeeking True if the test will play the entire source with no seeking.
-     *     False otherwise.
+     * @param fullPlaybackNoSeeking Whether the test will play the entire source with no seeking.
      * @param audioFormat The audio format.
      * @param isWidevineEncrypted Whether the video is Widevine encrypted.
      * @param videoMimeType The video mime type.

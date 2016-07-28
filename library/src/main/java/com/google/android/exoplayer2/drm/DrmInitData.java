@@ -217,7 +217,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * Returns whether this initialization data applies to the specified scheme.
      *
      * @param schemeUuid The scheme {@link UUID}.
-     * @return True if this initialization data applies to the specified scheme. False otherwise.
+     * @return Whether this initialization data applies to the specified scheme.
      */
     public boolean matches(UUID schemeUuid) {
       return C.UUID_NIL.equals(uuid) || schemeUuid.equals(uuid);

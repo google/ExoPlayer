@@ -286,7 +286,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * Process an ftyp atom to determine whether the media is QuickTime.
    *
    * @param atomData The ftyp atom data.
-   * @return True if the media is QuickTime. False otherwise.
+   * @return Whether the media is QuickTime.
    */
   private static boolean processFtypAtom(ParsableByteArray atomData) {
     atomData.setPosition(Atom.HEADER_SIZE);

@@ -60,7 +60,7 @@ public interface SeekMap {
    * If seeking is not supported then the only valid seek position is the start of the file, and so
    * {@link #getPosition(long)} will return 0 for all input values.
    *
-   * @return True if seeking is supported. False otherwise.
+   * @return Whether seeking is supported.
    */
   boolean isSeekable();
 

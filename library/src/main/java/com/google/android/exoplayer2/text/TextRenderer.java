@@ -46,7 +46,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   public interface Output {
 
     /**
-     * Invoked each time there is a change in the {@link Cue}s.
+     * Called each time there is a change in the {@link Cue}s.
      *
      * @param cues The {@link Cue}s.
      */
@@ -72,10 +72,10 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   /**
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be
-   *     invoked. If the output makes use of standard Android UI components, then this should
+   *     called. If the output makes use of standard Android UI components, then this should
    *     normally be the looper associated with the application's main thread, which can be obtained
    *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
-   *     should be invoked directly on the player's internal rendering thread.
+   *     should be called directly on the player's internal rendering thread.
    */
   public TextRenderer(Output output, Looper outputLooper) {
     this(output, outputLooper, SubtitleDecoderFactory.DEFAULT);
@@ -84,10 +84,10 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   /**
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be
-   *     invoked. If the output makes use of standard Android UI components, then this should
+   *     called. If the output makes use of standard Android UI components, then this should
    *     normally be the looper associated with the application's main thread, which can be obtained
    *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
-   *     should be invoked directly on the player's internal rendering thread.
+   *     should be called directly on the player's internal rendering thread.
    * @param decoderFactory A factory from which to obtain {@link SubtitleDecoder} instances.
    */
   public TextRenderer(Output output, Looper outputLooper, SubtitleDecoderFactory decoderFactory) {

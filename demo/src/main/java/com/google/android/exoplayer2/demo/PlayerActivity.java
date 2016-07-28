@@ -395,7 +395,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
    * requests permission.
    *
    * @param uris URIs that may require {@link permission#READ_EXTERNAL_STORAGE} to play.
-   * @return True if a permission request is made. False if it is not necessary.
+   * @return Whether a permission request was made.
    */
   @TargetApi(23)
   private boolean maybeRequestPermission(Uri... uris) {

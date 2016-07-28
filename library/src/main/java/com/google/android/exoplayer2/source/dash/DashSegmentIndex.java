@@ -96,7 +96,7 @@ public interface DashSegmentIndex {
    * segment duration. If the presentation is dynamic, it's possible that only a subset of the
    * segments are available.
    *
-   * @return True if segments are defined explicitly by the index. False otherwise.
+   * @return Whether segments are defined explicitly by the index.
    */
   boolean isExplicit();
 

@@ -88,18 +88,14 @@ public abstract class Chunk implements Loadable {
   }
 
   /**
-   * Gets the duration of the chunk in microseconds.
-   *
-   * @return The duration of the chunk in microseconds.
+   * Returns the duration of the chunk in microseconds.
    */
   public final long getDurationUs() {
     return endTimeUs - startTimeUs;
   }
 
   /**
-   * Gets the number of bytes that have been loaded.
-   *
-   * @return The number of bytes that have been loaded.
+   * Returns the number of bytes that have been loaded.
    */
   public abstract long bytesLoaded();
 

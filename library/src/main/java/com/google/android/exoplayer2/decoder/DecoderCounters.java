@@ -61,9 +61,9 @@ public final class DecoderCounters {
   public int maxConsecutiveDroppedOutputBufferCount;
 
   /**
-   * Should be invoked from the playback thread after the counters have been updated. Should also
-   * be invoked from any other thread that wishes to read the counters, before reading. These calls
-   * ensure that counter updates are made visible to the reading threads.
+   * Should be called to ensure counter values are made visible across threads. The playback thread
+   * should call this method after updating the counter values. Any other thread should call this
+   * method before reading the counters.
    */
   public synchronized void ensureUpdated() {
     // Do nothing. The use of synchronized ensures a memory barrier should another thread also

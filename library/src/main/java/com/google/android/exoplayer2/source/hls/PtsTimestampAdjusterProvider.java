@@ -33,7 +33,7 @@ public final class PtsTimestampAdjusterProvider {
   }
 
   /**
-   * Gets a {@link PtsTimestampAdjuster} suitable for adjusting the pts timestamps contained in
+   * Returns a {@link PtsTimestampAdjuster} suitable for adjusting the pts timestamps contained in
    * a chunk with a given discontinuity sequence.
    * <p>
    * This method may return null if the master source has yet to initialize a suitable adjuster.

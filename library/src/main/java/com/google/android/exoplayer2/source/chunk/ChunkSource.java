@@ -47,7 +47,7 @@ public interface ChunkSource {
   int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue);
 
   /**
-   * Gets the next chunk to load.
+   * Returns the next chunk to load.
    * <p>
    * If a chunk is available then {@link ChunkHolder#chunk} is set. If the end of the stream has
    * been reached then {@link ChunkHolder#endOfStream} is set. If a chunk is not available but the
@@ -62,7 +62,7 @@ public interface ChunkSource {
   void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out);
 
   /**
-   * Invoked when the {@link ChunkSampleStream} has finished loading a chunk obtained from this
+   * Called when the {@link ChunkSampleStream} has finished loading a chunk obtained from this
    * source.
    * <p>
    * This method should only be called when the source is enabled.
@@ -72,7 +72,7 @@ public interface ChunkSource {
   void onChunkLoadCompleted(Chunk chunk);
 
   /**
-   * Invoked when the {@link ChunkSampleStream} encounters an error loading a chunk obtained from
+   * Called when the {@link ChunkSampleStream} encounters an error loading a chunk obtained from
    * this source.
    * <p>
    * This method should only be called when the source is enabled.
@@ -80,7 +80,7 @@ public interface ChunkSource {
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
    * @param e The error.
-   * @return True if the load should be canceled. False otherwise.
+   * @return Whether the load should be canceled.
    */
   boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e);
 

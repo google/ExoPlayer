@@ -535,7 +535,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
    * @param payloadType The payload type of the message.
    * @param payloadLength The length of the payload.
    * @param payload A {@link ParsableByteArray} containing the payload.
-   * @return True if the sei message contains EIA-608. False otherwise.
+   * @return Whether the sei message contains EIA-608.
    */
   public static boolean isSeiMessageEia608(int payloadType, int payloadLength,
       ParsableByteArray payload) {

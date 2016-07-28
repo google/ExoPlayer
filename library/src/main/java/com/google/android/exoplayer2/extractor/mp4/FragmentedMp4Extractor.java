@@ -129,7 +129,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   // Extractor output.
   private ExtractorOutput extractorOutput;
 
-  // Whether extractorOutput.seekMap has been invoked.
+  // Whether extractorOutput.seekMap has been called.
   private boolean haveOutputSeekMap;
 
   public FragmentedMp4Extractor() {
@@ -877,7 +877,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    * this case the method can be called again to extract the remainder of the sample.
    *
    * @param input The {@link ExtractorInput} from which to read data.
-   * @return True if a sample was extracted. False otherwise.
+   * @return Whether a sample was extracted.
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
    */

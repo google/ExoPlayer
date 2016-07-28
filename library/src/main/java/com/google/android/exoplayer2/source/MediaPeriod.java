@@ -33,10 +33,10 @@ public interface MediaPeriod extends SequenceableLoader {
   interface Callback extends SequenceableLoader.Callback<MediaPeriod> {
 
     /**
-     * Invoked when preparation completes.
+     * Called when preparation completes.
      * <p>
      * May be called from any thread. After invoking this method, the {@link MediaPeriod} can expect
-     * for {@link #selectTracks(List, List, long)} to be invoked with the initial track selection.
+     * for {@link #selectTracks(List, List, long)} to be called with the initial track selection.
      *
      * @param mediaPeriod The prepared {@link MediaPeriod}.
      */
@@ -47,9 +47,9 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Starts preparation of the period.
    * <p>
-   * {@link Callback#onPeriodPrepared(MediaPeriod)} is invoked when preparation completes. If
+   * {@link Callback#onPeriodPrepared(MediaPeriod)} is called when preparation completes. If
    * preparation fails, {@link #maybeThrowPrepareError()} will throw an {@link IOException} if
-   * invoked.
+   * called.
    *
    * @param callback A callback to receive updates from the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.

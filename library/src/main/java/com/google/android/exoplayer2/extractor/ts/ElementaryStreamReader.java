@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   public abstract void seek();
 
   /**
-   * Invoked when a packet starts.
+   * Called when a packet starts.
    *
    * @param pesTimeUs The timestamp associated with the packet.
    * @param dataAlignmentIndicator The data alignment indicator associated with the packet.
@@ -53,7 +53,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   public abstract void consume(ParsableByteArray data);
 
   /**
-   * Invoked when a packet ends.
+   * Called when a packet ends.
    */
   public abstract void packetFinished();
 

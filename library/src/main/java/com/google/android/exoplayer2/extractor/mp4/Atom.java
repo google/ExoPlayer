@@ -202,7 +202,7 @@ import java.util.List;
     }
 
     /**
-     * Gets the child leaf of the given type.
+     * Returns the child leaf of the given type.
      * <p>
      * If no child exists with the given type then null is returned. If multiple children exist with
      * the given type then the first one to have been added is returned.
@@ -222,7 +222,7 @@ import java.util.List;
     }
 
     /**
-     * Gets the child container of the given type.
+     * Returns the child container of the given type.
      * <p>
      * If no child exists with the given type then null is returned. If multiple children exist with
      * the given type then the first one to have been added is returned.

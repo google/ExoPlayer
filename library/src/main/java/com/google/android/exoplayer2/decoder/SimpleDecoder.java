@@ -279,7 +279,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    *     {@code inputBuffer}, but may be set/unset as required. If the flag is set when the call
    *     returns then the output buffer will not be made available to dequeue. The output buffer
    *     may not have been populated in this case.
-   * @param reset True if the decoder must be reset before decoding.
+   * @param reset Whether the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
   protected abstract E decode(I inputBuffer, O outputBuffer, boolean reset);

@@ -120,7 +120,7 @@ public final class CacheSpan implements Comparable<CacheSpan> {
   }
 
   /**
-   * @return True if this is an open-ended {@link CacheSpan}. False otherwise.
+   * Returns whether this is an open-ended {@link CacheSpan}.
    */
   public boolean isOpenEnded() {
     return length == -1;
