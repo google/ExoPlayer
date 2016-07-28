@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
@@ -34,7 +35,6 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.util.Util;
 import android.net.Uri;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -185,11 +184,16 @@ public class HlsChunkSource {
    * @param out A holder to populate.
    */
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
-    int previousChunkVariantIndex = previous != null ? trackGroup.indexOf(previous.trackFormat)
-        : -1;
-    updateSelectedTrack(previous, playbackPositionUs);
+    int oldVariantIndex = previous == null ? -1 : trackGroup.indexOf(previous.trackFormat);
+
+    // Use start time of the previous chunk rather than its end time because switching format will
+    // require downloading overlapping segments.
+    long bufferedDurationUs = previous == null ? 0
+        : Math.max(0, previous.getAdjustedStartTimeUs() - playbackPositionUs);
+    trackSelection.updateSelectedTrack(bufferedDurationUs);
     int newVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
-    boolean switchingVariant = previousChunkVariantIndex != newVariantIndex;
+
+    boolean switchingVariant = oldVariantIndex != newVariantIndex;
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[newVariantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
@@ -204,8 +208,8 @@ public class HlsChunkSource {
         chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
             true, true) + mediaPlaylist.mediaSequence;
       } else {
-        chunkMediaSequence = getLiveNextChunkSequenceNumber(previous.chunkIndex,
-            previousChunkVariantIndex, newVariantIndex);
+        chunkMediaSequence = getLiveNextChunkSequenceNumber(previous.chunkIndex, oldVariantIndex,
+            newVariantIndex);
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
           fatalError = new BehindLiveWindowException();
           return;
@@ -403,43 +407,11 @@ public class HlsChunkSource {
    * @return Whether the load should be canceled.
    */
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException e) {
-    if (cancelable && e instanceof InvalidResponseCodeException) {
-      InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
-      int responseCode = responseCodeException.responseCode;
-      if (responseCode == 404 || responseCode == 410) {
-        int trackSelectionIndex = trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat));
-        if (trackSelectionIndex != -1) {
-          boolean blacklisted = trackSelection.blacklist(trackSelectionIndex,
-              DEFAULT_PLAYLIST_BLACKLIST_MS);
-          if (blacklisted) {
-            // We've handled the 404/410 by blacklisting the variant.
-            Log.w(TAG, "Blacklisted variant (" + responseCode + "): " + chunk.dataSpec.uri);
-            return true;
-          } else {
-            // This was the last non-blacklisted playlist. Don't blacklist it.
-            Log.w(TAG, "Final variant not blacklisted (" + responseCode + "): "
-                + chunk.dataSpec.uri);
-            return false;
-          }
-        }
-      }
-    }
-    return false;
+    return cancelable && ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
+        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), e);
   }
 
   // Private methods.
-
-  private void updateSelectedTrack(HlsMediaChunk previous, long playbackPositionUs) {
-    long bufferedDurationUs;
-    if (previous != null) {
-      // Use start time of the previous chunk rather than its end time because switching format
-      // will require downloading overlapping segments.
-      bufferedDurationUs = Math.max(0, previous.getAdjustedStartTimeUs() - playbackPositionUs);
-    } else {
-      bufferedDurationUs = 0;
-    }
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
-  }
 
   private boolean shouldRerequestLiveMediaPlaylist(int variantIndex) {
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];

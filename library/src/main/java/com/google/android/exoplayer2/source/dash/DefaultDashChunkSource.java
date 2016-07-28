@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -249,8 +250,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   @Override
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
+    if (!cancelable) {
+      return false;
+    }
     // Workaround for missing segment at the end of the period
-    if (cancelable && !manifest.dynamic && chunk instanceof MediaChunk
+    if (!manifest.dynamic && chunk instanceof MediaChunk
         && e instanceof InvalidResponseCodeException
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
@@ -261,8 +265,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
         return true;
       }
     }
-    // TODO: Consider implementing representation blacklisting.
-    return false;
+    // Blacklist if appropriate.
+    return ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
+        trackSelection.indexOf(chunk.trackFormat), e);
   }
 
   // Private methods.

@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
@@ -205,8 +206,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   @Override
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
-    // TODO: Consider implementing stream element blacklisting.
-    return false;
+    return cancelable && ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
+        trackSelection.indexOf(chunk.trackFormat), e);
   }
 
   // Private methods.
