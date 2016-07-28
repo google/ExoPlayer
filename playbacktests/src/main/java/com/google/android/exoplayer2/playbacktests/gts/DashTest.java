@@ -34,17 +34,18 @@ import com.google.android.exoplayer2.playbacktests.util.MetricsLogger;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -680,15 +681,16 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       this.isWidevineEncrypted = isWidevineEncrypted;
       this.videoMimeType = videoMimeType;
       this.isCddLimitedRetry = isCddLimitedRetry;
-      trackSelector = new DashTestTrackSelector(new String[] {audioFormat},
-          videoFormats, canIncludeAdditionalVideoFormats);
+      trackSelector = new DashTestTrackSelector(audioFormat, videoFormats,
+          canIncludeAdditionalVideoFormats);
       if (actionSchedule != null) {
         setSchedule(actionSchedule);
       }
     }
 
     @Override
-    protected MappingTrackSelector buildTrackSelector(HostActivity host) {
+    protected MappingTrackSelector buildTrackSelector(HostActivity host,
+        BandwidthMeter bandwidthMeter) {
       return trackSelector;
     }
 
@@ -731,19 +733,17 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    public MediaSource buildSource(HostActivity host, String userAgent) {
+    public MediaSource buildSource(HostActivity host, String userAgent,
+        TransferListener mediaTransferListener) {
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
-      DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
       DataSource.Factory mediaDataSourceFactory = new DefaultDataSourceFactory(host, userAgent,
-          bandwidthMeter);
-      FormatEvaluator.Factory formatEvaluatorFactory = new AdaptiveEvaluator.Factory(
-          bandwidthMeter);
+          mediaTransferListener);
       String manifestUrl = manifestPath;
       manifestUrl += isWidevineEncrypted ? (needsSecureVideoDecoder ? WIDEVINE_L1_SUFFIX
           : WIDEVINE_L3_SUFFIX) : "";
       Uri manifestUri = Uri.parse(manifestUrl);
       DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
-          mediaDataSourceFactory, formatEvaluatorFactory);
+          mediaDataSourceFactory);
       return new DashMediaSource(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
           MIN_LOADABLE_RETRY_COUNT, null, null);
     }
@@ -801,16 +801,16 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   private static final class DashTestTrackSelector extends MappingTrackSelector {
 
-    private final String[] audioFormatIds;
+    private final String audioFormatId;
     private final String[] videoFormatIds;
     private final boolean canIncludeAdditionalVideoFormats;
 
     public boolean includedAdditionalVideoFormats;
 
-    private DashTestTrackSelector(String[] audioFormatIds, String[] videoFormatIds,
+    private DashTestTrackSelector(String audioFormatId, String[] videoFormatIds,
         boolean canIncludeAdditionalVideoFormats) {
       super(null);
-      this.audioFormatIds = audioFormatIds;
+      this.audioFormatId = audioFormatId;
       this.videoFormatIds = videoFormatIds;
       this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;
     }
@@ -826,17 +826,17 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       Assertions.checkState(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].length == 1);
       Assertions.checkState(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].length == 1);
       TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
-      selections[VIDEO_RENDERER_INDEX] = new TrackSelection(
+      selections[VIDEO_RENDERER_INDEX] = new RandomTrackSelection(
           rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
           getTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
               rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
-              canIncludeAdditionalVideoFormats));
-      selections[AUDIO_RENDERER_INDEX] = new TrackSelection(
+              canIncludeAdditionalVideoFormats),
+          0 /* seed */);
+      selections[AUDIO_RENDERER_INDEX] = new FixedTrackSelection(
           rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0),
-          getTrackIndices(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0),
-              rendererFormatSupports[AUDIO_RENDERER_INDEX][0], audioFormatIds, false));
+          getTrackIndex(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0), audioFormatId));
       includedAdditionalVideoFormats =
-          selections[VIDEO_RENDERER_INDEX].length > videoFormatIds.length;
+          selections[VIDEO_RENDERER_INDEX].length() > videoFormatIds.length;
       return selections;
     }
 
@@ -844,18 +844,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         String[] formatIds, boolean canIncludeAdditionalFormats) {
       List<Integer> trackIndices = new ArrayList<>();
 
-      // Always select explicitly listed representations, failing if they're missing.
+      // Always select explicitly listed representations.
       for (String formatId : formatIds) {
-        boolean foundIndex = false;
-        for (int j = 0; j < trackGroup.length && !foundIndex; j++) {
-          if (trackGroup.getFormat(j).id.equals(formatId)) {
-            trackIndices.add(j);
-            foundIndex = true;
-          }
-        }
-        if (!foundIndex) {
-          throw new IllegalStateException("Format " + formatId + " not found.");
-        }
+        trackIndices.add(getTrackIndex(trackGroup, formatId));
       }
 
       // Select additional video representations, if supported by the device.
@@ -871,6 +862,15 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       int[] trackIndicesArray = Util.toArray(trackIndices);
       Arrays.sort(trackIndicesArray);
       return trackIndicesArray;
+    }
+
+    private static int getTrackIndex(TrackGroup trackGroup, String formatId) {
+      for (int i = 0; i < trackGroup.length; i++) {
+        if (trackGroup.getFormat(i).id.equals(formatId)) {
+          return i;
+        }
+      }
+      throw new IllegalStateException("Format " + formatId + " not found.");
     }
 
     private static boolean isFormatHandled(int formatSupport) {

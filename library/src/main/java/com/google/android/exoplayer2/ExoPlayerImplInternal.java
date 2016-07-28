@@ -834,9 +834,9 @@ import java.util.ArrayList;
             if (newSelection != null) {
               // Replace the renderer's SampleStream so the transition to playing the next period
               // can be seamless.
-              Format[] formats = new Format[newSelection.length];
+              Format[] formats = new Format[newSelection.length()];
               for (int j = 0; j < formats.length; j++) {
-                formats[j] = newSelection.group.getFormat(newSelection.getTrack(j));
+                formats[j] = newSelection.getFormat(j);
               }
               renderer.replaceStream(formats, readingPeriod.sampleStreams[i],
                   readingPeriod.offsetUs);
@@ -1087,9 +1087,9 @@ import java.util.ArrayList;
             // Consider as joining only if the renderer was previously disabled.
             boolean joining = !rendererWasEnabledFlags[i] && playing;
             // Build an array of formats contained by the selection.
-            Format[] formats = new Format[newSelection.length];
+            Format[] formats = new Format[newSelection.length()];
             for (int j = 0; j < formats.length; j++) {
-              formats[j] = newSelection.group.getFormat(newSelection.getTrack(j));
+              formats[j] = newSelection.getFormat(j);
             }
             // Enable the renderer.
             renderer.enable(formats, playingPeriod.sampleStreams[i], internalPositionUs, joining,

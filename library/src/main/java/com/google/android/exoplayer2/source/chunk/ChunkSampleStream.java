@@ -150,7 +150,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * This method should be called when the stream is no longer required.
    */
   public void release() {
-    chunkSource.release();
     sampleQueue.disable();
     loader.release();
   }

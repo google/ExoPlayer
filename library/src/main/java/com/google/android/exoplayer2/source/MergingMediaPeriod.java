@@ -220,7 +220,7 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     TrackGroupArray periodTrackGroups = period.getTrackGroups();
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      if (periodTrackGroups.indexOf(selection.group) != -1) {
+      if (periodTrackGroups.indexOf(selection.getTrackGroup()) != -1) {
         newSelectionOriginalIndices[newSelections.size()] = i;
         newSelections.add(selection);
       }

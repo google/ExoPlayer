@@ -364,15 +364,8 @@ public class EventLogger implements ExoPlayer.EventListener, SimpleExoPlayer.Deb
 
   private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
       int trackIndex) {
-    boolean groupEnabled = selection != null && selection.group == group;
-    if (groupEnabled) {
-      for (int i = 0; i < selection.length; i++) {
-        if (selection.getTrack(i) == trackIndex) {
-          return getTrackStatusString(true);
-        }
-      }
-    }
-    return getTrackStatusString(false);
+    return getTrackStatusString(selection != null && selection.getTrackGroup() == group
+        && selection.indexOf(trackIndex) != -1);
   }
 
   private static String getTrackStatusString(boolean enabled) {

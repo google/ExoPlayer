@@ -25,8 +25,6 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
@@ -47,24 +45,19 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   public static final class Factory implements SsChunkSource.Factory {
 
-    private final FormatEvaluator.Factory formatEvaluatorFactory;
     private final DataSource.Factory dataSourceFactory;
 
-    public Factory(DataSource.Factory dataSourceFactory,
-        FormatEvaluator.Factory formatEvaluatorFactory) {
+    public Factory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = dataSourceFactory;
-      this.formatEvaluatorFactory = formatEvaluatorFactory;
     }
 
     @Override
     public SsChunkSource createChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
         SsManifest manifest, int elementIndex, TrackSelection trackSelection,
         TrackEncryptionBox[] trackEncryptionBoxes) {
-      FormatEvaluator adaptiveEvaluator = trackSelection.length > 1
-          ? formatEvaluatorFactory.createFormatEvaluator() : null;
       DataSource dataSource = dataSourceFactory.createDataSource();
       return new DefaultSsChunkSource(manifestLoaderErrorThrower, manifest, elementIndex,
-          trackSelection, dataSource, adaptiveEvaluator, trackEncryptionBoxes);
+          trackSelection, dataSource, trackEncryptionBoxes);
     }
 
   }
@@ -73,10 +66,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private final int elementIndex;
   private final TrackSelection trackSelection;
   private final ChunkExtractorWrapper[] extractorWrappers;
-  private final boolean[] adaptiveFormatBlacklistFlags;
   private final DataSource dataSource;
-  private final Evaluation evaluation;
-  private final FormatEvaluator adaptiveFormatEvaluator;
 
   private SsManifest manifest;
   private int currentManifestChunkOffset;
@@ -89,26 +79,23 @@ public class DefaultSsChunkSource implements SsChunkSource {
    * @param elementIndex The index of the stream element in the manifest.
    * @param trackSelection The track selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param trackEncryptionBoxes Track encryption boxes for the stream.
    */
   public DefaultSsChunkSource(LoaderErrorThrower manifestLoaderErrorThrower, SsManifest manifest,
       int elementIndex, TrackSelection trackSelection, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, TrackEncryptionBox[] trackEncryptionBoxes) {
+      TrackEncryptionBox[] trackEncryptionBoxes) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.elementIndex = elementIndex;
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
-    this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
-    this.evaluation = new Evaluation();
 
     StreamElement streamElement = manifest.streamElements[elementIndex];
 
-    extractorWrappers = new ChunkExtractorWrapper[trackSelection.length];
-    for (int i = 0; i < trackSelection.length; i++) {
-      int manifestTrackIndex = trackSelection.getTrack(i);
-      Format format = trackSelection.getFormat(i);
+    extractorWrappers = new ChunkExtractorWrapper[trackSelection.length()];
+    for (int i = 0; i < extractorWrappers.length; i++) {
+      int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
+      Format format = streamElement.formats[i];
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : -1;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
           C.UNSET_TIME_US, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
@@ -117,12 +104,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
           | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track);
       extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, false);
-    }
-    if (adaptiveFormatEvaluator != null) {
-      adaptiveFormatEvaluator.enable(trackSelection.getFormats());
-      adaptiveFormatBlacklistFlags = new boolean[trackSelection.length];
-    } else {
-      adaptiveFormatBlacklistFlags = null;
     }
   }
 
@@ -162,11 +143,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   @Override
   public int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
-    if (fatalError != null || trackSelection.length < 2) {
+    if (fatalError != null || trackSelection.length() < 2) {
       return queue.size();
     }
-    return adaptiveFormatEvaluator.evaluateQueueSize(playbackPositionUs, queue,
-        adaptiveFormatBlacklistFlags);
+    return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
   }
 
   @Override
@@ -175,20 +155,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return;
     }
 
-    if (trackSelection.length > 1) {
-      long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-      adaptiveFormatEvaluator.evaluateFormat(bufferedDurationUs, adaptiveFormatBlacklistFlags,
-          evaluation);
-    } else {
-      evaluation.format = trackSelection.getFormat(0);
-      evaluation.reason = C.SELECTION_REASON_UNKNOWN;
-      evaluation.data = null;
-    }
-
-    Format selectedFormat = evaluation.format;
-    if (selectedFormat == null) {
-      return;
-    }
+    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
+    trackSelection.updateSelectedTrack(bufferedDurationUs);
 
     StreamElement streamElement = manifest.streamElements[elementIndex];
     if (streamElement.chunkCount == 0) {
@@ -219,14 +187,15 @@ public class DefaultSsChunkSource implements SsChunkSource {
     long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
     int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
-    int trackSelectionIndex = trackSelection.indexOf(selectedFormat);
+    int trackSelectionIndex = trackSelection.getSelectedIndex();
     ChunkExtractorWrapper extractorWrapper = extractorWrappers[trackSelectionIndex];
 
-    int manifestTrackIndex = trackSelection.getTrack(trackSelectionIndex);
+    int manifestTrackIndex = trackSelection.getIndexInTrackGroup(trackSelectionIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
-    out.chunk = newMediaChunk(selectedFormat, dataSource, uri, null, currentAbsoluteChunkIndex,
-        chunkStartTimeUs, chunkEndTimeUs, evaluation.reason, evaluation.data, extractorWrapper);
+    out.chunk = newMediaChunk(trackSelection.getSelectedFormat(), dataSource, uri, null,
+        currentAbsoluteChunkIndex, chunkStartTimeUs, chunkEndTimeUs,
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), extractorWrapper);
   }
 
   @Override
@@ -238,13 +207,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
     // TODO: Consider implementing stream element blacklisting.
     return false;
-  }
-
-  @Override
-  public void release() {
-    if (adaptiveFormatEvaluator != null) {
-      adaptiveFormatEvaluator.disable();
-    }
   }
 
   // Private methods.

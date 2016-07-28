@@ -27,15 +27,18 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.Timeline;
+import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
-
 import junit.framework.Assert;
 
 
@@ -123,11 +126,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public final void onStart(HostActivity host, Surface surface) {
     // Build the player.
-    trackSelector = buildTrackSelector(host);
+    DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+    trackSelector = buildTrackSelector(host, bandwidthMeter);
     String userAgent = "ExoPlayerPlaybackTests";
     DrmSessionManager drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
-    player.setMediaSource(buildSource(host, Util.getUserAgent(host, userAgent)));
+    player.setMediaSource(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
     player.addListener(this);
     player.setDebugListener(this);
     player.setPlayWhenReady(true);
@@ -288,8 +292,9 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @SuppressWarnings("unused")
-  protected MappingTrackSelector buildTrackSelector(HostActivity host) {
-    return new DefaultTrackSelector(null);
+  protected MappingTrackSelector buildTrackSelector(HostActivity host,
+      BandwidthMeter bandwidthMeter) {
+    return new DefaultTrackSelector(null, new AdaptiveVideoTrackSelection.Factory(bandwidthMeter));
   }
 
   @SuppressWarnings("unused")
@@ -302,7 +307,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @SuppressWarnings("unused")
-  protected abstract MediaSource buildSource(HostActivity host, String userAgent);
+  protected abstract MediaSource buildSource(HostActivity host, String userAgent,
+      TransferListener mediaTransferListener);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {

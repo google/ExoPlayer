@@ -51,6 +51,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static final int[] NO_TRACKS = new int[0];
   private static final String TAG = "DefaultTrackSelector";
 
+  private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
+
   // Audio and text.
   private String preferredLanguage;
 
@@ -64,8 +66,28 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private int viewportWidth;
   private int viewportHeight;
 
+  /**
+   * Constructs an instance that does not support adaptive video.
+   *
+   * @param eventHandler A handler to use when delivering events to listeners. May be null if
+   *     listeners will not be added.
+   */
   public DefaultTrackSelector(Handler eventHandler) {
+    this(eventHandler, null);
+  }
+
+  /**
+   * Constructs an instance that uses a factory to create adaptive video track selections.
+   *
+   * @param eventHandler A handler to use when delivering events to listeners. May be null if
+   *     listeners will not be added.
+   * @param adaptiveVideoTrackSelectionFactory A factory for adaptive video {@link TrackSelection}s,
+   *     or null if the selector should not support adaptive video.
+   */
+  public DefaultTrackSelector(Handler eventHandler,
+      TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
     super(eventHandler);
+    this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
     allowNonSeamlessAdaptiveness = true;
     exceedVideoConstraintsIfNecessary = true;
     maxVideoWidth = Integer.MAX_VALUE;
@@ -203,11 +225,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           rendererTrackSelections[i] = selectTrackForVideoRenderer(rendererCapabilities[i],
               rendererTrackGroupArrays[i], rendererFormatSupports[i], maxVideoWidth, maxVideoHeight,
               allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness, viewportWidth,
-              viewportHeight, orientationMayChange);
-          if (rendererTrackSelections[i] == null && exceedVideoConstraintsIfNecessary) {
-            rendererTrackSelections[i] = selectSmallestSupportedVideoTrack(
-                rendererTrackGroupArrays[i], rendererFormatSupports[i]);
-          }
+              viewportHeight, orientationMayChange, adaptiveVideoTrackSelectionFactory,
+              exceedVideoConstraintsIfNecessary);
           break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectTrackForAudioRenderer(rendererTrackGroupArrays[i],
@@ -232,28 +251,35 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       RendererCapabilities rendererCapabilities, TrackGroupArray trackGroups,
       int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
       boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness, int viewportWidth,
-      int viewportHeight, boolean orientationMayChange) throws ExoPlaybackException {
-    int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
-        ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
-        : RendererCapabilities.ADAPTIVE_SEAMLESS;
-    boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
-        && (rendererCapabilities.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
-    TrackGroup largestAdaptiveGroup = null;
-    int[] largestAdaptiveGroupTracks = NO_TRACKS;
-    for (int i = 0; i < trackGroups.length; i++) {
-      TrackGroup trackGroup = trackGroups.get(i);
-      int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroup, formatSupport[i],
-          allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight,
-          viewportWidth, viewportHeight, orientationMayChange);
-      if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
-        largestAdaptiveGroup = trackGroup;
-        largestAdaptiveGroupTracks = adaptiveTracks;
+      int viewportHeight, boolean orientationMayChange,
+      TrackSelection.Factory adaptiveVideoTrackSelectionFactory,
+      boolean exceedVideoConstraintsIfNecessary) throws ExoPlaybackException {
+    if (adaptiveVideoTrackSelectionFactory != null) {
+      int requiredAdaptiveSupport = allowNonSeamlessAdaptiveness
+          ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
+          : RendererCapabilities.ADAPTIVE_SEAMLESS;
+      boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
+          && (rendererCapabilities.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport)
+          != 0;
+      TrackGroup largestAdaptiveGroup = null;
+      int[] largestAdaptiveGroupTracks = NO_TRACKS;
+      for (int i = 0; i < trackGroups.length; i++) {
+        TrackGroup trackGroup = trackGroups.get(i);
+        int[] adaptiveTracks = getAdaptiveTracksOfGroup(trackGroup, formatSupport[i],
+            allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight,
+            viewportWidth, viewportHeight, orientationMayChange);
+        if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
+          largestAdaptiveGroup = trackGroup;
+          largestAdaptiveGroupTracks = adaptiveTracks;
+        }
+      }
+      if (largestAdaptiveGroup != null) {
+        return adaptiveVideoTrackSelectionFactory.createTrackSelection(largestAdaptiveGroup,
+            largestAdaptiveGroupTracks);
       }
     }
-    if (largestAdaptiveGroup != null) {
-      return new TrackSelection(largestAdaptiveGroup, largestAdaptiveGroupTracks);
-    }
 
+    // TODO: Should select the best supported video track, not the first one.
     // No adaptive tracks selection could be made, so we select the first supported video track.
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup trackGroup = trackGroups.get(groupIndex);
@@ -261,10 +287,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupportedVideoTrack(trackFormatSupport[trackIndex], trackGroup.getFormat(trackIndex),
             maxVideoWidth, maxVideoHeight)) {
-          return new TrackSelection(trackGroup, trackIndex);
+          return new FixedTrackSelection(trackGroup, trackIndex);
         }
       }
     }
+
+    if (exceedVideoConstraintsIfNecessary) {
+      return selectSmallestSupportedVideoTrack(trackGroups, formatSupport);
+    }
+
     return null;
   }
 
@@ -350,8 +381,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         }
       }
     }
-    return trackGroupSelection != null
-        ? new TrackSelection(trackGroupSelection, trackIndexSelection) : null;
+    return trackGroupSelection == null ? null
+        : new FixedTrackSelection(trackGroupSelection, trackIndexSelection);
   }
 
   private static boolean isSupportedVideoTrack(int formatSupport, Format format, int maxVideoWidth,
@@ -371,7 +402,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           if (isSupported(trackFormatSupport[trackIndex])
               && formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new TrackSelection(trackGroup, trackIndex);
+            return new FixedTrackSelection(trackGroup, trackIndex);
           }
         }
       }
@@ -398,12 +429,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             firstForcedTrack = trackIndex;
           }
           if (formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new TrackSelection(trackGroup, trackIndex);
+            return new FixedTrackSelection(trackGroup, trackIndex);
           }
         }
       }
     }
-    return firstForcedGroup != null ? new TrackSelection(firstForcedGroup, firstForcedTrack) : null;
+    return firstForcedGroup == null ? null
+        : new FixedTrackSelection(firstForcedGroup, firstForcedTrack);
   }
 
   // General track selection methods.
@@ -415,7 +447,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int[] trackFormatSupport = formatSupport[groupIndex];
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupported(trackFormatSupport[trackIndex])) {
-          return new TrackSelection(trackGroup, trackIndex);
+          return new FixedTrackSelection(trackGroup, trackIndex);
         }
       }
     }
@@ -492,7 +524,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Before API 25 the platform Display object does not provide a working way to identify Android
     // TVs that can show 4k resolution in a SurfaceView, so check for supported devices here.
     if (Util.SDK_INT < 25) {
-      if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+      if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL.startsWith("BRAVIA")
           && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
         return new Point(3840, 2160);
       } else if ("NVIDIA".equals(Util.MANUFACTURER) && Util.MODEL != null

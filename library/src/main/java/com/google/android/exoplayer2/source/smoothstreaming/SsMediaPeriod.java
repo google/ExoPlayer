@@ -199,7 +199,7 @@ import java.util.List;
 
   private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
-    int streamElementIndex = trackGroups.indexOf(selection.group);
+    int streamElementIndex = trackGroups.indexOf(selection.getTrackGroup());
     SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoaderErrorThrower,
         manifest, streamElementIndex, selection, trackEncryptionBoxes);
     return new ChunkSampleStream<>(manifest.streamElements[streamElementIndex].type, chunkSource,

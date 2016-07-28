@@ -222,7 +222,7 @@ import java.util.List;
 
   private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
-    int adaptationSetIndex = trackGroups.indexOf(selection.group);
+    int adaptationSetIndex = trackGroups.indexOf(selection.getTrackGroup());
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
         manifestLoaderErrorThrower, manifest, index, adaptationSetIndex, selection,

@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
@@ -64,7 +63,6 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   private final Uri manifestUri;
   private final DataSource.Factory dataSourceFactory;
-  private final FormatEvaluator.Factory formatEvaluatorFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final IdentityHashMap<SampleStream, HlsSampleStreamWrapper> sampleStreamSources;
@@ -89,19 +87,17 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
 
-  public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      FormatEvaluator.Factory formatEvaluatorFactory, Handler eventHandler,
+  public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifestUri, dataSourceFactory, formatEvaluatorFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler, eventListener);
+    this(manifestUri, dataSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler,
+        eventListener);
   }
 
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
-      FormatEvaluator.Factory formatEvaluatorFactory, int minLoadableRetryCount,
-      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+      int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
-    this.formatEvaluatorFactory = formatEvaluatorFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
 
@@ -352,7 +348,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
           Format.NO_VALUE);
       Variant[] variants = new Variant[] {new Variant(playlist.baseUri, format, null)};
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          formatEvaluatorFactory.createFormatEvaluator(), null, null));
+          null, null));
       return sampleStreamWrappers;
     }
 
@@ -386,8 +382,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       Variant[] variants = new Variant[selectedVariants.size()];
       selectedVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          formatEvaluatorFactory.createFormatEvaluator(), masterPlaylist.muxedAudioFormat,
-          masterPlaylist.muxedCaptionFormat));
+          masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat));
     }
 
     // Build the audio stream wrapper if applicable.
@@ -396,7 +391,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       Variant[] variants = new Variant[audioVariants.size()];
       audioVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
-          null, null));
+          null));
     }
 
     // Build the text stream wrapper if applicable.
@@ -405,18 +400,17 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       Variant[] variants = new Variant[subtitleVariants.size()];
       subtitleVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
-          null, null));
+          null));
     }
 
     return sampleStreamWrappers;
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, String baseUri,
-      Variant[] variants, FormatEvaluator formatEvaluator, Format muxedAudioFormat,
-      Format muxedCaptionFormat) {
+      Variant[] variants, Format muxedAudioFormat, Format muxedCaptionFormat) {
     DataSource dataSource = dataSourceFactory.createDataSource();
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
-        timestampAdjusterProvider, formatEvaluator);
+        timestampAdjusterProvider);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator,
         preparePositionUs, muxedAudioFormat, muxedCaptionFormat, minLoadableRetryCount,
         eventDispatcher);
@@ -440,7 +434,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
     for (int i = 0; i < allNewSelections.size(); i++) {
       TrackSelection selection = allNewSelections.get(i);
-      if (sampleStreamWrapperTrackGroups.indexOf(selection.group) != -1) {
+      if (sampleStreamWrapperTrackGroups.indexOf(selection.getTrackGroup()) != -1) {
         newSelectionOriginalIndices[newSelections.size()] = i;
         newSelections.add(selection);
       }

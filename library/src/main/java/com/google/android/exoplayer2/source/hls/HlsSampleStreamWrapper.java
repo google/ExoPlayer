@@ -168,11 +168,10 @@ import java.util.List;
     SampleStream[] newStreams = new SampleStream[newSelections.size()];
     for (int i = 0; i < newStreams.length; i++) {
       TrackSelection selection = newSelections.get(i);
-      int group = trackGroups.indexOf(selection.group);
-      int[] tracks = selection.getTracks();
+      int group = trackGroups.indexOf(selection.getTrackGroup());
       setTrackGroupEnabledState(group, true);
       if (group == primaryTrackGroupIndex) {
-        chunkSource.selectTracks(new TrackSelection(chunkSource.getTrackGroup(), tracks));
+        chunkSource.selectTracks(selection);
       }
       newStreams[i] = new SampleStreamImpl(group);
     }
@@ -236,7 +235,6 @@ import java.util.List;
   }
 
   public void release() {
-    chunkSource.release();
     int sampleQueueCount = sampleQueues.size();
     for (int i = 0; i < sampleQueueCount; i++) {
       sampleQueues.valueAt(i).disable();

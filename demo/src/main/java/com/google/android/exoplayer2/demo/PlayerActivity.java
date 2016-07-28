@@ -39,8 +39,6 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator;
-import com.google.android.exoplayer2.source.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -48,13 +46,15 @@ import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.ui.SubtitleView;
+import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControl;
+import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -138,7 +138,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private String userAgent;
   private DataSource.Factory manifestDataSourceFactory;
   private DataSource.Factory mediaDataSourceFactory;
-  private FormatEvaluator.Factory formatEvaluatorFactory;
+  private DefaultBandwidthMeter bandwidthMeter;
   private SimpleExoPlayer player;
   private MappingTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
@@ -155,9 +155,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     super.onCreate(savedInstanceState);
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     manifestDataSourceFactory = new DefaultDataSourceFactory(this, userAgent);
-    DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+    bandwidthMeter = new DefaultBandwidthMeter();
     mediaDataSourceFactory = new DefaultDataSourceFactory(this, userAgent, bandwidthMeter);
-    formatEvaluatorFactory = new AdaptiveEvaluator.Factory(bandwidthMeter);
 
     mainHandler = new Handler();
     setContentView(R.layout.player_activity);
@@ -284,12 +283,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
           return;
         }
       }
+
       eventLogger = new EventLogger();
       eventLogger.startSession();
-      trackSelector = new DefaultTrackSelector(mainHandler);
+      TrackSelection.Factory videoTrackSelectionFactory =
+          new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
+      trackSelector = new DefaultTrackSelector(mainHandler, videoTrackSelectionFactory);
       trackSelector.addListener(this);
       trackSelector.addListener(eventLogger);
-      trackSelectionHelper = new TrackSelectionHelper(trackSelector);
+      trackSelectionHelper = new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
       player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
           drmSessionManager, preferExtensionDecoders);
       player.addListener(this);
@@ -354,15 +356,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     switch (type) {
       case Util.TYPE_SS:
         DefaultSsChunkSource.Factory factory = new DefaultSsChunkSource.Factory(
-            mediaDataSourceFactory, formatEvaluatorFactory);
+            mediaDataSourceFactory);
         return new SsMediaSource(uri, manifestDataSourceFactory, factory, mainHandler, eventLogger);
       case Util.TYPE_DASH:
         DefaultDashChunkSource.Factory factory2 = new DefaultDashChunkSource.Factory(
-            mediaDataSourceFactory, formatEvaluatorFactory);
+            mediaDataSourceFactory);
         return new DashMediaSource(uri, mediaDataSourceFactory, factory2, mainHandler, eventLogger);
       case Util.TYPE_HLS:
-        return new HlsMediaSource(uri, mediaDataSourceFactory, formatEvaluatorFactory, mainHandler,
-            eventLogger);
+        return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
       case Util.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
