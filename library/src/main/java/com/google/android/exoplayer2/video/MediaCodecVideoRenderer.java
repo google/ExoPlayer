@@ -176,10 +176,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!MimeTypes.isVideo(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    DrmInitData drmInitData = format.drmInitData;
     boolean requiresSecureDecryption = false;
-    for (int i = 0; i < drmInitData.schemeDataCount; i++) {
-      requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
+    DrmInitData drmInitData = format.drmInitData;
+    if (drmInitData != null) {
+      for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+        requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
+      }
     }
     MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         requiresSecureDecryption);
