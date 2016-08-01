@@ -389,11 +389,9 @@ import java.util.Arrays;
         if (dimensions != 0) {
           lookupValuesCount = mapType1QuantValues(entries, dimensions);
         } else {
-          // TODO no sample file found yet
           lookupValuesCount = 0;
         }
       } else {
-        // TODO no sample file found yet
         lookupValuesCount = entries * dimensions;
       }
       // discard (no decoding required yet)

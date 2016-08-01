@@ -25,10 +25,10 @@ import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import java.util.ArrayList;
+import com.google.android.exoplayer2.video.AvcConfig;
+import com.google.android.exoplayer2.video.HevcConfig;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,7 +56,7 @@ import java.util.List;
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
   public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, long duration,
-      DrmInitData drmInitData, boolean isQuickTime) {
+      DrmInitData drmInitData, boolean isQuickTime) throws ParserException {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
@@ -589,7 +589,7 @@ import java.util.List;
    * @return An object containing the parsed data.
    */
   private static StsdData parseStsd(ParsableByteArray stsd, int trackId, int rotationDegrees,
-      String language, DrmInitData drmInitData, boolean isQuickTime) {
+      String language, DrmInitData drmInitData, boolean isQuickTime) throws ParserException {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     StsdData out = new StsdData(numberOfEntries);
@@ -638,7 +638,7 @@ import java.util.List;
 
   private static void parseVideoSampleEntry(ParsableByteArray parent, int atomType, int position,
       int size, int trackId, int rotationDegrees, DrmInitData drmInitData, StsdData out,
-      int entryIndex) {
+      int entryIndex) throws ParserException {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -669,18 +669,20 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_avcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H264;
-        AvcCData avcCData = parseAvcCFromParent(parent, childStartPosition);
-        initializationData = avcCData.initializationData;
-        out.nalUnitLengthFieldLength = avcCData.nalUnitLengthFieldLength;
+        parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
+        AvcConfig avcConfig = AvcConfig.parse(parent);
+        initializationData = avcConfig.initializationData;
+        out.nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
         if (!pixelWidthHeightRatioFromPasp) {
-          pixelWidthHeightRatio = avcCData.pixelWidthAspectRatio;
+          pixelWidthHeightRatio = avcConfig.pixelWidthAspectRatio;
         }
       } else if (childAtomType == Atom.TYPE_hvcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H265;
-        Pair<List<byte[]>, Integer> hvcCData = parseHvcCFromParent(parent, childStartPosition);
-        initializationData = hvcCData.first;
-        out.nalUnitLengthFieldLength = hvcCData.second;
+        parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
+        HevcConfig hevcConfig = HevcConfig.parse(parent);
+        initializationData = hevcConfig.initializationData;
+        out.nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         Assertions.checkState(mimeType == null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
@@ -708,76 +710,6 @@ import java.util.List;
     out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
         Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
         rotationDegrees, pixelWidthHeightRatio, drmInitData);
-  }
-
-  private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + Atom.HEADER_SIZE + 4);
-    // Start of the AVCDecoderConfigurationRecord (defined in 14496-15)
-    int nalUnitLengthFieldLength = (parent.readUnsignedByte() & 0x3) + 1;
-    if (nalUnitLengthFieldLength == 3) {
-      throw new IllegalStateException();
-    }
-    List<byte[]> initializationData = new ArrayList<>();
-    float pixelWidthAspectRatio = 1;
-    int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
-    for (int j = 0; j < numSequenceParameterSets; j++) {
-      initializationData.add(NalUnitUtil.parseChildNalUnit(parent));
-    }
-    int numPictureParameterSets = parent.readUnsignedByte();
-    for (int j = 0; j < numPictureParameterSets; j++) {
-      initializationData.add(NalUnitUtil.parseChildNalUnit(parent));
-    }
-
-    if (numSequenceParameterSets > 0) {
-      // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
-      byte[] sps = initializationData.get(0);
-      pixelWidthAspectRatio = NalUnitUtil
-          .parseSpsNalUnit(sps, nalUnitLengthFieldLength, sps.length).pixelWidthAspectRatio;
-    }
-
-    return new AvcCData(initializationData, nalUnitLengthFieldLength, pixelWidthAspectRatio);
-  }
-
-  private static Pair<List<byte[]>, Integer> parseHvcCFromParent(ParsableByteArray parent,
-      int position) {
-    // Skip to the NAL unit length size field.
-    parent.setPosition(position + Atom.HEADER_SIZE + 21);
-    int lengthSizeMinusOne = parent.readUnsignedByte() & 0x03;
-
-    // Calculate the combined size of all VPS/SPS/PPS bitstreams.
-    int numberOfArrays = parent.readUnsignedByte();
-    int csdLength = 0;
-    int csdStartPosition = parent.getPosition();
-    for (int i = 0; i < numberOfArrays; i++) {
-      parent.skipBytes(1); // completeness (1), nal_unit_type (7)
-      int numberOfNalUnits = parent.readUnsignedShort();
-      for (int j = 0; j < numberOfNalUnits; j++) {
-        int nalUnitLength = parent.readUnsignedShort();
-        csdLength += 4 + nalUnitLength; // Start code and NAL unit.
-        parent.skipBytes(nalUnitLength);
-      }
-    }
-
-    // Concatenate the codec-specific data into a single buffer.
-    parent.setPosition(csdStartPosition);
-    byte[] buffer = new byte[csdLength];
-    int bufferPosition = 0;
-    for (int i = 0; i < numberOfArrays; i++) {
-      parent.skipBytes(1); // completeness (1), nal_unit_type (7)
-      int numberOfNalUnits = parent.readUnsignedShort();
-      for (int j = 0; j < numberOfNalUnits; j++) {
-        int nalUnitLength = parent.readUnsignedShort();
-        System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
-            NalUnitUtil.NAL_START_CODE.length);
-        bufferPosition += NalUnitUtil.NAL_START_CODE.length;
-        System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition, nalUnitLength);
-        bufferPosition += nalUnitLength;
-        parent.skipBytes(nalUnitLength);
-      }
-    }
-
-    List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
-    return Pair.create(initializationData, lengthSizeMinusOne + 1);
   }
 
   /**
@@ -1188,24 +1120,6 @@ import java.util.List;
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
       nalUnitLengthFieldLength = -1;
       requiredSampleTransformation = Track.TRANSFORMATION_NONE;
-    }
-
-  }
-
-  /**
-   * Holds data parsed from an AvcC atom.
-   */
-  private static final class AvcCData {
-
-    public final List<byte[]> initializationData;
-    public final int nalUnitLengthFieldLength;
-    public final float pixelWidthAspectRatio;
-
-    public AvcCData(List<byte[]> initializationData, int nalUnitLengthFieldLength,
-        float pixelWidthAspectRatio) {
-      this.initializationData = initializationData;
-      this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
-      this.pixelWidthAspectRatio = pixelWidthAspectRatio;
     }
 
   }

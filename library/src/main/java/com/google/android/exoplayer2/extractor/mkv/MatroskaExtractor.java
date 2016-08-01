@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
-import android.util.Pair;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -35,6 +34,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.AvcConfig;
+import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -1251,17 +1252,15 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_H264:
           mimeType = MimeTypes.VIDEO_H264;
-          Pair<List<byte[]>, Integer> h264Data = parseAvcCodecPrivate(
-              new ParsableByteArray(codecPrivate));
-          initializationData = h264Data.first;
-          nalUnitLengthFieldLength = h264Data.second;
+          AvcConfig avcConfig = AvcConfig.parse(new ParsableByteArray(codecPrivate));
+          initializationData = avcConfig.initializationData;
+          nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
           break;
         case CODEC_ID_H265:
           mimeType = MimeTypes.VIDEO_H265;
-          Pair<List<byte[]>, Integer> hevcData = parseHevcCodecPrivate(
-              new ParsableByteArray(codecPrivate));
-          initializationData = hevcData.first;
-          nalUnitLengthFieldLength = hevcData.second;
+          HevcConfig hevcConfig = HevcConfig.parse(new ParsableByteArray(codecPrivate));
+          initializationData = hevcConfig.initializationData;
+          nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
           break;
         case CODEC_ID_FOURCC:
           mimeType = MimeTypes.VIDEO_VC1;
@@ -1411,89 +1410,6 @@ public final class MatroskaExtractor implements Extractor {
         throw new ParserException("Failed to find FourCC VC1 initialization data");
       } catch (ArrayIndexOutOfBoundsException e) {
         throw new ParserException("Error parsing FourCC VC1 codec private");
-      }
-    }
-
-    /**
-     * Builds initialization data for a {@link Format} from H.264 (AVC) codec private data.
-     *
-     * @return The initialization data for the {@link Format}.
-     * @throws ParserException If the initialization data could not be built.
-     */
-    private static Pair<List<byte[]>, Integer> parseAvcCodecPrivate(ParsableByteArray buffer)
-        throws ParserException {
-      try {
-        // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
-        buffer.setPosition(4);
-        int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
-        if (nalUnitLengthFieldLength == 3) {
-          throw new ParserException();
-        }
-        List<byte[]> initializationData = new ArrayList<>();
-        int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
-        for (int i = 0; i < numSequenceParameterSets; i++) {
-          initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
-        }
-        int numPictureParameterSets = buffer.readUnsignedByte();
-        for (int j = 0; j < numPictureParameterSets; j++) {
-          initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
-        }
-        return Pair.create(initializationData, nalUnitLengthFieldLength);
-      } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing AVC codec private");
-      }
-    }
-
-    /**
-     * Builds initialization data for a {@link Format} from H.265 (HEVC) codec private data.
-     *
-     * @return The initialization data for the {@link Format}.
-     * @throws ParserException If the initialization data could not be built.
-     */
-    private static Pair<List<byte[]>, Integer> parseHevcCodecPrivate(ParsableByteArray parent)
-        throws ParserException {
-      try {
-        // TODO: Deduplicate with AtomParsers.parseHvcCFromParent.
-        parent.setPosition(21);
-        int lengthSizeMinusOne = parent.readUnsignedByte() & 0x03;
-
-        // Calculate the combined size of all VPS/SPS/PPS bitstreams.
-        int numberOfArrays = parent.readUnsignedByte();
-        int csdLength = 0;
-        int csdStartPosition = parent.getPosition();
-        for (int i = 0; i < numberOfArrays; i++) {
-          parent.skipBytes(1); // completeness (1), nal_unit_type (7)
-          int numberOfNalUnits = parent.readUnsignedShort();
-          for (int j = 0; j < numberOfNalUnits; j++) {
-            int nalUnitLength = parent.readUnsignedShort();
-            csdLength += 4 + nalUnitLength; // Start code and NAL unit.
-            parent.skipBytes(nalUnitLength);
-          }
-        }
-
-        // Concatenate the codec-specific data into a single buffer.
-        parent.setPosition(csdStartPosition);
-        byte[] buffer = new byte[csdLength];
-        int bufferPosition = 0;
-        for (int i = 0; i < numberOfArrays; i++) {
-          parent.skipBytes(1); // completeness (1), nal_unit_type (7)
-          int numberOfNalUnits = parent.readUnsignedShort();
-          for (int j = 0; j < numberOfNalUnits; j++) {
-            int nalUnitLength = parent.readUnsignedShort();
-            System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
-                NalUnitUtil.NAL_START_CODE.length);
-            bufferPosition += NalUnitUtil.NAL_START_CODE.length;
-            System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition,
-                nalUnitLength);
-            bufferPosition += nalUnitLength;
-            parent.skipBytes(nalUnitLength);
-          }
-        }
-
-        List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
-        return Pair.create(initializationData, lengthSizeMinusOne + 1);
-      } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing HEVC codec private");
       }
     }
 

@@ -330,7 +330,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
   }
 
-  private void onMoovContainerAtomRead(ContainerAtom moov) {
+  private void onMoovContainerAtomRead(ContainerAtom moov) throws ParserException {
     Assertions.checkState(sideloadedTrack == null, "Unexpected moov box.");
     List<Atom.LeafAtom> moovLeafChildren = moov.leafChildren;
     int moovLeafChildrenSize = moovLeafChildren.size();

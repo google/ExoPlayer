@@ -514,14 +514,10 @@ public final class DefaultTrackOutput implements TrackOutput {
         if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !infoQueue.attemptSplice(timeUs)) {
           return;
         }
-        // TODO - We should be able to actually remove the data from the rolling buffer after a
-        // splice succeeds, but doing so is a little bit tricky; it requires moving data written
-        // after the last committed sample.
         pendingSplice = false;
       }
       if (needKeyframe) {
         if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
-          // TODO - As above, although this case is probably less worthwhile.
           return;
         }
         needKeyframe = false;

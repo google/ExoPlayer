@@ -19,12 +19,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.exoplayer2.video.AvcConfig;
 
 /**
  * Parses video tags from an FLV stream and extracts H.264 nal units.
@@ -87,15 +85,12 @@ import java.util.List;
     if (packetType == AVC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
       ParsableByteArray videoSequence = new ParsableByteArray(new byte[data.bytesLeft()]);
       data.readBytes(videoSequence.data, 0, data.bytesLeft());
-
-      AvcSequenceHeaderData avcData = parseAvcCodecPrivate(videoSequence);
-      nalUnitLengthFieldLength = avcData.nalUnitLengthFieldLength;
-
+      AvcConfig avcConfig = AvcConfig.parse(videoSequence);
+      nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
       // Construct and output the format.
       Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
-          Format.NO_VALUE, Format.NO_VALUE, avcData.width, avcData.height,
-          Format.NO_VALUE, avcData.initializationData, Format.NO_VALUE,
-          avcData.pixelWidthAspectRatio, null);
+          Format.NO_VALUE, Format.NO_VALUE, avcConfig.width, avcConfig.height, Format.NO_VALUE,
+          avcConfig.initializationData, Format.NO_VALUE, avcConfig.pixelWidthAspectRatio, null);
       output.format(format);
       hasOutputFormat = true;
     } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {
@@ -130,64 +125,6 @@ import java.util.List;
       output.sampleMetadata(timeUs, frameType == VIDEO_FRAME_KEYFRAME ? C.BUFFER_FLAG_KEY_FRAME : 0,
           bytesWritten, 0, null);
     }
-  }
-
-  /**
-   * Builds initialization data for a {@link Format} from H.264 (AVC) codec private data.
-   *
-   * @return The AvcSequenceHeader data needed to initialize the video codec.
-   */
-  private AvcSequenceHeaderData parseAvcCodecPrivate(ParsableByteArray buffer) {
-    // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
-    buffer.setPosition(4);
-    int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
-    Assertions.checkState(nalUnitLengthFieldLength != 3);
-    List<byte[]> initializationData = new ArrayList<>();
-    int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
-    for (int i = 0; i < numSequenceParameterSets; i++) {
-      initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
-    }
-    int numPictureParameterSets = buffer.readUnsignedByte();
-    for (int j = 0; j < numPictureParameterSets; j++) {
-      initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
-    }
-
-    float pixelWidthAspectRatio = 1;
-    int width = Format.NO_VALUE;
-    int height = Format.NO_VALUE;
-    if (numSequenceParameterSets > 0) {
-      byte[] sps = initializationData.get(0);
-      NalUnitUtil.SpsData spsData =
-          NalUnitUtil.parseSpsNalUnit(sps, nalUnitLengthFieldLength, sps.length);
-      width = spsData.width;
-      height = spsData.height;
-      pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
-    }
-
-    return new AvcSequenceHeaderData(initializationData, nalUnitLengthFieldLength,
-        width, height, pixelWidthAspectRatio);
-  }
-
-  /**
-   * Holds data parsed from an Sequence Header video tag atom.
-   */
-  private static final class AvcSequenceHeaderData {
-
-    public final List<byte[]> initializationData;
-    public final int nalUnitLengthFieldLength;
-    public final float pixelWidthAspectRatio;
-    public final int width;
-    public final int height;
-
-    public AvcSequenceHeaderData(List<byte[]> initializationData, int nalUnitLengthFieldLength,
-        int width, int height, float pixelWidthAspectRatio) {
-      this.initializationData = initializationData;
-      this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
-      this.pixelWidthAspectRatio = pixelWidthAspectRatio;
-      this.width = width;
-      this.height = height;
-    }
-
   }
 
 }
