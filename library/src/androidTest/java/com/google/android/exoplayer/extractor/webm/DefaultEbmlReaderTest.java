@@ -18,13 +18,11 @@ package com.google.android.exoplayer.extractor.webm;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.TestUtil;
-
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Tests {@link DefaultEbmlReader}.

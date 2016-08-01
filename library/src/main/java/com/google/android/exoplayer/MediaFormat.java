@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Parcel;
 import android.os.Parcelable;
-
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.MediaFormat;
-
 import java.nio.ByteBuffer;
 
 /**

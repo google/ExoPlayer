@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
-
 import java.io.IOException;
 import java.io.InputStream;
 

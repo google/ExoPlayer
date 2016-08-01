@@ -17,7 +17,6 @@ package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
-
 import java.io.IOException;
 
 /**

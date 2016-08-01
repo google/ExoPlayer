@@ -17,7 +17,6 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-
 import java.io.IOException;
 import java.util.Arrays;
 

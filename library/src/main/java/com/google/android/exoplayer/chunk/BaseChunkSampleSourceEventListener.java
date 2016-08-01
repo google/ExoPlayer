@@ -18,7 +18,6 @@ package com.google.android.exoplayer.chunk;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-
 import java.io.IOException;
 
 /**

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
-
 import java.util.List;
 
 /**

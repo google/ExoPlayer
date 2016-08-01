@@ -15,17 +15,15 @@
  */
 package com.google.android.exoplayer.text;
 
+import android.media.MediaCodec;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import android.media.MediaCodec;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-
 import java.io.IOException;
 
 /**

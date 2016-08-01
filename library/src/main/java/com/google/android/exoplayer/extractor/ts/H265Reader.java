@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ts;
 
+import android.util.Log;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -22,9 +23,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.util.Log;
-
 import java.util.Collections;
 
 /**

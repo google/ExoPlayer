@@ -15,16 +15,14 @@
  */
 package com.google.android.exoplayer.playbacktests.util;
 
+import android.content.Context;
+import android.os.ConditionVariable;
+import android.util.Log;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.Util;
-
-import android.content.Context;
-import android.os.ConditionVariable;
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 

@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer.drm;
 
-import com.google.android.exoplayer.util.Assertions;
-
 import android.annotation.TargetApi;
 import android.media.MediaCrypto;
+import com.google.android.exoplayer.util.Assertions;
 
 /**
  * An {@link ExoMediaCrypto} implementation that wraps the framework {@link MediaCrypto}.

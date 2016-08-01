@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
+import android.annotation.TargetApi;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -23,14 +24,10 @@ import com.google.android.exoplayer.testutil.FakeTrackOutput;
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
-
-import android.annotation.TargetApi;
-
-import junit.framework.TestCase;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Tests for {@link Mp4Extractor}.

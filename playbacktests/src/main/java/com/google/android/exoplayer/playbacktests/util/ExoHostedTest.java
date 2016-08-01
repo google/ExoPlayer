@@ -15,15 +15,14 @@
  */
 package com.google.android.exoplayer.playbacktests.util;
 
+import android.os.Handler;
+import android.os.SystemClock;
+import android.view.Surface;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.playbacktests.util.HostActivity.HostedTest;
-
-import android.os.Handler;
-import android.os.SystemClock;
-import android.view.Surface;
 
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.

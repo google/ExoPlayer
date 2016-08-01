@@ -17,7 +17,6 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;

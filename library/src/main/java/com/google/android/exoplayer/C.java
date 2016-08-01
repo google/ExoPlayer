@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.Util;
-
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * Defines constants that are generally useful throughout the library.

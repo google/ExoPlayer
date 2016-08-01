@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import android.text.TextUtils;
+import android.util.Log;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
 import com.google.android.exoplayer.util.Util;
-
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;

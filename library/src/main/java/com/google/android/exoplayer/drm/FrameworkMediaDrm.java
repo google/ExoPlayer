@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.drm;
 
-import com.google.android.exoplayer.util.Assertions;
-
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
@@ -25,7 +23,7 @@ import android.media.MediaDrm;
 import android.media.NotProvisionedException;
 import android.media.ResourceBusyException;
 import android.media.UnsupportedSchemeException;
-
+import com.google.android.exoplayer.util.Assertions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

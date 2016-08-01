@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.upstream.BandwidthMeter;
-
 import java.util.List;
 import java.util.Random;
 

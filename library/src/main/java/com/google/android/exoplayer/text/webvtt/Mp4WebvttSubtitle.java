@@ -18,7 +18,6 @@ package com.google.android.exoplayer.text.webvtt;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Assertions;
-
 import java.util.Collections;
 import java.util.List;
 

@@ -19,7 +19,6 @@ import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
 import java.util.Collections;
 import java.util.List;
 

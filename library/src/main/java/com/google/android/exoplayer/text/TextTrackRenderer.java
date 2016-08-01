@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer.text;
 
+import android.annotation.TargetApi;
+import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
@@ -23,14 +29,6 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
-
-import android.annotation.TargetApi;
-import android.os.Handler;
-import android.os.Handler.Callback;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import android.content.Context;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import android.content.Context;
-
 import java.io.IOException;
 
 /**

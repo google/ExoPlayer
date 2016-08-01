@@ -15,11 +15,6 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DataSpec;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -28,7 +23,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
-
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

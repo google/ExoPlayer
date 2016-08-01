@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
-
 import java.io.EOFException;
 import java.io.IOException;
 

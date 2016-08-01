@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo.ext;
 
+import android.text.TextUtils;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -40,9 +41,6 @@ import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
-
-import android.text.TextUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 

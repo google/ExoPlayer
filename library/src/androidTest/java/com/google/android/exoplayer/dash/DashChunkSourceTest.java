@@ -18,6 +18,7 @@ package com.google.android.exoplayer.dash;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.Format;
@@ -39,9 +40,6 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.FakeClock;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
-
-import android.test.InstrumentationTestCase;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

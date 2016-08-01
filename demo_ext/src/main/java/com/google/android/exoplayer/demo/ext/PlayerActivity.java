@@ -15,6 +15,22 @@
  */
 package com.google.android.exoplayer.demo.ext;
 
+import android.Manifest.permission;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.widget.MediaController;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -34,23 +50,6 @@ import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
-
-import android.Manifest.permission;
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.widget.MediaController;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Sample player that shows how to use ExoPlayer Extensions to playback VP9 Video and Opus Audio.

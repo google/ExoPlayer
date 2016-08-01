@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
-
 import android.content.Context;
 import android.text.TextUtils;
-
+import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import com.google.android.exoplayer.testutil.TestUtil;
-import com.google.android.exoplayer.text.Cue;
-
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
 import android.text.Spannable;
@@ -31,7 +28,8 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
-
+import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.text.Cue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

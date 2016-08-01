@@ -24,7 +24,6 @@ import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.io.IOException;
 
 /**

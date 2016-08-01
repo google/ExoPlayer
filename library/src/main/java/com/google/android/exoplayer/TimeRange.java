@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.Clock;
-
 import android.os.SystemClock;
+import com.google.android.exoplayer.util.Clock;
 
 /**
  * A container to store a start and end time in microseconds.

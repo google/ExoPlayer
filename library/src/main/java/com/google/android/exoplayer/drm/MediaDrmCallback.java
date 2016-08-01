@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.drm;
 
+import android.annotation.TargetApi;
 import com.google.android.exoplayer.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
-
-import android.annotation.TargetApi;
-
 import java.util.UUID;
 
 /**

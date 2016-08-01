@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer;
 
+import android.os.Handler;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.NetworkLock;
-
-import android.os.Handler;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -2,7 +2,6 @@ package com.google.android.exoplayer.extractor.webm;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-
 import java.io.EOFException;
 import java.io.IOException;
 

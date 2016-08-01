@@ -15,19 +15,16 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import android.app.Instrumentation;
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import android.app.Instrumentation;
-import android.test.InstrumentationTestCase;
-
-import org.mockito.MockitoAnnotations;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+import org.mockito.MockitoAnnotations;
 
 /**
  * Utility methods for tests.

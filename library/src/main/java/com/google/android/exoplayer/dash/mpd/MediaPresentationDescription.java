@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.util.ManifestFetcher.RedirectingManifest;
-
 import java.util.Collections;
 import java.util.List;
 

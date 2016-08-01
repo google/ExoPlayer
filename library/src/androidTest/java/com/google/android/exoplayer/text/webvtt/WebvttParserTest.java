@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
+import android.test.InstrumentationTestCase;
+import android.text.Layout.Alignment;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.text.Cue;
-
-import android.test.InstrumentationTestCase;
-import android.text.Layout.Alignment;
-
 import java.io.IOException;
 import java.util.List;
 

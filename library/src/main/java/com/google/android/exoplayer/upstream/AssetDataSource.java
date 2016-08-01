@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.upstream;
 
-import com.google.android.exoplayer.C;
-
 import android.content.Context;
 import android.content.res.AssetManager;
-
+import com.google.android.exoplayer.C;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;

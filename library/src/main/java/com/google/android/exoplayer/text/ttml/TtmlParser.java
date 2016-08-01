@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.Layout;
+import android.util.Log;
+import android.util.Pair;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
@@ -22,15 +25,6 @@ import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParserUtil;
 import com.google.android.exoplayer.util.Util;
-
-import android.text.Layout;
-import android.util.Log;
-import android.util.Pair;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,6 +32,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
  * A simple TTML parser that supports DFXP presentation profile.

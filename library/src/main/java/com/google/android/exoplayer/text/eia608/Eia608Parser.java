@@ -19,7 +19,6 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.util.ArrayList;
 
 /**

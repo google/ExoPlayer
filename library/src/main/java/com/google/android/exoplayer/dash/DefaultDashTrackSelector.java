@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer.dash;
 
+import android.content.Context;
 import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.util.Util;
-
-import android.content.Context;
-
 import java.io.IOException;
 
 /**

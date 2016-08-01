@@ -15,20 +15,17 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Parcel;
-
-import junit.framework.TestCase;
-
+import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link MediaFormat}.

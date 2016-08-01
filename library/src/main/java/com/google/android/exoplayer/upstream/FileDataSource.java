@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;

@@ -15,6 +15,14 @@
  */
 package com.google.android.exoplayer.playbacktests.gts;
 
+import android.annotation.TargetApi;
+import android.media.MediaCodec;
+import android.media.MediaDrm;
+import android.media.UnsupportedSchemeException;
+import android.os.Handler;
+import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
+import android.view.Surface;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.ExoPlayer;
@@ -52,22 +60,11 @@ import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
-
-import android.annotation.TargetApi;
-import android.media.MediaCodec;
-import android.media.MediaDrm;
-import android.media.UnsupportedSchemeException;
-import android.os.Handler;
-import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
-import android.view.Surface;
-
-import junit.framework.AssertionFailedError;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import junit.framework.AssertionFailedError;
 
 /**
  * Tests DASH playbacks using {@link ExoPlayer}.

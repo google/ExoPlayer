@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.MediaFormat;
-
 import java.io.IOException;
 import java.util.List;
 

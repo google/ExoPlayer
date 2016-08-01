@@ -17,10 +17,6 @@ package com.google.android.exoplayer.playbacktests.util;
 
 import static junit.framework.Assert.fail;
 
-import com.google.android.exoplayer.playbacktests.R;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +32,9 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
+import com.google.android.exoplayer.playbacktests.R;
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * A host activity for performing playback tests.

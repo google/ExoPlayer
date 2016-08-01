@@ -18,7 +18,6 @@ package com.google.android.exoplayer.dash.mpd;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
 import java.util.UUID;
 
 /**

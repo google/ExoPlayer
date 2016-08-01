@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.demo.ext;
 
-import com.google.android.exoplayer.util.Util;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +28,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * An activity for selecting from a number of samples.

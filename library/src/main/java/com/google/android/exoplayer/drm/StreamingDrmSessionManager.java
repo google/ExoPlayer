@@ -15,13 +15,6 @@
  */
 package com.google.android.exoplayer.drm;
 
-import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
-import com.google.android.exoplayer.drm.ExoMediaDrm.KeyRequest;
-import com.google.android.exoplayer.drm.ExoMediaDrm.OnEventListener;
-import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
-import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
@@ -33,7 +26,12 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
-
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
+import com.google.android.exoplayer.drm.ExoMediaDrm.KeyRequest;
+import com.google.android.exoplayer.drm.ExoMediaDrm.OnEventListener;
+import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
+import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
+import com.google.android.exoplayer.util.Util;
 import java.util.HashMap;
 import java.util.UUID;
 

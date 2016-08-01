@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.SpannableStringBuilder;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.util.Assertions;
-
-import android.text.SpannableStringBuilder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

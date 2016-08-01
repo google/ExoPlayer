@@ -16,7 +16,6 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.TimeRange.StaticTimeRange;
-
 import junit.framework.TestCase;
 
 /**

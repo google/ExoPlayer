@@ -19,7 +19,6 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.metadata.MetadataParser;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;

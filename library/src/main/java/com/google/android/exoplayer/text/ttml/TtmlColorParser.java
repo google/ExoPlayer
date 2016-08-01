@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.TextUtils;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import android.text.TextUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import android.util.Base64;
+import android.util.Pair;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
@@ -25,20 +27,15 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
-
-import android.util.Base64;
-import android.util.Pair;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
  * Parses SmoothStreaming client manifests.

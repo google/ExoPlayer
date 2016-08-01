@@ -15,20 +15,17 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import android.test.MoreAsserts;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.test.MoreAsserts;
-
-import junit.framework.TestCase;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link OggParser}.

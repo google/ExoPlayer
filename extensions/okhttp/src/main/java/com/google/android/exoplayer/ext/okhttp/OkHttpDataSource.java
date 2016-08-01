@@ -21,15 +21,6 @@ import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.TransferListener;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
-
-import okhttp3.CacheControl;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import okhttp3.CacheControl;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * An {@link HttpDataSource} that delegates to Square's {@link OkHttpClient}.

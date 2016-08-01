@@ -29,7 +29,6 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import android.util.SparseArray;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
-
-import android.util.SparseArray;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

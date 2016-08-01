@@ -19,10 +19,8 @@ import com.google.android.exoplayer.extractor.ogg.VorbisReader.VorbisSetup;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import junit.framework.TestCase;
-
 import java.io.IOException;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link VorbisReader}.

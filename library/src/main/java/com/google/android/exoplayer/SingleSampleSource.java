@@ -15,17 +15,15 @@
  */
 package com.google.android.exoplayer;
 
+import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
-
-import android.net.Uri;
-import android.os.Handler;
-import android.os.SystemClock;
-
 import java.io.IOException;
 import java.util.Arrays;
 

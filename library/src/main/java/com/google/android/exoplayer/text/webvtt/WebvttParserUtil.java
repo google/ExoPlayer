@@ -17,7 +17,6 @@ package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.util.regex.Pattern;
 
 /**

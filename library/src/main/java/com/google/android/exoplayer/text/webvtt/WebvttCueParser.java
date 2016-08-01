@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
-import com.google.android.exoplayer.text.Cue;
-import com.google.android.exoplayer.util.ParsableByteArray;
-
 import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
@@ -25,7 +22,8 @@ import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
-
+import com.google.android.exoplayer.text.Cue;
+import com.google.android.exoplayer.util.ParsableByteArray;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

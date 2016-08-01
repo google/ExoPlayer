@@ -15,12 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.PriorityHandlerThread;
-import com.google.android.exoplayer.util.TraceUtil;
-import com.google.android.exoplayer.util.Util;
-
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -29,7 +23,11 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
-
+import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.PriorityHandlerThread;
+import com.google.android.exoplayer.util.TraceUtil;
+import com.google.android.exoplayer.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.demo.Samples.Sample;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +27,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.TextView;
-
+import com.google.android.exoplayer.demo.Samples.Sample;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import com.google.android.exoplayer.testutil.TestUtil;
-
 import android.test.InstrumentationTestCase;
-
+import com.google.android.exoplayer.testutil.TestUtil;
 import java.io.IOException;
 
 /**

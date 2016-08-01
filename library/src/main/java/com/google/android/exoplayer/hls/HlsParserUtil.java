@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.ParserException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

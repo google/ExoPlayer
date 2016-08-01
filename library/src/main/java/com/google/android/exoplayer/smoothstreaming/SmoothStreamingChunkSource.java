@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import android.net.Uri;
+import android.os.SystemClock;
+import android.util.Base64;
+import android.util.SparseArray;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
@@ -42,12 +46,6 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
-
-import android.net.Uri;
-import android.os.SystemClock;
-import android.util.Base64;
-import android.util.SparseArray;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

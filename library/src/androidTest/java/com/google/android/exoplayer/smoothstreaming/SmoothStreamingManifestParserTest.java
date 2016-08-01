@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import android.test.InstrumentationTestCase;
-
 import java.io.IOException;
 import java.io.InputStream;
 

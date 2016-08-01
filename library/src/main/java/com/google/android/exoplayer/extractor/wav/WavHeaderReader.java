@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer.extractor.wav;
 
+import android.util.Log;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
-import android.util.Log;
-
 import java.io.IOException;
 
 /** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */

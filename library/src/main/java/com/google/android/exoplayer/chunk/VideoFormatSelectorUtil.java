@@ -15,11 +15,6 @@
  */
 package com.google.android.exoplayer.chunk;
 
-import com.google.android.exoplayer.MediaCodecUtil;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
@@ -27,7 +22,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-
+import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;

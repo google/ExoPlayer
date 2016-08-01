@@ -19,7 +19,6 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.FlacStreamInfo;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
-
 import java.nio.ByteBuffer;
 import java.util.List;
 

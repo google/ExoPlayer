@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.flac;
 
+import android.os.Handler;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -29,9 +30,6 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Buffer;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
-
-import android.os.Handler;
-
 import java.util.List;
 
 /**

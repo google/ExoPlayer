@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
+import android.text.TextUtils;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 
 /**

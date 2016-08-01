@@ -15,13 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.drm.DrmSessionManager;
-import com.google.android.exoplayer.drm.FrameworkMediaCrypto;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.TraceUtil;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -31,7 +24,12 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
 import android.view.TextureView;
-
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.TraceUtil;
+import com.google.android.exoplayer.util.Util;
 import java.nio.ByteBuffer;
 
 /**

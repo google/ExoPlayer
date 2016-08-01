@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * Contains information about a media decoder.
