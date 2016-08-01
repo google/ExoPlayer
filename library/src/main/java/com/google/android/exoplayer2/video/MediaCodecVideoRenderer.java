@@ -60,8 +60,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsAutoFrcWorkaround;
 
-  private int adaptiveMaxWidth;
-  private int adaptiveMaxHeight;
+  private int maxWidth;
+  private int maxHeight;
+  private int configuredMaxWidth;
+  private int configuredMaxHeight;
 
   private Surface surface;
   private boolean reportedDrawnToSurface;
@@ -219,18 +221,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
-    adaptiveMaxWidth = Format.NO_VALUE;
-    adaptiveMaxHeight = Format.NO_VALUE;
-    if (formats.length > 1) {
-      for (Format format : formats) {
-        adaptiveMaxWidth = Math.max(adaptiveMaxWidth, format.width);
-        adaptiveMaxHeight = Math.max(adaptiveMaxHeight, format.height);
-      }
-      if (adaptiveMaxWidth == Format.NO_VALUE || adaptiveMaxHeight == Format.NO_VALUE) {
-        Log.w(TAG, "Maximum dimensions unknown. Assuming 1920x1080.");
-        adaptiveMaxWidth = 1920;
-        adaptiveMaxHeight = 1080;
-      }
+    maxWidth = Format.NO_VALUE;
+    maxHeight = Format.NO_VALUE;
+    for (Format format : formats) {
+      maxWidth = Math.max(maxWidth, format.width);
+      maxHeight = Math.max(maxHeight, format.height);
+    }
+    if (formats.length > 1 && (maxWidth == Format.NO_VALUE || maxHeight == Format.NO_VALUE)) {
+      // TODO: Consider replacing this block with one that sets values injected via the constructor.
+      Log.w(TAG, "Maximum dimensions unknown for adaptive playback. Assuming 1920x1080.");
+      maxWidth = 1920;
+      maxHeight = 1080;
     }
     super.onStreamChanged(formats);
   }
@@ -325,7 +326,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   // Override configureCodec to provide the surface.
   @Override
   protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
-    codec.configure(getFrameworkMediaFormat(format), surface, crypto, 0);
+    maxWidth = Math.max(maxWidth, format.width);
+    maxHeight = Math.max(maxHeight, format.height);
+    codec.configure(getFrameworkFormat(format, maxWidth, maxHeight, deviceNeedsAutoFrcWorkaround),
+        surface, crypto, 0);
+    configuredMaxWidth = maxWidth;
+    configuredMaxHeight = maxHeight;
   }
 
   @Override
@@ -338,10 +344,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     super.onInputFormatChanged(newFormat);
     eventDispatcher.inputFormatChanged(newFormat);
-    pendingPixelWidthHeightRatio = newFormat.pixelWidthHeightRatio == Format.NO_VALUE ? 1
-        : newFormat.pixelWidthHeightRatio;
-    pendingRotationDegrees = newFormat.rotationDegrees == Format.NO_VALUE ? 0
-        : newFormat.rotationDegrees;
+    pendingPixelWidthHeightRatio = getPixelWidthHeightRatio(newFormat);
+    pendingRotationDegrees = getRotationDegrees(newFormat);
   }
 
   @Override
@@ -378,6 +382,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       Format oldFormat, Format newFormat) {
     return newFormat.sampleMimeType.equals(oldFormat.sampleMimeType)
+        && getRotationDegrees(newFormat) == getRotationDegrees(oldFormat)
+        && newFormat.width <= configuredMaxWidth && newFormat.height <= configuredMaxHeight
         && (codecIsAdaptive
         || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
   }
@@ -496,18 +502,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @SuppressLint("InlinedApi")
-  private android.media.MediaFormat getFrameworkMediaFormat(Format format) {
+  private static android.media.MediaFormat getFrameworkFormat(Format format, int maxWidth,
+      int maxHeight, boolean deviceNeedsAutoFrcWorkaround) {
     android.media.MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
 
     if (deviceNeedsAutoFrcWorkaround) {
       frameworkMediaFormat.setInteger("auto-frc", 0);
     }
 
-    // Set the maximum adaptive video dimensions if applicable.
-    if (adaptiveMaxWidth != Format.NO_VALUE && adaptiveMaxHeight != Format.NO_VALUE) {
-      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, adaptiveMaxWidth);
-      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, adaptiveMaxHeight);
-    }
+    // Set the maximum adaptive video dimensions.
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, maxWidth);
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, maxHeight);
 
     if (format.maxInputSize > 0) {
       // The format already has a maximum input size.
@@ -515,8 +520,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     // If the format doesn't define a maximum input size, determine one ourselves.
-    int maxWidth = Math.max(adaptiveMaxWidth, format.width);
-    int maxHeight = Math.max(adaptiveMaxHeight, format.height);
     int maxPixels;
     int minCompressionRatio;
     switch (format.sampleMimeType) {
@@ -601,6 +604,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
     // also lose sync [Internal: b/26453592].
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
+  }
+
+  private static float getPixelWidthHeightRatio(Format format) {
+    return format.pixelWidthHeightRatio == Format.NO_VALUE ? 1 : format.pixelWidthHeightRatio;
+  }
+
+  private static int getRotationDegrees(Format format) {
+    return format.rotationDegrees == Format.NO_VALUE ? 0 : format.rotationDegrees;
   }
 
 }
