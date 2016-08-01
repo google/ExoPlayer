@@ -123,6 +123,16 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
+  public Position getDefaultStartPosition(int index) {
+    if (index == 0 && manifest.dynamic) {
+      // The stream is live, so jump to the live edge.
+      // TODO[playlists]: Actually jump to the live edge, rather than the start of the last period.
+      return new Position(periods.size() - 1, 0);
+    }
+    return new Position(index, 0);
+  }
+
+  @Override
   public MediaPeriod createPeriod(int index) throws IOException {
     if (periods == null || periods.size() <= index) {
       loader.maybeThrowError();

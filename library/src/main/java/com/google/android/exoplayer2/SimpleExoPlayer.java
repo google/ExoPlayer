@@ -360,6 +360,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void seekToDefaultPosition(int periodIndex) {
+    player.seekToDefaultPosition(periodIndex);
+  }
+
+  @Override
   public void stop() {
     player.stop();
   }

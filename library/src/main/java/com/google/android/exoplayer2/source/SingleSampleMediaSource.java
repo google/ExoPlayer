@@ -123,6 +123,11 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   }
 
   @Override
+  public Position getDefaultStartPosition(int index) {
+    return Position.DEFAULT;
+  }
+
+  @Override
   public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;

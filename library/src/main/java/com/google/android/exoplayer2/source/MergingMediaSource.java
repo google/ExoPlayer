@@ -65,6 +65,11 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
+  public Position getDefaultStartPosition(int index) {
+    return mediaSources[0].getDefaultStartPosition(index);
+  }
+
+  @Override
   public MediaPeriod createPeriod(int index) throws IOException {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
     for (int i = 0; i < periods.length; i++) {

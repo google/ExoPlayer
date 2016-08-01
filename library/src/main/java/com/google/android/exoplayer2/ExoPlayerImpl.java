@@ -136,15 +136,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public void seekTo(int periodIndex, long positionMs) {
     boolean periodChanging = periodIndex != getCurrentPeriodIndex();
+    boolean seekToDefaultPosition = positionMs == ExoPlayer.UNKNOWN_TIME;
     maskingPeriodIndex = periodIndex;
-    maskingPositionMs = positionMs;
+    maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
     maskingDurationMs = periodChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
 
     pendingSeekAcks++;
-    internalPlayer.seekTo(periodIndex, positionMs * 1000);
-    for (EventListener listener : listeners) {
-      listener.onPositionDiscontinuity(periodIndex, positionMs);
+    internalPlayer.seekTo(periodIndex, seekToDefaultPosition ? C.UNSET_TIME_US : positionMs * 1000);
+    if (!seekToDefaultPosition) {
+      for (EventListener listener : listeners) {
+        listener.onPositionDiscontinuity(periodIndex, positionMs);
+      }
     }
+  }
+
+  @Override
+  public void seekToDefaultPosition(int periodIndex) {
+    seekTo(periodIndex, ExoPlayer.UNKNOWN_TIME);
   }
 
   @Override
@@ -180,8 +188,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getCurrentPosition() {
-    return pendingSeekAcks == 0 ? playbackInfo.positionUs / 1000
-        : maskingPositionMs;
+    return pendingSeekAcks > 0 ? maskingPositionMs
+        : playbackInfo.positionUs == C.UNSET_TIME_US ? 0 : (playbackInfo.positionUs / 1000);
   }
 
   @Override
@@ -239,14 +247,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
-        pendingSeekAcks--;
+        if (--pendingSeekAcks == 0) {
+          long positionMs = playbackInfo.startPositionUs == C.UNSET_TIME_US ? 0
+              : playbackInfo.startPositionUs / 1000;
+          if (playbackInfo.periodIndex != maskingPeriodIndex || positionMs != maskingPositionMs) {
+            for (EventListener listener : listeners) {
+              listener.onPositionDiscontinuity(playbackInfo.periodIndex, positionMs);
+            }
+          }
+        }
         break;
       }
-      case ExoPlayerImplInternal.MSG_PERIOD_CHANGED: {
+      case ExoPlayerImplInternal.MSG_POSITION_DISCONTINUITY: {
         playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
         if (pendingSeekAcks == 0) {
           for (EventListener listener : listeners) {
-            listener.onPositionDiscontinuity(playbackInfo.periodIndex, 0);
+            listener.onPositionDiscontinuity(playbackInfo.periodIndex,
+                playbackInfo.startPositionUs / 1000);
           }
         }
         break;

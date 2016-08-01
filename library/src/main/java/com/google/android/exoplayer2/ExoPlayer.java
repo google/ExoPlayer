@@ -301,6 +301,17 @@ public interface ExoPlayer {
   void seekTo(int periodIndex, long positionMs);
 
   /**
+   * Seeks to the default position associated with the specified period. The position can depend on
+   * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
+   * typically be the live edge. For other types of streams it will typically be the start of the
+   * stream.
+   *
+   * @param periodIndex The index of the period whose associated default position should be seeked
+   *     to.
+   */
+  void seekToDefaultPosition(int periodIndex);
+
+  /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
    * is to pause playback.
    * <p>

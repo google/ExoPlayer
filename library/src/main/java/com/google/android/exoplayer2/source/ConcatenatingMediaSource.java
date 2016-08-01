@@ -53,15 +53,25 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline)
+  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldConcatenatedTimeline)
       throws IOException {
-    ConcatenatedTimeline oldConcatenatedTimeline = (ConcatenatedTimeline) oldTimeline;
-    int sourceIndex = oldConcatenatedTimeline.getSourceIndexForPeriod(oldPlayingPeriodIndex);
-    int sourceFirstPeriodIndex = oldConcatenatedTimeline.getFirstPeriodIndexInSource(sourceIndex);
-    return sourceFirstPeriodIndex == Timeline.NO_PERIOD_INDEX ? Timeline.NO_PERIOD_INDEX
-        : sourceFirstPeriodIndex + mediaSources[sourceIndex].getNewPlayingPeriodIndex(
-            oldPlayingPeriodIndex - sourceFirstPeriodIndex,
-            oldConcatenatedTimeline.timelines[sourceIndex]);
+    ConcatenatedTimeline oldTimeline = (ConcatenatedTimeline) oldConcatenatedTimeline;
+    int sourceIndex = oldTimeline.getSourceIndexForPeriod(oldPlayingPeriodIndex);
+    int oldFirstPeriodIndex = oldTimeline.getFirstPeriodIndexInSource(sourceIndex);
+    int firstPeriodIndex = timeline.getFirstPeriodIndexInSource(sourceIndex);
+    return firstPeriodIndex == Timeline.NO_PERIOD_INDEX ? Timeline.NO_PERIOD_INDEX
+        : firstPeriodIndex + mediaSources[sourceIndex].getNewPlayingPeriodIndex(
+            oldPlayingPeriodIndex - oldFirstPeriodIndex, oldTimeline.timelines[sourceIndex]);
+  }
+
+  @Override
+  public Position getDefaultStartPosition(int index) {
+    int sourceIndex = timeline.getSourceIndexForPeriod(index);
+    int sourceFirstPeriodIndex = timeline.getFirstPeriodIndexInSource(sourceIndex);
+    Position defaultStartPosition =
+        mediaSources[sourceIndex].getDefaultStartPosition(index - sourceFirstPeriodIndex);
+    return new Position(defaultStartPosition.periodIndex + sourceFirstPeriodIndex,
+        defaultStartPosition.positionUs);
   }
 
   @Override

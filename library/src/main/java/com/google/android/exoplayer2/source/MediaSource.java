@@ -39,6 +39,38 @@ public interface MediaSource {
   }
 
   /**
+   * A position in the timeline.
+   */
+  final class Position {
+
+    /**
+     * A start position at the earliest time in the first period.
+     */
+    public static final Position DEFAULT = new Position(0, 0);
+
+    /**
+     * The index of the period containing the timeline position.
+     */
+    public final int periodIndex;
+
+    /**
+     * The position in microseconds within the period.
+     */
+    public final long positionUs;
+
+    /**
+     * Creates a new timeline position.
+     *
+     * @param periodIndex The index of the period containing the timeline position.
+     * @param positionUs The position in microseconds within the period.
+     */
+    public Position(int periodIndex, long positionUs) {
+      this.periodIndex = periodIndex;
+      this.positionUs = positionUs;
+    }
+  }
+
+  /**
    * Starts preparation of the source.
    *
    * @param listener The listener for source invalidation events.
@@ -54,6 +86,20 @@ public interface MediaSource {
    * @throws IOException Thrown if the required period can't be loaded.
    */
   int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) throws IOException;
+
+  /**
+   * Returns the default {@link Position} that the player should play when it reaches the period at
+   * {@code index}, or {@code null} if the default start period and position are not yet known.
+   * <p>
+   * For example, sources can return a {@link Position} with the passed period {@code index} to play
+   * the period at {@code index} immediately after the period at {@code index - 1}. Or, sources
+   * providing multi-period live streams may return the index and position of the live edge when
+   * passed {@code index == 0} so that the playback position jumps to the live edge.
+   *
+   * @param index The index of the period the player has just reached.
+   * @return The default start position.
+   */
+  Position getDefaultStartPosition(int index);
 
   /**
    * Returns a {@link MediaPeriod} corresponding to the period at the specified index, or

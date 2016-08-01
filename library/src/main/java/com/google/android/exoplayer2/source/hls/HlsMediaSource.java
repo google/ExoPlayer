@@ -119,6 +119,12 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
+  public Position getDefaultStartPosition(int index) {
+    // TODO: Return the position of the live edge, if applicable.
+    return Position.DEFAULT;
+  }
+
+  @Override
   public MediaPeriod createPeriod(int index) {
     Assertions.checkArgument(index == 0);
     return this;
