@@ -41,7 +41,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public void setOnEventListener(final ExoMediaDrm.OnEventListener<FrameworkMediaCrypto> listener) {
+  public void setOnEventListener(
+      final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
     mediaDrm.setOnEventListener(listener == null ? null : new MediaDrm.OnEventListener() {
       @Override
       public void onEvent(MediaDrm md, byte[] sessionId, int event, int extra, byte[] data) {

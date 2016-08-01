@@ -41,7 +41,8 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
      * @param extra an secondary error code
      * @param data optional byte array of data that may be associated with the event
      */
-    void onEvent(ExoMediaDrm<T> mediaDrm, byte[] sessionId, int event, int extra, byte[] data);
+    void onEvent(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, int event,
+        int extra, byte[] data);
   }
 
   /**
@@ -63,7 +64,7 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   /**
    * @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener)
    */
-  void setOnEventListener(OnEventListener<T> listener);
+  void setOnEventListener(OnEventListener<? super T> listener);
 
   /**
    * @see MediaDrm#openSession()

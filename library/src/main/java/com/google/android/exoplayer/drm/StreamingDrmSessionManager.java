@@ -503,10 +503,10 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
   private class MediaDrmEventListener implements OnEventListener<T> {
 
     @Override
-    public void onEvent(ExoMediaDrm<T> md, byte[] sessionId, int event, int extra, byte[] data) {
+    public void onEvent(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, int event,
+        int extra, byte[] data) {
       mediaDrmHandler.sendEmptyMessage(event);
     }
-
   }
 
   @SuppressLint("HandlerLeak")
