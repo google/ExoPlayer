@@ -45,6 +45,12 @@ public final class ConcatenatingMediaSource implements MediaSource {
         @Override
         public void onTimelineChanged(Timeline timeline) {
           timelines[index] = timeline;
+          for (int i = 0; i < timelines.length; i++) {
+            if (timelines[i] == null) {
+              // Don't invoke the listener until all sources have timelines.
+              return;
+            }
+          }
           ConcatenatingMediaSource.this.timeline = new ConcatenatedTimeline(timelines.clone());
           listener.onTimelineChanged(ConcatenatingMediaSource.this.timeline);
         }
@@ -105,10 +111,8 @@ public final class ConcatenatingMediaSource implements MediaSource {
       int[] sourceOffsets = new int[timelines.length];
       int sourceIndexOffset = 0;
       for (int i = 0; i < timelines.length; i++) {
-        Timeline manifest = timelines[i];
-        int periodCount;
-        if (manifest == null
-            || (periodCount = manifest.getPeriodCount()) == Timeline.UNKNOWN_PERIOD_COUNT) {
+        int periodCount = timelines[i].getPeriodCount();
+        if (periodCount == Timeline.UNKNOWN_PERIOD_COUNT) {
           sourceOffsets = Arrays.copyOf(sourceOffsets, i);
           break;
         }
