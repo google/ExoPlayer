@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -236,6 +237,16 @@ public final class Util {
     } catch (IOException e) {
       // Ignore.
     }
+  }
+
+  /**
+   * Returns a new byte array containing the code points of a {@link String} encoded using UTF-8.
+   *
+   * @param value The {@link String} whose bytes should be obtained.
+   * @return The code points encoding using UTF-8.
+   */
+  public static byte[] getUtf8Bytes(String value) {
+    return value.getBytes(Charset.defaultCharset()); // UTF-8 is the default on Android.
   }
 
   /**

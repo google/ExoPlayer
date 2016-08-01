@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Unit test for {@link CssParser}.
@@ -122,7 +123,7 @@ public final class CssParserTest extends InstrumentationTestCase {
 
   public void testGetNextToken() {
     String stringInput = " lorem:ipsum\n{dolor}#sit,amet;lorem:ipsum\r\t\f\ndolor(())\n";
-    ParsableByteArray input = new ParsableByteArray(stringInput.getBytes());
+    ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(stringInput));
     StringBuilder builder = new StringBuilder();
     assertEquals(CssParser.parseNextToken(input, builder), "lorem");
     assertEquals(CssParser.parseNextToken(input, builder), ":");
@@ -178,20 +179,20 @@ public final class CssParserTest extends InstrumentationTestCase {
   // Utility methods.
 
   private void assertSkipsToEndOfSkip(String expectedLine, String s) {
-    ParsableByteArray input = new ParsableByteArray(s.getBytes());
+    ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(s));
     CssParser.skipWhitespaceAndComments(input);
     assertEquals(expectedLine, input.readLine());
   }
 
   private void assertInputLimit(String expectedLine, String s) {
-    ParsableByteArray input = new ParsableByteArray(s.getBytes());
+    ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(s));
     CssParser.skipStyleBlock(input);
     assertEquals(expectedLine, input.readLine());
   }
 
   private void assertParserProduces(WebvttCssStyle expected,
       String styleBlock){
-    ParsableByteArray input = new ParsableByteArray(styleBlock.getBytes());
+    ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(styleBlock));
     WebvttCssStyle actualElem = parser.parseBlock(input);
     assertEquals(expected.hasBackgroundColor(), actualElem.hasBackgroundColor());
     if (expected.hasBackgroundColor()) {

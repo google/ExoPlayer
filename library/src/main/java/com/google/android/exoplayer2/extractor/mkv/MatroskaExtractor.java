@@ -986,8 +986,8 @@ public final class MatroskaExtractor implements Extractor {
       int seconds = (int) (timeUs / 1000000);
       timeUs -= (seconds * 1000000);
       int milliseconds = (int) (timeUs / 1000);
-      timeCodeData = String.format(Locale.US, "%02d:%02d:%02d,%03d",
-          hours, minutes, seconds, milliseconds).getBytes();
+      timeCodeData = Util.getUtf8Bytes(String.format(Locale.US, "%02d:%02d:%02d,%03d", hours,
+          minutes, seconds, milliseconds));
     }
     System.arraycopy(timeCodeData, 0, subripSampleData, SUBRIP_PREFIX_END_TIMECODE_OFFSET,
         SUBRIP_TIMECODE_LENGTH);
