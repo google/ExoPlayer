@@ -15,18 +15,22 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'com.novoda:bintray-release:0.3.4'
-    }
+  ext.setup = [compileSdk: 23,
+               minSdk    : 16,
+               buildTools: "23.0.3"]
+
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:2.1.0'
+    classpath 'com.novoda:bintray-release:0.3.4'
+  }
 }
 
 allprojects {
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 }
