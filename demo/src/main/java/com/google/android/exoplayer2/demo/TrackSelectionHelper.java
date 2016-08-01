@@ -112,6 +112,7 @@ import java.util.Locale;
     disableView = (CheckedTextView) inflater.inflate(
         android.R.layout.simple_list_item_single_choice, root, false);
     disableView.setText(R.string.selection_disabled);
+    disableView.setFocusable(true);
     disableView.setOnClickListener(this);
     root.addView(disableView);
 
@@ -119,6 +120,7 @@ import java.util.Locale;
     defaultView = (CheckedTextView) inflater.inflate(
         android.R.layout.simple_list_item_single_choice, root, false);
     defaultView.setText(R.string.selection_default);
+    defaultView.setFocusable(true);
     defaultView.setOnClickListener(this);
     root.addView(inflater.inflate(R.layout.list_divider, root, false));
     root.addView(defaultView);
@@ -143,10 +145,12 @@ import java.util.Locale;
         trackView.setText(buildTrackName(group.getFormat(trackIndex)));
         if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
-          haveSupportedTracks = true;
+          trackView.setFocusable(true);
           trackView.setTag(Pair.create(group, trackIndex));
           trackView.setOnClickListener(this);
+          haveSupportedTracks = true;
         } else {
+          trackView.setFocusable(false);
           trackView.setEnabled(false);
         }
         trackViews[groupIndex][trackIndex] = trackView;
@@ -182,9 +186,10 @@ import java.util.Locale;
       }
     }
     if (enableRandomAdaptationView != null) {
-      enableRandomAdaptationView.setEnabled(!isDisabled && override != null
-          && override.length() > 1);
-      if (enableRandomAdaptationView.isEnabled()) {
+      boolean enableView = !isDisabled && override != null && override.length() > 1;
+      enableRandomAdaptationView.setEnabled(enableView);
+      enableRandomAdaptationView.setFocusable(enableView);
+      if (enableView) {
         enableRandomAdaptationView.setChecked(!isDisabled
             && override instanceof RandomTrackSelection);
       }
