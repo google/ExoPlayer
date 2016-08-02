@@ -46,7 +46,7 @@ import java.util.Locale;
 
   private final MappingTrackSelector selector;
   private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
-  
+
   private TrackInfo trackInfo;
   private int rendererIndex;
   private TrackGroupArray trackGroups;
@@ -336,7 +336,7 @@ import java.util.Locale;
   }
 
   private static String buildTrackIdString(Format format) {
-    return format.id == null ? "" : " (" + format.id + ")";
+    return format.id == null ? "" : ("id:" + format.id);
   }
 
 }
