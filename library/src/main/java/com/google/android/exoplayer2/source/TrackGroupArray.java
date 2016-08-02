@@ -58,7 +58,7 @@ public final class TrackGroupArray {
    */
   public int indexOf(TrackGroup group) {
     for (int i = 0; i < length; i++) {
-      if (trackGroups[i] == group) {
+      if (trackGroups[i].equals(group)) {
         return i;
       }
     }

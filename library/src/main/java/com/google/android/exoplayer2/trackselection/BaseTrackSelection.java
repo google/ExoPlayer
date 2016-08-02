@@ -100,7 +100,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
   @Override
   public final int indexOf(Format format) {
     for (int i = 0; i < length; i++) {
-      if (formats[i] == format) {
+      if (formats[i].equals(format)) {
         return i;
       }
     }

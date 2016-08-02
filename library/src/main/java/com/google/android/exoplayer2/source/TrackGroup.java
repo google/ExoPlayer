@@ -67,7 +67,7 @@ public final class TrackGroup {
    */
   public int indexOf(Format format) {
     for (int i = 0; i < formats.length; i++) {
-      if (format == formats[i]) {
+      if (formats[i].equals(format)) {
         return i;
       }
     }
