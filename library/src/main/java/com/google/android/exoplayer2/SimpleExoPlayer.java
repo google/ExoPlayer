@@ -330,6 +330,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
+    player.setMediaSource(mediaSource, resetPosition);
+  }
+
+  @Override
   public void setPlayWhenReady(boolean playWhenReady) {
     player.setPlayWhenReady(playWhenReady);
   }

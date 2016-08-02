@@ -152,8 +152,9 @@ import java.util.ArrayList;
     handler = new Handler(internalPlaybackThread.getLooper(), this);
   }
 
-  public void setMediaSource(MediaSource mediaSource) {
-    handler.obtainMessage(MSG_SET_MEDIA_SOURCE, mediaSource).sendToTarget();
+  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
+    handler.obtainMessage(MSG_SET_MEDIA_SOURCE, resetPosition ? 1 : 0, 0, mediaSource)
+        .sendToTarget();
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {
@@ -161,7 +162,7 @@ import java.util.ArrayList;
   }
 
   public void seekTo(int periodIndex, long positionUs) {
-    handler.obtainMessage(MSG_SEEK_TO, periodIndex, -1, positionUs).sendToTarget();
+    handler.obtainMessage(MSG_SEEK_TO, periodIndex, 0, positionUs).sendToTarget();
   }
 
   public void stop() {
@@ -234,7 +235,7 @@ import java.util.ArrayList;
     try {
       switch (msg.what) {
         case MSG_SET_MEDIA_SOURCE: {
-          setMediaSourceInternal((MediaSource) msg.obj);
+          setMediaSourceInternal((MediaSource) msg.obj, msg.arg1 != 0);
           return true;
         }
         case MSG_SET_PLAY_WHEN_READY: {
@@ -328,8 +329,14 @@ import java.util.ArrayList;
     }
   }
 
-  private void setMediaSourceInternal(MediaSource mediaSource) {
+  private void setMediaSourceInternal(MediaSource mediaSource, boolean resetPosition)
+      throws ExoPlaybackException {
     resetInternal();
+    if (resetPosition) {
+      playbackInfo = new PlaybackInfo(0);
+      playbackInfo.startPositionUs = C.UNSET_TIME_US;
+      playbackInfo.positionUs = C.UNSET_TIME_US;
+    }
     this.mediaSource = mediaSource;
     mediaSource.prepareSource(this);
     setState(ExoPlayer.STATE_BUFFERING);

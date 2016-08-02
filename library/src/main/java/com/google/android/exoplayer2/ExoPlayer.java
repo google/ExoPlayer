@@ -247,11 +247,19 @@ public interface ExoPlayer {
   int getPlaybackState();
 
   /**
+   * Sets the {@link MediaSource} to play. Equivalent to {@code setMediaSource(mediaSource, true)}.
+   */
+  void setMediaSource(MediaSource mediaSource);
+
+  /**
    * Sets the {@link MediaSource} to play.
    *
    * @param mediaSource The {@link MediaSource} to play.
+   * @param resetPosition Whether the playback position should be reset to the source's default
+   *     position. If false, playback will start from the position defined by
+   *     {@link #getCurrentPeriodIndex()} and {@link #getCurrentPosition()}.
    */
-  void setMediaSource(MediaSource mediaSource);
+  void setMediaSource(MediaSource mediaSource, boolean resetPosition);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.

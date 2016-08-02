@@ -125,6 +125,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsSource;
 
+  private boolean shouldRestorePosition;
   private int playerPeriodIndex;
   private long playerPosition;
 
@@ -278,7 +279,9 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setTextOutput(subtitleView);
       player.setVideoListener(this);
       player.setVideoSurfaceHolder(surfaceView.getHolder());
-      player.seekTo(playerPeriodIndex, playerPosition);
+      if (shouldRestorePosition) {
+        player.seekTo(playerPeriodIndex, playerPosition);
+      }
       player.setPlayWhenReady(true);
       mediaController.setMediaPlayer(new PlayerControl(player));
       mediaController.setPrevNextListeners(new MediaControllerPrevNextClickListener(player, true),
@@ -319,7 +322,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
-      player.setMediaSource(mediaSource);
+      player.setMediaSource(mediaSource, !shouldRestorePosition);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -368,6 +371,8 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       debugViewHelper = null;
       playerPeriodIndex = player.getCurrentPeriodIndex();
       playerPosition = player.getCurrentPosition();
+      Timeline playerTimeline = player.getCurrentTimeline();
+      shouldRestorePosition = playerTimeline != null && playerTimeline.isFinal();
       player.release();
       player = null;
       trackSelector = null;

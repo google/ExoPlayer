@@ -97,8 +97,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void setMediaSource(MediaSource mediaSource) {
+    setMediaSource(mediaSource, true);
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
     timeline = null;
-    internalPlayer.setMediaSource(mediaSource);
+    internalPlayer.setMediaSource(mediaSource, resetPosition);
   }
 
   @Override
@@ -140,7 +145,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     maskingPeriodIndex = periodIndex;
     maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
     maskingDurationMs = periodChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
-
     pendingSeekAcks++;
     internalPlayer.seekTo(periodIndex, seekToDefaultPosition ? C.UNSET_TIME_US : positionMs * 1000);
     if (!seekToDefaultPosition) {
