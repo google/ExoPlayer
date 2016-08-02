@@ -61,6 +61,7 @@ public final class DashMediaSource implements MediaSource {
   private final EventDispatcher eventDispatcher;
   private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
+  private final Object manifestUriLock;
 
   private MediaSource.InvalidationListener invalidationListener;
   private DataSource dataSource;
@@ -91,6 +92,18 @@ public final class DashMediaSource implements MediaSource {
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new DashManifestParser();
     manifestCallback = new ManifestCallback();
+    manifestUriLock = new Object();
+  }
+
+  /**
+   * Manually replaces the manifest {@link Uri}.
+   *
+   * @param manifestUri The replacement manifest {@link Uri}.
+   */
+  public void replaceManifestUri(Uri manifestUri) {
+    synchronized (manifestUriLock) {
+      this.manifestUri = manifestUri;
+    }
   }
 
   // MediaSource implementation.
@@ -190,7 +203,13 @@ public final class DashMediaSource implements MediaSource {
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
     manifestLoadEndTimestamp = elapsedRealtimeMs;
     if (manifest.location != null) {
-      manifestUri = manifest.location;
+      synchronized (manifestUriLock) {
+        // This condition checks that replaceManifestUri wasn't called between the start and end of
+        // this load. If it was, we ignore the manifest location and prefer the manual replacement.
+        if (loadable.dataSpec.uri == manifestUri) {
+          manifestUri = manifest.location;
+        }
+      }
     }
 
     if (periods == null) {
@@ -254,6 +273,10 @@ public final class DashMediaSource implements MediaSource {
   // Internal methods.
 
   private void startLoadingManifest() {
+    Uri manifestUri;
+    synchronized (manifestUriLock) {
+      manifestUri = this.manifestUri;
+    }
     startLoading(new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST,
         manifestParser), manifestCallback, minLoadableRetryCount);
   }
