@@ -470,6 +470,12 @@ import java.util.ArrayList;
       }
     }
 
+    if (state == ExoPlayer.STATE_BUFFERING) {
+      for (Renderer renderer : enabledRenderers) {
+        renderer.maybeThrowStreamError();
+      }
+    }
+
     handler.removeMessages(MSG_DO_SOME_WORK);
     if ((playWhenReady && state == ExoPlayer.STATE_READY) || state == ExoPlayer.STATE_BUFFERING) {
       scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, RENDERING_INTERVAL_MS);
