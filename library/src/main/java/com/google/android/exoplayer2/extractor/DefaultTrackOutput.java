@@ -449,8 +449,8 @@ public final class DefaultTrackOutput implements TrackOutput {
   @Override
   public void format(Format format) {
     Format adjustedFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
-    infoQueue.format(adjustedFormat);
-    if (upstreamFormatChangeListener != null) {
+    boolean formatChanged = infoQueue.format(adjustedFormat);
+    if (upstreamFormatChangeListener != null && formatChanged) {
       upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedFormat);
     }
   }
@@ -608,6 +608,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     private long largestDequeuedTimestampUs;
     private long largestQueuedTimestampUs;
+    private boolean upstreamFormatRequired;
     private Format upstreamFormat;
     private int upstreamSourceId;
 
@@ -622,6 +623,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       formats = new Format[capacity];
       largestDequeuedTimestampUs = Long.MIN_VALUE;
       largestQueuedTimestampUs = Long.MIN_VALUE;
+      upstreamFormatRequired = true;
     }
 
     public void clearSampleData() {
@@ -711,7 +713,7 @@ public final class DefaultTrackOutput implements TrackOutput {
      * Returns the upstream {@link Format} in which samples are being queued.
      */
     public synchronized Format getUpstreamFormat() {
-      return upstreamFormat;
+      return upstreamFormatRequired ? null : upstreamFormat;
     }
 
     /**
@@ -826,15 +828,24 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     // Called by the loading thread.
 
-    public synchronized void format(Format format) {
-      // We suppress changes between equal formats so we can use referential equality in readData.
-      if (!Util.areEqual(format, upstreamFormat)) {
+    public synchronized boolean format(Format format) {
+      if (format == null) {
+        upstreamFormatRequired = true;
+        return false;
+      }
+      upstreamFormatRequired = false;
+      if (Util.areEqual(format, upstreamFormat)) {
+        // Suppress changes between equal formats so we can use referential equality in readData.
+        return false;
+      } else {
         upstreamFormat = format;
+        return true;
       }
     }
 
     public synchronized void commitSample(long timeUs, int sampleFlags, long offset, int size,
         byte[] encryptionKey) {
+      Assertions.checkState(!upstreamFormatRequired);
       commitSampleTimestamp(timeUs);
       timesUs[relativeWriteIndex] = timeUs;
       offsets[relativeWriteIndex] = offset;
