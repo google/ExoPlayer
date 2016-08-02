@@ -23,7 +23,6 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -60,10 +59,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsAutoFrcWorkaround;
 
-  private int maxWidth;
-  private int maxHeight;
-  private int configuredMaxWidth;
-  private int configuredMaxHeight;
+  private Format[] streamFormats;
+  private CodecMaxValues codecMaxValues;
 
   private Surface surface;
   private boolean reportedDrawnToSurface;
@@ -221,18 +218,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
-    maxWidth = Format.NO_VALUE;
-    maxHeight = Format.NO_VALUE;
-    for (Format format : formats) {
-      maxWidth = Math.max(maxWidth, format.width);
-      maxHeight = Math.max(maxHeight, format.height);
-    }
-    if (formats.length > 1 && (maxWidth == Format.NO_VALUE || maxHeight == Format.NO_VALUE)) {
-      // TODO: Consider replacing this block with one that sets values injected via the constructor.
-      Log.w(TAG, "Maximum dimensions unknown for adaptive playback. Assuming 1920x1080.");
-      maxWidth = 1920;
-      maxHeight = 1080;
-    }
+    streamFormats = formats;
     super.onStreamChanged(formats);
   }
 
@@ -323,15 +309,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return super.shouldInitCodec() && surface != null && surface.isValid();
   }
 
-  // Override configureCodec to provide the surface.
   @Override
   protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
-    maxWidth = Math.max(maxWidth, format.width);
-    maxHeight = Math.max(maxHeight, format.height);
-    codec.configure(getFrameworkFormat(format, maxWidth, maxHeight, deviceNeedsAutoFrcWorkaround),
-        surface, crypto, 0);
-    configuredMaxWidth = maxWidth;
-    configuredMaxHeight = maxHeight;
+    codecMaxValues = getCodecMaxValues(format, streamFormats);
+    MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround);
+    codec.configure(mediaFormat, surface, crypto, 0);
   }
 
   @Override
@@ -381,9 +363,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       Format oldFormat, Format newFormat) {
-    return newFormat.sampleMimeType.equals(oldFormat.sampleMimeType)
-        && getRotationDegrees(newFormat) == getRotationDegrees(oldFormat)
-        && newFormat.width <= configuredMaxWidth && newFormat.height <= configuredMaxHeight
+    return areAdaptationCompatible(oldFormat, newFormat)
+        && newFormat.width <= codecMaxValues.width && newFormat.height <= codecMaxValues.height
+        && newFormat.maxInputSize <= codecMaxValues.inputSize
         && (codecIsAdaptive
         || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
   }
@@ -502,60 +484,98 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @SuppressLint("InlinedApi")
-  private static android.media.MediaFormat getFrameworkFormat(Format format, int maxWidth,
-      int maxHeight, boolean deviceNeedsAutoFrcWorkaround) {
-    android.media.MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
-
+  private static MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
+      boolean deviceNeedsAutoFrcWorkaround) {
+    MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
+    // Set the maximum adaptive video dimensions.
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);
+    // Set the maximum input size.
+    if (codecMaxValues.inputSize != Format.NO_VALUE) {
+      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxValues.inputSize);
+    }
+    // Set FRC workaround.
     if (deviceNeedsAutoFrcWorkaround) {
       frameworkMediaFormat.setInteger("auto-frc", 0);
     }
+    return frameworkMediaFormat;
+  }
 
-    // Set the maximum adaptive video dimensions.
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, maxWidth);
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, maxHeight);
+  /**
+   * Returns {@link CodecMaxValues} suitable for configuring a codec for {@code format} in a way
+   * that will allow possible adaptation to other compatible formats in {@code streamFormats}.
+   *
+   * @param format The format for which the codec is being configured.
+   * @param streamFormats The possible stream formats.
+   * @return Suitable {@link CodecMaxValues}.
+   */
+  private static CodecMaxValues getCodecMaxValues(Format format, Format[] streamFormats) {
+    int maxWidth = format.width;
+    int maxHeight = format.height;
+    int maxInputSize = getMaxInputSize(format);
+    for (Format streamFormat : streamFormats) {
+      if (areAdaptationCompatible(format, streamFormat)) {
+        maxWidth = Math.max(maxWidth, streamFormat.width);
+        maxHeight = Math.max(maxHeight, streamFormat.height);
+        maxInputSize = Math.max(maxInputSize, getMaxInputSize(streamFormat));
+      }
+    }
+    return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
+  }
 
-    if (format.maxInputSize > 0) {
-      // The format already has a maximum input size.
-      return frameworkMediaFormat;
+  /**
+   * Returns a maximum input size for a given format.
+   *
+   * @param format The format.
+   * @return An maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
+   *     determined.
+   */
+  private static int getMaxInputSize(Format format) {
+    if (format.maxInputSize != Format.NO_VALUE) {
+      // The format defines an explicit maximum input size.
+      return format.maxInputSize;
     }
 
-    // If the format doesn't define a maximum input size, determine one ourselves.
+    if (format.width == Format.NO_VALUE || format.height == Format.NO_VALUE) {
+      // We can't infer a maximum input size without video dimensions.
+      return Format.NO_VALUE;
+    }
+
+    // Attempt to infer a maximum input size from the format.
     int maxPixels;
     int minCompressionRatio;
     switch (format.sampleMimeType) {
       case MimeTypes.VIDEO_H263:
       case MimeTypes.VIDEO_MP4V:
-        maxPixels = maxWidth * maxHeight;
+        maxPixels = format.width * format.height;
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
           // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
           // maximum input size, so use the default value.
-          return frameworkMediaFormat;
+          return Format.NO_VALUE;
         }
         // Round up width/height to an integer number of macroblocks.
-        maxPixels = ((maxWidth + 15) / 16) * ((maxHeight + 15) / 16) * 16 * 16;
+        maxPixels = ((format.width + 15) / 16) * ((format.height + 15) / 16) * 16 * 16;
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_VP8:
         // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
-        maxPixels = maxWidth * maxHeight;
+        maxPixels = format.width * format.height;
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_H265:
       case MimeTypes.VIDEO_VP9:
-        maxPixels = maxWidth * maxHeight;
+        maxPixels = format.width * format.height;
         minCompressionRatio = 4;
         break;
       default:
         // Leave the default max input size.
-        return frameworkMediaFormat;
+        return Format.NO_VALUE;
     }
     // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
-    int maxInputSize = (maxPixels * 3) / (2 * minCompressionRatio);
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
-    return frameworkMediaFormat;
+    return (maxPixels * 3) / (2 * minCompressionRatio);
   }
 
   private void maybeNotifyDrawnToSurface() {
@@ -606,12 +626,40 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
   }
 
+  /**
+   * Returns whether an adaptive codec with suitable {@link CodecMaxValues} will support adaptation
+   * between two {@link Format}s.
+   *
+   * @param first The first format.
+   * @param second The second format.
+   * @return Whether an adaptive codec with suitable {@link CodecMaxValues} will support adaptation
+   *     between two {@link Format}s.
+   */
+  private static boolean areAdaptationCompatible(Format first, Format second) {
+    return first.sampleMimeType.equals(second.sampleMimeType)
+        && getRotationDegrees(first) == getRotationDegrees(second);
+  }
+
   private static float getPixelWidthHeightRatio(Format format) {
     return format.pixelWidthHeightRatio == Format.NO_VALUE ? 1 : format.pixelWidthHeightRatio;
   }
 
   private static int getRotationDegrees(Format format) {
     return format.rotationDegrees == Format.NO_VALUE ? 0 : format.rotationDegrees;
+  }
+
+  private static final class CodecMaxValues {
+
+    public final int width;
+    public final int height;
+    public final int inputSize;
+
+    public CodecMaxValues(int width, int height, int inputSize) {
+      this.width = width;
+      this.height = height;
+      this.inputSize = inputSize;
+    }
+
   }
 
 }
