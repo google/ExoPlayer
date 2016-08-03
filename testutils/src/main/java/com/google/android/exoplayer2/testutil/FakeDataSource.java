@@ -150,8 +150,8 @@ public final class FakeDataSource implements DataSource {
   }
 
   /**
-   * @return The {@link DataSpec} instances passed to {@link #open(DataSpec)} since the last call
-   *     to this method.
+   * Returns the {@link DataSpec} instances passed to {@link #open(DataSpec)} since the last call to
+   * this method.
    */
   public DataSpec[] getAndClearOpenedDataSpecs() {
     DataSpec[] dataSpecs = new DataSpec[openedDataSpecs.size()];

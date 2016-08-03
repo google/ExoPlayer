@@ -411,7 +411,7 @@ public final class Format implements Parcelable {
   }
 
   /**
-   * @return A {@link MediaFormat} representation of this format.
+   * Returns a {@link MediaFormat} representation of this format.
    */
   @SuppressLint("InlinedApi")
   @TargetApi(16)

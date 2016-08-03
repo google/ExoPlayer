@@ -140,7 +140,7 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * @return The position of the next data to be decoded or -1 in case of error.
+   * Returns the position of the next data to be decoded, or -1 in case of error.
    */
   public long getDecodePosition() {
     return flacGetDecodePosition(nativeDecoderContext);

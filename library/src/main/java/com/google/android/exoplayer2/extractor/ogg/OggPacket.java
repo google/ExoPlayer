@@ -111,7 +111,7 @@ import java.io.IOException;
   }
 
   /**
-   * @return A ParsableByteArray containing the payload of the packet.
+   * Returns a {@link ParsableByteArray} containing the packet's payload.
    */
   public ParsableByteArray getPayload() {
     return packetArray;

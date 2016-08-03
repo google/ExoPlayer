@@ -380,7 +380,7 @@ public final class MediaCodecUtil {
     android.media.MediaCodecInfo getCodecInfoAt(int index);
 
     /**
-     * @return Returns whether secure decoders are explicitly listed, if present.
+     * Returns whether secure decoders are explicitly listed, if present.
      */
     boolean secureDecodersExplicit();
 

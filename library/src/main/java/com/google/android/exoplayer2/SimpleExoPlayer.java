@@ -232,40 +232,35 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * @return The video format currently being played, or null if there is no video component to the
-   *     current media.
+   * Returns the video format currently being played, or null if no video is being played.
    */
   public Format getVideoFormat() {
     return videoFormat;
   }
 
   /**
-   * @return The audio format currently being played, or null if there is no audio component to the
-   *     current media.
+   * Returns the audio format currently being played, or null if no audio is being played.
    */
   public Format getAudioFormat() {
     return audioFormat;
   }
 
   /**
-   * @return The audio session identifier. If not set {@code AudioTrack.SESSION_ID_NOT_SET} is
-   *     returned.
+   * Returns the audio session identifier, or {@code AudioTrack.SESSION_ID_NOT_SET} if not set.
    */
   public int getAudioSessionId() {
     return audioSessionId;
   }
 
   /**
-   * @return The {@link DecoderCounters} for video, or null if there is no video component to the
-   *     current media.
+   * Returns {@link DecoderCounters} for video, or null if no video is being played.
    */
   public DecoderCounters getVideoDecoderCounters() {
     return videoDecoderCounters;
   }
 
   /**
-   * @return The {@link DecoderCounters} for audio, or null if there is no audio component to the
-   *     current media.
+   * Returns {@link DecoderCounters} for audio, or null if no audio is being played.
    */
   public DecoderCounters getAudioDecoderCounters() {
     return audioDecoderCounters;

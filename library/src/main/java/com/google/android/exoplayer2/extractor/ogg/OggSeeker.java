@@ -27,9 +27,8 @@ import java.io.IOException;
 /* package */ interface OggSeeker {
 
   /**
-   * @return a SeekMap instance which returns an initial estimated position for progressive seeking
-   *     or the final position for direct seeking. Returns null if {@link #read} hasn't returned -1
-   *     yet.
+   * Returns a {@link SeekMap} that returns an initial estimated position for progressive seeking
+   * or the final position for direct seeking. Returns null if {@link #read} has yet to return -1.
    */
   SeekMap createSeekMap();
 
