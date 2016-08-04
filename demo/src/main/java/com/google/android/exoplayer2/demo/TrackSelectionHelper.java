@@ -87,8 +87,9 @@ import java.util.Locale;
     trackGroupsAdaptive = new boolean[trackGroups.length];
     for (int i = 0; i < trackGroups.length; i++) {
       trackGroupsAdaptive[i] = adaptiveVideoTrackSelectionFactory != null
-          && (trackInfo.getAdaptiveSupport(rendererIndex, i, false)
-          != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED);
+          && trackInfo.getAdaptiveSupport(rendererIndex, i, false)
+              != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
+          && trackGroups.get(i).length > 1;
     }
     isDisabled = selector.getRendererDisabled(rendererIndex);
     override = selector.hasSelectionOverride(rendererIndex, trackGroups)
@@ -131,7 +132,7 @@ import java.util.Locale;
     trackViews = new CheckedTextView[trackGroups.length][];
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
-      boolean groupIsAdaptive = group.length > 1 && trackGroupsAdaptive[groupIndex];
+      boolean groupIsAdaptive = trackGroupsAdaptive[groupIndex];
       haveAdaptiveTracks |= groupIsAdaptive;
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
