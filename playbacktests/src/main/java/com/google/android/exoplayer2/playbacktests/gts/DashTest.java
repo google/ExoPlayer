@@ -732,7 +732,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     @Override
     public MediaSource buildSource(HostActivity host, String userAgent,
-        TransferListener mediaTransferListener) {
+        TransferListener<? super DataSource> mediaTransferListener) {
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
       DataSource.Factory mediaDataSourceFactory = new DefaultDataSourceFactory(host, userAgent,
           mediaTransferListener);

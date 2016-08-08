@@ -68,7 +68,7 @@ public final class UdpDataSource implements DataSource {
   /**
    * @param listener An optional listener.
    */
-  public UdpDataSource(TransferListener listener) {
+  public UdpDataSource(TransferListener<? super UdpDataSource> listener) {
     this(listener, DEFAULT_MAX_PACKET_SIZE);
   }
 

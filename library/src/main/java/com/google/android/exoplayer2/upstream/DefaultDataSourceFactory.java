@@ -26,7 +26,7 @@ public final class DefaultDataSourceFactory implements Factory {
 
   private final Context context;
   private final String userAgent;
-  private final TransferListener listener;
+  private final TransferListener<? super DataSource> listener;
   private final boolean allowCrossProtocolRedirects;
 
   /**
@@ -42,7 +42,8 @@ public final class DefaultDataSourceFactory implements Factory {
    * @param userAgent The User-Agent string that should be used.
    * @param listener An optional listener.
    */
-  public DefaultDataSourceFactory(Context context, String userAgent, TransferListener listener) {
+  public DefaultDataSourceFactory(Context context, String userAgent,
+      TransferListener<? super DataSource> listener) {
     this(context, userAgent, listener, false);
   }
 
@@ -53,8 +54,8 @@ public final class DefaultDataSourceFactory implements Factory {
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled.
    */
-  public DefaultDataSourceFactory(Context context, String userAgent, TransferListener listener,
-      boolean allowCrossProtocolRedirects) {
+  public DefaultDataSourceFactory(Context context, String userAgent,
+      TransferListener<? super DataSource> listener, boolean allowCrossProtocolRedirects) {
     this.context = context.getApplicationContext();
     this.userAgent = userAgent;
     this.listener = listener;

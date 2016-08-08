@@ -32,16 +32,16 @@ public final class DefaultOkHttpDataSourceFactory implements Factory {
   private final Context context;
   private final OkHttpClient client;
   private final String userAgent;
-  private final TransferListener transferListener;
+  private final TransferListener<? super DataSource> transferListener;
   private final CacheControl cacheControl;
 
   public DefaultOkHttpDataSourceFactory(Context context, OkHttpClient client, String userAgent,
-      TransferListener transferListener) {
+      TransferListener<? super DataSource> transferListener) {
     this(context, client, userAgent, transferListener, null);
   }
 
   public DefaultOkHttpDataSourceFactory(Context context, OkHttpClient client, String userAgent,
-      TransferListener transferListener, CacheControl cacheControl) {
+      TransferListener<? super DataSource> transferListener, CacheControl cacheControl) {
     this.context = context.getApplicationContext();
     this.client = client;
     this.userAgent = userAgent;

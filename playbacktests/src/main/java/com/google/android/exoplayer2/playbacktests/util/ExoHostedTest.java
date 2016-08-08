@@ -35,11 +35,11 @@ import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import junit.framework.Assert;
-
 
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
@@ -307,7 +307,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @SuppressWarnings("unused")
   protected abstract MediaSource buildSource(HostActivity host, String userAgent,
-      TransferListener mediaTransferListener);
+      TransferListener<? super DataSource> mediaTransferListener);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {

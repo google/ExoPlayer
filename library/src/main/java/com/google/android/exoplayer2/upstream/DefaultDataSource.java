@@ -57,8 +57,8 @@ public final class DefaultDataSource implements DataSource {
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data..
    */
-  public DefaultDataSource(Context context, TransferListener listener, String userAgent,
-      boolean allowCrossProtocolRedirects) {
+  public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
+      String userAgent, boolean allowCrossProtocolRedirects) {
     this(context, listener,
         new DefaultHttpDataSource(userAgent, null, listener,
             DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
@@ -74,7 +74,8 @@ public final class DefaultDataSource implements DataSource {
    * @param baseDataSource A {@link DataSource} to use for URI schemes other than file, asset and
    *     content. This {@link DataSource} should normally support at least http(s).
    */
-  public DefaultDataSource(Context context, TransferListener listener, DataSource baseDataSource) {
+  public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
+      DataSource baseDataSource) {
     this.baseDataSource = Assertions.checkNotNull(baseDataSource);
     this.fileDataSource = new FileDataSource(listener);
     this.assetDataSource = new AssetDataSource(context, listener);
