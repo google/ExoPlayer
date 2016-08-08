@@ -533,6 +533,23 @@ import java.util.ArrayList;
   }
 
   private void seekToPeriodPosition(int periodIndex, long positionUs) throws ExoPlaybackException {
+    if (periodIndex != playbackInfo.periodIndex) {
+      playbackInfo = new PlaybackInfo(periodIndex);
+      playbackInfo.startPositionUs = positionUs;
+      playbackInfo.positionUs = positionUs;
+      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
+    } else {
+      playbackInfo.startPositionUs = positionUs;
+      playbackInfo.positionUs = positionUs;
+    }
+
+    if (mediaSource == null) {
+      if (positionUs != C.UNSET_TIME_US) {
+        resetInternalPosition(positionUs);
+      }
+      return;
+    }
+
     stopRenderers();
     rebuffering = false;
 
@@ -553,6 +570,16 @@ import java.util.ArrayList;
       period = period.nextPeriod;
     }
 
+    // Disable all the renderers if the period is changing.
+    if (newPlayingPeriod != playingPeriod) {
+      for (Renderer renderer : enabledRenderers) {
+        renderer.disable();
+      }
+      enabledRenderers = new Renderer[0];
+      rendererMediaClock = null;
+      rendererMediaClockSource = null;
+    }
+
     // Update loaded periods.
     bufferAheadPeriodCount = 0;
     if (newPlayingPeriod != null) {
@@ -563,16 +590,12 @@ import java.util.ArrayList;
       loadingPeriod = playingPeriod;
       if (playingPeriod.hasEnabledTracks) {
         positionUs = playingPeriod.mediaPeriod.seekToUs(positionUs);
+        playbackInfo.startPositionUs = positionUs;
+        playbackInfo.positionUs = positionUs;
       }
       resetInternalPosition(positionUs);
       maybeContinueLoading();
     } else {
-      for (Renderer renderer : enabledRenderers) {
-        renderer.disable();
-      }
-      enabledRenderers = new Renderer[0];
-      rendererMediaClock = null;
-      rendererMediaClockSource = null;
       playingPeriod = null;
       readingPeriod = null;
       loadingPeriod = null;
@@ -580,23 +603,9 @@ import java.util.ArrayList;
         resetInternalPosition(positionUs);
       }
     }
-
-    // Update the expose playback information.
-    if (periodIndex != playbackInfo.periodIndex) {
-      playbackInfo = new PlaybackInfo(periodIndex);
-      playbackInfo.startPositionUs = positionUs;
-      playbackInfo.positionUs = positionUs;
-      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
-    } else {
-      playbackInfo.startPositionUs = positionUs;
-      playbackInfo.positionUs = positionUs;
-    }
     updatePlaybackPositions();
-
-    if (mediaSource != null) {
-      setState(ExoPlayer.STATE_BUFFERING);
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-    }
+    setState(ExoPlayer.STATE_BUFFERING);
+    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
   private void resetInternalPosition(long periodPositionUs) throws ExoPlaybackException {
