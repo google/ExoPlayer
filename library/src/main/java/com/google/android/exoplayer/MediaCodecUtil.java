@@ -216,15 +216,16 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around an issue where creating a particular MP3 decoder on some devices on platform API
-    // version 16 crashes mediaserver.
-    if (Util.SDK_INT == 16
+    // Work around an issue where querying/creating a particular MP3 decoder on some devices on
+    // platform API version 16 fails.
+    if (Util.SDK_INT == 16 && Util.DEVICE != null
         && "OMX.qcom.audio.decoder.mp3".equals(name)
         && ("dlxu".equals(Util.DEVICE) // HTC Butterfly
             || "protou".equals(Util.DEVICE) // HTC Desire X
             || "ville".equals(Util.DEVICE) // HTC One S
             || "villeplus".equals(Util.DEVICE)
             || "villec2".equals(Util.DEVICE)
+            || Util.DEVICE.startsWith("gee") // LGE Optimus G
             || "C6602".equals(Util.DEVICE) // Sony Xperia Z
             || "C6603".equals(Util.DEVICE)
             || "C6606".equals(Util.DEVICE)
