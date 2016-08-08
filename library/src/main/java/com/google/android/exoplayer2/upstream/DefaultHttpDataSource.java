@@ -71,7 +71,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private final String userAgent;
   private final Predicate<String> contentTypePredicate;
   private final HashMap<String, String> requestProperties;
-  private final TransferListener listener;
+  private final TransferListener<? super DefaultHttpDataSource> listener;
 
   private DataSpec dataSpec;
   private HttpURLConnection connection;
@@ -102,7 +102,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * @param listener An optional listener.
    */
   public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-      TransferListener listener) {
+      TransferListener<? super DefaultHttpDataSource> listener) {
     this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS);
   }
@@ -119,7 +119,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
    *     as an infinite timeout.
    */
   public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-      TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis) {
+      TransferListener<? super DefaultHttpDataSource> listener, int connectTimeoutMillis,
+      int readTimeoutMillis) {
     this(userAgent, contentTypePredicate, listener, connectTimeoutMillis, readTimeoutMillis, false);
   }
 
@@ -138,8 +139,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
    *     to HTTPS and vice versa) are enabled.
    */
   public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-      TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis,
-      boolean allowCrossProtocolRedirects) {
+      TransferListener<? super DefaultHttpDataSource> listener, int connectTimeoutMillis,
+      int readTimeoutMillis, boolean allowCrossProtocolRedirects) {
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.listener = listener;
@@ -246,7 +247,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     opened = true;
     if (listener != null) {
-      listener.onTransferStart();
+      listener.onTransferStart(this, dataSpec);
     }
 
     return bytesToRead;
@@ -279,7 +280,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
       if (opened) {
         opened = false;
         if (listener != null) {
-          listener.onTransferEnd();
+          listener.onTransferEnd(this);
         }
       }
     }
@@ -518,7 +519,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
       }
       bytesSkipped += read;
       if (listener != null) {
-        listener.onBytesTransferred(read);
+        listener.onBytesTransferred(this, read);
       }
     }
 
@@ -559,7 +560,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     bytesRead += read;
     if (listener != null) {
-      listener.onBytesTransferred(read);
+      listener.onBytesTransferred(this, read);
     }
     return read;
   }

@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.util.SlidingPercentile;
  * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using
  * a {@link SlidingPercentile} and is updated each time a transfer ends.
  */
-public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
+public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener<Object> {
 
   /**
    * The default maximum weight for the sliding window.
@@ -67,7 +67,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onTransferStart() {
+  public synchronized void onTransferStart(Object source, DataSpec dataSpec) {
     if (streamCount == 0) {
       sampleStartTimeMs = SystemClock.elapsedRealtime();
     }
@@ -75,12 +75,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onBytesTransferred(int bytes) {
+  public synchronized void onBytesTransferred(Object source, int bytes) {
     sampleBytesTransferred += bytes;
   }
 
   @Override
-  public synchronized void onTransferEnd() {
+  public synchronized void onTransferEnd(Object source) {
     Assertions.checkState(streamCount > 0);
     long nowMs = SystemClock.elapsedRealtime();
     int sampleElapsedTimeMs = (int) (nowMs - sampleStartTimeMs);

@@ -42,7 +42,7 @@ public final class ContentDataSource implements DataSource {
   }
 
   private final ContentResolver resolver;
-  private final TransferListener listener;
+  private final TransferListener<? super ContentDataSource> listener;
 
   private Uri uri;
   private InputStream inputStream;
@@ -60,7 +60,7 @@ public final class ContentDataSource implements DataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public ContentDataSource(Context context, TransferListener listener) {
+  public ContentDataSource(Context context, TransferListener<? super ContentDataSource> listener) {
     this.resolver = context.getContentResolver();
     this.listener = listener;
   }
@@ -94,7 +94,7 @@ public final class ContentDataSource implements DataSource {
 
     opened = true;
     if (listener != null) {
-      listener.onTransferStart();
+      listener.onTransferStart(this, dataSpec);
     }
 
     return bytesRemaining;
@@ -119,7 +119,7 @@ public final class ContentDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
         if (listener != null) {
-          listener.onBytesTransferred(bytesRead);
+          listener.onBytesTransferred(this, bytesRead);
         }
       }
 
@@ -145,7 +145,7 @@ public final class ContentDataSource implements DataSource {
         if (opened) {
           opened = false;
           if (listener != null) {
-            listener.onTransferEnd();
+            listener.onTransferEnd(this);
           }
         }
       }

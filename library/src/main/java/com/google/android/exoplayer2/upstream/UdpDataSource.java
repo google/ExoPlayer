@@ -51,7 +51,7 @@ public final class UdpDataSource implements DataSource {
    */
   public static final int DEAFULT_SOCKET_TIMEOUT_MILLIS = 8 * 1000;
 
-  private final TransferListener listener;
+  private final TransferListener<? super UdpDataSource> listener;
   private final int socketTimeoutMillis;
   private final byte[] packetBuffer;
   private final DatagramPacket packet;
@@ -76,7 +76,7 @@ public final class UdpDataSource implements DataSource {
    * @param listener An optional listener.
    * @param maxPacketSize The maximum datagram packet size, in bytes.
    */
-  public UdpDataSource(TransferListener listener, int maxPacketSize) {
+  public UdpDataSource(TransferListener<? super UdpDataSource> listener, int maxPacketSize) {
     this(listener, maxPacketSize, DEAFULT_SOCKET_TIMEOUT_MILLIS);
   }
 
@@ -86,7 +86,8 @@ public final class UdpDataSource implements DataSource {
    * @param socketTimeoutMillis The socket timeout in milliseconds. A timeout of zero is interpreted
    *     as an infinite timeout.
    */
-  public UdpDataSource(TransferListener listener, int maxPacketSize, int socketTimeoutMillis) {
+  public UdpDataSource(TransferListener<? super UdpDataSource> listener, int maxPacketSize,
+      int socketTimeoutMillis) {
     this.listener = listener;
     this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];
@@ -121,7 +122,7 @@ public final class UdpDataSource implements DataSource {
 
     opened = true;
     if (listener != null) {
-      listener.onTransferStart();
+      listener.onTransferStart(this, dataSpec);
     }
     return C.LENGTH_UNBOUNDED;
   }
@@ -138,7 +139,7 @@ public final class UdpDataSource implements DataSource {
 
       packetRemaining = packet.getLength();
       if (listener != null) {
-        listener.onBytesTransferred(packetRemaining);
+        listener.onBytesTransferred(this, packetRemaining);
       }
     }
 
@@ -175,7 +176,7 @@ public final class UdpDataSource implements DataSource {
     if (opened) {
       opened = false;
       if (listener != null) {
-        listener.onTransferEnd();
+        listener.onTransferEnd(this);
       }
     }
   }

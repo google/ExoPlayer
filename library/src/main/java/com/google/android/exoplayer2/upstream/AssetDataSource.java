@@ -40,7 +40,7 @@ public final class AssetDataSource implements DataSource {
   }
 
   private final AssetManager assetManager;
-  private final TransferListener listener;
+  private final TransferListener<? super AssetDataSource> listener;
 
   private Uri uri;
   private InputStream inputStream;
@@ -58,7 +58,7 @@ public final class AssetDataSource implements DataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public AssetDataSource(Context context, TransferListener listener) {
+  public AssetDataSource(Context context, TransferListener<? super AssetDataSource> listener) {
     this.assetManager = context.getAssets();
     this.listener = listener;
   }
@@ -97,7 +97,7 @@ public final class AssetDataSource implements DataSource {
 
     opened = true;
     if (listener != null) {
-      listener.onTransferStart();
+      listener.onTransferStart(this, dataSpec);
     }
     return bytesRemaining;
   }
@@ -121,7 +121,7 @@ public final class AssetDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
         if (listener != null) {
-          listener.onBytesTransferred(bytesRead);
+          listener.onBytesTransferred(this, bytesRead);
         }
       }
 
@@ -147,7 +147,7 @@ public final class AssetDataSource implements DataSource {
         if (opened) {
           opened = false;
           if (listener != null) {
-            listener.onTransferEnd();
+            listener.onTransferEnd(this);
           }
         }
       }

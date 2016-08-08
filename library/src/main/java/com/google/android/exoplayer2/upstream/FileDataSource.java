@@ -37,7 +37,7 @@ public final class FileDataSource implements DataSource {
 
   }
 
-  private final TransferListener listener;
+  private final TransferListener<? super FileDataSource> listener;
 
   private RandomAccessFile file;
   private Uri uri;
@@ -51,7 +51,7 @@ public final class FileDataSource implements DataSource {
   /**
    * @param listener An optional listener.
    */
-  public FileDataSource(TransferListener listener) {
+  public FileDataSource(TransferListener<? super FileDataSource> listener) {
     this.listener = listener;
   }
 
@@ -72,7 +72,7 @@ public final class FileDataSource implements DataSource {
 
     opened = true;
     if (listener != null) {
-      listener.onTransferStart();
+      listener.onTransferStart(this, dataSpec);
     }
 
     return bytesRemaining;
@@ -93,7 +93,7 @@ public final class FileDataSource implements DataSource {
       if (bytesRead > 0) {
         bytesRemaining -= bytesRead;
         if (listener != null) {
-          listener.onBytesTransferred(bytesRead);
+          listener.onBytesTransferred(this, bytesRead);
         }
       }
 
@@ -119,7 +119,7 @@ public final class FileDataSource implements DataSource {
         if (opened) {
           opened = false;
           if (listener != null) {
-            listener.onTransferEnd();
+            listener.onTransferEnd(this);
           }
         }
       }

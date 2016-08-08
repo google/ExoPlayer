@@ -18,24 +18,30 @@ package com.google.android.exoplayer2.upstream;
 /**
  * A listener of data transfer events.
  */
-public interface TransferListener {
+public interface TransferListener<S> {
 
   /**
    * Called when a transfer starts.
+   *
+   * @param source The source performing the transfer.
+   * @param dataSpec Describes the data being transferred.
    */
-  void onTransferStart();
+  void onTransferStart(S source, DataSpec dataSpec);
 
   /**
    * Called incrementally during a transfer.
    *
+   * @param source The source performing the transfer.
    * @param bytesTransferred The number of bytes transferred since the previous call to this
    *     method (or if the first call, since the transfer was started).
    */
-  void onBytesTransferred(int bytesTransferred);
+  void onBytesTransferred(S source, int bytesTransferred);
 
   /**
    * Called when a transfer ends.
+   *
+   * @param source The source performing the transfer.
    */
-  void onTransferEnd();
+  void onTransferEnd(S source);
 
 }

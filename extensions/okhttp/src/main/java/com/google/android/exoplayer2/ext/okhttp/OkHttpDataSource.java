@@ -48,7 +48,7 @@ public class OkHttpDataSource implements HttpDataSource {
   private final OkHttpClient okHttpClient;
   private final String userAgent;
   private final Predicate<String> contentTypePredicate;
-  private final TransferListener listener;
+  private final TransferListener<? super OkHttpDataSource> listener;
   private final CacheControl cacheControl;
   private final HashMap<String, String> requestProperties;
 
@@ -83,7 +83,7 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param listener An optional listener.
    */
   public OkHttpDataSource(OkHttpClient client, String userAgent,
-      Predicate<String> contentTypePredicate, TransferListener listener) {
+      Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener) {
     this(client, userAgent, contentTypePredicate, listener, null);
   }
 
@@ -96,10 +96,9 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} which sets all requests' Cache-Control
    *     header. For example, you could force the network response for all requests.
-   *
    */
   public OkHttpDataSource(OkHttpClient client, String userAgent,
-      Predicate<String> contentTypePredicate, TransferListener listener,
+      Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener,
       CacheControl cacheControl) {
     this.okHttpClient = Assertions.checkNotNull(client);
     this.userAgent = Assertions.checkNotEmpty(userAgent);
@@ -187,7 +186,7 @@ public class OkHttpDataSource implements HttpDataSource {
 
     opened = true;
     if (listener != null) {
-      listener.onTransferStart();
+      listener.onTransferStart(this, dataSpec);
     }
 
     return bytesToRead;
@@ -208,7 +207,7 @@ public class OkHttpDataSource implements HttpDataSource {
     if (opened) {
       opened = false;
       if (listener != null) {
-        listener.onTransferEnd();
+        listener.onTransferEnd(this);
       }
       closeConnectionQuietly();
     }
@@ -311,7 +310,7 @@ public class OkHttpDataSource implements HttpDataSource {
       }
       bytesSkipped += read;
       if (listener != null) {
-        listener.onBytesTransferred(read);
+        listener.onBytesTransferred(this, read);
       }
     }
 
@@ -352,7 +351,7 @@ public class OkHttpDataSource implements HttpDataSource {
 
     bytesRead += read;
     if (listener != null) {
-      listener.onBytesTransferred(read);
+      listener.onBytesTransferred(this, read);
     }
     return read;
   }
