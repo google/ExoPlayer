@@ -34,7 +34,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A {@link MappingTrackSelector} that allows configuration of common parameters.
@@ -52,10 +51,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
 
-  // Audio and text.
-  private String preferredLanguage;
+  // Audio.
+  private String preferredAudioLanguage;
 
-  //Video.
+  // Text.
+  private String preferredTextLanguage;
+
+  // Video.
   private boolean allowMixedMimeAdaptiveness;
   private boolean allowNonSeamlessAdaptiveness;
   private int maxVideoWidth;
@@ -97,14 +99,29 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * Sets the preferred language for audio and text tracks.
+   * Sets the preferred language for audio, as well as for forced text tracks.
    *
-   * @param preferredLanguage The language as defined by RFC 5646.
+   * @param preferredAudioLanguage The preferred language as defined by RFC 5646. {@code null} to
+   *     select the default track, or first track if there's no default.
    */
-  public void setPreferredLanguage(String preferredLanguage) {
-    String adjustedPreferredLanguage = new Locale(preferredLanguage).getLanguage();
-    if (!Util.areEqual(this.preferredLanguage, adjustedPreferredLanguage)) {
-      this.preferredLanguage = adjustedPreferredLanguage;
+  public void setPreferredLanguages(String preferredAudioLanguage) {
+    preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
+    if (!Util.areEqual(this.preferredAudioLanguage, preferredAudioLanguage)) {
+      this.preferredAudioLanguage = preferredAudioLanguage;
+      invalidate();
+    }
+  }
+
+  /**
+   * Sets the preferred language for text tracks.
+   *
+   * @param preferredTextLanguage The preferred language as defined by RFC 5646. {@code null} to
+   *     select the default track, or no track if there's no default.
+   */
+  public void setPreferredTextLanguage(String preferredTextLanguage) {
+    preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
+    if (!Util.areEqual(this.preferredTextLanguage, preferredTextLanguage)) {
+      this.preferredTextLanguage = preferredTextLanguage;
       invalidate();
     }
   }
@@ -221,23 +238,23 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     for (int i = 0; i < rendererCapabilities.length; i++) {
       switch (rendererCapabilities[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
-          rendererTrackSelections[i] = selectTrackForVideoRenderer(rendererCapabilities[i],
+          rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
               rendererTrackGroupArrays[i], rendererFormatSupports[i], maxVideoWidth, maxVideoHeight,
               allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness, viewportWidth,
               viewportHeight, orientationMayChange, adaptiveVideoTrackSelectionFactory,
               exceedVideoConstraintsIfNecessary);
           break;
         case C.TRACK_TYPE_AUDIO:
-          rendererTrackSelections[i] = selectTrackForAudioRenderer(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i], preferredLanguage);
+          rendererTrackSelections[i] = selectAudioTrack(rendererTrackGroupArrays[i],
+              rendererFormatSupports[i], preferredAudioLanguage);
           break;
         case C.TRACK_TYPE_TEXT:
-          rendererTrackSelections[i] = selectTrackForTextRenderer(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i], preferredLanguage);
+          rendererTrackSelections[i] = selectTextTrack(rendererTrackGroupArrays[i],
+              rendererFormatSupports[i], preferredTextLanguage, preferredAudioLanguage);
           break;
         default:
-          rendererTrackSelections[i] = selectFirstSupportedTrack(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i]);
+          rendererTrackSelections[i] = selectOtherTrack(rendererCapabilities[i].getTrackType(),
+              rendererTrackGroupArrays[i], rendererFormatSupports[i]);
           break;
       }
     }
@@ -246,11 +263,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   // Video track selection implementation.
 
-  private static TrackSelection selectTrackForVideoRenderer(
-      RendererCapabilities rendererCapabilities, TrackGroupArray groups, int[][] formatSupport,
-      int maxVideoWidth, int maxVideoHeight, boolean allowNonSeamlessAdaptiveness,
-      boolean allowMixedMimeAdaptiveness, int viewportWidth, int viewportHeight,
-      boolean orientationMayChange, TrackSelection.Factory adaptiveVideoTrackSelectionFactory,
+  protected TrackSelection selectVideoTrack(RendererCapabilities rendererCapabilities,
+      TrackGroupArray groups, int[][] formatSupport, int maxVideoWidth, int maxVideoHeight,
+      boolean allowNonSeamlessAdaptiveness, boolean allowMixedMimeAdaptiveness, int viewportWidth,
+      int viewportHeight, boolean orientationMayChange,
+      TrackSelection.Factory adaptiveVideoTrackSelectionFactory,
       boolean exceedConstraintsIfNecessary) throws ExoPlaybackException {
     TrackSelection selection = null;
     if (adaptiveVideoTrackSelectionFactory != null) {
@@ -371,7 +388,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int[][] formatSupport, int maxVideoWidth, int maxVideoHeight, int viewportWidth,
       int viewportHeight, boolean orientationMayChange, boolean exceedConstraintsIfNecessary) {
     TrackGroup selectedGroup = null;
-    int selectedTrackIndex = -1;
+    int selectedTrackIndex = 0;
     int selectedPixelCount = Format.NO_VALUE;
     boolean selectedIsWithinConstraints = false;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
@@ -425,65 +442,117 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   // Audio track selection implementation.
 
-  private static TrackSelection selectTrackForAudioRenderer(TrackGroupArray groups,
-      int[][] formatSupport, String preferredLanguage) {
-    if (preferredLanguage != null) {
-      for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-        TrackGroup trackGroup = groups.get(groupIndex);
-        int[] trackFormatSupport = formatSupport[groupIndex];
-        for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-          if (isSupported(trackFormatSupport[trackIndex])
-              && formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new FixedTrackSelection(trackGroup, trackIndex);
-          }
-        }
-      }
-    }
-    // No preferred language was selected or no audio track presented the preferred language.
-    return selectFirstSupportedTrack(groups, formatSupport);
-  }
-
-  // Text track selection implementation.
-
-  private static TrackSelection selectTrackForTextRenderer(TrackGroupArray groups,
-      int[][] formatSupport, String preferredLanguage) {
-    TrackGroup firstForcedGroup = null;
-    int firstForcedTrack = -1;
-    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-      TrackGroup trackGroup = groups.get(groupIndex);
-      int[] trackFormatSupport = formatSupport[groupIndex];
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        if (isSupported(trackFormatSupport[trackIndex])
-            && (trackGroup.getFormat(trackIndex).selectionFlags
-                & Format.SELECTION_FLAG_FORCED) != 0) {
-          if (firstForcedGroup == null) {
-            firstForcedGroup = trackGroup;
-            firstForcedTrack = trackIndex;
-          }
-          if (formatHasLanguage(trackGroup.getFormat(trackIndex), preferredLanguage)) {
-            return new FixedTrackSelection(trackGroup, trackIndex);
-          }
-        }
-      }
-    }
-    return firstForcedGroup == null ? null
-        : new FixedTrackSelection(firstForcedGroup, firstForcedTrack);
-  }
-
-  // General track selection methods.
-
-  private static TrackSelection selectFirstSupportedTrack(TrackGroupArray groups,
-      int[][] formatSupport) {
+  protected TrackSelection selectAudioTrack(TrackGroupArray groups, int[][] formatSupport,
+      String preferredAudioLanguage) {
+    TrackGroup selectedGroup = null;
+    int selectedTrackIndex = 0;
+    int selectedTrackScore = 0;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
       int[] trackFormatSupport = formatSupport[groupIndex];
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupported(trackFormatSupport[trackIndex])) {
-          return new FixedTrackSelection(trackGroup, trackIndex);
+          Format format = trackGroup.getFormat(trackIndex);
+          boolean isDefault = (format.selectionFlags & Format.SELECTION_FLAG_DEFAULT) != 0;
+          int trackScore;
+          if (formatHasLanguage(format, preferredAudioLanguage)) {
+            if (isDefault) {
+              trackScore = 4;
+            } else {
+              trackScore = 3;
+            }
+          } else if (isDefault) {
+            trackScore = 2;
+          } else {
+            trackScore = 1;
+          }
+          if (trackScore > selectedTrackScore) {
+            selectedGroup = trackGroup;
+            selectedTrackIndex = trackIndex;
+            selectedTrackScore = trackScore;
+          }
         }
       }
     }
-    return null;
+    return selectedGroup == null ? null
+        : new FixedTrackSelection(selectedGroup, selectedTrackIndex);
+  }
+
+  // Text track selection implementation.
+
+  protected TrackSelection selectTextTrack(TrackGroupArray groups, int[][] formatSupport,
+      String preferredTextLanguage, String preferredAudioLanguage) {
+    TrackGroup selectedGroup = null;
+    int selectedTrackIndex = 0;
+    int selectedTrackScore = 0;
+    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      TrackGroup trackGroup = groups.get(groupIndex);
+      int[] trackFormatSupport = formatSupport[groupIndex];
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        if (isSupported(trackFormatSupport[trackIndex])) {
+          Format format = trackGroup.getFormat(trackIndex);
+          boolean isDefault = (format.selectionFlags & Format.SELECTION_FLAG_DEFAULT) != 0;
+          boolean isForced = (format.selectionFlags & Format.SELECTION_FLAG_FORCED) != 0;
+          int trackScore;
+          if (formatHasLanguage(format, preferredTextLanguage)) {
+            if (isDefault) {
+              trackScore = 6;
+            } else if (!isForced) {
+              // Prefer non-forced to forced if a preferred text language has been specified. Where
+              // both are provided the non-forced track will usually contain the forced subtitles as
+              // a subset.
+              trackScore = 5;
+            } else {
+              trackScore = 4;
+            }
+          } else if (isDefault) {
+            trackScore = 3;
+          } else if (isForced) {
+            if (formatHasLanguage(format, preferredAudioLanguage)) {
+              trackScore = 2;
+            } else {
+              trackScore = 1;
+            }
+          } else {
+            trackScore = 0;
+          }
+          if (trackScore > selectedTrackScore) {
+            selectedGroup = trackGroup;
+            selectedTrackIndex = trackIndex;
+            selectedTrackScore = trackScore;
+          }
+        }
+      }
+    }
+    return selectedGroup == null ? null
+        : new FixedTrackSelection(selectedGroup, selectedTrackIndex);
+  }
+
+  // General track selection methods.
+
+  protected TrackSelection selectOtherTrack(int trackType, TrackGroupArray groups,
+      int[][] formatSupport) {
+    TrackGroup selectedGroup = null;
+    int selectedTrackIndex = 0;
+    int selectedTrackScore = 0;
+    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      TrackGroup trackGroup = groups.get(groupIndex);
+      int[] trackFormatSupport = formatSupport[groupIndex];
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        if (isSupported(trackFormatSupport[trackIndex])) {
+          Format format = trackGroup.getFormat(trackIndex);
+          boolean isDefault = (format.selectionFlags & Format.SELECTION_FLAG_DEFAULT) != 0;
+          int trackScore = isDefault ? 2 : 1;
+          if (trackScore > selectedTrackScore) {
+            selectedGroup = trackGroup;
+            selectedTrackIndex = trackIndex;
+            selectedTrackScore = trackScore;
+          }
+        }
+      }
+    }
+    return selectedGroup == null ? null
+        : new FixedTrackSelection(selectedGroup, selectedTrackIndex);
   }
 
   private static boolean isSupported(int formatSupport) {
@@ -492,7 +561,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   private static boolean formatHasLanguage(Format format, String language) {
-    return language != null && language.equals(new Locale(format.language).getLanguage());
+    return language != null && language.equals(Util.normalizeLanguageCode(format.language));
   }
 
   // Viewport size util methods.
@@ -605,7 +674,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = windowManager.getDefaultDisplay();
-      Point displaySize = new Point();
+    Point displaySize = new Point();
     if (Util.SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
     } else if (Util.SDK_INT >= 17) {

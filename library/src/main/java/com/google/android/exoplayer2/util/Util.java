@@ -240,6 +240,16 @@ public final class Util {
   }
 
   /**
+   * Returns a normalized RFC 5646 language code.
+   *
+   * @param language A possibly non-normalized RFC 5646 language code.
+   * @return The normalized code, or null if the input was null.
+   */
+  public static String normalizeLanguageCode(String language) {
+    return language == null ? null : new Locale(language).getLanguage();
+  }
+
+  /**
    * Returns a new byte array containing the code points of a {@link String} encoded using UTF-8.
    *
    * @param value The {@link String} whose bytes should be obtained.
