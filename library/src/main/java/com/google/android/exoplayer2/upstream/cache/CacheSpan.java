@@ -27,9 +27,9 @@ public final class CacheSpan implements Comparable<CacheSpan> {
 
   private static final String SUFFIX = ".v2.exo";
   private static final Pattern CACHE_FILE_PATTERN_V1 =
-      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\.exo$");
+      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\.exo$", Pattern.DOTALL);
   private static final Pattern CACHE_FILE_PATTERN_V2 =
-      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.v2\\.exo$");
+      Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.v2\\.exo$", Pattern.DOTALL);
 
   /**
    * The cache key that uniquely identifies the original stream.

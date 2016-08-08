@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.util;
 
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import junit.framework.TestCase;
 
 /**
@@ -152,10 +154,21 @@ public class UtilTest extends TestCase {
     assertEscapeUnescapeFileName("just+a regular+fileName", "just+a regular+fileName");
     assertEscapeUnescapeFileName("key:value", "key%3avalue");
     assertEscapeUnescapeFileName("<>:\"/\\|?*%", "%3c%3e%3a%22%2f%5c%7c%3f%2a%25");
+
+    Random random = new Random(0);
+    for (int i = 0; i < 1000; i++) {
+      String string = TestUtil.buildTestString(1000, random);
+      assertEscapeUnescapeFileName(string);
+    }
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
     assertEquals(escapedFileName, Util.escapeFileName(fileName));
+    assertEquals(fileName, Util.unescapeFileName(escapedFileName));
+  }
+
+  private static void assertEscapeUnescapeFileName(String fileName) {
+    String escapedFileName = Util.escapeFileName(fileName);
     assertEquals(fileName, Util.unescapeFileName(escapedFileName));
   }
 

@@ -131,6 +131,15 @@ public class TestUtil {
     return source;
   }
 
+  public static String buildTestString(int maxLength, Random random) {
+    int length = random.nextInt(maxLength);
+    StringBuilder builder = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      builder.append((char) random.nextInt());
+    }
+    return builder.toString();
+  }
+
   /**
    * Converts an array of integers in the range [0, 255] into an equivalent byte array.
    *
