@@ -41,7 +41,7 @@ public final class SinglePeriodTimeline implements Timeline {
    * @return A new, unseekable, final timeline with one period.
    */
   public static Timeline createUnseekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs, SeekWindow.UNSEEKABLE);
+    return new SinglePeriodTimeline(id, true, durationUs / 1000, SeekWindow.UNSEEKABLE);
   }
 
   /**
@@ -53,19 +53,19 @@ public final class SinglePeriodTimeline implements Timeline {
    * @return A new, seekable, final timeline with one period.
    */
   public static Timeline createSeekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs, new SeekWindow(durationUs));
+    return new SinglePeriodTimeline(id, true, durationUs / 1000, new SeekWindow(durationUs));
   }
 
   private final Object id;
   private final boolean isFinal;
-  private final long duration;
+  private final long durationMs;
   private final SeekWindow[] seekWindows;
 
-  private SinglePeriodTimeline(Object id, boolean isFinal, long duration,
+  private SinglePeriodTimeline(Object id, boolean isFinal, long durationMs,
       SeekWindow... seekWindows) {
     this.id = Assertions.checkNotNull(id);
     this.isFinal = isFinal;
-    this.duration = duration;
+    this.durationMs = durationMs;
     this.seekWindows = seekWindows;
   }
 
@@ -84,7 +84,7 @@ public final class SinglePeriodTimeline implements Timeline {
     if (index != 0) {
       throw new IndexOutOfBoundsException("Index " + index + " out of bounds");
     }
-    return duration;
+    return durationMs;
   }
 
   @Override

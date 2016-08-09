@@ -554,6 +554,7 @@ import java.util.ArrayList;
 
     stopRenderers();
     rebuffering = false;
+    setState(ExoPlayer.STATE_BUFFERING);
 
     if (positionUs == C.UNSET_TIME_US) {
       // We don't know where to seek to yet, so clear the whole timeline.
@@ -606,7 +607,6 @@ import java.util.ArrayList;
       }
     }
     updatePlaybackPositions();
-    setState(ExoPlayer.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
