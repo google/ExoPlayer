@@ -516,7 +516,6 @@ public class DashManifestParser extends DefaultHandler
 
   protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, String baseUrl,
       SegmentTemplate parent) throws XmlPullParserException, IOException {
-
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);

@@ -23,18 +23,17 @@ import java.io.IOException;
 public interface MediaSource {
 
   /**
-   * Listener for invalidation events.
+   * Listener for source events.
    */
-  interface InvalidationListener {
+  interface Listener {
 
     /**
-     * Called when the timeline is invalidated.
-     * <p>
-     * May only be called on the player's thread.
+     * Called when manifest and/or timeline has been refreshed.
      *
-     * @param timeline The new timeline.
+     * @param timeline The source's timeline.
+     * @param manifest The loaded manifest.
      */
-    void onTimelineChanged(Timeline timeline);
+    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
 
   }
 
@@ -68,14 +67,15 @@ public interface MediaSource {
       this.periodIndex = periodIndex;
       this.positionUs = positionUs;
     }
+
   }
 
   /**
    * Starts preparation of the source.
    *
-   * @param listener The listener for source invalidation events.
+   * @param listener The listener for source events.
    */
-  void prepareSource(InvalidationListener listener);
+  void prepareSource(Listener listener);
 
   /**
    * Returns the period index to play in this source's new timeline.

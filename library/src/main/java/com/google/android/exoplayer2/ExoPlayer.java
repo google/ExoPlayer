@@ -140,11 +140,12 @@ public interface ExoPlayer {
     void onPositionDiscontinuity(int periodIndex, long positionMs);
 
     /**
-     * Called when the timeline changes.
+     * Called when manifest and/or timeline has been refreshed.
      *
-     * @param timeline The new timeline.
+     * @param timeline The source's timeline.
+     * @param manifest The loaded manifest.
      */
-    void onTimelineChanged(Timeline timeline);
+    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
 
     /**
      * Called when an error occurs. The playback state will transition to
@@ -374,6 +375,12 @@ public interface ExoPlayer {
    * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
    */
   Timeline getCurrentTimeline();
+
+  /**
+   * Returns the current manifest. The type depends on the {@link MediaSource} passed to
+   * {@link #setMediaSource(MediaSource)} or {@link #setMediaSource(MediaSource, boolean)}.
+   */
+  Object getCurrentManifest();
 
   /**
    * Returns an estimate of the absolute position in milliseconds up to which data is buffered,

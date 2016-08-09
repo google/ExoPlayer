@@ -91,11 +91,17 @@ import java.util.Locale;
   }
 
   @Override
-  public void onTimelineChanged(Timeline timeline) {
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     boolean isFinal = timeline.isFinal();
     int periodCount = timeline.getPeriodCount();
-    Log.d(TAG, "timelineChanged [" + isFinal + ", "
-        + (periodCount == Timeline.UNKNOWN_PERIOD_COUNT ? "?" : periodCount) + "]");
+    int seekWindowCount = timeline.getSeekWindowCount();
+    Log.d(TAG, "sourceInfo[isFinal=" + isFinal + ", periodCount="
+        + (periodCount == Timeline.UNKNOWN_PERIOD_COUNT ? "?" : periodCount) + ", seekWindows: "
+        + seekWindowCount);
+    for (int seekWindowIndex = 0; seekWindowIndex < seekWindowCount; seekWindowIndex++) {
+      Log.d(TAG, "  " + timeline.getSeekWindow(seekWindowIndex));
+    }
+    Log.d(TAG, "]");
   }
 
   @Override

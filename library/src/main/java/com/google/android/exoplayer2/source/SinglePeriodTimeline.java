@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -23,41 +23,50 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public final class SinglePeriodTimeline implements Timeline {
 
+  /**
+   * Returns a new timeline with one period of unknown duration and no seek window.
+   *
+   * @param id The identifier for the period.
+   * @return A new timeline with one period of unknown duration.
+   */
+  public static Timeline createNonFinalTimeline(Object id) {
+    return new SinglePeriodTimeline(id, false, C.UNSET_TIME_US);
+  }
+
+  /**
+   * Creates a final timeline with one period of known duration and an empty seek window.
+   *
+   * @param id The identifier for the period.
+   * @param durationUs The duration of the period, in microseconds.
+   * @return A new, unseekable, final timeline with one period.
+   */
+  public static Timeline createUnseekableFinalTimeline(Object id, long durationUs) {
+    return new SinglePeriodTimeline(id, true, durationUs, SeekWindow.UNSEEKABLE);
+  }
+
+  /**
+   * Creates a final timeline with one period of known duration and a seek window extending from
+   * zero to its duration.
+   *
+   * @param id The identifier for the period.
+   * @param durationUs The duration of the period, in microseconds.
+   * @return A new, seekable, final timeline with one period.
+   */
+  public static Timeline createSeekableFinalTimeline(Object id, long durationUs) {
+    return new SinglePeriodTimeline(id, true, durationUs, new SeekWindow(durationUs));
+  }
+
   private final Object id;
-  private final Object manifest;
+  private final boolean isFinal;
   private final long duration;
+  private final SeekWindow[] seekWindows;
 
-  /**
-   * Creates a new timeline with one period of unknown duration.
-   *
-   * @param id The identifier for the period.
-   */
-  public SinglePeriodTimeline(Object id) {
-    this(id, null);
-  }
-
-  /**
-   * Creates a new timeline with one period of unknown duration providing an optional manifest.
-   *
-   * @param id The identifier for the period.
-   * @param manifest The source-specific manifest that defined the period, or {@code null}.
-   */
-  public SinglePeriodTimeline(Object id, Object manifest) {
-    this(id, manifest, ExoPlayer.UNKNOWN_TIME);
-  }
-
-  /**
-   * Creates a new timeline with one period of the specified duration providing an optional
-   * manifest.
-   *
-   * @param id The identifier for the period.
-   * @param manifest The source-specific manifest that defined the period, or {@code null}.
-   * @param duration The duration of the period in milliseconds.
-   */
-  public SinglePeriodTimeline(Object id, Object manifest, long duration) {
+  private SinglePeriodTimeline(Object id, boolean isFinal, long duration,
+      SeekWindow... seekWindows) {
     this.id = Assertions.checkNotNull(id);
-    this.manifest = manifest;
+    this.isFinal = isFinal;
     this.duration = duration;
+    this.seekWindows = seekWindows;
   }
 
   @Override
@@ -67,7 +76,7 @@ public final class SinglePeriodTimeline implements Timeline {
 
   @Override
   public boolean isFinal() {
-    return true;
+    return isFinal;
   }
 
   @Override
@@ -89,8 +98,13 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public Object getManifest() {
-    return manifest;
+  public int getSeekWindowCount() {
+    return seekWindows.length;
+  }
+
+  @Override
+  public SeekWindow getSeekWindow(int index) {
+    return seekWindows[index];
   }
 
 }

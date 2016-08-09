@@ -405,6 +405,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public Object getCurrentManifest() {
+    return player.getCurrentManifest();
+  }
+
+  @Override
   public long getBufferedPosition() {
     return player.getBufferedPosition();
   }

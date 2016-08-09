@@ -67,6 +67,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final HlsPlaylistParser manifestParser;
 
+  private MediaSource.Listener sourceListener;
   private DataSource manifestDataSource;
   private Loader manifestFetcher;
 
@@ -75,6 +76,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   private long preparePositionUs;
   private int pendingPrepareCount;
 
+  private HlsPlaylist playlist;
   private boolean seenFirstTrackSelection;
   private long durationUs;
   private long pendingDiscontinuityPositionUs;
@@ -108,9 +110,10 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(InvalidationListener listener) {
+  public void prepareSource(MediaSource.Listener listener) {
+    sourceListener = listener;
     // TODO: Defer until the playlist has been loaded.
-    listener.onTimelineChanged(new SinglePeriodTimeline(this));
+    listener.onSourceInfoRefreshed(SinglePeriodTimeline.createNonFinalTimeline(this), null);
   }
 
   @Override
@@ -132,7 +135,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   @Override
   public void releaseSource() {
-    // do nothing
+    sourceListener = null;
   }
 
   // MediaPeriod implementation.
@@ -255,6 +258,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     allocator = null;
     preparePositionUs = 0;
     pendingPrepareCount = 0;
+    playlist = null;
     seenFirstTrackSelection = false;
     durationUs = 0;
     isLive = false;
@@ -277,8 +281,8 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       long loadDurationMs) {
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
-    HlsPlaylist playlist = loadable.getResult();
-    List<HlsSampleStreamWrapper> sampleStreamWrapperList = buildSampleStreamWrappers(playlist);
+    playlist = loadable.getResult();
+    List<HlsSampleStreamWrapper> sampleStreamWrapperList = buildSampleStreamWrappers();
     sampleStreamWrappers = new HlsSampleStreamWrapper[sampleStreamWrapperList.size()];
     sampleStreamWrapperList.toArray(sampleStreamWrappers);
     selectedTrackCounts = new int[sampleStreamWrappers.length];
@@ -330,6 +334,12 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
     callback.onPeriodPrepared(this);
+
+    // TODO[playlists]: Calculate the seek window.
+    Timeline timeline =
+        isLive ? SinglePeriodTimeline.createUnseekableFinalTimeline(this, durationUs)
+            : SinglePeriodTimeline.createSeekableFinalTimeline(this, durationUs);
+    sourceListener.onSourceInfoRefreshed(timeline, playlist);
   }
 
   @Override
@@ -343,7 +353,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
 
   // Internal methods.
 
-  private List<HlsSampleStreamWrapper> buildSampleStreamWrappers(HlsPlaylist playlist) {
+  private List<HlsSampleStreamWrapper> buildSampleStreamWrappers() {
     ArrayList<HlsSampleStreamWrapper> sampleStreamWrappers = new ArrayList<>();
     String baseUri = playlist.baseUri;
 

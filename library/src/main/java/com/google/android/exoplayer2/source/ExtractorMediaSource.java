@@ -114,6 +114,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   private final Handler eventHandler;
   private final EventListener eventListener;
 
+  private MediaSource.Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
   private ExtractorHolder extractorHolder;
@@ -178,8 +179,9 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(InvalidationListener listener) {
-    listener.onTimelineChanged(new SinglePeriodTimeline(this));
+  public void prepareSource(MediaSource.Listener listener) {
+    sourceListener = listener;
+    listener.onSourceInfoRefreshed(SinglePeriodTimeline.createNonFinalTimeline(this), null);
   }
 
   @Override
@@ -200,7 +202,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
 
   @Override
   public void releaseSource() {
-    // do nothing
+    sourceListener = null;
   }
 
   // MediaPeriod implementation.
@@ -500,6 +502,9 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
     callback.onPeriodPrepared(this);
+    sourceListener.onSourceInfoRefreshed(seekMap.isSeekable()
+        ? SinglePeriodTimeline.createSeekableFinalTimeline(this, durationUs)
+        : SinglePeriodTimeline.createUnseekableFinalTimeline(this, durationUs), null);
   }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {

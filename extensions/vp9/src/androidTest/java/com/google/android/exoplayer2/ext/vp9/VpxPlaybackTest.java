@@ -120,7 +120,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline) {
+    public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
       // Do nothing.
     }
 

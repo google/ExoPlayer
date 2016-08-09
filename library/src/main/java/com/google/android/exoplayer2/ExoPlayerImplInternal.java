@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * Implements the internal behavior of {@link ExoPlayerImpl}.
  */
 /* package */ final class ExoPlayerImplInternal implements Handler.Callback, MediaPeriod.Callback,
-    TrackSelector.InvalidationListener, MediaSource.InvalidationListener {
+    TrackSelector.InvalidationListener, MediaSource.Listener {
 
   /**
    * Playback position information which is read on the application's thread by
@@ -73,7 +73,7 @@ import java.util.ArrayList;
   public static final int MSG_SET_PLAY_WHEN_READY_ACK = 3;
   public static final int MSG_SEEK_ACK = 4;
   public static final int MSG_POSITION_DISCONTINUITY = 5;
-  public static final int MSG_TIMELINE_CHANGED = 6;
+  public static final int MSG_SOURCE_INFO_REFRESHED = 6;
   public static final int MSG_ERROR = 7;
 
   // Internal messages
@@ -309,12 +309,14 @@ import java.util.ArrayList;
     }
   }
 
-  // MediaSource.InvalidationListener implementation.
+  // MediaSource.Listener implementation.
 
   @Override
-  public void onTimelineChanged(Timeline timeline) {
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     try {
-      handleSourceInvalidated(timeline);
+      eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, Pair.create(timeline, manifest))
+          .sendToTarget();
+      handleTimelineRefreshed(timeline);
     } catch (ExoPlaybackException | IOException e) {
       Log.e(TAG, "Error handling timeline change.", e);
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
@@ -802,10 +804,9 @@ import java.util.ArrayList;
     }
   }
 
-  public void handleSourceInvalidated(Timeline timeline) throws ExoPlaybackException, IOException {
+  public void handleTimelineRefreshed(Timeline timeline) throws ExoPlaybackException, IOException {
     Timeline oldTimeline = this.timeline;
     this.timeline = timeline;
-    eventHandler.obtainMessage(MSG_TIMELINE_CHANGED, timeline).sendToTarget();
 
     // Update the loaded periods to take into account the new timeline.
     if (playingPeriod != null) {

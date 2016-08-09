@@ -78,7 +78,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(allocator);
-    pendingResetPositionUs = C.UNSET_TIME_US;
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
   }

@@ -25,9 +25,11 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SeekWindow;
 import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -52,6 +54,17 @@ public final class DashMediaSource implements MediaSource {
    * The default minimum number of times to retry loading data prior to failing.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
+  /**
+   * The interval in milliseconds between invocations of
+   * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} when the source's
+   * {@link SeekWindow} is changing dynamically (for example, for incomplete live streams).
+   */
+  private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
+  /**
+   * The offset in microseconds subtracted from the live edge position when calculating the default
+   * position returned by {@link #getDefaultStartPosition(int)}.
+   */
+  private static final long LIVE_EDGE_OFFSET_US = 30000000;
 
   private static final String TAG = "DashMediaSource";
 
@@ -62,8 +75,9 @@ public final class DashMediaSource implements MediaSource {
   private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
   private final Object manifestUriLock;
+  private final Runnable refreshSourceInfoRunnable;
 
-  private MediaSource.InvalidationListener invalidationListener;
+  private MediaSource.Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
 
@@ -71,9 +85,10 @@ public final class DashMediaSource implements MediaSource {
   private long manifestLoadStartTimestamp;
   private long manifestLoadEndTimestamp;
   private DashManifest manifest;
-  private Handler manifestRefreshHandler;
+  private Handler handler;
   private ArrayList<DashMediaPeriod> periods;
-  private long elapsedRealtimeOffset;
+  private SeekWindow seekWindow;
+  private long elapsedRealtimeOffsetMs;
 
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
@@ -93,6 +108,12 @@ public final class DashMediaSource implements MediaSource {
     manifestParser = new DashManifestParser();
     manifestCallback = new ManifestCallback();
     manifestUriLock = new Object();
+    refreshSourceInfoRunnable = new Runnable() {
+      @Override
+      public void run() {
+        refreshSourceInfo();
+      }
+    };
   }
 
   /**
@@ -109,11 +130,11 @@ public final class DashMediaSource implements MediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(InvalidationListener listener) {
-    invalidationListener = listener;
+  public void prepareSource(MediaSource.Listener listener) {
+    sourceListener = listener;
     dataSource = manifestDataSourceFactory.createDataSource();
     loader = new Loader("Loader:DashMediaSource");
-    manifestRefreshHandler = new Handler();
+    handler = new Handler();
     startLoadingManifest();
   }
 
@@ -137,10 +158,21 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public Position getDefaultStartPosition(int index) {
+    if (seekWindow == null) {
+      return null;
+    }
+
     if (index == 0 && manifest.dynamic) {
-      // The stream is live, so jump to the live edge.
-      // TODO[playlists]: Actually jump to the live edge, rather than the start of the last period.
-      return new Position(periods.size() - 1, 0);
+      // The stream is live, so return a position a position offset from the live edge.
+      int periodIndex = seekWindow.endPeriodIndex;
+      long positionUs = seekWindow.endTimeUs - LIVE_EDGE_OFFSET_US;
+      while (positionUs < 0 && periodIndex > seekWindow.startPeriodIndex) {
+        periodIndex--;
+        positionUs += manifest.getPeriodDuration(periodIndex) * 1000;
+      }
+      positionUs = Math.max(positionUs,
+          periodIndex == seekWindow.startPeriodIndex ? seekWindow.startTimeUs : 0);
+      return new Position(periodIndex, positionUs);
     }
     return new Position(index, 0);
   }
@@ -164,11 +196,11 @@ public final class DashMediaSource implements MediaSource {
     manifestLoadStartTimestamp = 0;
     manifestLoadEndTimestamp = 0;
     manifest = null;
-    if (manifestRefreshHandler != null) {
-      manifestRefreshHandler.removeCallbacksAndMessages(null);
-      manifestRefreshHandler = null;
+    if (handler != null) {
+      handler.removeCallbacksAndMessages(null);
+      handler = null;
     }
-    elapsedRealtimeOffset = 0;
+    elapsedRealtimeOffsetMs = 0;
   }
 
   // Loadable callbacks.
@@ -312,7 +344,7 @@ public final class DashMediaSource implements MediaSource {
   }
 
   private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
-    this.elapsedRealtimeOffset = elapsedRealtimeOffsetMs;
+    this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
     finishManifestProcessing();
   }
 
@@ -329,11 +361,47 @@ public final class DashMediaSource implements MediaSource {
     int periodCount = manifest.getPeriodCount();
     for (int i = periods.size(); i < periodCount; i++) {
       periods.add(new DashMediaPeriod(manifest, i, chunkSourceFactory, minLoadableRetryCount,
-          eventDispatcher, elapsedRealtimeOffset, loader));
+          eventDispatcher, elapsedRealtimeOffsetMs, loader));
     }
-    invalidationListener.onTimelineChanged(new DashTimeline(manifest,
-        periods.toArray(new DashMediaPeriod[periods.size()])));
+
+    handler.removeCallbacks(refreshSourceInfoRunnable);
+    refreshSourceInfo();
     scheduleManifestRefresh();
+  }
+
+  private void refreshSourceInfo() {
+    // Update the seek window.
+    int periodCount = manifest.getPeriodCount();
+    int lastPeriodIndex = periodCount - 1;
+    PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
+        manifest.getPeriodDuration(0) * 1000);
+    PeriodSeekInfo lastPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(
+        manifest.getPeriod(lastPeriodIndex), manifest.getPeriodDuration(lastPeriodIndex) * 1000);
+    long currentStartTimeUs;
+    long currentEndTimeUs;
+    if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
+      // The seek window is changing so post a Runnable to update it.
+      handler.postDelayed(refreshSourceInfoRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
+
+      long minStartPositionUs = firstPeriodSeekInfo.availableStartTimeUs;
+      long maxEndPositionUs = lastPeriodSeekInfo.availableEndTimeUs;
+      long timeShiftBufferDepthUs = manifest.timeShiftBufferDepth == -1 ? -1
+          : manifest.timeShiftBufferDepth * 1000;
+      currentEndTimeUs = Math.min(maxEndPositionUs,
+          getNowUnixTimeUs() - manifest.availabilityStartTime * 1000);
+      currentStartTimeUs = timeShiftBufferDepthUs == -1 ? minStartPositionUs
+          : Math.max(minStartPositionUs, currentEndTimeUs - timeShiftBufferDepthUs);
+    } else {
+      handler.removeCallbacks(refreshSourceInfoRunnable);
+      currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
+      currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
+    }
+    seekWindow = new SeekWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs);
+
+    DashMediaPeriod[] mediaPeriods =
+        periods.toArray(new DashMediaPeriod[manifest.getPeriodCount()]);
+    sourceListener.onSourceInfoRefreshed(new DashTimeline(manifest, mediaPeriods, seekWindow),
+        manifest);
   }
 
   private void scheduleManifestRefresh() {
@@ -350,7 +418,7 @@ public final class DashMediaSource implements MediaSource {
     }
     long nextLoadTimestamp = manifestLoadStartTimestamp + minUpdatePeriod;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
-    manifestRefreshHandler.postDelayed(new Runnable() {
+    handler.postDelayed(new Runnable() {
       @Override
       public void run() {
         startLoadingManifest();
@@ -364,14 +432,65 @@ public final class DashMediaSource implements MediaSource {
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
+  private long getNowUnixTimeUs() {
+    if (elapsedRealtimeOffsetMs != 0) {
+      return SystemClock.elapsedRealtime() * 1000 + elapsedRealtimeOffsetMs;
+    } else {
+      return System.currentTimeMillis() * 1000;
+    }
+  }
+
+  private static final class PeriodSeekInfo {
+
+    public static PeriodSeekInfo createPeriodSeekInfo(Period period, long durationUs) {
+      int adaptationSetCount = period.adaptationSets.size();
+      long availableStartTimeUs = 0;
+      long availableEndTimeUs = Long.MAX_VALUE;
+      boolean isIndexExplicit = false;
+      for (int i = 0; i < adaptationSetCount; i++) {
+        DashSegmentIndex index = period.adaptationSets.get(i).representations.get(0).getIndex();
+        if (index == null) {
+          return new PeriodSeekInfo(true, 0, durationUs);
+        }
+        int firstSegmentNum = index.getFirstSegmentNum();
+        int lastSegmentNum = index.getLastSegmentNum(durationUs);
+        isIndexExplicit |= index.isExplicit();
+        long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
+        availableStartTimeUs = Math.max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
+        if (lastSegmentNum != DashSegmentIndex.INDEX_UNBOUNDED) {
+          long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
+              + index.getDurationUs(lastSegmentNum, durationUs);
+          availableEndTimeUs = Math.min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
+        } else {
+          // The available end time is unmodified, because this index is unbounded.
+        }
+      }
+      return new PeriodSeekInfo(isIndexExplicit, availableStartTimeUs, availableEndTimeUs);
+    }
+
+    public final boolean isIndexExplicit;
+    public final long availableStartTimeUs;
+    public final long availableEndTimeUs;
+
+    private PeriodSeekInfo(boolean isIndexExplicit, long availableStartTimeUs,
+        long availableEndTimeUs) {
+      this.isIndexExplicit = isIndexExplicit;
+      this.availableStartTimeUs = availableStartTimeUs;
+      this.availableEndTimeUs = availableEndTimeUs;
+    }
+
+  }
+
   private static final class DashTimeline implements Timeline {
 
     private final DashManifest manifest;
     private final DashMediaPeriod[] periods;
+    private final SeekWindow[] seekWindows;
 
-    public DashTimeline(DashManifest manifest, DashMediaPeriod[] periods) {
+    public DashTimeline(DashManifest manifest, DashMediaPeriod[] periods, SeekWindow seekWindow) {
       this.manifest = manifest;
       this.periods = periods;
+      seekWindows = new SeekWindow[] {seekWindow};
     }
 
     @Override
@@ -405,8 +524,13 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public Object getManifest() {
-      return manifest;
+    public int getSeekWindowCount() {
+      return seekWindows.length;
+    }
+
+    @Override
+    public SeekWindow getSeekWindow(int index) {
+      return seekWindows[index];
     }
 
   }

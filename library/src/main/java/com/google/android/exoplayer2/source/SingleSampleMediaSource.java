@@ -113,8 +113,9 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(InvalidationListener listener) {
-    listener.onTimelineChanged(new SinglePeriodTimeline(this));
+  public void prepareSource(MediaSource.Listener listener) {
+    Timeline timeline = SinglePeriodTimeline.createSeekableFinalTimeline(this, durationUs);
+    listener.onSourceInfoRefreshed(timeline, null);
   }
 
   @Override
@@ -135,7 +136,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
 
   @Override
   public void releaseSource() {
-    // do nothing
+    // Do nothing.
   }
 
   // MediaPeriod implementation.

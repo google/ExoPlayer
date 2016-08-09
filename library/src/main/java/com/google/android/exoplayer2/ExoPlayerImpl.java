@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.Timeline;
@@ -44,6 +45,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int pendingSeekAcks;
   private boolean isLoading;
   private Timeline timeline;
+  private Object manifest;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -207,6 +209,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public Object getCurrentManifest() {
+    return manifest;
+  }
+
+  @Override
   public long getBufferedPosition() {
     if (pendingSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
@@ -272,10 +279,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
-      case ExoPlayerImplInternal.MSG_TIMELINE_CHANGED: {
-        timeline = (Timeline) msg.obj;
+      case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
+        @SuppressWarnings("unchecked")
+        Pair<Timeline, Object> timelineAndManifest = (Pair<Timeline, Object>) msg.obj;
+        timeline = timelineAndManifest.first;
+        manifest = timelineAndManifest.second;
         for (EventListener listener : listeners) {
-          listener.onTimelineChanged(timeline);
+          listener.onSourceInfoRefreshed(timeline, manifest);
         }
         break;
       }

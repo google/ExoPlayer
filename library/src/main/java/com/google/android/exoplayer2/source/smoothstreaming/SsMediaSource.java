@@ -55,7 +55,7 @@ public final class SsMediaSource implements MediaSource,
   private final EventDispatcher eventDispatcher;
   private final SsManifestParser manifestParser;
 
-  private MediaSource.InvalidationListener invalidationListener;
+  private MediaSource.Listener sourceListener;
   private DataSource manifestDataSource;
   private Loader manifestLoader;
 
@@ -87,8 +87,8 @@ public final class SsMediaSource implements MediaSource,
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(InvalidationListener listener) {
-    this.invalidationListener = listener;
+  public void prepareSource(MediaSource.Listener listener) {
+    sourceListener = listener;
     manifestDataSource = dataSourceFactory.createDataSource();
     manifestLoader = new Loader("Loader:Manifest");
     manifestRefreshHandler = new Handler();
@@ -114,6 +114,7 @@ public final class SsMediaSource implements MediaSource,
 
   @Override
   public void releaseSource() {
+    sourceListener = null;
     period = null;
     manifest = null;
     manifestDataSource = null;
@@ -140,13 +141,13 @@ public final class SsMediaSource implements MediaSource,
     if (period == null) {
       period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
           eventDispatcher, manifestLoader);
-      Timeline timeline = manifest.durationUs == C.UNSET_TIME_US
-          ? new SinglePeriodTimeline(this, manifest)
-          : new SinglePeriodTimeline(this, manifest, manifest.durationUs / 1000);
-      invalidationListener.onTimelineChanged(timeline);
     } else {
       period.updateManifest(manifest);
     }
+    Timeline timeline = manifest.isLive || manifest.durationUs == C.UNSET_TIME_US
+        ? SinglePeriodTimeline.createUnseekableFinalTimeline(this, C.UNSET_TIME_US)
+            : SinglePeriodTimeline.createSeekableFinalTimeline(this, manifest.durationUs);
+    sourceListener.onSourceInfoRefreshed(timeline, manifest);
     scheduleManifestRefresh();
   }
 

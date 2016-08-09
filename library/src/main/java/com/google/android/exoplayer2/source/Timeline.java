@@ -40,7 +40,7 @@ public interface Timeline {
   int getPeriodCount();
 
   /**
-   * Returns whether the timeline is final, which means it will not be invalidated again.
+   * Returns whether the timeline is final, which means it will not change.
    */
   boolean isFinal();
 
@@ -57,7 +57,7 @@ public interface Timeline {
    * Returns a unique identifier for the period at {@code index}, or {@code null} if the period at
    * {@code index} is not known. The identifier is stable across {@link Timeline} instances.
    * <p>
-   * When a source is invalidated the player uses period identifiers to determine what periods are
+   * When the timeline changes the player uses period identifiers to determine what periods are
    * unchanged. Implementations that associate an object with each period can return the object for
    * the provided index to guarantee uniqueness. Other implementations must be careful to return
    * identifiers that can't clash with (for example) identifiers used by other timelines that may be
@@ -78,8 +78,15 @@ public interface Timeline {
   int getIndexOfPeriod(Object id);
 
   /**
-   * Returns the immutable manifest corresponding to this timeline.
+   * Returns the number of seek windows that can be accessed via {@link #getSeekWindow(int)}.
    */
-  Object getManifest();
+  int getSeekWindowCount();
+
+  /**
+   * Returns the {@link SeekWindow} at {@code index}, which represents positions that can be seeked
+   * to in the timeline. The seek windows may change when
+   * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} is called.
+   */
+  SeekWindow getSeekWindow(int index);
 
 }

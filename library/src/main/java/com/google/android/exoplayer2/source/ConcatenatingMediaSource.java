@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -26,6 +27,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
   private final MediaSource[] mediaSources;
   private final Timeline[] timelines;
+  private final Object[] manifests;
 
   private ConcatenatedTimeline timeline;
 
@@ -35,25 +37,29 @@ public final class ConcatenatingMediaSource implements MediaSource {
   public ConcatenatingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
     timelines = new Timeline[mediaSources.length];
+    manifests = new Object[mediaSources.length];
   }
 
   @Override
-  public void prepareSource(final InvalidationListener listener) {
+  public void prepareSource(final Listener listener) {
     for (int i = 0; i < mediaSources.length; i++) {
       final int index = i;
-      mediaSources[i].prepareSource(new InvalidationListener() {
+      mediaSources[i].prepareSource(new Listener() {
+
         @Override
-        public void onTimelineChanged(Timeline timeline) {
-          timelines[index] = timeline;
+        public void onSourceInfoRefreshed(Timeline sourceTimeline, Object manifest) {
+          timelines[index] = sourceTimeline;
+          manifests[index] = manifest;
           for (int i = 0; i < timelines.length; i++) {
             if (timelines[i] == null) {
               // Don't invoke the listener until all sources have timelines.
               return;
             }
           }
-          ConcatenatingMediaSource.this.timeline = new ConcatenatedTimeline(timelines.clone());
-          listener.onTimelineChanged(ConcatenatingMediaSource.this.timeline);
+          timeline = new ConcatenatedTimeline(timelines.clone());
+          listener.onSourceInfoRefreshed(timeline, manifests.clone());
         }
+
       });
     }
   }
@@ -100,45 +106,44 @@ public final class ConcatenatingMediaSource implements MediaSource {
   private static final class ConcatenatedTimeline implements Timeline {
 
     private final Timeline[] timelines;
-    private final Object[] manifests;
-    private final int count;
     private final boolean isFinal;
-    private int[] sourceOffsets;
+    private final int[] sourceOffsets;
+    private final SeekWindow[] seekWindows;
 
     public ConcatenatedTimeline(Timeline[] timelines) {
-      this.timelines = timelines;
-
-      int[] sourceOffsets = new int[timelines.length];
-      int sourceIndexOffset = 0;
-      for (int i = 0; i < timelines.length; i++) {
-        int periodCount = timelines[i].getPeriodCount();
-        if (periodCount == Timeline.UNKNOWN_PERIOD_COUNT) {
-          sourceOffsets = Arrays.copyOf(sourceOffsets, i);
-          break;
-        }
-        sourceIndexOffset += periodCount;
-        sourceOffsets[i] = sourceIndexOffset;
-      }
-      this.sourceOffsets = sourceOffsets;
-      count = sourceOffsets.length == timelines.length ? sourceOffsets[sourceOffsets.length - 1]
-          : UNKNOWN_PERIOD_COUNT;
       boolean isFinal = true;
-      manifests = new Object[timelines.length];
+      int[] sourceOffsets = new int[timelines.length];
+      int sourceOffset = 0;
+      ArrayList<SeekWindow> concatenatedSeekWindows = new ArrayList<>();
       for (int i = 0; i < timelines.length; i++) {
         Timeline timeline = timelines[i];
-        if (timeline != null) {
-          manifests[i] = timeline.getManifest();
-          if (!timeline.isFinal()) {
-            isFinal = false;
-          }
+        isFinal &= timeline.isFinal();
+        // Offset the seek windows so they are relative to the source.
+        int seekWindowCount = timeline.getSeekWindowCount();
+        for (int j = 0; j < seekWindowCount; j++) {
+          SeekWindow sourceSeekWindow = timeline.getSeekWindow(j);
+          concatenatedSeekWindows.add(sourceSeekWindow.copyOffsetByPeriodCount(sourceOffset));
         }
+        int periodCount = timeline.getPeriodCount();
+        if (periodCount == Timeline.UNKNOWN_PERIOD_COUNT) {
+          sourceOffsets = Arrays.copyOf(sourceOffsets, i);
+          isFinal = false;
+          break;
+        }
+        sourceOffset += periodCount;
+        sourceOffsets[i] = sourceOffset;
       }
+      this.timelines = timelines;
       this.isFinal = isFinal;
+      this.sourceOffsets = sourceOffsets;
+      seekWindows =
+          concatenatedSeekWindows.toArray(new SeekWindow[concatenatedSeekWindows.size()]);
     }
 
     @Override
     public int getPeriodCount() {
-      return count;
+      return sourceOffsets.length == timelines.length ? sourceOffsets[sourceOffsets.length - 1]
+          : UNKNOWN_PERIOD_COUNT;
     }
 
     @Override
@@ -172,8 +177,13 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public Object getManifest() {
-      return manifests;
+    public int getSeekWindowCount() {
+      return seekWindows.length;
+    }
+
+    @Override
+    public SeekWindow getSeekWindow(int index) {
+      return seekWindows[index];
     }
 
     private int getSourceIndexForPeriod(int periodIndex) {

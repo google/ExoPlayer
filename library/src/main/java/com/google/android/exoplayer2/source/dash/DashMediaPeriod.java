@@ -124,8 +124,7 @@ import java.util.List;
         newSampleStreamArray(newEnabledSourceCount);
     int newEnabledSourceIndex = 0;
 
-    // Iterate over currently enabled streams, either releasing them or adding them to the new
-    // list.
+    // Iterate over currently enabled streams, either releasing them or adding them to the new list.
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       if (oldStreams.contains(sampleStream)) {
         sampleStream.release();
@@ -137,8 +136,7 @@ import java.util.List;
     // Instantiate and return new streams.
     SampleStream[] streamsToReturn = new SampleStream[newSelections.size()];
     for (int i = 0; i < newSelections.size(); i++) {
-      newSampleStreams[newEnabledSourceIndex] =
-          buildSampleStream(newSelections.get(i), positionUs);
+      newSampleStreams[newEnabledSourceIndex] = buildSampleStream(newSelections.get(i), positionUs);
       streamsToReturn[i] = newSampleStreams[newEnabledSourceIndex];
       newEnabledSourceIndex++;
     }

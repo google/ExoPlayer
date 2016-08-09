@@ -217,7 +217,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public final void onTimelineChanged(Timeline timeline) {
+  public final void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     // Do nothing.
   }
 

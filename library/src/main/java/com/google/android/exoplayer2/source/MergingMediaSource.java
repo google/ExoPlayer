@@ -38,22 +38,26 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(final InvalidationListener listener) {
-    mediaSources[0].prepareSource(new InvalidationListener() {
+  public void prepareSource(final Listener listener) {
+    mediaSources[0].prepareSource(new Listener() {
+
       @Override
-      public void onTimelineChanged(Timeline timeline) {
+      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
         checkConsistentTimeline(timeline);
 
         // All source timelines must match.
-        listener.onTimelineChanged(timeline);
+        listener.onSourceInfoRefreshed(timeline, manifest);
       }
+
     });
     for (int i = 1; i < mediaSources.length; i++) {
-      mediaSources[i].prepareSource(new InvalidationListener() {
+      mediaSources[i].prepareSource(new Listener() {
+
         @Override
-        public void onTimelineChanged(Timeline timeline) {
+        public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
           checkConsistentTimeline(timeline);
         }
+
       });
     }
   }
