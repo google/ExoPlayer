@@ -107,6 +107,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
     if (decoder != null) {
       decoder.release();
+      nextInputBuffer = null;
     }
     decoder = decoderFactory.createDecoder(formats[0]);
   }

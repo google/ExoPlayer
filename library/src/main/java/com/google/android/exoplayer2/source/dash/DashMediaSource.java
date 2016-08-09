@@ -168,7 +168,7 @@ public final class DashMediaSource implements MediaSource {
       long positionUs = seekWindow.endTimeUs - LIVE_EDGE_OFFSET_US;
       while (positionUs < 0 && periodIndex > seekWindow.startPeriodIndex) {
         periodIndex--;
-        positionUs += manifest.getPeriodDuration(periodIndex) * 1000;
+        positionUs += manifest.getPeriodDurationUs(periodIndex);
       }
       positionUs = Math.max(positionUs,
           periodIndex == seekWindow.startPeriodIndex ? seekWindow.startTimeUs : 0);
@@ -374,9 +374,9 @@ public final class DashMediaSource implements MediaSource {
     int periodCount = manifest.getPeriodCount();
     int lastPeriodIndex = periodCount - 1;
     PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
-        manifest.getPeriodDuration(0) * 1000);
+        manifest.getPeriodDurationUs(0));
     PeriodSeekInfo lastPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(
-        manifest.getPeriod(lastPeriodIndex), manifest.getPeriodDuration(lastPeriodIndex) * 1000);
+        manifest.getPeriod(lastPeriodIndex), manifest.getPeriodDurationUs(lastPeriodIndex));
     long currentStartTimeUs;
     long currentEndTimeUs;
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
@@ -505,7 +505,7 @@ public final class DashMediaSource implements MediaSource {
 
     @Override
     public long getPeriodDuration(int index) {
-      return manifest.getPeriodDuration(index);
+      return manifest.getPeriodDurationMs(index);
     }
 
     @Override

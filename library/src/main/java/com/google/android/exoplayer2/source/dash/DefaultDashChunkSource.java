@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.dash;
 
 import android.os.SystemClock;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -105,7 +104,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.periodIndex = periodIndex;
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetMs * 1000;
 
-    long periodDurationUs = getPeriodDurationUs();
+    long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
     List<Representation> representations = getRepresentations();
     representationHolders = new RepresentationHolder[trackSelection.length()];
     for (int i = 0; i < representationHolders.length; i++) {
@@ -119,7 +118,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     try {
       manifest = newManifest;
       periodIndex = newPeriodIndex;
-      long periodDurationUs = getPeriodDurationUs();
+      long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
       List<Representation> representations = getRepresentations();
       for (int i = 0; i < representationHolders.length; i++) {
         Representation representation = representations.get(trackSelection.getIndexInTrackGroup(i));
@@ -320,15 +319,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return new ContainerMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
           trackSelectionData, startTimeUs, endTimeUs, segmentNum, sampleOffsetUs,
           representationHolder.extractorWrapper, sampleFormat);
-    }
-  }
-
-  private long getPeriodDurationUs() {
-    long durationMs = manifest.getPeriodDuration(periodIndex);
-    if (durationMs == -1) {
-      return C.UNSET_TIME_US;
-    } else {
-      return durationMs * 1000;
     }
   }
 

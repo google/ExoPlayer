@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,10 +65,15 @@ public class DashManifest {
     return periods.get(index);
   }
 
-  public final long getPeriodDuration(int index) {
+  public final long getPeriodDurationMs(int index) {
     return index == periods.size() - 1
         ? (duration == -1 ? -1 : duration - periods.get(index).startMs)
         : periods.get(index + 1).startMs - periods.get(index).startMs;
+  }
+
+  public final long getPeriodDurationUs(int index) {
+    long durationMs = getPeriodDurationMs(index);
+    return durationMs == -1 ? C.UNSET_TIME_US : durationMs * 1000;
   }
 
 }

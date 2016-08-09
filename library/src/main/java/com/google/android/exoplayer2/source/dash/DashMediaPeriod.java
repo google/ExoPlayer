@@ -68,7 +68,7 @@ import java.util.List;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
-    durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(index) * 1000;
+    durationUs = manifest.getPeriodDurationUs(index);
     period = manifest.getPeriod(index);
     trackGroups = buildTrackGroups(period);
   }
@@ -76,7 +76,7 @@ import java.util.List;
   public void updateManifest(DashManifest manifest, int index) {
     this.manifest = manifest;
     this.index = index;
-    durationUs = manifest.dynamic ? C.UNSET_TIME_US : manifest.getPeriodDuration(index) * 1000;
+    durationUs = manifest.getPeriodDurationUs(index);
     period = manifest.getPeriod(index);
     if (sampleStreams != null) {
       for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
