@@ -41,8 +41,8 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
      * @param extra an secondary error code
      * @param data optional byte array of data that may be associated with the event
      */
-    void onEvent(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, int event,
-        int extra, byte[] data);
+    void onEvent(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, int event, int extra,
+        byte[] data);
   }
 
   /**
@@ -62,74 +62,74 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   }
 
   /**
-   * @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener)
+   * @see android.media.MediaDrm#setOnEventListener(android.media.MediaDrm.OnEventListener)
    */
   void setOnEventListener(OnEventListener<? super T> listener);
 
   /**
-   * @see MediaDrm#openSession()
+   * @see android.media.MediaDrm#openSession()
    */
   byte[] openSession() throws NotProvisionedException, ResourceBusyException;
 
   /**
-   * @see MediaDrm#closeSession(byte[])
+   * @see android.media.MediaDrm#closeSession(byte[])
    */
   void closeSession(byte[] sessionId);
 
   /**
-   * @see MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)
+   * @see android.media.MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)
    */
   KeyRequest getKeyRequest(byte[] scope, byte[] init, String mimeType, int keyType,
       HashMap<String, String> optionalParameters) throws NotProvisionedException;
 
   /**
-   * @see MediaDrm#provideKeyResponse(byte[], byte[])
+   * @see android.media.MediaDrm#provideKeyResponse(byte[], byte[])
    */
   byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException;
 
   /**
-   * @see MediaDrm#getProvisionRequest()
+   * @see android.media.MediaDrm#getProvisionRequest()
    */
   ProvisionRequest getProvisionRequest();
 
   /**
-   * @see MediaDrm#provideProvisionResponse(byte[])
+   * @see android.media.MediaDrm#provideProvisionResponse(byte[])
    */
   void provideProvisionResponse(byte[] response) throws DeniedByServerException;
 
   /**
-   * @see MediaDrm#queryKeyStatus(byte[]).
+   * @see android.media.MediaDrm#queryKeyStatus(byte[]).
    */
   Map<String, String> queryKeyStatus(byte[] sessionId);
 
   /**
-   * @see MediaDrm#release().
+   * @see android.media.MediaDrm#release().
    */
   void release();
 
   /**
-   * @see MediaDrm#restoreKeys(byte[], byte[]).
+   * @see android.media.MediaDrm#restoreKeys(byte[], byte[]).
    */
   void restoreKeys(byte[] sessionId, byte[] keySetId);
 
   /**
-   * @see MediaDrm#getPropertyString(String)
+   * @see android.media.MediaDrm#getPropertyString(String)
    */
   String getPropertyString(String propertyName);
 
   /**
-   * @see MediaDrm#getPropertyByteArray(String)
+   * @see android.media.MediaDrm#getPropertyByteArray(String)
    */
   byte[] getPropertyByteArray(String propertyName);
 
   /**
-   * @see MediaDrm#setPropertyString(String, String)
+   * @see android.media.MediaDrm#setPropertyString(String, String)
    */
   void setPropertyString(String propertyName, String value);
 
   /**
-   * @see MediaDrm#setPropertyByteArray(String, byte[])
+   * @see android.media.MediaDrm#setPropertyByteArray(String, byte[])
    */
   void setPropertyByteArray(String propertyName, byte[] value);
 
