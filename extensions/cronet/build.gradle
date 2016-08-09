@@ -32,20 +32,10 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    sourceSets.main {
-        jniLibs.srcDir 'src/main/jniLibs'
-        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
-    }
 }
 
 dependencies {
     compile project(':library')
-    compile files('libs/android-54.0.2797.0-Release-cronet-cronet_api.jar')
-    compile files('libs/android-54.0.2797.0-Release-cronet-cronet.jar')
-    compile 'com.google.guava:guava:19.0'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile 'org.robolectric:robolectric:3.1.1'
+    compile files('libs/cronet_api.jar')
+    compile files('libs/cronet.jar')
 }
-

@@ -26,4 +26,7 @@ project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')
 project(':extension-vp9').projectDir = new File(settingsDir, 'extensions/vp9')
 project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
 project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
-//project(':extension-cronet').projectDir = new File(settingsDir, 'extensions/cronet')
+
+// Uncomment the following line to use the Cronet Extension.
+// See extensions/cronet/README.md for details.
+// project(':extension-cronet').projectDir = new File(settingsDir, 'extensions/cronet')
