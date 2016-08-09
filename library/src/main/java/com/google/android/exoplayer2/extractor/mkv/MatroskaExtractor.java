@@ -224,6 +224,9 @@ public final class MatroskaExtractor implements Extractor {
   private final ParsableByteArray seekEntryIdBytes;
   private final ParsableByteArray sampleStrippedBytes;
   private final ParsableByteArray subripSample;
+  private final ParsableByteArray encryptionInitializationVector;
+  private final ParsableByteArray encryptionSubsampleData;
+  private ByteBuffer encryptionSubsampleDataBuffer;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -288,6 +291,8 @@ public final class MatroskaExtractor implements Extractor {
     nalLength = new ParsableByteArray(4);
     sampleStrippedBytes = new ParsableByteArray();
     subripSample = new ParsableByteArray();
+    encryptionInitializationVector = new ParsableByteArray(ENCRYPTION_IV_SIZE);
+    encryptionSubsampleData = new ParsableByteArray();
   }
 
   @Override
@@ -901,12 +906,78 @@ public final class MatroskaExtractor implements Extractor {
         if ((scratch.data[0] & 0x80) == 0x80) {
           throw new ParserException("Extension bit is set in signal byte");
         }
+        // Bits 1-5 are reserved and must be 0.
+        if ((scratch.data[0] & 0x7C) != 0) {
+          throw new ParserException("One of the reserved bits is set in signal byte");
+        }
         if ((scratch.data[0] & 0x01) == 0x01) {
-          scratch.data[0] = (byte) ENCRYPTION_IV_SIZE;
+          boolean hasSubsampleEncryption = false;
+          if ((scratch.data[0] & 0x02) == 0x02) {
+            hasSubsampleEncryption = true;
+          }
+          // Write the signal byte, containing the IV size and the subsample encryption flag.
+          scratch.data[0] = (byte) (ENCRYPTION_IV_SIZE | (hasSubsampleEncryption ? 0x80 : 0x00));
           scratch.setPosition(0);
           output.sampleData(scratch, 1);
           sampleBytesWritten++;
           blockFlags |= C.BUFFER_FLAG_ENCRYPTED;
+          // Read and Write the IV.
+          input.readFully(encryptionInitializationVector.data, 0, ENCRYPTION_IV_SIZE);
+          sampleBytesRead += ENCRYPTION_IV_SIZE;
+          encryptionInitializationVector.setPosition(0);
+          output.sampleData(encryptionInitializationVector, ENCRYPTION_IV_SIZE);
+          sampleBytesWritten += ENCRYPTION_IV_SIZE;
+          if (hasSubsampleEncryption) {
+            input.readFully(scratch.data, 0, 1);
+            sampleBytesRead++;
+            scratch.setPosition(0);
+            int partitionCount = scratch.readUnsignedByte();
+            // First partition is at offset 0 and is implicit (not included in partitionCount).
+            int partitionOffset = 0;
+            short subsampleCount = (short) Math.ceil((partitionCount + 1) / 2.0);
+            int subsampleDataSize = 2 + 6 * subsampleCount;
+            if (encryptionSubsampleDataBuffer == null
+                || encryptionSubsampleDataBuffer.capacity() < subsampleDataSize) {
+              encryptionSubsampleDataBuffer = ByteBuffer.allocate(subsampleDataSize);
+            }
+            encryptionSubsampleDataBuffer.position(0);
+            encryptionSubsampleDataBuffer.putShort(subsampleCount);
+            // Loop through the partition offsets and write out the data in the way MediaCodec wants
+            // it (ISO 23001-7 Part 7):
+            //   2 bytes - sub sample count.
+            //   for each sub sample:
+            //     2 bytes - clear data size.
+            //     4 bytes - encrypted data size.
+            for (int i = 0; i <= partitionCount; i++) {
+              int previousPartitionOffset = partitionOffset;
+              if (i < partitionCount) {
+                input.readFully(scratch.data, 0, 4);
+                sampleBytesRead += 4;
+                scratch.setPosition(0);
+                partitionOffset = scratch.readUnsignedIntToInt();
+              } else {
+                // Offset for the last parition is the same as the size of the frame's data.
+                partitionOffset = size - sampleBytesRead;
+              }
+              if (partitionOffset < previousPartitionOffset) {
+                throw new ParserException("Parition offsets are not increasing.");
+              }
+              if ((i % 2) == 0) {
+                encryptionSubsampleDataBuffer.putShort(
+                    (short) (partitionOffset - previousPartitionOffset));
+              } else {
+                encryptionSubsampleDataBuffer.putInt(partitionOffset - previousPartitionOffset);
+              }
+            }
+            // If the loop above ran odd number of times (happens when an altref is present), insert
+            // a fake encrypted section of size 0.
+            if ((partitionCount + 1) % 2 == 1) {
+              encryptionSubsampleDataBuffer.putInt(0);
+            }
+            encryptionSubsampleData.reset(encryptionSubsampleDataBuffer.array(), subsampleDataSize);
+            output.sampleData(encryptionSubsampleData, subsampleDataSize);
+            sampleBytesWritten += subsampleDataSize;
+          }
         }
       } else if (track.sampleStrippedBytes != null) {
         // If the sample has header stripping, prepare to read/output the stripped bytes first.
