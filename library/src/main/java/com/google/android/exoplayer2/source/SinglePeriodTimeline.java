@@ -91,6 +91,11 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
+  public long getAbsoluteStartTime() {
+    return 0;
+  }
+
+  @Override
   public long getPeriodDuration(int index) {
     if (index != 0) {
       throw new IndexOutOfBoundsException("Index " + index + " out of bounds");

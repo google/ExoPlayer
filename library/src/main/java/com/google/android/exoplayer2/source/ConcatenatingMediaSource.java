@@ -152,6 +152,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
+    public long getAbsoluteStartTime() {
+      return timelines[0].getAbsoluteStartTime();
+    }
+
+    @Override
     public long getPeriodDuration(int index) {
       int sourceIndex = getSourceIndexForPeriod(index);
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);

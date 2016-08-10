@@ -504,6 +504,11 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
+    public long getAbsoluteStartTime() {
+      return manifest.availabilityStartTime + manifest.getPeriod(0).startMs;
+    }
+
+    @Override
     public long getPeriodDuration(int index) {
       return manifest.getPeriodDurationMs(index);
     }

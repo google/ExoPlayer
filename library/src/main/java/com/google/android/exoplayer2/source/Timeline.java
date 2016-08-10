@@ -45,6 +45,11 @@ public interface Timeline {
   boolean isFinal();
 
   /**
+   * Returns the absolute start time of the timeline in milliseconds.
+   */
+  long getAbsoluteStartTime();
+
+  /**
    * Returns the duration of the period at {@code index} in the timeline, in milliseconds, or
    * {@link ExoPlayer#UNKNOWN_TIME} if not known.
    *
