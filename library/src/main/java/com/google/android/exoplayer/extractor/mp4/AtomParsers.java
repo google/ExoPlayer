@@ -91,9 +91,8 @@ import java.util.List;
   public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
       throws ParserException {
     // Array of sample sizes.
-    final SampleSizeBox sampleSizeBox;
-
-    final Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+    SampleSizeBox sampleSizeBox;
+    Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
     if (stszAtom != null) {
       sampleSizeBox = new StszSampleSizeBox(stszAtom);
     } else {
@@ -101,9 +100,9 @@ import java.util.List;
       if (stz2Atom == null) {
         throw new ParserException("Track has no sample table size information");
       }
-
       sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
     }
+    int sampleCount = sampleSizeBox.getSampleCount();
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
@@ -123,8 +122,6 @@ import java.util.List;
     // Entries are (number of samples, timestamp offset).
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
-
-    int sampleCount = sampleSizeBox.getSampleCount();
 
     // Skip full atom.
     if (sampleCount == 0) {
@@ -209,7 +206,6 @@ import java.util.List;
 
         offsets[i] = offset;
         sizes[i] = sampleSizeBox.readNextSampleSize();
-
         if (sizes[i] > maximumSize) {
           maximumSize = sizes[i];
         }
@@ -258,9 +254,9 @@ import java.util.List;
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
+      int fixedSampleSize = sampleSizeBox.readNextSampleSize();
       FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
-          sampleSizeBox.readNextSampleSize(), chunkOffsetsBytes, chunkSampleCounts,
-          timestampDeltaInTimeUnits);
+          fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
       offsets = rechunkedResults.offsets;
       sizes = rechunkedResults.sizes;
       maximumSize = rechunkedResults.maximumSize;
@@ -1180,35 +1176,35 @@ import java.util.List;
   }
 
   /**
-   * Interface that allows us to abstract away the various implementations of sample size boxes.
-   * (IE: stsz and stz2)
+   * A box containing sample sizes (e.g. stsz, stz2).
    */
-  interface SampleSizeBox {
+  private interface SampleSizeBox {
 
     /**
-     * @return the number of samples in this atom.
+     * Returns the number of samples in this atom.
      */
     int getSampleCount();
 
     /**
-     * @return the size for the next sample in the box.
+     * Returns the size for the next sample in the box.
      */
     int readNextSampleSize();
 
     /**
-     * @return if this box holds samples of a fixed size.
+     * Whether this box holds samples of a fixed size.
      */
     boolean isFixedSampleSize();
+
   }
 
   /**
-   * Reads sample sizes out of a 'stsz' atom.
+   * An stsz sample size box.
    */
-  static final class StszSampleSizeBox implements SampleSizeBox {
+  /* package */ static final class StszSampleSizeBox implements SampleSizeBox {
 
-    public final int fixedSampleSize;
-    public final int sampleCount;
-    public final ParsableByteArray data;
+    private final int fixedSampleSize;
+    private final int sampleCount;
+    private final ParsableByteArray data;
 
     public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
       data = stszAtom.data;
@@ -1231,23 +1227,24 @@ import java.util.List;
     public boolean isFixedSampleSize() {
       return fixedSampleSize != 0;
     }
+
   }
 
   /**
-   * Reads samples out of a 'stz2' atom.
+   * An stz2 sample size box.
    */
-  static final class Stz2SampleSizeBox implements SampleSizeBox {
+  /* package */ static final class Stz2SampleSizeBox implements SampleSizeBox {
 
-    public final ParsableByteArray data;
-    public final int sampleCount;
-    public final int fieldSize;  // 4, 8, or 16.
-    private int mIndex = 0;     // Our current index in the samples.
-    private int mCurrentByte;  // used only for the 4 bit scenario.
+    private final ParsableByteArray data;
+    private final int sampleCount;
+    private final int fieldSize; // Can be 4, 8, or 16.
+
+    private int sampleIndex; // Used only if fieldSize == 4.
+    private int currentByte; // Used only if fieldSize == 4.
 
     public Stz2SampleSizeBox(Atom.LeafAtom stz2Atom) {
       data = stz2Atom.data;
       data.setPosition(Atom.FULL_HEADER_SIZE);
-      // mask out the reserved bits (24) and read just the field_size bits (8).
       fieldSize = data.readUnsignedIntToInt() & 0x000000FF;
       sampleCount = data.readUnsignedIntToInt();
     }
@@ -1259,22 +1256,20 @@ import java.util.List;
 
     @Override
     public int readNextSampleSize() {
-      final int i = mIndex++;
       if (fieldSize == 8) {
         return data.readUnsignedByte();
       } else if (fieldSize == 16) {
         return data.readUnsignedShort();
       } else {
-        // The field size is 4.
-        final boolean isUpperBits = i % 2 == 0;
-        if (isUpperBits) {
+        // fieldSize == 4.
+        if ((sampleIndex++ % 2) == 0) {
           // Read the next byte into our cached byte when we are reading the upper bits.
-          mCurrentByte = data.readUnsignedByte();
+          currentByte = data.readUnsignedByte();
           // Read the upper bits from the byte and shift them to the lower 4 bits.
-          return (mCurrentByte & 0xF0) >> 4;
+          return (currentByte & 0xF0) >> 4;
         } else {
           // Mask out the upper 4 bits of the last byte we read.
-          return mCurrentByte & 0x0F;
+          return currentByte & 0x0F;
         }
       }
     }
@@ -1283,6 +1278,7 @@ import java.util.List;
     public boolean isFixedSampleSize() {
       return false;
     }
+
   }
 
 }
