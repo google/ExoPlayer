@@ -556,8 +556,11 @@ import java.util.ArrayList;
     rebuffering = false;
     setState(ExoPlayer.STATE_BUFFERING);
 
-    if (positionUs == C.UNSET_TIME_US) {
-      // We don't know where to seek to yet, so clear the whole timeline.
+    if (positionUs == C.UNSET_TIME_US
+        || (readingPeriod != playingPeriod && (periodIndex == playingPeriod.index
+            || (readingPeriod != null && periodIndex == readingPeriod.index)))) {
+      // Clear the timeline because either the seek position is not known, or a renderer is reading
+      // ahead to the next period and the seek is to either the playing or reading period.
       periodIndex = Timeline.NO_PERIOD_INDEX;
     }
 
