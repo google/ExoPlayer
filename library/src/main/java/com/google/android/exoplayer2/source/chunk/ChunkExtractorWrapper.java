@@ -65,18 +65,6 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
    *     sample {@link Format} output from the {@link Extractor}.
    * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
    *     should be preferred when the sample and manifest {@link Format}s are merged.
-   */
-  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
-      boolean preferManifestDrmInitData) {
-    this(extractor, manifestFormat, preferManifestDrmInitData, true);
-  }
-
-  /**
-   * @param extractor The extractor to wrap.
-   * @param manifestFormat A manifest defined {@link Format} whose data should be merged into any
-   *     sample {@link Format} output from the {@link Extractor}.
-   * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
-   *     should be preferred when the sample and manifest {@link Format}s are merged.
    * @param resendFormatOnInit Whether the extractor should resend the previous {@link Format} when
    *     it is initialized via {@link #init(SingleTrackMetadataOutput, TrackOutput)}.
    */

@@ -94,7 +94,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     extractorWrappers = new ChunkExtractorWrapper[trackSelection.length()];
     for (int i = 0; i < extractorWrappers.length; i++) {
       int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
-      Format format = streamElement.formats[i];
+      Format format = streamElement.formats[manifestTrackIndex];
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : -1;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
           C.UNSET_TIME_US, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
@@ -102,7 +102,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
           | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track);
-      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, false);
+      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, false, false);
     }
   }
 
