@@ -29,13 +29,14 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
  */
-public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, SampleStream,
+public final class SingleSampleMediaSource implements MediaPeriod, MediaSource,
     Loader.Callback<SingleSampleMediaSource.SourceLoadable> {
 
   /**
@@ -63,26 +64,21 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
    */
   private static final int INITIAL_SAMPLE_SIZE = 1;
 
-  private static final int STREAM_STATE_SEND_FORMAT = 0;
-  private static final int STREAM_STATE_SEND_SAMPLE = 1;
-  private static final int STREAM_STATE_END_OF_STREAM = 2;
-
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
-  private final Format format;
   private final long durationUs;
   private final int minLoadableRetryCount;
   private final TrackGroupArray tracks;
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final int eventSourceId;
+  private final ArrayList<SampleStreamImpl> sampleStreams;
+  /* package */ final Format format;
 
-  private Loader loader;
-  private boolean loadingFinished;
-
-  private int streamState;
-  private byte[] sampleData;
-  private int sampleSize;
+  /* package */ Loader loader;
+  /* package */ boolean loadingFinished;
+  /* package */ byte[] sampleData;
+  /* package */ int sampleSize;
 
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs) {
@@ -107,7 +103,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
     this.eventSourceId = eventSourceId;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
-    streamState = STREAM_STATE_SEND_FORMAT;
+    sampleStreams = new ArrayList<>();
   }
 
   // MediaSource implementation.
@@ -165,13 +161,15 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   @Override
   public SampleStream[] selectTracks(List<SampleStream> oldStreams,
       List<TrackSelection> newSelections, long positionUs) {
-    Assertions.checkState(oldStreams.size() <= 1);
-    Assertions.checkState(newSelections.size() <= 1);
-    // Select new tracks.
+    for (int i = 0; i < oldStreams.size(); i++) {
+      SampleStreamImpl oldStream = (SampleStreamImpl) oldStreams.get(i);
+      sampleStreams.remove(oldStream);
+    }
     SampleStream[] newStreams = new SampleStream[newSelections.size()];
-    if (!newSelections.isEmpty()) {
-      newStreams[0] = this;
-      streamState = STREAM_STATE_SEND_FORMAT;
+    for (int i = 0; i < newStreams.length; i++) {
+      SampleStreamImpl newStream = new SampleStreamImpl();
+      sampleStreams.add(newStream);
+      newStreams[i] = newStream;
     }
     return newStreams;
   }
@@ -187,6 +185,11 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
   }
 
   @Override
+  public long readDiscontinuity() {
+    return C.UNSET_TIME_US;
+  }
+
+  @Override
   public long getNextLoadPositionUs() {
     return loadingFinished || loader.isLoading() ? C.END_OF_SOURCE_US : 0;
   }
@@ -198,8 +201,8 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
 
   @Override
   public long seekToUs(long positionUs) {
-    if (streamState == STREAM_STATE_END_OF_STREAM) {
-      streamState = STREAM_STATE_SEND_SAMPLE;
+    for (int i = 0; i < sampleStreams.size(); i++) {
+      sampleStreams.get(i).seekToUs(positionUs);
     }
     return positionUs;
   }
@@ -211,55 +214,9 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
       loader = null;
     }
     loadingFinished = false;
-    streamState = STREAM_STATE_SEND_FORMAT;
+    sampleStreams.clear();
     sampleData = null;
     sampleSize = 0;
-  }
-
-  // SampleStream implementation.
-
-  @Override
-  public boolean isReady() {
-    return loadingFinished;
-  }
-
-  @Override
-  public void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
-  }
-
-  @Override
-  public long readDiscontinuity() {
-    return C.UNSET_TIME_US;
-  }
-
-  @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (streamState == STREAM_STATE_END_OF_STREAM) {
-      buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      return C.RESULT_BUFFER_READ;
-    } else if (streamState == STREAM_STATE_SEND_FORMAT) {
-      formatHolder.format = format;
-      streamState = STREAM_STATE_SEND_SAMPLE;
-      return C.RESULT_FORMAT_READ;
-    }
-
-    Assertions.checkState(streamState == STREAM_STATE_SEND_SAMPLE);
-    if (!loadingFinished) {
-      return C.RESULT_NOTHING_READ;
-    } else {
-      buffer.timeUs = 0;
-      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
-      buffer.ensureSpaceForWrite(sampleSize);
-      buffer.data.put(sampleData, 0, sampleSize);
-      streamState = STREAM_STATE_END_OF_STREAM;
-      return C.RESULT_BUFFER_READ;
-    }
-  }
-
-  @Override
-  public void skipToKeyframeBefore(long timeUs) {
-    // do nothing
   }
 
   // Loader.Callback implementation.
@@ -296,6 +253,61 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource, 
         }
       });
     }
+  }
+
+  private final class SampleStreamImpl implements SampleStream {
+
+    private static final int STREAM_STATE_SEND_FORMAT = 0;
+    private static final int STREAM_STATE_SEND_SAMPLE = 1;
+    private static final int STREAM_STATE_END_OF_STREAM = 2;
+
+    private int streamState;
+
+    public void seekToUs(long positionUs) {
+      if (streamState == STREAM_STATE_END_OF_STREAM) {
+        streamState = STREAM_STATE_SEND_SAMPLE;
+      }
+    }
+
+    @Override
+    public boolean isReady() {
+      return loadingFinished;
+    }
+
+    @Override
+    public void maybeThrowError() throws IOException {
+      loader.maybeThrowError();
+    }
+
+    @Override
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+      if (streamState == STREAM_STATE_END_OF_STREAM) {
+        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        return C.RESULT_BUFFER_READ;
+      } else if (streamState == STREAM_STATE_SEND_FORMAT) {
+        formatHolder.format = format;
+        streamState = STREAM_STATE_SEND_SAMPLE;
+        return C.RESULT_FORMAT_READ;
+      }
+
+      Assertions.checkState(streamState == STREAM_STATE_SEND_SAMPLE);
+      if (!loadingFinished) {
+        return C.RESULT_NOTHING_READ;
+      } else {
+        buffer.timeUs = 0;
+        buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+        buffer.ensureSpaceForWrite(sampleSize);
+        buffer.data.put(sampleData, 0, sampleSize);
+        streamState = STREAM_STATE_END_OF_STREAM;
+        return C.RESULT_BUFFER_READ;
+      }
+    }
+
+    @Override
+    public void skipToKeyframeBefore(long timeUs) {
+      // do nothing
+    }
+
   }
 
   /* package */ static final class SourceLoadable implements Loadable {
