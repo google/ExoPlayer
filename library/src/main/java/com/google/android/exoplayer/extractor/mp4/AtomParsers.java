@@ -123,7 +123,6 @@ import java.util.List;
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
-    // Skip full atom.
     if (sampleCount == 0) {
       return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
     }
