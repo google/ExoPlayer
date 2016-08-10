@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.tx3g;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * A {@link SimpleSubtitleDecoder} for tx3g.
@@ -26,13 +27,21 @@ import com.google.android.exoplayer2.text.Subtitle;
  */
 public final class Tx3gDecoder extends SimpleSubtitleDecoder {
 
+  private final ParsableByteArray parsableByteArray;
+
   public Tx3gDecoder() {
     super("Tx3gDecoder");
+    parsableByteArray = new ParsableByteArray();
   }
 
   @Override
   protected Subtitle decode(byte[] bytes, int length) {
-    String cueText = new String(bytes, 0, length);
+    parsableByteArray.reset(bytes, length);
+    int textLength = parsableByteArray.readUnsignedShort();
+    if (textLength == 0) {
+      return Tx3gSubtitle.EMPTY;
+    }
+    String cueText = parsableByteArray.readString(textLength);
     return new Tx3gSubtitle(new Cue(cueText));
   }
 
