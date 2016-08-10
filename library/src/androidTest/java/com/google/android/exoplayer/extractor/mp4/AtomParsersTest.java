@@ -20,15 +20,18 @@ import com.google.android.exoplayer.util.Util;
 
 import junit.framework.TestCase;
 
-public class AtomParsersTest extends TestCase {
+/**
+ * Tests for {@link AtomParsers}.
+ */
+public final class AtomParsersTest extends TestCase {
 
-  private final String ATOM_HEADER = "000000000000000000000000";
-  private final String SAMPLE_COUNT = "00000004";
-  private final byte[] FOUR_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000004"
+  private static final String ATOM_HEADER = "000000000000000000000000";
+  private static final String SAMPLE_COUNT = "00000004";
+  private static final byte[] FOUR_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000004"
       + SAMPLE_COUNT + "1234");
-  private final byte[] EIGHT_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000008"
+  private static final byte[] EIGHT_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000008"
       + SAMPLE_COUNT + "01020304");
-  private final byte[] SIXTEEN_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000010"
+  private static final byte[] SIXTEEN_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000010"
       + SAMPLE_COUNT + "0001000200030004");
 
   public void testStz2Parsing4BitFieldSize() {

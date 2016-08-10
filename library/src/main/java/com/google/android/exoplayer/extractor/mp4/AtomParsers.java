@@ -102,7 +102,11 @@ import java.util.List;
       }
       sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
     }
+
     int sampleCount = sampleSizeBox.getSampleCount();
+    if (sampleCount == 0) {
+      return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
+    }
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
@@ -122,10 +126,6 @@ import java.util.List;
     // Entries are (number of samples, timestamp offset).
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
-
-    if (sampleCount == 0) {
-      return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
-    }
 
     // Prepare to read chunk information.
     ChunkIterator chunkIterator = new ChunkIterator(stsc, chunkOffsets, chunkOffsetsAreLongs);
