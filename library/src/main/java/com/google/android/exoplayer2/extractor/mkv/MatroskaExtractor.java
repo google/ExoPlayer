@@ -267,6 +267,11 @@ public final class MatroskaExtractor implements Extractor {
   // Sample reading state.
   private int sampleBytesRead;
   private boolean sampleEncodingHandled;
+  private boolean sampleSignalByteRead;
+  private boolean sampleInitializationVectorRead;
+  private boolean samplePartitionCountRead;
+  private byte sampleSignalByte;
+  private int samplePartitionCount;
   private int sampleCurrentNalBytesRemaining;
   private int sampleBytesWritten;
   private boolean sampleRead;
@@ -858,6 +863,11 @@ public final class MatroskaExtractor implements Extractor {
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     sampleEncodingHandled = false;
+    sampleSignalByteRead = false;
+    samplePartitionCountRead = false;
+    samplePartitionCount = 0;
+    sampleSignalByte = (byte) 0;
+    sampleInitializationVectorRead = false;
     sampleStrippedBytes.reset();
   }
 
@@ -901,40 +911,50 @@ public final class MatroskaExtractor implements Extractor {
         // If the sample is encrypted, read its encryption signal byte and set the IV size.
         // Clear the encrypted flag.
         blockFlags &= ~C.BUFFER_FLAG_ENCRYPTED;
-        input.readFully(scratch.data, 0, 1);
-        sampleBytesRead++;
-        if ((scratch.data[0] & 0x80) == 0x80) {
-          throw new ParserException("Extension bit is set in signal byte");
-        }
-        // Bits 1-5 are reserved and must be 0.
-        if ((scratch.data[0] & 0x7C) != 0) {
-          throw new ParserException("One of the reserved bits is set in signal byte");
-        }
-        if ((scratch.data[0] & 0x01) == 0x01) {
-          boolean hasSubsampleEncryption = false;
-          if ((scratch.data[0] & 0x02) == 0x02) {
-            hasSubsampleEncryption = true;
+        if (!sampleSignalByteRead) {
+          input.readFully(scratch.data, 0, 1);
+          sampleBytesRead++;
+          if ((scratch.data[0] & 0x80) == 0x80) {
+            throw new ParserException("Extension bit is set in signal byte");
           }
-          // Write the signal byte, containing the IV size and the subsample encryption flag.
-          scratch.data[0] = (byte) (ENCRYPTION_IV_SIZE | (hasSubsampleEncryption ? 0x80 : 0x00));
-          scratch.setPosition(0);
-          output.sampleData(scratch, 1);
-          sampleBytesWritten++;
+          sampleSignalByte = scratch.data[0];
+          sampleSignalByteRead = true;
+        }
+        boolean isEncrypted = (sampleSignalByte & 0x01) == 0x01;
+        if (isEncrypted) {
+          boolean hasSubsampleEncryption = (sampleSignalByte & 0x02) == 0x02;
           blockFlags |= C.BUFFER_FLAG_ENCRYPTED;
-          // Read and Write the IV.
-          input.readFully(encryptionInitializationVector.data, 0, ENCRYPTION_IV_SIZE);
-          sampleBytesRead += ENCRYPTION_IV_SIZE;
-          encryptionInitializationVector.setPosition(0);
-          output.sampleData(encryptionInitializationVector, ENCRYPTION_IV_SIZE);
-          sampleBytesWritten += ENCRYPTION_IV_SIZE;
-          if (hasSubsampleEncryption) {
-            input.readFully(scratch.data, 0, 1);
-            sampleBytesRead++;
+          if (!sampleInitializationVectorRead) {
+            input.readFully(encryptionInitializationVector.data, 0, ENCRYPTION_IV_SIZE);
+            sampleBytesRead += ENCRYPTION_IV_SIZE;
+            sampleInitializationVectorRead = true;
+            // Write the signal byte, containing the IV size and the subsample encryption flag.
+            scratch.data[0] = (byte) (ENCRYPTION_IV_SIZE | (hasSubsampleEncryption ? 0x80 : 0x00));
             scratch.setPosition(0);
-            int partitionCount = scratch.readUnsignedByte();
-            // First partition is at offset 0 and is implicit (not included in partitionCount).
-            int partitionOffset = 0;
-            short subsampleCount = (short) Math.ceil((partitionCount + 1) / 2.0);
+            output.sampleData(scratch, 1);
+            sampleBytesWritten++;
+            // Write the IV.
+            encryptionInitializationVector.setPosition(0);
+            output.sampleData(encryptionInitializationVector, ENCRYPTION_IV_SIZE);
+            sampleBytesWritten += ENCRYPTION_IV_SIZE;
+          }
+          if (hasSubsampleEncryption) {
+            if (!samplePartitionCountRead) {
+              input.readFully(scratch.data, 0, 1);
+              sampleBytesRead++;
+              scratch.setPosition(0);
+              samplePartitionCount = scratch.readUnsignedByte();
+              samplePartitionCountRead = true;
+            }
+            int samplePartitionDataSize = samplePartitionCount * 4;
+            if (scratch.limit() < samplePartitionDataSize) {
+              scratch.reset(new byte[samplePartitionDataSize], samplePartitionDataSize);
+            }
+            input.readFully(scratch.data, 0, samplePartitionDataSize);
+            sampleBytesRead += samplePartitionDataSize;
+            scratch.setPosition(0);
+            scratch.setLimit(samplePartitionDataSize);
+            short subsampleCount = (short) (1 + (samplePartitionCount / 2));
             int subsampleDataSize = 2 + 6 * subsampleCount;
             if (encryptionSubsampleDataBuffer == null
                 || encryptionSubsampleDataBuffer.capacity() < subsampleDataSize) {
@@ -942,26 +962,16 @@ public final class MatroskaExtractor implements Extractor {
             }
             encryptionSubsampleDataBuffer.position(0);
             encryptionSubsampleDataBuffer.putShort(subsampleCount);
-            // Loop through the partition offsets and write out the data in the way MediaCodec wants
-            // it (ISO 23001-7 Part 7):
+            // Loop through the partition offsets and write out the data in the way ExoPlayer
+            // wants it (ISO 23001-7 Part 7):
             //   2 bytes - sub sample count.
             //   for each sub sample:
             //     2 bytes - clear data size.
             //     4 bytes - encrypted data size.
-            for (int i = 0; i <= partitionCount; i++) {
+            int partitionOffset = 0;
+            for (int i = 0; i < samplePartitionCount; i++) {
               int previousPartitionOffset = partitionOffset;
-              if (i < partitionCount) {
-                input.readFully(scratch.data, 0, 4);
-                sampleBytesRead += 4;
-                scratch.setPosition(0);
-                partitionOffset = scratch.readUnsignedIntToInt();
-              } else {
-                // Offset for the last parition is the same as the size of the frame's data.
-                partitionOffset = size - sampleBytesRead;
-              }
-              if (partitionOffset < previousPartitionOffset) {
-                throw new ParserException("Parition offsets are not increasing.");
-              }
+              partitionOffset = scratch.readUnsignedIntToInt();
               if ((i % 2) == 0) {
                 encryptionSubsampleDataBuffer.putShort(
                     (short) (partitionOffset - previousPartitionOffset));
@@ -969,9 +979,11 @@ public final class MatroskaExtractor implements Extractor {
                 encryptionSubsampleDataBuffer.putInt(partitionOffset - previousPartitionOffset);
               }
             }
-            // If the loop above ran odd number of times (happens when an altref is present), insert
-            // a fake encrypted section of size 0.
-            if ((partitionCount + 1) % 2 == 1) {
+            int finalPartitionSize = size - sampleBytesRead - partitionOffset;
+            if ((samplePartitionCount % 2) == 1) {
+              encryptionSubsampleDataBuffer.putInt(finalPartitionSize);
+            } else {
+              encryptionSubsampleDataBuffer.putShort((short) finalPartitionSize);
               encryptionSubsampleDataBuffer.putInt(0);
             }
             encryptionSubsampleData.reset(encryptionSubsampleDataBuffer.array(), subsampleDataSize);

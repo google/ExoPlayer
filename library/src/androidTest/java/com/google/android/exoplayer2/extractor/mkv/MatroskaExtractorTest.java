@@ -33,4 +33,22 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
     }, "mkv/sample.mkv", getInstrumentation());
   }
 
+  public void testWebmSubsampleEncryption() throws Exception {
+    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new MatroskaExtractor();
+      }
+    }, "mkv/subsample_encrypted_noaltref.webm", getInstrumentation());
+  }
+
+  public void testWebmSubsampleEncryptionWithAltrefFrames() throws Exception {
+    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new MatroskaExtractor();
+      }
+    }, "mkv/subsample_encrypted_altref.webm", getInstrumentation());
+  }
+
 }

@@ -220,13 +220,13 @@
       },
       {
         "name": "WV: Secure Subsample (WebM, VP9 without altref)",
-        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_altref_subsample/sintel_1080p_vp9_noaltref_subsample.mpd",
+        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_noaltref_subsample/sintel_1080p_vp9_noaltref_subsample.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://widevine-proxy.appspot.com/proxy"
       },
       {
         "name": "WV: Secure Fullsample (WebM, VP9 without altref)",
-        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_altref_subsample/sintel_1080p_vp9_noaltref_fullsample.mpd",
+        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_noaltref_fullsample/sintel_1080p_vp9_noaltref_fullsample.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://widevine-proxy.appspot.com/proxy"
       }
