@@ -63,7 +63,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private CodecMaxValues codecMaxValues;
 
   private Surface surface;
-  private boolean reportedDrawnToSurface;
   private boolean renderedFirstFrame;
   private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
@@ -295,8 +294,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (this.surface == surface) {
       return;
     }
+    renderedFirstFrame = false;
     this.surface = surface;
-    this.reportedDrawnToSurface = false;
     int state = getState();
     if (state == STATE_ENABLED || state == STATE_STARTED) {
       releaseCodec();
@@ -467,8 +466,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    renderedFirstFrame = true;
-    maybeNotifyDrawnToSurface();
+    if (!renderedFirstFrame) {
+      renderedFirstFrame = true;
+      eventDispatcher.renderedFirstFrame(surface);
+    }
   }
 
   @TargetApi(21)
@@ -479,8 +480,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    renderedFirstFrame = true;
-    maybeNotifyDrawnToSurface();
+    if (!renderedFirstFrame) {
+      renderedFirstFrame = true;
+      eventDispatcher.renderedFirstFrame(surface);
+    }
   }
 
   @SuppressLint("InlinedApi")
@@ -576,13 +579,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
     return (maxPixels * 3) / (2 * minCompressionRatio);
-  }
-
-  private void maybeNotifyDrawnToSurface() {
-    if (!reportedDrawnToSurface) {
-      eventDispatcher.drawnToSurface(surface);
-      reportedDrawnToSurface = true;
-    }
   }
 
   private void maybeNotifyVideoSizeChanged() {

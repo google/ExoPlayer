@@ -67,7 +67,6 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private VpxOutputBuffer nextOutputBuffer;
 
   private Bitmap bitmap;
-  private boolean drawnToSurface;
   private boolean renderedFirstFrame;
   private long joiningDeadlineMs;
   private Surface surface;
@@ -234,13 +233,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
     // If we have not rendered any frame so far (either initially or immediately following a seek),
     // render one frame irrespective of the state or current position.
-    if (!renderedFirstFrame) {
-      renderBuffer();
-      renderedFirstFrame = true;
-      return false;
-    }
-
-    if (getState() == STATE_STARTED && outputBuffer.timeUs <= positionUs + 30000) {
+    if (!renderedFirstFrame
+        || (getState() == STATE_STARTED && outputBuffer.timeUs <= positionUs + 30000)) {
       renderBuffer();
     }
     return false;
@@ -252,14 +246,18 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
       renderRgbFrame(outputBuffer, scaleToFit);
-      if (!drawnToSurface) {
-        drawnToSurface = true;
-        eventDispatcher.drawnToSurface(surface);
+      if (!renderedFirstFrame) {
+        renderedFirstFrame = true;
+        eventDispatcher.renderedFirstFrame(surface);
       }
       outputBuffer.release();
     } else if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null) {
       // The renderer will release the buffer.
       outputBufferRenderer.setOutputBuffer(outputBuffer);
+      if (!renderedFirstFrame) {
+        renderedFirstFrame = true;
+        eventDispatcher.renderedFirstFrame(null);
+      }
     } else {
       outputBuffer.release();
     }
@@ -433,11 +431,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     if (this.surface == surface) {
       return;
     }
+    renderedFirstFrame = false;
     this.surface = surface;
     outputBufferRenderer = null;
     outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
     updateDecoder();
-    drawnToSurface = false;
   }
 
   private void setOutputBufferRenderer(VpxOutputBufferRenderer outputBufferRenderer) {

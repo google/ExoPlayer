@@ -88,12 +88,13 @@ public interface VideoRendererEventListener {
       float pixelWidthHeightRatio);
 
   /**
-   * Called when a frame is rendered to a surface for the first time following that surface
-   * having been set as the target for the renderer.
+   * Called when a frame is rendered for the first time since setting the surface, and when a frame
+   * is rendered for the first time since the renderer was reset.
    *
-   * @param surface The surface to which a first frame has been rendered.
+   * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
+   *     the renderer renders to something that isn't a {@link Surface}.
    */
-  void onDrawnToSurface(Surface surface);
+  void onRenderedFirstFrame(Surface surface);
 
   /**
    * Called when the renderer is disabled.
@@ -195,14 +196,14 @@ public interface VideoRendererEventListener {
     }
 
     /**
-     * Invokes {@link VideoRendererEventListener#onDrawnToSurface(Surface)}.
+     * Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface)}.
      */
-    public void drawnToSurface(final Surface surface) {
+    public void renderedFirstFrame(final Surface surface) {
       if (listener != null) {
         handler.post(new Runnable()  {
           @Override
           public void run() {
-            listener.onDrawnToSurface(surface);
+            listener.onRenderedFirstFrame(surface);
           }
         });
       }

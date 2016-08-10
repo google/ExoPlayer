@@ -59,7 +59,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   public interface VideoListener {
     void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio);
-    void onDrawnToSurface(Surface surface);
+    void onRenderedFirstFrame(Surface surface);
   }
 
   /**
@@ -565,9 +565,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onDrawnToSurface(Surface surface) {
+    public void onRenderedFirstFrame(Surface surface) {
       if (videoListener != null) {
-        videoListener.onDrawnToSurface(surface);
+        videoListener.onRenderedFirstFrame(surface);
       }
     }
 

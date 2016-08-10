@@ -456,7 +456,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   @Override
-  public void onDrawnToSurface(Surface surface) {
+  public void onRenderedFirstFrame(Surface surface) {
     shutterView.setVisibility(View.GONE);
   }
 
@@ -470,6 +470,17 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
     if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
       showToast(R.string.error_unsupported_audio);
+    }
+    boolean renderingVideo = false;
+    for (int i = 0; i < trackInfo.rendererCount; i++) {
+      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO
+          && trackInfo.getTrackSelection(i) != null) {
+        renderingVideo = true;
+        break;
+      }
+    }
+    if (!renderingVideo) {
+      shutterView.setVisibility(View.VISIBLE);
     }
   }
 
