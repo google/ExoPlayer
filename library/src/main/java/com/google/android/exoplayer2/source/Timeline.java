@@ -23,19 +23,13 @@ import com.google.android.exoplayer2.ExoPlayer;
 public interface Timeline {
 
   /**
-   * Returned by {@link #getPeriodCount()} when the number of periods is not known.
-   */
-  int UNKNOWN_PERIOD_COUNT = -1;
-
-  /**
    * Returned by {@link #getIndexOfPeriod(Object)} if no period index corresponds to the specified
    * identifier.
    */
   int NO_PERIOD_INDEX = -1;
 
   /**
-   * Returns the number of periods in the timeline, or {@link #UNKNOWN_PERIOD_COUNT} if not known.
-   * If {@link #isFinal()} returns {@code true}, the number of periods must be known.
+   * Returns the number of periods in the timeline.
    */
   int getPeriodCount();
 

@@ -96,8 +96,7 @@ import java.util.Locale;
     int periodCount = timeline.getPeriodCount();
     int seekWindowCount = timeline.getSeekWindowCount();
     Log.d(TAG, "sourceInfo[isFinal=" + isFinal + ", startTime=" + timeline.getAbsoluteStartTime()
-        + ", periodCount=" + (periodCount == Timeline.UNKNOWN_PERIOD_COUNT ? "?" : periodCount)
-        + ", seekWindows: " + seekWindowCount);
+        + ", periodCount=" + periodCount + ", seekWindows: " + seekWindowCount);
     for (int seekWindowIndex = 0; seekWindowIndex < seekWindowCount; seekWindowIndex++) {
       Log.d(TAG, "  " + timeline.getSeekWindow(seekWindowIndex));
     }

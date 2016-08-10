@@ -142,7 +142,7 @@ public final class DashMediaSource implements MediaSource {
   public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
     int periodIndex = oldPlayingPeriodIndex;
     int oldPeriodCount = oldTimeline.getPeriodCount();
-    while (oldPeriodCount == Timeline.UNKNOWN_PERIOD_COUNT || periodIndex < oldPeriodCount) {
+    while (periodIndex < oldPeriodCount) {
       Object id = oldTimeline.getPeriodId(periodIndex);
       if (id == null) {
         break;

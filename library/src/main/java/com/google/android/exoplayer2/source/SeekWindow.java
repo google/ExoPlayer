@@ -39,7 +39,7 @@ public final class SeekWindow {
    * @param startTimeUs The start time of the window in microseconds, relative to the start of the
    *     specified start period.
    * @param endPeriodIndex The index of the period containing the end of the window.
-   * @param endTimeUs = The end time of the window in microseconds, relative to the start of the
+   * @param endTimeUs The end time of the window in microseconds, relative to the start of the
    *     specified end period.
    */
   public static SeekWindow createWindow(int startPeriodIndex, long startTimeUs,

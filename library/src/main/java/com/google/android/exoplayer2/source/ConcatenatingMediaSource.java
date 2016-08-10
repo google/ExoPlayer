@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Concatenates multiple {@link MediaSource}s.
@@ -124,26 +123,18 @@ public final class ConcatenatingMediaSource implements MediaSource {
           SeekWindow sourceSeekWindow = timeline.getSeekWindow(j);
           concatenatedSeekWindows.add(sourceSeekWindow.copyOffsetByPeriodCount(sourceOffset));
         }
-        int periodCount = timeline.getPeriodCount();
-        if (periodCount == Timeline.UNKNOWN_PERIOD_COUNT) {
-          sourceOffsets = Arrays.copyOf(sourceOffsets, i);
-          isFinal = false;
-          break;
-        }
-        sourceOffset += periodCount;
+        sourceOffset += timeline.getPeriodCount();
         sourceOffsets[i] = sourceOffset;
       }
       this.timelines = timelines;
       this.isFinal = isFinal;
       this.sourceOffsets = sourceOffsets;
-      seekWindows =
-          concatenatedSeekWindows.toArray(new SeekWindow[concatenatedSeekWindows.size()]);
+      seekWindows = concatenatedSeekWindows.toArray(new SeekWindow[concatenatedSeekWindows.size()]);
     }
 
     @Override
     public int getPeriodCount() {
-      return sourceOffsets.length == timelines.length ? sourceOffsets[sourceOffsets.length - 1]
-          : UNKNOWN_PERIOD_COUNT;
+      return sourceOffsets[sourceOffsets.length - 1];
     }
 
     @Override
