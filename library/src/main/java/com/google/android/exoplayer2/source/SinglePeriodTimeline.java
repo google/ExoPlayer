@@ -19,18 +19,29 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * A {@link Timeline} consisting of a single period.
+ * A {@link Timeline} consisting of a single period and seek window.
  */
 public final class SinglePeriodTimeline implements Timeline {
 
   /**
-   * Returns a new timeline with one period of unknown duration and no seek window.
+   * Returns a new timeline with one period of unknown duration and an empty seek window.
    *
    * @param id The identifier for the period.
    * @return A new timeline with one period of unknown duration.
    */
   public static Timeline createNonFinalTimeline(Object id) {
-    return new SinglePeriodTimeline(id, false, C.UNSET_TIME_US);
+    return new SinglePeriodTimeline(id, false, C.UNSET_TIME_US, SeekWindow.UNSEEKABLE);
+  }
+
+  /**
+   * Returns a new timeline with one period of unknown duration and the specified seek window.
+   *
+   * @param id The identifier for the period.
+   * @param seekWindow The seek window.
+   * @return A new timeline with one period of unknown duration.
+   */
+  public static Timeline createNonFinalTimeline(Object id, SeekWindow seekWindow) {
+    return new SinglePeriodTimeline(id, false, C.UNSET_TIME_US, seekWindow);
   }
 
   /**
@@ -59,14 +70,13 @@ public final class SinglePeriodTimeline implements Timeline {
   private final Object id;
   private final boolean isFinal;
   private final long durationMs;
-  private final SeekWindow[] seekWindows;
+  private final SeekWindow seekWindow;
 
-  private SinglePeriodTimeline(Object id, boolean isFinal, long durationMs,
-      SeekWindow... seekWindows) {
+  private SinglePeriodTimeline(Object id, boolean isFinal, long durationMs, SeekWindow seekWindow) {
     this.id = Assertions.checkNotNull(id);
     this.isFinal = isFinal;
     this.durationMs = durationMs;
-    this.seekWindows = seekWindows;
+    this.seekWindow = seekWindow;
   }
 
   @Override
@@ -99,12 +109,12 @@ public final class SinglePeriodTimeline implements Timeline {
 
   @Override
   public int getSeekWindowCount() {
-    return seekWindows.length;
+    return 1;
   }
 
   @Override
   public SeekWindow getSeekWindow(int index) {
-    return seekWindows[index];
+    return seekWindow;
   }
 
 }
