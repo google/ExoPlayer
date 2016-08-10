@@ -20,7 +20,32 @@ package com.google.android.exoplayer2.source;
  */
 public final class SeekWindow {
 
-  public static final SeekWindow UNSEEKABLE = new SeekWindow(0);
+  public static final SeekWindow UNSEEKABLE = createWindowFromZero(0);
+
+  /**
+   * Creates a new {@link SeekWindow} containing times from zero up to {@code durationUs} in the
+   * first period.
+   *
+   * @param durationUs The duration of the window, in microseconds.
+   */
+  public static SeekWindow createWindowFromZero(long durationUs) {
+    return createWindow(0, 0, 0, durationUs);
+  }
+
+  /**
+   * Creates a new {@link SeekWindow} representing the specified time range.
+   *
+   * @param startPeriodIndex The index of the period containing the start of the window.
+   * @param startTimeUs The start time of the window in microseconds, relative to the start of the
+   *     specified start period.
+   * @param endPeriodIndex The index of the period containing the end of the window.
+   * @param endTimeUs = The end time of the window in microseconds, relative to the start of the
+   *     specified end period.
+   */
+  public static SeekWindow createWindow(int startPeriodIndex, long startTimeUs,
+      int endPeriodIndex, long endTimeUs) {
+    return new SeekWindow(startPeriodIndex, startTimeUs / 1000, endPeriodIndex, endTimeUs / 1000);
+  }
 
   /**
    * The period index at the start of the window.
@@ -28,44 +53,24 @@ public final class SeekWindow {
   public final int startPeriodIndex;
   /**
    * The time at the start of the window relative to the start of the period at
-   * {@link #startPeriodIndex}, in microseconds.
+   * {@link #startPeriodIndex}, in milliseconds.
    */
-  public final long startTimeUs;
+  public final long startTimeMs;
   /**
    * The period index at the end of the window.
    */
   public final int endPeriodIndex;
   /**
    * The time at the end of the window relative to the start of the period at
-   * {@link #endPeriodIndex}, in microseconds.
+   * {@link #endPeriodIndex}, in milliseconds.
    */
-  public final long endTimeUs;
+  public final long endTimeMs;
 
-  /**
-   * Constructs a new {@link SeekWindow} containing times from zero up to {@code durationUs} in the
-   * first period.
-   *
-   * @param durationUs The duration of the window, in microseconds.
-   */
-  public SeekWindow(long durationUs) {
-    this(0, 0, 0, durationUs);
-  }
-
-  /**
-   * Constructs a new {@link SeekWindow} representing the specified time range.
-   *
-   * @param startPeriodIndex The index of the period containing the start of the window.
-   * @param startTimeUs The start time of the window in microseconds, relative to the start of the
-   *     specified start period.
-   * @param endPeriodIndex The index of the period containing the end of the window.
-   * @param endTimeUs The end time of the window in microseconds, relative to the start of the
-   *     specified end period.
-   */
-  public SeekWindow(int startPeriodIndex, long startTimeUs, int endPeriodIndex, long endTimeUs) {
+  private SeekWindow(int startPeriodIndex, long startTimeMs, int endPeriodIndex, long endTimeMs) {
     this.startPeriodIndex = startPeriodIndex;
-    this.startTimeUs = startTimeUs;
+    this.startTimeMs = startTimeMs;
     this.endPeriodIndex = endPeriodIndex;
-    this.endTimeUs = endTimeUs;
+    this.endTimeMs = endTimeMs;
   }
 
   /**
@@ -76,17 +81,17 @@ public final class SeekWindow {
    * @return A new seek window that is offset by the specified number of periods.
    */
   public SeekWindow copyOffsetByPeriodCount(int periodCount) {
-    return new SeekWindow(startPeriodIndex + periodCount, startTimeUs, endPeriodIndex + periodCount,
-        endTimeUs);
+    return new SeekWindow(startPeriodIndex + periodCount, startTimeMs, endPeriodIndex + periodCount,
+        endTimeMs);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
     result = 31 * result + startPeriodIndex;
-    result = 31 * result + (int) startTimeUs;
+    result = 31 * result + (int) startTimeMs;
     result = 31 * result + endPeriodIndex;
-    result = 31 * result + (int) endTimeUs;
+    result = 31 * result + (int) endTimeMs;
     return result;
   }
 
@@ -100,15 +105,15 @@ public final class SeekWindow {
     }
     SeekWindow other = (SeekWindow) obj;
     return other.startPeriodIndex == startPeriodIndex
-        && other.startTimeUs == startTimeUs
+        && other.startTimeMs == startTimeMs
         && other.endPeriodIndex == endPeriodIndex
-        && other.endTimeUs == endTimeUs;
+        && other.endTimeMs == endTimeMs;
   }
 
   @Override
   public String toString() {
-    return "SeekWindow[" + startPeriodIndex + ", " + startTimeUs + ", " + endPeriodIndex + ", "
-        + endTimeUs + "]";
+    return "SeekWindow[" + startPeriodIndex + ", " + startTimeMs + ", " + endPeriodIndex + ", "
+        + endTimeMs + "]";
   }
 
 }

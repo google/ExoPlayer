@@ -48,10 +48,10 @@ public final class SsMediaSource implements MediaSource,
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
-   * The offset in microseconds subtracted from the live edge position when calculating the default
+   * The offset in milliseconds subtracted from the live edge position when calculating the default
    * position returned by {@link #getDefaultStartPosition(int)}.
    */
-  private static final long LIVE_EDGE_OFFSET_US = 30000000;
+  private static final long LIVE_EDGE_OFFSET_MS = 30000;
 
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
 
@@ -114,8 +114,8 @@ public final class SsMediaSource implements MediaSource,
       return null;
     }
     if (manifest.isLive) {
-      long startPositionUs = Math.max(seekWindow.startTimeUs,
-          seekWindow.endTimeUs - LIVE_EDGE_OFFSET_US);
+      long startPositionUs = Math.max(seekWindow.startTimeMs,
+          seekWindow.endTimeMs - LIVE_EDGE_OFFSET_MS) * 1000;
       return new Position(0, startPositionUs);
     }
     return Position.DEFAULT;
@@ -172,7 +172,7 @@ public final class SsMediaSource implements MediaSource,
         timeline = SinglePeriodTimeline.createNonFinalTimeline(this);
       } else {
         timeline = SinglePeriodTimeline.createNonFinalTimeline(this,
-            new SeekWindow(0, startTimeUs, 0, startTimeUs + manifest.dvrWindowLengthUs));
+            SeekWindow.createWindow(0, startTimeUs, 0, startTimeUs + manifest.dvrWindowLengthUs));
       }
     } else if (manifest.durationUs == C.UNSET_TIME_US) {
       timeline = SinglePeriodTimeline.createUnseekableFinalTimeline(this, C.UNSET_TIME_US);

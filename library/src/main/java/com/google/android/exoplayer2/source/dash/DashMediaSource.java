@@ -61,10 +61,10 @@ public final class DashMediaSource implements MediaSource {
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
   /**
-   * The offset in microseconds subtracted from the live edge position when calculating the default
+   * The offset in milliseconds subtracted from the live edge position when calculating the default
    * position returned by {@link #getDefaultStartPosition(int)}.
    */
-  private static final long LIVE_EDGE_OFFSET_US = 30000000;
+  private static final long LIVE_EDGE_OFFSET_MS = 30000;
 
   private static final String TAG = "DashMediaSource";
 
@@ -165,14 +165,14 @@ public final class DashMediaSource implements MediaSource {
     if (index == 0 && manifest.dynamic) {
       // The stream is live, so return a position a position offset from the live edge.
       int periodIndex = seekWindow.endPeriodIndex;
-      long positionUs = seekWindow.endTimeUs - LIVE_EDGE_OFFSET_US;
-      while (positionUs < 0 && periodIndex > seekWindow.startPeriodIndex) {
+      long positionMs = seekWindow.endTimeMs - LIVE_EDGE_OFFSET_MS;
+      while (positionMs < 0 && periodIndex > seekWindow.startPeriodIndex) {
         periodIndex--;
-        positionUs += manifest.getPeriodDurationUs(periodIndex);
+        positionMs += manifest.getPeriodDurationMs(periodIndex);
       }
-      positionUs = Math.max(positionUs,
-          periodIndex == seekWindow.startPeriodIndex ? seekWindow.startTimeUs : 0);
-      return new Position(periodIndex, positionUs);
+      positionMs = Math.max(positionMs,
+          periodIndex == seekWindow.startPeriodIndex ? seekWindow.startTimeMs : 0);
+      return new Position(periodIndex, positionMs * 1000);
     }
     return new Position(index, 0);
   }
@@ -396,7 +396,7 @@ public final class DashMediaSource implements MediaSource {
       currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
       currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     }
-    seekWindow = new SeekWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs);
+    seekWindow = SeekWindow.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs);
 
     DashMediaPeriod[] mediaPeriods =
         periods.toArray(new DashMediaPeriod[manifest.getPeriodCount()]);

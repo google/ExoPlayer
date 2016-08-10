@@ -64,7 +64,8 @@ public final class SinglePeriodTimeline implements Timeline {
    * @return A new, seekable, final timeline with one period.
    */
   public static Timeline createSeekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs / 1000, new SeekWindow(durationUs));
+    return new SinglePeriodTimeline(id, true, durationUs / 1000,
+        SeekWindow.createWindowFromZero(durationUs));
   }
 
   private final Object id;
