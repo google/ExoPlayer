@@ -90,13 +90,12 @@ import java.util.List;
    */
   public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
       throws ParserException {
-    // Array of sample sizes.
     SampleSizeBox sampleSizeBox;
     Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
     if (stszAtom != null) {
       sampleSizeBox = new StszSampleSizeBox(stszAtom);
     } else {
-      final Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+      Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
       if (stz2Atom == null) {
         throw new ParserException("Track has no sample table size information");
       }
@@ -1180,17 +1179,17 @@ import java.util.List;
   private interface SampleSizeBox {
 
     /**
-     * Returns the number of samples in this atom.
+     * Returns the number of samples.
      */
     int getSampleCount();
 
     /**
-     * Returns the size for the next sample in the box.
+     * Returns the size for the next sample.
      */
     int readNextSampleSize();
 
     /**
-     * Whether this box holds samples of a fixed size.
+     * Returns whether samples have a fixed size.
      */
     boolean isFixedSampleSize();
 
@@ -1238,8 +1237,9 @@ import java.util.List;
     private final int sampleCount;
     private final int fieldSize; // Can be 4, 8, or 16.
 
-    private int sampleIndex; // Used only if fieldSize == 4.
-    private int currentByte; // Used only if fieldSize == 4.
+    // Used only if fieldSize == 4.
+    private int sampleIndex;
+    private int currentByte;
 
     public Stz2SampleSizeBox(Atom.LeafAtom stz2Atom) {
       data = stz2Atom.data;
