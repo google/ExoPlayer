@@ -17,7 +17,6 @@ package com.google.android.exoplayer.text.ttml;
 
 import android.graphics.Color;
 import android.test.InstrumentationTestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 

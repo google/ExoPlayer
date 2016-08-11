@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import android.content.Context;
 import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.util.Util;
-
-import android.content.Context;
-
 import java.io.IOException;
 import java.util.Arrays;
 

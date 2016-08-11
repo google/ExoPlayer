@@ -26,7 +26,6 @@ import com.google.android.exoplayer.util.FlacStreamInfo;
 import com.google.android.exoplayer.util.FlacUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;

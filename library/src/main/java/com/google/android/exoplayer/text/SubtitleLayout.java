@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -16,15 +16,13 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
-
-import junit.framework.TestCase;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
+import junit.framework.TestCase;
 
 /**
  * Test for {@link HlsMediaPlaylistParserTest}

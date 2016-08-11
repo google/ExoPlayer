@@ -18,7 +18,6 @@ package com.google.android.exoplayer.text.tx3g;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Assertions;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -27,10 +26,16 @@ import java.util.List;
  */
 /* package */ final class Tx3gSubtitle implements Subtitle {
 
+  public static final Tx3gSubtitle EMPTY = new Tx3gSubtitle();
+
   private final List<Cue> cues;
 
   public Tx3gSubtitle(Cue cue) {
     this.cues = Collections.singletonList(cue);
+  }
+
+  private Tx3gSubtitle() {
+    this.cues = Collections.emptyList();
   }
 
   @Override

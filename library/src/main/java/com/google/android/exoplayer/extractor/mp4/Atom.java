@@ -17,7 +17,6 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -112,6 +111,7 @@ import java.util.List;
   public static final int TYPE_ctts = Util.getIntegerCodeForString("ctts");
   public static final int TYPE_stsc = Util.getIntegerCodeForString("stsc");
   public static final int TYPE_stsz = Util.getIntegerCodeForString("stsz");
+  public static final int TYPE_stz2 = Util.getIntegerCodeForString("stz2");
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
@@ -126,6 +126,9 @@ import java.util.List;
   public static final int TYPE_name = Util.getIntegerCodeForString("name");
   public static final int TYPE_data = Util.getIntegerCodeForString("data");
   public static final int TYPE_emsg = Util.getIntegerCodeForString("emsg");
+  public static final int TYPE_vp08 = Util.getIntegerCodeForString("vp08");
+  public static final int TYPE_vp09 = Util.getIntegerCodeForString("vp09");
+  public static final int TYPE_vpcC = Util.getIntegerCodeForString("vpcC");
   public static final int TYPE_DASHES = Util.getIntegerCodeForString("----");
 
   public final int type;

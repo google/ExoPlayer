@@ -16,12 +16,12 @@
 package com.google.android.exoplayer.drm;
 
 import android.annotation.TargetApi;
-import android.media.MediaDrm;
-
+import com.google.android.exoplayer.drm.ExoMediaDrm.KeyRequest;
+import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
 import java.util.UUID;
 
 /**
- * Performs {@link MediaDrm} key and provisioning requests.
+ * Performs {@link ExoMediaDrm} key and provisioning requests.
  */
 @TargetApi(18)
 public interface MediaDrmCallback {
@@ -34,7 +34,7 @@ public interface MediaDrmCallback {
    * @return The response data.
    * @throws Exception If an error occurred executing the request.
    */
-  byte[] executeProvisionRequest(UUID uuid, MediaDrm.ProvisionRequest request) throws Exception;
+  byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws Exception;
 
   /**
    * Executes a key request.
@@ -44,6 +44,6 @@ public interface MediaDrmCallback {
    * @return The response data.
    * @throws Exception If an error occurred executing the request.
    */
-  byte[] executeKeyRequest(UUID uuid, MediaDrm.KeyRequest request) throws Exception;
+  byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception;
 
 }

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.dash;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.Format;
@@ -39,9 +40,6 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.FakeClock;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
-
-import android.test.InstrumentationTestCase;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -149,42 +147,41 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   public void testLiveEdgeLatency() {
     long availableRangeStartMs = 0;
     long availableRangeEndMs = LIVE_DURATION_MS;
-    long seekPositionMs = LIVE_DURATION_MS;
 
     long chunkStartTimeMs = 4000;
     long chunkEndTimeMs = 5000;
     // Test with 1-1000ms latency.
     long liveEdgeLatency = 1;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
     liveEdgeLatency = 1000;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
 
     chunkStartTimeMs = 3000;
     chunkEndTimeMs = 4000;
     // Test with 1001-2000ms latency.
     liveEdgeLatency = 1001;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
     liveEdgeLatency = 2000;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
 
     chunkStartTimeMs = 0;
     chunkEndTimeMs = 1000;
     // Test with 9001-10000 latency.
     liveEdgeLatency = 9001;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
     liveEdgeLatency = 10000;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
 
     // Test with 10001 latency. Seek position will be bounded to the first chunk.
     liveEdgeLatency = 10001;
-    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(LIVE_DURATION_MS, 0, liveEdgeLatency, availableRangeStartMs,
+        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
   }
 
   // Private methods.
@@ -338,56 +335,54 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   private static void checkLiveEdgeConsistency(long durationMs, long timelineStartMs,
-      long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
-      long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
+      long liveEdgeLatencyMs, long availableRangeStartMs, long availableRangeEndMs,
+      long chunkStartTimeMs, long chunkEndTimeMs) {
     checkLiveEdgeConsistencyWithTimeline(durationMs, timelineStartMs, liveEdgeLatencyMs,
-        seekPositionMs, availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs,
-        chunkEndTimeMs);
+        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
     checkLiveEdgeConsistencyWithTemplateAndUnlimitedTimeshift(durationMs, liveEdgeLatencyMs,
-        seekPositionMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
     checkLiveEdgeConsistencyWithTemplateAndLimitedTimeshift(durationMs, liveEdgeLatencyMs,
-        seekPositionMs, availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs,
-        chunkEndTimeMs);
+        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
   }
 
   private static void checkLiveEdgeConsistencyWithTimeline(long durationMs, long timelineStartMs,
-      long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
-      long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
+      long liveEdgeLatencyMs, long availableRangeStartMs, long availableRangeEndMs,
+      long chunkStartTimeMs, long chunkEndTimeMs) {
     MediaPresentationDescription mpd = buildLiveMpdWithTimeline(durationMs, timelineStartMs);
-    checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
   }
 
   private static void checkLiveEdgeConsistencyWithTemplateAndUnlimitedTimeshift(long durationMs,
       long liveEdgeLatencyMs, long availablePositionMs, long availableRangeEndMs,
       long chunkStartTimeMs, long chunkEndTimeMs) {
     MediaPresentationDescription mpd = buildLiveMpdWithTemplate(durationMs, false);
-    checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, availablePositionMs, 0,
-        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, availablePositionMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
   }
 
   private static void checkLiveEdgeConsistencyWithTemplateAndLimitedTimeshift(long durationMs,
-      long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
-      long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
+      long liveEdgeLatencyMs, long availableRangeStartMs, long availableRangeEndMs,
+      long chunkStartTimeMs, long chunkEndTimeMs) {
     MediaPresentationDescription mpd = buildLiveMpdWithTemplate(durationMs, true);
-    checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, seekPositionMs, availableRangeStartMs,
-        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(mpd, liveEdgeLatencyMs, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
   }
 
   private static void checkLiveEdgeConsistency(MediaPresentationDescription mpd,
-      long liveEdgeLatencyMs, long seekPositionMs, long availableRangeStartMs,
-      long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
+      long liveEdgeLatencyMs, long availableRangeStartMs, long availableRangeEndMs,
+      long chunkStartTimeMs, long chunkEndTimeMs) {
     DashChunkSource chunkSource = buildDashChunkSource(mpd, true, liveEdgeLatencyMs);
     List<MediaChunk> queue = new ArrayList<>();
     ChunkOperationHolder out = new ChunkOperationHolder();
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs, availableRangeStartMs,
-        availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
   }
 
   private static void checkLiveEdgeConsistency(DashChunkSource chunkSource, List<MediaChunk> queue,
-      ChunkOperationHolder out, long seekPositionMs, long availableRangeStartMs,
-      long availableRangeEndMs, long chunkStartTimeMs, long chunkEndTimeMs) {
-    chunkSource.getChunkOperation(queue, seekPositionMs * 1000, out);
+      ChunkOperationHolder out, long availableRangeStartMs, long availableRangeEndMs,
+      long chunkStartTimeMs, long chunkEndTimeMs) {
+    chunkSource.getChunkOperation(queue, 0, out);
     TimeRange availableRange = chunkSource.getAvailableRange();
     checkAvailableRange(availableRange, availableRangeStartMs * 1000, availableRangeEndMs * 1000);
     if (chunkStartTimeMs < availableRangeEndMs) {
@@ -410,80 +405,80 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     long chunkEndTimeMs = 1000;
 
     // request first chunk
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request second chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request third chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request fourth chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request fifth chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request sixth chunk; this is the first chunk in the 2nd period
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request seventh chunk;
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request eigth chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request ninth chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request tenth chunk
     chunkStartTimeMs += 1000;
     chunkEndTimeMs += 1000;
     out.chunk = null;
-    checkLiveEdgeConsistency(chunkSource, queue, out, seekPositionMs,
-        availableRangeStartMs, availableRangeEndMs, chunkStartTimeMs, chunkEndTimeMs);
+    checkLiveEdgeConsistency(chunkSource, queue, out, availableRangeStartMs, availableRangeEndMs,
+        chunkStartTimeMs, chunkEndTimeMs);
     queue.add((MediaChunk) out.chunk);
 
     // request "eleventh" chunk; this chunk isn't available yet, so we should get null

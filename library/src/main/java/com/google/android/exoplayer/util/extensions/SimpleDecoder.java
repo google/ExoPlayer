@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.util.extensions;
 
 import com.google.android.exoplayer.util.Assertions;
-
 import java.util.LinkedList;
 
 /**

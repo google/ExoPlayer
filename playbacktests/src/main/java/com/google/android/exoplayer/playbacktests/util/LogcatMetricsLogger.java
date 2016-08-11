@@ -44,6 +44,11 @@ public final class LogcatMetricsLogger implements MetricsLogger {
   }
 
   @Override
+  public void logMetric(String key, boolean value) {
+    Log.d(tag, key + ": " + value);
+  }
+
+  @Override
   public void close() {
     // Do nothing.
   }

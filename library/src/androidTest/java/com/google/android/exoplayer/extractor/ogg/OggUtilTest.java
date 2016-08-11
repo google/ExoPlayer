@@ -20,12 +20,10 @@ import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import junit.framework.TestCase;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link OggUtil}.

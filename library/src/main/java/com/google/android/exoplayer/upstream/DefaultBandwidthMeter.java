@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import android.os.Handler;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Clock;
 import com.google.android.exoplayer.util.SlidingPercentile;
 import com.google.android.exoplayer.util.SystemClock;
-
-import android.os.Handler;
 
 /**
  * Counts transferred bytes while transfers are open and creates a bandwidth sample and updated

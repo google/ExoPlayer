@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.ExoPlayer;
-
 import android.widget.MediaController.MediaPlayerControl;
+import com.google.android.exoplayer.ExoPlayer;
 
 /**
  * An implementation of {@link MediaPlayerControl} for controlling an {@link ExoPlayer} instance.

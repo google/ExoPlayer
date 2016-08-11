@@ -15,16 +15,14 @@
  */
 package com.google.android.exoplayer.upstream;
 
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.TraceUtil;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
+import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
@@ -171,8 +169,23 @@ public final class Loader {
    * This method should be called when the {@link Loader} is no longer required.
    */
   public void release() {
+    release(null);
+  }
+
+  /**
+   * Releases the {@link Loader}, running {@code postLoadAction} on its thread.
+   * <p>
+   * This method should be called when the {@link Loader} is no longer required.
+   *
+   * @param postLoadAction A {@link Runnable} to run on the loader's thread when
+   *     {@link Loadable#load()} is no longer running.
+   */
+  public void release(Runnable postLoadAction) {
     if (loading) {
       cancelLoading();
+    }
+    if (postLoadAction != null) {
+      downloadExecutorService.submit(postLoadAction);
     }
     downloadExecutorService.shutdown();
   }

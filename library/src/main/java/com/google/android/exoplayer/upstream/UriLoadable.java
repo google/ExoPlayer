@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import android.net.Uri;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
-
-import android.net.Uri;
-
 import java.io.IOException;
 import java.io.InputStream;
 

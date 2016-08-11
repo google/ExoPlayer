@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.util;
 
 import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.List;
 

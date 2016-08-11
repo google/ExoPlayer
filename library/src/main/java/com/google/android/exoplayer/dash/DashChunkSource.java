@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer.dash;
 
+import android.os.Handler;
+import android.util.Log;
+import android.util.SparseArray;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
@@ -50,11 +53,6 @@ import com.google.android.exoplayer.util.Clock;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.SystemClock;
-
-import android.os.Handler;
-import android.util.Log;
-import android.util.SparseArray;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -394,6 +392,10 @@ public class DashChunkSource implements ChunkSource, Output {
     availableRange.getCurrentBoundsUs(availableRangeValues);
     if (queue.isEmpty()) {
       if (live) {
+        if (playbackPositionUs != 0) {
+          // If the position is non-zero then assume the client knows where it's seeking.
+          startAtLiveEdge = false;
+        }
         if (startAtLiveEdge) {
           // We want live streams to start at the live edge instead of the beginning of the
           // manifest

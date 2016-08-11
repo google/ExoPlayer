@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.util.SparseArray;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.Format;
@@ -28,9 +29,6 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-
-import android.util.SparseArray;
-
 import java.io.IOException;
 
 /**
@@ -240,6 +238,15 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
     int result = extractor.read(input, null);
     Assertions.checkState(result != Extractor.RESULT_SEEK);
     return result;
+  }
+
+  public long getAdjustedEndTimeUs() {
+    long largestAdjustedPtsParsed = Long.MIN_VALUE;
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      largestAdjustedPtsParsed = Math.max(largestAdjustedPtsParsed,
+          sampleQueues.valueAt(i).getLargestParsedTimestampUs());
+    }
+    return largestAdjustedPtsParsed;
   }
 
   // ExtractorOutput implementation.

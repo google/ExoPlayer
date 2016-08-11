@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import com.google.android.exoplayer.testutil.TestUtil;
-import com.google.android.exoplayer.text.Cue;
-
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
 import android.text.Spannable;
@@ -31,7 +28,8 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
-
+import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.text.Cue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +55,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "ttml/font_size_no_unit.xml";
   private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
   private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
+  private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -363,6 +362,15 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("empty", String.valueOf(spannable));
     assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
     assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+  }
+
+  public void testFrameRate() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(FRAME_RATE_TTML_FILE);
+    assertEquals(4, subtitle.getEventTimeCount());
+    assertEquals(1_000_000, subtitle.getEventTime(0));
+    assertEquals(1_010_000, subtitle.getEventTime(1));
+    assertEquals(1_001_000_000, subtitle.getEventTime(2), 1000);
+    assertEquals(2_002_000_000, subtitle.getEventTime(3), 2000);
   }
 
   private void assertSpans(TtmlSubtitle subtitle, int second,

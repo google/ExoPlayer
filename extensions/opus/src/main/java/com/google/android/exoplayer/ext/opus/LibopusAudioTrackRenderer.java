@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
+import android.media.AudioManager;
+import android.os.Handler;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -29,9 +31,6 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Buffer;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
-
-import android.os.Handler;
-
 import java.util.List;
 
 /**
@@ -113,11 +112,23 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
    */
   public LibopusAudioTrackRenderer(SampleSource source, Handler eventHandler,
       EventListener eventListener) {
+      this(source, eventHandler, eventListener, AudioManager.STREAM_MUSIC);
+  }
+
+  /**
+   * @param source The upstream source from which the renderer obtains samples.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param streamType The type of audio stream for the {@link AudioTrack}.
+   */
+  public LibopusAudioTrackRenderer(SampleSource source, Handler eventHandler,
+      EventListener eventListener, int streamType) {
     super(source);
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack();
+    audioTrack = new AudioTrack(null, streamType);
     formatHolder = new MediaFormatHolder();
   }
 
@@ -183,7 +194,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
     // Rendering loop.
     try {
-      renderBuffer();
+      while (renderBuffer()) {};
       while (feedInputBuffer(positionUs)) {}
     } catch (AudioTrack.InitializationException e) {
       notifyAudioTrackInitializationError(e);
@@ -198,16 +209,24 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     codecCounters.ensureUpdated();
   }
 
-  private void renderBuffer() throws OpusDecoderException, AudioTrack.InitializationException,
+  /**
+   * Render decoded output buffer, and release the output buffer to available pool.
+   *
+   * @return True if it may be possible to render more output data. False otherwise.
+   * @throws OpusDecoderException
+   * @throws AudioTrack.InitializationException
+   * @throws AudioTrack.WriteException
+   */
+  private boolean renderBuffer() throws OpusDecoderException, AudioTrack.InitializationException,
       AudioTrack.WriteException {
     if (outputStreamEnded) {
-      return;
+      return false;
     }
 
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
-        return;
+        return false;
       }
     }
 
@@ -216,7 +235,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       audioTrack.handleEndOfStream();
       outputBuffer.release();
       outputBuffer = null;
-      return;
+      return false;
     }
 
     if (!audioTrack.isInitialized()) {
@@ -244,7 +263,9 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       codecCounters.renderedOutputBufferCount++;
       outputBuffer.release();
       outputBuffer = null;
+      return true;
     }
+    return false;
   }
 
   private boolean feedInputBuffer(long positionUs) throws OpusDecoderException {

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.TimeRange.StaticTimeRange;
-
 import junit.framework.TestCase;
 
 /**
@@ -24,6 +23,7 @@ import junit.framework.TestCase;
  */
 public class TimeRangeTest extends TestCase {
 
+  @SuppressWarnings("SelfEquals")
   public void testStaticEquals() {
     TimeRange timeRange1 = new StaticTimeRange(0, 30000000);
     assertTrue(timeRange1.equals(timeRange1));

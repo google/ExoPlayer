@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.extractor;
 
+import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.util.SparseArray;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
@@ -31,12 +35,6 @@ import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import android.net.Uri;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.SparseArray;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -556,12 +554,13 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     Assertions.checkState(remainingReleaseCount > 0);
     if (--remainingReleaseCount == 0) {
       if (loader != null) {
-        loader.release();
+        loader.release(new Runnable() {
+          @Override
+          public void run() {
+            extractorHolder.release();
+          }
+        });
         loader = null;
-      }
-      if (extractorHolder.extractor != null) {
-        extractorHolder.extractor.release();
-        extractorHolder.extractor = null;
       }
     }
   }
@@ -900,6 +899,13 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
       }
       extractor.init(extractorOutput);
       return extractor;
+    }
+
+    public void release() {
+      if (extractor != null) {
+        extractor.release();
+        extractor = null;
+      }
     }
 
   }

@@ -15,13 +15,12 @@
  */
 package com.google.android.exoplayer.text;
 
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * A compatibility wrapper for {@link CaptionStyle}.

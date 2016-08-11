@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer.util;
 
-import junit.framework.TestCase;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import junit.framework.TestCase;
 
 /**
  * Tests for {@link NalUnitUtil}.

@@ -15,17 +15,15 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.upstream.Loader;
-import com.google.android.exoplayer.upstream.Loader.Loadable;
-import com.google.android.exoplayer.upstream.UriDataSource;
-import com.google.android.exoplayer.upstream.UriLoadable;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Pair;
-
+import com.google.android.exoplayer.upstream.Loader;
+import com.google.android.exoplayer.upstream.Loader.Loadable;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import java.io.IOException;
 import java.util.concurrent.CancellationException;
 

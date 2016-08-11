@@ -17,7 +17,6 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.io.IOException;
 
 /**

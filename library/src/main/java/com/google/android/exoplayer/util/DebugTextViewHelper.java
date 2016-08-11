@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer.util;
 
+import android.widget.TextView;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
-
-import android.widget.TextView;
 
 /**
  * A helper class for periodically updating debug information displayed by a {@link TextView}.

@@ -18,7 +18,6 @@ package com.google.android.exoplayer.ext.vp9;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.extensions.Buffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -51,6 +50,11 @@ import java.nio.ByteBuffer;
    * Returns the version string of the underlying libvpx decoder.
    */
   public static native String getLibvpxVersion();
+
+  /**
+   * Returns the configuration string with which the underlying libvpx library was built.
+   */
+  public static native String getLibvpxConfig();
 
   private final long vpxDecContext;
 

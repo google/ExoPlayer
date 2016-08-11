@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer.drm;
 
-import com.google.android.exoplayer.util.Assertions;
-
 import android.media.MediaDrm;
-
+import com.google.android.exoplayer.util.Assertions;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

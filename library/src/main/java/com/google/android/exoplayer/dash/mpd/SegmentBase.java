@@ -18,7 +18,6 @@ package com.google.android.exoplayer.dash.mpd;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.dash.DashSegmentIndex;
 import com.google.android.exoplayer.util.Util;
-
 import java.util.List;
 
 /**

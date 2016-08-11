@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer.demo;
 
+import android.annotation.TargetApi;
+import android.text.TextUtils;
+import com.google.android.exoplayer.drm.ExoMediaDrm.KeyRequest;
+import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.util.Util;
-
-import android.annotation.TargetApi;
-import android.media.MediaDrm.KeyRequest;
-import android.media.MediaDrm.ProvisionRequest;
-import android.text.TextUtils;
-
 import java.io.IOException;
 import java.util.UUID;
 

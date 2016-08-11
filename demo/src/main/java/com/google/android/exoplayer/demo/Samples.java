@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.util.Util;
-
 import java.util.Locale;
 
 /**
@@ -258,6 +257,8 @@ import java.util.Locale;
         "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg", Util.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", Util.TYPE_OTHER),
+    new Sample("Google Glass (VP9 in MP4/ISO-BMFF)",
+          "http://demos.webmproject.org/exoplayer/glass.mp4", Util.TYPE_OTHER),
     new Sample("Big Buck Bunny (FLV Video)",
         "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0", Util.TYPE_OTHER),
   };

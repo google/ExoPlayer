@@ -31,7 +31,7 @@ shift 1
 # configuration parameters common to all architectures
 common_params="--disable-examples --disable-docs --enable-realtime-only"
 common_params+=" --disable-vp8 --disable-vp9-encoder --disable-webm-io"
-common_params+=" --disable-vp10 --disable-libyuv --disable-runtime-cpu-detect"
+common_params+=" --disable-libyuv --disable-runtime-cpu-detect"
 
 # configuration parameters for various architectures
 arch[0]="armeabi-v7a"

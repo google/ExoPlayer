@@ -16,10 +16,8 @@
 package com.google.android.exoplayer.extractor.webm;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
 import java.io.IOException;
 
 /**

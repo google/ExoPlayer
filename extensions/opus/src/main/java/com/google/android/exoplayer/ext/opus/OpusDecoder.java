@@ -19,7 +19,6 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.extensions.Buffer;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
 import com.google.android.exoplayer.util.extensions.SimpleDecoder;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -162,14 +161,8 @@ import java.util.List;
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
     sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
-    int requiredOutputBufferSize =
-        opusGetRequiredOutputBufferSize(sampleHolder.data, sampleHolder.size, SAMPLE_RATE);
-    if (requiredOutputBufferSize < 0) {
-      return new OpusDecoderException("Error when computing required output buffer size.");
-    }
-    outputBuffer.init(requiredOutputBufferSize);
     int result = opusDecode(nativeDecoderContext, sampleHolder.data, sampleHolder.size,
-        outputBuffer.data, outputBuffer.data.capacity());
+        outputBuffer, SAMPLE_RATE);
     if (result < 0) {
       return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
     }
@@ -199,9 +192,7 @@ import java.util.List;
   private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
       int gain, byte[] streamMap);
   private native int opusDecode(long decoder, ByteBuffer inputBuffer, int inputSize,
-      ByteBuffer outputBuffer, int outputSize);
-  private native int opusGetRequiredOutputBufferSize(
-      ByteBuffer inputBuffer, int inputSize, int sampleRate);
+      OpusOutputBuffer outputBuffer, int sampleRate);
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);
   private native String opusGetErrorMessage(int errorCode);

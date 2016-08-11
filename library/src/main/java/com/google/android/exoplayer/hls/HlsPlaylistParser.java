@@ -21,7 +21,6 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

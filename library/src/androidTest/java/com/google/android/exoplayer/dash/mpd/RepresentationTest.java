@@ -18,7 +18,6 @@ package com.google.android.exoplayer.dash.mpd;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer.util.MimeTypes;
-
 import junit.framework.TestCase;
 
 /**

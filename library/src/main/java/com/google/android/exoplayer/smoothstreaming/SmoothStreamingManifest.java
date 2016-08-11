@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import android.net.Uri;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatWrapper;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
-
-import android.net.Uri;
-
 import java.util.List;
 import java.util.UUID;
 

@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.text;
 
-import com.google.android.exoplayer.util.Util;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -32,6 +30,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * Draws {@link Cue}s.
@@ -215,6 +214,9 @@ import android.util.Log;
     int lineCount = textLayout.getLineCount();
     for (int i = 0; i < lineCount; i++) {
       textWidth = Math.max((int) Math.ceil(textLayout.getLineWidth(i)), textWidth);
+    }
+    if (cueSize != Cue.DIMEN_UNSET && textWidth < availableWidth) {
+      textWidth = availableWidth;
     }
     textWidth += textPaddingX * 2;
 

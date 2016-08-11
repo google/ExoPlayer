@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.extractor.ogg;
 
 import com.google.android.exoplayer.util.ParsableBitArray;
-
 import junit.framework.TestCase;
 
 /**

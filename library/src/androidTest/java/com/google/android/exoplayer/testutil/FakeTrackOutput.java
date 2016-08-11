@@ -15,18 +15,15 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import android.test.MoreAsserts;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.test.MoreAsserts;
-
-import junit.framework.Assert;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import junit.framework.Assert;
 
 /**
  * A fake {@link TrackOutput}.

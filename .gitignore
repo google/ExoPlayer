@@ -23,6 +23,7 @@ gen-external-apklibs
 # Gradle
 .gradle
 build
+buildout
 out
 
 # Maven
@@ -51,3 +52,9 @@ extensions/opus/src/main/jni/libopus
 
 # FLAC extension
 extensions/flac/src/main/jni/flac
+
+# Cronet extension
+extensions/cronet/jniLibs/*
+!extensions/cronet/jniLibs/README.md
+extensions/cronet/libs/*
+!extensions/cronet/libs/README.md

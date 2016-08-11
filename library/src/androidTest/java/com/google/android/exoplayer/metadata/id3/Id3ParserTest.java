@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer.metadata.id3;
 
-import com.google.android.exoplayer.ParserException;
-
 import android.test.MoreAsserts;
-import junit.framework.TestCase;
-
+import com.google.android.exoplayer.ParserException;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * Test for {@link Id3Parser}

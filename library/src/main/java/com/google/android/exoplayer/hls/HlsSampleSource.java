@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.os.Handler;
+import android.os.SystemClock;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaFormat;
@@ -31,10 +33,6 @@ import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-
-import android.os.Handler;
-import android.os.SystemClock;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -592,13 +590,14 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
    *
    * @param format The {@link MediaFormat} to copy.
    * @param fixedTrackFormat The {@link Format} to incorporate into the copy.
-   * @param language The language to incorporate into the copy.
+   * @param languageOverride The language to incorporate into the copy.
    * @return The copied {@link MediaFormat}.
    */
   private static MediaFormat copyWithFixedTrackInfo(MediaFormat format, Format fixedTrackFormat,
-      String language) {
+      String languageOverride) {
     int width = fixedTrackFormat.width == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.width;
     int height = fixedTrackFormat.height == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.height;
+    String language = languageOverride == null ? fixedTrackFormat.language : languageOverride;
     return format.copyWithFixedTrackInfo(fixedTrackFormat.id, fixedTrackFormat.bitrate, width,
         height, language);
   }

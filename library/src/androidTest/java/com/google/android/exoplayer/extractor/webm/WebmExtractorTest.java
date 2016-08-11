@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.webm;
 
 import static com.google.android.exoplayer.extractor.webm.StreamBuilder.TEST_ENCRYPTION_KEY_ID;
 
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
@@ -30,9 +31,6 @@ import com.google.android.exoplayer.testutil.FakeTrackOutput;
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
-
-import android.test.InstrumentationTestCase;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

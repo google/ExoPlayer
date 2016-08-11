@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
+import android.util.Pair;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
@@ -27,9 +28,6 @@ import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
-import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,8 +90,22 @@ import java.util.List;
    */
   public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
       throws ParserException {
-    // Array of sample sizes.
-    ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
+    SampleSizeBox sampleSizeBox;
+    Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+    if (stszAtom != null) {
+      sampleSizeBox = new StszSampleSizeBox(stszAtom);
+    } else {
+      Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+      if (stz2Atom == null) {
+        throw new ParserException("Track has no sample table size information");
+      }
+      sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
+    }
+
+    int sampleCount = sampleSizeBox.getSampleCount();
+    if (sampleCount == 0) {
+      return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
+    }
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
@@ -113,14 +125,6 @@ import java.util.List;
     // Entries are (number of samples, timestamp offset).
     Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
-
-    // Skip full atom.
-    stsz.setPosition(Atom.FULL_HEADER_SIZE);
-    int fixedSampleSize = stsz.readUnsignedIntToInt();
-    int sampleCount = stsz.readUnsignedIntToInt();
-    if (sampleCount == 0) {
-      return new TrackSampleTable(new long[0], new int[0], 0, new long[0], new int[0]);
-    }
 
     // Prepare to read chunk information.
     ChunkIterator chunkIterator = new ChunkIterator(stsc, chunkOffsets, chunkOffsetsAreLongs);
@@ -145,12 +149,16 @@ import java.util.List;
     if (stss != null) {
       stss.setPosition(Atom.FULL_HEADER_SIZE);
       remainingSynchronizationSamples = stss.readUnsignedIntToInt();
-      nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+      if (remainingSynchronizationSamples > 0) {
+        nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+      } else {
+        // Ignore empty stss boxes, which causes all samples to be treated as sync samples.
+        stss = null;
+      }
     }
 
     // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
-    boolean isRechunkable =
-        fixedSampleSize != 0
+    boolean isRechunkable = sampleSizeBox.isFixedSampleSize()
         && MimeTypes.AUDIO_RAW.equals(track.mediaFormat.mimeType)
         && remainingTimestampDeltaChanges == 0
         && remainingTimestampOffsetChanges == 0
@@ -195,7 +203,7 @@ import java.util.List;
         }
 
         offsets[i] = offset;
-        sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+        sizes[i] = sampleSizeBox.readNextSampleSize();
         if (sizes[i] > maximumSize) {
           maximumSize = sizes[i];
         }
@@ -244,6 +252,7 @@ import java.util.List;
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
+      int fixedSampleSize = sampleSizeBox.readNextSampleSize();
       FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
           fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
       offsets = rechunkedResults.offsets;
@@ -555,7 +564,8 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
-          || childAtomType == Atom.TYPE_s263) {
+          || childAtomType == Atom.TYPE_s263 || childAtomType == Atom.TYPE_vp08
+          || childAtomType == Atom.TYPE_vp09) {
         parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             durationUs, rotationDegrees, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
@@ -641,6 +651,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
         pixelWidthHeightRatioFromPasp = true;
+      } else if (childAtomType == Atom.TYPE_vpcC) {
+        Assertions.checkState(mimeType == null);
+        mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
       }
       childPosition += childAtomSize;
     }
@@ -881,7 +894,9 @@ import java.util.List;
     }
   }
 
-  /** Returns the position of the esds box within a parent, or -1 if no esds box is found */
+  /**
+   * Returns the position of the esds box within a parent, or -1 if no esds box is found
+   */
   private static int findEsdsPosition(ParsableByteArray parent, int position, int size) {
     int childAtomPosition = parent.getPosition();
     while (childAtomPosition - position < size) {
@@ -897,7 +912,9 @@ import java.util.List;
     return -1;
   }
 
-  /** Returns codec-specific initialization data contained in an esds box. */
+  /**
+   * Returns codec-specific initialization data contained in an esds box.
+   */
   private static Pair<String, byte[]> parseEsdsFromParent(ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the ES_Descriptor (defined in 14496-1)
@@ -1042,7 +1059,9 @@ import java.util.List;
     return null;
   }
 
-  /** Parses the size of an expandable class, as specified by ISO 14496-1 subsection 8.3.3. */
+  /**
+   * Parses the size of an expandable class, as specified by ISO 14496-1 subsection 8.3.3.
+   */
   private static int parseExpandableClassSize(ParsableByteArray data) {
     int currentByte = data.readUnsignedByte();
     int size = currentByte & 0x7F;
@@ -1150,6 +1169,113 @@ import java.util.List;
       this.initializationData = initializationData;
       this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
       this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+    }
+
+  }
+
+  /**
+   * A box containing sample sizes (e.g. stsz, stz2).
+   */
+  private interface SampleSizeBox {
+
+    /**
+     * Returns the number of samples.
+     */
+    int getSampleCount();
+
+    /**
+     * Returns the size for the next sample.
+     */
+    int readNextSampleSize();
+
+    /**
+     * Returns whether samples have a fixed size.
+     */
+    boolean isFixedSampleSize();
+
+  }
+
+  /**
+   * An stsz sample size box.
+   */
+  /* package */ static final class StszSampleSizeBox implements SampleSizeBox {
+
+    private final int fixedSampleSize;
+    private final int sampleCount;
+    private final ParsableByteArray data;
+
+    public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
+      data = stszAtom.data;
+      data.setPosition(Atom.FULL_HEADER_SIZE);
+      fixedSampleSize = data.readUnsignedIntToInt();
+      sampleCount = data.readUnsignedIntToInt();
+    }
+
+    @Override
+    public int getSampleCount() {
+      return sampleCount;
+    }
+
+    @Override
+    public int readNextSampleSize() {
+      return fixedSampleSize == 0 ? data.readUnsignedIntToInt() : fixedSampleSize;
+    }
+
+    @Override
+    public boolean isFixedSampleSize() {
+      return fixedSampleSize != 0;
+    }
+
+  }
+
+  /**
+   * An stz2 sample size box.
+   */
+  /* package */ static final class Stz2SampleSizeBox implements SampleSizeBox {
+
+    private final ParsableByteArray data;
+    private final int sampleCount;
+    private final int fieldSize; // Can be 4, 8, or 16.
+
+    // Used only if fieldSize == 4.
+    private int sampleIndex;
+    private int currentByte;
+
+    public Stz2SampleSizeBox(Atom.LeafAtom stz2Atom) {
+      data = stz2Atom.data;
+      data.setPosition(Atom.FULL_HEADER_SIZE);
+      fieldSize = data.readUnsignedIntToInt() & 0x000000FF;
+      sampleCount = data.readUnsignedIntToInt();
+    }
+
+    @Override
+    public int getSampleCount() {
+      return sampleCount;
+    }
+
+    @Override
+    public int readNextSampleSize() {
+      if (fieldSize == 8) {
+        return data.readUnsignedByte();
+      } else if (fieldSize == 16) {
+        return data.readUnsignedShort();
+      } else {
+        // fieldSize == 4.
+        if ((sampleIndex++ % 2) == 0) {
+          // Read the next byte into our cached byte when we are reading the upper bits.
+          currentByte = data.readUnsignedByte();
+          // Read the upper bits from the byte and shift them to the lower 4 bits.
+          return (currentByte & 0xF0) >> 4;
+        } else {
+          // Mask out the upper 4 bits of the last byte we read.
+          return currentByte & 0x0F;
+        }
+      }
+    }
+
+    @Override
+    public boolean isFixedSampleSize() {
+      return false;
     }
 
   }

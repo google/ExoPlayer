@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.upstream.cache;
 
 import com.google.android.exoplayer.util.Util;
-
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

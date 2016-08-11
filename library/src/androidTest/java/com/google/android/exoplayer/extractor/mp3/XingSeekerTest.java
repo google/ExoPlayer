@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer.extractor.mp3;
 
+import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
-import android.test.InstrumentationTestCase;
 
 /**
  * Tests for {@link XingSeeker}.
