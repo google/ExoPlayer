@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -52,7 +53,7 @@ public final class SinglePeriodTimeline implements Timeline {
    * @return A new, unseekable, final timeline with one period.
    */
   public static Timeline createUnseekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs / 1000, SeekWindow.UNSEEKABLE);
+    return new SinglePeriodTimeline(id, true, durationUs, SeekWindow.UNSEEKABLE);
   }
 
   /**
@@ -64,19 +65,19 @@ public final class SinglePeriodTimeline implements Timeline {
    * @return A new, seekable, final timeline with one period.
    */
   public static Timeline createSeekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs / 1000,
+    return new SinglePeriodTimeline(id, true, durationUs,
         SeekWindow.createWindowFromZero(durationUs));
   }
 
   private final Object id;
   private final boolean isFinal;
-  private final long durationMs;
+  private final long durationUs;
   private final SeekWindow seekWindow;
 
-  private SinglePeriodTimeline(Object id, boolean isFinal, long durationMs, SeekWindow seekWindow) {
+  private SinglePeriodTimeline(Object id, boolean isFinal, long durationUs, SeekWindow seekWindow) {
     this.id = Assertions.checkNotNull(id);
     this.isFinal = isFinal;
-    this.durationMs = durationMs;
+    this.durationUs = durationUs;
     this.seekWindow = seekWindow;
   }
 
@@ -96,11 +97,19 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public long getPeriodDuration(int index) {
+  public long getPeriodDurationMs(int index) {
     if (index != 0) {
       throw new IndexOutOfBoundsException();
     }
-    return durationMs;
+    return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (durationUs / 1000);
+  }
+
+  @Override
+  public long getPeriodDurationUs(int index) {
+    if (index != 0) {
+      throw new IndexOutOfBoundsException();
+    }
+    return durationUs;
   }
 
   @Override

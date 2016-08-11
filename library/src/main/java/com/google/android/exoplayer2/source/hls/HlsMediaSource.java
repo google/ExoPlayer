@@ -161,11 +161,6 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public long getDurationUs() {
-    return durationUs;
-  }
-
-  @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
   }

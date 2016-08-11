@@ -32,7 +32,6 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
 
   private Callback callback;
   private int pendingChildPrepareCount;
-  private long durationUs;
   private TrackGroupArray trackGroups;
 
   private MediaPeriod[] enabledPeriods;
@@ -57,11 +56,6 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     for (MediaPeriod period : periods) {
       period.maybeThrowPrepareError();
     }
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs;
   }
 
   @Override
@@ -194,15 +188,9 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     if (--pendingChildPrepareCount > 0) {
       return;
     }
-    durationUs = 0;
     int totalTrackGroupCount = 0;
     for (MediaPeriod period : periods) {
       totalTrackGroupCount += period.getTrackGroups().length;
-      if (durationUs != C.UNSET_TIME_US) {
-        long periodDurationUs = period.getDurationUs();
-        durationUs = periodDurationUs == C.UNSET_TIME_US
-            ? C.UNSET_TIME_US : Math.max(durationUs, periodDurationUs);
-      }
     }
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
     int trackGroupIndex = 0;

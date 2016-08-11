@@ -99,11 +99,6 @@ import java.util.ArrayList;
   }
 
   @Override
-  public long getDurationUs() {
-    return manifest.durationUs;
-  }
-
-  @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
   }

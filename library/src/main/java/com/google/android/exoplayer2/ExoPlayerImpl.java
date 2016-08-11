@@ -53,7 +53,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   // Playback information when there is a pending seek/set source operation.
   private int maskingPeriodIndex;
   private long maskingPositionMs;
-  private long maskingDurationMs;
 
   /**
    * Constructs an instance. Must be called from a thread that has an associated {@link Looper}.
@@ -142,11 +141,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int periodIndex, long positionMs) {
-    boolean periodChanging = periodIndex != getCurrentPeriodIndex();
     boolean seekToDefaultPosition = positionMs == ExoPlayer.UNKNOWN_TIME;
     maskingPeriodIndex = periodIndex;
     maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
-    maskingDurationMs = periodChanging ? ExoPlayer.UNKNOWN_TIME : getDuration();
     pendingSeekAcks++;
     internalPlayer.seekTo(periodIndex, seekToDefaultPosition ? C.UNSET_TIME_US : positionMs * 1000);
     if (!seekToDefaultPosition) {
@@ -184,12 +181,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getDuration() {
-    if (pendingSeekAcks == 0) {
-      long durationUs = playbackInfo.durationUs;
-      return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
-    } else {
-      return maskingDurationMs;
+    if (timeline == null) {
+      return UNKNOWN_TIME;
     }
+    return timeline.getPeriodDurationMs(getCurrentPeriodIndex());
   }
 
   @Override

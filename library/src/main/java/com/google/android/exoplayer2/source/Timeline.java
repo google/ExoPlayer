@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 
 /**
@@ -50,7 +51,16 @@ public interface Timeline {
    * @param index The index of the period.
    * @return The duration of the period in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME}.
    */
-  long getPeriodDuration(int index);
+  long getPeriodDurationMs(int index);
+
+  /**
+   * Returns the duration of the period at {@code index} in the timeline, in microseconds, or
+   * {@link C#UNSET_TIME_US} if not known.
+   *
+   * @param index The index of the period.
+   * @return The duration of the period in microseconds, or {@link C#UNSET_TIME_US}.
+   */
+  long getPeriodDurationUs(int index);
 
   /**
    * Returns a unique identifier for the period at {@code index}, or {@code null} if the period at

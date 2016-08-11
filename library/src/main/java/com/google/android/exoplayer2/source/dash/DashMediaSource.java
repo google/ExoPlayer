@@ -509,11 +509,19 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public long getPeriodDuration(int index) {
+    public long getPeriodDurationMs(int index) {
       if (index < 0 || index >= manifest.getPeriodCount()) {
         throw new IndexOutOfBoundsException();
       }
       return manifest.getPeriodDurationMs(index);
+    }
+
+    @Override
+    public long getPeriodDurationUs(int index) {
+      if (index < 0 || index >= manifest.getPeriodCount()) {
+        throw new IndexOutOfBoundsException();
+      }
+      return manifest.getPeriodDurationUs(index);
     }
 
     @Override

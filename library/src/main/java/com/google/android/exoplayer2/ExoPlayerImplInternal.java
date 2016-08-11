@@ -54,12 +54,10 @@ import java.io.IOException;
 
     public volatile long positionUs;
     public volatile long bufferedPositionUs;
-    public volatile long durationUs;
     public volatile long startPositionUs;
 
     public PlaybackInfo(int periodIndex) {
       this.periodIndex = periodIndex;
-      durationUs = C.UNSET_TIME_US;
     }
 
   }
@@ -394,11 +392,6 @@ import java.io.IOException;
     }
     MediaPeriod mediaPeriod = playingPeriod.mediaPeriod;
 
-    // Update the duration.
-    if (playbackInfo.durationUs == C.UNSET_TIME_US) {
-      playbackInfo.durationUs = mediaPeriod.getDurationUs();
-    }
-
     // Update the playback position.
     long positionUs = mediaPeriod.readDiscontinuity();
     if (positionUs != C.UNSET_TIME_US) {
@@ -460,9 +453,10 @@ import java.io.IOException;
       maybeThrowPeriodPrepareError();
     }
 
+    long playingPeriodDuration = timeline.getPeriodDurationUs(playingPeriod.index);
     if (allRenderersEnded
-        && (playbackInfo.durationUs == C.UNSET_TIME_US
-            || playbackInfo.durationUs <= playbackInfo.positionUs)
+        && (playingPeriodDuration == C.UNSET_TIME_US
+            || playingPeriodDuration <= playbackInfo.positionUs)
         && isTimelineEnded) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
@@ -796,7 +790,7 @@ import java.io.IOException;
       if (loadingPeriod.isLast) {
         return true;
       }
-      bufferedPositionUs = loadingPeriod.mediaPeriod.getDurationUs();
+      bufferedPositionUs = timeline.getPeriodDurationUs(loadingPeriod.index);
     }
     return loadControl.shouldStartPlayback(bufferedPositionUs - positionUs, rebuffering);
   }
@@ -945,6 +939,8 @@ import java.io.IOException;
         newPeriod.isLast = timeline.isFinal() && periodIndex == timeline.getPeriodCount() - 1;
         if (loadingPeriod != null) {
           loadingPeriod.setNextPeriod(newPeriod);
+          newPeriod.offsetUs = loadingPeriod.offsetUs
+              + timeline.getPeriodDurationUs(loadingPeriod.index);
         }
         bufferAheadPeriodCount++;
         loadingPeriod = newPeriod;
@@ -967,7 +963,7 @@ import java.io.IOException;
     // Update the playing and reading periods.
     if (playingPeriodEndPositionUs == C.UNSET_TIME_US && playingPeriod.isFullyBuffered()) {
       playingPeriodEndPositionUs = playingPeriod.offsetUs
-          + playingPeriod.mediaPeriod.getDurationUs();
+          + timeline.getPeriodDurationUs(playingPeriod.index);
     }
     while (playingPeriod != readingPeriod && playingPeriod.nextPeriod != null
         && internalPositionUs >= playingPeriod.nextPeriod.offsetUs) {
@@ -1198,7 +1194,6 @@ import java.io.IOException;
 
     public void setNextPeriod(Period nextPeriod) {
       this.nextPeriod = nextPeriod;
-      nextPeriod.offsetUs = offsetUs + mediaPeriod.getDurationUs();
     }
 
     public boolean isFullyBuffered() {

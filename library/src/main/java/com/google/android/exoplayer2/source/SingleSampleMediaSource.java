@@ -148,11 +148,6 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public long getDurationUs() {
-    return durationUs;
-  }
-
-  @Override
   public TrackGroupArray getTrackGroups() {
     return tracks;
   }

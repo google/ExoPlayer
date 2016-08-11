@@ -67,19 +67,6 @@ public interface MediaPeriod extends SequenceableLoader {
   void maybeThrowPrepareError() throws IOException;
 
   /**
-   * Returns the duration of the period in microseconds, or {@link C#UNSET_TIME_US} if not known.
-   * <p>
-   * If {@link #getBufferedPositionUs()} returns {@link C#END_OF_SOURCE_US}, the duration is
-   * guaranteed to be known.
-   * <p>
-   * This method should only be called after the period has been prepared.
-   *
-   * @return The duration of the period in microseconds, or {@link C#UNSET_TIME_US} if the duration
-   *     is not known.
-   */
-  long getDurationUs();
-
-  /**
    * Returns the {@link TrackGroup}s exposed by the period.
    * <p>
    * This method should only be called after the period has been prepared.

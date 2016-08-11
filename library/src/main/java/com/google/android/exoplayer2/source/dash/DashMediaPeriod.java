@@ -54,7 +54,6 @@ import java.util.List;
   private Callback callback;
   private Allocator allocator;
   private DashManifest manifest;
-  private long durationUs;
   private int index;
   private Period period;
 
@@ -69,7 +68,6 @@ import java.util.List;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
-    durationUs = manifest.getPeriodDurationUs(index);
     period = manifest.getPeriod(index);
     trackGroups = buildTrackGroups(period);
   }
@@ -77,7 +75,6 @@ import java.util.List;
   public void updateManifest(DashManifest manifest, int index) {
     this.manifest = manifest;
     this.index = index;
-    durationUs = manifest.getPeriodDurationUs(index);
     period = manifest.getPeriod(index);
     if (sampleStreams != null) {
       for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
@@ -105,11 +102,6 @@ import java.util.List;
   @Override
   public void maybeThrowPrepareError() throws IOException {
     manifestLoaderErrorThrower.maybeThrowError();
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs;
   }
 
   @Override

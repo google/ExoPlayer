@@ -229,11 +229,6 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public long getDurationUs() {
-    return durationUs;
-  }
-
-  @Override
   public TrackGroupArray getTrackGroups() {
     return tracks;
   }
@@ -432,6 +427,9 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
+      sourceListener.onSourceInfoRefreshed(seekMap.isSeekable()
+          ? SinglePeriodTimeline.createSeekableFinalTimeline(this, durationUs)
+          : SinglePeriodTimeline.createUnseekableFinalTimeline(this, durationUs), null);
     }
   }
 
