@@ -50,6 +50,13 @@ public final class TrackSelectionArray {
     return trackSelections[index];
   }
 
+  /**
+   * Returns the selections in a newly allocated array.
+   */
+  public TrackSelection[] getAll() {
+    return trackSelections.clone();
+  }
+
   @Override
   public int hashCode() {
     if (hashCode == 0) {

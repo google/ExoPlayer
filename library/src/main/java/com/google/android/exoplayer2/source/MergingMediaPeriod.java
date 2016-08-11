@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.List;
 
 /**
  * Merges multiple {@link MediaPeriod} instances.
@@ -29,23 +28,20 @@ import java.util.List;
 public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   private final MediaPeriod[] periods;
-  private final IdentityHashMap<SampleStream, MediaPeriod> sampleStreamPeriods;
-  private final int[] selectedTrackCounts;
+  private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
 
   private Callback callback;
   private int pendingChildPrepareCount;
   private long durationUs;
   private TrackGroupArray trackGroups;
 
-  private boolean seenFirstTrackSelection;
   private MediaPeriod[] enabledPeriods;
   private SequenceableLoader sequenceableLoader;
 
   public MergingMediaPeriod(MediaPeriod... periods) {
     this.periods = periods;
     pendingChildPrepareCount = periods.length;
-    sampleStreamPeriods = new IdentityHashMap<>();
-    selectedTrackCounts = new int[periods.length];
+    streamPeriodIndices = new IdentityHashMap<>();
   }
 
   @Override
@@ -74,29 +70,54 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
-    SampleStream[] newStreams = new SampleStream[newSelections.size()];
-    // Select tracks for each period.
-    int enabledPeriodCount = 0;
-    for (int i = 0; i < periods.length; i++) {
-      selectedTrackCounts[i] += selectTracks(periods[i], oldStreams, newSelections, positionUs,
-          newStreams, seenFirstTrackSelection);
-      if (selectedTrackCounts[i] > 0) {
-        enabledPeriodCount++;
+  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+    // Map each selection and stream onto a child period index.
+    int[] streamChildIndices = new int[selections.length];
+    int[] selectionChildIndices = new int[selections.length];
+    for (int i = 0; i < selections.length; i++) {
+      streamChildIndices[i] = streams[i] == null ? -1 : streamPeriodIndices.get(streams[i]);
+      selectionChildIndices[i] = -1;
+      if (selections[i] != null) {
+        TrackGroup trackGroup = selections[i].getTrackGroup();
+        for (int j = 0; j < periods.length; j++) {
+          if (periods[j].getTrackGroups().indexOf(trackGroup) != -1) {
+            selectionChildIndices[i] = j;
+            break;
+          }
+        }
       }
     }
-    seenFirstTrackSelection = true;
-    // Update the enabled periods.
-    enabledPeriods = new MediaPeriod[enabledPeriodCount];
-    enabledPeriodCount = 0;
+    streamPeriodIndices.clear();
+    // Select tracks for each child, copying the resulting streams back into the streams array.
+    SampleStream[] childStreams = new SampleStream[selections.length];
+    TrackSelection[] childSelections = new TrackSelection[selections.length];
+    ArrayList<MediaPeriod> enabledPeriodsList = new ArrayList<>(periods.length);
     for (int i = 0; i < periods.length; i++) {
-      if (selectedTrackCounts[i] > 0) {
-        enabledPeriods[enabledPeriodCount++] = periods[i];
+      for (int j = 0; j < selections.length; j++) {
+        childStreams[j] = streamChildIndices[j] == i ? streams[j] : null;
+        childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
+      }
+      periods[i].selectTracks(childSelections, mayRetainStreamFlags, childStreams, streamResetFlags,
+          positionUs);
+      boolean periodEnabled = false;
+      for (int j = 0; j < selections.length; j++) {
+        if (selectionChildIndices[j] == i) {
+          streams[j] = childStreams[j];
+          if (childStreams[j] != null) {
+            periodEnabled = true;
+            streamPeriodIndices.put(childStreams[j], i);
+          }
+        }
+      }
+      if (periodEnabled) {
+        enabledPeriodsList.add(periods[i]);
       }
     }
+    // Update the local state.
+    enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
+    enabledPeriodsList.toArray(enabledPeriods);
     sequenceableLoader = new CompositeSequenceableLoader(enabledPeriods);
-    return newStreams;
   }
 
   @Override
@@ -197,44 +218,6 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
       return;
     }
     callback.onContinueLoadingRequested(this);
-  }
-
-  // Internal methods.
-
-  private int selectTracks(MediaPeriod period, List<SampleStream> allOldStreams,
-      List<TrackSelection> allNewSelections, long positionUs, SampleStream[] allNewStreams,
-      boolean seenFirstTrackSelection) {
-    // Get the subset of the old streams for the period.
-    ArrayList<SampleStream> oldStreams = new ArrayList<>();
-    for (int i = 0; i < allOldStreams.size(); i++) {
-      SampleStream stream = allOldStreams.get(i);
-      if (sampleStreamPeriods.get(stream) == period) {
-        sampleStreamPeriods.remove(stream);
-        oldStreams.add(stream);
-      }
-    }
-    // Get the subset of the new selections for the period.
-    ArrayList<TrackSelection> newSelections = new ArrayList<>();
-    int[] newSelectionOriginalIndices = new int[allNewSelections.size()];
-    TrackGroupArray periodTrackGroups = period.getTrackGroups();
-    for (int i = 0; i < allNewSelections.size(); i++) {
-      TrackSelection selection = allNewSelections.get(i);
-      if (periodTrackGroups.indexOf(selection.getTrackGroup()) != -1) {
-        newSelectionOriginalIndices[newSelections.size()] = i;
-        newSelections.add(selection);
-      }
-    }
-    // Do nothing if nothing has changed, except during the first selection.
-    if (seenFirstTrackSelection && oldStreams.isEmpty() && newSelections.isEmpty()) {
-      return 0;
-    }
-    // Perform the selection.
-    SampleStream[] newStreams = period.selectTracks(oldStreams, newSelections, positionUs);
-    for (int j = 0; j < newStreams.length; j++) {
-      allNewStreams[newSelectionOriginalIndices[j]] = newStreams[j];
-      sampleStreamPeriods.put(newStreams[j], period);
-    }
-    return newSelections.size() - oldStreams.size();
   }
 
 }

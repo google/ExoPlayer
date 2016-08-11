@@ -45,7 +45,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Provides a single {@link MediaPeriod} whose data is loaded from a {@link Uri} and extracted using
@@ -240,32 +239,39 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
+  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     Assertions.checkState(prepared);
-    // Unselect old tracks.
-    for (int i = 0; i < oldStreams.size(); i++) {
-      int track = ((SampleStreamImpl) oldStreams.get(i)).track;
-      Assertions.checkState(trackEnabledStates[track]);
-      enabledTrackCount--;
-      trackEnabledStates[track] = false;
-      sampleQueues[track].disable();
+    // Disable old tracks.
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+        int track = ((SampleStreamImpl) streams[i]).track;
+        Assertions.checkState(trackEnabledStates[track]);
+        enabledTrackCount--;
+        trackEnabledStates[track] = false;
+        sampleQueues[track].disable();
+        streams[i] = null;
+      }
     }
-    // Select new tracks.
-    SampleStream[] newStreams = new SampleStream[newSelections.size()];
-    for (int i = 0; i < newStreams.length; i++) {
-      TrackSelection selection = newSelections.get(i);
-      Assertions.checkState(selection.length() == 1);
-      Assertions.checkState(selection.getIndexInTrackGroup(0) == 0);
-      int track = tracks.indexOf(selection.getTrackGroup());
-      Assertions.checkState(!trackEnabledStates[track]);
-      enabledTrackCount++;
-      trackEnabledStates[track] = true;
-      newStreams[i] = new SampleStreamImpl(track);
+    // Enable new tracks.
+    boolean selectedNewTracks = false;
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] == null && selections[i] != null) {
+        TrackSelection selection = selections[i];
+        Assertions.checkState(selection.length() == 1);
+        Assertions.checkState(selection.getIndexInTrackGroup(0) == 0);
+        int track = tracks.indexOf(selection.getTrackGroup());
+        Assertions.checkState(!trackEnabledStates[track]);
+        enabledTrackCount++;
+        trackEnabledStates[track] = true;
+        streams[i] = new SampleStreamImpl(track);
+        streamResetFlags[i] = true;
+        selectedNewTracks = true;
+      }
     }
-    // At the time of the first track selection all queues will be enabled, so we need to disable
-    // any that are no longer required.
     if (!seenFirstTrackSelection) {
+      // At the time of the first track selection all queues will be enabled, so we need to disable
+      // any that are no longer required.
       for (int i = 0; i < sampleQueues.length; i++) {
         if (!trackEnabledStates[i]) {
           sampleQueues[i].disable();
@@ -277,11 +283,16 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       if (loader.isLoading()) {
         loader.cancelLoading();
       }
-    } else if (seenFirstTrackSelection ? newStreams.length > 0 : positionUs != 0) {
+    } else if (seenFirstTrackSelection ? selectedNewTracks : positionUs != 0) {
       seekToUs(positionUs);
+      // We'll need to reset renderers consuming from all streams due to the seek.
+      for (int i = 0; i < streams.length; i++) {
+        if (streams[i] != null) {
+          streamResetFlags[i] = true;
+        }
+      }
     }
     seenFirstTrackSelection = true;
-    return newStreams;
   }
 
   @Override

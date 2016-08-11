@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
@@ -159,19 +158,20 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
-    for (int i = 0; i < oldStreams.size(); i++) {
-      SampleStreamImpl oldStream = (SampleStreamImpl) oldStreams.get(i);
-      sampleStreams.remove(oldStream);
+  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+        sampleStreams.remove(streams[i]);
+        streams[i] = null;
+      }
+      if (streams[i] == null && selections[i] != null) {
+        SampleStreamImpl stream = new SampleStreamImpl();
+        sampleStreams.add(stream);
+        streams[i] = stream;
+        streamResetFlags[i] = true;
+      }
     }
-    SampleStream[] newStreams = new SampleStream[newSelections.size()];
-    for (int i = 0; i < newStreams.length; i++) {
-      SampleStreamImpl newStream = new SampleStreamImpl();
-      sampleStreams.add(newStream);
-      newStreams[i] = newStream;
-    }
-    return newStreams;
   }
 
   @Override
@@ -246,7 +246,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource,
 
   private void notifyLoadError(final IOException e) {
     if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
+      eventHandler.post(new Runnable() {
         @Override
         public void run() {
           eventListener.onLoadError(eventSourceId, e);

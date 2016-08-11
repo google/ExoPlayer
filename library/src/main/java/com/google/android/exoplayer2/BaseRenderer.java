@@ -97,6 +97,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
+  public final SampleStream getStream() {
+    return stream;
+  }
+
+  @Override
   public final boolean hasReadStreamToEnd() {
     return readEndOfStream;
   }

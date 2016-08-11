@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -117,33 +118,30 @@ import java.util.List;
   }
 
   @Override
-  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
-      List<TrackSelection> newSelections, long positionUs) {
-    int newEnabledSourceCount = sampleStreams.length + newSelections.size() - oldStreams.size();
-    ChunkSampleStream<DashChunkSource>[] newSampleStreams =
-        newSampleStreamArray(newEnabledSourceCount);
-    int newEnabledSourceIndex = 0;
-
-    // Iterate over currently enabled streams, either releasing them or adding them to the new list.
-    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      if (oldStreams.contains(sampleStream)) {
-        sampleStream.release();
-      } else {
-        newSampleStreams[newEnabledSourceIndex++] = sampleStream;
+  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+    ArrayList<ChunkSampleStream<DashChunkSource>> sampleStreamsList = new ArrayList<>();
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] != null) {
+        @SuppressWarnings("unchecked")
+        ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
+        if (selections[i] == null || !mayRetainStreamFlags[i]) {
+          stream.release();
+          streams[i] = null;
+        } else {
+          sampleStreamsList.add(stream);
+        }
+      }
+      if (streams[i] == null && selections[i] != null) {
+        ChunkSampleStream<DashChunkSource> stream = buildSampleStream(selections[i], positionUs);
+        sampleStreamsList.add(stream);
+        streams[i] = stream;
+        streamResetFlags[i] = true;
       }
     }
-
-    // Instantiate and return new streams.
-    SampleStream[] streamsToReturn = new SampleStream[newSelections.size()];
-    for (int i = 0; i < newSelections.size(); i++) {
-      newSampleStreams[newEnabledSourceIndex] = buildSampleStream(newSelections.get(i), positionUs);
-      streamsToReturn[i] = newSampleStreams[newEnabledSourceIndex];
-      newEnabledSourceIndex++;
-    }
-
-    sampleStreams = newSampleStreams;
+    sampleStreams = newSampleStreamArray(sampleStreamsList.size());
+    sampleStreamsList.toArray(sampleStreams);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    return streamsToReturn;
   }
 
   @Override

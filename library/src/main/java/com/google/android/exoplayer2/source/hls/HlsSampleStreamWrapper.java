@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -141,10 +140,6 @@ import java.util.List;
     return chunkSource.getDurationUs();
   }
 
-  public int getEnabledTrackCount() {
-    return enabledTrackCount;
-  }
-
   public boolean isLive() {
     return chunkSource.isLive();
   }
@@ -153,29 +148,36 @@ import java.util.List;
     return trackGroups;
   }
 
-  public SampleStream[] selectTracks(List<SampleStream> oldStreams,
-      List<TrackSelection> newSelections, boolean isFirstTrackSelection) {
+  public boolean selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+      SampleStream[] streams, boolean[] streamResetFlags, boolean isFirstTrackSelection) {
     Assertions.checkState(prepared);
-    // Unselect old tracks.
-    for (int i = 0; i < oldStreams.size(); i++) {
-      int group = ((SampleStreamImpl) oldStreams.get(i)).group;
-      setTrackGroupEnabledState(group, false);
-      sampleQueues.valueAt(group).disable();
-    }
-    // Select new tracks.
-    SampleStream[] newStreams = new SampleStream[newSelections.size()];
-    for (int i = 0; i < newStreams.length; i++) {
-      TrackSelection selection = newSelections.get(i);
-      int group = trackGroups.indexOf(selection.getTrackGroup());
-      setTrackGroupEnabledState(group, true);
-      if (group == primaryTrackGroupIndex) {
-        chunkSource.selectTracks(selection);
+    // Disable old tracks.
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+        int group = ((SampleStreamImpl) streams[i]).group;
+        setTrackGroupEnabledState(group, false);
+        sampleQueues.valueAt(group).disable();
+        streams[i] = null;
       }
-      newStreams[i] = new SampleStreamImpl(group);
     }
-    // At the time of the first track selection all queues will be enabled, so we need to disable
-    // any that are no longer required.
+    // Enable new tracks.
+    boolean selectedNewTracks = false;
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] == null && selections[i] != null) {
+        TrackSelection selection = selections[i];
+        int group = trackGroups.indexOf(selection.getTrackGroup());
+        setTrackGroupEnabledState(group, true);
+        if (group == primaryTrackGroupIndex) {
+          chunkSource.selectTracks(selection);
+        }
+        streams[i] = new SampleStreamImpl(group);
+        streamResetFlags[i] = true;
+        selectedNewTracks = true;
+      }
+    }
     if (isFirstTrackSelection) {
+      // At the time of the first track selection all queues will be enabled, so we need to disable
+      // any that are no longer required.
       int sampleQueueCount = sampleQueues.size();
       for (int i = 0; i < sampleQueueCount; i++) {
         if (!groupEnabledStates[i]) {
@@ -192,7 +194,7 @@ import java.util.List;
         loader.cancelLoading();
       }
     }
-    return newStreams;
+    return selectedNewTracks;
   }
 
   public void seekTo(long positionUs) {

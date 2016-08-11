@@ -131,6 +131,11 @@ public interface Renderer extends ExoPlayerComponent {
       throws ExoPlaybackException;
 
   /**
+   * Returns the {@link SampleStream} being consumed, or null if the renderer is disabled.
+   */
+  SampleStream getStream();
+
+  /**
    * Returns whether the renderer has read the current {@link SampleStream} to the end.
    * <p>
    * This method may be called when the renderer is in the following states:

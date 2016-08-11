@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Implements the internal behavior of {@link ExoPlayerImpl}.
@@ -728,35 +727,37 @@ import java.util.ArrayList;
 
       // Update streams for the new selection, recreating all streams if reading ahead.
       boolean recreateStreams = readingPeriod != playingPeriod;
-      TrackSelectionArray playingPeriodOldTrackSelections = playingPeriod.periodTrackSelections;
-      playingPeriod.updatePeriodTrackSelection(playbackInfo.positionUs, loadControl,
-          recreateStreams);
+      boolean[] streamResetFlags = playingPeriod.updatePeriodTrackSelection(playbackInfo.positionUs,
+          loadControl, recreateStreams);
 
       int enabledRendererCount = 0;
       boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
       for (int i = 0; i < renderers.length; i++) {
         Renderer renderer = renderers[i];
         rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
-        TrackSelection oldSelection = playingPeriodOldTrackSelections.get(i);
-        TrackSelection newSelection = playingPeriod.trackSelections.get(i);
-        if (newSelection != null) {
+        SampleStream sampleStream = playingPeriod.sampleStreams[i];
+        if (sampleStream != null) {
           enabledRendererCount++;
         }
-        if (rendererWasEnabledFlags[i]
-            && (recreateStreams || !Util.areEqual(oldSelection, newSelection))) {
-          // We need to disable the renderer so that we can enable it with its new stream.
-          if (renderer == rendererMediaClockSource) {
-            // The renderer is providing the media clock.
-            if (newSelection == null) {
-              // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
-              // over timing responsibilities.
-              standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+        if (rendererWasEnabledFlags[i]) {
+          if (sampleStream != renderer.getStream()) {
+            // We need to disable the renderer.
+            if (renderer == rendererMediaClockSource) {
+              // The renderer is providing the media clock.
+              if (sampleStream == null) {
+                // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
+                // over timing responsibilities.
+                standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+              }
+              rendererMediaClock = null;
+              rendererMediaClockSource = null;
             }
-            rendererMediaClock = null;
-            rendererMediaClockSource = null;
+            ensureStopped(renderer);
+            renderer.disable();
+          } else if (streamResetFlags[i]) {
+            // The renderer will continue to consume from its current stream, but needs to be reset.
+            renderer.resetPosition(playbackInfo.positionUs);
           }
-          ensureStopped(renderer);
-          renderer.disable();
         }
       }
       trackSelector.onSelectionActivated(playingPeriod.trackSelectionData);
@@ -1155,8 +1156,10 @@ import java.util.ArrayList;
 
     public final MediaPeriod mediaPeriod;
     public final Object id;
-    public final SampleStream[] sampleStreams;
     public final long startPositionUs;
+
+    public final SampleStream[] sampleStreams;
+    public final boolean[] mayRetainStreamFlags;
 
     public int index;
     public boolean isLast;
@@ -1183,6 +1186,7 @@ import java.util.ArrayList;
       this.mediaPeriod = mediaPeriod;
       this.id = Assertions.checkNotNull(id);
       sampleStreams = new SampleStream[renderers.length];
+      mayRetainStreamFlags = new boolean[renderers.length];
       startPositionUs = positionUs;
       this.index = index;
     }
@@ -1216,46 +1220,33 @@ import java.util.ArrayList;
       return true;
     }
 
-    public void updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
+    public boolean[] updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
         boolean forceRecreateStreams) throws ExoPlaybackException {
-      // Populate lists of streams that are being disabled/newly enabled.
-      ArrayList<SampleStream> oldStreams = new ArrayList<>();
-      ArrayList<TrackSelection> newSelections = new ArrayList<>();
       for (int i = 0; i < trackSelections.length; i++) {
-        TrackSelection oldSelection =
-            periodTrackSelections == null ? null : periodTrackSelections.get(i);
-        TrackSelection newSelection = trackSelections.get(i);
-        if (forceRecreateStreams || !Util.areEqual(oldSelection, newSelection)) {
-          if (oldSelection != null) {
-            oldStreams.add(sampleStreams[i]);
-          }
-          if (newSelection != null) {
-            newSelections.add(newSelection);
-          }
-        }
+        mayRetainStreamFlags[i] = !forceRecreateStreams
+            && Util.areEqual(periodTrackSelections == null ? null : periodTrackSelections.get(i),
+            trackSelections.get(i));
       }
 
+      boolean[] streamResetFlags = new boolean[renderers.length];
+
       // Disable streams on the period and get new streams for updated/newly-enabled tracks.
-      SampleStream[] newStreams = mediaPeriod.selectTracks(oldStreams, newSelections, positionUs);
+      mediaPeriod.selectTracks(trackSelections.getAll(), mayRetainStreamFlags, sampleStreams,
+          streamResetFlags, positionUs);
       periodTrackSelections = trackSelections;
+
       hasEnabledTracks = false;
-      for (int i = 0; i < trackSelections.length; i++) {
-        TrackSelection selection = trackSelections.get(i);
-        if (selection != null) {
+      for (int i = 0; i < sampleStreams.length; i++) {
+        if (sampleStreams[i] != null) {
           hasEnabledTracks = true;
-          int index = newSelections.indexOf(selection);
-          if (index != -1) {
-            sampleStreams[i] = newStreams[index];
-          } else {
-            // This selection/stream is unchanged.
-          }
-        } else {
-          sampleStreams[i] = null;
+          break;
         }
       }
 
       // The track selection has changed.
       loadControl.onTrackSelections(renderers, mediaPeriod.getTrackGroups(), trackSelections);
+
+      return streamResetFlags;
     }
 
     public void release() {

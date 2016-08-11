@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * A source of a single period of media.
@@ -35,7 +34,8 @@ public interface MediaPeriod extends SequenceableLoader {
      * Called when preparation completes.
      * <p>
      * May be called from any thread. After invoking this method, the {@link MediaPeriod} can expect
-     * for {@link #selectTracks(List, List, long)} to be called with the initial track selection.
+     * for {@link #selectTracks(TrackSelection[], boolean[], SampleStream[], boolean[], long)} to be
+     * called with the initial track selection.
      *
      * @param mediaPeriod The prepared {@link MediaPeriod}.
      */
@@ -89,24 +89,30 @@ public interface MediaPeriod extends SequenceableLoader {
   TrackGroupArray getTrackGroups();
 
   /**
-   * Modifies the selected tracks.
+   * Performs a track selection.
    * <p>
-   * {@link SampleStream}s corresponding to tracks being unselected are passed in
-   * {@code oldStreams}. Tracks being selected are specified in {@code newSelections}. Each new
-   * {@link TrackSelection} must have a {@link TrackSelection#group} index distinct from those of
-   * currently enabled tracks, except for those being unselected.
+   * The call receives track {@code selections} for each renderer, {@code mayRetainStreamFlags}
+   * indicating whether the existing {@code SampleStream} can be retained for each selection, and
+   * the existing {@code stream}s themselves. The call will update {@code streams} to reflect the
+   * provided selections, clearing, setting and replacing entries as required. If an existing sample
+   * stream is retained but with the requirement that the consuming renderer be reset, then the
+   * corresponding flag in {@code streamResetFlags} will be set to true. This flag will also be set
+   * if a new sample stream is created.
    * <p>
    * This method should only be called after the period has been prepared.
    *
-   * @param oldStreams {@link SampleStream}s corresponding to tracks being unselected. May be empty
-   *     but must not be null.
-   * @param newSelections {@link TrackSelection}s that define tracks being selected. May be empty
-   *     but must not be null.
+   * @param selections The renderer track selections.
+   * @param mayRetainStreamFlags Flags indicating whether the existing sample stream can be retained
+   *     for each selection. A {@code true} value indicates that the selection is unchanged, and
+   *     that the caller does not require that the sample stream be recreated.
+   * @param streams The existing sample streams, which will be updated to reflect the provided
+   *     selections.
+   * @param streamResetFlags Will be updated to indicate new sample streams, and sample streams that
+   *     have been retained but with the requirement that the consuming renderer be reset.
    * @param positionUs The current playback position in microseconds.
-   * @return The {@link SampleStream}s corresponding to each of the newly selected tracks.
    */
-  SampleStream[] selectTracks(List<SampleStream> oldStreams, List<TrackSelection> newSelections,
-      long positionUs);
+  void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+      SampleStream[] streams, boolean[] streamResetFlags, long positionUs);
 
   /**
    * Attempts to read a discontinuity.
