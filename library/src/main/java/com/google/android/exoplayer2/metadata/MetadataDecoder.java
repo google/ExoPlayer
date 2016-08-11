@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.metadata;
 
 /**
- * Decodes objects of type <T> from binary data.
+ * Decodes metadata from binary data.
  *
  * @param <T> The type of the metadata.
  */

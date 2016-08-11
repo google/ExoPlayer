@@ -54,7 +54,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
  *   <li>time-offset-with-frames
  *   <li>time-offset-with-ticks
  * </ul>
- * </p>
  * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
  */
 public final class TtmlDecoder extends SimpleSubtitleDecoder {
