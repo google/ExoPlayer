@@ -158,7 +158,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
@@ -172,6 +172,7 @@ public final class SingleSampleMediaSource implements MediaPeriod, MediaSource,
         streamResetFlags[i] = true;
       }
     }
+    return positionUs;
   }
 
   @Override

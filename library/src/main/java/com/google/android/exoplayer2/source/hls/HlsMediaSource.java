@@ -171,7 +171,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     // Map each selection and stream onto a child period index.
     int[] streamChildIndices = new int[selections.length];
@@ -231,6 +231,7 @@ public final class HlsMediaSource implements MediaPeriod, MediaSource,
       }
     }
     seenFirstTrackSelection = true;
+    return positionUs;
   }
 
   @Override

@@ -239,7 +239,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     Assertions.checkState(prepared);
     // Disable old tracks.
@@ -284,7 +284,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
         loader.cancelLoading();
       }
     } else if (seenFirstTrackSelection ? selectedNewTracks : positionUs != 0) {
-      seekToUs(positionUs);
+      positionUs = seekToUs(positionUs);
       // We'll need to reset renderers consuming from all streams due to the seek.
       for (int i = 0; i < streams.length; i++) {
         if (streams[i] != null) {
@@ -293,6 +293,7 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
       }
     }
     seenFirstTrackSelection = true;
+    return positionUs;
   }
 
   @Override

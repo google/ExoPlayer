@@ -109,7 +109,7 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     ArrayList<ChunkSampleStream<SsChunkSource>> sampleStreamsList = new ArrayList<>();
     for (int i = 0; i < selections.length; i++) {
@@ -133,6 +133,7 @@ import java.util.ArrayList;
     sampleStreams = newSampleStreamArray(sampleStreamsList.size());
     sampleStreamsList.toArray(sampleStreams);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+    return positionUs;
   }
 
   @Override

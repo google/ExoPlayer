@@ -70,7 +70,7 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     // Map each selection and stream onto a child period index.
     int[] streamChildIndices = new int[selections.length];
@@ -98,8 +98,13 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
         childStreams[j] = streamChildIndices[j] == i ? streams[j] : null;
         childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
       }
-      periods[i].selectTracks(childSelections, mayRetainStreamFlags, childStreams, streamResetFlags,
-          positionUs);
+      long selectPositionUs = periods[i].selectTracks(childSelections, mayRetainStreamFlags,
+          childStreams, streamResetFlags, positionUs);
+      if (i == 0) {
+        positionUs = selectPositionUs;
+      } else if (selectPositionUs != positionUs) {
+        throw new IllegalStateException("Children enabled at different positions");
+      }
       boolean periodEnabled = false;
       for (int j = 0; j < selections.length; j++) {
         if (selectionChildIndices[j] == i) {
@@ -118,6 +123,7 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
     enabledPeriodsList.toArray(enabledPeriods);
     sequenceableLoader = new CompositeSequenceableLoader(enabledPeriods);
+    return positionUs;
   }
 
   @Override

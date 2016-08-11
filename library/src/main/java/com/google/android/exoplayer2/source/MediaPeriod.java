@@ -110,8 +110,9 @@ public interface MediaPeriod extends SequenceableLoader {
    * @param streamResetFlags Will be updated to indicate new sample streams, and sample streams that
    *     have been retained but with the requirement that the consuming renderer be reset.
    * @param positionUs The current playback position in microseconds.
+   * @return The actual position at which the tracks were enabled, in microseconds.
    */
-  void selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
+  long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs);
 
   /**

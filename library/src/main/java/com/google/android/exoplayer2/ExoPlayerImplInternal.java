@@ -727,8 +727,13 @@ import java.io.IOException;
 
       // Update streams for the new selection, recreating all streams if reading ahead.
       boolean recreateStreams = readingPeriod != playingPeriod;
-      boolean[] streamResetFlags = playingPeriod.updatePeriodTrackSelection(playbackInfo.positionUs,
-          loadControl, recreateStreams);
+      boolean[] streamResetFlags = new boolean[renderers.length];
+      long positionUs = playingPeriod.updatePeriodTrackSelection(playbackInfo.positionUs,
+          loadControl, recreateStreams, streamResetFlags);
+      if (positionUs != playbackInfo.positionUs) {
+        playbackInfo.positionUs = positionUs;
+        resetInternalPosition(positionUs);
+      }
 
       int enabledRendererCount = 0;
       boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
@@ -1156,12 +1161,12 @@ import java.io.IOException;
 
     public final MediaPeriod mediaPeriod;
     public final Object id;
-    public final long startPositionUs;
 
     public final SampleStream[] sampleStreams;
     public final boolean[] mayRetainStreamFlags;
 
     public int index;
+    public long startPositionUs;
     public boolean isLast;
     public boolean prepared;
     public boolean hasEnabledTracks;
@@ -1205,7 +1210,7 @@ import java.io.IOException;
         throws ExoPlaybackException {
       prepared = true;
       selectTracks();
-      updatePeriodTrackSelection(positionUs, loadControl, false);
+      startPositionUs = updatePeriodTrackSelection(positionUs, loadControl, false);
     }
 
     public boolean selectTracks() throws ExoPlaybackException {
@@ -1220,19 +1225,23 @@ import java.io.IOException;
       return true;
     }
 
-    public boolean[] updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
+    public long updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
         boolean forceRecreateStreams) throws ExoPlaybackException {
+      return updatePeriodTrackSelection(positionUs, loadControl, forceRecreateStreams,
+          new boolean[renderers.length]);
+    }
+
+    public long updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
+        boolean forceRecreateStreams, boolean[] streamResetFlags) throws ExoPlaybackException {
       for (int i = 0; i < trackSelections.length; i++) {
         mayRetainStreamFlags[i] = !forceRecreateStreams
             && Util.areEqual(periodTrackSelections == null ? null : periodTrackSelections.get(i),
             trackSelections.get(i));
       }
 
-      boolean[] streamResetFlags = new boolean[renderers.length];
-
       // Disable streams on the period and get new streams for updated/newly-enabled tracks.
-      mediaPeriod.selectTracks(trackSelections.getAll(), mayRetainStreamFlags, sampleStreams,
-          streamResetFlags, positionUs);
+      positionUs = mediaPeriod.selectTracks(trackSelections.getAll(), mayRetainStreamFlags,
+          sampleStreams, streamResetFlags, positionUs);
       periodTrackSelections = trackSelections;
 
       hasEnabledTracks = false;
@@ -1245,8 +1254,7 @@ import java.io.IOException;
 
       // The track selection has changed.
       loadControl.onTrackSelections(renderers, mediaPeriod.getTrackGroups(), trackSelections);
-
-      return streamResetFlags;
+      return positionUs;
     }
 
     public void release() {
