@@ -467,8 +467,8 @@ import java.io.IOException;
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING) {
-      if ((enabledRenderers.length > 0 ? allRenderersReadyOrEnded : isTimelineReady)
-          && haveSufficientBuffer(rebuffering)) {
+      if ((enabledRenderers.length > 0
+          ? (allRenderersReadyOrEnded && haveSufficientBuffer(rebuffering)) : isTimelineReady)) {
         setState(ExoPlayer.STATE_READY);
         if (playWhenReady) {
           startRenderers();
