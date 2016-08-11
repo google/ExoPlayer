@@ -27,7 +27,7 @@ import com.google.android.exoplayer.util.Assertions;
  * transition.
  * <p align="center"><img src="doc-files/trackrenderer-states.png"
  *     alt="TrackRenderer state transitions"
- *     border="0"/></p>
+ *     border="0"></p>
  */
 public abstract class TrackRenderer implements ExoPlayerComponent {
 
