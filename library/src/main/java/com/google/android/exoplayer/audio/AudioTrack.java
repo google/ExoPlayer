@@ -168,7 +168,7 @@ public final class AudioTrack {
 
   /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
-   * active across releasing/initializing a new audio track, on platform API version < 21.
+   * active across releasing/initializing a new audio track, on platform API version before 21.
    * <p>
    * The flag must be set before creating a player.
    */
