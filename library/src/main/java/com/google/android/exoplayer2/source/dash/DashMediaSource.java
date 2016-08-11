@@ -485,12 +485,12 @@ public final class DashMediaSource implements MediaSource {
 
     private final DashManifest manifest;
     private final DashMediaPeriod[] periods;
-    private final SeekWindow[] seekWindows;
+    private final SeekWindow seekWindow;
 
     public DashTimeline(DashManifest manifest, DashMediaPeriod[] periods, SeekWindow seekWindow) {
       this.manifest = manifest;
       this.periods = periods;
-      seekWindows = new SeekWindow[] {seekWindow};
+      this.seekWindow = seekWindow;
     }
 
     @Override
@@ -510,12 +510,18 @@ public final class DashMediaSource implements MediaSource {
 
     @Override
     public long getPeriodDuration(int index) {
+      if (index < 0 || index >= manifest.getPeriodCount()) {
+        throw new IndexOutOfBoundsException();
+      }
       return manifest.getPeriodDurationMs(index);
     }
 
     @Override
     public Object getPeriodId(int index) {
-      return index >= periods.length ? null : periods[index];
+      if (index < 0 || index >= manifest.getPeriodCount()) {
+        throw new IndexOutOfBoundsException();
+      }
+      return periods[index];
     }
 
     @Override
@@ -530,12 +536,12 @@ public final class DashMediaSource implements MediaSource {
 
     @Override
     public int getSeekWindowCount() {
-      return seekWindows.length;
+      return 1;
     }
 
     @Override
     public SeekWindow getSeekWindow(int index) {
-      return seekWindows[index];
+      return seekWindow;
     }
 
   }

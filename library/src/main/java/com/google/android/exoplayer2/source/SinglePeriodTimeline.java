@@ -98,14 +98,17 @@ public final class SinglePeriodTimeline implements Timeline {
   @Override
   public long getPeriodDuration(int index) {
     if (index != 0) {
-      throw new IndexOutOfBoundsException("Index " + index + " out of bounds");
+      throw new IndexOutOfBoundsException();
     }
     return durationMs;
   }
 
   @Override
   public Object getPeriodId(int index) {
-    return index == 0 ? id : null;
+    if (index != 0) {
+      throw new IndexOutOfBoundsException();
+    }
+    return id;
   }
 
   @Override
