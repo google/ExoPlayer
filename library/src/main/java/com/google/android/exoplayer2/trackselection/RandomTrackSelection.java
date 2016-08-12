@@ -25,6 +25,31 @@ import java.util.Random;
  */
 public final class RandomTrackSelection extends BaseTrackSelection {
 
+  /**
+   * Factory for {@link RandomTrackSelection} instances.
+   */
+  public static final class Factory implements TrackSelection.Factory {
+
+    private final Random random;
+
+    public Factory() {
+      random = new Random();
+    }
+
+    /**
+     * @param seed A seed for the {@link Random} instance used by the factory.
+     */
+    public Factory(int seed) {
+      random = new Random(seed);
+    }
+
+    @Override
+    public RandomTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
+      return new RandomTrackSelection(group, tracks, random);
+    }
+
+  }
+
   private final Random random;
 
   private int selectedIndex;
@@ -47,8 +72,18 @@ public final class RandomTrackSelection extends BaseTrackSelection {
    * @param seed A seed for the {@link Random} instance used to update the selected track.
    */
   public RandomTrackSelection(TrackGroup group, int[] tracks, long seed) {
+    this(group, tracks, new Random(seed));
+  }
+
+  /**
+   * @param group The {@link TrackGroup}. Must not be null.
+   * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
+   *     null or empty. May be in any order.
+   * @param random A source of random numbers.
+   */
+  public RandomTrackSelection(TrackGroup group, int[] tracks, Random random) {
     super(group, tracks);
-    random = new Random(seed);
+    this.random = random;
     selectedIndex = random.nextInt(length);
   }
 

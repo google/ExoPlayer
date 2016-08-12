@@ -50,9 +50,55 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
+  /**
+   * A track selection override.
+   */
+  public static final class SelectionOverride {
+
+    public final TrackSelection.Factory factory;
+    public final int groupIndex;
+    public final int[] tracks;
+    public final int length;
+
+    /**
+     * @param factory A factory for creating selections from this override.
+     * @param groupIndex The overriding group index.
+     * @param tracks The overriding track indices within the group.
+     */
+    public SelectionOverride(TrackSelection.Factory factory, int groupIndex, int... tracks) {
+      this.factory = factory;
+      this.groupIndex = groupIndex;
+      this.tracks = tracks;
+      this.length = tracks.length;
+    }
+
+    /**
+     * Creates an selection from this override.
+     *
+     * @param groups The groups whose selection is being overridden.
+     * @return The selection.
+     */
+    public TrackSelection createTrackSelection(TrackGroupArray groups) {
+      return factory.createTrackSelection(groups.get(groupIndex), tracks);
+    }
+
+    /**
+     * Returns whether this override contains the specified track index.
+     */
+    public boolean containsTrack(int track) {
+      for (int i = 0; i < tracks.length; i++) {
+        if (tracks[i] == track) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+  }
+
   private final Handler eventHandler;
   private final CopyOnWriteArraySet<EventListener> listeners;
-  private final SparseArray<Map<TrackGroupArray, TrackSelection>> trackSelectionOverrides;
+  private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
   private final SparseBooleanArray rendererDisabledFlags;
 
   private TrackInfo activeTrackInfo;
@@ -64,7 +110,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
   public MappingTrackSelector(Handler eventHandler) {
     this.eventHandler = eventHandler;
     this.listeners = new CopyOnWriteArraySet<>();
-    trackSelectionOverrides = new SparseArray<>();
+    selectionOverrides = new SparseArray<>();
     rendererDisabledFlags = new SparseBooleanArray();
   }
 
@@ -134,16 +180,16 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *
    * @param rendererIndex The renderer index.
    * @param groups The {@link TrackGroupArray} for which the override should be applied.
-   * @param override The overriding {@link TrackSelection}.
+   * @param override The override.
    */
   // TODO - Don't allow overrides that select unsupported tracks, unless some flag has been
   // explicitly set by the user to indicate that they want this.
   public final void setSelectionOverride(int rendererIndex, TrackGroupArray groups,
-      TrackSelection override) {
-    Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
+      SelectionOverride override) {
+    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
     if (overrides == null) {
       overrides = new HashMap<>();
-      trackSelectionOverrides.put(rendererIndex, overrides);
+      selectionOverrides.put(rendererIndex, overrides);
     }
     if (overrides.containsKey(groups) && Util.areEqual(overrides.get(groups), override)) {
       // The override is unchanged.
@@ -161,8 +207,20 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * @return Whether there is an override.
    */
   public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
+    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
     return overrides != null && overrides.containsKey(groups);
+  }
+
+  /**
+   * Returns the override for the specified renderer and {@link TrackGroupArray}.
+   *
+   * @param rendererIndex The renderer index.
+   * @param groups The {@link TrackGroupArray}.
+   * @return The override, or null if no override exists.
+   */
+  public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
+    return overrides != null ? overrides.get(groups) : null;
   }
 
   /**
@@ -172,14 +230,14 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * @param groups The {@link TrackGroupArray} for which the override should be cleared.
    */
   public final void clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
+    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
     if (overrides == null || !overrides.containsKey(groups)) {
       // Nothing to clear.
       return;
     }
     overrides.remove(groups);
     if (overrides.isEmpty()) {
-      trackSelectionOverrides.remove(rendererIndex);
+      selectionOverrides.remove(rendererIndex);
     }
     invalidate();
   }
@@ -190,12 +248,12 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * @param rendererIndex The renderer index.
    */
   public final void clearSelectionOverrides(int rendererIndex) {
-    Map<TrackGroupArray, TrackSelection> overrides = trackSelectionOverrides.get(rendererIndex);
+    Map<TrackGroupArray, ?> overrides = selectionOverrides.get(rendererIndex);
     if (overrides == null || overrides.isEmpty()) {
       // Nothing to clear.
       return;
     }
-    trackSelectionOverrides.remove(rendererIndex);
+    selectionOverrides.remove(rendererIndex);
     invalidate();
   }
 
@@ -203,11 +261,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * Clears all track selection overrides.
    */
   public final void clearSelectionOverrides() {
-    if (trackSelectionOverrides.size() == 0) {
+    if (selectionOverrides.size() == 0) {
       // Nothing to clear.
       return;
     }
-    trackSelectionOverrides.clear();
+    selectionOverrides.clear();
     invalidate();
   }
 
@@ -277,11 +335,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
       if (rendererDisabledFlags.get(i)) {
         trackSelections[i] = null;
       } else {
-        Map<TrackGroupArray, TrackSelection> override = trackSelectionOverrides.get(i);
-        TrackSelection overrideSelection = override == null ? null
-            : override.get(rendererTrackGroupArrays[i]);
-        if (overrideSelection != null) {
-          trackSelections[i] = overrideSelection;
+        TrackGroupArray rendererTrackGroup = rendererTrackGroupArrays[i];
+        Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(i);
+        SelectionOverride override = overrides == null ? null : overrides.get(rendererTrackGroup);
+        if (override != null) {
+          trackSelections[i] = override.createTrackSelection(rendererTrackGroup);
         }
       }
     }

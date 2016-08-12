@@ -37,11 +37,11 @@ public abstract class BaseTrackSelection implements TrackSelection {
    * The number of selected tracks within the {@link TrackGroup}. Always greater than zero.
    */
   protected final int length;
-
   /**
    * The indices of the selected tracks in {@link #group}, in order of decreasing bandwidth.
    */
-  private final int[] tracks;
+  protected final int[] tracks;
+
   /**
    * The {@link Format}s of the selected tracks, in order of decreasing bandwidth.
    */

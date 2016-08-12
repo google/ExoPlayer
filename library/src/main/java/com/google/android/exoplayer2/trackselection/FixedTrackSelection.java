@@ -17,11 +17,42 @@ package com.google.android.exoplayer2.trackselection;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * A {@link TrackSelection} consisting of a single track.
  */
 public final class FixedTrackSelection extends BaseTrackSelection {
+
+  /**
+   * Factory for {@link FixedTrackSelection} instances.
+   */
+  public static final class Factory implements TrackSelection.Factory {
+
+    private final int reason;
+    private final Object data;
+
+    public Factory() {
+      this.reason = C.SELECTION_REASON_UNKNOWN;
+      this.data = null;
+    }
+
+    /**
+     * @param reason A reason for the track selection.
+     * @param data Optional data associated with the track selection.
+     */
+    public Factory(int reason, Object data) {
+      this.reason = reason;
+      this.data = data;
+    }
+
+    @Override
+    public FixedTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
+      Assertions.checkArgument(tracks.length == 1);
+      return new FixedTrackSelection(group, tracks[0], reason, data);
+    }
+
+  }
 
   private final int reason;
   private final Object data;

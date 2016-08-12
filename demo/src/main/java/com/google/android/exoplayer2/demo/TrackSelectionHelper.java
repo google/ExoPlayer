@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -44,6 +45,9 @@ import java.util.Locale;
 /* package */ final class TrackSelectionHelper implements View.OnClickListener,
     DialogInterface.OnClickListener {
 
+  private static final TrackSelection.Factory FIXED_FACTORY = new FixedTrackSelection.Factory();
+  private static final TrackSelection.Factory RANDOM_FACTORY = new RandomTrackSelection.Factory();
+
   private final MappingTrackSelector selector;
   private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
 
@@ -52,7 +56,7 @@ import java.util.Locale;
   private TrackGroupArray trackGroups;
   private boolean[] trackGroupsAdaptive;
   private boolean isDisabled;
-  private TrackSelection override;
+  private SelectionOverride override;
 
   private CheckedTextView disableView;
   private CheckedTextView defaultView;
@@ -92,8 +96,7 @@ import java.util.Locale;
           && trackGroups.get(i).length > 1;
     }
     isDisabled = selector.getRendererDisabled(rendererIndex);
-    override = selector.hasSelectionOverride(rendererIndex, trackGroups)
-        ? trackInfo.getTrackSelection(rendererIndex) : null;
+    override = selector.getSelectionOverride(rendererIndex, trackGroups);
 
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setTitle(title)
@@ -147,7 +150,7 @@ import java.util.Locale;
         if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
-          trackView.setTag(Pair.create(group, trackIndex));
+          trackView.setTag(Pair.create(groupIndex, trackIndex));
           trackView.setOnClickListener(this);
           haveSupportedTracks = true;
         } else {
@@ -180,19 +183,18 @@ import java.util.Locale;
     disableView.setChecked(isDisabled);
     defaultView.setChecked(!isDisabled && override == null);
     for (int i = 0; i < trackViews.length; i++) {
-      TrackGroup trackGroup = trackGroups.get(i);
       for (int j = 0; j < trackViews[i].length; j++) {
-        trackViews[i][j].setChecked(override != null && override.getTrackGroup() == trackGroup
-            && override.indexOf(trackGroup.getFormat(j)) != -1);
+        trackViews[i][j].setChecked(override != null && override.groupIndex == i
+            && override.containsTrack(j));
       }
     }
     if (enableRandomAdaptationView != null) {
-      boolean enableView = !isDisabled && override != null && override.length() > 1;
+      boolean enableView = !isDisabled && override != null && override.length > 1;
       enableRandomAdaptationView.setEnabled(enableView);
       enableRandomAdaptationView.setFocusable(enableView);
       if (enableView) {
         enableRandomAdaptationView.setChecked(!isDisabled
-            && override instanceof RandomTrackSelection);
+            && override.factory instanceof RandomTrackSelection.Factory);
       }
     }
   }
@@ -224,20 +226,19 @@ import java.util.Locale;
       isDisabled = false;
       override = null;
     } else if (view == enableRandomAdaptationView) {
-      setOverride(override.getTrackGroup(), getTracks(override),
-          !enableRandomAdaptationView.isChecked());
+      setOverride(override.groupIndex, override.tracks, !enableRandomAdaptationView.isChecked());
     } else {
       isDisabled = false;
       @SuppressWarnings("unchecked")
-      Pair<TrackGroup, Integer> tag = (Pair<TrackGroup, Integer>) view.getTag();
-      TrackGroup group = tag.first;
+      Pair<Integer, Integer> tag = (Pair<Integer, Integer>) view.getTag();
+      int groupIndex = tag.first;
       int trackIndex = tag.second;
-      if (!trackGroupsAdaptive[trackGroups.indexOf(group)] || override == null) {
-        override = new FixedTrackSelection(group, trackIndex);
+      if (!trackGroupsAdaptive[groupIndex] || override == null) {
+        override = new SelectionOverride(FIXED_FACTORY, groupIndex, trackIndex);
       } else {
         // The group being modified is adaptive and we already have a non-null override.
         boolean isEnabled = ((CheckedTextView) view).isChecked();
-        int overrideLength = override.length();
+        int overrideLength = override.length;
         if (isEnabled) {
           // Remove the track from the override.
           if (overrideLength == 1) {
@@ -245,12 +246,12 @@ import java.util.Locale;
             override = null;
             isDisabled = true;
           } else {
-            setOverride(group, getTracksRemoving(override, trackIndex),
+            setOverride(groupIndex, getTracksRemoving(override, trackIndex),
                 enableRandomAdaptationView.isChecked());
           }
         } else {
           // Add the track to the override.
-          setOverride(group, getTracksAdding(override, trackIndex),
+          setOverride(groupIndex, getTracksAdding(override, trackIndex),
               enableRandomAdaptationView.isChecked());
         }
       }
@@ -259,34 +260,26 @@ import java.util.Locale;
     updateViews();
   }
 
-  private void setOverride(TrackGroup group, int[] tracks, boolean enableRandomAdaptation) {
-    override = tracks.length == 1 ? new FixedTrackSelection(group, tracks[0])
-        : (enableRandomAdaptation ? new RandomTrackSelection(group, tracks)
-            : adaptiveVideoTrackSelectionFactory.createTrackSelection(group, tracks));
+  private void setOverride(int group, int[] tracks, boolean enableRandomAdaptation) {
+    TrackSelection.Factory factory = tracks.length == 1 ? FIXED_FACTORY
+        : (enableRandomAdaptation ? RANDOM_FACTORY : adaptiveVideoTrackSelectionFactory);
+    override = new SelectionOverride(factory, group, tracks);
   }
 
   // Track array manipulation.
 
-  private static int[] getTracks(TrackSelection trackSelection) {
-    int[] tracks = new int[trackSelection.length()];
-    for (int i = 0; i < tracks.length; i++) {
-      tracks[i] = trackSelection.getIndexInTrackGroup(i);
-    }
-    return tracks;
-  }
-
-  private static int[] getTracksAdding(TrackSelection trackSelection, int addedTrack) {
-    int[] tracks = getTracks(trackSelection);
+  private static int[] getTracksAdding(SelectionOverride override, int addedTrack) {
+    int[] tracks = override.tracks;
     tracks = Arrays.copyOf(tracks, tracks.length + 1);
     tracks[tracks.length - 1] = addedTrack;
     return tracks;
   }
 
-  private static int[] getTracksRemoving(TrackSelection trackSelection, int removedTrack) {
-    int[] tracks = new int[trackSelection.length() - 1];
+  private static int[] getTracksRemoving(SelectionOverride override, int removedTrack) {
+    int[] tracks = new int[override.length - 1];
     int trackCount = 0;
     for (int i = 0; i < tracks.length + 1; i++) {
-      int track = trackSelection.getIndexInTrackGroup(i);
+      int track = override.tracks[i];
       if (track != removedTrack) {
         tracks[trackCount++] = track;
       }

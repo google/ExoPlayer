@@ -475,7 +475,7 @@ public class HlsChunkSource {
   /**
    * A {@link TrackSelection} to use for initialization.
    */
-  public static final class InitializationTrackSelection extends BaseTrackSelection {
+  private static final class InitializationTrackSelection extends BaseTrackSelection {
 
     private int selectedIndex;
 

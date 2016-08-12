@@ -137,8 +137,8 @@ public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
    *     for inaccuracies in the bandwidth estimator.
    */
   public AdaptiveVideoTrackSelection(TrackGroup group, int[] tracks, BandwidthMeter bandwidthMeter,
-      int maxInitialBitrate, int minDurationForQualityIncreaseMs,
-      int maxDurationForQualityDecreaseMs, int minDurationToRetainAfterDiscardMs,
+      int maxInitialBitrate, long minDurationForQualityIncreaseMs,
+      long maxDurationForQualityDecreaseMs, long minDurationToRetainAfterDiscardMs,
       float bandwidthFraction) {
     super(group, tracks);
     this.bandwidthMeter = bandwidthMeter;

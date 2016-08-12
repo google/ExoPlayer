@@ -50,7 +50,7 @@ public interface TrackSelection {
    * Returns the {@link TrackGroup} to which the selected tracks belong.
    */
   TrackGroup getTrackGroup();
-  
+
   // Static subset of selected tracks.
 
   /**
