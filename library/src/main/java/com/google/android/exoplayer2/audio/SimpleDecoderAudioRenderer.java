@@ -293,6 +293,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     return currentPositionUs;
   }
 
+  @Override
+  public void setPlaybackSpeed(float speed) {
+    audioTrack.setPlaybackSpeed(speed);
+  }
+
   /**
    * Called when the audio session id becomes known. Once the id is known it will not change (and
    * hence this method will not be called again) unless the renderer is disabled and then

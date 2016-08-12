@@ -283,6 +283,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
         player.seekTo(playerPeriodIndex, playerPosition);
       }
       player.setPlayWhenReady(true);
+      player.setPlaybackSpeed(1.0f);
       mediaController.setMediaPlayer(new PlayerControl(player));
       mediaController.setPrevNextListeners(new MediaControllerPrevNextClickListener(player, true),
           new MediaControllerPrevNextClickListener(player, false));
