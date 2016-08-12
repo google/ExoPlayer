@@ -329,7 +329,8 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     MediaFormat mediaFormat = new MediaFormat(null, mimeType, MediaFormat.NO_VALUE, maxInputSize,
         durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE, channelCount, sampleRate,
         language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData, false,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, pcmEncoding, encoderDelay, encoderPadding);
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, pcmEncoding, encoderDelay, encoderPadding,
+        null, MediaFormat.NO_VALUE);
     mediaFormat.setFrameworkFormatV16(format);
     return mediaFormat;
   }

@@ -140,6 +140,21 @@ public final class C {
    */
   public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
+  /**
+   * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
+   */
+  public static final int STEREO_MODE_MONO = 0;
+
+  /**
+   * Indicates Top-Bottom stereo layout, used with 360/3D/VR videos.
+   */
+  public static final int STEREO_MODE_TOP_BOTTOM = 1;
+
+  /**
+   * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
+   */
+  public static final int STEREO_MODE_LEFT_RIGHT = 2;
+
   private C() {}
 
 }

@@ -29,6 +29,7 @@ import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -614,6 +615,8 @@ import java.util.List;
 
     List<byte[]> initializationData = null;
     String mimeType = null;
+    byte[] projectionData = null;
+    int stereoMode = MediaFormat.NO_VALUE;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childStartPosition = parent.getPosition();
@@ -654,6 +657,27 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         Assertions.checkState(mimeType == null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
+      } else if (childAtomType == Atom.TYPE_sv3d) {
+        projectionData = parseProjFromParent(parent, childStartPosition, childAtomSize);
+      } else if (childAtomType == Atom.TYPE_st3d) {
+        int version = parent.readUnsignedByte();
+        parent.skipBytes(3); // Flags.
+        if (version == 0) {
+          int layout = parent.readUnsignedByte();
+          switch (layout) {
+            case 0:
+              stereoMode = C.STEREO_MODE_MONO;
+              break;
+            case 1:
+              stereoMode = C.STEREO_MODE_TOP_BOTTOM;
+              break;
+            case 2:
+              stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+              break;
+            default:
+              break;
+          }
+        }
       }
       childPosition += childAtomSize;
     }
@@ -665,7 +689,7 @@ import java.util.List;
 
     out.mediaFormat = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
         MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, width, height, initializationData,
-        rotationDegrees, pixelWidthHeightRatio);
+        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -1058,6 +1082,23 @@ import java.util.List;
     }
     return null;
   }
+
+
+  /** Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media */
+  private static byte[] parseProjFromParent(ParsableByteArray parent, int position, int size) {
+    int childPosition = position + Atom.HEADER_SIZE;
+    while (childPosition - position < size) {
+      parent.setPosition(childPosition);
+      int childAtomSize = parent.readInt();
+      int childAtomType = parent.readInt();
+      if (childAtomType == Atom.TYPE_proj) {
+        return Arrays.copyOfRange(parent.data, childPosition, childPosition + childAtomSize);
+      }
+      childPosition += childAtomSize;
+    }
+    return null;
+  }
+
 
   /**
    * Parses the size of an expandable class, as specified by ISO 14496-1 subsection 8.3.3.
