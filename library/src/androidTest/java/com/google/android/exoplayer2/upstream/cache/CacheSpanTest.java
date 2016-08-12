@@ -26,10 +26,10 @@ import junit.framework.TestCase;
 public class CacheSpanTest extends TestCase {
 
   public void testCacheFile() throws Exception {
-    assertCacheSpan(new File("parent"), "key", 0, 0);
-    assertCacheSpan(new File("parent/"), "key", 1, 2);
-    assertCacheSpan(new File("parent"), "<>:\"/\\|?*%", 1, 2);
-    assertCacheSpan(new File("/"), "key", 1, 2);
+    assertCacheSpan(new File("parent"), "key", 0, 0, true);
+    assertCacheSpan(new File("parent/"), "key", 1, 2, false);
+    assertCacheSpan(new File("parent"), "<>:\"/\\|?*%", 1, 2, true);
+    assertCacheSpan(new File("/"), "key", 1, 2, false);
 
     assertNullCacheSpan(new File("parent"), "", 1, 2);
     assertNullCacheSpan(new File("parent"), "key", -1, 2);
@@ -44,7 +44,7 @@ public class CacheSpanTest extends TestCase {
             + "A standalone carriage-return character \r"
             + "A next-line character \u0085"
             + "A line-separator character \u2028"
-            + "A paragraph-separator character \u2029", 1, 2);
+            + "A paragraph-separator character \u2029", 1, 2, true);
   }
 
   public void testCacheFileNameRandomData() throws Exception {
@@ -54,12 +54,14 @@ public class CacheSpanTest extends TestCase {
       String key = TestUtil.buildTestString(1000, random);
       long offset = Math.abs(random.nextLong());
       long lastAccessTimestamp = Math.abs(random.nextLong());
-      assertCacheSpan(parent, key, offset, lastAccessTimestamp);
+      boolean isEOS = random.nextBoolean();
+      assertCacheSpan(parent, key, offset, lastAccessTimestamp, isEOS);
     }
   }
 
-  private void assertCacheSpan(File parent, String key, long offset, long lastAccessTimestamp) {
-    File cacheFile = CacheSpan.getCacheFileName(parent, key, offset, lastAccessTimestamp);
+  private void assertCacheSpan(File parent, String key, long offset, long lastAccessTimestamp,
+      boolean isEOS) {
+    File cacheFile = CacheSpan.getCacheFileName(parent, key, offset, lastAccessTimestamp, isEOS);
     CacheSpan cacheSpan = CacheSpan.createCacheEntry(cacheFile);
     String message = cacheFile.toString();
     assertNotNull(message, cacheSpan);
@@ -67,11 +69,12 @@ public class CacheSpanTest extends TestCase {
     assertEquals(message, key, cacheSpan.key);
     assertEquals(message, offset, cacheSpan.position);
     assertEquals(message, lastAccessTimestamp, cacheSpan.lastAccessTimestamp);
+    assertEquals(message, isEOS, cacheSpan.isEOS);
   }
 
   private void assertNullCacheSpan(File parent, String key, long offset,
       long lastAccessTimestamp) {
-    File cacheFile = CacheSpan.getCacheFileName(parent, key, offset, lastAccessTimestamp);
+    File cacheFile = CacheSpan.getCacheFileName(parent, key, offset, lastAccessTimestamp, false);
     CacheSpan cacheSpan = CacheSpan.createCacheEntry(cacheFile);
     assertNull(cacheFile.toString(), cacheSpan);
   }
