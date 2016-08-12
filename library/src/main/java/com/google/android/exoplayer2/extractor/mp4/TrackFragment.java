@@ -29,7 +29,7 @@ import java.io.IOException;
    */
   public DefaultSampleValues header;
   /**
-   * The position (byte offset) of the start of sample data.
+   * The position (byte offset) of the start of data contained in the fragment.
    */
   public long dataPosition;
   /**
@@ -37,19 +37,31 @@ import java.io.IOException;
    */
   public long auxiliaryDataPosition;
   /**
-   * The number of samples contained by the fragment.
+   * The number of track runs of the fragment.
    */
-  public int length;
+  public int trunCount;
   /**
-   * The size of each sample in the run.
+   * The total number of samples in the fragment.
+   */
+  public int sampleCount;
+  /**
+   * The position (byte offset) of the start of sample data of each track run in the fragment.
+   */
+  public long[] trunDataPosition;
+  /**
+   * The number of samples contained by each track run in the fragment.
+   */
+  public int[] trunLength;
+  /**
+   * The size of each sample in the fragment.
    */
   public int[] sampleSizeTable;
   /**
-   * The composition time offset of each sample in the run.
+   * The composition time offset of each sample in the fragment.
    */
   public int[] sampleCompositionTimeOffsetTable;
   /**
-   * The decoding time of each sample in the run.
+   * The decoding time of each sample in the fragment.
    */
   public long[] sampleDecodingTimeTable;
   /**
@@ -91,12 +103,12 @@ import java.io.IOException;
   /**
    * Resets the fragment.
    * <p>
-   * {@link #length} and {@link #nextFragmentDecodeTime} are set to 0, and both
+   * {@link #sampleCount} and {@link #nextFragmentDecodeTime} are set to 0, and both
    * {@link #definesEncryptionData} and {@link #sampleEncryptionDataNeedsFill} is set to false,
    * and {@link #trackEncryptionBox} is set to null.
    */
   public void reset() {
-    length = 0;
+    trunCount = 0;
     nextFragmentDecodeTime = 0;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
@@ -106,14 +118,19 @@ import java.io.IOException;
   /**
    * Configures the fragment for the specified number of samples.
    * <p>
-   * The {@link #length} of the fragment is set to the specified sample count, and the contained
-   * tables are resized if necessary such that they are at least this length.
+   * The {@link #sampleCount} of the fragment is set to the specified sample count, and the
+   * contained tables are resized if necessary such that they are at least this length.
    *
    * @param sampleCount The number of samples in the new run.
    */
-  public void initTables(int sampleCount) {
-    length = sampleCount;
-    if (sampleSizeTable == null || sampleSizeTable.length < length) {
+  public void initTables(int trunCount, int sampleCount) {
+    this.trunCount = trunCount;
+    this.sampleCount = sampleCount;
+    if (trunLength == null || trunLength.length < trunCount) {
+      trunDataPosition = new long[trunCount];
+      trunLength = new int[trunCount];
+    }
+    if (sampleSizeTable == null || sampleSizeTable.length < sampleCount) {
       // Size the tables 25% larger than needed, so as to make future resize operations less
       // likely. The choice of 25% is relatively arbitrary.
       int tableSize = (sampleCount * 125) / 100;
