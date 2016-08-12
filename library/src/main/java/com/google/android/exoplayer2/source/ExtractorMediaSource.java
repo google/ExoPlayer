@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
@@ -130,6 +131,8 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   private int enabledTrackCount;
   private DefaultTrackOutput[] sampleQueues;
   private TrackGroupArray tracks;
+  private boolean[] tracksAreAudioVideoFlags;
+  private boolean haveAudioVideoTracks;
   private long durationUs;
   private boolean[] trackEnabledStates;
   private long length;
@@ -504,10 +507,16 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     loadCondition.close();
     int trackCount = sampleQueues.length;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
+    tracksAreAudioVideoFlags = new boolean[trackCount];
     trackEnabledStates = new boolean[trackCount];
     durationUs = seekMap.getDurationUs();
     for (int i = 0; i < trackCount; i++) {
-      trackArray[i] = new TrackGroup(sampleQueues[i].getUpstreamFormat());
+      Format format = sampleQueues[i].getUpstreamFormat();
+      trackArray[i] = new TrackGroup(format);
+      String sampleMimeType = format.sampleMimeType;
+      tracksAreAudioVideoFlags[i] = MimeTypes.isVideo(sampleMimeType)
+          || MimeTypes.isAudio(sampleMimeType);
+      haveAudioVideoTracks |= tracksAreAudioVideoFlags[i];
     }
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
@@ -578,12 +587,14 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   private long getLargestQueuedTimestampUs() {
-    long largestQueuedTimestampUs = Long.MIN_VALUE;
-    for (DefaultTrackOutput sampleQueue : sampleQueues) {
-      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
-          sampleQueue.getLargestQueuedTimestampUs());
+    long largestQueuedTimestampUs = Long.MAX_VALUE;
+    for (int i = 0; i < sampleQueues.length; i++) {
+      if (tracksAreAudioVideoFlags[i] || !haveAudioVideoTracks) {
+        largestQueuedTimestampUs = Math.min(largestQueuedTimestampUs,
+            sampleQueues[i].getLargestQueuedTimestampUs());
+      }
     }
-    return largestQueuedTimestampUs;
+    return largestQueuedTimestampUs == Long.MAX_VALUE ? Long.MIN_VALUE : largestQueuedTimestampUs;
   }
 
   private boolean isPendingReset() {
