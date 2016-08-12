@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -41,7 +42,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -75,6 +75,7 @@ public final class DashMediaSource implements MediaSource {
   private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
   private final Object manifestUriLock;
+  private final SparseArray<DashMediaPeriod> periodsById;
   private final Runnable refreshSourceInfoRunnable;
 
   private MediaSource.Listener sourceListener;
@@ -86,9 +87,10 @@ public final class DashMediaSource implements MediaSource {
   private long manifestLoadEndTimestamp;
   private DashManifest manifest;
   private Handler handler;
-  private ArrayList<DashMediaPeriod> periods;
   private SeekWindow seekWindow;
   private long elapsedRealtimeOffsetMs;
+
+  private int firstPeriodId;
 
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
@@ -108,6 +110,7 @@ public final class DashMediaSource implements MediaSource {
     manifestParser = new DashManifestParser();
     manifestCallback = new ManifestCallback();
     manifestUriLock = new Object();
+    periodsById = new SparseArray<>();
     refreshSourceInfoRunnable = new Runnable() {
       @Override
       public void run() {
@@ -140,20 +143,8 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    int periodIndex = oldPlayingPeriodIndex;
-    int oldPeriodCount = oldTimeline.getPeriodCount();
-    while (periodIndex < oldPeriodCount) {
-      Object id = oldTimeline.getPeriodId(periodIndex);
-      if (id == null) {
-        break;
-      }
-      int index = periods.indexOf(id);
-      if (index != -1) {
-        return index;
-      }
-      periodIndex++;
-    }
-    return Timeline.NO_PERIOD_INDEX;
+    // Seek to the default position, which is the live edge for live sources.
+    return 0;
   }
 
   @Override
@@ -179,11 +170,14 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public MediaPeriod createPeriod(int index) throws IOException {
-    if (periods == null || periods.size() <= index) {
+    if (index >= manifest.getPeriodCount()) {
       loader.maybeThrowError();
       return null;
     }
-    return periods.get(index);
+    DashMediaPeriod mediaPeriod = new DashMediaPeriod(manifest, index, chunkSourceFactory,
+        minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffsetMs, loader);
+    periodsById.put(firstPeriodId + index, mediaPeriod);
+    return mediaPeriod;
   }
 
   @Override
@@ -201,6 +195,7 @@ public final class DashMediaSource implements MediaSource {
       handler = null;
     }
     elapsedRealtimeOffsetMs = 0;
+    periodsById.clear();
   }
 
   // Loadable callbacks.
@@ -211,24 +206,22 @@ public final class DashMediaSource implements MediaSource {
         loadDurationMs, loadable.bytesLoaded());
     DashManifest newManifest = loadable.getResult();
 
+    int periodCount = manifest == null ? 0 : manifest.getPeriodCount();
     int periodsToRemoveCount = 0;
-    if (periods != null) {
-      int periodCount = periods.size();
-      long newFirstPeriodStartTimeUs = newManifest.getPeriod(0).startMs * 1000;
-      while (periodsToRemoveCount < periodCount
-          && periods.get(periodsToRemoveCount).getStartUs() < newFirstPeriodStartTimeUs) {
-        periodsToRemoveCount++;
-      }
+    long newFirstPeriodStartTimeMs = newManifest.getPeriod(0).startMs;
+    while (periodsToRemoveCount < periodCount
+        && manifest.getPeriod(periodsToRemoveCount).startMs < newFirstPeriodStartTimeMs) {
+      periodsToRemoveCount++;
+    }
 
-      // After discarding old periods, we should never have more periods than listed in the new
-      // manifest. That would mean that a previously announced period is no longer advertised. If
-      // this condition occurs, assume that we are hitting a manifest server that is out of sync and
-      // behind, discard this manifest, and try again later.
-      if (periodCount - periodsToRemoveCount > newManifest.getPeriodCount()) {
-        Log.w(TAG, "Out of sync manifest");
-        scheduleManifestRefresh();
-        return;
-      }
+    // After discarding old periods, we should never have more periods than listed in the new
+    // manifest. That would mean that a previously announced period is no longer advertised. If
+    // this condition occurs, assume that we are hitting a manifest server that is out of sync and
+    // behind, discard this manifest, and try again later.
+    if (periodCount - periodsToRemoveCount > newManifest.getPeriodCount()) {
+      Log.w(TAG, "Out of sync manifest");
+      scheduleManifestRefresh();
+      return;
     }
 
     manifest = newManifest;
@@ -244,7 +237,7 @@ public final class DashMediaSource implements MediaSource {
       }
     }
 
-    if (periods == null) {
+    if (periodCount == 0) {
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
@@ -253,11 +246,12 @@ public final class DashMediaSource implements MediaSource {
     } else {
       // Remove old periods.
       while (periodsToRemoveCount-- > 0) {
-        periods.remove(0);
+        periodsById.remove(firstPeriodId);
+        firstPeriodId++;
+        periodCount--;
       }
 
       // Update existing periods. Only the first and the last periods can change.
-      int periodCount = periods.size();
       if (periodCount > 0) {
         updatePeriod(0);
         if (periodCount > 1) {
@@ -270,7 +264,10 @@ public final class DashMediaSource implements MediaSource {
   }
 
   private void updatePeriod(int index) {
-    periods.get(index).updateManifest(manifest, index);
+    DashMediaPeriod period = periodsById.get(firstPeriodId + index);
+    if (period != null) {
+      period.updateManifest(manifest, index);
+    }
   }
 
   /* package */ int onManifestLoadError(ParsingLoadable<DashManifest> loadable,
@@ -355,15 +352,6 @@ public final class DashMediaSource implements MediaSource {
   }
 
   private void finishManifestProcessing() {
-    if (periods == null) {
-      periods = new ArrayList<>();
-    }
-    int periodCount = manifest.getPeriodCount();
-    for (int i = periods.size(); i < periodCount; i++) {
-      periods.add(new DashMediaPeriod(manifest, i, chunkSourceFactory, minLoadableRetryCount,
-          eventDispatcher, elapsedRealtimeOffsetMs, loader));
-    }
-
     handler.removeCallbacks(refreshSourceInfoRunnable);
     refreshSourceInfo();
     scheduleManifestRefresh();
@@ -371,8 +359,7 @@ public final class DashMediaSource implements MediaSource {
 
   private void refreshSourceInfo() {
     // Update the seek window.
-    int periodCount = manifest.getPeriodCount();
-    int lastPeriodIndex = periodCount - 1;
+    int lastPeriodIndex = manifest.getPeriodCount() - 1;
     PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
         manifest.getPeriodDurationUs(0));
     PeriodSeekInfo lastPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(
@@ -397,10 +384,7 @@ public final class DashMediaSource implements MediaSource {
       currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     }
     seekWindow = SeekWindow.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs);
-
-    DashMediaPeriod[] mediaPeriods =
-        periods.toArray(new DashMediaPeriod[manifest.getPeriodCount()]);
-    sourceListener.onSourceInfoRefreshed(new DashTimeline(manifest, mediaPeriods, seekWindow),
+    sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, manifest, seekWindow),
         manifest);
   }
 
@@ -483,13 +467,13 @@ public final class DashMediaSource implements MediaSource {
 
   private static final class DashTimeline implements Timeline {
 
+    private final int firstPeriodId;
     private final DashManifest manifest;
-    private final DashMediaPeriod[] periods;
     private final SeekWindow seekWindow;
 
-    public DashTimeline(DashManifest manifest, DashMediaPeriod[] periods, SeekWindow seekWindow) {
+    public DashTimeline(int firstPeriodId, DashManifest manifest, SeekWindow seekWindow) {
+      this.firstPeriodId = firstPeriodId;
       this.manifest = manifest;
-      this.periods = periods;
       this.seekWindow = seekWindow;
     }
 
@@ -526,20 +510,12 @@ public final class DashMediaSource implements MediaSource {
 
     @Override
     public Object getPeriodId(int index) {
-      if (index < 0 || index >= manifest.getPeriodCount()) {
-        throw new IndexOutOfBoundsException();
-      }
-      return periods[index];
+      return firstPeriodId + index;
     }
 
     @Override
     public int getIndexOfPeriod(Object id) {
-      for (int i = 0; i < periods.length; i++) {
-        if (id == periods[i]) {
-          return i;
-        }
-      }
-      return Timeline.NO_PERIOD_INDEX;
+      return ((Integer) id) - firstPeriodId;
     }
 
     @Override

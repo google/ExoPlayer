@@ -84,10 +84,6 @@ import java.util.List;
     }
   }
 
-  public long getStartUs() {
-    return period.startMs * 1000;
-  }
-
   // MediaPeriod implementation.
 
   @Override

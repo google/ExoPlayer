@@ -894,8 +894,7 @@ import java.io.IOException;
     // TODO[playlists]: Signal the identifier discontinuity, even if the index hasn't changed.
     if (oldTimeline != null) {
       int newPlayingIndex = playingPeriod != null ? playingPeriod.index
-          : loadingPeriod != null ? loadingPeriod.index
-              : mediaSource.getNewPlayingPeriodIndex(playbackInfo.periodIndex, oldTimeline);
+          : loadingPeriod != null ? loadingPeriod.index : Timeline.NO_PERIOD_INDEX;
       if (newPlayingIndex != Timeline.NO_PERIOD_INDEX
           && newPlayingIndex != playbackInfo.periodIndex) {
         long oldPositionUs = playbackInfo.positionUs;

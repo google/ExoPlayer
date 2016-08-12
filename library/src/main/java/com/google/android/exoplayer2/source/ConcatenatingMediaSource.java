@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,14 +65,12 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldConcatenatedTimeline)
-      throws IOException {
+  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldConcatenatedTimeline) {
     ConcatenatedTimeline oldTimeline = (ConcatenatedTimeline) oldConcatenatedTimeline;
     int sourceIndex = oldTimeline.getSourceIndexForPeriod(oldPlayingPeriodIndex);
     int oldFirstPeriodIndex = oldTimeline.getFirstPeriodIndexInSource(sourceIndex);
     int firstPeriodIndex = timeline.getFirstPeriodIndexInSource(sourceIndex);
-    return firstPeriodIndex == Timeline.NO_PERIOD_INDEX ? Timeline.NO_PERIOD_INDEX
-        : firstPeriodIndex + mediaSources[sourceIndex].getNewPlayingPeriodIndex(
+    return firstPeriodIndex + mediaSources[sourceIndex].getNewPlayingPeriodIndex(
             oldPlayingPeriodIndex - oldFirstPeriodIndex, oldTimeline.timelines[sourceIndex]);
   }
 
@@ -165,17 +164,21 @@ public final class ConcatenatingMediaSource implements MediaSource {
     public Object getPeriodId(int index) {
       int sourceIndex = getSourceIndexForPeriod(index);
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(index);
-      return timelines[sourceIndex].getPeriodId(index - firstPeriodIndexInSource);
+      Object periodId = timelines[sourceIndex].getPeriodId(index - firstPeriodIndexInSource);
+      return Pair.create(sourceIndex, periodId);
     }
 
     @Override
     public int getIndexOfPeriod(Object id) {
-      for (int sourceIndex = 0; sourceIndex < timelines.length; sourceIndex++) {
-        int periodIndexInSource = timelines[sourceIndex].getIndexOfPeriod(id);
-        if (periodIndexInSource != NO_PERIOD_INDEX) {
-          int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-          return firstPeriodIndexInSource + periodIndexInSource;
-        }
+      // The id was returned by getPeriodId, so it is always a Pair<Integer, Object>.
+      @SuppressWarnings("unchecked")
+      Pair<Integer, Object> sourceIndexAndPeriodId = (Pair<Integer, Object>) id;
+      int sourceIndex = sourceIndexAndPeriodId.first;
+      Object periodId = sourceIndexAndPeriodId.second;
+      int periodIndexInSource = timelines[sourceIndex].getIndexOfPeriod(periodId);
+      if (periodIndexInSource != NO_PERIOD_INDEX) {
+        int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
+        return firstPeriodIndexInSource + periodIndexInSource;
       }
       return NO_PERIOD_INDEX;
     }
@@ -195,8 +198,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     private int getFirstPeriodIndexInSource(int sourceIndex) {
-      return sourceIndex == 0 ? 0 : sourceIndex > sourceOffsets.length
-          ? Timeline.NO_PERIOD_INDEX : sourceOffsets[sourceIndex - 1];
+      return sourceIndex == 0 ? 0 : sourceOffsets[sourceIndex - 1];
     }
 
   }

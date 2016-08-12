@@ -78,25 +78,28 @@ public interface MediaSource {
   void prepareSource(Listener listener);
 
   /**
-   * Returns the period index to play in this source's new timeline.
+   * Returns the period index to play in this source's new timeline, or
+   * {@link Timeline#NO_PERIOD_INDEX} if the player should stop playback. The
+   * {@code oldPlayingPeriodIndex} should be an index of a period in the old timeline that is no
+   * longer present (based on its identifier) in the new timeline.
    *
    * @param oldPlayingPeriodIndex The period index that was being played in the old timeline.
    * @param oldTimeline The old timeline.
-   * @return The period index to play in this source's new timeline.
-   * @throws IOException Thrown if the required period can't be loaded.
+   * @return The new period index to play in this source's new timeline. Playback will resume from
+   *     the default start position in the new period index.
    */
-  int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) throws IOException;
+  int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline);
 
   /**
-   * Returns the default {@link Position} that the player should play when it reaches the period at
-   * {@code index}, or {@code null} if the default start period and position are not yet known.
+   * Returns the default {@link Position} that the player should play when when starting to play the
+   * period at {@code index}, or {@code null} if the default position is not yet known.
    * <p>
    * For example, sources can return a {@link Position} with the passed period {@code index} to play
-   * the period at {@code index} immediately after the period at {@code index - 1}. Or, sources
+   * the period at {@code index} immediately after the period at {@code index - 1}. Sources
    * providing multi-period live streams may return the index and position of the live edge when
-   * passed {@code index == 0} so that the playback position jumps to the live edge.
+   * passed {@code index == 0} to play from the live edge.
    *
-   * @param index The index of the period the player has just reached.
+   * @param index The index of the requested period.
    * @return The default start position.
    */
   Position getDefaultStartPosition(int index);
