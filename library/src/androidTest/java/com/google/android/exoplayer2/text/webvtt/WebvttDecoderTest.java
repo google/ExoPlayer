@@ -116,7 +116,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
         Alignment.ALIGN_CENTER, 0.45f, Cue.LINE_TYPE_FRACTION, Cue.ANCHOR_TYPE_END, Cue.DIMEN_UNSET,
         Cue.TYPE_UNSET, 0.35f);
     assertCue(subtitle, 6, 6000000, 7000000, "This is the fourth subtitle.",
-        Alignment.ALIGN_CENTER, -10f, Cue.LINE_TYPE_NUMBER, Cue.TYPE_UNSET, Cue.DIMEN_UNSET,
+        Alignment.ALIGN_CENTER, -11f, Cue.LINE_TYPE_NUMBER, Cue.TYPE_UNSET, Cue.DIMEN_UNSET,
         Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
     assertCue(subtitle, 8, 7000000, 8000000, "This is the fifth subtitle.",
         Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f,
