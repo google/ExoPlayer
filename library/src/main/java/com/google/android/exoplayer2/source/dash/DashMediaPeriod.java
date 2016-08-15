@@ -42,25 +42,27 @@ import java.util.List;
 /* package */ final class DashMediaPeriod implements MediaPeriod,
     SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
 
+  /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
+  private final Callback callback;
+  private final Allocator allocator;
   private final TrackGroupArray trackGroups;
 
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
-  private Callback callback;
-  private Allocator allocator;
   private DashManifest manifest;
   private int index;
   private Period period;
 
-  public DashMediaPeriod(DashManifest manifest, int index,
+  public DashMediaPeriod(int id, DashManifest manifest, int index,
       DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
       EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
-      LoaderErrorThrower manifestLoaderErrorThrower) {
+      LoaderErrorThrower manifestLoaderErrorThrower, Callback callback, Allocator allocator) {
+    this.id = id;
     this.manifest = manifest;
     this.index = index;
     this.chunkSourceFactory = chunkSourceFactory;
@@ -68,8 +70,13 @@ import java.util.List;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
+    this.callback = callback;
+    this.allocator = allocator;
+    sampleStreams = newSampleStreamArray(0);
+    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     period = manifest.getPeriod(index);
     trackGroups = buildTrackGroups(period);
+    callback.onPrepared(this);
   }
 
   public void updateManifest(DashManifest manifest, int index) {
@@ -82,17 +89,6 @@ import java.util.List;
       }
       callback.onContinueLoadingRequested(this);
     }
-  }
-
-  // MediaPeriod implementation.
-
-  @Override
-  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
-    this.callback = callback;
-    this.allocator = allocator;
-    sampleStreams = newSampleStreamArray(0);
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    callback.onPeriodPrepared(this);
   }
 
   @Override
@@ -166,19 +162,6 @@ import java.util.List;
       sampleStream.seekToUs(positionUs);
     }
     return positionUs;
-  }
-
-  @Override
-  public void releasePeriod() {
-    if (sampleStreams != null) {
-      for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-        sampleStream.release();
-      }
-      sampleStreams = null;
-    }
-    sequenceableLoader = null;
-    callback = null;
-    allocator = null;
   }
 
   // SequenceableLoader.Callback implementation.

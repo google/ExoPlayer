@@ -229,7 +229,7 @@ import java.io.IOException;
   // MediaPeriod.Callback implementation.
 
   @Override
-  public void onPeriodPrepared(MediaPeriod source) {
+  public void onPrepared(MediaPeriod source) {
     handler.obtainMessage(MSG_PERIOD_PREPARED, source).sendToTarget();
   }
 
@@ -906,6 +906,7 @@ import java.io.IOException;
   public void updatePeriods() throws ExoPlaybackException, IOException {
     if (timeline == null) {
       // We're waiting to get information about periods.
+      mediaSource.maybeThrowSourceInfoRefreshError();
       return;
     }
 
@@ -927,11 +928,14 @@ import java.io.IOException;
         }
       }
 
-      MediaPeriod mediaPeriod;
-      if (startPositionUs != C.UNSET_TIME_US
-          && (mediaPeriod = mediaSource.createPeriod(periodIndex)) != null) {
-        Period newPeriod = new Period(renderers, rendererCapabilities, trackSelector, mediaPeriod,
-            timeline.getPeriodId(periodIndex), periodIndex, startPositionUs);
+      if (periodIndex >= timeline.getPeriodCount()) {
+        // This period is not available yet.
+        mediaSource.maybeThrowSourceInfoRefreshError();
+      } else if (startPositionUs != C.UNSET_TIME_US) {
+        MediaPeriod mediaPeriod = mediaSource.createPeriod(periodIndex, this,
+            loadControl.getAllocator(), startPositionUs);
+        Period newPeriod = new Period(renderers, rendererCapabilities, trackSelector, mediaSource,
+            mediaPeriod, timeline.getPeriodId(periodIndex), periodIndex, startPositionUs);
         newPeriod.isLast = timeline.isFinal() && periodIndex == timeline.getPeriodCount() - 1;
         if (loadingPeriod != null) {
           loadingPeriod.setNextPeriod(newPeriod);
@@ -941,7 +945,6 @@ import java.io.IOException;
         bufferAheadPeriodCount++;
         loadingPeriod = newPeriod;
         setIsLoading(true);
-        loadingPeriod.mediaPeriod.preparePeriod(this, loadControl.getAllocator(), startPositionUs);
       }
     }
 
@@ -1169,17 +1172,19 @@ import java.io.IOException;
     private final Renderer[] renderers;
     private final RendererCapabilities[] rendererCapabilities;
     private final TrackSelector trackSelector;
+    private final MediaSource mediaSource;
 
     private Object trackSelectionData;
     private TrackSelectionArray trackSelections;
     private TrackSelectionArray periodTrackSelections;
 
     public Period(Renderer[] renderers, RendererCapabilities[] rendererCapabilities,
-        TrackSelector trackSelector, MediaPeriod mediaPeriod, Object id, int index,
-        long positionUs) {
+        TrackSelector trackSelector, MediaSource mediaSource, MediaPeriod mediaPeriod, Object id,
+        int index, long positionUs) {
       this.renderers = renderers;
       this.rendererCapabilities = rendererCapabilities;
       this.trackSelector = trackSelector;
+      this.mediaSource = mediaSource;
       this.mediaPeriod = mediaPeriod;
       this.id = Assertions.checkNotNull(id);
       sampleStreams = new SampleStream[renderers.length];
@@ -1250,7 +1255,7 @@ import java.io.IOException;
 
     public void release() {
       try {
-        mediaPeriod.releasePeriod();
+        mediaSource.releasePeriod(mediaPeriod);
       } catch (RuntimeException e) {
         // There's nothing we can do.
         Log.e(TAG, "Period release failed.", e);

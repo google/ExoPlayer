@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SeekWindow;
 import com.google.android.exoplayer2.source.Timeline;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -169,15 +171,26 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) throws IOException {
-    if (index >= manifest.getPeriodCount()) {
-      loader.maybeThrowError();
-      return null;
-    }
-    DashMediaPeriod mediaPeriod = new DashMediaPeriod(manifest, index, chunkSourceFactory,
-        minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffsetMs, loader);
-    periodsById.put(firstPeriodId + index, mediaPeriod);
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    loader.maybeThrowError();
+  }
+
+  @Override
+  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
+      long positionUs) {
+    DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + index, manifest, index,
+        chunkSourceFactory, minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffsetMs, loader,
+        callback, allocator);
+    periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
+  }
+
+  @Override
+  public void releasePeriod(MediaPeriod mediaPeriod) {
+    int id = ((DashMediaPeriod) mediaPeriod).id;
+    if (id >= firstPeriodId) {
+      periodsById.remove(id);
+    }
   }
 
   @Override
@@ -246,7 +259,6 @@ public final class DashMediaSource implements MediaSource {
     } else {
       // Remove old periods.
       while (periodsToRemoveCount-- > 0) {
-        periodsById.remove(firstPeriodId);
         firstPeriodId++;
         periodCount--;
       }

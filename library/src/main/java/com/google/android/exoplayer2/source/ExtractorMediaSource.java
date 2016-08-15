@@ -18,50 +18,30 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.Loader;
-import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.ConditionVariable;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import java.io.EOFException;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
- * Provides a single {@link MediaPeriod} whose data is loaded from a {@link Uri} and extracted using
- * an {@link Extractor}.
+ * Provides one period that loads data from a {@link Uri} and extracted using an {@link Extractor}.
  * <p>
  * If the possible input stream container formats are known, pass a factory that instantiates
  * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to
  * use the default extractors. When reading a new stream, the first {@link Extractor} in the array
  * of extractors created by the factory that returns {@code true} from
  * {@link Extractor#sniff(ExtractorInput)} will be used to extract samples from the input stream.
- *
- * <p>Note that the built-in extractors for AAC, MPEG TS and FLV streams do not support seeking.
+ * <p>
+ * Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
  */
-public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
-    ExtractorOutput, Loader.Callback<ExtractorMediaSource.ExtractingLoadable>,
-    UpstreamFormatChangedListener {
+public final class ExtractorMediaSource implements MediaSource, MediaSource.Listener {
 
   /**
    * Listener of {@link ExtractorMediaSource} events.
@@ -99,13 +79,12 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
 
-  private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
-
   /**
-   * When the source's duration is unknown, it is calculated by adding this value to the largest
-   * sample timestamp seen when buffering completes.
+   * Value for {@code minLoadableRetryCount} that causes the loader to retry
+   * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE} times for live streams and
+   * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND} for on-demand streams.
    */
-  private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
+  public static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
 
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
@@ -115,40 +94,15 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   private final EventListener eventListener;
 
   private MediaSource.Listener sourceListener;
-  private DataSource dataSource;
-  private Loader loader;
-  private ExtractorHolder extractorHolder;
-  private ConditionVariable loadCondition;
-
-  private Callback callback;
-  private Allocator allocator;
-  private SeekMap seekMap;
-  private boolean tracksBuilt;
-  private boolean prepared;
-
-  private boolean seenFirstTrackSelection;
-  private boolean notifyReset;
-  private int enabledTrackCount;
-  private DefaultTrackOutput[] sampleQueues;
-  private TrackGroupArray tracks;
-  private boolean[] tracksAreAudioVideoFlags;
-  private boolean haveAudioVideoTracks;
-  private long durationUs;
-  private boolean[] trackEnabledStates;
-  private long length;
-
-  private long lastSeekPositionUs;
-  private long pendingResetPositionUs;
-
-  private int extractedSamplesCountAtStartOfLoad;
-  private boolean loadingFinished;
+  private Timeline timeline;
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
-   * @param extractorsFactory Factory for {@link Extractor}s to process the media stream. If the
+   * @param extractorsFactory A factory for {@link Extractor}s to process the media stream. If the
    *     possible formats are known, pass a factory that instantiates extractors for those formats.
    *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
@@ -160,11 +114,11 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
-   * @param extractorsFactory Factory for {@link Extractor}s to process the media stream. If the
+   * @param extractorsFactory A factory for {@link Extractor}s to process the media stream. If the
    *     possible formats are known, pass a factory that instantiates extractors for those formats.
    *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
-   * @param minLoadableRetryCount The minimum number of times that the sample source will retry
-   *     if a loading error occurs.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
@@ -178,17 +132,16 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     this.eventListener = eventListener;
   }
 
-  // MediaSource implementation.
-
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    listener.onSourceInfoRefreshed(SinglePeriodTimeline.createNonFinalTimeline(this), null);
+    timeline = SinglePeriodTimeline.createNonFinalTimeline(0);
+    listener.onSourceInfoRefreshed(timeline, null);
   }
 
   @Override
   public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    return oldPlayingPeriodIndex;
+    return 0;
   }
 
   @Override
@@ -197,9 +150,22 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) {
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    // Do nothing.
+  }
+
+  @Override
+  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
+      long positionUs) {
     Assertions.checkArgument(index == 0);
-    return this;
+    return new ExtractorMediaPeriod(uri, dataSourceFactory.createDataSource(),
+        extractorsFactory.createExtractors(), minLoadableRetryCount, eventHandler, eventListener,
+        this, callback, allocator);
+  }
+
+  @Override
+  public void releasePeriod(MediaPeriod mediaPeriod) {
+    ((ExtractorMediaPeriod) mediaPeriod).release();
   }
 
   @Override
@@ -207,593 +173,14 @@ public final class ExtractorMediaSource implements MediaPeriod, MediaSource,
     sourceListener = null;
   }
 
-  // MediaPeriod implementation.
+  // MediaSource.Listener implementation.
 
   @Override
-  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
-    this.callback = callback;
-    this.allocator = allocator;
-
-    dataSource = dataSourceFactory.createDataSource();
-    loader = new Loader("Loader:ExtractorMediaSource");
-    extractorHolder = new ExtractorHolder(extractorsFactory.createExtractors(), this);
-    loadCondition = new ConditionVariable();
-    pendingResetPositionUs = C.UNSET_TIME_US;
-    sampleQueues = new DefaultTrackOutput[0];
-    length = C.LENGTH_UNBOUNDED;
-
-    loadCondition.open();
-    startLoading();
-  }
-
-  @Override
-  public void maybeThrowPrepareError() throws IOException {
-    maybeThrowError();
-  }
-
-  @Override
-  public TrackGroupArray getTrackGroups() {
-    return tracks;
-  }
-
-  @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    Assertions.checkState(prepared);
-    // Disable old tracks.
-    for (int i = 0; i < selections.length; i++) {
-      if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
-        int track = ((SampleStreamImpl) streams[i]).track;
-        Assertions.checkState(trackEnabledStates[track]);
-        enabledTrackCount--;
-        trackEnabledStates[track] = false;
-        sampleQueues[track].disable();
-        streams[i] = null;
-      }
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+    if (!this.timeline.isFinal() || timeline.getPeriodDurationUs(0) != C.UNSET_TIME_US) {
+      this.timeline = timeline;
+      sourceListener.onSourceInfoRefreshed(timeline, null);
     }
-    // Enable new tracks.
-    boolean selectedNewTracks = false;
-    for (int i = 0; i < selections.length; i++) {
-      if (streams[i] == null && selections[i] != null) {
-        TrackSelection selection = selections[i];
-        Assertions.checkState(selection.length() == 1);
-        Assertions.checkState(selection.getIndexInTrackGroup(0) == 0);
-        int track = tracks.indexOf(selection.getTrackGroup());
-        Assertions.checkState(!trackEnabledStates[track]);
-        enabledTrackCount++;
-        trackEnabledStates[track] = true;
-        streams[i] = new SampleStreamImpl(track);
-        streamResetFlags[i] = true;
-        selectedNewTracks = true;
-      }
-    }
-    if (!seenFirstTrackSelection) {
-      // At the time of the first track selection all queues will be enabled, so we need to disable
-      // any that are no longer required.
-      for (int i = 0; i < sampleQueues.length; i++) {
-        if (!trackEnabledStates[i]) {
-          sampleQueues[i].disable();
-        }
-      }
-    }
-    if (enabledTrackCount == 0) {
-      notifyReset = false;
-      if (loader.isLoading()) {
-        loader.cancelLoading();
-      }
-    } else if (seenFirstTrackSelection ? selectedNewTracks : positionUs != 0) {
-      positionUs = seekToUs(positionUs);
-      // We'll need to reset renderers consuming from all streams due to the seek.
-      for (int i = 0; i < streams.length; i++) {
-        if (streams[i] != null) {
-          streamResetFlags[i] = true;
-        }
-      }
-    }
-    seenFirstTrackSelection = true;
-    return positionUs;
-  }
-
-  @Override
-  public boolean continueLoading(long playbackPositionUs) {
-    if (loadingFinished) {
-      return false;
-    }
-    boolean continuedLoading = loadCondition.open();
-    if (!loader.isLoading()) {
-      startLoading();
-      continuedLoading = true;
-    }
-    return continuedLoading;
-  }
-
-  @Override
-  public long getNextLoadPositionUs() {
-    return getBufferedPositionUs();
-  }
-
-  @Override
-  public long readDiscontinuity() {
-    if (notifyReset) {
-      notifyReset = false;
-      return lastSeekPositionUs;
-    }
-    return C.UNSET_TIME_US;
-  }
-
-  @Override
-  public long getBufferedPositionUs() {
-    if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
-    } else if (isPendingReset()) {
-      return pendingResetPositionUs;
-    } else {
-      long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
-      return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
-          : largestQueuedTimestampUs;
-    }
-  }
-
-  @Override
-  public long seekToUs(long positionUs) {
-    // Treat all seeks into non-seekable media as being to t=0.
-    positionUs = seekMap.isSeekable() ? positionUs : 0;
-    lastSeekPositionUs = positionUs;
-    // If we're not pending a reset, see if we can seek within the sample queues.
-    boolean seekInsideBuffer = !isPendingReset();
-    for (int i = 0; seekInsideBuffer && i < sampleQueues.length; i++) {
-      if (trackEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues[i].skipToKeyframeBefore(positionUs);
-      }
-    }
-    // If we failed to seek within the sample queues, we need to restart.
-    if (!seekInsideBuffer) {
-      pendingResetPositionUs = positionUs;
-      loadingFinished = false;
-      if (loader.isLoading()) {
-        loader.cancelLoading();
-      } else {
-        for (int i = 0; i < sampleQueues.length; i++) {
-          sampleQueues[i].reset(trackEnabledStates[i]);
-        }
-      }
-    }
-    notifyReset = false;
-    return positionUs;
-  }
-
-  @Override
-  public void releasePeriod() {
-    dataSource = null;
-    if (loader != null) {
-      final ExtractorHolder extractorHolder = this.extractorHolder;
-      loader.release(new Runnable() {
-        @Override
-        public void run() {
-          extractorHolder.release();
-        }
-      });
-      loader = null;
-    }
-    extractorHolder = null;
-    loadCondition = null;
-    callback = null;
-    allocator = null;
-    seekMap = null;
-    tracksBuilt = false;
-    prepared = false;
-    seenFirstTrackSelection = false;
-    notifyReset = false;
-    enabledTrackCount = 0;
-    if (sampleQueues != null) {
-      for (DefaultTrackOutput sampleQueue : sampleQueues) {
-        sampleQueue.disable();
-      }
-      sampleQueues = null;
-    }
-    tracks = null;
-    durationUs = 0;
-    trackEnabledStates = null;
-    length = 0;
-    lastSeekPositionUs = 0;
-    pendingResetPositionUs = 0;
-    extractedSamplesCountAtStartOfLoad = 0;
-    loadingFinished = false;
-  }
-
-  // SampleStream methods.
-
-  /* package */ boolean isReady(int track) {
-    return loadingFinished || (!isPendingReset() && !sampleQueues[track].isEmpty());
-  }
-
-  /* package */ void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
-  }
-
-  /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    if (notifyReset || isPendingReset()) {
-      return C.RESULT_NOTHING_READ;
-    }
-
-    return sampleQueues[track].readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
-  }
-
-  // Loader.Callback implementation.
-
-  @Override
-  public void onLoadCompleted(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs) {
-    copyLengthFromLoader(loadable);
-    loadingFinished = true;
-    if (durationUs == C.UNSET_TIME_US) {
-      long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
-      durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
-          : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
-      sourceListener.onSourceInfoRefreshed(seekMap.isSeekable()
-          ? SinglePeriodTimeline.createSeekableFinalTimeline(this, durationUs)
-          : SinglePeriodTimeline.createUnseekableFinalTimeline(this, durationUs), null);
-    }
-  }
-
-  @Override
-  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
-    copyLengthFromLoader(loadable);
-    if (!released && enabledTrackCount > 0) {
-      for (int i = 0; i < sampleQueues.length; i++) {
-        sampleQueues[i].reset(trackEnabledStates[i]);
-      }
-      callback.onContinueLoadingRequested(this);
-    }
-  }
-
-  @Override
-  public int onLoadError(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs, IOException error) {
-    copyLengthFromLoader(loadable);
-    notifyLoadError(error);
-    if (isLoadableExceptionFatal(error)) {
-      return Loader.DONT_RETRY_FATAL;
-    }
-    int extractedSamplesCount = getExtractedSamplesCount();
-    boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
-    configureRetry(loadable); // May reset the sample queues.
-    extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-    return madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
-  }
-
-  // ExtractorOutput implementation.
-
-  @Override
-  public TrackOutput track(int id) {
-    sampleQueues = Arrays.copyOf(sampleQueues, sampleQueues.length + 1);
-    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(allocator);
-    sampleQueue.setUpstreamFormatChangeListener(this);
-    sampleQueues[sampleQueues.length - 1] = sampleQueue;
-    return sampleQueue;
-  }
-
-  @Override
-  public void endTracks() {
-    tracksBuilt = true;
-    maybeFinishPrepare();
-  }
-
-  @Override
-  public void seekMap(SeekMap seekMap) {
-    this.seekMap = seekMap;
-    maybeFinishPrepare();
-  }
-
-  // UpstreamFormatChangedListener implementation
-
-  @Override
-  public void onUpstreamFormatChanged(Format format) {
-    maybeFinishPrepare();
-  }
-
-  // Internal methods.
-
-  private void maybeFinishPrepare() {
-    if (prepared || seekMap == null || !tracksBuilt) {
-      return;
-    }
-    for (DefaultTrackOutput sampleQueue : sampleQueues) {
-      if (sampleQueue.getUpstreamFormat() == null) {
-        return;
-      }
-    }
-    loadCondition.close();
-    int trackCount = sampleQueues.length;
-    TrackGroup[] trackArray = new TrackGroup[trackCount];
-    tracksAreAudioVideoFlags = new boolean[trackCount];
-    trackEnabledStates = new boolean[trackCount];
-    durationUs = seekMap.getDurationUs();
-    for (int i = 0; i < trackCount; i++) {
-      Format format = sampleQueues[i].getUpstreamFormat();
-      trackArray[i] = new TrackGroup(format);
-      String sampleMimeType = format.sampleMimeType;
-      tracksAreAudioVideoFlags[i] = MimeTypes.isVideo(sampleMimeType)
-          || MimeTypes.isAudio(sampleMimeType);
-      haveAudioVideoTracks |= tracksAreAudioVideoFlags[i];
-    }
-    tracks = new TrackGroupArray(trackArray);
-    prepared = true;
-    callback.onPeriodPrepared(this);
-    sourceListener.onSourceInfoRefreshed(seekMap.isSeekable()
-        ? SinglePeriodTimeline.createSeekableFinalTimeline(this, durationUs)
-        : SinglePeriodTimeline.createUnseekableFinalTimeline(this, durationUs), null);
-  }
-
-  private void copyLengthFromLoader(ExtractingLoadable loadable) {
-    if (length == C.LENGTH_UNBOUNDED) {
-      length = loadable.length;
-    }
-  }
-
-  private void startLoading() {
-    ExtractingLoadable loadable = new ExtractingLoadable(uri, dataSource, extractorHolder,
-        loadCondition);
-    if (prepared) {
-      Assertions.checkState(isPendingReset());
-      if (durationUs != C.UNSET_TIME_US && pendingResetPositionUs >= durationUs) {
-        loadingFinished = true;
-        pendingResetPositionUs = C.UNSET_TIME_US;
-        return;
-      }
-      loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs));
-      pendingResetPositionUs = C.UNSET_TIME_US;
-    }
-    extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-
-    int minRetryCount = minLoadableRetryCount;
-    if (minRetryCount == MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
-      // We assume on-demand before we're prepared.
-      minRetryCount = !prepared || length != C.LENGTH_UNBOUNDED
-          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)
-          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
-          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
-    }
-    loader.startLoading(loadable, this, minRetryCount);
-  }
-
-  private void configureRetry(ExtractingLoadable loadable) {
-    if (length != C.LENGTH_UNBOUNDED
-        || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)) {
-      // We're playing an on-demand stream. Resume the current loadable, which will
-      // request data starting from the point it left off.
-    } else {
-      // We're playing a stream of unknown length and duration. Assume it's live, and
-      // therefore that the data at the uri is a continuously shifting window of the latest
-      // available media. For this case there's no way to continue loading from where a
-      // previous load finished, so it's necessary to load from the start whenever commencing
-      // a new load.
-      lastSeekPositionUs = 0;
-      notifyReset = prepared;
-      for (int i = 0; i < sampleQueues.length; i++) {
-        sampleQueues[i].reset(trackEnabledStates[i]);
-      }
-      loadable.setLoadPosition(0);
-    }
-  }
-
-  private int getExtractedSamplesCount() {
-    int extractedSamplesCount = 0;
-    for (DefaultTrackOutput sampleQueue : sampleQueues) {
-      extractedSamplesCount += sampleQueue.getWriteIndex();
-    }
-    return extractedSamplesCount;
-  }
-
-  private long getLargestQueuedTimestampUs() {
-    long largestQueuedTimestampUs = Long.MAX_VALUE;
-    for (int i = 0; i < sampleQueues.length; i++) {
-      if (tracksAreAudioVideoFlags[i] || !haveAudioVideoTracks) {
-        largestQueuedTimestampUs = Math.min(largestQueuedTimestampUs,
-            sampleQueues[i].getLargestQueuedTimestampUs());
-      }
-    }
-    return largestQueuedTimestampUs == Long.MAX_VALUE ? Long.MIN_VALUE : largestQueuedTimestampUs;
-  }
-
-  private boolean isPendingReset() {
-    return pendingResetPositionUs != C.UNSET_TIME_US;
-  }
-
-  private boolean isLoadableExceptionFatal(IOException e) {
-    return e instanceof UnrecognizedInputFormatException;
-  }
-
-  private void notifyLoadError(final IOException error) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadError(error);
-        }
-      });
-    }
-  }
-
-  private final class SampleStreamImpl implements SampleStream {
-
-    private final int track;
-
-    public SampleStreamImpl(int track) {
-      this.track = track;
-    }
-
-    @Override
-    public boolean isReady() {
-      return ExtractorMediaSource.this.isReady(track);
-    }
-
-    @Override
-    public void maybeThrowError() throws IOException {
-      ExtractorMediaSource.this.maybeThrowError();
-    }
-
-    @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      return ExtractorMediaSource.this.readData(track, formatHolder, buffer);
-    }
-
-    @Override
-    public void skipToKeyframeBefore(long timeUs) {
-      sampleQueues[track].skipToKeyframeBefore(timeUs);
-    }
-
-  }
-
-  /**
-   * Loads the media stream and extracts sample data from it.
-   */
-  /* package */ final class ExtractingLoadable implements Loadable {
-
-    /**
-     * The number of bytes that should be loaded between each each invocation of
-     * {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
-     */
-    private static final int CONTINUE_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
-
-    private final Uri uri;
-    private final DataSource dataSource;
-    private final ExtractorHolder extractorHolder;
-    private final ConditionVariable loadCondition;
-    private final PositionHolder positionHolder;
-
-    private volatile boolean loadCanceled;
-
-    private boolean pendingExtractorSeek;
-    private long length;
-
-    public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
-        ConditionVariable loadCondition) {
-      this.uri = Assertions.checkNotNull(uri);
-      this.dataSource = Assertions.checkNotNull(dataSource);
-      this.extractorHolder = Assertions.checkNotNull(extractorHolder);
-      this.loadCondition = loadCondition;
-      this.positionHolder = new PositionHolder();
-      this.pendingExtractorSeek = true;
-      this.length = C.LENGTH_UNBOUNDED;
-    }
-
-    public void setLoadPosition(long position) {
-      positionHolder.position = position;
-      pendingExtractorSeek = true;
-    }
-
-    @Override
-    public void cancelLoad() {
-      loadCanceled = true;
-    }
-
-    @Override
-    public boolean isLoadCanceled() {
-      return loadCanceled;
-    }
-
-    @Override
-    public void load() throws IOException, InterruptedException {
-      int result = Extractor.RESULT_CONTINUE;
-      while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-        ExtractorInput input = null;
-        try {
-          long position = positionHolder.position;
-          length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNBOUNDED, null));
-          if (length != C.LENGTH_UNBOUNDED) {
-            length += position;
-          }
-          input = new DefaultExtractorInput(dataSource, position, length);
-          Extractor extractor = extractorHolder.selectExtractor(input);
-          if (pendingExtractorSeek) {
-            extractor.seek(position);
-            pendingExtractorSeek = false;
-          }
-          while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-            loadCondition.block();
-            result = extractor.read(input, positionHolder);
-            if (input.getPosition() > position + CONTINUE_LOADING_CHECK_INTERVAL_BYTES) {
-              position = input.getPosition();
-              loadCondition.close();
-              callback.onContinueLoadingRequested(ExtractorMediaSource.this);
-            }
-          }
-        } finally {
-          if (result == Extractor.RESULT_SEEK) {
-            result = Extractor.RESULT_CONTINUE;
-          } else if (input != null) {
-            positionHolder.position = input.getPosition();
-          }
-          dataSource.close();
-        }
-      }
-    }
-
-  }
-
-  /**
-   * Stores a list of extractors and a selected extractor when the format has been detected.
-   */
-  private static final class ExtractorHolder {
-
-    private final Extractor[] extractors;
-    private final ExtractorOutput extractorOutput;
-    private Extractor extractor;
-
-    /**
-     * Creates a holder that will select an extractor and initialize it using the specified output.
-     *
-     * @param extractors One or more extractors to choose from.
-     * @param extractorOutput The output that will be used to initialize the selected extractor.
-     */
-    public ExtractorHolder(Extractor[] extractors, ExtractorOutput extractorOutput) {
-      this.extractors = extractors;
-      this.extractorOutput = extractorOutput;
-    }
-
-    /**
-     * Returns an initialized extractor for reading {@code input}, and returns the same extractor on
-     * later calls.
-     *
-     * @param input The {@link ExtractorInput} from which data should be read.
-     * @return An initialized extractor for reading {@code input}.
-     * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
-     * @throws IOException Thrown if the input could not be read.
-     * @throws InterruptedException Thrown if the thread was interrupted.
-     */
-    public Extractor selectExtractor(ExtractorInput input)
-        throws IOException, InterruptedException {
-      if (extractor != null) {
-        return extractor;
-      }
-      for (Extractor extractor : extractors) {
-        try {
-          if (extractor.sniff(input)) {
-            this.extractor = extractor;
-            break;
-          }
-        } catch (EOFException e) {
-          // Do nothing.
-        } finally {
-          input.resetPeekPosition();
-        }
-      }
-      if (extractor == null) {
-        throw new UnrecognizedInputFormatException(extractors);
-      }
-      extractor.init(extractorOutput);
-      return extractor;
-    }
-
-    public void release() {
-      if (extractor != null) {
-        extractor.release();
-        extractor = null;
-      }
-    }
-
   }
 
 }

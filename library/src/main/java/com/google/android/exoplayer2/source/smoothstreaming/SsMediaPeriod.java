@@ -46,23 +46,25 @@ import java.util.ArrayList;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
+  private final Callback callback;
+  private final Allocator allocator;
   private final TrackGroupArray trackGroups;
   private final TrackEncryptionBox[] trackEncryptionBoxes;
 
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
-  private Callback callback;
-  private Allocator allocator;
 
   public SsMediaPeriod(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher,
-      LoaderErrorThrower manifestLoaderErrorThrower) {
-    this.manifest = manifest;
+      LoaderErrorThrower manifestLoaderErrorThrower, Callback callback, Allocator allocator) {
     this.chunkSourceFactory = chunkSourceFactory;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
+    this.callback = callback;
+    this.allocator = allocator;
+
     trackGroups = buildTrackGroups(manifest);
     ProtectionElement protectionElement = manifest.protectionElement;
     if (protectionElement != null) {
@@ -72,25 +74,23 @@ import java.util.ArrayList;
     } else {
       trackEncryptionBoxes = null;
     }
+    this.manifest = manifest;
+    sampleStreams = newSampleStreamArray(0);
+    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
   }
 
   public void updateManifest(SsManifest manifest) {
     this.manifest = manifest;
-    if (sampleStreams != null) {
-      for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
-        sampleStream.getChunkSource().updateManifest(manifest);
-      }
-      callback.onContinueLoadingRequested(this);
+    for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
+      sampleStream.getChunkSource().updateManifest(manifest);
     }
+    callback.onContinueLoadingRequested(this);
   }
 
-  @Override
-  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
-    this.callback = callback;
-    this.allocator = allocator;
-    sampleStreams = newSampleStreamArray(0);
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    callback.onPeriodPrepared(this);
+  public void release() {
+    for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
+      sampleStream.release();
+    }
   }
 
   @Override
@@ -164,19 +164,6 @@ import java.util.ArrayList;
       sampleStream.seekToUs(positionUs);
     }
     return positionUs;
-  }
-
-  @Override
-  public void releasePeriod() {
-    if (sampleStreams != null) {
-      for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
-        sampleStream.release();
-      }
-      sampleStreams = null;
-    }
-    sequenceableLoader = null;
-    callback = null;
-    allocator = null;
   }
 
   // SequenceableLoader.Callback implementation

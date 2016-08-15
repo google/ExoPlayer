@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
+import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 
 /**
@@ -105,16 +107,31 @@ public interface MediaSource {
   Position getDefaultStartPosition(int index);
 
   /**
-   * Returns a {@link MediaPeriod} corresponding to the period at the specified index, or
-   * {@code null} if the period at the specified index is not yet available.
+   * Throws any pending error encountered while loading or refreshing source information.
+   */
+  void maybeThrowSourceInfoRefreshError() throws IOException;
+
+  /**
+   * Returns a {@link MediaPeriod} corresponding to the period at the specified index.
+   * <p>
+   * {@link Callback#onPrepared(MediaPeriod)} is called when the new period is prepared. If
+   * preparation fails, {@link MediaPeriod#maybeThrowPrepareError()} will throw an
+   * {@link IOException} if called on the returned instance.
    *
    * @param index The index of the period.
-   * @return A {@link MediaPeriod}, or {@code null} if the source at the specified index is not
-   *     available.
-   * @throws IOException If there is an error that's preventing the source from becoming prepared or
-   *     creating periods.
+   * @param callback A callback to receive updates from the period.
+   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
+   * @param positionUs The player's current playback position.
+   * @return A new {@link MediaPeriod}.
    */
-  MediaPeriod createPeriod(int index) throws IOException;
+  MediaPeriod createPeriod(int index, Callback callback, Allocator allocator, long positionUs);
+
+  /**
+   * Releases the period.
+   *
+   * @param mediaPeriod The period to release.
+   */
+  void releasePeriod(MediaPeriod mediaPeriod);
 
   /**
    * Releases the source.

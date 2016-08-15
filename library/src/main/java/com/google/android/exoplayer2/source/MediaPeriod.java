@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 
 /**
@@ -39,22 +38,9 @@ public interface MediaPeriod extends SequenceableLoader {
      *
      * @param mediaPeriod The prepared {@link MediaPeriod}.
      */
-    void onPeriodPrepared(MediaPeriod mediaPeriod);
+    void onPrepared(MediaPeriod mediaPeriod);
 
   }
-
-  /**
-   * Starts preparation of the period.
-   * <p>
-   * {@link Callback#onPeriodPrepared(MediaPeriod)} is called when preparation completes. If
-   * preparation fails, {@link #maybeThrowPrepareError()} will throw an {@link IOException} if
-   * called.
-   *
-   * @param callback A callback to receive updates from the period.
-   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
-   * @param positionUs The player's current playback position.
-   */
-  void preparePeriod(Callback callback, Allocator allocator, long positionUs);
 
   /**
    * Throws an error that's preventing the period from becoming prepared. Does nothing if no such
@@ -135,13 +121,5 @@ public interface MediaPeriod extends SequenceableLoader {
    * @return The actual position to which the period was seeked, in microseconds.
    */
   long seekToUs(long positionUs);
-
-  /**
-   * Releases the period.
-   * <p>
-   * This method should be called when the period is no longer required. It may be called in any
-   * state.
-   */
-  void releasePeriod();
 
 }

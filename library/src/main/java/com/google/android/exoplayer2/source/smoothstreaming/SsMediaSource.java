@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SeekWindow;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
@@ -30,12 +31,14 @@ import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * A SmoothStreaming {@link MediaSource}.
@@ -61,6 +64,7 @@ public final class SsMediaSource implements MediaSource,
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final SsManifestParser manifestParser;
+  private final ArrayList<SsMediaPeriod> mediaPeriods;
 
   private MediaSource.Listener sourceListener;
   private DataSource manifestDataSource;
@@ -71,7 +75,6 @@ public final class SsMediaSource implements MediaSource,
   private SeekWindow seekWindow;
 
   private Handler manifestRefreshHandler;
-  private SsMediaPeriod period;
 
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory, Handler eventHandler,
@@ -90,6 +93,7 @@ public final class SsMediaSource implements MediaSource,
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new SsManifestParser();
+    mediaPeriods = new ArrayList<>();
   }
 
   // MediaSource implementation.
@@ -122,15 +126,29 @@ public final class SsMediaSource implements MediaSource,
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) {
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    manifestLoader.maybeThrowError();
+  }
+
+  @Override
+  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
+      long positionUs) {
     Assertions.checkArgument(index == 0);
+    SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
+        eventDispatcher, manifestLoader, callback, allocator);
+    mediaPeriods.add(period);
     return period;
+  }
+
+  @Override
+  public void releasePeriod(MediaPeriod period) {
+    ((SsMediaPeriod) period).release();
+    mediaPeriods.remove(period);
   }
 
   @Override
   public void releaseSource() {
     sourceListener = null;
-    period = null;
     manifest = null;
     manifestDataSource = null;
     manifestLoadStartTimestamp = 0;
@@ -153,11 +171,8 @@ public final class SsMediaSource implements MediaSource,
         loadDurationMs, loadable.bytesLoaded());
     manifest = loadable.getResult();
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
-    if (period == null) {
-      period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
-          eventDispatcher, manifestLoader);
-    } else {
-      period.updateManifest(manifest);
+    for (int i = 0; i < mediaPeriods.size(); i++) {
+      mediaPeriods.get(i).updateManifest(manifest);
     }
     Timeline timeline;
     if (manifest.isLive) {
@@ -175,9 +190,9 @@ public final class SsMediaSource implements MediaSource,
             SeekWindow.createWindow(0, startTimeUs, 0, startTimeUs + manifest.dvrWindowLengthUs));
       }
     } else if (manifest.durationUs == C.UNSET_TIME_US) {
-      timeline = SinglePeriodTimeline.createUnseekableFinalTimeline(this, C.UNSET_TIME_US);
+      timeline = SinglePeriodTimeline.createUnseekableFinalTimeline(0, C.UNSET_TIME_US);
     } else {
-      timeline = SinglePeriodTimeline.createSeekableFinalTimeline(this, manifest.durationUs);
+      timeline = SinglePeriodTimeline.createSeekableFinalTimeline(0, manifest.durationUs);
     }
     seekWindow = timeline.getSeekWindow(0);
     sourceListener.onSourceInfoRefreshed(timeline, manifest);

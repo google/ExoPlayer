@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
@@ -73,13 +75,31 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) throws IOException {
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSource.maybeThrowSourceInfoRefreshError();
+    }
+  }
+
+  @Override
+  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
+      long positionUs) {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
+    // The periods are only referenced after they have all been prepared.
+    MergingMediaPeriod mergingPeriod = new MergingMediaPeriod(callback, periods);
     for (int i = 0; i < periods.length; i++) {
-      periods[i] = mediaSources[i].createPeriod(index);
+      periods[i] = mediaSources[i].createPeriod(index, mergingPeriod, allocator, positionUs);
       Assertions.checkState(periods[i] != null, "Child source must not return null period");
     }
-    return new MergingMediaPeriod(periods);
+    return mergingPeriod;
+  }
+
+  @Override
+  public void releasePeriod(MediaPeriod mediaPeriod) {
+    MergingMediaPeriod mergingPeriod = (MergingMediaPeriod) mediaPeriod;
+    for (int i = 0; i < mediaSources.length; i++) {
+      mediaSources[i].releasePeriod(mergingPeriod.periods[i]);
+    }
   }
 
   @Override

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -25,30 +24,23 @@ import java.util.IdentityHashMap;
 /**
  * Merges multiple {@link MediaPeriod} instances.
  */
-public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
+/* package */ final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
-  private final MediaPeriod[] periods;
+  public final MediaPeriod[] periods;
+  private final Callback callback;
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
 
-  private Callback callback;
   private int pendingChildPrepareCount;
   private TrackGroupArray trackGroups;
 
   private MediaPeriod[] enabledPeriods;
   private SequenceableLoader sequenceableLoader;
 
-  public MergingMediaPeriod(MediaPeriod... periods) {
+  public MergingMediaPeriod(Callback callback, MediaPeriod... periods) {
     this.periods = periods;
-    pendingChildPrepareCount = periods.length;
-    streamPeriodIndices = new IdentityHashMap<>();
-  }
-
-  @Override
-  public void preparePeriod(Callback callback, Allocator allocator, long positionUs) {
     this.callback = callback;
-    for (MediaPeriod period : periods) {
-      period.preparePeriod(this, allocator, positionUs);
-    }
+    streamPeriodIndices = new IdentityHashMap<>();
+    pendingChildPrepareCount = periods.length;
   }
 
   @Override
@@ -174,17 +166,10 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     return positionUs;
   }
 
-  @Override
-  public void releasePeriod() {
-    for (MediaPeriod period : periods) {
-      period.releasePeriod();
-    }
-  }
-
   // MediaPeriod.Callback implementation
 
   @Override
-  public void onPeriodPrepared(MediaPeriod ignored) {
+  public void onPrepared(MediaPeriod ignored) {
     if (--pendingChildPrepareCount > 0) {
       return;
     }
@@ -202,7 +187,7 @@ public final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
-    callback.onPeriodPrepared(this);
+    callback.onPrepared(this);
   }
 
   @Override

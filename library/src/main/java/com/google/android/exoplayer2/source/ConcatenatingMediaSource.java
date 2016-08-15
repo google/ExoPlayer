@@ -16,9 +16,13 @@
 package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Concatenates multiple {@link MediaSource}s.
@@ -28,6 +32,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
   private final MediaSource[] mediaSources;
   private final Timeline[] timelines;
   private final Object[] manifests;
+  private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
 
   private ConcatenatedTimeline timeline;
 
@@ -38,6 +43,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
     this.mediaSources = mediaSources;
     timelines = new Timeline[mediaSources.length];
     manifests = new Object[mediaSources.length];
+    sourceIndexByMediaPeriod = new HashMap<>();
   }
 
   @Override
@@ -85,10 +91,28 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index) throws IOException {
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSource.maybeThrowSourceInfoRefreshError();
+    }
+  }
+
+  @Override
+  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
+      long positionUs) {
     int sourceIndex = timeline.getSourceIndexForPeriod(index);
     int periodIndexInSource = index - timeline.getFirstPeriodIndexInSource(sourceIndex);
-    return mediaSources[sourceIndex].createPeriod(periodIndexInSource);
+    MediaPeriod mediaPeriod = mediaSources[sourceIndex].createPeriod(periodIndexInSource, callback,
+        allocator, positionUs);
+    sourceIndexByMediaPeriod.put(mediaPeriod, sourceIndex);
+    return mediaPeriod;
+  }
+
+  @Override
+  public void releasePeriod(MediaPeriod mediaPeriod) {
+    int sourceIndex = sourceIndexByMediaPeriod.get(mediaPeriod);
+    sourceIndexByMediaPeriod.remove(mediaPeriod);
+    mediaSources[sourceIndex].releasePeriod(mediaPeriod);
   }
 
   @Override
