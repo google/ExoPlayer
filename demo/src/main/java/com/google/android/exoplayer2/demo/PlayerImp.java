@@ -36,13 +36,14 @@ public class PlayerImp implements IPlayer {
     private String userAgent;
     private DefaultDataSourceFactory mediaDataSourceFactory;
     private MappingTrackSelector trackSelector;
-    private TrackSelectionHelper trackSelectionHelper;
     private boolean playerNeedsSource;
     private boolean shouldRestorePosition;
     private Handler mainHandler = new Handler();
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private float speed = 1.0f;
+    private TrackSelection.Factory videoTrackSelectionFactory;
+    private Uri uri;
 
     public PlayerImp(IPlayerUI playerUI) {
         this.playerUI = playerUI;
@@ -52,21 +53,25 @@ public class PlayerImp implements IPlayer {
     public void setSpeed(float speed) {
         this.speed = speed;
         if (player != null) {
-            player.setPlaybackSpeed(speed);
+            if (Util.SDK_INT >= 23) {
+                player.setPlaybackSpeed(speed);
+            } else {
+                realReleasePlayer();
+                initPlayer(uri);
+            }
         }
     }
 
     @Override
     public void initPlayer(Uri uri) {
+        this.uri = uri;
         if (!hasPlayer()) {
             boolean preferExtensionDecoders = false;
             eventLogger = new EventLogger();
-            TrackSelection.Factory videoTrackSelectionFactory =
-                    new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
+            videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
             trackSelector = new DefaultTrackSelector(mainHandler, videoTrackSelectionFactory);
             trackSelector.addListener(playerUI);
             trackSelector.addListener(eventLogger);
-            trackSelectionHelper = new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
             newPlayer(preferExtensionDecoders);
             playerUI.getMyMediaController().setMediaPlayer(new PlayerControl(player));
             playerUI.getMyMediaController().setPrevNextListeners(new MediaControllerPrevNextClickListener(player, true),
@@ -101,7 +106,6 @@ public class PlayerImp implements IPlayer {
         player = null;
         eventLogger = null;
         trackSelector = null;
-        trackSelectionHelper = null;
     }
 
     private void newPlayer(boolean preferExtensionDecoders) {
@@ -131,12 +135,9 @@ public class PlayerImp implements IPlayer {
 
     @Override
     public void clickOther(View view) {
-        trackSelectionHelper.showSelectionDialog(playerUI.getContext(), ((Button) view).getText(),
-                trackSelector.getTrackInfo(), (int) view.getTag());
     }
 
-    @Override
-    public MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+    private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
         int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
                 : uri.getLastPathSegment());
         switch (type) {
@@ -190,5 +191,10 @@ public class PlayerImp implements IPlayer {
     @Override
     public void onError() {
         playerNeedsSource = true;
+    }
+
+    @Override
+    public TrackSelectionHelper createTrackSelectionHelper() {
+        return new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
     }
 }

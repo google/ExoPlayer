@@ -30,8 +30,6 @@ public interface IPlayer {
 
     void clickOther(View view);
 
-    MediaSource buildMediaSource(Uri uri, String overrideExtension);
-
     MappingTrackSelector.TrackInfo getTrackInfo();
 
     boolean isMediaNeddSource();
@@ -45,4 +43,6 @@ public interface IPlayer {
     SimpleExoPlayer getExoPlayer();
 
     void onError();
+
+    TrackSelectionHelper createTrackSelectionHelper();
 }

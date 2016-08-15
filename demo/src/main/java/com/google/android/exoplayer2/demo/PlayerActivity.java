@@ -76,6 +76,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
+  private TrackSelectionHelper trackSelectionHelper;
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
@@ -118,6 +119,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     spinnerSpeeds.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        flagThePosition();
         player.setSpeed(Float.valueOf(speeds[position]));
       }
 
@@ -163,6 +165,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private void initPlayer() {
     Uri uri = Uri.parse("asset:///cf752b1c12ce452b3040cab2f90bc265_h264818000nero_aac32-1.mp4");
     player.initPlayer(uri);
+    trackSelectionHelper = player.createTrackSelectionHelper();
     debugViewHelper = new DebugTextViewHelper(player.getExoPlayer(), debugTextView);
     debugViewHelper.start();
   }
@@ -241,7 +244,8 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     if (view == retryButton) {
       initPlayer();
     } else if (view.getParent() == debugRootView) {
-      player.clickOther(view);
+      trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
+              player.getTrackInfo(), (int) view.getTag());
     }
   }
 
@@ -455,12 +459,17 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private void releasePlayer() {
     if (player.hasPlayer()) {
       shutterView.setVisibility(View.VISIBLE);
-      playerPeriodIndex = player.getCurrentPeriodIndex();
-      playerPosition = player.getCurrentPosition();
+      flagThePosition();
       player.realReleasePlayer();
+      trackSelectionHelper = null;
       debugViewHelper.stop();
       debugViewHelper = null;
     }
+  }
+
+  private void flagThePosition() {
+    playerPeriodIndex = player.getCurrentPeriodIndex();
+    playerPosition = player.getCurrentPosition();
   }
 
   @Override
