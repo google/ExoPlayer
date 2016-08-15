@@ -409,13 +409,10 @@ import java.io.IOException;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
 
     // Update the buffered position.
-    long bufferedPositionUs;
-    if (enabledRenderers.length == 0) {
-      bufferedPositionUs = C.END_OF_SOURCE_US;
-    } else {
-      bufferedPositionUs = mediaPeriod.getBufferedPositionUs();
-    }
-    playbackInfo.bufferedPositionUs = bufferedPositionUs;
+    long bufferedPositionUs = enabledRenderers.length == 0 ? C.END_OF_SOURCE_US
+        : mediaPeriod.getBufferedPositionUs();
+    playbackInfo.bufferedPositionUs = bufferedPositionUs == C.END_OF_SOURCE_US
+        ? timeline.getPeriodDurationUs(playingPeriod.index) : bufferedPositionUs;
   }
 
   private void doSomeWork() throws ExoPlaybackException, IOException {

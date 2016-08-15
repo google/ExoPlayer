@@ -141,7 +141,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int periodIndex, long positionMs) {
-    boolean seekToDefaultPosition = positionMs == ExoPlayer.UNKNOWN_TIME;
+    boolean seekToDefaultPosition = positionMs == UNKNOWN_TIME;
     maskingPeriodIndex = periodIndex;
     maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
     pendingSeekAcks++;
@@ -155,7 +155,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekToDefaultPosition(int periodIndex) {
-    seekTo(periodIndex, ExoPlayer.UNKNOWN_TIME);
+    seekTo(periodIndex, UNKNOWN_TIME);
   }
 
   @Override
@@ -212,7 +212,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public long getBufferedPosition() {
     if (pendingSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
-      return bufferedPositionUs == C.END_OF_SOURCE_US ? getDuration() : bufferedPositionUs / 1000;
+      return bufferedPositionUs == C.UNSET_TIME_US ? UNKNOWN_TIME : (bufferedPositionUs / 1000);
     } else {
       return maskingPositionMs;
     }
@@ -222,7 +222,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public int getBufferedPercentage() {
     long bufferedPosition = getBufferedPosition();
     long duration = getDuration();
-    return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
+    return bufferedPosition == UNKNOWN_TIME || duration == UNKNOWN_TIME ? 0
         : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
 
