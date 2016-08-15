@@ -135,7 +135,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    timeline = new SinglePeriodTimeline(this, C.UNSET_TIME_US, false);
+    timeline = new SinglePeriodTimeline(0, C.UNSET_TIME_US, false);
     listener.onSourceInfoRefreshed(timeline, null);
   }
 

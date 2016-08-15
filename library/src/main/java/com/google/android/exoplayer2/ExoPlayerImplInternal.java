@@ -821,6 +821,8 @@ import java.io.IOException;
         // Release all loaded periods and seek to the new playing period index.
         releasePeriodsFrom(playingPeriod);
         playingPeriod = null;
+        readingPeriod = null;
+        loadingPeriod = null;
 
         MediaSource.Position defaultStartPosition =
             mediaSource.getDefaultStartPosition(newPlayingPeriodIndex);
@@ -851,6 +853,8 @@ import java.io.IOException;
             index = playingPeriod.index;
             releasePeriodsFrom(playingPeriod);
             playingPeriod = null;
+            readingPeriod = null;
+            loadingPeriod = null;
             seekToPeriodPosition(index, 0);
             return;
           }
