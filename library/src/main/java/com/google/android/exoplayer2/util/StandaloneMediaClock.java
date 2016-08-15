@@ -38,7 +38,7 @@ public final class StandaloneMediaClock implements MediaClock {
   /*
    * speed ratio between media time and real time
    */
-  private double speed = 1.0;
+  private float speed = 1.0f;
 
   /**
    * Starts the clock. Does nothing if the clock is already started.
@@ -60,7 +60,7 @@ public final class StandaloneMediaClock implements MediaClock {
     }
   }
 
-  public float getPlaybackSpeed() { return (float)speed; }
+  public float getPlaybackSpeed() { return speed; }
 
   public void setPlaybackSpeed(float newSpeed) {
     updateMediaTime();

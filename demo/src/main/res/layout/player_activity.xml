@@ -42,6 +42,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <Spinner
+        android:id="@+id/spinner_speeds"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:entries="@array/speeds"/>
+
   </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 
   <LinearLayout
@@ -56,6 +63,7 @@
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
         android:textSize="10sp"
+        android:visibility="gone"
         tools:ignore="SmallSp"/>
 
     <LinearLayout android:id="@+id/controls_root"

@@ -34,10 +34,10 @@
     <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
         android:label="@string/application_name">
-      <intent-filter>
+      <!--<intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
+      </intent-filter>-->
       <intent-filter>
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
@@ -55,8 +55,13 @@
     <activity android:name="com.google.android.exoplayer2.demo.PlayerActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
         android:launchMode="singleTop"
+        android:screenOrientation="landscape"
         android:label="@string/application_name"
         android:theme="@style/PlayerTheme">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
       <intent-filter>
         <action android:name="com.google.android.exoplayer.demo.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
