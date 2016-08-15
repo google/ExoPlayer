@@ -33,8 +33,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -111,6 +114,8 @@ public final class Util {
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
 
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
+
+  private static final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 
   private Util() {}
 
@@ -636,6 +641,17 @@ public final class Util {
     return data;
   }
 
+  /** Returns a hex string representation of the given byte array. */
+  public static String getHexString(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    int i = 0;
+    for (byte v : bytes) {
+      hexChars[i++] = HEX_DIGITS[(v >> 4) & 0xf];
+      hexChars[i++] = HEX_DIGITS[v & 0xf];
+    }
+    return new String(hexChars);
+  }
+
   /**
    * Returns a string with comma delimited simple names of each object's class.
    *
@@ -839,4 +855,17 @@ public final class Util {
     }
     return builder.toString();
   }
+
+  /** Returns the SHA-1 digest of input as a hex string. */
+  public static String sha1(String input) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      byte[] bytes = input.getBytes("UTF-8");
+      digest.update(bytes, 0, bytes.length);
+      return getHexString(digest.digest());
+    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

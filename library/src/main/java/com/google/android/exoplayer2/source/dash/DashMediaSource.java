@@ -109,7 +109,7 @@ public final class DashMediaSource implements MediaSource {
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    manifestParser = new DashManifestParser();
+    manifestParser = new DashManifestParser(generateContentId());
     manifestCallback = new ManifestCallback();
     manifestUriLock = new Object();
     periodsById = new SparseArray<>();
@@ -439,6 +439,10 @@ public final class DashMediaSource implements MediaSource {
     } else {
       return System.currentTimeMillis() * 1000;
     }
+  }
+
+  private String generateContentId() {
+    return Util.sha1(manifestUri.toString());
   }
 
   private static final class PeriodSeekInfo {
