@@ -17,13 +17,14 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.Handler;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
-import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -62,9 +63,10 @@ public final class HlsMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(MediaSource.Listener listener) {
-    // TODO: Defer until the playlist has been loaded.
     sourceListener = listener;
-    listener.onSourceInfoRefreshed(SinglePeriodTimeline.createNonFinalTimeline(this), null);
+    // TODO: Defer until the playlist has been loaded.
+    listener.onSourceInfoRefreshed(
+        new SinglePeriodTimeline(this, C.UNSET_TIME_US, false), null);
   }
 
   @Override

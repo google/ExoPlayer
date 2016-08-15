@@ -17,68 +17,45 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * A {@link Timeline} consisting of a single period and seek window.
+ * A {@link Timeline} consisting of a single period and window.
  */
 public final class SinglePeriodTimeline implements Timeline {
-
-  /**
-   * Returns a new timeline with one period of unknown duration and an empty seek window.
-   *
-   * @param id The identifier for the period.
-   * @return A new timeline with one period of unknown duration.
-   */
-  public static Timeline createNonFinalTimeline(Object id) {
-    return new SinglePeriodTimeline(id, false, C.UNSET_TIME_US, SeekWindow.UNSEEKABLE);
-  }
-
-  /**
-   * Returns a new timeline with one period of unknown duration and the specified seek window.
-   *
-   * @param id The identifier for the period.
-   * @param seekWindow The seek window.
-   * @return A new timeline with one period of unknown duration.
-   */
-  public static Timeline createNonFinalTimeline(Object id, SeekWindow seekWindow) {
-    return new SinglePeriodTimeline(id, false, C.UNSET_TIME_US, seekWindow);
-  }
-
-  /**
-   * Creates a final timeline with one period of known duration and an empty seek window.
-   *
-   * @param id The identifier for the period.
-   * @param durationUs The duration of the period, in microseconds.
-   * @return A new, unseekable, final timeline with one period.
-   */
-  public static Timeline createUnseekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs, SeekWindow.UNSEEKABLE);
-  }
-
-  /**
-   * Creates a final timeline with one period of known duration and a seek window extending from
-   * zero to its duration.
-   *
-   * @param id The identifier for the period.
-   * @param durationUs The duration of the period, in microseconds.
-   * @return A new, seekable, final timeline with one period.
-   */
-  public static Timeline createSeekableFinalTimeline(Object id, long durationUs) {
-    return new SinglePeriodTimeline(id, true, durationUs,
-        SeekWindow.createWindowFromZero(durationUs));
-  }
 
   private final Object id;
   private final boolean isFinal;
   private final long durationUs;
-  private final SeekWindow seekWindow;
+  private final Window window;
 
-  private SinglePeriodTimeline(Object id, boolean isFinal, long durationUs, SeekWindow seekWindow) {
+  /**
+   * Creates a final timeline with one period of known duration and a window extending from
+   * zero to its duration.
+   *
+   * @param id The identifier for the period.
+   * @param durationUs The duration of the period, in microseconds.
+   * @param isSeekable Whether seeking is supported within the period.
+   */
+  public SinglePeriodTimeline(Object id, long durationUs, boolean isSeekable) {
+    this(id, durationUs, Window.createWindowFromZero(durationUs, isSeekable));
+  }
+
+  /**
+   * Creates a final timeline with one period of known duration and a window extending from
+   * zero to its duration.
+   *
+   * @param id The identifier for the period.
+   * @param durationUs The duration of the period, in microseconds.
+   * @param window The available window within the period.
+   */
+  public SinglePeriodTimeline(Object id, long durationUs, Window window) {
     this.id = Assertions.checkNotNull(id);
-    this.isFinal = isFinal;
     this.durationUs = durationUs;
-    this.seekWindow = seekWindow;
+    this.window = window;
+    this.isFinal = true; // TODO: Remove.
   }
 
   @Override
@@ -126,13 +103,13 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public int getSeekWindowCount() {
+  public int getWindowCount() {
     return 1;
   }
 
   @Override
-  public SeekWindow getSeekWindow(int index) {
-    return seekWindow;
+  public Window getWindow(int index) {
+    return window;
   }
 
 }

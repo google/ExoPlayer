@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;

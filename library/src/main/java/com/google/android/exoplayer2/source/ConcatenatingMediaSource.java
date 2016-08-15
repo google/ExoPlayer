@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
@@ -130,21 +132,21 @@ public final class ConcatenatingMediaSource implements MediaSource {
     private final Timeline[] timelines;
     private final boolean isFinal;
     private final int[] sourceOffsets;
-    private final SeekWindow[] seekWindows;
+    private final Window[] windows;
 
     public ConcatenatedTimeline(Timeline[] timelines) {
       boolean isFinal = true;
       int[] sourceOffsets = new int[timelines.length];
       int sourceOffset = 0;
-      ArrayList<SeekWindow> concatenatedSeekWindows = new ArrayList<>();
+      ArrayList<Window> concatenatedWindows = new ArrayList<>();
       for (int i = 0; i < timelines.length; i++) {
         Timeline timeline = timelines[i];
         isFinal &= timeline.isFinal();
-        // Offset the seek windows so they are relative to the source.
-        int seekWindowCount = timeline.getSeekWindowCount();
-        for (int j = 0; j < seekWindowCount; j++) {
-          SeekWindow sourceSeekWindow = timeline.getSeekWindow(j);
-          concatenatedSeekWindows.add(sourceSeekWindow.copyOffsetByPeriodCount(sourceOffset));
+        // Offset the windows so they are relative to the source.
+        int windowCount = timeline.getWindowCount();
+        for (int j = 0; j < windowCount; j++) {
+          Window sourceWindow = timeline.getWindow(j);
+          concatenatedWindows.add(sourceWindow.copyOffsetByPeriodCount(sourceOffset));
         }
         sourceOffset += timeline.getPeriodCount();
         sourceOffsets[i] = sourceOffset;
@@ -152,7 +154,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
       this.timelines = timelines;
       this.isFinal = isFinal;
       this.sourceOffsets = sourceOffsets;
-      seekWindows = concatenatedSeekWindows.toArray(new SeekWindow[concatenatedSeekWindows.size()]);
+      windows = concatenatedWindows.toArray(new Window[concatenatedWindows.size()]);
     }
 
     @Override
@@ -208,13 +210,13 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getSeekWindowCount() {
-      return seekWindows.length;
+    public int getWindowCount() {
+      return windows.length;
     }
 
     @Override
-    public SeekWindow getSeekWindow(int index) {
-      return seekWindows[index];
+    public Window getWindow(int index) {
+      return windows[index];
     }
 
     private int getSourceIndexForPeriod(int periodIndex) {

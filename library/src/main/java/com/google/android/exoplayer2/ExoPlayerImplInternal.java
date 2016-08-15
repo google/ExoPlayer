@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;

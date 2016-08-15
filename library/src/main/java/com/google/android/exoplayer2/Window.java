@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source;
+package com.google.android.exoplayer2;
 
 /**
- * A window of times the player can seek to.
+ * A window of available media. Instances are immutable.
  */
-public final class SeekWindow {
-
-  public static final SeekWindow UNSEEKABLE = createWindowFromZero(0);
+public final class Window {
 
   /**
-   * Creates a new {@link SeekWindow} containing times from zero up to {@code durationUs} in the
-   * first period.
+   * Creates a new {@link Window} containing times from zero up to {@code durationUs} in the first
+   * period.
    *
    * @param durationUs The duration of the window, in microseconds.
+   * @param isSeekable Whether seeking is supported within the window.
    */
-  public static SeekWindow createWindowFromZero(long durationUs) {
-    return createWindow(0, 0, 0, durationUs);
+  public static Window createWindowFromZero(long durationUs, boolean isSeekable) {
+    return createWindow(0, 0, 0, durationUs, durationUs, isSeekable);
   }
 
   /**
-   * Creates a new {@link SeekWindow} representing the specified time range.
+   * Creates a new {@link Window} representing the specified time range.
    *
    * @param startPeriodIndex The index of the period containing the start of the window.
    * @param startTimeUs The start time of the window in microseconds, relative to the start of the
@@ -41,10 +40,15 @@ public final class SeekWindow {
    * @param endPeriodIndex The index of the period containing the end of the window.
    * @param endTimeUs The end time of the window in microseconds, relative to the start of the
    *     specified end period.
+   * @param durationUs The duration of the window in microseconds.
+   * @param isSeekable Whether seeking is supported within the window.
    */
-  public static SeekWindow createWindow(int startPeriodIndex, long startTimeUs,
-      int endPeriodIndex, long endTimeUs) {
-    return new SeekWindow(startPeriodIndex, startTimeUs / 1000, endPeriodIndex, endTimeUs / 1000);
+  public static Window createWindow(int startPeriodIndex, long startTimeUs,
+      int endPeriodIndex, long endTimeUs, long durationUs, boolean isSeekable) {
+    return new Window(startPeriodIndex, startTimeUs / 1000, endPeriodIndex,
+        endTimeUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (endTimeUs / 1000),
+        durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (durationUs / 1000),
+        isSeekable);
   }
 
   /**
@@ -65,24 +69,35 @@ public final class SeekWindow {
    * {@link #endPeriodIndex}, in milliseconds.
    */
   public final long endTimeMs;
+  /**
+   * The duration of the window in milliseconds, or {@link C#UNSET_TIME_US} if unknown.
+   */
+  public final long durationMs;
+  /**
+   * Whether it's possible to seek within the window.
+   */
+  public final boolean isSeekable;
 
-  private SeekWindow(int startPeriodIndex, long startTimeMs, int endPeriodIndex, long endTimeMs) {
+  private Window(int startPeriodIndex, long startTimeMs, int endPeriodIndex, long endTimeMs,
+      long durationMs, boolean isSeekable) {
     this.startPeriodIndex = startPeriodIndex;
     this.startTimeMs = startTimeMs;
     this.endPeriodIndex = endPeriodIndex;
     this.endTimeMs = endTimeMs;
+    this.durationMs = durationMs;
+    this.isSeekable = isSeekable;
   }
 
   /**
-   * Returns a new seek window that is offset by the specified number of periods.
+   * Returns a new window that is offset by the specified number of periods.
    *
    * @param periodCount The number of periods to add to {@link #startPeriodIndex} and
    *     {@link #endPeriodIndex} when constructing the copy.
-   * @return A new seek window that is offset by the specified number of periods.
+   * @return A new window that is offset by the specified number of periods.
    */
-  public SeekWindow copyOffsetByPeriodCount(int periodCount) {
-    return new SeekWindow(startPeriodIndex + periodCount, startTimeMs, endPeriodIndex + periodCount,
-        endTimeMs);
+  public Window copyOffsetByPeriodCount(int periodCount) {
+    return new Window(startPeriodIndex + periodCount, startTimeMs, endPeriodIndex + periodCount,
+        endTimeMs, durationMs, isSeekable);
   }
 
   @Override
@@ -103,16 +118,18 @@ public final class SeekWindow {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    SeekWindow other = (SeekWindow) obj;
+    Window other = (Window) obj;
     return other.startPeriodIndex == startPeriodIndex
         && other.startTimeMs == startTimeMs
         && other.endPeriodIndex == endPeriodIndex
-        && other.endTimeMs == endTimeMs;
+        && other.endTimeMs == endTimeMs
+        && other.durationMs == durationMs
+        && other.isSeekable == isSeekable;
   }
 
   @Override
   public String toString() {
-    return "SeekWindow[" + startPeriodIndex + ", " + startTimeMs + ", " + endPeriodIndex + ", "
+    return "Window[" + startPeriodIndex + ", " + startTimeMs + ", " + endPeriodIndex + ", "
         + endTimeMs + "]";
   }
 

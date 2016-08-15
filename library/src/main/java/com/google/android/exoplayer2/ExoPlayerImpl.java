@@ -23,7 +23,6 @@ import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.concurrent.CopyOnWriteArraySet;

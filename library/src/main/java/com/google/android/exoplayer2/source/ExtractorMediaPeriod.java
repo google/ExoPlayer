@@ -297,9 +297,8 @@ import java.util.Arrays;
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
-      sourceListener.onSourceInfoRefreshed(seekMap.isSeekable()
-          ? SinglePeriodTimeline.createSeekableFinalTimeline(0, durationUs)
-          : SinglePeriodTimeline.createUnseekableFinalTimeline(0, durationUs), null);
+      sourceListener.onSourceInfoRefreshed(
+          new SinglePeriodTimeline(0, durationUs, seekMap.isSeekable()), null);
     }
   }
 
@@ -382,9 +381,8 @@ import java.util.Arrays;
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
     callback.onPrepared(this);
-    sourceListener.onSourceInfoRefreshed(seekMap.isSeekable()
-        ? SinglePeriodTimeline.createSeekableFinalTimeline(0, durationUs)
-        : SinglePeriodTimeline.createUnseekableFinalTimeline(0, durationUs), null);
+    sourceListener.onSourceInfoRefreshed(
+        new SinglePeriodTimeline(0, durationUs, seekMap.isSeekable()), null);
   }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {

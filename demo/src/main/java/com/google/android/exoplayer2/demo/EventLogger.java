@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -33,7 +34,6 @@ import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
@@ -94,11 +94,11 @@ import java.util.Locale;
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     boolean isFinal = timeline.isFinal();
     int periodCount = timeline.getPeriodCount();
-    int seekWindowCount = timeline.getSeekWindowCount();
+    int windowCount = timeline.getWindowCount();
     Log.d(TAG, "sourceInfo[isFinal=" + isFinal + ", startTime=" + timeline.getAbsoluteStartTime()
-        + ", periodCount=" + periodCount + ", seekWindows: " + seekWindowCount);
-    for (int seekWindowIndex = 0; seekWindowIndex < seekWindowCount; seekWindowIndex++) {
-      Log.d(TAG, "  " + timeline.getSeekWindow(seekWindowIndex));
+        + ", periodCount=" + periodCount + ", windows: " + windowCount);
+    for (int windowIndex = 0; windowIndex < windowCount; windowIndex++) {
+      Log.d(TAG, "  " + timeline.getWindow(windowIndex));
     }
     Log.d(TAG, "]");
   }

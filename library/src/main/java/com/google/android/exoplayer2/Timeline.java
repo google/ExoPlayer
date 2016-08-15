@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source;
+package com.google.android.exoplayer2;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource.Listener;
 
 /**
  * The player's timeline consisting of one or more periods. Instances are immutable.
@@ -87,15 +86,15 @@ public interface Timeline {
   int getIndexOfPeriod(Object id);
 
   /**
-   * Returns the number of seek windows that can be accessed via {@link #getSeekWindow(int)}.
+   * Returns the number of windows that can be accessed via {@link #getWindow(int)}.
    */
-  int getSeekWindowCount();
+  int getWindowCount();
 
   /**
-   * Returns the {@link SeekWindow} at {@code index}, which represents positions that can be seeked
-   * to in the timeline. The seek windows may change when
-   * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} is called.
+   * Returns the {@link Window} at {@code index}, which represents positions that can be seeked
+   * to in the timeline. The windows may change when
+   * {@link Listener#onSourceInfoRefreshed(Timeline, Object)} is called.
    */
-  SeekWindow getSeekWindow(int index);
+  Window getWindow(int index);
 
 }

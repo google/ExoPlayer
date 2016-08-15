@@ -22,13 +22,13 @@ import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.SeekWindow;
-import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
@@ -59,7 +59,7 @@ public final class DashMediaSource implements MediaSource {
   /**
    * The interval in milliseconds between invocations of
    * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} when the source's
-   * {@link SeekWindow} is changing dynamically (for example, for incomplete live streams).
+   * {@link Window} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
   /**
@@ -89,7 +89,7 @@ public final class DashMediaSource implements MediaSource {
   private long manifestLoadEndTimestamp;
   private DashManifest manifest;
   private Handler handler;
-  private SeekWindow seekWindow;
+  private Window window;
   private long elapsedRealtimeOffsetMs;
 
   private int firstPeriodId;
@@ -151,20 +151,20 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public Position getDefaultStartPosition(int index) {
-    if (seekWindow == null) {
+    if (window == null) {
       return null;
     }
 
     if (index == 0 && manifest.dynamic) {
       // The stream is live, so return a position a position offset from the live edge.
-      int periodIndex = seekWindow.endPeriodIndex;
-      long positionMs = seekWindow.endTimeMs - LIVE_EDGE_OFFSET_MS;
-      while (positionMs < 0 && periodIndex > seekWindow.startPeriodIndex) {
+      int periodIndex = window.endPeriodIndex;
+      long positionMs = window.endTimeMs - LIVE_EDGE_OFFSET_MS;
+      while (positionMs < 0 && periodIndex > window.startPeriodIndex) {
         periodIndex--;
         positionMs += manifest.getPeriodDurationMs(periodIndex);
       }
       positionMs = Math.max(positionMs,
-          periodIndex == seekWindow.startPeriodIndex ? seekWindow.startTimeMs : 0);
+          periodIndex == window.startPeriodIndex ? window.startTimeMs : 0);
       return new Position(periodIndex, positionMs * 1000);
     }
     return new Position(index, 0);
@@ -370,7 +370,7 @@ public final class DashMediaSource implements MediaSource {
   }
 
   private void refreshSourceInfo() {
-    // Update the seek window.
+    // Update the window.
     int lastPeriodIndex = manifest.getPeriodCount() - 1;
     PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
         manifest.getPeriodDurationUs(0));
@@ -379,7 +379,7 @@ public final class DashMediaSource implements MediaSource {
     long currentStartTimeUs;
     long currentEndTimeUs;
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
-      // The seek window is changing so post a Runnable to update it.
+      // The window is changing so post a Runnable to update it.
       handler.postDelayed(refreshSourceInfoRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
 
       long minStartPositionUs = firstPeriodSeekInfo.availableStartTimeUs;
@@ -395,8 +395,13 @@ public final class DashMediaSource implements MediaSource {
       currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
       currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     }
-    seekWindow = SeekWindow.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs);
-    sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, manifest, seekWindow),
+    long windowDurationUs = currentEndTimeUs - currentStartTimeUs;
+    for (int i = 0; i < manifest.getPeriodCount() - 1; i++) {
+      windowDurationUs += manifest.getPeriodDurationUs(i);
+    }
+    window = Window.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs,
+        windowDurationUs, true);
+    sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, manifest, window),
         manifest);
   }
 
@@ -481,12 +486,12 @@ public final class DashMediaSource implements MediaSource {
 
     private final int firstPeriodId;
     private final DashManifest manifest;
-    private final SeekWindow seekWindow;
+    private final Window window;
 
-    public DashTimeline(int firstPeriodId, DashManifest manifest, SeekWindow seekWindow) {
+    public DashTimeline(int firstPeriodId, DashManifest manifest, Window window) {
       this.firstPeriodId = firstPeriodId;
       this.manifest = manifest;
-      this.seekWindow = seekWindow;
+      this.window = window;
     }
 
     @Override
@@ -531,13 +536,13 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public int getSeekWindowCount() {
+    public int getWindowCount() {
       return 1;
     }
 
     @Override
-    public SeekWindow getSeekWindow(int index) {
-      return seekWindow;
+    public Window getWindow(int index) {
+      return window;
     }
 
   }

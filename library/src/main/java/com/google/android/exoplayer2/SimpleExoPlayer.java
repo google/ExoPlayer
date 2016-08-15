@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.Timeline;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;

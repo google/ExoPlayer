@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -78,7 +79,7 @@ public final class SingleSampleMediaSource implements MediaSource {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    timeline = SinglePeriodTimeline.createSeekableFinalTimeline(0, durationUs);
+    timeline = new SinglePeriodTimeline(0, durationUs, true);
   }
 
   // MediaSource implementation.

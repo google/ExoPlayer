@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.Timeline;
 
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as

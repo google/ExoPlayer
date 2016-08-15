@@ -19,9 +19,9 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -135,7 +135,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    timeline = SinglePeriodTimeline.createNonFinalTimeline(0);
+    timeline = new SinglePeriodTimeline(this, C.UNSET_TIME_US, false);
     listener.onSourceInfoRefreshed(timeline, null);
   }
 
