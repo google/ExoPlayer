@@ -28,8 +28,6 @@ public interface IPlayer {
 
     void onCreate();
 
-    void clickOther(View view);
-
     MappingTrackSelector.TrackInfo getTrackInfo();
 
     boolean isMediaNeddSource();
@@ -45,4 +43,6 @@ public interface IPlayer {
     void onError();
 
     TrackSelectionHelper createTrackSelectionHelper();
+
+    void resetPosition();
 }

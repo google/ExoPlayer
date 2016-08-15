@@ -29,15 +29,7 @@ public interface IPlayerUI extends MappingTrackSelector.EventListener, ExoPlayer
 
     SurfaceHolder getHolder();
 
-    int getPlayerPeriodIndex();
-
-    long getPlayerPosition();
-
-    String getMyString(int id, Object... action);
-
     View getRootView();
-
-    TextView getDebugTextView();
 
     void showToast(String myString);
 }

@@ -3,8 +3,6 @@ package com.google.android.exoplayer2.demo;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -38,6 +36,8 @@ public class PlayerImp implements IPlayer {
     private MappingTrackSelector trackSelector;
     private boolean playerNeedsSource;
     private boolean shouldRestorePosition;
+    private int playerPeriodIndex;
+    private long playerPosition;
     private Handler mainHandler = new Handler();
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
@@ -53,6 +53,7 @@ public class PlayerImp implements IPlayer {
     public void setSpeed(float speed) {
         this.speed = speed;
         if (player != null) {
+            flagThePosition();
             if (Util.SDK_INT >= 23) {
                 player.setPlaybackSpeed(speed);
             } else {
@@ -120,7 +121,7 @@ public class PlayerImp implements IPlayer {
         player.setVideoSurfaceHolder(playerUI.getHolder());
 
         if (shouldRestorePosition) {
-            player.seekTo(playerUI.getPlayerPeriodIndex(), playerUI.getPlayerPosition());
+            player.seekTo(playerPeriodIndex, playerPosition);
         }
         player.setPlayWhenReady(true);
         player.setPlaybackSpeed(speed);
@@ -131,10 +132,6 @@ public class PlayerImp implements IPlayer {
     public void onCreate() {
         userAgent = Util.getUserAgent(playerUI.getContext(), "ExoPlayerDemo");
         mediaDataSourceFactory = new DefaultDataSourceFactory(playerUI.getContext(), userAgent, BANDWIDTH_METER);
-    }
-
-    @Override
-    public void clickOther(View view) {
     }
 
     private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
@@ -196,5 +193,15 @@ public class PlayerImp implements IPlayer {
     @Override
     public TrackSelectionHelper createTrackSelectionHelper() {
         return new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
+    }
+
+    @Override
+    public void resetPosition() {
+        playerPosition = 0;
+    }
+
+    private void flagThePosition() {
+      playerPeriodIndex = getCurrentPeriodIndex();
+      playerPosition = getCurrentPosition();
     }
 }

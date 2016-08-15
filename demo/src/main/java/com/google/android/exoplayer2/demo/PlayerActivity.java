@@ -94,9 +94,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private SubtitleView subtitleView;
   private Button retryButton;
 
-  private int playerPeriodIndex;
-  private long playerPosition;
-
   private DebugTextViewHelper debugViewHelper;
   private Spinner spinnerSpeeds;
 
@@ -119,7 +116,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     spinnerSpeeds.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        flagThePosition();
         player.setSpeed(Float.valueOf(speeds[position]));
       }
 
@@ -146,7 +142,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   @Override
   public void onNewIntent(Intent intent) {
     releasePlayer();
-    playerPosition = 0;
+    player.resetPosition();
     setIntent(intent);
   }
 
@@ -410,28 +406,8 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   @Override
-  public int getPlayerPeriodIndex() {
-    return playerPeriodIndex;
-  }
-
-  @Override
-  public long getPlayerPosition() {
-    return playerPosition;
-  }
-
-  @Override
-  public String getMyString(int id, Object... action) {
-    return getString(id, action);
-  }
-
-  @Override
   public View getRootView() {
     return rootView;
-  }
-
-  @Override
-  public TextView getDebugTextView() {
-    return debugTextView;
   }
 
   private void toggleControlsVisibility()  {
@@ -459,17 +435,11 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private void releasePlayer() {
     if (player.hasPlayer()) {
       shutterView.setVisibility(View.VISIBLE);
-      flagThePosition();
       player.realReleasePlayer();
       trackSelectionHelper = null;
       debugViewHelper.stop();
       debugViewHelper = null;
     }
-  }
-
-  private void flagThePosition() {
-    playerPeriodIndex = player.getCurrentPeriodIndex();
-    playerPosition = player.getCurrentPosition();
   }
 
   @Override
