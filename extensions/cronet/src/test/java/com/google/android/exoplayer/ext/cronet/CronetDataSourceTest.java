@@ -178,8 +178,7 @@ public class CronetDataSourceTest {
             mockTransferListener,
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
-            true, // resetTimeoutOnRedirects
-            false)); // useExtendableTimeoutOperation
+            true));  // resetTimeoutOnRedirects
     when(mockContentTypePredicate.evaluate(anyString())).thenReturn(true);
     when(mockCronetEngine.createRequest(
         anyString(),
@@ -849,19 +848,11 @@ public class CronetDataSourceTest {
             mockTransferListener,
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
-            true, // resetTimeoutOnRedirects
-            true)); // useExtendableTimeoutOperation
-    dataSourceUnderTest.extendableTimeoutOperation.operation = new FakeConditionVariable();
+            true)); // resetTimeoutOnRedirects
   }
 
   @Test
   public void testConnectTimeoutWithTimeoutCheckerRunnable() {
-    testConnectTimeout();
-  }
-
-  @Test
-  public void testConnectTimeoutWithExtendableTimeoutConditionVariable() {
-    createCronetDataSourceWithExtendableTimeoutConditionVariable();
     testConnectTimeout();
   }
 
@@ -926,12 +917,6 @@ public class CronetDataSourceTest {
     testConnectResponseBeforeTimeout();
   }
 
-  @Test
-  public void testConnectResponseBeforeTimeoutWithExtendableTimeoutConditionVariable() {
-    createCronetDataSourceWithExtendableTimeoutConditionVariable();
-    testConnectResponseBeforeTimeout();
-  }
-
   void testConnectResponseBeforeTimeout() {
     final ConditionVariable startOperation = new ConditionVariable();
     final ConditionVariable openOperation = new ConditionVariable();
@@ -987,12 +972,6 @@ public class CronetDataSourceTest {
 
   @Test
   public void testRedirectIncreasesConnectionTimeoutWithTimeoutCheckerRunnable() {
-    testRedirectIncreasesConnectionTimeout();
-  }
-
-  @Test
-  public void testRedirectIncreasesConnectionTimeoutWithExtendableTimeoutConditionVariable() {
-    createCronetDataSourceWithExtendableTimeoutConditionVariable();
     testRedirectIncreasesConnectionTimeout();
   }
 
@@ -1071,12 +1050,6 @@ public class CronetDataSourceTest {
 
   @Test
   public void testMultipleRedirectConnectionTimeoutWithTimeoutCheckerRunnable() {
-    testMultipleRedirectConnectionTimeout();
-  }
-
-  @Test
-  public void testMultipleRedirectConnectionTimeoutWithExtendableTimeoutConditionVariable() {
-    createCronetDataSourceWithExtendableTimeoutConditionVariable();
     testMultipleRedirectConnectionTimeout();
   }
 
@@ -1197,64 +1170,6 @@ public class CronetDataSourceTest {
     }
     // Open should return successfully
     dataSourceUnderTest.open(testDataSpec);
-  }
-
-  @Test
-  public void testDataSourceReuseWithExtendableTimeoutConditionVariable()
-      throws HttpDataSourceException {
-    createCronetDataSourceWithExtendableTimeoutConditionVariable();
-    dataSourceUnderTest.open(testDataSpec);
-    dataSourceUnderTest.close();
-
-    // Reuse the same data source.
-    final ConditionVariable startOperation = new ConditionVariable();
-    final ConditionVariable openOperation = new ConditionVariable();
-    final AtomicInteger openExceptions = new AtomicInteger(0);
-    doAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        startOperation.open();
-        return null;
-      }
-    }).when(mockUrlRequest).start();
-    when(mockClock.elapsedRealtime()).thenReturn(1000L);
-    new BlockingBackgroundExecutor().execute(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              Executor executor = Executors.newFixedThreadPool(2);
-              openOperation.close();
-              executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    dataSourceUnderTest.open(testDataSpec);
-                    fail(); // Exception expected.
-                  } catch (HttpDataSourceException e) {
-                    // Expected exception
-                    assertTrue(e instanceof CronetDataSource.OpenException);
-                    assertTrue(e.getCause() instanceof SocketTimeoutException);
-                    openExceptions.getAndIncrement();
-                  }
-                  openOperation.open();
-                }
-              });
-              startOperation.block();
-              assertEquals(
-                  CronetDataSource.ConnectionState.OPENING,
-                  dataSourceUnderTest.connectionState);
-              assertEquals(0, openExceptions.get());
-
-              // Exceeding the timeout at 1110.
-              when(mockClock.elapsedRealtime()).thenReturn(1110L);
-              openOperation.block();
-              assertEquals(1, openExceptions.get());
-            } catch (Exception e) {
-              fail(e.getMessage());
-            }
-          }
-        });
   }
 
   @Test

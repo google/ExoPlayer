@@ -18,6 +18,7 @@ package com.google.android.exoplayer.ext.cronet;
 import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Clock;
 import com.google.android.exoplayer.util.Predicate;
 import com.google.android.exoplayer.util.TraceUtil;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -38,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.chromium.net.CronetEngine;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlRequestException;
@@ -102,7 +105,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
-  private final boolean useExtendableTimeoutOperation;
   private final Map<String, String> headers;
   private final ConditionVariable operation;
   private final ByteBuffer readBuffer;
@@ -114,7 +116,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   volatile ConnectionState connectionState;
   TimeoutCheckerRunnable timeoutCheckerRunnable;
-  ExtendableTimeoutConditionVariable extendableTimeoutOperation;
   private volatile String currentUrl;
   private volatile HttpDataSourceException exception;
   private volatile long contentLength;
@@ -123,6 +124,19 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private volatile int connectionStatus;
   private volatile boolean responseFinished;
 
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will perform the request.
+   * @param clock A {@link com.google.android.exoplayer.util.Clock} for keeping track of timeout
+   * @param contentTypePredicate A {@link Predicate}. If a content type is rejected by the
+   *     predicate then a
+   *     {@link com.google.android.exoplayer.upstream.HttpDataSource.InvalidContentTypeException}
+   *     is thrown from {@link #validateResponse(UrlResponseInfo)}.
+   * @param transferListener A listener.
+   * @param connectTimeoutMs The timeout to execute a connection.
+   * @param readTimeoutMs The timeout to execute a connection.
+   * @param resetTimeoutOnRedirects Allow to reset the timeout when redirects occur.
+   */
   public CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
@@ -131,8 +145,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       TransferListener transferListener,
       int connectTimeoutMs,
       int readTimeoutMs,
-      boolean resetTimeoutOnRedirects,
-      boolean useExtendableTimeoutOperation) {
+      boolean resetTimeoutOnRedirects) {
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
     this.clock = Assertions.checkNotNull(clock);
@@ -141,15 +154,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     this.connectTimeoutMs = connectTimeoutMs;
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
-    this.useExtendableTimeoutOperation = useExtendableTimeoutOperation;
     this.headers = new HashMap<>();
     this.connectionState = ConnectionState.NEW;
     this.readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
     this.operation = new ConditionVariable();
     readBuffer.clear();
-    if (resetTimeoutOnRedirects && useExtendableTimeoutOperation) {
-      extendableTimeoutOperation = new ExtendableTimeoutConditionVariable();
-    }
   }
 
   @Override
@@ -187,17 +196,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       createRequest(dataSpec);
 
       if (resetTimeoutOnRedirects) {
-        if (useExtendableTimeoutOperation) {
-          extendableTimeoutOperation.extendTimeout(connectTimeoutMs);
-          currentUrlRequest.start();
-          extendableTimeoutOperation.block();
-        } else {
-          operation.close();
-          timeoutCheckerRunnable = new TimeoutCheckerRunnable();
-          executor.execute(timeoutCheckerRunnable);
-          currentUrlRequest.start();
-          operation.block();
-        }
+        operation.close();
+        timeoutCheckerRunnable = new TimeoutCheckerRunnable();
+        executor.execute(timeoutCheckerRunnable);
+        currentUrlRequest.start();
+        operation.block();
       } else {
         operation.close();
         currentUrlRequest.start();
@@ -288,11 +291,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         timeoutCheckerRunnable.cancel();
         timeoutCheckerRunnable = null;
       }
-      if (extendableTimeoutOperation != null) {
-        extendableTimeoutOperation.open();
-      } else {
-        operation.open();
-      }
+      operation.open();
+
     } else if (connectionState == ConnectionState.OPEN) {
       readBuffer.limit(0);
       exception = new HttpDataSourceException(
@@ -334,11 +334,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         timeoutCheckerRunnable.cancel();
         timeoutCheckerRunnable = null;
       }
-      if (extendableTimeoutOperation != null) {
-        extendableTimeoutOperation.open();
-      } else {
-        operation.open();
-      }
+      operation.open();
       TraceUtil.endSection();
     }
   }
@@ -478,19 +474,12 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       if (responseCode == 307 || responseCode == 308) {
         exception = new OpenException(
             "POST request redirected with 307 or 308 response code.", currentDataSpec);
-        if (extendableTimeoutOperation != null) {
-          extendableTimeoutOperation.open();
-        } else {
-          operation.open();
-        }
+        operation.open();
         return;
       }
     }
     if (timeoutCheckerRunnable != null) {
       timeoutCheckerRunnable.resetTimeoutLimit();
-    }
-    if (extendableTimeoutOperation != null) {
-      extendableTimeoutOperation.extendTimeout(connectTimeoutMs);
     }
     request.followRedirect();
   }
@@ -560,42 +549,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (Log.isLoggable(TAG, priority)) {
       Log.println(priority, TAG, message);
     }
-  }
-
-  /**
-   * Similar to ConditionVariable but allows the timeout to be extended.
-   */
-  class ExtendableTimeoutConditionVariable {
-
-    ConditionVariable operation;
-    private volatile long timeoutElapsedTimeMs;
-
-    ExtendableTimeoutConditionVariable() {
-      operation = new ConditionVariable();
-    }
-
-    void block() {
-      while (true) {
-        long now = clock.elapsedRealtime();
-        if (now >= timeoutElapsedTimeMs) {
-          return;
-        }
-        long timeout = timeoutElapsedTimeMs - now;
-        if (operation.block(timeout)) {
-          return;
-        }
-      }
-    }
-
-    void extendTimeout(long timeout) {
-      operation.close();
-      timeoutElapsedTimeMs = Math.max(timeoutElapsedTimeMs, clock.elapsedRealtime() + timeout);
-    }
-
-    void open() {
-      operation.open();
-    }
-
   }
 
   class TimeoutCheckerRunnable implements Runnable {
