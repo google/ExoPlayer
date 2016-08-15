@@ -380,9 +380,9 @@ import java.util.Arrays;
     }
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
-    callback.onPrepared(this);
     sourceListener.onSourceInfoRefreshed(
         new SinglePeriodTimeline(0, durationUs, seekMap.isSeekable()), null);
+    callback.onPrepared(this);
   }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {

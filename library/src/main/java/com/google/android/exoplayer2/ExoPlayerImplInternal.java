@@ -79,10 +79,11 @@ import java.io.IOException;
   private static final int MSG_SEEK_TO = 3;
   private static final int MSG_STOP = 4;
   private static final int MSG_RELEASE = 5;
-  private static final int MSG_PERIOD_PREPARED = 6;
-  private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 7;
-  private static final int MSG_TRACK_SELECTION_INVALIDATED = 8;
-  private static final int MSG_CUSTOM = 9;
+  private static final int MSG_REFRESH_SOURCE_INFO = 6;
+  private static final int MSG_PERIOD_PREPARED = 7;
+  private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 8;
+  private static final int MSG_TRACK_SELECTION_INVALIDATED = 9;
+  private static final int MSG_CUSTOM = 10;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -218,11 +219,11 @@ import java.io.IOException;
     internalPlaybackThread.quit();
   }
 
-  // TrackSelector.InvalidationListener implementation.
+  // MediaSource.Listener implementation.
 
   @Override
-  public void onTrackSelectionsInvalidated() {
-    handler.sendEmptyMessage(MSG_TRACK_SELECTION_INVALIDATED);
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+    handler.obtainMessage(MSG_REFRESH_SOURCE_INFO, Pair.create(timeline, manifest)).sendToTarget();
   }
 
   // MediaPeriod.Callback implementation.
@@ -235,6 +236,13 @@ import java.io.IOException;
   @Override
   public void onContinueLoadingRequested(MediaPeriod source) {
     handler.obtainMessage(MSG_SOURCE_CONTINUE_LOADING_REQUESTED, source).sendToTarget();
+  }
+
+  // TrackSelector.InvalidationListener implementation.
+
+  @Override
+  public void onTrackSelectionsInvalidated() {
+    handler.sendEmptyMessage(MSG_TRACK_SELECTION_INVALIDATED);
   }
 
   // Handler.Callback implementation.
@@ -271,6 +279,10 @@ import java.io.IOException;
           handlePeriodPrepared((MediaPeriod) msg.obj);
           return true;
         }
+        case MSG_REFRESH_SOURCE_INFO: {
+          handleSourceInfoRefreshed((Pair<Timeline, Object>) msg.obj);
+          return true;
+        }
         case MSG_SOURCE_CONTINUE_LOADING_REQUESTED: {
           handleContinueLoadingRequested((MediaPeriod) msg.obj);
           return true;
@@ -302,21 +314,6 @@ import java.io.IOException;
           .sendToTarget();
       stopInternal();
       return true;
-    }
-  }
-
-  // MediaSource.Listener implementation.
-
-  @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    try {
-      eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, Pair.create(timeline, manifest))
-          .sendToTarget();
-      handleTimelineRefreshed(timeline);
-    } catch (ExoPlaybackException | IOException e) {
-      Log.e(TAG, "Error handling timeline change.", e);
-      eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
-      stopInternal();
     }
   }
 
@@ -803,9 +800,11 @@ import java.io.IOException;
     }
   }
 
-  public void handleTimelineRefreshed(Timeline timeline) throws ExoPlaybackException, IOException {
+  public void handleSourceInfoRefreshed(Pair<Timeline, Object> timelineAndManifest)
+      throws ExoPlaybackException, IOException {
+    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, timelineAndManifest).sendToTarget();
     Timeline oldTimeline = this.timeline;
-    this.timeline = timeline;
+    this.timeline = timelineAndManifest.first;
 
     // Update the loaded periods to take into account the new timeline.
     if (playingPeriod != null) {
