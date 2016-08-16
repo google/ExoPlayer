@@ -207,11 +207,6 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public final void onPlayWhenReadyCommitted() {
-    // Do nothing.
-  }
-
-  @Override
   public final void onPositionDiscontinuity(int periodIndex, long positionMs) {
     // Do nothing.
   }

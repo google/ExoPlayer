@@ -40,7 +40,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private boolean playWhenReady;
   private int playbackState;
-  private int pendingPlayWhenReadyAcks;
   private int pendingSeekAcks;
   private boolean isLoading;
   private Timeline timeline;
@@ -110,7 +109,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public void setPlayWhenReady(boolean playWhenReady) {
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
-      pendingPlayWhenReadyAcks++;
       internalPlayer.setPlayWhenReady(playWhenReady);
       for (EventListener listener : listeners) {
         listener.onPlayerStateChanged(playWhenReady, playbackState);
@@ -121,11 +119,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public boolean getPlayWhenReady() {
     return playWhenReady;
-  }
-
-  @Override
-  public boolean isPlayWhenReadyCommitted() {
-    return pendingPlayWhenReadyAcks == 0;
   }
 
   @Override
@@ -239,15 +232,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
         isLoading = msg.arg1 != 0;
         for (EventListener listener : listeners) {
           listener.onLoadingChanged(isLoading);
-        }
-        break;
-      }
-      case ExoPlayerImplInternal.MSG_SET_PLAY_WHEN_READY_ACK: {
-        pendingPlayWhenReadyAcks--;
-        if (pendingPlayWhenReadyAcks == 0) {
-          for (EventListener listener : listeners) {
-            listener.onPlayWhenReadyCommitted();
-          }
         }
         break;
       }

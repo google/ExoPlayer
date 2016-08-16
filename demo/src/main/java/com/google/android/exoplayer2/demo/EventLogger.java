@@ -86,11 +86,6 @@ import java.util.Locale;
   }
 
   @Override
-  public void onPlayWhenReadyCommitted() {
-    // Do nothing.
-  }
-
-  @Override
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     boolean isFinal = timeline.isFinal();
     int periodCount = timeline.getPeriodCount();

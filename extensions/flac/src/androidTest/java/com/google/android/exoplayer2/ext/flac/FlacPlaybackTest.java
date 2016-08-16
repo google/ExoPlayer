@@ -91,11 +91,6 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onPlayWhenReadyCommitted () {
-      // Do nothing.
-    }
-
-    @Override
     public void onPositionDiscontinuity(int periodIndex, long positionMs) {
       // Do nothing.
     }

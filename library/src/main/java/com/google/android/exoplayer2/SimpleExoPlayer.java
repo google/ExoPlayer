@@ -339,11 +339,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public boolean isPlayWhenReadyCommitted() {
-    return player.isPlayWhenReadyCommitted();
-  }
-
-  @Override
   public boolean isLoading() {
     return player.isLoading();
   }

@@ -152,11 +152,6 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
-  public void onPlayWhenReadyCommitted() {
-    // Do nothing.
-  }
-
-  @Override
   public void onPositionDiscontinuity(int periodIndex, long positionMs) {
     updateTextView();
   }

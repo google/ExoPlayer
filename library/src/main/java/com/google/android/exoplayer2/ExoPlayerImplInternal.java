@@ -66,11 +66,10 @@ import java.io.IOException;
   // External messages
   public static final int MSG_STATE_CHANGED = 1;
   public static final int MSG_LOADING_CHANGED = 2;
-  public static final int MSG_SET_PLAY_WHEN_READY_ACK = 3;
-  public static final int MSG_SEEK_ACK = 4;
-  public static final int MSG_POSITION_DISCONTINUITY = 5;
-  public static final int MSG_SOURCE_INFO_REFRESHED = 6;
-  public static final int MSG_ERROR = 7;
+  public static final int MSG_SEEK_ACK = 3;
+  public static final int MSG_POSITION_DISCONTINUITY = 4;
+  public static final int MSG_SOURCE_INFO_REFRESHED = 5;
+  public static final int MSG_ERROR = 6;
 
   // Internal messages
   private static final int MSG_SET_MEDIA_SOURCE = 0;
@@ -348,22 +347,18 @@ import java.io.IOException;
   }
 
   private void setPlayWhenReadyInternal(boolean playWhenReady) throws ExoPlaybackException {
-    try {
-      rebuffering = false;
-      this.playWhenReady = playWhenReady;
-      if (!playWhenReady) {
-        stopRenderers();
-        updatePlaybackPositions();
-      } else {
-        if (state == ExoPlayer.STATE_READY) {
-          startRenderers();
-          handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-        } else if (state == ExoPlayer.STATE_BUFFERING) {
-          handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-        }
+    rebuffering = false;
+    this.playWhenReady = playWhenReady;
+    if (!playWhenReady) {
+      stopRenderers();
+      updatePlaybackPositions();
+    } else {
+      if (state == ExoPlayer.STATE_READY) {
+        startRenderers();
+        handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+      } else if (state == ExoPlayer.STATE_BUFFERING) {
+        handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
-    } finally {
-      eventHandler.sendEmptyMessage(MSG_SET_PLAY_WHEN_READY_ACK);
     }
   }
 

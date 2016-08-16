@@ -117,17 +117,6 @@ public interface ExoPlayer {
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
-    /**
-     * Called when the current value of {@link #getPlayWhenReady()} has been reflected by
-     * the internal playback thread.
-     * <p>
-     * An invocation of this method will shortly follow any call to
-     * {@link #setPlayWhenReady(boolean)} that changes the state. If multiple calls are made in
-     * rapid succession, then this method will be called only once, after the final state has been
-     * reflected.
-     */
-    void onPlayWhenReadyCommitted();
-
     // TODO[playlists]: Should source-initiated resets also cause this to be called?
     /**
      * Called when the player's position changes due to a discontinuity (seeking or playback
@@ -276,14 +265,6 @@ public interface ExoPlayer {
    * @return Whether playback will proceed when ready.
    */
   boolean getPlayWhenReady();
-
-  /**
-   * Whether the current value of {@link #getPlayWhenReady()} has been reflected by the internal
-   * playback thread.
-   *
-   * @return Whether the current value has been reflected.
-   */
-  boolean isPlayWhenReadyCommitted();
 
   /**
    * Whether the player is currently loading the source.
