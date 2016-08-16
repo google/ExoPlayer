@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -558,7 +559,8 @@ import java.util.Arrays;
         ExtractorInput input = null;
         try {
           long position = positionHolder.position;
-          length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNBOUNDED, null));
+          length = dataSource.open(
+              new DataSpec(uri, position, C.LENGTH_UNBOUNDED, Util.sha1(uri.toString())));
           if (length != C.LENGTH_UNBOUNDED) {
             length += position;
           }
