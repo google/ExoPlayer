@@ -106,8 +106,10 @@ public class DashManifestParser extends DefaultHandler
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", -1);
     String typeString = xpp.getAttributeValue(null, "type");
     boolean dynamic = typeString != null && typeString.equals("dynamic");
-    long minUpdateTimeMs = (dynamic) ? parseDuration(xpp, "minimumUpdatePeriod", -1) : -1;
-    long timeShiftBufferDepthMs = (dynamic) ? parseDuration(xpp, "timeShiftBufferDepth", -1) : -1;
+    long minUpdateTimeMs = dynamic ? parseDuration(xpp, "minimumUpdatePeriod", -1) : -1;
+    long timeShiftBufferDepthMs = dynamic ? parseDuration(xpp, "timeShiftBufferDepth", -1) : -1;
+    long suggestedPresentationDelayMs = dynamic
+        ? parseDuration(xpp, "suggestedPresentationDelay", -1) : -1;
     UtcTimingElement utcTiming = null;
     Uri location = null;
 
@@ -159,14 +161,17 @@ public class DashManifestParser extends DefaultHandler
     }
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
+        location, periods);
   }
 
   protected DashManifest buildMediaPresentationDescription(long availabilityStartTime,
       long durationMs, long minBufferTimeMs, boolean dynamic, long minUpdateTimeMs,
-      long timeShiftBufferDepthMs, UtcTimingElement utcTiming, Uri location, List<Period> periods) {
+      long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, UtcTimingElement utcTiming,
+      Uri location, List<Period> periods) {
     return new DashManifest(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
+        location, periods);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {

@@ -58,22 +58,30 @@ public final class DashMediaSource implements MediaSource {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
+   * A constant indicating that the live edge offset (the offset subtracted from the live edge
+   * when calculating the default position returned by {@link #getDefaultStartPosition(int)}) should
+   * be set to {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
+   * {@link #DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS} otherwise.
+   */
+  public static final long DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS = -1;
+  /**
+   * A fixed default live edge offset (the offset subtracted from the live edge when calculating the
+   * default position returned by {@link #getDefaultStartPosition(int)}).
+   */
+  public static final long DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS = 30000;
+  /**
    * The interval in milliseconds between invocations of
    * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} when the source's
    * {@link Window} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
-  /**
-   * The offset in milliseconds subtracted from the live edge position when calculating the default
-   * position returned by {@link #getDefaultStartPosition(int)}.
-   */
-  private static final long LIVE_EDGE_OFFSET_MS = 30000;
 
   private static final String TAG = "DashMediaSource";
 
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
+  private final long liveEdgeOffsetMs;
   private final EventDispatcher eventDispatcher;
   private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
@@ -99,16 +107,18 @@ public final class DashMediaSource implements MediaSource {
       DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler, eventListener);
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS, eventHandler,
+        eventListener);
   }
 
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount, long liveEdgeOffsetMs,
       Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    this.liveEdgeOffsetMs = liveEdgeOffsetMs;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new DashManifestParser(generateContentId());
     manifestCallback = new ManifestCallback();
@@ -159,7 +169,12 @@ public final class DashMediaSource implements MediaSource {
     if (index == 0 && manifest.dynamic) {
       // The stream is live, so return a position a position offset from the live edge.
       int periodIndex = window.endPeriodIndex;
-      long positionMs = window.endTimeMs - LIVE_EDGE_OFFSET_MS;
+      long liveEdgeOffsetForManifest = liveEdgeOffsetMs;
+      if (liveEdgeOffsetForManifest == DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS) {
+        liveEdgeOffsetForManifest = manifest.suggestedPresentationDelay != -1
+            ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
+      }
+      long positionMs = window.endTimeMs - liveEdgeOffsetForManifest;
       while (positionMs < 0 && periodIndex > window.startPeriodIndex) {
         periodIndex--;
         positionMs += manifest.getPeriodDurationMs(periodIndex);

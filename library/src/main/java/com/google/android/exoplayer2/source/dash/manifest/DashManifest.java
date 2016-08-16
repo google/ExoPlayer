@@ -37,6 +37,8 @@ public class DashManifest {
 
   public final long timeShiftBufferDepth;
 
+  public final long suggestedPresentationDelay;
+
   public final UtcTimingElement utcTiming;
 
   public final Uri location;
@@ -44,14 +46,16 @@ public class DashManifest {
   private final List<Period> periods;
 
   public DashManifest(long availabilityStartTime, long duration, long minBufferTime,
-      boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, UtcTimingElement utcTiming,
-      Uri location, List<Period> periods) {
+      boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth,
+      long suggestedPresentationDelay, UtcTimingElement utcTiming, Uri location,
+      List<Period> periods) {
     this.availabilityStartTime = availabilityStartTime;
     this.duration = duration;
     this.minBufferTime = minBufferTime;
     this.dynamic = dynamic;
     this.minUpdatePeriod = minUpdatePeriod;
     this.timeShiftBufferDepth = timeShiftBufferDepth;
+    this.suggestedPresentationDelay = suggestedPresentationDelay;
     this.utcTiming = utcTiming;
     this.location = location;
     this.periods = periods == null ? Collections.<Period>emptyList() : periods;
