@@ -281,7 +281,7 @@ import java.util.List;
     callback.onPrepared(this);
 
     // TODO[playlists]: Calculate the window.
-    Timeline timeline = new SinglePeriodTimeline(0, durationUs, !isLive);
+    Timeline timeline = new SinglePeriodTimeline(durationUs, !isLive);
     sourceListener.onSourceInfoRefreshed(timeline, playlist);
   }
 

@@ -65,8 +65,7 @@ public final class HlsMediaSource implements MediaSource {
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
     // TODO: Defer until the playlist has been loaded.
-    listener.onSourceInfoRefreshed(
-        new SinglePeriodTimeline(this, C.UNSET_TIME_US, false), null);
+    listener.onSourceInfoRefreshed(new SinglePeriodTimeline(C.UNSET_TIME_US, false), null);
   }
 
   @Override

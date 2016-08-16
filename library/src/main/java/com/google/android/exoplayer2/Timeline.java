@@ -62,13 +62,7 @@ public interface Timeline {
   /**
    * Returns a unique identifier for the period at {@code periodIndex}, or {@code null} if the
    * period at {@code periodIndex} is not known. The identifier is stable across {@link Timeline}
-   * instances.
-   * <p>
-   * When the timeline changes the player uses period identifiers to determine what periods are
-   * unchanged. Implementations that associate an object with each period can return the object for
-   * the provided index to guarantee uniqueness. Other implementations must be careful to return
-   * identifiers that can't clash with (for example) identifiers used by other timelines that may be
-   * concatenated with this one.
+   * changes.
    *
    * @param periodIndex A period index.
    * @return An identifier for the period, or {@code null} if the period is not known.
@@ -79,7 +73,7 @@ public interface Timeline {
    * Returns the index of the window to which the period with the specified index belongs.
    *
    * @param periodIndex The period index.
-   * @return The index of the corresponding seek window.
+   * @return The index of the corresponding window.
    */
   int getPeriodWindowIndex(int periodIndex);
 

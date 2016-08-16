@@ -185,16 +185,16 @@ public final class SsMediaSource implements MediaSource,
       }
       if (startTimeUs == Long.MAX_VALUE || manifest.dvrWindowLengthUs == C.UNSET_TIME_US
           || manifest.dvrWindowLengthUs == 0) {
-        timeline = new SinglePeriodTimeline(0, C.UNSET_TIME_US, false);
+        timeline = new SinglePeriodTimeline(C.UNSET_TIME_US, false);
       } else {
         long periodDurationUs = startTimeUs + manifest.dvrWindowLengthUs;
         Window window = Window.createWindow(0, startTimeUs, 0, periodDurationUs,
             manifest.dvrWindowLengthUs, true);
-        timeline = new SinglePeriodTimeline(0, periodDurationUs, window);
+        timeline = new SinglePeriodTimeline(periodDurationUs, window);
       }
     } else {
       boolean isSeekable = manifest.durationUs != C.UNSET_TIME_US;
-      timeline = new SinglePeriodTimeline(0, manifest.durationUs, isSeekable);
+      timeline = new SinglePeriodTimeline(manifest.durationUs, isSeekable);
     }
     window = timeline.getWindow(0);
     sourceListener.onSourceInfoRefreshed(timeline, manifest);

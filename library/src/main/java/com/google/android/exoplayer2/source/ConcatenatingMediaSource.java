@@ -210,17 +210,22 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
     @Override
     public int getIndexOfPeriod(Object id) {
-      // The id was returned by getPeriodId, so it is always a Pair<Integer, Object>.
+      if (!(id instanceof Pair)) {
+        return NO_PERIOD_INDEX;
+      }
       @SuppressWarnings("unchecked")
       Pair<Integer, Object> sourceIndexAndPeriodId = (Pair<Integer, Object>) id;
+      if (!(sourceIndexAndPeriodId.first instanceof Integer)) {
+        return NO_PERIOD_INDEX;
+      }
       int sourceIndex = sourceIndexAndPeriodId.first;
       Object periodId = sourceIndexAndPeriodId.second;
-      int periodIndexInSource = timelines[sourceIndex].getIndexOfPeriod(periodId);
-      if (periodIndexInSource != NO_PERIOD_INDEX) {
-        int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-        return firstPeriodIndexInSource + periodIndexInSource;
+      if (sourceIndex < 0 || sourceIndex >= timelines.length) {
+        return NO_PERIOD_INDEX;
       }
-      return NO_PERIOD_INDEX;
+      int periodIndexInSource = timelines[sourceIndex].getIndexOfPeriod(periodId);
+      return periodIndexInSource == NO_PERIOD_INDEX ? NO_PERIOD_INDEX
+          : getFirstPeriodIndexInSource(sourceIndex) + periodIndexInSource;
     }
 
     @Override

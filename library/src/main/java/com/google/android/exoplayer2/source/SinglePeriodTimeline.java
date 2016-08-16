@@ -26,7 +26,8 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public final class SinglePeriodTimeline implements Timeline {
 
-  private final Object id;
+  private static final Object ID = new Object();
+
   private final boolean isFinal;
   private final long durationUs;
   private final Window window;
@@ -35,24 +36,21 @@ public final class SinglePeriodTimeline implements Timeline {
    * Creates a final timeline with one period of known duration and a window extending from
    * zero to its duration.
    *
-   * @param id The identifier for the period.
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
    */
-  public SinglePeriodTimeline(Object id, long durationUs, boolean isSeekable) {
-    this(id, durationUs, Window.createWindowFromZero(durationUs, isSeekable));
+  public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
+    this(durationUs, Window.createWindowFromZero(durationUs, isSeekable));
   }
 
   /**
    * Creates a final timeline with one period of known duration and a window extending from
    * zero to its duration.
    *
-   * @param id The identifier for the period.
    * @param durationUs The duration of the period, in microseconds.
    * @param window The available window within the period.
    */
-  public SinglePeriodTimeline(Object id, long durationUs, Window window) {
-    this.id = Assertions.checkNotNull(id);
+  public SinglePeriodTimeline(long durationUs, Window window) {
     this.durationUs = durationUs;
     this.window = window;
     this.isFinal = true; // TODO: Remove.
@@ -88,7 +86,7 @@ public final class SinglePeriodTimeline implements Timeline {
   @Override
   public Object getPeriodId(int periodIndex) {
     Assertions.checkIndex(periodIndex, 0, 1);
-    return id;
+    return ID;
   }
 
   @Override
@@ -99,7 +97,7 @@ public final class SinglePeriodTimeline implements Timeline {
 
   @Override
   public int getIndexOfPeriod(Object id) {
-    return id.equals(this.id) ? 0 : Timeline.NO_PERIOD_INDEX;
+    return ID.equals(id) ? 0 : Timeline.NO_PERIOD_INDEX;
   }
 
   @Override

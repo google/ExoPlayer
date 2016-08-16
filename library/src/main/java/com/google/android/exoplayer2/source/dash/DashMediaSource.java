@@ -539,7 +539,12 @@ public final class DashMediaSource implements MediaSource {
 
     @Override
     public int getIndexOfPeriod(Object id) {
-      return ((Integer) id) - firstPeriodId;
+      if (!(id instanceof Integer)) {
+        return NO_PERIOD_INDEX;
+      }
+      int periodId = (int) id;
+      return periodId < firstPeriodId || periodId >= firstPeriodId + getPeriodCount()
+          ? NO_PERIOD_INDEX : periodId - firstPeriodId;
     }
 
     @Override

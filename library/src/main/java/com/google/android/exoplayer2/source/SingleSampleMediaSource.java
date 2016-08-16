@@ -79,7 +79,7 @@ public final class SingleSampleMediaSource implements MediaSource {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
-    timeline = new SinglePeriodTimeline(0, durationUs, true);
+    timeline = new SinglePeriodTimeline(durationUs, true);
   }
 
   // MediaSource implementation.
