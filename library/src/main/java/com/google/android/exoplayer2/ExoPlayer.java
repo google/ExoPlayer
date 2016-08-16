@@ -108,8 +108,8 @@ public interface ExoPlayer {
     void onLoadingChanged(boolean isLoading);
 
     /**
-     * Called when the value returned from either {@link ExoPlayer#getPlayWhenReady()} or
-     * {@link ExoPlayer#getPlaybackState()} changes.
+     * Called when the value returned from either {@link #getPlayWhenReady()} or
+     * {@link #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
      * @param playbackState One of the {@code STATE} constants defined in the {@link ExoPlayer}
@@ -118,13 +118,13 @@ public interface ExoPlayer {
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
     /**
-     * Called when the current value of {@link ExoPlayer#getPlayWhenReady()} has been reflected by
+     * Called when the current value of {@link #getPlayWhenReady()} has been reflected by
      * the internal playback thread.
      * <p>
      * An invocation of this method will shortly follow any call to
-     * {@link ExoPlayer#setPlayWhenReady(boolean)} that changes the state. If multiple calls are
-     * made in rapid succession, then this method will be called only once, after the final state
-     * has been reflected.
+     * {@link #setPlayWhenReady(boolean)} that changes the state. If multiple calls are made in
+     * rapid succession, then this method will be called only once, after the final state has been
+     * reflected.
      */
     void onPlayWhenReadyCommitted();
 
@@ -147,10 +147,9 @@ public interface ExoPlayer {
     void onSourceInfoRefreshed(Timeline timeline, Object manifest);
 
     /**
-     * Called when an error occurs. The playback state will transition to
-     * {@link ExoPlayer#STATE_IDLE} immediately after this method is called. The player instance can
-     * still be used, and {@link ExoPlayer#release()} must still be called on the player should it
-     * no longer be required.
+     * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
+     * immediately after this method is called. The player instance can still be used, and
+     * {@link #release()} must still be called on the player should it no longer be required.
      *
      * @param error The error.
      */
@@ -161,8 +160,8 @@ public interface ExoPlayer {
   /**
    * A component of an {@link ExoPlayer} that can receive messages on the playback thread.
    * <p>
-   * Messages can be delivered to a component via {@link ExoPlayer#sendMessages} and
-   * {@link ExoPlayer#blockingSendMessages}.
+   * Messages can be delivered to a component via {@link #sendMessages} and
+   * {@link #blockingSendMessages}.
    */
   interface ExoPlayerComponent {
 
@@ -279,8 +278,8 @@ public interface ExoPlayer {
   boolean getPlayWhenReady();
 
   /**
-   * Whether the current value of {@link ExoPlayer#getPlayWhenReady()} has been reflected by the
-   * internal playback thread.
+   * Whether the current value of {@link #getPlayWhenReady()} has been reflected by the internal
+   * playback thread.
    *
    * @return Whether the current value has been reflected.
    */
@@ -323,9 +322,9 @@ public interface ExoPlayer {
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
    * is to pause playback.
    * <p>
-   * Calling this method will cause the playback state to transition to
-   * {@link ExoPlayer#STATE_IDLE}. The player instance can still be used, and
-   * {@link ExoPlayer#release()} must still be called on the player if it's no longer required.
+   * Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
+   * player instance can still be used, and {@link #release()} must still be called on the player if
+   * it's no longer required.
    * <p>
    * Calling this method does not reset the playback position.
    */
@@ -355,8 +354,8 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Returns the duration of the current period in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME}
-   * if the duration is not known.
+   * Returns the duration of the current period in milliseconds, or {@link #UNKNOWN_TIME} if the
+   * duration is not known.
    */
   long getDuration();
 
@@ -383,7 +382,7 @@ public interface ExoPlayer {
 
   /**
    * Returns an estimate of the absolute position in milliseconds up to which data is buffered,
-   * or {@link ExoPlayer#UNKNOWN_TIME} if no estimate is available.
+   * or {@link #UNKNOWN_TIME} if no estimate is available.
    */
   long getBufferedPosition();
 
