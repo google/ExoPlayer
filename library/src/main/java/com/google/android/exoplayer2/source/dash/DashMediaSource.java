@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -499,11 +500,6 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public int getPeriodCount() {
-      return manifest.getPeriodCount();
-    }
-
-    @Override
     public boolean isFinal() {
       return !manifest.dynamic;
     }
@@ -514,24 +510,31 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public long getPeriodDurationMs(int index) {
-      if (index < 0 || index >= manifest.getPeriodCount()) {
-        throw new IndexOutOfBoundsException();
-      }
-      return manifest.getPeriodDurationMs(index);
+    public int getPeriodCount() {
+      return manifest.getPeriodCount();
     }
 
     @Override
-    public long getPeriodDurationUs(int index) {
-      if (index < 0 || index >= manifest.getPeriodCount()) {
-        throw new IndexOutOfBoundsException();
-      }
-      return manifest.getPeriodDurationUs(index);
+    public long getPeriodDurationMs(int periodIndex) {
+      Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
+      return manifest.getPeriodDurationMs(periodIndex);
     }
 
     @Override
-    public Object getPeriodId(int index) {
-      return firstPeriodId + index;
+    public long getPeriodDurationUs(int periodIndex) {
+      Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
+      return manifest.getPeriodDurationUs(periodIndex);
+    }
+
+    @Override
+    public Object getPeriodId(int periodIndex) {
+      return firstPeriodId + Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
+    }
+
+    @Override
+    public int getPeriodWindowIndex(int periodIndex) {
+      Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
+      return 0;
     }
 
     @Override
@@ -545,7 +548,8 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int index) {
+    public Window getWindow(int windowIndex) {
+      Assertions.checkIndex(windowIndex, 0, 1);
       return window;
     }
 

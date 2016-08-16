@@ -27,10 +27,9 @@ public final class Assertions {
   private Assertions() {}
 
   /**
-   * Ensures the truth of an expression involving one or more arguments passed to the calling
-   * method.
+   * Throws {@link IllegalArgumentException} if {@code expression} evaluates to false.
    *
-   * @param expression A boolean expression.
+   * @param expression The expression to evaluate.
    * @throws IllegalArgumentException If {@code expression} is false.
    */
   public static void checkArgument(boolean expression) {
@@ -40,11 +39,10 @@ public final class Assertions {
   }
 
   /**
-   * Ensures the truth of an expression involving one or more arguments passed to the calling
-   * method.
+   * Throws {@link IllegalArgumentException} if {@code expression} evaluates to false.
    *
-   * @param expression A boolean expression.
-   * @param errorMessage The exception message to use if the check fails. The message is converted
+   * @param expression The expression to evaluate.
+   * @param errorMessage The exception message if an exception is thrown. The message is converted
    *     to a {@link String} using {@link String#valueOf(Object)}.
    * @throws IllegalArgumentException If {@code expression} is false.
    */
@@ -55,9 +53,25 @@ public final class Assertions {
   }
 
   /**
-   * Ensures the truth of an expression involving the state of the calling instance.
+   * Throws {@link IndexOutOfBoundsException} if {@code index} falls outside the specified bounds.
    *
-   * @param expression A boolean expression.
+   * @param index The index to test.
+   * @param start The start of the allowed range (inclusive).
+   * @param limit The end of the allowed range (exclusive).
+   * @return The {@code index} that was validated.
+   * @throws IndexOutOfBoundsException If {@code index} falls outside the specified bounds.
+   */
+  public static int checkIndex(int index, int start, int limit) {
+    if (index < start || index >= limit) {
+      throw new IndexOutOfBoundsException();
+    }
+    return index;
+  }
+
+  /**
+   * Throws {@link IllegalStateException} if {@code expression} evaluates to false.
+   *
+   * @param expression The expression to evaluate.
    * @throws IllegalStateException If {@code expression} is false.
    */
   public static void checkState(boolean expression) {
@@ -67,11 +81,11 @@ public final class Assertions {
   }
 
   /**
-   * Ensures the truth of an expression involving the state of the calling instance.
+   * Throws {@link IllegalStateException} if {@code expression} evaluates to false.
    *
-   * @param expression A boolean expression.
-   * @param errorMessage The exception message to use if the check fails. The message is converted
-   *     to a string using {@link String#valueOf(Object)}.
+   * @param expression The expression to evaluate.
+   * @param errorMessage The exception message if an exception is thrown. The message is converted
+   *     to a {@link String} using {@link String#valueOf(Object)}.
    * @throws IllegalStateException If {@code expression} is false.
    */
   public static void checkState(boolean expression, Object errorMessage) {
@@ -81,7 +95,7 @@ public final class Assertions {
   }
 
   /**
-   * Ensures that an object reference is not null.
+   * Throws {@link NullPointerException} if {@code reference} is null.
    *
    * @param reference An object reference.
    * @return The non-null reference that was validated.
@@ -95,7 +109,7 @@ public final class Assertions {
   }
 
   /**
-   * Ensures that an object reference is not null.
+   * Throws {@link NullPointerException} if {@code reference} is null.
    *
    * @param reference An object reference.
    * @param errorMessage The exception message to use if the check fails. The message is converted
@@ -111,9 +125,9 @@ public final class Assertions {
   }
 
   /**
-   * Ensures that a string passed as an argument to the calling method is not null or 0-length.
+   * Throws {@link IllegalArgumentException} if {@code string} is null or zero length.
    *
-   * @param string A string.
+   * @param string The string to check.
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
@@ -125,9 +139,9 @@ public final class Assertions {
   }
 
   /**
-   * Ensures that a string passed as an argument to the calling method is not null or 0-length.
+   * Throws {@link IllegalArgumentException} if {@code string} is null or zero length.
    *
-   * @param string A string.
+   * @param string The string to check.
    * @param errorMessage The exception message to use if the check fails. The message is converted
    *     to a string using {@link String#valueOf(Object)}.
    * @return The non-null, non-empty string that was validated.
@@ -141,7 +155,8 @@ public final class Assertions {
   }
 
   /**
-   * Ensures that the calling thread is the application's main thread.
+   * Throws {@link IllegalStateException} if the calling thread is not the application's main
+   * thread.
    *
    * @throws IllegalStateException If the calling thread is not the application's main thread.
    */

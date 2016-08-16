@@ -59,11 +59,6 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public int getPeriodCount() {
-    return 1;
-  }
-
-  @Override
   public boolean isFinal() {
     return isFinal;
   }
@@ -74,27 +69,32 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public long getPeriodDurationMs(int index) {
-    if (index != 0) {
-      throw new IndexOutOfBoundsException();
-    }
+  public int getPeriodCount() {
+    return 1;
+  }
+
+  @Override
+  public long getPeriodDurationMs(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
     return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (durationUs / 1000);
   }
 
   @Override
-  public long getPeriodDurationUs(int index) {
-    if (index != 0) {
-      throw new IndexOutOfBoundsException();
-    }
+  public long getPeriodDurationUs(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
     return durationUs;
   }
 
   @Override
-  public Object getPeriodId(int index) {
-    if (index != 0) {
-      throw new IndexOutOfBoundsException();
-    }
+  public Object getPeriodId(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
     return id;
+  }
+
+  @Override
+  public int getPeriodWindowIndex(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
+    return 0;
   }
 
   @Override
@@ -108,7 +108,8 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public Window getWindow(int index) {
+  public Window getWindow(int windowIndex) {
+    Assertions.checkIndex(windowIndex, 0, 1);
     return window;
   }
 
