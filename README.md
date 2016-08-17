@@ -16,7 +16,7 @@ and extend, and can be updated through Play Store application updates.
 
 [developer guide]: https://google.github.io/ExoPlayer/guide.html
 [class reference]: https://google.github.io/ExoPlayer/doc/reference
-[release notes]: https://github.com/google/ExoPlayer/blob/dev/RELEASENOTES.md
+[release notes]: https://github.com/google/ExoPlayer/blob/dev-v2/RELEASENOTES.md
 
 ## Using ExoPlayer ##
 
