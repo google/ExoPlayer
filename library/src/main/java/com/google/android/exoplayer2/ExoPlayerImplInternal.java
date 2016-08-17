@@ -50,13 +50,16 @@ import java.io.IOException;
   public static final class PlaybackInfo {
 
     public final int periodIndex;
+    public final long startPositionUs;
 
     public volatile long positionUs;
     public volatile long bufferedPositionUs;
-    public volatile long startPositionUs;
 
-    public PlaybackInfo(int periodIndex) {
+    public PlaybackInfo(int periodIndex, long startPositionUs) {
       this.periodIndex = periodIndex;
+      this.startPositionUs = startPositionUs;
+      positionUs = startPositionUs;
+      bufferedPositionUs = startPositionUs;
     }
 
   }
@@ -336,9 +339,7 @@ import java.io.IOException;
       throws ExoPlaybackException {
     resetInternal();
     if (resetPosition) {
-      playbackInfo = new PlaybackInfo(0);
-      playbackInfo.startPositionUs = C.UNSET_TIME_US;
-      playbackInfo.positionUs = C.UNSET_TIME_US;
+      playbackInfo = new PlaybackInfo(0, C.UNSET_TIME_US);
     }
     this.mediaSource = mediaSource;
     mediaSource.prepareSource(this);
@@ -509,28 +510,19 @@ import java.io.IOException;
         // Seek position equals the current position. Do nothing.
         return;
       }
-      seekToPeriodPosition(periodIndex, positionUs);
+      positionUs = seekToPeriodPosition(periodIndex, positionUs);
     } finally {
-      eventHandler.sendEmptyMessage(MSG_SEEK_ACK);
+      playbackInfo = new PlaybackInfo(periodIndex, positionUs);
+      eventHandler.obtainMessage(MSG_SEEK_ACK, playbackInfo).sendToTarget();
     }
   }
 
-  private void seekToPeriodPosition(int periodIndex, long positionUs) throws ExoPlaybackException {
-    if (periodIndex != playbackInfo.periodIndex) {
-      playbackInfo = new PlaybackInfo(periodIndex);
-      playbackInfo.startPositionUs = positionUs;
-      playbackInfo.positionUs = positionUs;
-      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
-    } else {
-      playbackInfo.startPositionUs = positionUs;
-      playbackInfo.positionUs = positionUs;
-    }
-
+  private long seekToPeriodPosition(int periodIndex, long positionUs) throws ExoPlaybackException {
     if (mediaSource == null) {
       if (positionUs != C.UNSET_TIME_US) {
         resetInternalPosition(positionUs);
       }
-      return;
+      return positionUs;
     }
 
     stopRenderers();
@@ -539,7 +531,7 @@ import java.io.IOException;
 
     if (positionUs == C.UNSET_TIME_US
         || (readingPeriod != playingPeriod && (periodIndex == playingPeriod.index
-            || (readingPeriod != null && periodIndex == readingPeriod.index)))) {
+        || (readingPeriod != null && periodIndex == readingPeriod.index)))) {
       // Clear the timeline because either the seek position is not known, or a renderer is reading
       // ahead to the next period and the seek is to either the playing or reading period.
       periodIndex = Timeline.NO_PERIOD_INDEX;
@@ -577,8 +569,6 @@ import java.io.IOException;
       loadingPeriod = playingPeriod;
       if (playingPeriod.hasEnabledTracks) {
         positionUs = playingPeriod.mediaPeriod.seekToUs(positionUs);
-        playbackInfo.startPositionUs = positionUs;
-        playbackInfo.positionUs = positionUs;
       }
       resetInternalPosition(positionUs);
       maybeContinueLoading();
@@ -592,6 +582,7 @@ import java.io.IOException;
     }
     updatePlaybackPositions();
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    return positionUs;
   }
 
   private void resetInternalPosition(long periodPositionUs) throws ExoPlaybackException {
@@ -821,11 +812,16 @@ import java.io.IOException;
 
         MediaSource.Position defaultStartPosition =
             mediaSource.getDefaultStartPosition(newPlayingPeriodIndex);
+        long newPlayingPositionUs;
         if (defaultStartPosition != null) {
-          seekToPeriodPosition(defaultStartPosition.periodIndex, defaultStartPosition.positionUs);
+          newPlayingPeriodIndex = defaultStartPosition.periodIndex;
+          newPlayingPositionUs = seekToPeriodPosition(defaultStartPosition.periodIndex,
+              defaultStartPosition.positionUs);
         } else {
-          seekToPeriodPosition(newPlayingPeriodIndex, C.UNSET_TIME_US);
+          newPlayingPositionUs = seekToPeriodPosition(newPlayingPeriodIndex, C.UNSET_TIME_US);
         }
+        playbackInfo = new PlaybackInfo(newPlayingPeriodIndex, newPlayingPositionUs);
+        eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
         return;
       }
 
@@ -842,13 +838,17 @@ import java.io.IOException;
         if (!period.id.equals(timeline.getPeriodId(index))) {
           if (!seenReadingPeriod) {
             // Renderers may have read a period that has been removed, so release all loaded periods
-            // and seek to the playing period index.
+            // and seek to the current position of the playing period index.
             index = playingPeriod.index;
             releasePeriodsFrom(playingPeriod);
             playingPeriod = null;
             readingPeriod = null;
             loadingPeriod = null;
-            seekToPeriodPosition(index, 0);
+            long newPositionUs = seekToPeriodPosition(index, playbackInfo.positionUs);
+            if (newPositionUs != playbackInfo.positionUs) {
+              playbackInfo = new PlaybackInfo(index, newPositionUs);
+              eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
+            }
             return;
           }
 
@@ -886,9 +886,7 @@ import java.io.IOException;
           : loadingPeriod != null ? loadingPeriod.index : Timeline.NO_PERIOD_INDEX;
       if (newPlayingIndex != Timeline.NO_PERIOD_INDEX
           && newPlayingIndex != playbackInfo.periodIndex) {
-        long oldPositionUs = playbackInfo.positionUs;
-        playbackInfo = new PlaybackInfo(newPlayingIndex);
-        playbackInfo.startPositionUs = oldPositionUs;
+        playbackInfo = new PlaybackInfo(newPlayingIndex, playbackInfo.positionUs);
         updatePlaybackPositions();
         eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
       }
@@ -963,8 +961,7 @@ import java.io.IOException;
       playingPeriod.release();
       setPlayingPeriod(playingPeriod.nextPeriod);
       bufferAheadPeriodCount--;
-      playbackInfo = new PlaybackInfo(playingPeriod.index);
-      playbackInfo.startPositionUs = playingPeriod.startPositionUs;
+      playbackInfo = new PlaybackInfo(playingPeriod.index, playingPeriod.startPositionUs);
       updatePlaybackPositions();
       eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
     }
@@ -1022,8 +1019,7 @@ import java.io.IOException;
       setPlayingPeriod(readingPeriod);
       if (playbackInfo.startPositionUs == C.UNSET_TIME_US) {
         // Update the playback info when seeking to a default position.
-        playbackInfo = new PlaybackInfo(playingPeriod.index);
-        playbackInfo.startPositionUs = playingPeriod.startPositionUs;
+        playbackInfo = new PlaybackInfo(playingPeriod.index, playingPeriod.startPositionUs);
         resetInternalPosition(playbackInfo.startPositionUs);
         updatePlaybackPositions();
         eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();

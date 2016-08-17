@@ -74,7 +74,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0);
+    playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
     internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
         eventHandler, playbackInfo);
   }
@@ -237,6 +237,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         if (--pendingSeekAcks == 0) {
+          playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           long positionMs = playbackInfo.startPositionUs == C.UNSET_TIME_US ? 0
               : playbackInfo.startPositionUs / 1000;
           if (playbackInfo.periodIndex != maskingPeriodIndex || positionMs != maskingPositionMs) {
@@ -248,8 +249,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_POSITION_DISCONTINUITY: {
-        playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
         if (pendingSeekAcks == 0) {
+          playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           for (EventListener listener : listeners) {
             listener.onPositionDiscontinuity(playbackInfo.periodIndex,
                 playbackInfo.startPositionUs / 1000);
