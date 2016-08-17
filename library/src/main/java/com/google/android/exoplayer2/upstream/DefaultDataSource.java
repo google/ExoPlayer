@@ -55,14 +55,33 @@ public final class DefaultDataSource implements DataSource {
    * @param listener An optional listener.
    * @param userAgent The User-Agent string that should be used when requesting remote data.
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled when fetching remote data..
+   *     to HTTPS and vice versa) are enabled when fetching remote data.
    */
   public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
       String userAgent, boolean allowCrossProtocolRedirects) {
+    this(context, listener, userAgent, DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, allowCrossProtocolRedirects);
+  }
+
+  /**
+   * Constructs a new instance, optionally configured to follow cross-protocol redirects.
+   *
+   * @param context A context.
+   * @param listener An optional listener.
+   * @param userAgent The User-Agent string that should be used when requesting remote data.
+   * @param connectTimeoutMillis The connection timeout that should be used when requesting remote
+   *     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.
+   * @param readTimeoutMillis The read timeout that should be used when requesting remote data,
+   *     in milliseconds. A timeout of zero is interpreted as an infinite timeout.
+   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
+   *     to HTTPS and vice versa) are enabled when fetching remote data.
+   */
+  public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
+      String userAgent, int connectTimeoutMillis, int readTimeoutMillis,
+      boolean allowCrossProtocolRedirects) {
     this(context, listener,
-        new DefaultHttpDataSource(userAgent, null, listener,
-            DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
-            DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, allowCrossProtocolRedirects));
+        new DefaultHttpDataSource(userAgent, null, listener, connectTimeoutMillis,
+            readTimeoutMillis, allowCrossProtocolRedirects));
   }
 
   /**
