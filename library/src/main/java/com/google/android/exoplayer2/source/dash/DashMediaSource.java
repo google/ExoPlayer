@@ -87,7 +87,8 @@ public final class DashMediaSource implements MediaSource {
   private final ManifestCallback manifestCallback;
   private final Object manifestUriLock;
   private final SparseArray<DashMediaPeriod> periodsById;
-  private final Runnable refreshSourceInfoRunnable;
+  private final Runnable refreshManifestRunnable;
+  private final Runnable simulateManifestRefreshRunnable;
 
   private MediaSource.Listener sourceListener;
   private DataSource dataSource;
@@ -124,10 +125,16 @@ public final class DashMediaSource implements MediaSource {
     manifestCallback = new ManifestCallback();
     manifestUriLock = new Object();
     periodsById = new SparseArray<>();
-    refreshSourceInfoRunnable = new Runnable() {
+    refreshManifestRunnable = new Runnable() {
       @Override
       public void run() {
-        refreshSourceInfo();
+        startLoadingManifest();
+      }
+    };
+    simulateManifestRefreshRunnable = new Runnable() {
+      @Override
+      public void run() {
+        processManifest();
       }
     };
   }
@@ -236,18 +243,18 @@ public final class DashMediaSource implements MediaSource {
     DashManifest newManifest = loadable.getResult();
 
     int periodCount = manifest == null ? 0 : manifest.getPeriodCount();
-    int periodsToRemoveCount = 0;
+    int removedPeriodCount = 0;
     long newFirstPeriodStartTimeMs = newManifest.getPeriod(0).startMs;
-    while (periodsToRemoveCount < periodCount
-        && manifest.getPeriod(periodsToRemoveCount).startMs < newFirstPeriodStartTimeMs) {
-      periodsToRemoveCount++;
+    while (removedPeriodCount < periodCount
+        && manifest.getPeriod(removedPeriodCount).startMs < newFirstPeriodStartTimeMs) {
+      removedPeriodCount++;
     }
 
     // After discarding old periods, we should never have more periods than listed in the new
     // manifest. That would mean that a previously announced period is no longer advertised. If
     // this condition occurs, assume that we are hitting a manifest server that is out of sync and
     // behind, discard this manifest, and try again later.
-    if (periodCount - periodsToRemoveCount > newManifest.getPeriodCount()) {
+    if (periodCount - removedPeriodCount > newManifest.getPeriodCount()) {
       Log.w(TAG, "Out of sync manifest");
       scheduleManifestRefresh();
       return;
@@ -270,31 +277,11 @@ public final class DashMediaSource implements MediaSource {
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
-        finishManifestProcessing();
+        processManifestAndScheduleRefresh();
       }
     } else {
-      // Remove old periods.
-      while (periodsToRemoveCount-- > 0) {
-        firstPeriodId++;
-        periodCount--;
-      }
-
-      // Update existing periods. Only the first and the last periods can change.
-      if (periodCount > 0) {
-        updatePeriod(0);
-        if (periodCount > 1) {
-          updatePeriod(periodCount - 1);
-        }
-      }
-
-      finishManifestProcessing();
-    }
-  }
-
-  private void updatePeriod(int index) {
-    DashMediaPeriod period = periodsById.get(firstPeriodId + index);
-    if (period != null) {
-      period.updateManifest(manifest, index);
+      firstPeriodId += removedPeriodCount;
+      processManifestAndScheduleRefresh();
     }
   }
 
@@ -370,22 +357,27 @@ public final class DashMediaSource implements MediaSource {
 
   private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
-    finishManifestProcessing();
+    processManifestAndScheduleRefresh();
   }
 
   private void onUtcTimestampResolutionError(IOException error) {
     Log.e(TAG, "Failed to resolve UtcTiming element.", error);
     // Be optimistic and continue in the hope that the device clock is correct.
-    finishManifestProcessing();
+    processManifestAndScheduleRefresh();
   }
 
-  private void finishManifestProcessing() {
-    handler.removeCallbacks(refreshSourceInfoRunnable);
-    refreshSourceInfo();
+  private void processManifestAndScheduleRefresh() {
+    processManifest();
     scheduleManifestRefresh();
   }
 
-  private void refreshSourceInfo() {
+  private void processManifest() {
+    // Update any periods.
+    for (int i = 0; i < periodsById.size(); i++) {
+      periodsById.valueAt(i).updateManifest(manifest, firstPeriodId + periodsById.keyAt(i));
+    }
+    // Remove any pending simulated updates.
+    handler.removeCallbacks(simulateManifestRefreshRunnable);
     // Update the window.
     int lastPeriodIndex = manifest.getPeriodCount() - 1;
     PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
@@ -395,9 +387,6 @@ public final class DashMediaSource implements MediaSource {
     long currentStartTimeUs;
     long currentEndTimeUs;
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
-      // The window is changing so post a Runnable to update it.
-      handler.postDelayed(refreshSourceInfoRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
-
       long minStartPositionUs = firstPeriodSeekInfo.availableStartTimeUs;
       long maxEndPositionUs = lastPeriodSeekInfo.availableEndTimeUs;
       long timeShiftBufferDepthUs = manifest.timeShiftBufferDepth == -1 ? -1
@@ -406,8 +395,9 @@ public final class DashMediaSource implements MediaSource {
           getNowUnixTimeUs() - manifest.availabilityStartTime * 1000);
       currentStartTimeUs = timeShiftBufferDepthUs == -1 ? minStartPositionUs
           : Math.max(minStartPositionUs, currentEndTimeUs - timeShiftBufferDepthUs);
+      // The window is changing implicitly. Post a simulated manifest refresh to update it.
+      handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
     } else {
-      handler.removeCallbacks(refreshSourceInfoRunnable);
       currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
       currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     }
@@ -435,12 +425,7 @@ public final class DashMediaSource implements MediaSource {
     }
     long nextLoadTimestamp = manifestLoadStartTimestamp + minUpdatePeriod;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        startLoadingManifest();
-      }
-    }, delayUntilNextLoad);
+    handler.postDelayed(refreshManifestRunnable, delayUntilNextLoad);
   }
 
   private <T> void startLoading(ParsingLoadable<T> loadable,
