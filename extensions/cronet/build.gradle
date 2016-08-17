@@ -20,6 +20,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 23
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -38,7 +39,9 @@ dependencies {
     compile project(':library')
     compile files('libs/cronet_api.jar')
     compile files('libs/cronet.jar')
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-all:1.9.5'
-    testCompile 'org.robolectric:robolectric:3.1.1'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile project(':library')
+    androidTestCompile 'com.android.support.test:runner:0.4'
 }
