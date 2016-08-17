@@ -416,7 +416,7 @@ public final class DashMediaSource implements MediaSource {
       windowDurationUs += manifest.getPeriodDurationUs(i);
     }
     window = Window.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs,
-        windowDurationUs, true);
+        windowDurationUs, true /* isSeekable */, manifest.dynamic);
     sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, manifest, window),
         manifest);
   }
@@ -515,11 +515,6 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public boolean isFinal() {
-      return !manifest.dynamic;
-    }
-
-    @Override
     public long getAbsoluteStartTime() {
       return manifest.availabilityStartTime + manifest.getPeriod(0).startMs;
     }
@@ -544,6 +539,12 @@ public final class DashMediaSource implements MediaSource {
     @Override
     public Object getPeriodId(int periodIndex) {
       return firstPeriodId + Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
+    }
+
+    @Override
+    public Window getPeriodWindow(int periodIndex) {
+      Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
+      return window;
     }
 
     @Override

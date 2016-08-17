@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -371,8 +372,14 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       debugViewHelper = null;
       playerPeriodIndex = player.getCurrentPeriodIndex();
       playerPosition = player.getCurrentPosition();
+      shouldRestorePosition = false;
       Timeline playerTimeline = player.getCurrentTimeline();
-      shouldRestorePosition = playerTimeline != null && playerTimeline.isFinal();
+      if (playerTimeline != null) {
+        Window window = playerTimeline.getWindow(playerPeriodIndex);
+        if (window.isSeekable && !window.isDynamic) {
+          shouldRestorePosition = true;
+        }
+      }
       player.release();
       player = null;
       trackSelector = null;

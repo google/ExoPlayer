@@ -829,11 +829,9 @@ import java.io.IOException;
         return;
       }
 
-      // The playing period is also in the new timeline. Update index and isLast on each loaded
-      // period until a period is found that has changed.
-      int periodCount = timeline.getPeriodCount();
-      playingPeriod.index = index;
-      playingPeriod.isLast = timeline.isFinal() && index == periodCount - 1;
+      // The playing period is also in the new timeline. Update the index for each loaded period
+      // until a period is found that does not match the old timeline.
+      playingPeriod.setIndex(timeline, index);
 
       Period previousPeriod = playingPeriod;
       boolean seenReadingPeriod = false;
@@ -864,8 +862,7 @@ import java.io.IOException;
         }
 
         bufferAheadPeriodCount++;
-        period.index = index;
-        period.isLast = timeline.isFinal() && index == periodCount - 1;
+        period.setIndex(timeline, index);
         if (period == readingPeriod) {
           seenReadingPeriod = true;
         }
@@ -879,9 +876,7 @@ import java.io.IOException;
         loadingPeriod = null;
         bufferAheadPeriodCount = 0;
       } else {
-        int periodCount = timeline.getPeriodCount();
-        loadingPeriod.index = index;
-        loadingPeriod.isLast = timeline.isFinal() && index == periodCount - 1;
+        loadingPeriod.setIndex(timeline, index);
       }
     }
 
@@ -932,8 +927,8 @@ import java.io.IOException;
         MediaPeriod mediaPeriod = mediaSource.createPeriod(periodIndex, this,
             loadControl.getAllocator(), startPositionUs);
         Period newPeriod = new Period(renderers, rendererCapabilities, trackSelector, mediaSource,
-            mediaPeriod, timeline.getPeriodId(periodIndex), periodIndex, startPositionUs);
-        newPeriod.isLast = timeline.isFinal() && periodIndex == timeline.getPeriodCount() - 1;
+            mediaPeriod, timeline.getPeriodId(periodIndex), startPositionUs);
+        newPeriod.setIndex(timeline, periodIndex);
         if (loadingPeriod != null) {
           loadingPeriod.setNextPeriod(newPeriod);
           newPeriod.offsetUs = loadingPeriod.offsetUs
@@ -1177,7 +1172,7 @@ import java.io.IOException;
 
     public Period(Renderer[] renderers, RendererCapabilities[] rendererCapabilities,
         TrackSelector trackSelector, MediaSource mediaSource, MediaPeriod mediaPeriod, Object id,
-        int index, long positionUs) {
+        long positionUs) {
       this.renderers = renderers;
       this.rendererCapabilities = rendererCapabilities;
       this.trackSelector = trackSelector;
@@ -1187,11 +1182,15 @@ import java.io.IOException;
       sampleStreams = new SampleStream[renderers.length];
       mayRetainStreamFlags = new boolean[renderers.length];
       startPositionUs = positionUs;
-      this.index = index;
     }
 
     public void setNextPeriod(Period nextPeriod) {
       this.nextPeriod = nextPeriod;
+    }
+
+    public void setIndex(Timeline timeline, int index) {
+      this.index = index;
+      isLast = index == timeline.getPeriodCount() - 1 && !timeline.getPeriodWindow(index).isDynamic;
     }
 
     public boolean isFullyBuffered() {

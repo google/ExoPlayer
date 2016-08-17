@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Merges multiple {@link MediaPeriod} instances.
  * <p>
- * The {@link MediaSource}s being merged must have final timelines and equal period counts.
+ * The {@link MediaSource}s being merged must have final windows and an equal number of periods.
  */
 public final class MergingMediaSource implements MediaSource {
 
@@ -111,7 +111,10 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   private void checkConsistentTimeline(Timeline timeline) {
-    Assertions.checkArgument(timeline.isFinal());
+    int windowCount = timeline.getWindowCount();
+    for (int i = 0; i < windowCount; i++) {
+      Assertions.checkArgument(!timeline.getWindow(i).isDynamic);
+    }
     int periodCount = timeline.getPeriodCount();
     if (this.periodCount == -1) {
       this.periodCount = periodCount;

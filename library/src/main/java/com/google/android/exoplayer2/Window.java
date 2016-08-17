@@ -26,9 +26,11 @@ public final class Window {
    *
    * @param durationUs The duration of the window, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
+   * @param isDynamic Whether this seek window may change when the timeline is updated.
    */
-  public static Window createWindowFromZero(long durationUs, boolean isSeekable) {
-    return createWindow(0, 0, 0, durationUs, durationUs, isSeekable);
+  public static Window createWindowFromZero(long durationUs, boolean isSeekable,
+      boolean isDynamic) {
+    return createWindow(0, 0, 0, durationUs, durationUs, isSeekable, isDynamic);
   }
 
   /**
@@ -42,13 +44,14 @@ public final class Window {
    *     specified end period.
    * @param durationUs The duration of the window in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
+   * @param isDynamic Whether this seek window may change when the timeline is updated.
    */
   public static Window createWindow(int startPeriodIndex, long startTimeUs,
-      int endPeriodIndex, long endTimeUs, long durationUs, boolean isSeekable) {
+      int endPeriodIndex, long endTimeUs, long durationUs, boolean isSeekable, boolean isDynamic) {
     return new Window(startPeriodIndex, startTimeUs / 1000, endPeriodIndex,
         endTimeUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (endTimeUs / 1000),
         durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (durationUs / 1000),
-        isSeekable);
+        isSeekable, isDynamic);
   }
 
   /**
@@ -77,15 +80,20 @@ public final class Window {
    * Whether it's possible to seek within the window.
    */
   public final boolean isSeekable;
+  /**
+   * Whether this seek window may change when the timeline is updated.
+   */
+  public final boolean isDynamic;
 
   private Window(int startPeriodIndex, long startTimeMs, int endPeriodIndex, long endTimeMs,
-      long durationMs, boolean isSeekable) {
+      long durationMs, boolean isSeekable, boolean isDynamic) {
     this.startPeriodIndex = startPeriodIndex;
     this.startTimeMs = startTimeMs;
     this.endPeriodIndex = endPeriodIndex;
     this.endTimeMs = endTimeMs;
     this.durationMs = durationMs;
     this.isSeekable = isSeekable;
+    this.isDynamic = isDynamic;
   }
 
   /**
@@ -97,7 +105,7 @@ public final class Window {
    */
   public Window copyOffsetByPeriodCount(int periodCount) {
     return new Window(startPeriodIndex + periodCount, startTimeMs, endPeriodIndex + periodCount,
-        endTimeMs, durationMs, isSeekable);
+        endTimeMs, durationMs, isSeekable, isDynamic);
   }
 
   @Override
@@ -107,6 +115,7 @@ public final class Window {
     result = 31 * result + (int) startTimeMs;
     result = 31 * result + endPeriodIndex;
     result = 31 * result + (int) endTimeMs;
+    result = 31 * result + (isDynamic ? 1 : 2);
     return result;
   }
 
@@ -124,13 +133,14 @@ public final class Window {
         && other.endPeriodIndex == endPeriodIndex
         && other.endTimeMs == endTimeMs
         && other.durationMs == durationMs
-        && other.isSeekable == isSeekable;
+        && other.isSeekable == isSeekable
+        && other.isDynamic == isDynamic;
   }
 
   @Override
   public String toString() {
     return "Window[" + startPeriodIndex + ", " + startTimeMs + ", " + endPeriodIndex + ", "
-        + endTimeMs + "]";
+        + endTimeMs + ", " + isDynamic + "]";
   }
 
 }

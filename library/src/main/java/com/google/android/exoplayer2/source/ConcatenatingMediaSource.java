@@ -130,13 +130,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
   private static final class ConcatenatedTimeline implements Timeline {
 
     private final Timeline[] timelines;
-    private final boolean isFinal;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
     private final Window[] windows;
 
     public ConcatenatedTimeline(Timeline[] timelines) {
-      boolean isFinal = true;
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       int periodCount = 0;
@@ -144,7 +142,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
       ArrayList<Window> concatenatedWindows = new ArrayList<>();
       for (int i = 0; i < timelines.length; i++) {
         Timeline timeline = timelines[i];
-        isFinal &= timeline.isFinal();
         // Offset the windows so they are relative to the source.
         int sourceWindowCount = timeline.getWindowCount();
         for (int j = 0; j < sourceWindowCount; j++) {
@@ -157,15 +154,9 @@ public final class ConcatenatingMediaSource implements MediaSource {
         sourceWindowOffsets[i] = windowCount;
       }
       this.timelines = timelines;
-      this.isFinal = isFinal;
       this.sourcePeriodOffsets = sourcePeriodOffsets;
       this.sourceWindowOffsets = sourceWindowOffsets;
       windows = concatenatedWindows.toArray(new Window[concatenatedWindows.size()]);
-    }
-
-    @Override
-    public boolean isFinal() {
-      return isFinal;
     }
 
     @Override
@@ -198,6 +189,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(periodIndex);
       Object periodId = timelines[sourceIndex].getPeriodId(periodIndex - firstPeriodIndexInSource);
       return Pair.create(sourceIndex, periodId);
+    }
+
+    @Override
+    public Window getPeriodWindow(int periodIndex) {
+      return windows[getPeriodWindowIndex(periodIndex)];
     }
 
     @Override

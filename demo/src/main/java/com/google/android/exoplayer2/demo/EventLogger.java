@@ -87,11 +87,10 @@ import java.util.Locale;
 
   @Override
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    boolean isFinal = timeline.isFinal();
     int periodCount = timeline.getPeriodCount();
     int windowCount = timeline.getWindowCount();
-    Log.d(TAG, "sourceInfo[isFinal=" + isFinal + ", startTime=" + timeline.getAbsoluteStartTime()
-        + ", periodCount=" + periodCount + ", windows: " + windowCount);
+    Log.d(TAG, "sourceInfo[startTime=" + timeline.getAbsoluteStartTime() + ", periodCount="
+        + periodCount + ", windows: " + windowCount);
     for (int windowIndex = 0; windowIndex < windowCount; windowIndex++) {
       Log.d(TAG, "  " + timeline.getWindow(windowIndex));
     }

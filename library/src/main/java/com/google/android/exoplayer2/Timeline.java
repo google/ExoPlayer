@@ -32,11 +32,6 @@ public interface Timeline {
   int getPeriodCount();
 
   /**
-   * Returns whether the timeline is final, which means it will not change.
-   */
-  boolean isFinal();
-
-  /**
    * Returns the absolute start time of the timeline in milliseconds.
    */
   long getAbsoluteStartTime();
@@ -68,6 +63,14 @@ public interface Timeline {
    * @return An identifier for the period, or {@code null} if the period is not known.
    */
   Object getPeriodId(int periodIndex);
+
+  /**
+   * Returns the {@link Window} to which the period with the specified index belongs.
+   *
+   * @param periodIndex The period index.
+   * @return The corresponding window.
+   */
+  Window getPeriodWindow(int periodIndex);
 
   /**
    * Returns the index of the window to which the period with the specified index belongs.

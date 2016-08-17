@@ -196,7 +196,8 @@ public final class SsMediaSource implements MediaSource,
           startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
         }
         long durationUs = endTimeUs - startTimeUs;
-        Window window = Window.createWindow(0, startTimeUs, 0, endTimeUs, durationUs, true);
+        Window window = Window.createWindow(0, startTimeUs, 0, endTimeUs, durationUs,
+            true /* isSeekable */, true /* isDynamic */);
         timeline = new SinglePeriodTimeline(endTimeUs, window);
       }
     } else {

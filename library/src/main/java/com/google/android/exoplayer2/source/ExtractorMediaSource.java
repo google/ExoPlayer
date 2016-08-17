@@ -36,8 +36,8 @@ import java.io.IOException;
  * If the possible input stream container formats are known, pass a factory that instantiates
  * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to
  * use the default extractors. When reading a new stream, the first {@link Extractor} in the array
- * of extractors created by the factory that returns {@code true} from
- * {@link Extractor#sniff(ExtractorInput)} will be used to extract samples from the input stream.
+ * of extractors created by the factory that returns {@code true} from {@link Extractor#sniff} will
+ * be used to extract samples from the input stream.
  * <p>
  * Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
  */
@@ -177,10 +177,13 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
 
   @Override
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    if (!this.timeline.isFinal() || timeline.getPeriodDurationUs(0) != C.UNSET_TIME_US) {
-      this.timeline = timeline;
-      sourceListener.onSourceInfoRefreshed(timeline, null);
+    if (this.timeline.getPeriodDurationUs(0) != C.UNSET_TIME_US
+        && timeline.getPeriodDurationUs(0) == C.UNSET_TIME_US) {
+      // Suppress source info changes that would make the duration unknown when it is already known.
+      return;
     }
+    this.timeline = timeline;
+    sourceListener.onSourceInfoRefreshed(timeline, null);
   }
 
 }

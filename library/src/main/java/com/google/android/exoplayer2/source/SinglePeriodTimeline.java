@@ -22,30 +22,29 @@ import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * A {@link Timeline} consisting of a single period and window.
+ * A {@link Timeline} consisting of a single period and static window.
  */
 public final class SinglePeriodTimeline implements Timeline {
 
   private static final Object ID = new Object();
 
-  private final boolean isFinal;
   private final long durationUs;
   private final Window window;
 
   /**
-   * Creates a final timeline with one period of known duration and a window extending from
-   * zero to its duration.
+   * Creates a timeline with one period of known duration and a window extending from zero to its
+   * duration.
    *
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
    */
   public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
-    this(durationUs, Window.createWindowFromZero(durationUs, isSeekable));
+    this(durationUs, Window.createWindowFromZero(durationUs, isSeekable, false /* isDynamic */));
   }
 
   /**
-   * Creates a final timeline with one period of known duration and a window extending from
-   * zero to its duration.
+   * Creates a timeline with one period of known duration and a window extending from zero to its
+   * duration.
    *
    * @param durationUs The duration of the period, in microseconds.
    * @param window The available window within the period.
@@ -53,12 +52,6 @@ public final class SinglePeriodTimeline implements Timeline {
   public SinglePeriodTimeline(long durationUs, Window window) {
     this.durationUs = durationUs;
     this.window = window;
-    this.isFinal = true; // TODO: Remove.
-  }
-
-  @Override
-  public boolean isFinal() {
-    return isFinal;
   }
 
   @Override
@@ -87,6 +80,12 @@ public final class SinglePeriodTimeline implements Timeline {
   public Object getPeriodId(int periodIndex) {
     Assertions.checkIndex(periodIndex, 0, 1);
     return ID;
+  }
+
+  @Override
+  public Window getPeriodWindow(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
+    return window;
   }
 
   @Override
