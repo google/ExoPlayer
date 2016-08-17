@@ -127,7 +127,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private boolean playerNeedsSource;
 
   private boolean shouldRestorePosition;
-  private int playerPeriodIndex;
+  private int playerPeriod;
   private long playerPosition;
 
   // Activity lifecycle
@@ -163,7 +163,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   @Override
   public void onNewIntent(Intent intent) {
     releasePlayer();
-    playerPosition = 0;
+    shouldRestorePosition = false;
     setIntent(intent);
   }
 
@@ -281,7 +281,11 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setVideoListener(this);
       player.setVideoSurfaceHolder(surfaceView.getHolder());
       if (shouldRestorePosition) {
-        player.seekInPeriod(playerPeriodIndex, playerPosition);
+        if (playerPosition == -1) {
+          player.seekToDefaultPositionForPeriod(playerPeriod);
+        } else {
+          player.seekInPeriod(playerPeriod, playerPosition);
+        }
       }
       player.setPlayWhenReady(true);
       mediaController.setMediaPlayer(new PlayerControl(player));
@@ -370,14 +374,14 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       shutterView.setVisibility(View.VISIBLE);
       debugViewHelper.stop();
       debugViewHelper = null;
-      playerPeriodIndex = player.getCurrentPeriodIndex();
-      playerPosition = player.getCurrentPositionInPeriod();
       shouldRestorePosition = false;
       Timeline playerTimeline = player.getCurrentTimeline();
       if (playerTimeline != null) {
-        Window window = playerTimeline.getWindow(playerPeriodIndex);
-        if (window.isSeekable && !window.isDynamic) {
+        Window window = playerTimeline.getWindow(player.getCurrentWindowIndex());
+        if (!window.isDynamic) {
           shouldRestorePosition = true;
+          playerPeriod = player.getCurrentPeriodIndex();
+          playerPosition = window.isSeekable ? player.getCurrentPositionInPeriod() : -1;
         }
       }
       player.release();
