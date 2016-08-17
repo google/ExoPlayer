@@ -414,7 +414,7 @@ import java.io.IOException;
     if (playingPeriod == null) {
       // We're still waiting for the first period to be prepared.
       maybeThrowPeriodPrepareError();
-      scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, PREPARING_SOURCE_INTERVAL_MS);
+      scheduleNextWork(operationStartTimeMs, PREPARING_SOURCE_INTERVAL_MS);
       return;
     }
 
@@ -471,24 +471,25 @@ import java.io.IOException;
       }
     }
 
-    handler.removeMessages(MSG_DO_SOME_WORK);
     if ((playWhenReady && state == ExoPlayer.STATE_READY) || state == ExoPlayer.STATE_BUFFERING) {
-      scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, RENDERING_INTERVAL_MS);
+      scheduleNextWork(operationStartTimeMs, RENDERING_INTERVAL_MS);
     } else if (enabledRenderers.length != 0) {
-      scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, IDLE_INTERVAL_MS);
+      scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
+    } else {
+      handler.removeMessages(MSG_DO_SOME_WORK);
     }
 
     TraceUtil.endSection();
   }
 
-  private void scheduleNextOperation(int operationType, long thisOperationStartTimeMs,
-      long intervalMs) {
+  private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
+    handler.removeMessages(MSG_DO_SOME_WORK);
     long nextOperationStartTimeMs = thisOperationStartTimeMs + intervalMs;
     long nextOperationDelayMs = nextOperationStartTimeMs - SystemClock.elapsedRealtime();
     if (nextOperationDelayMs <= 0) {
-      handler.sendEmptyMessage(operationType);
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } else {
-      handler.sendEmptyMessageDelayed(operationType, nextOperationDelayMs);
+      handler.sendEmptyMessageDelayed(MSG_DO_SOME_WORK, nextOperationDelayMs);
     }
   }
 
@@ -758,7 +759,7 @@ import java.io.IOException;
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
-  public boolean haveSufficientBuffer(boolean rebuffering) {
+  private boolean haveSufficientBuffer(boolean rebuffering) {
     if (loadingPeriod == null) {
       return false;
     }
@@ -774,7 +775,7 @@ import java.io.IOException;
     return loadControl.shouldStartPlayback(bufferedPositionUs - positionUs, rebuffering);
   }
 
-  public void maybeThrowPeriodPrepareError() throws IOException {
+  private void maybeThrowPeriodPrepareError() throws IOException {
     if (loadingPeriod != null && !loadingPeriod.prepared
         && (readingPeriod == null || readingPeriod.nextPeriod == loadingPeriod)) {
       for (Renderer renderer : enabledRenderers) {
@@ -786,7 +787,7 @@ import java.io.IOException;
     }
   }
 
-  public void handleSourceInfoRefreshed(Pair<Timeline, Object> timelineAndManifest)
+  private void handleSourceInfoRefreshed(Pair<Timeline, Object> timelineAndManifest)
       throws ExoPlaybackException, IOException {
     eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, timelineAndManifest).sendToTarget();
     Timeline oldTimeline = this.timeline;
@@ -893,7 +894,7 @@ import java.io.IOException;
     }
   }
 
-  public void updatePeriods() throws ExoPlaybackException, IOException {
+  private void updatePeriods() throws ExoPlaybackException, IOException {
     if (timeline == null) {
       // We're waiting to get information about periods.
       mediaSource.maybeThrowSourceInfoRefreshError();
@@ -1007,7 +1008,7 @@ import java.io.IOException;
     }
   }
 
-  public void handlePeriodPrepared(MediaPeriod period) throws ExoPlaybackException {
+  private void handlePeriodPrepared(MediaPeriod period) throws ExoPlaybackException {
     if (loadingPeriod == null || loadingPeriod.mediaPeriod != period) {
       // Stale event.
       return;
@@ -1029,7 +1030,7 @@ import java.io.IOException;
     maybeContinueLoading();
   }
 
-  public void handleContinueLoadingRequested(MediaPeriod period) {
+  private void handleContinueLoadingRequested(MediaPeriod period) {
     if (loadingPeriod == null || loadingPeriod.mediaPeriod != period) {
       return;
     }
