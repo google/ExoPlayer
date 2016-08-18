@@ -25,10 +25,12 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -85,6 +87,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
 
+  private DrmInitData downstreamDrmInitData;
   private MediaFormat downstreamMediaFormat;
   private Format downstreamFormat;
 
@@ -186,6 +189,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
     downstreamMediaFormat = null;
+    downstreamDrmInitData = null;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
     pendingDiscontinuity = false;
@@ -256,17 +260,21 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
 
     if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
-      if (!mediaFormat.equals(downstreamMediaFormat)) {
+      DrmInitData drmInitData = currentChunk.getDrmInitData();
+      if (!mediaFormat.equals(downstreamMediaFormat)
+          || (!Util.areEqual(downstreamDrmInitData, drmInitData))) {
         formatHolder.format = mediaFormat;
-        formatHolder.drmInitData = currentChunk.getDrmInitData();
+        formatHolder.drmInitData = drmInitData;
         downstreamMediaFormat = mediaFormat;
+        downstreamDrmInitData = drmInitData;
         return FORMAT_READ;
       }
       // If mediaFormat and downstreamMediaFormat are equal but different objects then the equality
       // check above will have been expensive, comparing the fields in each format. We update
       // downstreamMediaFormat here so that referential equality can be cheaply established during
-      // subsequent calls.
+      // subsequent calls. Same goes for downstreamDrmInitData.
       downstreamMediaFormat = mediaFormat;
+      downstreamDrmInitData = drmInitData;
     }
 
     if (!haveSamples) {
