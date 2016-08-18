@@ -348,7 +348,7 @@ public final class DashMediaSource implements MediaSource {
   private void processManifest() {
     // Update any periods.
     for (int i = 0; i < periodsById.size(); i++) {
-      periodsById.valueAt(i).updateManifest(manifest, firstPeriodId + periodsById.keyAt(i));
+      periodsById.valueAt(i).updateManifest(manifest, periodsById.keyAt(i) - firstPeriodId);
     }
     // Remove any pending simulated updates.
     handler.removeCallbacks(simulateManifestRefreshRunnable);
