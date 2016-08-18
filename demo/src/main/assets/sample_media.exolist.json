@@ -122,8 +122,12 @@
     "name": "Widevine DASH: MP4,H264",
     "samples": [
       {
-        "name": "WV: Clear SD & HD (MP4,H264)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
+        "name": "test",
+        "uri": "asset:///cf752b1c12ce452b3040cab2f90bc265_h264818000nero_aac32-1.mp4"
+      },
+      {
+        "name": "test2",
+        "uri": "asset:///course1.mp4"
       },
       {
         "name": "WV: Clear SD (MP4,H264)",

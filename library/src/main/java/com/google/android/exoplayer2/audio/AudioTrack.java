@@ -53,6 +53,11 @@ import java.nio.ByteBuffer;
  */
 public final class AudioTrack {
 
+  public void setPlaybackSpeed(float speed) {
+    audioTrackUtil.setPlaybackSpeed(speed);
+    reset();
+  }
+
   /**
    * Thrown when a failure occurs initializing an {@link android.media.AudioTrack}.
    */
@@ -1076,6 +1081,7 @@ public final class AudioTrack {
     private long stopTimestampUs;
     private long stopPlaybackHeadPosition;
     private long endPlaybackHeadPosition;
+    private float speed = 1.0f;
 
     /**
      * Reconfigures the audio track utility helper to use the specified {@code audioTrack}.
@@ -1094,6 +1100,7 @@ public final class AudioTrack {
       passthroughWorkaroundPauseOffset = 0;
       if (audioTrack != null) {
         sampleRate = audioTrack.getSampleRate();
+        audioTrack.setPlaybackRate((int) (sampleRate * speed));
       }
     }
 
@@ -1229,9 +1236,12 @@ public final class AudioTrack {
      * @return The speed factor used by the underlying {@link android.media.AudioTrack}.
      */
     public float getPlaybackSpeed() {
-      return 1.0f;
+      return speed;
     }
 
+    public void setPlaybackSpeed(float speed) {
+      this.speed = speed;
+    }
   }
 
   @TargetApi(19)

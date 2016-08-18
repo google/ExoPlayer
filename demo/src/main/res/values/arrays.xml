@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="speeds" >
+        <item>1x</item>
+        <item>1.2x</item>
+        <item>1.5x</item>
+        <item>2x</item>
+    </string-array>
+    <string-array name="speed_values">
+        <item>1</item>
+        <item>1.2</item>
+        <item>1.5</item>
+        <item>2</item>
+    </string-array>
+</resources>
