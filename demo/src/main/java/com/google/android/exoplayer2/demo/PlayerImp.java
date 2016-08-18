@@ -54,12 +54,7 @@ public class PlayerImp implements IPlayer {
         this.speed = speed;
         if (player != null) {
             flagThePosition();
-            if (Util.SDK_INT >= 23) {
-                player.setPlaybackSpeed(speed);
-            } else {
-                realReleasePlayer();
-                initPlayer(uri);
-            }
+            player.setPlaybackSpeed(speed);
         }
     }
 

@@ -55,6 +55,7 @@ public final class AudioTrack {
 
   public void setPlaybackSpeed(float speed) {
     audioTrackUtil.setPlaybackSpeed(speed);
+    reset();
   }
 
   /**
