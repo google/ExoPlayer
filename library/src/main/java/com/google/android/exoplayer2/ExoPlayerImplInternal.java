@@ -906,7 +906,9 @@ import java.io.IOException;
         mediaSource.maybeThrowSourceInfoRefreshError();
       } else {
         Window window = timeline.getPeriodWindow(newLoadingPeriodIndex);
-        long startPositionUs = loadingPeriod == null ? playbackInfo.positionUs : C.UNSET_TIME_US;
+        long startPositionUs = loadingPeriod == null ? playbackInfo.positionUs
+            : newLoadingPeriodIndex == window.startPeriodIndex ? C.UNSET_TIME_US
+            : 0;
         if (startPositionUs == C.UNSET_TIME_US) {
           // This is the first period of a new window or we don't have a start position, so seek to
           // the default position for the window.

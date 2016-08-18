@@ -184,10 +184,7 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    int id = ((DashMediaPeriod) mediaPeriod).id;
-    if (id >= firstPeriodId) {
-      periodsById.remove(id);
-    }
+    periodsById.remove(((DashMediaPeriod) mediaPeriod).id);
   }
 
   @Override
@@ -348,7 +345,12 @@ public final class DashMediaSource implements MediaSource {
   private void processManifest() {
     // Update any periods.
     for (int i = 0; i < periodsById.size(); i++) {
-      periodsById.valueAt(i).updateManifest(manifest, periodsById.keyAt(i) - firstPeriodId);
+      int id = periodsById.keyAt(i);
+      if (id >= firstPeriodId) {
+        periodsById.valueAt(i).updateManifest(manifest, id - firstPeriodId);
+      } else {
+        // This period has been removed from the manifest so it doesn't need to be updated.
+      }
     }
     // Remove any pending simulated updates.
     handler.removeCallbacks(simulateManifestRefreshRunnable);
