@@ -18,21 +18,22 @@ package com.google.android.exoplayer2.ui;
 import android.view.View;
 import android.view.View.OnClickListener;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 
 /**
  * An {@link OnClickListener} that can be passed to
  * {@link android.widget.MediaController#setPrevNextListeners(OnClickListener, OnClickListener)} to
  * make the controller's "previous" and "next" buttons visible and seek to the previous and next
- * periods in the timeline of the media being played.
+ * windows in the timeline of the media being played.
  */
 public class MediaControllerPrevNextClickListener implements OnClickListener {
 
   /**
-   * If a previous button is clicked the player is seeked to the start of the previous period if the
-   * playback position in the current period is less than or equal to this constant (and if a
-   * previous period exists). Else the player is seeked to the start of the current period.
+   * If a previous button is clicked the player is seeked to the start of the previous window if the
+   * playback position in the current window is less than or equal to this constant (and if a
+   * previous window exists). Else the player is seeked to the start of the current window.
    */
-  private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS_PERIOD = 3000;
+  private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
   private final ExoPlayer player;
   private final boolean isNext;
@@ -52,16 +53,20 @@ public class MediaControllerPrevNextClickListener implements OnClickListener {
     if (currentWindowIndex == -1) {
       return;
     }
+    Timeline timeline = player.getCurrentTimeline();
     if (isNext) {
-      if (currentWindowIndex < player.getCurrentTimeline().getWindowCount() - 1) {
-        player.seekToDefaultPositionForWindow(currentWindowIndex + 1);
+      if (currentWindowIndex < timeline.getWindowCount() - 1) {
+        player.seekToDefaultPosition(currentWindowIndex + 1);
+      } else if (timeline.getWindow(currentWindowIndex).isDynamic) {
+        // Seek to the live edge.
+        player.seekToDefaultPosition();
       }
     } else {
       if (currentWindowIndex > 0
-          && player.getCurrentPositionInWindow() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS_PERIOD) {
-        player.seekToDefaultPositionForWindow(currentWindowIndex - 1);
+          && player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS) {
+        player.seekToDefaultPosition(currentWindowIndex - 1);
       } else {
-        player.seekInWindow(currentWindowIndex, 0);
+        player.seekTo(currentWindowIndex, 0);
       }
     }
   }

@@ -78,7 +78,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   private void updateTextView() {
-    textView.setText(getPlayerStateString() + getPlayerPeriodIndexString() + getVideoString()
+    textView.setText(getPlayerStateString() + getPlayerWindowIndexString() + getVideoString()
         + getAudioString());
   }
 
@@ -104,8 +104,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     return text;
   }
 
-  private String getPlayerPeriodIndexString() {
-    return " period:" + player.getCurrentPeriodIndex();
+  private String getPlayerWindowIndexString() {
+    return " window:" + player.getCurrentWindowIndex();
   }
 
   private String getVideoString() {

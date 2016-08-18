@@ -64,18 +64,18 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getBufferPercentage() {
-    return exoPlayer.getBufferedPercentageInWindow();
+    return exoPlayer.getBufferedPercentage();
   }
 
   @Override
   public int getCurrentPosition() {
-    long position = exoPlayer.getCurrentPositionInWindow();
+    long position = exoPlayer.getCurrentPosition();
     return position == ExoPlayer.UNKNOWN_TIME ? 0 : (int) position;
   }
 
   @Override
   public int getDuration() {
-    long duration = exoPlayer.getCurrentWindowDuration();
+    long duration = exoPlayer.getDuration();
     return duration == ExoPlayer.UNKNOWN_TIME ? 0 : (int) duration;
   }
 
@@ -96,11 +96,7 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public void seekTo(int timeMillis) {
-    int windowIndex = exoPlayer.getCurrentWindowIndex();
-    if (windowIndex == -1) {
-      return;
-    }
-    exoPlayer.seekInWindow(windowIndex, timeMillis);
+    exoPlayer.seekTo(timeMillis);
   }
 
 }

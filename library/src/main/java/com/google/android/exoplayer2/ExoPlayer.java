@@ -278,6 +278,7 @@ public interface ExoPlayer {
    *
    * @param positionMs The seek position.
    */
+  @Deprecated
   void seekInCurrentPeriod(long positionMs);
 
   /**
@@ -289,6 +290,7 @@ public interface ExoPlayer {
    * @param periodIndex The index of the period whose associated default position should be seeked
    *     to.
    */
+  @Deprecated
   void seekToDefaultPositionForPeriod(int periodIndex);
 
   /**
@@ -297,14 +299,16 @@ public interface ExoPlayer {
    * @param periodIndex The index of the period.
    * @param positionMs The seek position relative to the start of the period.
    */
+  @Deprecated
   void seekInPeriod(int periodIndex, long positionMs);
 
   /**
-   * Seeks to a position specified in milliseconds in the current window.
-   *
-   * @param positionMs The seek position.
+   * Seeks to the default position associated with the current window. The position can depend on
+   * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
+   * typically be the live edge of the window. For other streams it will typically be the start of
+   * the window.
    */
-  void seekInCurrentWindow(long positionMs);
+  void seekToDefaultPosition();
 
   /**
    * Seeks to the default position associated with the specified window. The position can depend on
@@ -315,15 +319,22 @@ public interface ExoPlayer {
    * @param windowIndex The index of the window whose associated default position should be seeked
    *     to.
    */
-  void seekToDefaultPositionForWindow(int windowIndex);
+  void seekToDefaultPosition(int windowIndex);
+
+  /**
+   * Seeks to a position specified in milliseconds in the current window.
+   *
+   * @param positionMs The seek position.
+   */
+  void seekTo(long positionMs);
 
   /**
    * Seeks to a position specified in milliseconds in the specified seek window.
    *
-   * @param seekWindowIndex The index of the seek window.
+   * @param windowIndex The index of the window.
    * @param positionMs The seek position relative to the start of the window.
    */
-  void seekInWindow(int seekWindowIndex, long positionMs);
+  void seekTo(int windowIndex, long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -376,29 +387,34 @@ public interface ExoPlayer {
   /**
    * Returns the index of the current period.
    */
+  @Deprecated
   int getCurrentPeriodIndex();
 
   /**
    * Returns the duration of the current period in milliseconds, or {@link #UNKNOWN_TIME} if the
    * duration is not known.
    */
+  @Deprecated
   long getCurrentPeriodDuration();
 
   /**
    * Returns the playback position in the current period, in milliseconds.
    */
+  @Deprecated
   long getCurrentPositionInPeriod();
 
   /**
    * Returns an estimate of the position in the current period up to which data is buffered, or
    * {@link #UNKNOWN_TIME} if no estimate is available.
    */
+  @Deprecated
   long getBufferedPositionInPeriod();
 
   /**
    * Returns an estimate of the percentage in the current period up to which data is buffered, or 0
    * if no estimate is available.
    */
+  @Deprecated
   int getBufferedPercentageInPeriod();
 
   // Window based.
@@ -413,29 +429,24 @@ public interface ExoPlayer {
    * Returns the duration of the current window in milliseconds, or {@link #UNKNOWN_TIME} if the
    * duration is not known.
    */
-  long getCurrentWindowDuration();
+  long getDuration();
 
   /**
    * Returns the playback position in the current seek window, in milliseconds, or
    * {@link #UNKNOWN_TIME} if the timeline is not set.
    */
-  long getCurrentPositionInWindow();
+  long getCurrentPosition();
 
   /**
    * Returns an estimate of the position in the current window up to which data is buffered, or
    * {@link #UNKNOWN_TIME} if no estimate is available.
    */
-  long getBufferedPositionInWindow();
+  long getBufferedPosition();
 
   /**
    * Returns an estimate of the percentage in the current window up to which data is buffered, or 0
    * if no estimate is available.
    */
-  int getBufferedPercentageInWindow();
-
-  // Misc methods
-
-  // TODO - Add a method/methods to expose this.
-  // getBufferedPosition -> periodIndex,position
+  int getBufferedPercentage();
 
 }

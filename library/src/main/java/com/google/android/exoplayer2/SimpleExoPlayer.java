@@ -344,33 +344,41 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  @Deprecated
   public void seekInCurrentPeriod(long positionMs) {
     player.seekInCurrentPeriod(positionMs);
   }
 
   @Override
+  @Deprecated
   public void seekToDefaultPositionForPeriod(int periodIndex) {
     player.seekToDefaultPositionForPeriod(periodIndex);
   }
 
   @Override
+  @Deprecated
   public void seekInPeriod(int periodIndex, long positionMs) {
     player.seekInPeriod(periodIndex, positionMs);
   }
 
   @Override
-  public void seekInCurrentWindow(long positionMs) {
-    player.seekInCurrentWindow(positionMs);
+  public void seekToDefaultPosition() {
+    player.seekToDefaultPosition();
   }
 
   @Override
-  public void seekToDefaultPositionForWindow(int windowIndex) {
-    player.seekToDefaultPositionForWindow(windowIndex);
+  public void seekToDefaultPosition(int windowIndex) {
+    player.seekToDefaultPosition(windowIndex);
   }
 
   @Override
-  public void seekInWindow(int windowIndex, long positionMs) {
-    player.seekInWindow(windowIndex, positionMs);
+  public void seekTo(long positionMs) {
+    player.seekTo(positionMs);
+  }
+
+  @Override
+  public void seekTo(int windowIndex, long positionMs) {
+    player.seekTo(windowIndex, positionMs);
   }
 
   @Override
@@ -394,26 +402,31 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  @Deprecated
   public int getCurrentPeriodIndex() {
     return player.getCurrentPeriodIndex();
   }
 
   @Override
+  @Deprecated
   public long getCurrentPeriodDuration() {
     return player.getCurrentPeriodDuration();
   }
 
   @Override
+  @Deprecated
   public long getCurrentPositionInPeriod() {
     return player.getCurrentPositionInPeriod();
   }
 
   @Override
+  @Deprecated
   public long getBufferedPositionInPeriod() {
     return player.getBufferedPositionInPeriod();
   }
 
   @Override
+  @Deprecated
   public int getBufferedPercentageInPeriod() {
     return player.getBufferedPercentageInPeriod();
   }
@@ -424,23 +437,23 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public long getCurrentWindowDuration() {
-    return player.getCurrentWindowDuration();
+  public long getDuration() {
+    return player.getDuration();
   }
 
   @Override
-  public long getCurrentPositionInWindow() {
-    return player.getCurrentPositionInWindow();
+  public long getCurrentPosition() {
+    return player.getCurrentPosition();
   }
 
   @Override
-  public long getBufferedPositionInWindow() {
-    return player.getBufferedPositionInWindow();
+  public long getBufferedPosition() {
+    return player.getBufferedPosition();
   }
 
   @Override
-  public int getBufferedPercentageInWindow() {
-    return player.getBufferedPercentageInWindow();
+  public int getBufferedPercentage() {
+    return player.getBufferedPercentage();
   }
 
   @Override

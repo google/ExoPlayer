@@ -56,7 +56,7 @@ public abstract class Action {
   protected abstract void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector);
 
   /**
-   * Calls {@link ExoPlayer#seekInCurrentPeriod(long)}.
+   * Calls {@link ExoPlayer#seekTo(long)}.
    */
   public static final class Seek extends Action {
 
@@ -73,7 +73,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
-      player.seekInCurrentPeriod(positionMs);
+      player.seekTo(positionMs);
     }
 
   }

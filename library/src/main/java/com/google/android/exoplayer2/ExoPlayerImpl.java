@@ -151,17 +151,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekInCurrentWindow(long positionMs) {
-    Timeline timeline = getCurrentTimeline();
-    if (timeline == null) {
-      throw new IllegalArgumentException("Windows are not yet known");
-    }
-    int windowIndex = timeline.getPeriodWindowIndex(getCurrentPeriodIndex());
-    seekInWindow(windowIndex, positionMs);
+  public void seekToDefaultPosition() {
+    seekToDefaultPosition(getCurrentWindowIndex());
   }
 
   @Override
-  public void seekToDefaultPositionForWindow(int windowIndex) {
+  public void seekToDefaultPosition(int windowIndex) {
     if (timeline == null) {
       throw new IllegalArgumentException("Windows are not yet known");
     }
@@ -171,7 +166,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekInWindow(int windowIndex, long positionMs) {
+  public void seekTo(long positionMs) {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline == null) {
+      throw new IllegalArgumentException("Windows are not yet known");
+    }
+    int windowIndex = timeline.getPeriodWindowIndex(getCurrentPeriodIndex());
+    seekTo(windowIndex, positionMs);
+  }
+
+  @Override
+  public void seekTo(int windowIndex, long positionMs) {
     if (timeline == null) {
       throw new IllegalArgumentException("Windows are not yet known");
     }
@@ -210,11 +215,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  @Deprecated
   public int getCurrentPeriodIndex() {
     return pendingSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
   }
 
   @Override
+  @Deprecated
   public long getCurrentPeriodDuration() {
     if (timeline == null) {
       return UNKNOWN_TIME;
@@ -223,12 +230,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  @Deprecated
   public long getCurrentPositionInPeriod() {
     return pendingSeekAcks > 0 ? maskingPositionMs
         : playbackInfo.positionUs == C.UNSET_TIME_US ? 0 : (playbackInfo.positionUs / 1000);
   }
 
   @Override
+  @Deprecated
   public long getBufferedPositionInPeriod() {
     if (pendingSeekAcks == 0) {
       long bufferedPositionUs = playbackInfo.bufferedPositionUs;
@@ -239,6 +248,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  @Deprecated
   public int getBufferedPercentageInPeriod() {
     if (timeline == null) {
       return 0;
@@ -258,7 +268,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public long getCurrentWindowDuration() {
+  public long getDuration() {
     if (timeline == null) {
       return UNKNOWN_TIME;
     }
@@ -266,7 +276,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public long getCurrentPositionInWindow() {
+  public long getCurrentPosition() {
     if (timeline == null) {
       return UNKNOWN_TIME;
     }
@@ -282,7 +292,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public long getBufferedPositionInWindow() {
+  public long getBufferedPosition() {
     // TODO - Implement this properly.
     if (timeline == null) {
       return UNKNOWN_TIME;
@@ -294,16 +304,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
         && window.startTimeMs == 0 && window.durationMs == getCurrentPeriodDuration()) {
       return getBufferedPositionInPeriod();
     }
-    return getCurrentPositionInWindow();
+    return getCurrentPosition();
   }
 
   @Override
-  public int getBufferedPercentageInWindow() {
+  public int getBufferedPercentage() {
     if (timeline == null) {
       return 0;
     }
-    long bufferedPosition = getBufferedPositionInWindow();
-    long duration = getCurrentWindowDuration();
+    long bufferedPosition = getBufferedPosition();
+    long duration = getDuration();
     return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
         : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
