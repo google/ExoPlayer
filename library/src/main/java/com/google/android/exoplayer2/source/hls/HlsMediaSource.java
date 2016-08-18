@@ -74,12 +74,6 @@ public final class HlsMediaSource implements MediaSource {
   }
 
   @Override
-  public Position getDefaultStartPosition(int index) {
-    // TODO: Return the position of the live edge, if applicable.
-    return Position.DEFAULT;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() {
     // Do nothing.
   }

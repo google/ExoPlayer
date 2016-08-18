@@ -52,7 +52,7 @@ public final class SsMediaSource implements MediaSource,
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
    * A default live edge offset (the offset subtracted from the live edge when calculating the
-   * default position returned by {@link #getDefaultStartPosition(int)}).
+   * default initial playback position.
    */
   public static final long DEFAULT_LIVE_EDGE_OFFSET_MS = 30000;
 
@@ -73,7 +73,6 @@ public final class SsMediaSource implements MediaSource,
 
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
-  private Window window;
 
   private Handler manifestRefreshHandler;
 
@@ -112,19 +111,6 @@ public final class SsMediaSource implements MediaSource,
   @Override
   public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
     return oldPlayingPeriodIndex;
-  }
-
-  @Override
-  public Position getDefaultStartPosition(int index) {
-    if (window == null) {
-      return null;
-    }
-    if (manifest.isLive) {
-      long startPositionUs = Math.max(window.startTimeMs,
-          window.endTimeMs - liveEdgeOffsetMs) * 1000;
-      return new Position(0, startPositionUs);
-    }
-    return Position.DEFAULT;
   }
 
   @Override
@@ -196,15 +182,16 @@ public final class SsMediaSource implements MediaSource,
           startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
         }
         long durationUs = endTimeUs - startTimeUs;
+        long defaultInitialStartPositionUs = Math.max(startTimeUs,
+            endTimeUs - (liveEdgeOffsetMs * 1000));
         Window window = Window.createWindow(0, startTimeUs, 0, endTimeUs, durationUs,
-            true /* isSeekable */, true /* isDynamic */);
+            true /* isSeekable */, true /* isDynamic */, 0, defaultInitialStartPositionUs);
         timeline = new SinglePeriodTimeline(endTimeUs, window);
       }
     } else {
       boolean isSeekable = manifest.durationUs != C.UNSET_TIME_US;
       timeline = new SinglePeriodTimeline(manifest.durationUs, isSeekable);
     }
-    window = timeline.getWindow(0);
     sourceListener.onSourceInfoRefreshed(timeline, manifest);
     scheduleManifestRefresh();
   }

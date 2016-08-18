@@ -83,16 +83,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public Position getDefaultStartPosition(int index) {
-    int sourceIndex = timeline.getSourceIndexForPeriod(index);
-    int sourceFirstPeriodIndex = timeline.getFirstPeriodIndexInSource(sourceIndex);
-    Position defaultStartPosition =
-        mediaSources[sourceIndex].getDefaultStartPosition(index - sourceFirstPeriodIndex);
-    return new Position(defaultStartPosition.periodIndex + sourceFirstPeriodIndex,
-        defaultStartPosition.positionUs);
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     for (MediaSource mediaSource : mediaSources) {
       mediaSource.maybeThrowSourceInfoRefreshError();

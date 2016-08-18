@@ -95,11 +95,6 @@ public final class SingleSampleMediaSource implements MediaSource {
   }
 
   @Override
-  public Position getDefaultStartPosition(int index) {
-    return Position.DEFAULT;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     // Do nothing.
   }

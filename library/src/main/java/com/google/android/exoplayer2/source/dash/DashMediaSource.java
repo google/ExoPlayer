@@ -59,14 +59,14 @@ public final class DashMediaSource implements MediaSource {
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
    * A constant indicating that the live edge offset (the offset subtracted from the live edge
-   * when calculating the default position returned by {@link #getDefaultStartPosition(int)}) should
-   * be set to {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
+   * when calculating the default initial playback position) should be set to
+   * {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
    * {@link #DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS} otherwise.
    */
   public static final long DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS = -1;
   /**
    * A fixed default live edge offset (the offset subtracted from the live edge when calculating the
-   * default position returned by {@link #getDefaultStartPosition(int)}).
+   * default initial playback position).
    */
   public static final long DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS = 30000;
   /**
@@ -165,32 +165,6 @@ public final class DashMediaSource implements MediaSource {
   public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
     // Seek to the default position, which is the live edge for live sources.
     return 0;
-  }
-
-  @Override
-  public Position getDefaultStartPosition(int index) {
-    if (window == null) {
-      return null;
-    }
-
-    if (index == 0 && manifest.dynamic) {
-      // The stream is live, so return a position a position offset from the live edge.
-      int periodIndex = window.endPeriodIndex;
-      long liveEdgeOffsetForManifest = liveEdgeOffsetMs;
-      if (liveEdgeOffsetForManifest == DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS) {
-        liveEdgeOffsetForManifest = manifest.suggestedPresentationDelay != -1
-            ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
-      }
-      long positionMs = window.endTimeMs - liveEdgeOffsetForManifest;
-      while (positionMs < 0 && periodIndex > window.startPeriodIndex) {
-        periodIndex--;
-        positionMs += manifest.getPeriodDurationMs(periodIndex);
-      }
-      positionMs = Math.max(positionMs,
-          periodIndex == window.startPeriodIndex ? window.startTimeMs : 0);
-      return new Position(periodIndex, positionMs * 1000);
-    }
-    return new Position(index, 0);
   }
 
   @Override
@@ -405,8 +379,27 @@ public final class DashMediaSource implements MediaSource {
     for (int i = 0; i < manifest.getPeriodCount() - 1; i++) {
       windowDurationUs += manifest.getPeriodDurationUs(i);
     }
+    int defaultInitialPeriodIndex = 0;
+    long defaultInitialTimeUs = 0;
+    if (manifest.dynamic) {
+      defaultInitialPeriodIndex = lastPeriodIndex;
+      long liveEdgeOffsetForManifestMs = liveEdgeOffsetMs;
+      if (liveEdgeOffsetForManifestMs == DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS) {
+        liveEdgeOffsetForManifestMs = manifest.suggestedPresentationDelay != -1
+            ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
+      }
+      defaultInitialTimeUs = currentEndTimeUs - (liveEdgeOffsetForManifestMs * 1000);
+      while (defaultInitialTimeUs < 0 && defaultInitialPeriodIndex > 0) {
+        defaultInitialPeriodIndex--;
+        defaultInitialTimeUs += manifest.getPeriodDurationUs(defaultInitialPeriodIndex);
+      }
+      if (defaultInitialPeriodIndex == 0) {
+        defaultInitialTimeUs = Math.max(defaultInitialTimeUs, currentStartTimeUs);
+      }
+    }
     window = Window.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs,
-        windowDurationUs, true /* isSeekable */, manifest.dynamic);
+        windowDurationUs, true /* isSeekable */, manifest.dynamic, defaultInitialPeriodIndex,
+        defaultInitialTimeUs);
     sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, manifest, window),
         manifest);
   }

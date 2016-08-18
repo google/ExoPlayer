@@ -71,11 +71,6 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public Position getDefaultStartPosition(int index) {
-    return mediaSources[0].getDefaultStartPosition(index);
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     for (MediaSource mediaSource : mediaSources) {
       mediaSource.maybeThrowSourceInfoRefreshError();

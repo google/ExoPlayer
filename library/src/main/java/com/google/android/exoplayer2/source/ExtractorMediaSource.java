@@ -145,11 +145,6 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   }
 
   @Override
-  public Position getDefaultStartPosition(int index) {
-    return Position.DEFAULT;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     // Do nothing.
   }
