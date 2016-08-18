@@ -31,7 +31,7 @@ import java.io.IOException;
 /**
  * A {@link Chunk} that uses an {@link Extractor} to parse initialization data for single track.
  */
-public final class InitializationChunk extends Chunk implements SingleTrackOutput {
+public class InitializationChunk extends Chunk implements SingleTrackOutput {
 
   private final ChunkExtractorWrapper extractorWrapper;
 
