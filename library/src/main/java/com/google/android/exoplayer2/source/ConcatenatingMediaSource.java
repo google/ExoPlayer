@@ -215,7 +215,8 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getWindowLastPeriodIndex(int windowIndex) {int sourceIndex = getSourceIndexForWindow(windowIndex);
+    public int getWindowLastPeriodIndex(int windowIndex) {
+      int sourceIndex = getSourceIndexForWindow(windowIndex);
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
       int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
       return firstPeriodIndexInSource + timelines[sourceIndex].getWindowLastPeriodIndex(
