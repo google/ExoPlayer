@@ -39,6 +39,7 @@ public final class TsExtractor implements Extractor {
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;
   public static final int WORKAROUND_IGNORE_H264_STREAM = 4;
   public static final int WORKAROUND_DETECT_ACCESS_UNITS = 8;
+  public static final int WORKAROUND_MAP_BY_TYPE = 16;
 
   private static final String TAG = "TsExtractor";
 
@@ -57,7 +58,7 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_H265 = 0x24;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
-  private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
+  private static final int BASE_EMBEDDED_TRACK_ID = 0x2000; // Max PID + 1.
 
   private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
   private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
@@ -68,10 +69,11 @@ public final class TsExtractor implements Extractor {
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  /* package */ final SparseBooleanArray streamTypes;
+  /* package */ final SparseBooleanArray trackIds;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
+  private int nextEmbeddedTrackId;
   /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
@@ -89,7 +91,8 @@ public final class TsExtractor implements Extractor {
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    streamTypes = new SparseBooleanArray();
+    trackIds = new SparseBooleanArray();
+    nextEmbeddedTrackId = BASE_EMBEDDED_TRACK_ID;
   }
 
   // Extractor implementation.
@@ -311,7 +314,7 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if (id3Reader == null) {
+      if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See b/20261500.
         id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
@@ -333,48 +336,52 @@ public final class TsExtractor implements Extractor {
           sectionData.skipBytes(esInfoLength);
         }
         remainingEntriesLength -= esInfoLength + 5;
-        if (streamTypes.get(streamType)) {
+        int trackId = (workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 ? streamType : elementaryPid;
+        if (trackIds.get(trackId)) {
           continue;
         }
-
         ElementaryStreamReader pesPayloadReader;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
-            pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA));
+            pesPayloadReader = new MpegAudioReader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_MPA_LSF:
-            pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA_LSF));
+            pesPayloadReader = new MpegAudioReader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_AAC_STREAM) != 0 ? null
-                : new AdtsReader(output.track(TS_STREAM_TYPE_AAC), new DummyTrackOutput());
+                : new AdtsReader(output.track(trackId), new DummyTrackOutput());
             break;
           case TS_STREAM_TYPE_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);
+            pesPayloadReader = new Ac3Reader(output.track(trackId), false);
             break;
           case TS_STREAM_TYPE_E_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_E_AC3), true);
+            pesPayloadReader = new Ac3Reader(output.track(trackId), true);
             break;
           case TS_STREAM_TYPE_DTS:
           case TS_STREAM_TYPE_HDMV_DTS:
-            pesPayloadReader = new DtsReader(output.track(TS_STREAM_TYPE_DTS));
+            pesPayloadReader = new DtsReader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_H262:
-            pesPayloadReader = new H262Reader(output.track(TS_STREAM_TYPE_H262));
+            pesPayloadReader = new H262Reader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_H264:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_H264_STREAM) != 0 ? null
-                : new H264Reader(output.track(TS_STREAM_TYPE_H264),
-                    new SeiReader(output.track(TS_STREAM_TYPE_EIA608)),
+                : new H264Reader(output.track(trackId),
+                    new SeiReader(output.track(nextEmbeddedTrackId++)),
                     (workaroundFlags & WORKAROUND_ALLOW_NON_IDR_KEYFRAMES) != 0,
                     (workaroundFlags & WORKAROUND_DETECT_ACCESS_UNITS) != 0);
             break;
           case TS_STREAM_TYPE_H265:
-            pesPayloadReader = new H265Reader(output.track(TS_STREAM_TYPE_H265),
-                new SeiReader(output.track(TS_STREAM_TYPE_EIA608)));
+            pesPayloadReader = new H265Reader(output.track(trackId),
+                new SeiReader(output.track(nextEmbeddedTrackId++)));
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = id3Reader;
+            if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0) {
+              pesPayloadReader = id3Reader;
+            } else {
+              pesPayloadReader = new Id3Reader(output.track(nextEmbeddedTrackId++));
+            }
             break;
           default:
             pesPayloadReader = null;
@@ -382,7 +389,7 @@ public final class TsExtractor implements Extractor {
         }
 
         if (pesPayloadReader != null) {
-          streamTypes.put(streamType, true);
+          trackIds.put(trackId, true);
           tsPayloadReaders.put(elementaryPid,
               new PesReader(pesPayloadReader, ptsTimestampAdjuster));
         }
