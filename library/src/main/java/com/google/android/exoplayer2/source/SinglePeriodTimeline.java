@@ -28,7 +28,7 @@ public final class SinglePeriodTimeline implements Timeline {
 
   private static final Object ID = new Object();
 
-  private final long durationUs;
+  private final long offsetInFirstPeriodUs;
   private final Window window;
 
   /**
@@ -39,18 +39,18 @@ public final class SinglePeriodTimeline implements Timeline {
    * @param isSeekable Whether seeking is supported within the period.
    */
   public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
-    this(durationUs, Window.createWindowFromZero(durationUs, isSeekable, false /* isDynamic */));
+    this(0, Window.createWindowFromZero(durationUs, isSeekable, false /* isDynamic */));
   }
 
   /**
    * Creates a timeline with one period of known duration and a window extending from zero to its
    * duration.
    *
-   * @param durationUs The duration of the period, in microseconds.
+   * @param offsetInFirstPeriodUs The offset of the start of the window in the period.
    * @param window The available window within the period.
    */
-  public SinglePeriodTimeline(long durationUs, Window window) {
-    this.durationUs = durationUs;
+  public SinglePeriodTimeline(long offsetInFirstPeriodUs, Window window) {
+    this.offsetInFirstPeriodUs = offsetInFirstPeriodUs;
     this.window = window;
   }
 
@@ -67,13 +67,15 @@ public final class SinglePeriodTimeline implements Timeline {
   @Override
   public long getPeriodDurationMs(int periodIndex) {
     Assertions.checkIndex(periodIndex, 0, 1);
-    return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : (durationUs / 1000);
+    return window.durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME
+        : ((offsetInFirstPeriodUs + window.durationUs) / 1000);
   }
 
   @Override
   public long getPeriodDurationUs(int periodIndex) {
     Assertions.checkIndex(periodIndex, 0, 1);
-    return durationUs;
+    return window.durationUs == C.UNSET_TIME_US ? C.UNSET_TIME_US
+        : (offsetInFirstPeriodUs + window.durationUs);
   }
 
   @Override
@@ -108,6 +110,24 @@ public final class SinglePeriodTimeline implements Timeline {
   public Window getWindow(int windowIndex) {
     Assertions.checkIndex(windowIndex, 0, 1);
     return window;
+  }
+
+  @Override
+  public int getWindowFirstPeriodIndex(int windowIndex) {
+    Assertions.checkIndex(windowIndex, 0, 1);
+    return 0;
+  }
+
+  @Override
+  public int getWindowLastPeriodIndex(int windowIndex) {
+    Assertions.checkIndex(windowIndex, 0, 1);
+    return 0;
+  }
+
+  @Override
+  public long getWindowOffsetInFirstPeriodUs(int windowIndex) {
+    Assertions.checkIndex(windowIndex, 0, 1);
+    return offsetInFirstPeriodUs;
   }
 
 }

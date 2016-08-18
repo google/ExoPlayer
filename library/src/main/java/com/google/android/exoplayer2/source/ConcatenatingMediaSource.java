@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,8 +57,8 @@ public final class ConcatenatingMediaSource implements MediaSource {
         public void onSourceInfoRefreshed(Timeline sourceTimeline, Object manifest) {
           timelines[index] = sourceTimeline;
           manifests[index] = manifest;
-          for (int i = 0; i < timelines.length; i++) {
-            if (timelines[i] == null) {
+          for (Timeline timeline : timelines) {
+            if (timeline == null) {
               // Don't invoke the listener until all sources have timelines.
               return;
             }
@@ -70,16 +69,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
       });
     }
-  }
-
-  @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldConcatenatedTimeline) {
-    ConcatenatedTimeline oldTimeline = (ConcatenatedTimeline) oldConcatenatedTimeline;
-    int sourceIndex = oldTimeline.getSourceIndexForPeriod(oldPlayingPeriodIndex);
-    int oldFirstPeriodIndex = oldTimeline.getFirstPeriodIndexInSource(sourceIndex);
-    int firstPeriodIndex = timeline.getFirstPeriodIndexInSource(sourceIndex);
-    return firstPeriodIndex + mediaSources[sourceIndex].getNewPlayingPeriodIndex(
-            oldPlayingPeriodIndex - oldFirstPeriodIndex, oldTimeline.timelines[sourceIndex]);
   }
 
   @Override
@@ -122,22 +111,14 @@ public final class ConcatenatingMediaSource implements MediaSource {
     private final Timeline[] timelines;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
-    private final Window[] windows;
 
     public ConcatenatedTimeline(Timeline[] timelines) {
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       int periodCount = 0;
       int windowCount = 0;
-      ArrayList<Window> concatenatedWindows = new ArrayList<>();
       for (int i = 0; i < timelines.length; i++) {
         Timeline timeline = timelines[i];
-        // Offset the windows so they are relative to the source.
-        int sourceWindowCount = timeline.getWindowCount();
-        for (int j = 0; j < sourceWindowCount; j++) {
-          Window sourceWindow = timeline.getWindow(j);
-          concatenatedWindows.add(sourceWindow.copyOffsetByPeriodCount(periodCount));
-        }
         periodCount += timeline.getPeriodCount();
         sourcePeriodOffsets[i] = periodCount;
         windowCount += timeline.getWindowCount();
@@ -146,7 +127,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
       this.timelines = timelines;
       this.sourcePeriodOffsets = sourcePeriodOffsets;
       this.sourceWindowOffsets = sourceWindowOffsets;
-      windows = concatenatedWindows.toArray(new Window[concatenatedWindows.size()]);
     }
 
     @Override
@@ -183,7 +163,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
     @Override
     public Window getPeriodWindow(int periodIndex) {
-      return windows[getPeriodWindowIndex(periodIndex)];
+      return getWindow(getPeriodWindowIndex(periodIndex));
     }
 
     @Override
@@ -199,12 +179,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
       if (!(id instanceof Pair)) {
         return NO_PERIOD_INDEX;
       }
-      @SuppressWarnings("unchecked")
-      Pair<Integer, Object> sourceIndexAndPeriodId = (Pair<Integer, Object>) id;
+      Pair sourceIndexAndPeriodId = (Pair) id;
       if (!(sourceIndexAndPeriodId.first instanceof Integer)) {
         return NO_PERIOD_INDEX;
       }
-      int sourceIndex = sourceIndexAndPeriodId.first;
+      int sourceIndex = (int) sourceIndexAndPeriodId.first;
       Object periodId = sourceIndexAndPeriodId.second;
       if (sourceIndex < 0 || sourceIndex >= timelines.length) {
         return NO_PERIOD_INDEX;
@@ -216,12 +195,39 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
     @Override
     public int getWindowCount() {
-      return windows.length;
+      return sourceWindowOffsets[sourceWindowOffsets.length - 1];
     }
 
     @Override
     public Window getWindow(int windowIndex) {
-      return windows[windowIndex];
+      int sourceIndex = getSourceIndexForWindow(windowIndex);
+      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
+      return timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource);
+    }
+
+    @Override
+    public int getWindowFirstPeriodIndex(int windowIndex) {
+      int sourceIndex = getSourceIndexForWindow(windowIndex);
+      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
+      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
+      return firstPeriodIndexInSource + timelines[sourceIndex].getWindowFirstPeriodIndex(
+          windowIndex - firstWindowIndexInSource);
+    }
+
+    @Override
+    public int getWindowLastPeriodIndex(int windowIndex) {int sourceIndex = getSourceIndexForWindow(windowIndex);
+      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
+      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
+      return firstPeriodIndexInSource + timelines[sourceIndex].getWindowLastPeriodIndex(
+          windowIndex - firstWindowIndexInSource);
+    }
+
+    @Override
+    public long getWindowOffsetInFirstPeriodUs(int windowIndex) {
+      int sourceIndex = getSourceIndexForWindow(windowIndex);
+      int firstWindowIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
+      return timelines[sourceIndex].getWindowOffsetInFirstPeriodUs(
+          windowIndex - firstWindowIndexInSource);
     }
 
     private int getSourceIndexForPeriod(int periodIndex) {
@@ -230,6 +236,14 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
     private int getFirstPeriodIndexInSource(int sourceIndex) {
       return sourceIndex == 0 ? 0 : sourcePeriodOffsets[sourceIndex - 1];
+    }
+
+    private int getSourceIndexForWindow(int windowIndex) {
+      return Util.binarySearchFloor(sourceWindowOffsets, windowIndex, true, false) + 1;
+    }
+
+    private int getFirstWindowIndexInSource(int sourceIndex) {
+      return sourceIndex == 0 ? 0 : sourceWindowOffsets[sourceIndex - 1];
     }
 
   }

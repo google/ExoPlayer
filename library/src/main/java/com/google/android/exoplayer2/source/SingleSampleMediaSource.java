@@ -90,11 +90,6 @@ public final class SingleSampleMediaSource implements MediaSource {
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    return oldPlayingPeriodIndex;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     // Do nothing.
   }

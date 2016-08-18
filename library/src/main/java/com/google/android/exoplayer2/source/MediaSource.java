@@ -48,19 +48,6 @@ public interface MediaSource {
   void prepareSource(Listener listener);
 
   /**
-   * Returns the period index to play in this source's new timeline, or
-   * {@link Timeline#NO_PERIOD_INDEX} if the player should stop playback. The
-   * {@code oldPlayingPeriodIndex} should be an index of a period in the old timeline that is no
-   * longer present (based on its identifier) in the new timeline.
-   *
-   * @param oldPlayingPeriodIndex The period index that was being played in the old timeline.
-   * @param oldTimeline The old timeline.
-   * @return The new period index to play in this source's new timeline. Playback will resume from
-   *     the default start position in the new period index.
-   */
-  int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline);
-
-  /**
    * Throws any pending error encountered while loading or refreshing source information.
    */
   void maybeThrowSourceInfoRefreshError() throws IOException;

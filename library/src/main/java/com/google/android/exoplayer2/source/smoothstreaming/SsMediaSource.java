@@ -109,11 +109,6 @@ public final class SsMediaSource implements MediaSource,
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    return oldPlayingPeriodIndex;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     manifestLoader.maybeThrowError();
   }
@@ -182,11 +177,10 @@ public final class SsMediaSource implements MediaSource,
           startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
         }
         long durationUs = endTimeUs - startTimeUs;
-        long defaultInitialStartPositionUs = Math.max(startTimeUs,
-            endTimeUs - (liveEdgeOffsetMs * 1000));
-        Window window = Window.createWindow(0, startTimeUs, 0, endTimeUs, durationUs,
-            true /* isSeekable */, true /* isDynamic */, 0, defaultInitialStartPositionUs);
-        timeline = new SinglePeriodTimeline(endTimeUs, window);
+        long defaultInitialStartPositionUs = Math.max(0, durationUs - (liveEdgeOffsetMs * 1000));
+        Window window = new Window(durationUs, true /* isSeekable */, true /* isDynamic */,
+            defaultInitialStartPositionUs);
+        timeline = new SinglePeriodTimeline(startTimeUs, window);
       }
     } else {
       boolean isSeekable = manifest.durationUs != C.UNSET_TIME_US;

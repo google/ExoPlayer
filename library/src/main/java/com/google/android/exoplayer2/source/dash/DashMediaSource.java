@@ -162,12 +162,6 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    // Seek to the default position, which is the live edge for live sources.
-    return 0;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     loader.maybeThrowError();
   }
@@ -381,29 +375,19 @@ public final class DashMediaSource implements MediaSource {
     for (int i = 0; i < manifest.getPeriodCount() - 1; i++) {
       windowDurationUs += manifest.getPeriodDurationUs(i);
     }
-    int defaultInitialPeriodIndex = 0;
     long defaultInitialTimeUs = 0;
     if (manifest.dynamic) {
-      defaultInitialPeriodIndex = lastPeriodIndex;
       long liveEdgeOffsetForManifestMs = liveEdgeOffsetMs;
       if (liveEdgeOffsetForManifestMs == DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS) {
         liveEdgeOffsetForManifestMs = manifest.suggestedPresentationDelay != -1
             ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
       }
-      defaultInitialTimeUs = currentEndTimeUs - (liveEdgeOffsetForManifestMs * 1000);
-      while (defaultInitialTimeUs < 0 && defaultInitialPeriodIndex > 0) {
-        defaultInitialPeriodIndex--;
-        defaultInitialTimeUs += manifest.getPeriodDurationUs(defaultInitialPeriodIndex);
-      }
-      if (defaultInitialPeriodIndex == 0) {
-        defaultInitialTimeUs = Math.max(defaultInitialTimeUs, currentStartTimeUs);
-      }
+      defaultInitialTimeUs = Math.max(0, windowDurationUs - (liveEdgeOffsetForManifestMs * 1000));
     }
-    window = Window.createWindow(0, currentStartTimeUs, lastPeriodIndex, currentEndTimeUs,
-        windowDurationUs, true /* isSeekable */, manifest.dynamic, defaultInitialPeriodIndex,
+    window = new Window(windowDurationUs, true /* isSeekable */, manifest.dynamic,
         defaultInitialTimeUs);
-    sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, manifest, window),
-        manifest);
+    sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, currentStartTimeUs,
+        manifest, window), manifest);
   }
 
   private void scheduleManifestRefresh() {
@@ -485,11 +469,14 @@ public final class DashMediaSource implements MediaSource {
   private static final class DashTimeline implements Timeline {
 
     private final int firstPeriodId;
+    private final long offsetInFirstPeriodUs;
     private final DashManifest manifest;
     private final Window window;
 
-    public DashTimeline(int firstPeriodId, DashManifest manifest, Window window) {
+    public DashTimeline(int firstPeriodId, long offsetInFirstPeriodUs, DashManifest manifest,
+        Window window) {
       this.firstPeriodId = firstPeriodId;
+      this.offsetInFirstPeriodUs = offsetInFirstPeriodUs;
       this.manifest = manifest;
       this.window = window;
     }
@@ -552,6 +539,21 @@ public final class DashMediaSource implements MediaSource {
     public Window getWindow(int windowIndex) {
       Assertions.checkIndex(windowIndex, 0, 1);
       return window;
+    }
+
+    @Override
+    public int getWindowFirstPeriodIndex(int windowIndex) {
+      return 0;
+    }
+
+    @Override
+    public int getWindowLastPeriodIndex(int windowIndex) {
+      return manifest.getPeriodCount() - 1;
+    }
+
+    @Override
+    public long getWindowOffsetInFirstPeriodUs(int windowIndex) {
+      return offsetInFirstPeriodUs;
     }
 
   }

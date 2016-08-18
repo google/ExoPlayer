@@ -66,11 +66,6 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    return mediaSources[0].getNewPlayingPeriodIndex(oldPlayingPeriodIndex, oldTimeline);
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     for (MediaSource mediaSource : mediaSources) {
       mediaSource.maybeThrowSourceInfoRefreshError();

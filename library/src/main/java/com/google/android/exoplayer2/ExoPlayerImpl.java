@@ -161,8 +161,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       throw new IllegalArgumentException("Windows are not yet known");
     }
     Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
-    Window window = timeline.getWindow(windowIndex);
-    seekToDefaultPositionForPeriod(window.startPeriodIndex);
+    seekToDefaultPositionForPeriod(timeline.getWindowFirstPeriodIndex(windowIndex));
   }
 
   @Override
@@ -181,12 +180,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
       throw new IllegalArgumentException("Windows are not yet known");
     }
     Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
-    Window window = timeline.getWindow(windowIndex);
-    int periodIndex = window.startPeriodIndex;
-    long periodPositionMs = window.startTimeMs + positionMs;
+    int firstPeriodIndex = timeline.getWindowFirstPeriodIndex(windowIndex);
+    int lastPeriodIndex = timeline.getWindowLastPeriodIndex(windowIndex);
+    int periodIndex = firstPeriodIndex;
+    long periodPositionMs = timeline.getWindowOffsetInFirstPeriodUs(windowIndex) / 1000
+        + positionMs;
     long periodDurationMs = timeline.getPeriodDurationMs(periodIndex);
     while (periodDurationMs != UNKNOWN_TIME && periodPositionMs >= periodDurationMs
-        && periodIndex < window.endPeriodIndex) {
+        && periodIndex < lastPeriodIndex) {
       periodPositionMs -= periodDurationMs;
       periodDurationMs = timeline.getPeriodDurationMs(++periodIndex);
     }
@@ -272,7 +273,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline == null) {
       return UNKNOWN_TIME;
     }
-    return timeline.getWindow(getCurrentWindowIndex()).durationMs;
+    long durationUs = timeline.getWindow(getCurrentWindowIndex()).durationUs;
+    return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
   }
 
   @Override
@@ -282,13 +284,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     int periodIndex = getCurrentPeriodIndex();
     int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
-    Window window = timeline.getWindow(windowIndex);
-    long position = getCurrentPositionInPeriod();
-    for (int i = window.startPeriodIndex; i < periodIndex; i++) {
-      position += timeline.getPeriodDurationMs(i);
+    long positionMs = getCurrentPositionInPeriod();
+    for (int i = timeline.getWindowFirstPeriodIndex(windowIndex); i < periodIndex; i++) {
+      positionMs += timeline.getPeriodDurationMs(i);
     }
-    position -= window.startTimeMs;
-    return position;
+    positionMs -= timeline.getWindowOffsetInFirstPeriodUs(windowIndex) / 1000;
+    return positionMs;
   }
 
   @Override
@@ -300,8 +301,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
     int periodIndex = getCurrentPeriodIndex();
     int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
     Window window = timeline.getWindow(windowIndex);
-    if (window.startPeriodIndex == periodIndex && window.endPeriodIndex == periodIndex
-        && window.startTimeMs == 0 && window.durationMs == getCurrentPeriodDuration()) {
+    int firstPeriodIndex = timeline.getWindowFirstPeriodIndex(windowIndex);
+    int lastPeriodIndex = timeline.getWindowLastPeriodIndex(windowIndex);
+    if (firstPeriodIndex == periodIndex && lastPeriodIndex == periodIndex
+        && timeline.getWindowOffsetInFirstPeriodUs(windowIndex) == 0
+        && window.durationUs == timeline.getPeriodDurationUs(periodIndex)) {
       return getBufferedPositionInPeriod();
     }
     return getCurrentPosition();

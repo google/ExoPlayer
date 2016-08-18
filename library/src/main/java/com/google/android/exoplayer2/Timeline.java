@@ -101,4 +101,29 @@ public interface Timeline {
    */
   Window getWindow(int windowIndex);
 
+  /**
+   * Returns the index of the first period belonging to the {@link Window} at the specified index.
+   *
+   * @param windowIndex The window index.
+   * @return The index of the first period in the window.
+   */
+  int getWindowFirstPeriodIndex(int windowIndex);
+
+  /**
+   * Returns the index of the last period belonging to the {@link Window} at the specified index.
+   *
+   * @param windowIndex The window index.
+   * @return The index of the last period in the window.
+   */
+  int getWindowLastPeriodIndex(int windowIndex);
+
+  /**
+   * Returns the start position of the specified window in the first period belonging to it, in
+   * microseconds.
+   *
+   * @param windowIndex The window index.
+   * @return The start position of the window in the first period belonging to it.
+   */
+  long getWindowOffsetInFirstPeriodUs(int windowIndex);
+
 }

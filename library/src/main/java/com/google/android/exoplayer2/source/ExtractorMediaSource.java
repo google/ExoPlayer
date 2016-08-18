@@ -140,11 +140,6 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   }
 
   @Override
-  public int getNewPlayingPeriodIndex(int oldPlayingPeriodIndex, Timeline oldTimeline) {
-    return 0;
-  }
-
-  @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     // Do nothing.
   }
