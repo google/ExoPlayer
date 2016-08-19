@@ -1051,7 +1051,7 @@ import java.io.IOException;
   private void maybeContinueLoading() {
     long nextLoadPositionUs = loadingPeriod.mediaPeriod.getNextLoadPositionUs();
     if (nextLoadPositionUs != C.END_OF_SOURCE_US) {
-      long positionUs = internalPositionUs - loadingPeriod.offsetUs;
+      long positionUs = internalPositionUs - loadingPeriod.offsetUs + loadingPeriod.startPositionUs;
       long bufferedDurationUs = nextLoadPositionUs - positionUs;
       boolean continueLoading = loadControl.shouldContinueLoading(bufferedDurationUs);
       setIsLoading(continueLoading);
