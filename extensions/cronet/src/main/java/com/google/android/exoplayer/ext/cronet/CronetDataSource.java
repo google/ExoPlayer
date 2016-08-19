@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,31 +55,22 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   /**
    * Thrown when an error is encountered when trying to open a {@link CronetDataSource}.
    */
-  public static class OpenException extends HttpDataSourceException {
+  public static final class OpenException extends HttpDataSourceException {
 
-    private final Integer cronetConnectionStatus;
+    /**
+     * Returns the status of the connection establishment at the moment when the error occurred, as
+     * defined by {@link UrlRequest.Status}.
+     */
+    public final int cronetConnectionStatus;
 
-    public OpenException(IOException cause, DataSpec dataSpec) {
-      this(cause, dataSpec, null);
-    }
-
-    public OpenException(IOException cause, DataSpec dataSpec, Integer cronetConnectionStatus) {
+    public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
       super(cause, dataSpec, TYPE_OPEN);
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
-    public OpenException(String errorMessage, DataSpec dataSpec) {
+    public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
       super(errorMessage, dataSpec, TYPE_OPEN);
-      this.cronetConnectionStatus = null;
-    }
-
-    /**
-     * Returns the status of the connection establishment near the moment when the OpenException
-     * occurred. The Integer values match definitions at https://goo.gl/dOSBIQ. Value is
-     * null when unknown.
-     */
-    public Integer getCronetConnectionStatus() {
-      return cronetConnectionStatus;
+      this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
   }
@@ -89,14 +81,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   // The size of read buffer passed to cronet UrlRequest.read(). Cronet does not always fill the
   // buffer completely before calling back the listener.
   private static final int READ_BUFFER_SIZE_BYTES = 32 * 1024;
-
-  enum ConnectionState {
-    NEW,
-    OPENING,
-    CONNECTED,
-    OPEN,
-    CLOSED,
-  }
+  static final int IDLE_CONNECTION = 5;
+  static final int OPENING_CONNECTION = 2;
+  static final int CONNECTED_CONNECTION = 3;
+  static final int OPEN_CONNECTION = 4;
 
   private final CronetEngine cronetEngine;
   private final Executor executor;
@@ -114,14 +102,13 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private DataSpec currentDataSpec;
   private UrlResponseInfo responseInfo;
 
-  volatile ConnectionState connectionState;
+  volatile int connectionState;
   TimeoutCheckerRunnable timeoutCheckerRunnable;
   private volatile String currentUrl;
   private volatile HttpDataSourceException exception;
   private volatile long contentLength;
   private volatile AtomicLong expectedBytesRemainingToRead;
   private volatile boolean hasData;
-  private volatile int connectionStatus;
   private volatile boolean responseFinished;
 
   /**
@@ -155,7 +142,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
     this.headers = new HashMap<>();
-    this.connectionState = ConnectionState.NEW;
+    this.connectionState = IDLE_CONNECTION;
     this.readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
     this.operation = new ConditionVariable();
     readBuffer.clear();
@@ -187,10 +174,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     try {
       Assertions.checkNotNull(dataSpec);
       synchronized (this) {
-        if (connectionState != ConnectionState.NEW && connectionState != ConnectionState.CLOSED) {
+        if (connectionState != IDLE_CONNECTION) {
           throw new IllegalStateException("Connection already open");
         }
-        connectionState = ConnectionState.OPENING;
+        connectionState = OPENING_CONNECTION;
       }
 
       createRequest(dataSpec);
@@ -209,26 +196,16 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
       if (exception != null) {
         throw exception;
-      } else if (connectionState != ConnectionState.CONNECTED) {
+      } else if (connectionState != CONNECTED_CONNECTION) {
         // If the connection timed out. Get the last connection status then throw with exception.
-        final ConditionVariable getStatusOperation = new ConditionVariable();
-        getStatusOperation.close();
-        currentUrlRequest.getStatus(new UrlRequest.StatusListener() {
-          @Override
-          public void onStatus(int i) {
-            connectionStatus = i;
-            getStatusOperation.open();
-          }
-        });
-        getStatusOperation.block();
-        throw new OpenException(new SocketTimeoutException(), dataSpec, connectionStatus);
+        throw new OpenException(new SocketTimeoutException(), dataSpec, getCurrentRequestStatus());
       }
 
       // At this point it's connected.
       if (transferListener != null) {
         transferListener.onTransferStart();
       }
-      connectionState = ConnectionState.OPEN;
+      connectionState = OPEN_CONNECTION;
       return contentLength;
     } finally {
       TraceUtil.endSection();
@@ -270,7 +247,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       throws HttpDataSourceException {
     if (dataSpec.postBody != null) {
       if (!headers.containsKey("Content-Type")) {
-        throw new OpenException("POST requests must set a Content-Type header", dataSpec);
+        throw new OpenException("POST requests must set a Content-Type header", dataSpec,
+            getCurrentRequestStatus());
       }
       urlRequestBuilder.setUploadDataProvider(
           new ByteArrayUploadDataProvider(dataSpec.postBody), executor);
@@ -283,17 +261,17 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (request != currentUrlRequest) {
       return;
     }
-    if (connectionState == ConnectionState.OPENING) {
+    if (connectionState == OPENING_CONNECTION) {
       IOException cause = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
           ? new UnknownHostException() : error;
-      exception = new OpenException(cause, currentDataSpec);
+      exception = new OpenException(cause, currentDataSpec, getCurrentRequestStatus());
       if (timeoutCheckerRunnable != null) {
         timeoutCheckerRunnable.cancel();
         timeoutCheckerRunnable = null;
       }
       operation.open();
 
-    } else if (connectionState == ConnectionState.OPEN) {
+    } else if (connectionState == OPEN_CONNECTION) {
       readBuffer.limit(0);
       exception = new HttpDataSourceException(
           error, currentDataSpec, HttpDataSourceException.TYPE_READ);
@@ -317,7 +295,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       if (currentDataSpec.length != C.LENGTH_UNBOUNDED
           && contentLength != C.LENGTH_UNBOUNDED
           && currentDataSpec.length != contentLength) {
-        throw new OpenException("Content length did not match requested length", currentDataSpec);
+        throw new OpenException("Content length did not match requested length", currentDataSpec,
+            getCurrentRequestStatus());
       }
 
       if (contentLength > 0) {
@@ -326,7 +305,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
       // Keep track of redirects.
       currentUrl = responseInfo.getUrl();
-      connectionState = ConnectionState.CONNECTED;
+      connectionState = CONNECTED_CONNECTION;
     } catch (HttpDataSourceException e) {
       exception = e;
     } finally {
@@ -409,7 +388,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     TraceUtil.beginSection("CronetDataSource.read");
     try {
       synchronized (this) {
-        if (connectionState != ConnectionState.OPEN) {
+        if (connectionState != OPEN_CONNECTION) {
           throw new IllegalStateException("Connection not ready");
         }
       }
@@ -473,7 +452,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       // redirect is followed.
       if (responseCode == 307 || responseCode == 308) {
         exception = new OpenException(
-            "POST request redirected with 307 or 308 response code.", currentDataSpec);
+            "POST request redirected with 307 or 308 response code.", currentDataSpec,
+            getCurrentRequestStatus());
         operation.open();
         return;
       }
@@ -527,15 +507,14 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       readBuffer.clear();
       hasData = false;
       responseInfo = null;
-      connectionStatus = 0;
       expectedBytesRemainingToRead = null;
       responseFinished = false;
 
-      if (transferListener != null && connectionState == ConnectionState.OPEN) {
+      if (transferListener != null && connectionState == OPEN_CONNECTION) {
         transferListener.onTransferEnd();
       }
     } finally {
-      connectionState = ConnectionState.CLOSED;
+      connectionState = IDLE_CONNECTION;
       TraceUtil.endSection();
     }
   }
@@ -549,6 +528,22 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (Log.isLoggable(TAG, priority)) {
       Log.println(priority, TAG, message);
     }
+  }
+
+  private int getCurrentRequestStatus() {
+    if (currentUrlRequest == null) {
+      return UrlRequest.Status.IDLE;
+    }
+    final ConditionVariable conditionVariable = new ConditionVariable();
+    final AtomicInteger result = new AtomicInteger();
+    currentUrlRequest.getStatus(new UrlRequest.StatusListener() {
+      @Override
+      public void onStatus(int status) {
+        result.set(status);
+        conditionVariable.open();
+      }
+    });
+    return result.get();
   }
 
   class TimeoutCheckerRunnable implements Runnable {
