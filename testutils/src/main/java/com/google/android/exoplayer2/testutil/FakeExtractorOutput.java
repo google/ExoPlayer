@@ -31,8 +31,8 @@ import junit.framework.TestCase;
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
 
   /**
-   * If true, makes {@link #assertOutput(Instrumentation, String)} method write dump result to 
-   * {@code /sdcard/Android/data/apk_package/ + dumpfile} file instead of comparing it with an 
+   * If true, makes {@link #assertOutput(Instrumentation, String)} method write dump result to
+   * {@code /sdcard/Android/data/apk_package/ + dumpfile} file instead of comparing it with an
    * existing file.
    */
   private static final boolean WRITE_DUMP = false;

@@ -185,16 +185,17 @@ import java.util.regex.Pattern;
           }
           break;
         case CHAR_AMPERSAND:
-          int semiColonEnd = markup.indexOf(CHAR_SEMI_COLON, pos + 1);
-          int spaceEnd = markup.indexOf(CHAR_SPACE, pos + 1);
-          int entityEnd = semiColonEnd == -1 ? spaceEnd
-              : spaceEnd == -1 ? semiColonEnd : Math.min(semiColonEnd, spaceEnd);
-          if (entityEnd != -1) {
-            applyEntity(markup.substring(pos + 1, entityEnd), spannedText);
-            if (entityEnd == spaceEnd) {
+          int semiColonEndIndex = markup.indexOf(CHAR_SEMI_COLON, pos + 1);
+          int spaceEndIndex = markup.indexOf(CHAR_SPACE, pos + 1);
+          int entityEndIndex = semiColonEndIndex == -1 ? spaceEndIndex
+              : (spaceEndIndex == -1 ? semiColonEndIndex
+                  : Math.min(semiColonEndIndex, spaceEndIndex));
+          if (entityEndIndex != -1) {
+            applyEntity(markup.substring(pos + 1, entityEndIndex), spannedText);
+            if (entityEndIndex == spaceEndIndex) {
               spannedText.append(" ");
             }
-            pos = entityEnd + 1;
+            pos = entityEndIndex + 1;
           } else {
             spannedText.append(curr);
             pos++;
@@ -245,10 +246,10 @@ import java.util.regex.Pattern;
 
   private static void parseLineAttribute(String s, WebvttCue.Builder builder)
       throws NumberFormatException {
-    int commaPosition = s.indexOf(',');
-    if (commaPosition != -1) {
-      builder.setLineAnchor(parsePositionAnchor(s.substring(commaPosition + 1)));
-      s = s.substring(0, commaPosition);
+    int commaIndex = s.indexOf(',');
+    if (commaIndex != -1) {
+      builder.setLineAnchor(parsePositionAnchor(s.substring(commaIndex + 1)));
+      s = s.substring(0, commaIndex);
     } else {
       builder.setLineAnchor(Cue.TYPE_UNSET);
     }
@@ -261,10 +262,10 @@ import java.util.regex.Pattern;
 
   private static void parsePositionAttribute(String s, WebvttCue.Builder builder)
       throws NumberFormatException {
-    int commaPosition = s.indexOf(',');
-    if (commaPosition != -1) {
-      builder.setPositionAnchor(parsePositionAnchor(s.substring(commaPosition + 1)));
-      s = s.substring(0, commaPosition);
+    int commaIndex = s.indexOf(',');
+    if (commaIndex != -1) {
+      builder.setPositionAnchor(parsePositionAnchor(s.substring(commaIndex + 1)));
+      s = s.substring(0, commaIndex);
     } else {
       builder.setPositionAnchor(Cue.TYPE_UNSET);
     }
@@ -311,8 +312,8 @@ import java.util.regex.Pattern;
    * @return The position of the end of tag plus 1 (one).
    */
   private static int findEndOfTag(String markup, int startPos) {
-    int idx = markup.indexOf(CHAR_GREATER_THAN, startPos);
-    return idx == -1 ? markup.length() : idx + 1;
+    int index = markup.indexOf(CHAR_GREATER_THAN, startPos);
+    return index == -1 ? markup.length() : index + 1;
   }
 
   private static void applyEntity(String entity, SpannableStringBuilder spannedText) {
@@ -495,13 +496,13 @@ import java.util.regex.Pattern;
       if (fullTagExpression.isEmpty()) {
         return null;
       }
-      int voiceStart = fullTagExpression.indexOf(" ");
+      int voiceStartIndex = fullTagExpression.indexOf(" ");
       String voice;
-      if (voiceStart == -1) {
+      if (voiceStartIndex == -1) {
         voice = "";
       } else {
-        voice = fullTagExpression.substring(voiceStart).trim();
-        fullTagExpression = fullTagExpression.substring(0, voiceStart);
+        voice = fullTagExpression.substring(voiceStartIndex).trim();
+        fullTagExpression = fullTagExpression.substring(0, voiceStartIndex);
       }
       String[] nameAndClasses = fullTagExpression.split("\\.");
       String name = nameAndClasses[0];

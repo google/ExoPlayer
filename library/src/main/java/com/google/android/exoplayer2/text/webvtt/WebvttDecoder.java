@@ -29,11 +29,12 @@ import java.util.List;
  */
 public final class WebvttDecoder extends SimpleSubtitleDecoder {
 
-  private static final int NO_EVENT_FOUND = -1;
-  private static final int END_OF_FILE_FOUND = 0;
-  private static final int COMMENT_FOUND = 1;
-  private static final int STYLE_BLOCK_FOUND = 2;
-  private static final int CUE_FOUND = 3;
+  private static final int EVENT_NONE = -1;
+  private static final int EVENT_END_OF_FILE = 0;
+  private static final int EVENT_COMMENT = 1;
+  private static final int EVENT_STYLE_BLOCK = 2;
+  private static final int EVENT_CUE = 3;
+
   private static final String COMMENT_START = "NOTE";
   private static final String STYLE_START = "STYLE";
 
@@ -63,12 +64,12 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
     WebvttParserUtil.validateWebvttHeaderLine(parsableWebvttData);
     while (!TextUtils.isEmpty(parsableWebvttData.readLine())) {}
 
-    int eventFound;
+    int event;
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
-    while ((eventFound = getNextEvent(parsableWebvttData)) != END_OF_FILE_FOUND) {
-      if (eventFound == COMMENT_FOUND) {
+    while ((event = getNextEvent(parsableWebvttData)) != EVENT_END_OF_FILE) {
+      if (event == EVENT_COMMENT) {
         skipComment(parsableWebvttData);
-      } else if (eventFound == STYLE_BLOCK_FOUND) {
+      } else if (event == EVENT_STYLE_BLOCK) {
         if (!subtitles.isEmpty()) {
           throw new SubtitleDecoderException("A style block was found after the first cue.");
         }
@@ -77,7 +78,7 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
         if (styleBlock != null) {
           definedStyles.add(styleBlock);
         }
-      } else if (eventFound == CUE_FOUND) {
+      } else if (event == EVENT_CUE) {
         if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder, definedStyles)) {
           subtitles.add(webvttCueBuilder.build());
           webvttCueBuilder.reset();
@@ -94,19 +95,19 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
    * @return The kind of event found.
    */
   private static int getNextEvent(ParsableByteArray parsableWebvttData) {
-    int foundEvent = NO_EVENT_FOUND;
+    int foundEvent = EVENT_NONE;
     int currentInputPosition = 0;
-    while (foundEvent == NO_EVENT_FOUND) {
+    while (foundEvent == EVENT_NONE) {
       currentInputPosition = parsableWebvttData.getPosition();
       String line = parsableWebvttData.readLine();
       if (line == null) {
-        foundEvent = END_OF_FILE_FOUND;
+        foundEvent = EVENT_END_OF_FILE;
       } else if (STYLE_START.equals(line)) {
-        foundEvent = STYLE_BLOCK_FOUND;
+        foundEvent = EVENT_STYLE_BLOCK;
       } else if (COMMENT_START.startsWith(line)) {
-        foundEvent = COMMENT_FOUND;
+        foundEvent = EVENT_COMMENT;
       } else {
-        foundEvent = CUE_FOUND;
+        foundEvent = EVENT_CUE;
       }
     }
     parsableWebvttData.setPosition(currentInputPosition);

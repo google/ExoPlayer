@@ -124,7 +124,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       // 0xA7B == 2683.
       assertNotNull(segments.get(4).encryptionIV);
       assertEquals("A7B", segments.get(4).encryptionIV.toUpperCase(Locale.getDefault()));
-      assertEquals(C.LENGTH_UNBOUNDED, segments.get(4).byterangeLength);
+      assertEquals(C.LENGTH_UNSET, segments.get(4).byterangeLength);
       assertEquals(0, segments.get(4).byterangeOffset);
       assertEquals("https://priv.example.com/fileSequence2683.ts", segments.get(4).url);
     } catch (IOException exception) {

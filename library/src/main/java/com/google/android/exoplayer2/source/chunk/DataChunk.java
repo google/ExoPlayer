@@ -47,7 +47,7 @@ public abstract class DataChunk extends Chunk {
   public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, Format trackFormat,
       int trackSelectionReason, Object trackSelectionData, byte[] data) {
     super(dataSource, dataSpec, type, trackFormat, trackSelectionReason, trackSelectionData,
-        C.UNSET_TIME_US, C.UNSET_TIME_US);
+        C.TIME_UNSET, C.TIME_UNSET);
     this.data = data;
   }
 
@@ -85,7 +85,7 @@ public abstract class DataChunk extends Chunk {
       dataSource.open(dataSpec);
       limit = 0;
       int bytesRead = 0;
-      while (bytesRead != -1 && !loadCanceled) {
+      while (bytesRead != C.RESULT_END_OF_INPUT && !loadCanceled) {
         maybeExpandData();
         bytesRead = dataSource.read(data, limit, READ_GRANULARITY);
         if (bytesRead != -1) {

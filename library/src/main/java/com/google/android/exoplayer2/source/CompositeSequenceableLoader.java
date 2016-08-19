@@ -33,11 +33,11 @@ public final class CompositeSequenceableLoader implements SequenceableLoader {
     long nextLoadPositionUs = Long.MAX_VALUE;
     for (SequenceableLoader loader : loaders) {
       long loaderNextLoadPositionUs = loader.getNextLoadPositionUs();
-      if (loaderNextLoadPositionUs != C.END_OF_SOURCE_US) {
+      if (loaderNextLoadPositionUs != C.TIME_END_OF_SOURCE) {
         nextLoadPositionUs = Math.min(nextLoadPositionUs, loaderNextLoadPositionUs);
       }
     }
-    return nextLoadPositionUs == Long.MAX_VALUE ? C.END_OF_SOURCE_US : nextLoadPositionUs;
+    return nextLoadPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : nextLoadPositionUs;
   }
 
   @Override
@@ -47,7 +47,7 @@ public final class CompositeSequenceableLoader implements SequenceableLoader {
     do {
       madeProgressThisIteration = false;
       long nextLoadPositionUs = getNextLoadPositionUs();
-      if (nextLoadPositionUs == C.END_OF_SOURCE_US) {
+      if (nextLoadPositionUs == C.TIME_END_OF_SOURCE) {
         break;
       }
       for (SequenceableLoader loader : loaders) {

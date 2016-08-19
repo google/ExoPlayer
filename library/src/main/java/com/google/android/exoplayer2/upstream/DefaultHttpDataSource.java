@@ -227,9 +227,9 @@ public class DefaultHttpDataSource implements HttpDataSource {
     // Determine the length of the data to be read, after skipping.
     if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
       long contentLength = getContentLength(connection);
-      bytesToRead = dataSpec.length != C.LENGTH_UNBOUNDED ? dataSpec.length
-          : contentLength != C.LENGTH_UNBOUNDED ? contentLength - bytesToSkip
-          : C.LENGTH_UNBOUNDED;
+      bytesToRead = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length
+          : contentLength != C.LENGTH_UNSET ? contentLength - bytesToSkip
+          : C.LENGTH_UNSET;
     } else {
       // Gzip is enabled. If the server opts to use gzip then the content length in the response
       // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
@@ -319,12 +319,12 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * Returns the number of bytes that are still to be read for the current {@link DataSpec}.
    * <p>
    * If the total length of the data being read is known, then this length minus {@code bytesRead()}
-   * is returned. If the total length is unknown, {@link C#LENGTH_UNBOUNDED} is returned.
+   * is returned. If the total length is unknown, {@link C#LENGTH_UNSET} is returned.
    *
-   * @return The remaining length, or {@link C#LENGTH_UNBOUNDED}.
+   * @return The remaining length, or {@link C#LENGTH_UNSET}.
    */
   protected final long bytesRemaining() {
-    return bytesToRead == C.LENGTH_UNBOUNDED ? bytesToRead : bytesToRead - bytesRead;
+    return bytesToRead == C.LENGTH_UNSET ? bytesToRead : bytesToRead - bytesRead;
   }
 
   /**
@@ -377,7 +377,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * @param url The url to connect to.
    * @param postBody The body data for a POST request.
    * @param position The byte offset of the requested data.
-   * @param length The length of the requested data, or {@link C#LENGTH_UNBOUNDED}.
+   * @param length The length of the requested data, or {@link C#LENGTH_UNSET}.
    * @param allowGzip Whether to allow the use of gzip.
    * @param followRedirects Whether to follow redirects.
    */
@@ -391,9 +391,9 @@ public class DefaultHttpDataSource implements HttpDataSource {
         connection.setRequestProperty(property.getKey(), property.getValue());
       }
     }
-    if (!(position == 0 && length == C.LENGTH_UNBOUNDED)) {
+    if (!(position == 0 && length == C.LENGTH_UNSET)) {
       String rangeRequest = "bytes=" + position + "-";
-      if (length != C.LENGTH_UNBOUNDED) {
+      if (length != C.LENGTH_UNSET) {
         rangeRequest += (position + length - 1);
       }
       connection.setRequestProperty("Range", rangeRequest);
@@ -449,10 +449,10 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * Attempts to extract the length of the content from the response headers of an open connection.
    *
    * @param connection The open connection.
-   * @return The extracted length, or {@link C#LENGTH_UNBOUNDED}.
+   * @return The extracted length, or {@link C#LENGTH_UNSET}.
    */
   private static long getContentLength(HttpURLConnection connection) {
-    long contentLength = C.LENGTH_UNBOUNDED;
+    long contentLength = C.LENGTH_UNSET;
     String contentLengthHeader = connection.getHeaderField("Content-Length");
     if (!TextUtils.isEmpty(contentLengthHeader)) {
       try {
@@ -542,7 +542,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * @throws IOException If an error occurs reading from the source.
    */
   private int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
-    readLength = bytesToRead == C.LENGTH_UNBOUNDED ? readLength
+    readLength = bytesToRead == C.LENGTH_UNSET ? readLength
         : (int) Math.min(readLength, bytesToRead - bytesRead);
     if (readLength == 0) {
       // We've read all of the requested data.
@@ -551,7 +551,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     int read = inputStream.read(buffer, offset, readLength);
     if (read == -1) {
-      if (bytesToRead != C.LENGTH_UNBOUNDED && bytesToRead != bytesRead) {
+      if (bytesToRead != C.LENGTH_UNSET && bytesToRead != bytesRead) {
         // The server closed the connection having not sent sufficient data.
         throw new EOFException();
       }
@@ -574,7 +574,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    *
    * @param connection The connection whose {@link InputStream} should be terminated.
    * @param bytesRemaining The number of bytes remaining to be read from the input stream if its
-   *     length is known. {@link C#LENGTH_UNBOUNDED} otherwise.
+   *     length is known. {@link C#LENGTH_UNSET} otherwise.
    */
   private static void maybeTerminateInputStream(HttpURLConnection connection, long bytesRemaining) {
     if (Util.SDK_INT != 19 && Util.SDK_INT != 20) {
@@ -583,7 +583,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     try {
       InputStream inputStream = connection.getInputStream();
-      if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+      if (bytesRemaining == C.LENGTH_UNSET) {
         // If the input stream has already ended, do nothing. The socket may be re-used.
         if (inputStream.read() == -1) {
           return;

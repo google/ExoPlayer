@@ -49,8 +49,8 @@ import java.util.List;
    *
    * @param trak Atom to decode.
    * @param mvhd Movie header atom, used to get the timescale.
-   * @param duration The duration in units of the timescale declared in the mvhd atom, or -1 if the
-   * duration should be parsed from the tkhd atom.
+   * @param duration The duration in units of the timescale declared in the mvhd atom, or
+   *     {@link C#TIME_UNSET} if the duration should be parsed from the tkhd atom.
    * @param drmInitData {@link DrmInitData} to be included in the format.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
@@ -64,13 +64,13 @@ import java.util.List;
     }
 
     TkhdData tkhdData = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
-    if (duration == -1) {
+    if (duration == C.TIME_UNSET) {
       duration = tkhdData.duration;
     }
     long movieTimescale = parseMvhd(mvhd.data);
     long durationUs;
-    if (duration == -1) {
-      durationUs = C.UNSET_TIME_US;
+    if (duration == C.TIME_UNSET) {
+      durationUs = C.TIME_UNSET;
     } else {
       durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, movieTimescale);
     }
@@ -152,7 +152,7 @@ import java.util.List;
       remainingTimestampOffsetChanges = ctts.readUnsignedIntToInt();
     }
 
-    int nextSynchronizationSampleIndex = -1;
+    int nextSynchronizationSampleIndex = C.INDEX_UNSET;
     int remainingSynchronizationSamples = 0;
     if (stss != null) {
       stss.setPosition(Atom.FULL_HEADER_SIZE);
@@ -509,13 +509,13 @@ import java.util.List;
     long duration;
     if (durationUnknown) {
       tkhd.skipBytes(durationByteCount);
-      duration = -1;
+      duration = C.TIME_UNSET;
     } else {
       duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
       if (duration == 0) {
         // 0 duration normally indicates that the file is fully fragmented (i.e. all of the media
         // samples are in fragments). Treat as unknown.
-        duration = -1;
+        duration = C.TIME_UNSET;
       }
     }
 
@@ -833,7 +833,7 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_esds || (isQuickTime && childAtomType == Atom.TYPE_wave)) {
         int esdsAtomPosition = childAtomType == Atom.TYPE_esds ? childPosition
             : findEsdsPosition(parent, childPosition, childAtomSize);
-        if (esdsAtomPosition != -1) {
+        if (esdsAtomPosition != C.POSITION_UNSET) {
           Pair<String, byte[]> mimeTypeAndInitializationData =
               parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = mimeTypeAndInitializationData.first;
@@ -875,7 +875,8 @@ import java.util.List;
   }
 
   /**
-   * Returns the position of the esds box within a parent, or -1 if no esds box is found
+   * Returns the position of the esds box within a parent, or {@link C#POSITION_UNSET} if no esds
+   * box is found
    */
   private static int findEsdsPosition(ParsableByteArray parent, int position, int size) {
     int childAtomPosition = parent.getPosition();
@@ -889,7 +890,7 @@ import java.util.List;
       }
       childAtomPosition += childAtomSize;
     }
-    return -1;
+    return C.POSITION_UNSET;
   }
 
   /**
@@ -1081,7 +1082,7 @@ import java.util.List;
       stsc.setPosition(Atom.FULL_HEADER_SIZE);
       remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt();
       Assertions.checkState(stsc.readInt() == 1, "first_chunk must be 1");
-      index = -1;
+      index = C.INDEX_UNSET;
     }
 
     public boolean moveNext() {
@@ -1094,7 +1095,7 @@ import java.util.List;
         numSamples = stsc.readUnsignedIntToInt();
         stsc.skipBytes(4); // Skip sample_description_index
         nextSamplesPerChunkChangeIndex = --remainingSamplesPerChunkChanges > 0
-            ? (stsc.readUnsignedIntToInt() - 1) : -1;
+            ? (stsc.readUnsignedIntToInt() - 1) : C.INDEX_UNSET;
       }
       return true;
     }
@@ -1131,10 +1132,8 @@ import java.util.List;
 
     public StsdData(int numberOfEntries) {
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
-      nalUnitLengthFieldLength = -1;
       requiredSampleTransformation = Track.TRANSFORMATION_NONE;
     }
-
 
   }
 

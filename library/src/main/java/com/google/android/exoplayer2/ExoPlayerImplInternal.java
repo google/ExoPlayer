@@ -149,7 +149,7 @@ import java.io.IOException;
       renderers[i].setIndex(i);
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
-    playingPeriodEndPositionUs = C.UNSET_TIME_US;
+    playingPeriodEndPositionUs = C.TIME_UNSET;
 
     standaloneMediaClock = new StandaloneMediaClock();
     enabledRenderers = new Renderer[0];
@@ -339,7 +339,7 @@ import java.io.IOException;
       throws ExoPlaybackException {
     resetInternal();
     if (resetPosition) {
-      playbackInfo = new PlaybackInfo(0, C.UNSET_TIME_US);
+      playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
     }
     this.mediaSource = mediaSource;
     mediaSource.prepareSource(this);
@@ -386,7 +386,7 @@ import java.io.IOException;
 
     // Update the playback position.
     long positionUs = mediaPeriod.readDiscontinuity();
-    if (positionUs != C.UNSET_TIME_US) {
+    if (positionUs != C.TIME_UNSET) {
       resetInternalPosition(positionUs);
     } else {
       if (rendererMediaClockSource != null && !rendererMediaClockSource.isEnded()) {
@@ -401,9 +401,9 @@ import java.io.IOException;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
 
     // Update the buffered position.
-    long bufferedPositionUs = enabledRenderers.length == 0 ? C.END_OF_SOURCE_US
+    long bufferedPositionUs = enabledRenderers.length == 0 ? C.TIME_END_OF_SOURCE
         : mediaPeriod.getBufferedPositionUs();
-    playbackInfo.bufferedPositionUs = bufferedPositionUs == C.END_OF_SOURCE_US
+    playbackInfo.bufferedPositionUs = bufferedPositionUs == C.TIME_END_OF_SOURCE
         ? timeline.getPeriodDurationUs(playingPeriod.index) : bufferedPositionUs;
   }
 
@@ -444,7 +444,7 @@ import java.io.IOException;
 
     long playingPeriodDuration = timeline.getPeriodDurationUs(playingPeriod.index);
     if (allRenderersEnded
-        && (playingPeriodDuration == C.UNSET_TIME_US
+        && (playingPeriodDuration == C.TIME_UNSET
         || playingPeriodDuration <= playbackInfo.positionUs)
         && isTimelineEnded) {
       setState(ExoPlayer.STATE_ENDED);
@@ -495,7 +495,7 @@ import java.io.IOException;
 
   private void seekToInternal(int periodIndex, long positionUs) throws ExoPlaybackException {
     try {
-      if (positionUs == C.UNSET_TIME_US && timeline != null
+      if (positionUs == C.TIME_UNSET && timeline != null
           && periodIndex < timeline.getPeriodCount()) {
         // We know about the window, so seek to its default initial position now.
         Pair<Integer, Long> defaultPosition = getDefaultPosition(periodIndex);
@@ -504,7 +504,7 @@ import java.io.IOException;
       }
 
       if (periodIndex == playbackInfo.periodIndex
-          && ((positionUs == C.UNSET_TIME_US && playbackInfo.positionUs == C.UNSET_TIME_US)
+          && ((positionUs == C.TIME_UNSET && playbackInfo.positionUs == C.TIME_UNSET)
           || ((positionUs / 1000) == (playbackInfo.positionUs / 1000)))) {
         // Seek position equals the current position. Do nothing.
         return;
@@ -518,7 +518,7 @@ import java.io.IOException;
 
   private long seekToPeriodPosition(int periodIndex, long positionUs) throws ExoPlaybackException {
     if (mediaSource == null) {
-      if (positionUs != C.UNSET_TIME_US) {
+      if (positionUs != C.TIME_UNSET) {
         resetInternalPosition(positionUs);
       }
       return positionUs;
@@ -528,12 +528,12 @@ import java.io.IOException;
     rebuffering = false;
     setState(ExoPlayer.STATE_BUFFERING);
 
-    if (positionUs == C.UNSET_TIME_US
+    if (positionUs == C.TIME_UNSET
         || (readingPeriod != playingPeriod && (periodIndex == playingPeriod.index
         || (readingPeriod != null && periodIndex == readingPeriod.index)))) {
       // Clear the timeline because either the seek position is not known, or a renderer is reading
       // ahead to the next period and the seek is to either the playing or reading period.
-      periodIndex = Timeline.NO_PERIOD_INDEX;
+      periodIndex = C.INDEX_UNSET;
     }
 
     // Clear the timeline, but keep the requested period if it is already prepared.
@@ -575,7 +575,7 @@ import java.io.IOException;
       playingPeriod = null;
       readingPeriod = null;
       loadingPeriod = null;
-      if (positionUs != C.UNSET_TIME_US) {
+      if (positionUs != C.TIME_UNSET) {
         resetInternalPosition(positionUs);
       }
     }
@@ -628,7 +628,7 @@ import java.io.IOException;
       mediaSource = null;
     }
     releasePeriodsFrom(playingPeriod != null ? playingPeriod : loadingPeriod);
-    playingPeriodEndPositionUs = C.UNSET_TIME_US;
+    playingPeriodEndPositionUs = C.TIME_UNSET;
     isTimelineReady = false;
     isTimelineEnded = false;
     playingPeriod = null;
@@ -694,7 +694,7 @@ import java.io.IOException;
       playingPeriod.nextPeriod = null;
       readingPeriod = playingPeriod;
       loadingPeriod = playingPeriod;
-      playingPeriodEndPositionUs = C.UNSET_TIME_US;
+      playingPeriodEndPositionUs = C.TIME_UNSET;
       bufferAheadPeriodCount = 0;
 
       // Update streams for the new selection, recreating all streams if reading ahead.
@@ -764,7 +764,7 @@ import java.io.IOException;
     long positionUs = internalPositionUs - loadingPeriod.offsetUs;
     long bufferedPositionUs =
         !loadingPeriod.prepared ? 0 : loadingPeriod.mediaPeriod.getBufferedPositionUs();
-    if (bufferedPositionUs == C.END_OF_SOURCE_US) {
+    if (bufferedPositionUs == C.TIME_END_OF_SOURCE) {
       if (loadingPeriod.isLast) {
         return true;
       }
@@ -794,7 +794,7 @@ import java.io.IOException;
     // Update the loaded periods to take into account the new timeline.
     if (playingPeriod != null) {
       int index = timeline.getIndexOfPeriod(playingPeriod.id);
-      if (index == Timeline.NO_PERIOD_INDEX) {
+      if (index == C.INDEX_UNSET) {
         attemptRestart(timeline, oldTimeline, playingPeriod.index);
         return;
       }
@@ -845,7 +845,7 @@ import java.io.IOException;
     } else if (loadingPeriod != null) {
       Object id = loadingPeriod.id;
       int index = timeline.getIndexOfPeriod(id);
-      if (index == Timeline.NO_PERIOD_INDEX) {
+      if (index == C.INDEX_UNSET) {
         attemptRestart(timeline, oldTimeline, loadingPeriod.index);
         return;
       } else {
@@ -856,8 +856,8 @@ import java.io.IOException;
     // TODO[playlists]: Signal the identifier discontinuity, even if the index hasn't changed.
     if (oldTimeline != null) {
       int newPlayingIndex = playingPeriod != null ? playingPeriod.index
-          : loadingPeriod != null ? loadingPeriod.index : Timeline.NO_PERIOD_INDEX;
-      if (newPlayingIndex != Timeline.NO_PERIOD_INDEX
+          : loadingPeriod != null ? loadingPeriod.index : C.INDEX_UNSET;
+      if (newPlayingIndex != C.INDEX_UNSET
           && newPlayingIndex != playbackInfo.periodIndex) {
         playbackInfo = new PlaybackInfo(newPlayingIndex, playbackInfo.positionUs);
         updatePlaybackPositions();
@@ -868,12 +868,12 @@ import java.io.IOException;
 
   private void attemptRestart(Timeline newTimeline, Timeline oldTimeline, int oldPeriodIndex)
       throws ExoPlaybackException {
-    int newPeriodIndex = Timeline.NO_PERIOD_INDEX;
-    while (newPeriodIndex == Timeline.NO_PERIOD_INDEX
+    int newPeriodIndex = C.INDEX_UNSET;
+    while (newPeriodIndex == C.INDEX_UNSET
         && oldPeriodIndex < oldTimeline.getPeriodCount() - 1) {
       newPeriodIndex = newTimeline.getIndexOfPeriod(oldTimeline.getPeriodId(++oldPeriodIndex));
     }
-    if (newPeriodIndex == Timeline.NO_PERIOD_INDEX) {
+    if (newPeriodIndex == C.INDEX_UNSET) {
       // We failed to find a replacement period. Stop the player.
       stopInternal();
       return;
@@ -926,8 +926,8 @@ import java.io.IOException;
       } else {
         long startPositionUs = loadingPeriod == null ? playbackInfo.positionUs
             : (newLoadingPeriodIndex == timeline.getWindowFirstPeriodIndex(newLoadingPeriodIndex)
-                ? C.UNSET_TIME_US : 0);
-        if (startPositionUs == C.UNSET_TIME_US) {
+                ? C.TIME_UNSET : 0);
+        if (startPositionUs == C.TIME_UNSET) {
           // This is the first period of a new window or we don't have a start position, so seek to
           // the default position for the window.
           Pair<Integer, Long> defaultPosition = getDefaultPosition(newLoadingPeriodIndex);
@@ -962,7 +962,7 @@ import java.io.IOException;
     }
 
     // Update the playing and reading periods.
-    if (playingPeriodEndPositionUs == C.UNSET_TIME_US && playingPeriod.isFullyBuffered()) {
+    if (playingPeriodEndPositionUs == C.TIME_UNSET && playingPeriod.isFullyBuffered()) {
       playingPeriodEndPositionUs = playingPeriod.offsetUs
           + timeline.getPeriodDurationUs(playingPeriod.index);
     }
@@ -1029,7 +1029,7 @@ import java.io.IOException;
       // This is the first prepared period, so start playing it.
       readingPeriod = loadingPeriod;
       setPlayingPeriod(readingPeriod);
-      if (playbackInfo.startPositionUs == C.UNSET_TIME_US) {
+      if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         // Update the playback info when seeking to a default position.
         playbackInfo = new PlaybackInfo(playingPeriod.index, playingPeriod.startPositionUs);
         resetInternalPosition(playbackInfo.startPositionUs);
@@ -1050,7 +1050,7 @@ import java.io.IOException;
 
   private void maybeContinueLoading() {
     long nextLoadPositionUs = loadingPeriod.mediaPeriod.getNextLoadPositionUs();
-    if (nextLoadPositionUs != C.END_OF_SOURCE_US) {
+    if (nextLoadPositionUs != C.TIME_END_OF_SOURCE) {
       long positionUs = internalPositionUs - loadingPeriod.offsetUs + loadingPeriod.startPositionUs;
       long bufferedDurationUs = nextLoadPositionUs - positionUs;
       boolean continueLoading = loadControl.shouldContinueLoading(bufferedDurationUs);
@@ -1098,12 +1098,12 @@ import java.io.IOException;
 
     trackSelector.onSelectionActivated(period.trackSelectionData);
     playingPeriod = period;
-    playingPeriodEndPositionUs = C.UNSET_TIME_US;
+    playingPeriodEndPositionUs = C.TIME_UNSET;
     enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
   }
 
   private void updateTimelineState() {
-    isTimelineReady = playingPeriodEndPositionUs == C.UNSET_TIME_US
+    isTimelineReady = playingPeriodEndPositionUs == C.TIME_UNSET
         || internalPositionUs < playingPeriodEndPositionUs
         || (playingPeriod.nextPeriod != null && playingPeriod.nextPeriod.prepared);
     isTimelineEnded = playingPeriod.isLast;
@@ -1203,7 +1203,7 @@ import java.io.IOException;
 
     public boolean isFullyBuffered() {
       return prepared
-          && (!hasEnabledTracks || mediaPeriod.getBufferedPositionUs() == C.END_OF_SOURCE_US);
+          && (!hasEnabledTracks || mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE);
     }
 
     public void handlePrepared(long positionUs, LoadControl loadControl)

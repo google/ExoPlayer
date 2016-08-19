@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -79,15 +80,15 @@ public class HlsMasterPlaylistParserTest extends TestCase {
 
       assertEquals(7680000, variants.get(3).format.bitrate);
       assertEquals(null, variants.get(3).codecs);
-      assertEquals(-1, variants.get(3).format.width);
-      assertEquals(-1, variants.get(3).format.height);
+      assertEquals(Format.NO_VALUE, variants.get(3).format.width);
+      assertEquals(Format.NO_VALUE, variants.get(3).format.height);
       assertEquals("http://example.com/hi.m3u8", variants.get(3).url);
 
       assertEquals(65000, variants.get(4).format.bitrate);
       assertNotNull(variants.get(4).codecs);
       assertEquals("mp4a.40.5", variants.get(4).codecs);
-      assertEquals(-1, variants.get(4).format.width);
-      assertEquals(-1, variants.get(4).format.height);
+      assertEquals(Format.NO_VALUE, variants.get(4).format.width);
+      assertEquals(Format.NO_VALUE, variants.get(4).format.height);
       assertEquals("http://example.com/audio-only.m3u8", variants.get(4).url);
     } catch (IOException exception) {
       fail(exception.getMessage());

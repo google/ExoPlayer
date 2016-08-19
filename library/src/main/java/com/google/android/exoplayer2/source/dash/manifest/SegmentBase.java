@@ -95,7 +95,7 @@ public abstract class SegmentBase {
      * @param uri The uri of the segment.
      */
     public SingleSegmentBase(String uri) {
-      this(null, 1, 0, uri, 0, -1);
+      this(null, 1, 0, uri, 0, 0);
     }
 
     public RangedUri getIndex() {
@@ -316,7 +316,7 @@ public abstract class SegmentBase {
       if (initializationTemplate != null) {
         String urlString = initializationTemplate.buildUri(representation.format.id, 0,
             representation.format.bitrate, 0);
-        return new RangedUri(baseUrl, urlString, 0, -1);
+        return new RangedUri(baseUrl, urlString, 0, C.LENGTH_UNSET);
       } else {
         return super.getInitialization(representation);
       }
@@ -332,14 +332,14 @@ public abstract class SegmentBase {
       }
       String uriString = mediaTemplate.buildUri(representation.format.id, sequenceNumber,
           representation.format.bitrate, time);
-      return new RangedUri(baseUrl, uriString, 0, -1);
+      return new RangedUri(baseUrl, uriString, 0, C.LENGTH_UNSET);
     }
 
     @Override
     public int getLastSegmentNum(long periodDurationUs) {
       if (segmentTimeline != null) {
         return segmentTimeline.size() + startNumber - 1;
-      } else if (periodDurationUs == C.UNSET_TIME_US) {
+      } else if (periodDurationUs == C.TIME_UNSET) {
         return DashSegmentIndex.INDEX_UNBOUNDED;
       } else {
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;

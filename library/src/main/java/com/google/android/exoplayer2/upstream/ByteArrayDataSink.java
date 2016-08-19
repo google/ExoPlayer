@@ -29,7 +29,7 @@ public final class ByteArrayDataSink implements DataSink {
 
   @Override
   public void open(DataSpec dataSpec) throws IOException {
-    if (dataSpec.length == C.LENGTH_UNBOUNDED) {
+    if (dataSpec.length == C.LENGTH_UNSET) {
       stream = new ByteArrayOutputStream();
     } else {
       Assertions.checkArgument(dataSpec.length <= Integer.MAX_VALUE);

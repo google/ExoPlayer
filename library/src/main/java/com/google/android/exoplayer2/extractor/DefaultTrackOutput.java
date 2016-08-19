@@ -233,7 +233,7 @@ public final class DefaultTrackOutput implements TrackOutput {
    */
   public boolean skipToKeyframeBefore(long timeUs) {
     long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
-    if (nextOffset == -1) {
+    if (nextOffset == C.POSITION_UNSET) {
       return false;
     }
     dropDownstreamTo(nextOffset);
@@ -785,17 +785,18 @@ public final class DefaultTrackOutput implements TrackOutput {
      * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
      *
      * @param timeUs The seek time.
-     * @return The offset of the keyframe's data if the keyframe was present. -1 otherwise.
+     * @return The offset of the keyframe's data if the keyframe was present.
+     *     {@link C#POSITION_UNSET} otherwise.
      */
     public synchronized long skipToKeyframeBefore(long timeUs) {
       if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
-        return -1;
+        return C.POSITION_UNSET;
       }
 
       int lastWriteIndex = (relativeWriteIndex == 0 ? capacity : relativeWriteIndex) - 1;
       long lastTimeUs = timesUs[lastWriteIndex];
       if (timeUs > lastTimeUs) {
-        return -1;
+        return C.POSITION_UNSET;
       }
 
       // This could be optimized to use a binary search, however in practice callers to this method
@@ -817,7 +818,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       }
 
       if (sampleCountToKeyframe == -1) {
-        return -1;
+        return C.POSITION_UNSET;
       }
 
       queueSize -= sampleCountToKeyframe;

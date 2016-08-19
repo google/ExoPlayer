@@ -208,11 +208,6 @@ public interface ExoPlayer {
   int STATE_ENDED = 4;
 
   /**
-   * Represents an unknown time or duration.
-   */
-  long UNKNOWN_TIME = -1;
-
-  /**
    * Register a listener to receive events from the player. The listener's methods will be called on
    * the thread that was used to construct the player.
    *
@@ -391,7 +386,7 @@ public interface ExoPlayer {
   int getCurrentPeriodIndex();
 
   /**
-   * Returns the duration of the current period in milliseconds, or {@link #UNKNOWN_TIME} if the
+   * Returns the duration of the current period in milliseconds, or {@link C#TIME_UNSET} if the
    * duration is not known.
    */
   @Deprecated
@@ -405,7 +400,7 @@ public interface ExoPlayer {
 
   /**
    * Returns an estimate of the position in the current period up to which data is buffered, or
-   * {@link #UNKNOWN_TIME} if no estimate is available.
+   * {@link C#TIME_UNSET} if no estimate is available.
    */
   @Deprecated
   long getBufferedPositionInPeriod();
@@ -420,26 +415,26 @@ public interface ExoPlayer {
   // Window based.
 
   /**
-   * Returns the index of the seek window associated with the current period, or -1 if the timeline
-   * is not set.
+   * Returns the index of the seek window associated with the current period, or
+   * {@link C#INDEX_UNSET} if the timeline is not set.
    */
   int getCurrentWindowIndex();
 
   /**
-   * Returns the duration of the current window in milliseconds, or {@link #UNKNOWN_TIME} if the
+   * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the
    * duration is not known.
    */
   long getDuration();
 
   /**
    * Returns the playback position in the current seek window, in milliseconds, or
-   * {@link #UNKNOWN_TIME} if the timeline is not set.
+   * {@link C#TIME_UNSET} if the timeline is not set.
    */
   long getCurrentPosition();
 
   /**
    * Returns an estimate of the position in the current window up to which data is buffered, or
-   * {@link #UNKNOWN_TIME} if no estimate is available.
+   * {@link C#TIME_UNSET} if no estimate is available.
    */
   long getBufferedPosition();
 

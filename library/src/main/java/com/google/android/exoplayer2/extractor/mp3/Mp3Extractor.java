@@ -86,21 +86,21 @@ public final class Mp3Extractor implements Extractor {
    * Constructs a new {@link Mp3Extractor}.
    */
   public Mp3Extractor() {
-    this(-1);
+    this(C.TIME_UNSET);
   }
 
   /**
    * Constructs a new {@link Mp3Extractor}.
    *
-   * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or -1 if forcing
-   *     is not required.
+   * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or
+   *     {@link C#TIME_UNSET} if forcing is not required.
    */
   public Mp3Extractor(long forcedFirstSampleTimestampUs) {
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
     gaplessInfoHolder = new GaplessInfoHolder();
-    basisTimeUs = -1;
+    basisTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -118,7 +118,7 @@ public final class Mp3Extractor implements Extractor {
   @Override
   public void seek(long position) {
     synchronizedHeaderData = 0;
-    basisTimeUs = -1;
+    basisTimeUs = C.TIME_UNSET;
     samplesRead = 0;
     sampleBytesRemaining = 0;
   }
@@ -150,9 +150,9 @@ public final class Mp3Extractor implements Extractor {
       if (!maybeResynchronize(extractorInput)) {
         return RESULT_END_OF_INPUT;
       }
-      if (basisTimeUs == -1) {
+      if (basisTimeUs == C.TIME_UNSET) {
         basisTimeUs = seeker.getTimeUs(extractorInput.getPosition());
-        if (forcedFirstSampleTimestampUs != -1) {
+        if (forcedFirstSampleTimestampUs != C.TIME_UNSET) {
           long embeddedFirstSampleTimestampUs = seeker.getTimeUs(0);
           basisTimeUs += forcedFirstSampleTimestampUs - embeddedFirstSampleTimestampUs;
         }
@@ -189,7 +189,7 @@ public final class Mp3Extractor implements Extractor {
     int sampleHeaderData = scratch.readInt();
     if ((sampleHeaderData & HEADER_MASK) == (synchronizedHeaderData & HEADER_MASK)) {
       int frameSize = MpegAudioHeader.getFrameSize(sampleHeaderData);
-      if (frameSize != -1) {
+      if (frameSize != C.LENGTH_UNSET) {
         MpegAudioHeader.populateHeader(sampleHeaderData, synchronizedHeader);
         return true;
       }
@@ -241,7 +241,7 @@ public final class Mp3Extractor implements Extractor {
       int frameSize;
       if ((candidateSynchronizedHeaderData != 0
           && (headerData & HEADER_MASK) != (candidateSynchronizedHeaderData & HEADER_MASK))
-          || (frameSize = MpegAudioHeader.getFrameSize(headerData)) == -1) {
+          || (frameSize = MpegAudioHeader.getFrameSize(headerData)) == C.LENGTH_UNSET) {
         // The header is invalid or doesn't match the candidate header. Try the next byte offset.
         validFrameCount = 0;
         candidateSynchronizedHeaderData = 0;

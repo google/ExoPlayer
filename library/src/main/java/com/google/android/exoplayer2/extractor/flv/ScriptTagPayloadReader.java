@@ -49,7 +49,7 @@ import java.util.Map;
    */
   public ScriptTagPayloadReader(TrackOutput output) {
     super(output);
-    durationUs = C.UNSET_TIME_US;
+    durationUs = C.TIME_UNSET;
   }
 
   public long getDurationUs() {

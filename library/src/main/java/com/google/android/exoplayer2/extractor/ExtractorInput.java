@@ -216,9 +216,9 @@ public interface ExtractorInput {
   long getPosition();
 
   /**
-   * Returns the length of the source stream, or {@link C#LENGTH_UNBOUNDED} if it is unknown.
+   * Returns the length of the source stream, or {@link C#LENGTH_UNSET} if it is unknown.
    *
-   * @return The length of the source stream, or {@link C#LENGTH_UNBOUNDED}.
+   * @return The length of the source stream, or {@link C#LENGTH_UNSET}.
    */
   long getLength();
 

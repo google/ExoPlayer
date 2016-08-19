@@ -62,12 +62,13 @@ import java.util.IdentityHashMap;
     int[] streamChildIndices = new int[selections.length];
     int[] selectionChildIndices = new int[selections.length];
     for (int i = 0; i < selections.length; i++) {
-      streamChildIndices[i] = streams[i] == null ? -1 : streamPeriodIndices.get(streams[i]);
-      selectionChildIndices[i] = -1;
+      streamChildIndices[i] = streams[i] == null ? C.INDEX_UNSET
+          : streamPeriodIndices.get(streams[i]);
+      selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
         TrackGroup trackGroup = selections[i].getTrackGroup();
         for (int j = 0; j < periods.length; j++) {
-          if (periods[j].getTrackGroups().indexOf(trackGroup) != -1) {
+          if (periods[j].getTrackGroups().indexOf(trackGroup) != C.INDEX_UNSET) {
             selectionChildIndices[i] = j;
             break;
           }
@@ -125,7 +126,7 @@ import java.util.IdentityHashMap;
   @Override
   public long readDiscontinuity() {
     long positionUs = enabledPeriods[0].readDiscontinuity();
-    if (positionUs != C.UNSET_TIME_US) {
+    if (positionUs != C.TIME_UNSET) {
       // It must be possible to seek additional periods to the new position.
       for (int i = 1; i < enabledPeriods.length; i++) {
         if (enabledPeriods[i].seekToUs(positionUs) != positionUs) {
@@ -135,7 +136,7 @@ import java.util.IdentityHashMap;
     }
     // Additional periods are not allowed to report discontinuities.
     for (int i = 1; i < enabledPeriods.length; i++) {
-      if (enabledPeriods[i].readDiscontinuity() != C.UNSET_TIME_US) {
+      if (enabledPeriods[i].readDiscontinuity() != C.TIME_UNSET) {
         throw new IllegalStateException("Child reported discontinuity");
       }
     }
@@ -147,11 +148,11 @@ import java.util.IdentityHashMap;
     long bufferedPositionUs = Long.MAX_VALUE;
     for (MediaPeriod period : enabledPeriods) {
       long rendererBufferedPositionUs = period.getBufferedPositionUs();
-      if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
+      if (rendererBufferedPositionUs != C.TIME_END_OF_SOURCE) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
     }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.END_OF_SOURCE_US : bufferedPositionUs;
+    return bufferedPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : bufferedPositionUs;
   }
 
   @Override

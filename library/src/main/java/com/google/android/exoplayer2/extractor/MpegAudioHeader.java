@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -45,32 +46,33 @@ public final class MpegAudioHeader {
       {8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160};
 
   /**
-   * Returns the size of the frame associated with {@code header}, or -1 if it is invalid.
+   * Returns the size of the frame associated with {@code header}, or {@link C#LENGTH_UNSET} if it
+   * is invalid.
    */
   public static int getFrameSize(int header) {
     if ((header & 0xFFE00000) != 0xFFE00000) {
-      return -1;
+      return C.LENGTH_UNSET;
     }
 
     int version = (header >>> 19) & 3;
     if (version == 1) {
-      return -1;
+      return C.LENGTH_UNSET;
     }
 
     int layer = (header >>> 17) & 3;
     if (layer == 0) {
-      return -1;
+      return C.LENGTH_UNSET;
     }
 
     int bitrateIndex = (header >>> 12) & 15;
     if (bitrateIndex == 0 || bitrateIndex == 0xF) {
       // Disallow "free" bitrate.
-      return -1;
+      return C.LENGTH_UNSET;
     }
 
     int samplingRateIndex = (header >>> 10) & 3;
     if (samplingRateIndex == 3) {
-      return -1;
+      return C.LENGTH_UNSET;
     }
 
     int samplingRate = SAMPLING_RATE_V1[samplingRateIndex];

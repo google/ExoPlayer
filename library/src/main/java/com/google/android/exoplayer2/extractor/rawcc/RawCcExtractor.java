@@ -64,7 +64,7 @@ public final class RawCcExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.extractorOutput = output;
-    extractorOutput.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
+    extractorOutput.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
     trackOutput = extractorOutput.track(0);
     extractorOutput.endTracks();
 

@@ -59,11 +59,11 @@ public final class ExoPlaybackException extends Exception {
   }
 
   public static ExoPlaybackException createForSource(IOException cause) {
-    return new ExoPlaybackException(TYPE_SOURCE, null, cause, -1);
+    return new ExoPlaybackException(TYPE_SOURCE, null, cause, C.INDEX_UNSET);
   }
 
   /* package */ static ExoPlaybackException createForUnexpected(RuntimeException cause) {
-    return new ExoPlaybackException(TYPE_UNEXPECTED, null, cause, -1);
+    return new ExoPlaybackException(TYPE_UNEXPECTED, null, cause, C.INDEX_UNSET);
   }
 
   private ExoPlaybackException(int type, String message, Throwable cause, int rendererIndex) {

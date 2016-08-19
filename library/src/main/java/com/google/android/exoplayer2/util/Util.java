@@ -603,7 +603,7 @@ public final class Util {
     if (bytesLoaded == 0) {
       return dataSpec;
     } else {
-      long remainingLength = dataSpec.length == C.LENGTH_UNBOUNDED ? C.LENGTH_UNBOUNDED
+      long remainingLength = dataSpec.length == C.LENGTH_UNSET ? C.LENGTH_UNSET
           : dataSpec.length - bytesLoaded;
       return new DataSpec(dataSpec.uri, dataSpec.position + bytesLoaded, remainingLength,
           dataSpec.key, dataSpec.flags);

@@ -127,8 +127,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<Variant> subtitles = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
-    int width = -1;
-    int height = -1;
+    int width = Format.NO_VALUE;
+    int height = Format.NO_VALUE;
     String name = null;
     Format muxedAudioFormat = null;
     Format muxedCaptionFormat = null;
@@ -153,8 +153,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             String captionName = parseStringAttr(line, REGEX_NAME);
             String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
             muxedCaptionFormat = Format.createTextContainerFormat(captionName,
-                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, -1, selectionFlags,
-                language);
+                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE,
+                selectionFlags, language);
           }
         } else if (TYPE_SUBTITLES.equals(type)) {
           // We assume all subtitles belong to the same group.
@@ -169,9 +169,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String uri = parseOptionalStringAttr(line, REGEX_URI);
           String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
           String audioName = parseStringAttr(line, REGEX_NAME);
-          int audioBitrate = uri != null ? bitrate : -1;
+          int audioBitrate = uri != null ? bitrate : Format.NO_VALUE;
           Format format = Format.createAudioContainerFormat(audioName, MimeTypes.APPLICATION_M3U8,
-              null, null, audioBitrate, -1, -1, null, selectionFlags, language);
+              null, null, audioBitrate, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
+              language);
           if (uri != null) {
             audios.add(new Variant(uri, format, codecs));
           } else {
@@ -188,16 +189,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           width = Integer.parseInt(widthAndHeight[0]);
           if (width <= 0) {
             // Width was invalid.
-            width = -1;
+            width = Format.NO_VALUE;
           }
           height = Integer.parseInt(widthAndHeight[1]);
           if (height <= 0) {
             // Height was invalid.
-            height = -1;
+            height = Format.NO_VALUE;
           }
         } else {
-          width = -1;
-          height = -1;
+          width = Format.NO_VALUE;
+          height = Format.NO_VALUE;
         }
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
@@ -210,8 +211,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         bitrate = 0;
         codecs = null;
         name = null;
-        width = -1;
-        height = -1;
+        width = Format.NO_VALUE;
+        height = Format.NO_VALUE;
         expectingStreamInfUrl = false;
       }
     }
@@ -231,7 +232,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int discontinuitySequenceNumber = 0;
     long segmentStartTimeUs = 0;
     long segmentByterangeOffset = 0;
-    long segmentByterangeLength = C.LENGTH_UNBOUNDED;
+    long segmentByterangeLength = C.LENGTH_UNSET;
     int segmentMediaSequence = 0;
 
     boolean isEncrypted = false;
@@ -281,7 +282,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
         }
         segmentMediaSequence++;
-        if (segmentByterangeLength == C.LENGTH_UNBOUNDED) {
+        if (segmentByterangeLength == C.LENGTH_UNSET) {
           segmentByterangeOffset = 0;
         }
         segments.add(new Segment(line, segmentDurationSecs, discontinuitySequenceNumber,
@@ -289,10 +290,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             segmentByterangeOffset, segmentByterangeLength));
         segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
         segmentDurationSecs = 0.0;
-        if (segmentByterangeLength != C.LENGTH_UNBOUNDED) {
+        if (segmentByterangeLength != C.LENGTH_UNSET) {
           segmentByterangeOffset += segmentByterangeLength;
         }
-        segmentByterangeLength = C.LENGTH_UNBOUNDED;
+        segmentByterangeLength = C.LENGTH_UNSET;
       } else if (line.equals(TAG_ENDLIST)) {
         live = false;
       }

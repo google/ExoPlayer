@@ -44,7 +44,7 @@ public final class ByteArrayDataSource implements DataSource {
   public long open(DataSpec dataSpec) throws IOException {
     uri = dataSpec.uri;
     readPosition = (int) dataSpec.position;
-    bytesRemaining = (int) ((dataSpec.length == C.LENGTH_UNBOUNDED)
+    bytesRemaining = (int) ((dataSpec.length == C.LENGTH_UNSET)
         ? (data.length - dataSpec.position) : dataSpec.length);
     if (bytesRemaining <= 0 || readPosition + bytesRemaining > data.length) {
       throw new IOException("Unsatisfiable range: [" + readPosition + ", " + dataSpec.length

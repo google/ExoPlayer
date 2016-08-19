@@ -55,8 +55,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
-  public static final long EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS = -1;
-  public static final long EXPECTED_PLAYING_TIME_UNSET = -2;
+  public static final long EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS = -2;
+  public static final long EXPECTED_PLAYING_TIME_UNSET = -1;
 
   private final String tag;
   private final boolean failOnPlayerError;
@@ -85,7 +85,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
    */
   public ExoHostedTest(String tag, boolean fullPlaybackNoSeeking) {
     this(tag, fullPlaybackNoSeeking ? EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
-        : EXPECTED_PLAYING_TIME_UNSET, false);
+        : EXPECTED_PLAYING_TIME_UNSET, true);
   }
 
   /**

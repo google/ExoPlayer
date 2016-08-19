@@ -82,7 +82,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
         dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
       }
     }
-    DataSpec dataSpec = new DataSpec(Uri.parse(url), data, 0, 0, C.LENGTH_UNBOUNDED, null,
+    DataSpec dataSpec = new DataSpec(Uri.parse(url), data, 0, 0, C.LENGTH_UNSET, null,
         DataSpec.FLAG_ALLOW_GZIP);
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     try {

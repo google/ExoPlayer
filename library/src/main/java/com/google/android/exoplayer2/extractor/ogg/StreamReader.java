@@ -141,7 +141,7 @@ import java.io.IOException;
 
     if (setupData.oggSeeker != null) {
       oggSeeker = setupData.oggSeeker;
-    } else if (input.getLength() == C.LENGTH_UNBOUNDED) {
+    } else if (input.getLength() == C.LENGTH_UNSET) {
       oggSeeker = new UnseekableOggSeeker();
     } else {
       oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this);
@@ -236,6 +236,7 @@ import java.io.IOException;
   }
 
   private static final class UnseekableOggSeeker implements OggSeeker {
+
     @Override
     public long read(ExtractorInput input) throws IOException, InterruptedException {
       return -1;
@@ -248,8 +249,9 @@ import java.io.IOException;
 
     @Override
     public SeekMap createSeekMap() {
-      return new SeekMap.Unseekable(C.UNSET_TIME_US);
+      return new SeekMap.Unseekable(C.TIME_UNSET);
     }
+
   }
 
 }

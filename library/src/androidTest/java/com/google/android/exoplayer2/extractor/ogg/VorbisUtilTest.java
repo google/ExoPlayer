@@ -32,7 +32,6 @@ public final class VorbisUtilTest extends TestCase {
     assertEquals(3, VorbisUtil.iLog(4));
     assertEquals(3, VorbisUtil.iLog(5));
     assertEquals(4, VorbisUtil.iLog(8));
-
     assertEquals(0, VorbisUtil.iLog(-1));
     assertEquals(0, VorbisUtil.iLog(-122));
   }
@@ -40,7 +39,6 @@ public final class VorbisUtilTest extends TestCase {
   public void testReadIdHeader() throws Exception {
     byte[] data = TestData.getIdentificationHeaderData();
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
-
     VorbisUtil.VorbisIdHeader vorbisIdHeader =
         VorbisUtil.readVorbisIdentificationHeader(headerData);
 
@@ -59,8 +57,8 @@ public final class VorbisUtilTest extends TestCase {
   public void testReadCommentHeader() throws ParserException {
     byte[] data = TestData.getCommentHeaderDataUTF8();
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
-
     VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(headerData);
+
     assertEquals("Xiph.Org libVorbis I 20120203 (Omnipresent)", commentHeader.vendor);
     assertEquals(3, commentHeader.comments.length);
     assertEquals("ALBUM=äö", commentHeader.comments[0]);
@@ -71,16 +69,13 @@ public final class VorbisUtilTest extends TestCase {
   public void testReadVorbisModes() throws ParserException {
     byte[] data = TestData.getSetupHeaderData();
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
-
     VorbisUtil.Mode[] modes = VorbisUtil.readVorbisModes(headerData, 2);
 
     assertEquals(2, modes.length);
-
     assertEquals(false, modes[0].blockFlag);
     assertEquals(0, modes[0].mapping);
     assertEquals(0, modes[0].transformType);
     assertEquals(0, modes[0].windowType);
-
     assertEquals(true, modes[1].blockFlag);
     assertEquals(1, modes[1].mapping);
     assertEquals(0, modes[1].transformType);

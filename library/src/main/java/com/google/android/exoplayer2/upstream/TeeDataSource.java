@@ -40,7 +40,7 @@ public final class TeeDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     long dataLength = upstream.open(dataSpec);
-    if (dataSpec.length == C.LENGTH_UNBOUNDED && dataLength != C.LENGTH_UNBOUNDED) {
+    if (dataSpec.length == C.LENGTH_UNSET && dataLength != C.LENGTH_UNSET) {
       // Reconstruct dataSpec in order to provide the resolved length to the sink.
       dataSpec = new DataSpec(dataSpec.uri, dataSpec.absoluteStreamPosition, dataSpec.position,
           dataLength, dataSpec.key, dataSpec.flags);

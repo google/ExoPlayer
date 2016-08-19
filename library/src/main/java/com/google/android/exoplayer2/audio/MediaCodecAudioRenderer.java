@@ -350,8 +350,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       audioTrackHasData = audioTrack.hasPendingData();
       if (audioTrackHadData && !audioTrackHasData && getState() == STATE_STARTED) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
-        long bufferSizeUs = audioTrack.getBufferSizeUs();
-        long bufferSizeMs = bufferSizeUs == C.UNSET_TIME_US ? -1 : bufferSizeUs / 1000;
+        long bufferSizeMs = C.usToMs(audioTrack.getBufferSizeUs());
         eventDispatcher.audioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs,
             elapsedSinceLastFeedMs);
       }

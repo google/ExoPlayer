@@ -82,7 +82,7 @@ import com.google.android.exoplayer2.util.Util;
       position += segmentSize * scale;
       timesUs[index] = index * durationUs / entryCount;
       positions[index] =
-          inputLength == C.LENGTH_UNBOUNDED ? position : Math.min(inputLength, position);
+          inputLength == C.LENGTH_UNSET ? position : Math.min(inputLength, position);
     }
     return new VbriSeeker(timesUs, positions, durationUs);
   }

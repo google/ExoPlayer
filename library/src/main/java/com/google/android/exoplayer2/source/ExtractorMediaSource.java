@@ -135,7 +135,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    timeline = new SinglePeriodTimeline(C.UNSET_TIME_US, false);
+    timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
     listener.onSourceInfoRefreshed(timeline, null);
   }
 
@@ -167,8 +167,8 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
 
   @Override
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    if (this.timeline.getPeriodDurationUs(0) != C.UNSET_TIME_US
-        && timeline.getPeriodDurationUs(0) == C.UNSET_TIME_US) {
+    if (this.timeline.getPeriodDurationUs(0) != C.TIME_UNSET
+        && timeline.getPeriodDurationUs(0) == C.TIME_UNSET) {
       // Suppress source info changes that would make the duration unknown when it is already known.
       return;
     }

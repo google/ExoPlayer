@@ -24,293 +24,307 @@ import java.util.UUID;
 /**
  * Defines constants that are generally useful throughout the library.
  */
-public interface C {
+public final class C {
+
+  private C() {}
 
   /**
-   * Special microsecond constant representing the end of a source.
+   * Special constant representing a time corresponding to the end of a source. Suitable for use in
+   * any time base.
    */
-  long END_OF_SOURCE_US = Long.MIN_VALUE;
+  public static final long TIME_END_OF_SOURCE = Long.MIN_VALUE;
 
   /**
-   * Special microsecond constant representing an unset or unknown time or duration.
+   * Special constant representing an unset or unknown time or duration. Suitable for use in any
+   * time base.
    */
-  long UNSET_TIME_US = Long.MIN_VALUE + 1;
+  public static final long TIME_UNSET = Long.MIN_VALUE + 1;
+
+  /**
+   * Represents an unset or unknown index.
+   */
+  public static final int INDEX_UNSET = -1;
+
+  /**
+   * Represents an unset or unknown position.
+   */
+  public static final int POSITION_UNSET = -1;
+
+  /**
+   * Represents an unset or unknown length.
+   */
+  public static final int LENGTH_UNSET = -1;
 
   /**
    * The number of microseconds in one second.
    */
-  long MICROS_PER_SECOND = 1000000L;
+  public static final long MICROS_PER_SECOND = 1000000L;
 
   /**
    * The number of nanoseconds in one second.
    */
-  long NANOS_PER_SECOND = 1000000000L;
-
-  /**
-   * Represents an unbounded length of data.
-   */
-  int LENGTH_UNBOUNDED = -1;
+  public static final long NANOS_PER_SECOND = 1000000000L;
 
   /**
    * The name of the UTF-8 charset.
    */
-  String UTF8_NAME = "UTF-8";
+  public static final String UTF8_NAME = "UTF-8";
 
   /**
    * @see MediaCodec#CRYPTO_MODE_AES_CTR
    */
   @SuppressWarnings("InlinedApi")
-  int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+  public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
 
   /**
    * @see AudioFormat#ENCODING_INVALID
    */
-  int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
+  public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
 
   /**
    * @see AudioFormat#ENCODING_PCM_8BIT
    */
-  int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
+  public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
 
   /**
    * @see AudioFormat#ENCODING_PCM_16BIT
    */
-  int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+  public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
 
   /**
    * PCM encoding with 24 bits per sample.
    */
-  int ENCODING_PCM_24BIT = 0x80000000;
+  public static final int ENCODING_PCM_24BIT = 0x80000000;
 
   /**
    * PCM encoding with 32 bits per sample.
    */
-  int ENCODING_PCM_32BIT = 0x40000000;
+  public static final int ENCODING_PCM_32BIT = 0x40000000;
 
   /**
    * @see AudioFormat#ENCODING_AC3
    */
   @SuppressWarnings("InlinedApi")
-  int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
+  public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
 
   /**
    * @see AudioFormat#ENCODING_E_AC3
    */
   @SuppressWarnings("InlinedApi")
-  int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
+  public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
 
   /**
    * @see AudioFormat#ENCODING_DTS
    */
   @SuppressWarnings("InlinedApi")
-  int ENCODING_DTS = AudioFormat.ENCODING_DTS;
+  public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
 
   /**
    * @see AudioFormat#ENCODING_DTS_HD
    */
   @SuppressWarnings("InlinedApi")
-  int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
+  public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
 
   /**
    * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
    */
   @SuppressWarnings({"InlinedApi", "deprecation"})
-  int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
+  public static final int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
       ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
   /**
    * Indicates that a buffer holds a synchronization sample.
    */
   @SuppressWarnings("InlinedApi")
-  int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
+  public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
 
   /**
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   @SuppressWarnings("InlinedApi")
-  int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
 
   /**
    * Indicates that a buffer is (at least partially) encrypted.
    */
-  int BUFFER_FLAG_ENCRYPTED = 0x40000000;
+  public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
 
   /**
    * Indicates that a buffer should be decoded but not rendered.
    */
-  int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
+  public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
    * A return value for methods where the end of an input was encountered.
    */
-  int RESULT_END_OF_INPUT = -1;
+  public static final int RESULT_END_OF_INPUT = -1;
 
   /**
    * A return value for methods where the length of parsed data exceeds the maximum length allowed.
    */
-  int RESULT_MAX_LENGTH_EXCEEDED = -2;
+  public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
   /**
    * A return value for methods where nothing was read.
    */
-  int RESULT_NOTHING_READ = -3;
+  public static final int RESULT_NOTHING_READ = -3;
 
   /**
    * A return value for methods where a buffer was read.
    */
-  int RESULT_BUFFER_READ = -4;
+  public static final int RESULT_BUFFER_READ = -4;
 
   /**
    * A return value for methods where a format was read.
    */
-  int RESULT_FORMAT_READ = -5;
+  public static final int RESULT_FORMAT_READ = -5;
 
   /**
    * A data type constant for data of unknown or unspecified type.
    */
-  int DATA_TYPE_UNKNOWN = 0;
+  public static final int DATA_TYPE_UNKNOWN = 0;
 
   /**
    * A data type constant for media, typically containing media samples.
    */
-  int DATA_TYPE_MEDIA = 1;
+  public static final int DATA_TYPE_MEDIA = 1;
 
   /**
    * A data type constant for media, typically containing only initialization data.
    */
-  int DATA_TYPE_MEDIA_INITIALIZATION = 2;
+  public static final int DATA_TYPE_MEDIA_INITIALIZATION = 2;
 
   /**
    * A data type constant for drm or encryption data.
    */
-  int DATA_TYPE_DRM = 3;
+  public static final int DATA_TYPE_DRM = 3;
 
   /**
    * A data type constant for a manifest file.
    */
-  int DATA_TYPE_MANIFEST = 4;
+  public static final int DATA_TYPE_MANIFEST = 4;
 
   /**
    * A data type constant for time synchronization data.
    */
-  int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
+  public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
 
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
    */
-  int DATA_TYPE_CUSTOM_BASE = 10000;
+  public static final int DATA_TYPE_CUSTOM_BASE = 10000;
 
   /**
    * A type constant for tracks of unknown type.
    */
-  int TRACK_TYPE_UNKNOWN = -1;
+  public static final int TRACK_TYPE_UNKNOWN = -1;
 
   /**
    * A type constant for tracks of some default type, where the type itself is unknown.
    */
-  int TRACK_TYPE_DEFAULT = 0;
+  public static final int TRACK_TYPE_DEFAULT = 0;
 
   /**
    * A type constant for audio tracks.
    */
-  int TRACK_TYPE_AUDIO = 1;
+  public static final int TRACK_TYPE_AUDIO = 1;
 
   /**
    * A type constant for video tracks.
    */
-  int TRACK_TYPE_VIDEO = 2;
+  public static final int TRACK_TYPE_VIDEO = 2;
 
   /**
    * A type constant for text tracks.
    */
-  int TRACK_TYPE_TEXT = 3;
+  public static final int TRACK_TYPE_TEXT = 3;
 
   /**
    * A type constant for metadata tracks.
    */
-  int TRACK_TYPE_METADATA = 4;
+  public static final int TRACK_TYPE_METADATA = 4;
 
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
    */
-  int TRACK_TYPE_CUSTOM_BASE = 10000;
+  public static final int TRACK_TYPE_CUSTOM_BASE = 10000;
 
   /**
    * A selection reason constant for selections whose reasons are unknown or unspecified.
    */
-  int SELECTION_REASON_UNKNOWN = 0;
+  public static final int SELECTION_REASON_UNKNOWN = 0;
 
   /**
    * A selection reason constant for an initial track selection.
    */
-  int SELECTION_REASON_INITIAL = 1;
+  public static final int SELECTION_REASON_INITIAL = 1;
 
   /**
    * A selection reason constant for an manual (i.e. user initiated) track selection.
    */
-  int SELECTION_REASON_MANUAL = 2;
+  public static final int SELECTION_REASON_MANUAL = 2;
 
   /**
    * A selection reason constant for an adaptive track selection.
    */
-  int SELECTION_REASON_ADAPTIVE = 3;
+  public static final int SELECTION_REASON_ADAPTIVE = 3;
 
   /**
    * A selection reason constant for a trick play track selection.
    */
-  int SELECTION_REASON_TRICK_PLAY = 4;
+  public static final int SELECTION_REASON_TRICK_PLAY = 4;
 
   /**
    * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
    * or equal to this value.
    */
-  int SELECTION_REASON_CUSTOM_BASE = 10000;
+  public static final int SELECTION_REASON_CUSTOM_BASE = 10000;
 
   /**
    * A default size in bytes for an individual allocation that forms part of a larger buffer.
    */
-  int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
+  public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
   /**
    * A default size in bytes for a video buffer.
    */
-  int DEFAULT_VIDEO_BUFFER_SIZE = 200 * DEFAULT_BUFFER_SEGMENT_SIZE;
+  public static final int DEFAULT_VIDEO_BUFFER_SIZE = 200 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /**
    * A default size in bytes for an audio buffer.
    */
-  int DEFAULT_AUDIO_BUFFER_SIZE = 54 * DEFAULT_BUFFER_SEGMENT_SIZE;
+  public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /**
    * A default size in bytes for a text buffer.
    */
-  int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
+  public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /**
    * A default size in bytes for a metadata buffer.
    */
-  int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
+  public static final int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /**
    * A default size in bytes for a muxed buffer (e.g. containing video, audio and text).
    */
-  int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
+  public static final int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
       + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
   /**
    * The Nil UUID as defined by
    * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
    */
-  UUID UUID_NIL = new UUID(0L, 0L);
+  public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
    * UUID for the Widevine DRM scheme.
    * <p></p>
    * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
    */
-  UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+  public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
 
   /**
    * UUID for the PlayReady DRM scheme.
@@ -318,21 +332,21 @@ public interface C {
    * PlayReady is supported on all AndroidTV devices. Note that most other Android devices do not
    * provide PlayReady support.
    */
-  UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
+  public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
   /**
    * The type of a message that can be passed to a video {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be the target {@link Surface}, or null.
    */
-  int MSG_SET_SURFACE = 1;
+  public static final int MSG_SET_SURFACE = 1;
 
   /**
    * The type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
-  int MSG_SET_VOLUME = 2;
+  public static final int MSG_SET_VOLUME = 2;
 
   /**
    * The type of a message that can be passed to an audio {@link Renderer} via
@@ -341,12 +355,34 @@ public interface C {
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
    * caller after it has been passed
    */
-  int MSG_SET_PLAYBACK_PARAMS = 3;
+  public static final int MSG_SET_PLAYBACK_PARAMS = 3;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
    * this value.
    */
-  int MSG_CUSTOM_BASE = 10000;
+  public static final int MSG_CUSTOM_BASE = 10000;
+
+  /**
+   * Converts a time in microseconds to the corresponding time in milliseconds, preserving
+   * {@link #TIME_UNSET} values.
+   *
+   * @param timeUs The time in microseconds.
+   * @return The corresponding time in milliseconds.
+   */
+  public static long usToMs(long timeUs) {
+    return timeUs == TIME_UNSET ? TIME_UNSET : (timeUs / 1000);
+  }
+
+  /**
+   * Converts a time in milliseconds to the corresponding time in microseconds, preserving
+   * {@link #TIME_UNSET} values.
+   *
+   * @param timeMs The time in milliseconds.
+   * @return The corresponding time in microseconds.
+   */
+  public static long msToUs(long timeMs) {
+    return timeMs == TIME_UNSET ? TIME_UNSET : (timeMs * 1000);
+  }
 
 }

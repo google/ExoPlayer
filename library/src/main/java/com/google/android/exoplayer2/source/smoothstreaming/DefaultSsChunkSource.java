@@ -97,7 +97,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       Format format = streamElement.formats[manifestTrackIndex];
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : -1;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
-          C.UNSET_TIME_US, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
+          C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
           trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
@@ -213,7 +213,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private static MediaChunk newMediaChunk(Format format, DataSource dataSource, Uri uri,
       String cacheKey, int chunkIndex, long chunkStartTimeUs, long chunkEndTimeUs,
       int trackSelectionReason, Object trackSelectionData, ChunkExtractorWrapper extractorWrapper) {
-    DataSpec dataSpec = new DataSpec(uri, 0, -1, cacheKey);
+    DataSpec dataSpec = new DataSpec(uri, 0, C.LENGTH_UNSET, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash;
 
 import android.os.SystemClock;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -186,7 +187,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
       long liveEdgeTimestampUs = nowUs - manifest.availabilityStartTime * 1000;
-      if (manifest.timeShiftBufferDepth != -1) {
+      if (manifest.timeShiftBufferDepth != C.TIME_UNSET) {
         long bufferDepthUs = manifest.timeShiftBufferDepth * 1000;
         firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
             representationHolder.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));

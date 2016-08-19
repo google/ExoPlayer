@@ -36,7 +36,7 @@ public interface SequenceableLoader {
   }
 
   /**
-   * Returns the next load time, or {@link C#END_OF_SOURCE_US} if loading has finished.
+   * Returns the next load time, or {@link C#TIME_END_OF_SOURCE} if loading has finished.
    */
   long getNextLoadPositionUs();
 

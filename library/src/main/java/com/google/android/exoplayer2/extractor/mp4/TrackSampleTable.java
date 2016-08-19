@@ -25,11 +25,6 @@ import com.google.android.exoplayer2.util.Util;
 /* package */ final class TrackSampleTable {
 
   /**
-   * Sample index when no sample is available.
-   */
-  public static final int NO_SAMPLE = -1;
-
-  /**
    * Number of samples.
    */
   public final int sampleCount;
@@ -72,7 +67,7 @@ import com.google.android.exoplayer2.util.Util;
    * timestamp, if one is available.
    *
    * @param timeUs Timestamp adjacent to which to find a synchronization sample.
-   * @return Index of the synchronization sample, or {@link #NO_SAMPLE} if none.
+   * @return Index of the synchronization sample, or {@link C#INDEX_UNSET} if none.
    */
   public int getIndexOfEarlierOrEqualSynchronizationSample(long timeUs) {
     // Video frame timestamps may not be sorted, so the behavior of this call can be undefined.
@@ -83,7 +78,7 @@ import com.google.android.exoplayer2.util.Util;
         return i;
       }
     }
-    return NO_SAMPLE;
+    return C.INDEX_UNSET;
   }
 
   /**
@@ -91,7 +86,7 @@ import com.google.android.exoplayer2.util.Util;
    * if one is available.
    *
    * @param timeUs Timestamp adjacent to which to find a synchronization sample.
-   * @return index Index of the synchronization sample, or {@link #NO_SAMPLE} if none.
+   * @return index Index of the synchronization sample, or {@link C#INDEX_UNSET} if none.
    */
   public int getIndexOfLaterOrEqualSynchronizationSample(long timeUs) {
     int startIndex = Util.binarySearchCeil(timestampsUs, timeUs, true, false);
@@ -100,7 +95,7 @@ import com.google.android.exoplayer2.util.Util;
         return i;
       }
     }
-    return NO_SAMPLE;
+    return C.INDEX_UNSET;
   }
 
 }

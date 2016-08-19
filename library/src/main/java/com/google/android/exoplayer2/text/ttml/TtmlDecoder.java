@@ -357,9 +357,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent,
       Map<String, TtmlRegion> regionMap, FrameAndTickRate frameAndTickRate)
       throws SubtitleDecoderException {
-    long duration = 0;
-    long startTime = TtmlNode.UNDEFINED_TIME;
-    long endTime = TtmlNode.UNDEFINED_TIME;
+    long duration = C.TIME_UNSET;
+    long startTime = C.TIME_UNSET;
+    long endTime = C.TIME_UNSET;
     String regionId = TtmlNode.ANONYMOUS_REGION_ID;
     String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
@@ -396,19 +396,19 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           break;
       }
     }
-    if (parent != null && parent.startTimeUs != TtmlNode.UNDEFINED_TIME) {
-      if (startTime != TtmlNode.UNDEFINED_TIME) {
+    if (parent != null && parent.startTimeUs != C.TIME_UNSET) {
+      if (startTime != C.TIME_UNSET) {
         startTime += parent.startTimeUs;
       }
-      if (endTime != TtmlNode.UNDEFINED_TIME) {
+      if (endTime != C.TIME_UNSET) {
         endTime += parent.startTimeUs;
       }
     }
-    if (endTime == TtmlNode.UNDEFINED_TIME) {
-      if (duration > 0) {
+    if (endTime == C.TIME_UNSET) {
+      if (duration != C.TIME_UNSET) {
         // Infer the end time from the duration.
         endTime = startTime + duration;
-      } else if (parent != null && parent.endTimeUs != TtmlNode.UNDEFINED_TIME) {
+      } else if (parent != null && parent.endTimeUs != C.TIME_UNSET) {
         // If the end time remains unspecified, then it should be inherited from the parent.
         endTime = parent.endTimeUs;
       }

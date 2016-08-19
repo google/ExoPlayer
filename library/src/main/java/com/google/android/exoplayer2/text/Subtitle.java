@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text;
 
+import com.google.android.exoplayer2.C;
 import java.util.List;
 
 /**
@@ -26,7 +27,8 @@ public interface Subtitle {
    * Returns the index of the first event that occurs after a given time (exclusive).
    *
    * @param timeUs The time in microseconds.
-   * @return The index of the next event, or -1 if there are no events after the specified time.
+   * @return The index of the next event, or {@link C#INDEX_UNSET} if there are no events after the
+   *     specified time.
    */
   int getNextEventTimeIndex(long timeUs);
 

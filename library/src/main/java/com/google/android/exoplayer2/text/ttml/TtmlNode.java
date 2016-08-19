@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import android.text.SpannableStringBuilder;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import java.util.TreeSet;
  */
 /* package */ final class TtmlNode {
 
-  public static final long UNDEFINED_TIME = -1;
   public static final String TAG_TT = "tt";
   public static final String TAG_HEAD = "head";
   public static final String TAG_BODY = "body";
@@ -89,8 +89,8 @@ import java.util.TreeSet;
   private List<TtmlNode> children;
 
   public static TtmlNode buildTextNode(String text) {
-    return new TtmlNode(null, TtmlRenderUtil.applyTextElementSpacePolicy(text), UNDEFINED_TIME,
-        UNDEFINED_TIME, null, null, ANONYMOUS_REGION_ID);
+    return new TtmlNode(null, TtmlRenderUtil.applyTextElementSpacePolicy(text), C.TIME_UNSET,
+        C.TIME_UNSET, null, null, ANONYMOUS_REGION_ID);
   }
 
   public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs,
@@ -113,9 +113,9 @@ import java.util.TreeSet;
   }
 
   public boolean isActive(long timeUs) {
-    return (startTimeUs == UNDEFINED_TIME && endTimeUs == UNDEFINED_TIME)
-        || (startTimeUs <= timeUs && endTimeUs == UNDEFINED_TIME)
-        || (startTimeUs == UNDEFINED_TIME && timeUs < endTimeUs)
+    return (startTimeUs == C.TIME_UNSET && endTimeUs == C.TIME_UNSET)
+        || (startTimeUs <= timeUs && endTimeUs == C.TIME_UNSET)
+        || (startTimeUs == C.TIME_UNSET && timeUs < endTimeUs)
         || (startTimeUs <= timeUs && timeUs < endTimeUs);
   }
 
@@ -151,10 +151,10 @@ import java.util.TreeSet;
   private void getEventTimes(TreeSet<Long> out, boolean descendsPNode) {
     boolean isPNode = TAG_P.equals(tag);
     if (descendsPNode || isPNode) {
-      if (startTimeUs != UNDEFINED_TIME) {
+      if (startTimeUs != C.TIME_UNSET) {
         out.add(startTimeUs);
       }
-      if (endTimeUs != UNDEFINED_TIME) {
+      if (endTimeUs != C.TIME_UNSET) {
         out.add(endTimeUs);
       }
     }

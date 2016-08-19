@@ -81,7 +81,7 @@ import javax.crypto.spec.SecretKeySpec;
     cipherInputStream = new CipherInputStream(
         new DataSourceInputStream(upstream, dataSpec), cipher);
 
-    return C.LENGTH_UNBOUNDED;
+    return C.LENGTH_UNSET;
   }
 
   @Override
@@ -95,7 +95,7 @@ import javax.crypto.spec.SecretKeySpec;
     Assertions.checkState(cipherInputStream != null);
     int bytesRead = cipherInputStream.read(buffer, offset, readLength);
     if (bytesRead < 0) {
-      return -1;
+      return C.RESULT_END_OF_INPUT;
     }
     return bytesRead;
   }

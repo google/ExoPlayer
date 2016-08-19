@@ -343,7 +343,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
 
     public SmoothStreamingMediaParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
-      lookAheadCount = -1;
+      lookAheadCount = SsManifest.UNSET_LOOKAHEAD;
       protectionElement = null;
       streamElements = new LinkedList<>();
     }
@@ -355,7 +355,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       timescale = parseLong(parser, KEY_TIME_SCALE, 10000000L);
       duration = parseRequiredLong(parser, KEY_DURATION);
       dvrWindowLength = parseLong(parser, KEY_DVR_WINDOW_LENGTH, 0);
-      lookAheadCount = parseInt(parser, KEY_LOOKAHEAD_COUNT, -1);
+      lookAheadCount = parseInt(parser, KEY_LOOKAHEAD_COUNT, SsManifest.UNSET_LOOKAHEAD);
       isLive = parseBoolean(parser, KEY_IS_LIVE, false);
       putNormalizedAttribute(KEY_TIME_SCALE, timescale);
     }
@@ -477,7 +477,6 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     private String subType;
     private long timescale;
     private String name;
-    private int qualityLevels;
     private String url;
     private int maxWidth;
     private int maxHeight;
@@ -510,12 +509,12 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
 
     private void parseStreamFragmentStartTag(XmlPullParser parser) throws ParserException {
       int chunkIndex = startTimes.size();
-      long startTime = parseLong(parser, KEY_FRAGMENT_START_TIME, -1L);
-      if (startTime == -1L) {
+      long startTime = parseLong(parser, KEY_FRAGMENT_START_TIME, C.TIME_UNSET);
+      if (startTime == C.TIME_UNSET) {
         if (chunkIndex == 0) {
           // Assume the track starts at t = 0.
           startTime = 0;
-        } else if (lastChunkDuration != -1L) {
+        } else if (lastChunkDuration != C.INDEX_UNSET) {
           // Infer the start time from the previous chunk's start time and duration.
           startTime = startTimes.get(chunkIndex - 1) + lastChunkDuration;
         } else {
@@ -525,10 +524,10 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       }
       chunkIndex++;
       startTimes.add(startTime);
-      lastChunkDuration = parseLong(parser, KEY_FRAGMENT_DURATION, -1L);
+      lastChunkDuration = parseLong(parser, KEY_FRAGMENT_DURATION, C.TIME_UNSET);
       // Handle repeated chunks.
       long repeatCount = parseLong(parser, KEY_FRAGMENT_REPEAT_COUNT, 1L);
-      if (repeatCount > 1 && lastChunkDuration == -1L) {
+      if (repeatCount > 1 && lastChunkDuration == C.TIME_UNSET) {
         throw new ParserException("Repeated chunk with unspecified duration");
       }
       for (int i = 1; i < repeatCount; i++) {
@@ -546,12 +545,11 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         subType = parser.getAttributeValue(null, KEY_SUB_TYPE);
       }
       name = parser.getAttributeValue(null, KEY_NAME);
-      qualityLevels = parseInt(parser, KEY_QUALITY_LEVELS, -1);
       url = parseRequiredString(parser, KEY_URL);
-      maxWidth = parseInt(parser, KEY_MAX_WIDTH, -1);
-      maxHeight = parseInt(parser, KEY_MAX_HEIGHT, -1);
-      displayWidth = parseInt(parser, KEY_DISPLAY_WIDTH, -1);
-      displayHeight = parseInt(parser, KEY_DISPLAY_HEIGHT, -1);
+      maxWidth = parseInt(parser, KEY_MAX_WIDTH, Format.NO_VALUE);
+      maxHeight = parseInt(parser, KEY_MAX_HEIGHT, Format.NO_VALUE);
+      displayWidth = parseInt(parser, KEY_DISPLAY_WIDTH, Format.NO_VALUE);
+      displayHeight = parseInt(parser, KEY_DISPLAY_HEIGHT, Format.NO_VALUE);
       language = parser.getAttributeValue(null, KEY_LANGUAGE);
       putNormalizedAttribute(KEY_LANGUAGE, language);
       timescale = parseInt(parser, KEY_TIME_SCALE, -1);
@@ -588,9 +586,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     public Object build() {
       Format[] formatArray = new Format[formats.size()];
       formats.toArray(formatArray);
-      return new StreamElement(baseUri, url, type, subType, timescale, name, qualityLevels,
-          maxWidth, maxHeight, displayWidth, displayHeight, language, formatArray, startTimes,
-          lastChunkDuration);
+      return new StreamElement(baseUri, url, type, subType, timescale, name, maxWidth, maxHeight,
+          displayWidth, displayHeight, language, formatArray, startTimes, lastChunkDuration);
     }
 
   }

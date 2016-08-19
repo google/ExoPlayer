@@ -39,7 +39,7 @@ public final class Window {
    */
   public final long defaultStartPositionUs;
   /**
-   * The duration of the window in microseconds, or {@link C#UNSET_TIME_US} if unknown.
+   * The duration of the window in microseconds, or {@link C#TIME_UNSET} if unknown.
    */
   public final long durationUs;
   /**
@@ -52,7 +52,7 @@ public final class Window {
   public final boolean isDynamic;
 
   /**
-   * @param durationUs The duration of the window in microseconds, or {@link C#UNSET_TIME_US} if
+   * @param durationUs The duration of the window in microseconds, or {@link C#TIME_UNSET} if
    *     unknown.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether this seek window may change when the timeline is updated.

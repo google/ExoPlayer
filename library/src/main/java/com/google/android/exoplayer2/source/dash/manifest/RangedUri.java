@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
 
@@ -30,7 +31,7 @@ public final class RangedUri {
   public final long start;
 
   /**
-   * The length of the range, or -1 to indicate that the range is unbounded.
+   * The length of the range, or {@link C#LENGTH_UNSET} to indicate that the range is unbounded.
    */
   public final long length;
 
@@ -50,7 +51,8 @@ public final class RangedUri {
    * @param baseUri A uri that can form the base of the uri defined by the instance.
    * @param referenceUri A reference uri that should be resolved with respect to {@code baseUri}.
    * @param start The (zero based) index of the first byte of the range.
-   * @param length The length of the range, or -1 to indicate that the range is unbounded.
+   * @param length The length of the range, or {@link C#LENGTH_UNSET} to indicate that the range is
+   *     unbounded.
    */
   public RangedUri(String baseUri, String referenceUri, long start, long length) {
     Assertions.checkArgument(baseUri != null || referenceUri != null);
@@ -81,8 +83,8 @@ public final class RangedUri {
   /**
    * Attempts to merge this {@link RangedUri} with another.
    * <p>
-   * A merge is successful if both instances define the same {@link Uri}, and if one starte the
-   * byte after the other ends, forming a contiguous region with no overlap.
+   * A merge is successful if both instances define the same {@link Uri}, and if one starts the byte
+   * after the other ends, forming a contiguous region with no overlap.
    * <p>
    * If {@code other} is null then the merge is considered unsuccessful, and null is returned.
    *
@@ -92,12 +94,12 @@ public final class RangedUri {
   public RangedUri attemptMerge(RangedUri other) {
     if (other == null || !getUriString().equals(other.getUriString())) {
       return null;
-    } else if (length != -1 && start + length == other.start) {
+    } else if (length != C.LENGTH_UNSET && start + length == other.start) {
       return new RangedUri(baseUri, referenceUri, start,
-          other.length == -1 ? -1 : length + other.length);
-    } else if (other.length != -1 && other.start + other.length == start) {
+          other.length == C.LENGTH_UNSET ? C.LENGTH_UNSET : length + other.length);
+    } else if (other.length != C.LENGTH_UNSET && other.start + other.length == start) {
       return new RangedUri(baseUri, referenceUri, other.start,
-          length == -1 ? -1 : other.length + length);
+          length == C.LENGTH_UNSET ? C.LENGTH_UNSET : other.length + length);
     } else {
       return null;
     }

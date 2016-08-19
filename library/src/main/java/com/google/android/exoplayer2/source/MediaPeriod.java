@@ -91,11 +91,11 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Attempts to read a discontinuity.
    * <p>
-   * After this method has returned a value other than {@link C#UNSET_TIME_US}, all
+   * After this method has returned a value other than {@link C#TIME_UNSET}, all
    * {@link SampleStream}s provided by the period are guaranteed to start from a key frame.
    *
    * @return If a discontinuity was read then the playback position in microseconds after the
-   *     discontinuity. Else {@link C#UNSET_TIME_US}.
+   *     discontinuity. Else {@link C#TIME_UNSET}.
    */
   long readDiscontinuity();
 
@@ -105,7 +105,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * This method should only be called when at least one track is selected.
    *
    * @return An estimate of the absolute position in microseconds up to which data is buffered, or
-   *     {@link C#END_OF_SOURCE_US} if the track is fully buffered.
+   *     {@link C#TIME_END_OF_SOURCE} if the track is fully buffered.
    */
   long getBufferedPositionUs();
 

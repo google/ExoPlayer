@@ -53,12 +53,12 @@ public abstract class Chunk implements Loadable {
    */
   public final Object trackSelectionData;
   /**
-   * The start time of the media contained by the chunk, or {@link C#UNSET_TIME_US} if the data
+   * The start time of the media contained by the chunk, or {@link C#TIME_UNSET} if the data
    * being loaded does not contain media samples.
    */
   public final long startTimeUs;
   /**
-   * The end time of the media contained by the chunk, or {@link C#UNSET_TIME_US} if the data being
+   * The end time of the media contained by the chunk, or {@link C#TIME_UNSET} if the data being
    * loaded does not contain media samples.
    */
   public final long endTimeUs;

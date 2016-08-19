@@ -29,7 +29,7 @@ public final class DefaultOggSeekerTest extends TestCase {
 
   public void testSetupUnboundAudioLength() {
     try {
-      new DefaultOggSeeker(0, C.LENGTH_UNBOUNDED, new TestStreamReader());
+      new DefaultOggSeeker(0, C.LENGTH_UNSET, new TestStreamReader());
       fail();
     } catch (IllegalArgumentException e) {
       // ignored

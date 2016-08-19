@@ -40,7 +40,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   /**
    * @param dataSource The wrapped {@link DataSource}.
    * @param position The initial position in the stream.
-   * @param length The length of the stream, or {@link C#LENGTH_UNBOUNDED} if it is unknown.
+   * @param length The length of the stream, or {@link C#LENGTH_UNSET} if it is unknown.
    */
   public DefaultExtractorInput(DataSource dataSource, long position, long length) {
     this.dataSource = dataSource;

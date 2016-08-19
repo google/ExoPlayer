@@ -281,7 +281,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setVideoListener(this);
       player.setVideoSurfaceHolder(surfaceView.getHolder());
       if (shouldRestorePosition) {
-        if (playerPosition == -1) {
+        if (playerPosition == C.TIME_UNSET) {
           player.seekToDefaultPositionForPeriod(playerPeriod);
         } else {
           player.seekInPeriod(playerPeriod, playerPosition);
@@ -381,7 +381,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
         if (!window.isDynamic) {
           shouldRestorePosition = true;
           playerPeriod = player.getCurrentPeriodIndex();
-          playerPosition = window.isSeekable ? player.getCurrentPositionInPeriod() : -1;
+          playerPosition = window.isSeekable ? player.getCurrentPositionInPeriod() : C.TIME_UNSET;
         }
       }
       player.release();

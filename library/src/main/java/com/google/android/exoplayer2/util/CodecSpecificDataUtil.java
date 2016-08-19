@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.util.Pair;
+import com.google.android.exoplayer2.C;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,7 +170,7 @@ public final class CodecSpecificDataUtil {
     do {
       starts.add(nalUnitIndex);
       nalUnitIndex = findNalStartCode(data, nalUnitIndex + NAL_START_CODE.length);
-    } while (nalUnitIndex != -1);
+    } while (nalUnitIndex != C.INDEX_UNSET);
     byte[][] split = new byte[starts.size()][];
     for (int i = 0; i < starts.size(); i++) {
       int startIndex = starts.get(i);
@@ -186,7 +187,7 @@ public final class CodecSpecificDataUtil {
    *
    * @param data The data in which to search.
    * @param index The first index to test.
-   * @return The index of the first byte of the found start code, or -1.
+   * @return The index of the first byte of the found start code, or {@link C#INDEX_UNSET}.
    */
   private static int findNalStartCode(byte[] data, int index) {
     int endIndex = data.length - NAL_START_CODE.length;
@@ -195,7 +196,7 @@ public final class CodecSpecificDataUtil {
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
   /**

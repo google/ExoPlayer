@@ -359,11 +359,11 @@ public final class DashMediaSource implements MediaSource {
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
       long minStartPositionUs = firstPeriodSeekInfo.availableStartTimeUs;
       long maxEndPositionUs = lastPeriodSeekInfo.availableEndTimeUs;
-      long timeShiftBufferDepthUs = manifest.timeShiftBufferDepth == -1 ? -1
-          : manifest.timeShiftBufferDepth * 1000;
+      long timeShiftBufferDepthUs = manifest.timeShiftBufferDepth == C.TIME_UNSET
+          ? C.TIME_UNSET : (manifest.timeShiftBufferDepth * 1000);
       currentEndTimeUs = Math.min(maxEndPositionUs,
           getNowUnixTimeUs() - manifest.availabilityStartTime * 1000);
-      currentStartTimeUs = timeShiftBufferDepthUs == -1 ? minStartPositionUs
+      currentStartTimeUs = timeShiftBufferDepthUs == C.TIME_UNSET ? minStartPositionUs
           : Math.max(minStartPositionUs, currentEndTimeUs - timeShiftBufferDepthUs);
       // The window is changing implicitly. Post a simulated manifest refresh to update it.
       handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
@@ -379,7 +379,7 @@ public final class DashMediaSource implements MediaSource {
     if (manifest.dynamic) {
       long liveEdgeOffsetForManifestMs = liveEdgeOffsetMs;
       if (liveEdgeOffsetForManifestMs == DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS) {
-        liveEdgeOffsetForManifestMs = manifest.suggestedPresentationDelay != -1
+        liveEdgeOffsetForManifestMs = manifest.suggestedPresentationDelay != C.TIME_UNSET
             ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
       }
       defaultInitialTimeUs = Math.max(0, windowDurationUs - (liveEdgeOffsetForManifestMs * 1000));
@@ -523,11 +523,11 @@ public final class DashMediaSource implements MediaSource {
     @Override
     public int getIndexOfPeriod(Object id) {
       if (!(id instanceof Integer)) {
-        return NO_PERIOD_INDEX;
+        return C.INDEX_UNSET;
       }
       int periodId = (int) id;
       return periodId < firstPeriodId || periodId >= firstPeriodId + getPeriodCount()
-          ? NO_PERIOD_INDEX : periodId - firstPeriodId;
+          ? C.INDEX_UNSET : (periodId - firstPeriodId);
     }
 
     @Override

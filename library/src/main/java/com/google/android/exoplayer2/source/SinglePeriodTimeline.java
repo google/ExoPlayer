@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.util.Assertions;
@@ -66,15 +65,13 @@ public final class SinglePeriodTimeline implements Timeline {
 
   @Override
   public long getPeriodDurationMs(int periodIndex) {
-    Assertions.checkIndex(periodIndex, 0, 1);
-    return window.durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME
-        : ((offsetInFirstPeriodUs + window.durationUs) / 1000);
+    return C.usToMs(getPeriodDurationUs(periodIndex));
   }
 
   @Override
   public long getPeriodDurationUs(int periodIndex) {
     Assertions.checkIndex(periodIndex, 0, 1);
-    return window.durationUs == C.UNSET_TIME_US ? C.UNSET_TIME_US
+    return window.durationUs == C.TIME_UNSET ? C.TIME_UNSET
         : (offsetInFirstPeriodUs + window.durationUs);
   }
 
@@ -98,7 +95,7 @@ public final class SinglePeriodTimeline implements Timeline {
 
   @Override
   public int getIndexOfPeriod(Object id) {
-    return ID.equals(id) ? 0 : Timeline.NO_PERIOD_INDEX;
+    return ID.equals(id) ? 0 : C.INDEX_UNSET;
   }
 
   @Override

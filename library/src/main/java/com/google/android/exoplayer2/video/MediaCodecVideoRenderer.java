@@ -155,14 +155,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
-    joiningDeadlineMs = -1;
-    currentWidth = -1;
-    currentHeight = -1;
-    currentPixelWidthHeightRatio = -1;
-    pendingPixelWidthHeightRatio = -1;
-    lastReportedWidth = -1;
-    lastReportedHeight = -1;
-    lastReportedPixelWidthHeightRatio = -1;
+    joiningDeadlineMs = C.TIME_UNSET;
+    currentWidth = Format.NO_VALUE;
+    currentHeight = Format.NO_VALUE;
+    currentPixelWidthHeightRatio = Format.NO_VALUE;
+    pendingPixelWidthHeightRatio = Format.NO_VALUE;
+    lastReportedWidth = Format.NO_VALUE;
+    lastReportedHeight = Format.NO_VALUE;
+    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
   }
 
   @Override
@@ -227,16 +227,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
-        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : -1;
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
   }
 
   @Override
   public boolean isReady() {
     if ((renderedFirstFrame || super.shouldInitCodec()) && super.isReady()) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
-      joiningDeadlineMs = -1;
+      joiningDeadlineMs = C.TIME_UNSET;
       return true;
-    } else if (joiningDeadlineMs == -1) {
+    } else if (joiningDeadlineMs == C.TIME_UNSET) {
       // Not joining.
       return false;
     } else if (SystemClock.elapsedRealtime() < joiningDeadlineMs) {
@@ -244,7 +244,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return true;
     } else {
       // The joining deadline has been exceeded. Give up and clear the deadline.
-      joiningDeadlineMs = -1;
+      joiningDeadlineMs = C.TIME_UNSET;
       return false;
     }
   }
@@ -258,20 +258,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onStopped() {
-    joiningDeadlineMs = -1;
+    joiningDeadlineMs = C.TIME_UNSET;
     maybeNotifyDroppedFrames();
     super.onStopped();
   }
 
   @Override
   protected void onDisabled() {
-    currentWidth = -1;
-    currentHeight = -1;
-    currentPixelWidthHeightRatio = -1;
-    pendingPixelWidthHeightRatio = -1;
-    lastReportedWidth = -1;
-    lastReportedHeight = -1;
-    lastReportedPixelWidthHeightRatio = -1;
+    currentWidth = Format.NO_VALUE;
+    currentHeight = Format.NO_VALUE;
+    currentPixelWidthHeightRatio = Format.NO_VALUE;
+    pendingPixelWidthHeightRatio = Format.NO_VALUE;
+    lastReportedWidth = Format.NO_VALUE;
+    lastReportedHeight = Format.NO_VALUE;
+    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
     frameReleaseTimeHelper.disable();
     try {
       super.onDisabled();

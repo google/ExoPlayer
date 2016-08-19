@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -78,8 +79,8 @@ public interface TrackSelection {
    * Returns the index in the selection of the track with the specified format.
    *
    * @param format The format.
-   * @return The index in the selection, or -1 if the track with the specified format is not part of
-   *     the selection.
+   * @return The index in the selection, or {@link C#INDEX_UNSET} if the track with the specified
+   *     format is not part of the selection.
    */
   int indexOf(Format format);
 
@@ -87,8 +88,8 @@ public interface TrackSelection {
    * Returns the index in the selection of the track with the specified index in the track group.
    *
    * @param indexInTrackGroup The index in the track group.
-   * @return The index in the selection, or -1 if the track with the specified index is not part of
-   *     the selection.
+   * @return The index in the selection, or {@link C#INDEX_UNSET} if the track with the specified
+   *     index is not part of the selection.
    */
   int indexOf(int indexInTrackGroup);
 

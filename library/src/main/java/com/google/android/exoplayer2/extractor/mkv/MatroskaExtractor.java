@@ -63,6 +63,8 @@ public final class MatroskaExtractor implements Extractor {
 
   };
 
+  private static final int UNSET_ENTRY_ID = -1;
+
   private static final int BLOCK_STATE_START = 0;
   private static final int BLOCK_STATE_HEADER = 1;
   private static final int BLOCK_STATE_DATA = 2;
@@ -100,7 +102,6 @@ public final class MatroskaExtractor implements Extractor {
   private static final int MP3_MAX_INPUT_SIZE = 4096;
   private static final int ENCRYPTION_IV_SIZE = 8;
   private static final int TRACK_TYPE_AUDIO = 2;
-  private static final int UNKNOWN = -1;
 
   private static final int ID_EBML = 0x1A45DFA3;
   private static final int ID_EBML_READ_VERSION = 0x42F7;
@@ -228,11 +229,11 @@ public final class MatroskaExtractor implements Extractor {
   private final ParsableByteArray encryptionSubsampleData;
   private ByteBuffer encryptionSubsampleDataBuffer;
 
-  private long segmentContentPosition = UNKNOWN;
-  private long segmentContentSize = UNKNOWN;
-  private long timecodeScale = C.UNSET_TIME_US;
-  private long durationTimecode = C.UNSET_TIME_US;
-  private long durationUs = C.UNSET_TIME_US;
+  private long segmentContentSize;
+  private long segmentContentPosition = C.POSITION_UNSET;
+  private long timecodeScale = C.TIME_UNSET;
+  private long durationTimecode = C.TIME_UNSET;
+  private long durationUs = C.TIME_UNSET;
 
   // The track corresponding to the current TrackEntry element, or null.
   private Track currentTrack;
@@ -246,9 +247,9 @@ public final class MatroskaExtractor implements Extractor {
 
   // Cue related elements.
   private boolean seekForCues;
-  private long cuesContentPosition = UNKNOWN;
-  private long seekPositionAfterBuildingCues = UNKNOWN;
-  private long clusterTimecodeUs = UNKNOWN;
+  private long cuesContentPosition = C.POSITION_UNSET;
+  private long seekPositionAfterBuildingCues = C.POSITION_UNSET;
+  private long clusterTimecodeUs = C.TIME_UNSET;
   private LongArray cueTimesUs;
   private LongArray cueClusterPositions;
   private boolean seenClusterPositionForCurrentCuePoint;
@@ -312,7 +313,7 @@ public final class MatroskaExtractor implements Extractor {
 
   @Override
   public void seek(long position) {
-    clusterTimecodeUs = UNKNOWN;
+    clusterTimecodeUs = C.TIME_UNSET;
     blockState = BLOCK_STATE_START;
     reader.reset();
     varintReader.reset();
@@ -416,15 +417,16 @@ public final class MatroskaExtractor implements Extractor {
       throws ParserException {
     switch (id) {
       case ID_SEGMENT:
-        if (segmentContentPosition != UNKNOWN && segmentContentPosition != contentPosition) {
+        if (segmentContentPosition != C.POSITION_UNSET
+            && segmentContentPosition != contentPosition) {
           throw new ParserException("Multiple Segment elements not supported");
         }
         segmentContentPosition = contentPosition;
         segmentContentSize = contentSize;
         return;
       case ID_SEEK:
-        seekEntryId = UNKNOWN;
-        seekEntryPosition = UNKNOWN;
+        seekEntryId = UNSET_ENTRY_ID;
+        seekEntryPosition = C.POSITION_UNSET;
         return;
       case ID_CUES:
         cueTimesUs = new LongArray();
@@ -436,7 +438,7 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
-          if (cuesContentPosition != UNKNOWN) {
+          if (cuesContentPosition != C.POSITION_UNSET) {
             // We know where the Cues element is located. Seek to request it.
             seekForCues = true;
           } else {
@@ -467,16 +469,16 @@ public final class MatroskaExtractor implements Extractor {
   /* package */ void endMasterElement(int id) throws ParserException {
     switch (id) {
       case ID_SEGMENT_INFO:
-        if (timecodeScale == C.UNSET_TIME_US) {
+        if (timecodeScale == C.TIME_UNSET) {
           // timecodeScale was omitted. Use the default value.
           timecodeScale = 1000000;
         }
-        if (durationTimecode != C.UNSET_TIME_US) {
+        if (durationTimecode != C.TIME_UNSET) {
           durationUs = scaleTimecodeToUs(durationTimecode);
         }
         return;
       case ID_SEEK:
-        if (seekEntryId == UNKNOWN || seekEntryPosition == UNKNOWN) {
+        if (seekEntryId == UNSET_ENTRY_ID || seekEntryPosition == C.POSITION_UNSET) {
           throw new ParserException("Mandatory element SeekID or SeekPosition not found");
         }
         if (seekEntryId == ID_CUES) {
@@ -721,7 +723,7 @@ public final class MatroskaExtractor implements Extractor {
         if (blockState == BLOCK_STATE_START) {
           blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true, 8);
           blockTrackNumberLength = varintReader.getLastLength();
-          blockDurationUs = UNKNOWN;
+          blockDurationUs = C.TIME_UNSET;
           blockState = BLOCK_STATE_HEADER;
           scratch.reset();
         }
@@ -1059,7 +1061,7 @@ public final class MatroskaExtractor implements Extractor {
 
   private static void setSubripSampleEndTimecode(byte[] subripSampleData, long timeUs) {
     byte[] timeCodeData;
-    if (timeUs == UNKNOWN) {
+    if (timeUs == C.TIME_UNSET) {
       timeCodeData = SUBRIP_TIMECODE_EMPTY;
     } else {
       int hours = (int) (timeUs / 3600000000L);
@@ -1116,7 +1118,7 @@ public final class MatroskaExtractor implements Extractor {
    *     information was missing or incomplete.
    */
   private SeekMap buildSeekMap() {
-    if (segmentContentPosition == UNKNOWN || durationUs == C.UNSET_TIME_US
+    if (segmentContentPosition == C.POSITION_UNSET || durationUs == C.TIME_UNSET
         || cueTimesUs == null || cueTimesUs.size() == 0
         || cueClusterPositions == null || cueClusterPositions.size() != cueTimesUs.size()) {
       // Cues information is missing or incomplete.
@@ -1163,16 +1165,16 @@ public final class MatroskaExtractor implements Extractor {
     }
     // After parsing Cues, seek back to original position if available. We will not do this unless
     // we seeked to get to the Cues in the first place.
-    if (sentSeekMap && seekPositionAfterBuildingCues != UNKNOWN) {
+    if (sentSeekMap && seekPositionAfterBuildingCues != C.POSITION_UNSET) {
       seekPosition.position = seekPositionAfterBuildingCues;
-      seekPositionAfterBuildingCues = UNKNOWN;
+      seekPositionAfterBuildingCues = C.POSITION_UNSET;
       return true;
     }
     return false;
   }
 
   private long scaleTimecodeToUs(long unscaledTimecode) throws ParserException {
-    if (timecodeScale == C.UNSET_TIME_US) {
+    if (timecodeScale == C.TIME_UNSET) {
       throw new ParserException("Can't scale timecode prior to timecodeScale being set.");
     }
     return Util.scaleLargeTimestamp(unscaledTimecode, timecodeScale, 1000);
@@ -1294,7 +1296,7 @@ public final class MatroskaExtractor implements Extractor {
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
-    public int audioBitDepth = -1;
+    public int audioBitDepth = Format.NO_VALUE;
     public int sampleRate = 8000;
     public long codecDelayNs = 0;
     public long seekPreRollNs = 0;

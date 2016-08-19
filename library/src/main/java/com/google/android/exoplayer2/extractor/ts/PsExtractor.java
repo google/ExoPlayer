@@ -120,7 +120,7 @@ public final class PsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
+    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override

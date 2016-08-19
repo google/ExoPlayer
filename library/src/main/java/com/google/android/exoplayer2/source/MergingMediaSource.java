@@ -28,6 +28,8 @@ import java.io.IOException;
  */
 public final class MergingMediaSource implements MediaSource {
 
+  private static final int PERIOD_COUNT_UNSET = -1;
+
   private final MediaSource[] mediaSources;
 
   private int periodCount;
@@ -37,7 +39,7 @@ public final class MergingMediaSource implements MediaSource {
    */
   public MergingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
-    periodCount = -1;
+    periodCount = PERIOD_COUNT_UNSET;
   }
 
   @Override
@@ -106,7 +108,7 @@ public final class MergingMediaSource implements MediaSource {
       Assertions.checkArgument(!timeline.getWindow(i).isDynamic);
     }
     int periodCount = timeline.getPeriodCount();
-    if (this.periodCount == -1) {
+    if (this.periodCount == PERIOD_COUNT_UNSET) {
       this.periodCount = periodCount;
     } else {
       Assertions.checkState(this.periodCount == periodCount);

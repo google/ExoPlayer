@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import android.os.SystemClock;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -104,7 +105,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
   @Override
@@ -114,7 +115,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
   @Override

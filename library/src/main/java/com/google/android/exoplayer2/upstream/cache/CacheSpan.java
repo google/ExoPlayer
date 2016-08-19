@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.util.regex.Matcher;
@@ -40,7 +41,7 @@ public final class CacheSpan implements Comparable<CacheSpan> {
    */
   public final long position;
   /**
-   * The length of the {@link CacheSpan}, or -1 if this is an open-ended hole.
+   * The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an open-ended hole.
    */
   public final long length;
   /**
@@ -52,7 +53,7 @@ public final class CacheSpan implements Comparable<CacheSpan> {
    */
   public final File file;
   /**
-   * The last access timestamp, or -1 if {@link #isCached} is false.
+   * The last access timestamp, or {@link C#TIME_UNSET} if {@link #isCached} is false.
    */
   public final long lastAccessTimestamp;
   /**
@@ -67,15 +68,15 @@ public final class CacheSpan implements Comparable<CacheSpan> {
   }
 
   public static CacheSpan createLookup(String key, long position) {
-    return new CacheSpan(key, position, -1, false, -1, null, false);
+    return new CacheSpan(key, position, C.LENGTH_UNSET, false, C.TIME_UNSET, null, false);
   }
 
   public static CacheSpan createOpenHole(String key, long position) {
-    return new CacheSpan(key, position, -1, false, -1, null, false);
+    return new CacheSpan(key, position, C.LENGTH_UNSET, false, C.TIME_UNSET, null, false);
   }
 
   public static CacheSpan createClosedHole(String key, long position, long length) {
-    return new CacheSpan(key, position, length, false, -1, null, false);
+    return new CacheSpan(key, position, length, false, C.TIME_UNSET, null, false);
   }
 
   /**
@@ -128,7 +129,7 @@ public final class CacheSpan implements Comparable<CacheSpan> {
    * Returns whether this is an open-ended {@link CacheSpan}.
    */
   public boolean isOpenEnded() {
-    return length == -1;
+    return length == C.LENGTH_UNSET;
   }
 
   /**

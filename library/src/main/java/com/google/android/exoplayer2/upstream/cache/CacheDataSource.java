@@ -147,12 +147,12 @@ public final class CacheDataSource implements DataSource {
           totalCachedBytesRead += bytesRead;
         }
         readPosition += bytesRead;
-        if (bytesRemaining != C.LENGTH_UNBOUNDED) {
+        if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= bytesRead;
         }
       } else {
         closeCurrentSource();
-        if (bytesRemaining > 0 && bytesRemaining != C.LENGTH_UNBOUNDED) {
+        if (bytesRemaining > 0 && bytesRemaining != C.LENGTH_UNSET) {
           openNextSource();
           return read(buffer, offset, max);
         }
@@ -191,7 +191,7 @@ public final class CacheDataSource implements DataSource {
     CacheSpan span;
     if (ignoreCache) {
       span = null;
-    } else if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+    } else if (bytesRemaining == C.LENGTH_UNSET) {
       // TODO: Support caching for unbounded requests. This requires storing the source length
       // into the cache (the simplest approach is to incorporate it into each cache file's name).
       Log.w(TAG, "Cache bypassed due to unbounded length.");

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.C.usToMs;
+
 import android.os.Handler;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
@@ -42,10 +44,10 @@ public interface AdaptiveMediaSourceEventListener {
    *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
    * @param trackSelectionData Optional data associated with the selection of the track to which the
    *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or -1 if the load is not for
-   *     media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or -1 if the load is not for
-   *     media data.
+   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
+   *     the load is not for media data.
+   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
+   *     load is not for media data.
    * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load began.
    */
   void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
@@ -66,10 +68,10 @@ public interface AdaptiveMediaSourceEventListener {
    *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
    * @param trackSelectionData Optional data associated with the selection of the track to which the
    *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or -1 if the load is not for
-   *     media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or -1 if the load is not for
-   *     media data.
+   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
+   *     the load is not for media data.
+   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
+   *     load is not for media data.
    * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load ended.
    * @param loadDurationMs The duration of the load.
    * @param bytesLoaded The number of bytes that were loaded.
@@ -92,10 +94,10 @@ public interface AdaptiveMediaSourceEventListener {
    *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
    * @param trackSelectionData Optional data associated with the selection of the track to which the
    *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or -1 if the load is not for
-   *     media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or -1 if the load is not for
-   *     media data.
+   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
+   *     the load is not for media data.
+   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
+   *     load is not for media data.
    * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load was
    *     canceled.
    * @param loadDurationMs The duration of the load up to the point at which it was canceled.
@@ -123,10 +125,10 @@ public interface AdaptiveMediaSourceEventListener {
    *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
    * @param trackSelectionData Optional data associated with the selection of the track to which the
    *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or -1 if the load is not for
-   *     media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or -1 if the load is not for
-   *     media data.
+   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
+   *     the load is not for media data.
+   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
+   *     load is not for media data.
    * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the error
    *     occurred.
    * @param loadDurationMs The duration of the load up to the point at which the error occurred.
@@ -180,7 +182,7 @@ public interface AdaptiveMediaSourceEventListener {
 
     public void loadStarted(DataSpec dataSpec, int dataType, long elapsedRealtimeMs) {
       loadStarted(dataSpec, dataType, C.TRACK_TYPE_UNKNOWN, null, C.SELECTION_REASON_UNKNOWN,
-          null, C.UNSET_TIME_US, C.UNSET_TIME_US, elapsedRealtimeMs);
+          null, C.TIME_UNSET, C.TIME_UNSET, elapsedRealtimeMs);
     }
 
     public void loadStarted(final DataSpec dataSpec, final int dataType, final int trackType,
@@ -201,7 +203,7 @@ public interface AdaptiveMediaSourceEventListener {
     public void loadCompleted(DataSpec dataSpec, int dataType, long elapsedRealtimeMs,
         long loadDurationMs, long bytesLoaded) {
       loadCompleted(dataSpec, dataType, C.TRACK_TYPE_UNKNOWN, null, C.SELECTION_REASON_UNKNOWN,
-          null, C.UNSET_TIME_US, C.UNSET_TIME_US, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
+          null, C.TIME_UNSET, C.TIME_UNSET, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
     }
 
     public void loadCompleted(final DataSpec dataSpec, final int dataType, final int trackType,
@@ -223,7 +225,7 @@ public interface AdaptiveMediaSourceEventListener {
     public void loadCanceled(DataSpec dataSpec, int dataType, long elapsedRealtimeMs,
         long loadDurationMs, long bytesLoaded) {
       loadCanceled(dataSpec, dataType, C.TRACK_TYPE_UNKNOWN, null, C.SELECTION_REASON_UNKNOWN,
-          null, C.UNSET_TIME_US, C.UNSET_TIME_US, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
+          null, C.TIME_UNSET, C.TIME_UNSET, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
     }
 
     public void loadCanceled(final DataSpec dataSpec, final int dataType, final int trackType,
@@ -245,7 +247,7 @@ public interface AdaptiveMediaSourceEventListener {
     public void loadError(DataSpec dataSpec, int dataType, long elapsedRealtimeMs,
         long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
       loadError(dataSpec, dataType, C.TRACK_TYPE_UNKNOWN, null, C.SELECTION_REASON_UNKNOWN,
-          null, C.UNSET_TIME_US, C.UNSET_TIME_US, elapsedRealtimeMs, loadDurationMs, bytesLoaded,
+          null, C.TIME_UNSET, C.TIME_UNSET, elapsedRealtimeMs, loadDurationMs, bytesLoaded,
           error, wasCanceled);
     }
 
@@ -291,16 +293,6 @@ public interface AdaptiveMediaSourceEventListener {
           }
         });
       }
-    }
-
-    /**
-     * Converts microseconds to milliseconds (rounding down), mapping {@link C#UNSET_TIME_US} to -1
-     *
-     * @param timeUs A microsecond value.
-     * @return The value in milliseconds.
-     */
-    private static long usToMs(long timeUs) {
-      return timeUs == C.UNSET_TIME_US ? -1 : (timeUs / 1000);
     }
 
   }

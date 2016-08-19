@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import com.google.android.exoplayer2.C;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,11 +51,11 @@ public class Period {
   }
 
   /**
-   * Returns the index of the first adaptation set of a given type, or -1 if no adaptation set of
-   * the specified type exists.
+   * Returns the index of the first adaptation set of a given type, or {@link C#INDEX_UNSET} if no
+   * adaptation set of the specified type exists.
    *
    * @param type An adaptation set type.
-   * @return The index of the first adaptation set of the specified type, or -1.
+   * @return The index of the first adaptation set of the specified type, or {@link C#INDEX_UNSET}.
    */
   public int getAdaptationSetIndex(int type) {
     int adaptationCount = adaptationSets.size();
@@ -63,7 +64,7 @@ public class Period {
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
 }

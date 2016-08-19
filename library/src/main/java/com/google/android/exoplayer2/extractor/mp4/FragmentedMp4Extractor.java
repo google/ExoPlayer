@@ -156,7 +156,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
     trackBundles = new SparseArray<>();
-    durationUs = C.UNSET_TIME_US;
+    durationUs = C.TIME_UNSET;
     enterReadingAtomHeaderState();
   }
 
@@ -356,7 +356,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     SparseArray<DefaultSampleValues> defaultSampleValuesArray = new SparseArray<>();
-    long duration = -1;
+    long duration = C.TIME_UNSET;
     int mvexChildrenSize = mvex.leafChildren.size();
     for (int i = 0; i < mvexChildrenSize; i++) {
       Atom.LeafAtom atom = mvex.leafChildren.get(i);
@@ -958,7 +958,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     Track track = currentTrackBundle.track;
     TrackOutput output = currentTrackBundle.output;
     int sampleIndex = currentTrackBundle.currentSampleIndex;
-    if (track.nalUnitLengthFieldLength != -1) {
+    if (track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
       byte[] nalLengthData = nalLength.data;

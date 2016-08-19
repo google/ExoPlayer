@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.C;
 import java.util.Arrays;
 
 /**
@@ -54,7 +55,7 @@ public final class TrackGroupArray {
    * Returns the index of a group within the array.
    *
    * @param group The group.
-   * @return The index of the group, or -1 if no such group exists.
+   * @return The index of the group, or {@link C#INDEX_UNSET} if no such group exists.
    */
   public int indexOf(TrackGroup group) {
     for (int i = 0; i < length; i++) {
@@ -62,7 +63,7 @@ public final class TrackGroupArray {
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
   @Override

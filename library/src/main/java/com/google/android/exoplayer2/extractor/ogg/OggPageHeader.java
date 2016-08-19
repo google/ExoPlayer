@@ -83,7 +83,7 @@ import java.io.IOException;
       throws IOException, InterruptedException {
     scratch.reset();
     reset();
-    boolean hasEnoughBytes = input.getLength() == C.LENGTH_UNBOUNDED
+    boolean hasEnoughBytes = input.getLength() == C.LENGTH_UNSET
         || input.getLength() - input.getPeekPosition() >= EMPTY_PAGE_HEADER_SIZE;
     if (!hasEnoughBytes || !input.peekFully(scratch.data, 0, EMPTY_PAGE_HEADER_SIZE, true)) {
       if (quiet) {

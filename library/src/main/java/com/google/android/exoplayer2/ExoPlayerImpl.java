@@ -133,16 +133,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekToDefaultPositionForPeriod(int periodIndex) {
-    seekInPeriod(periodIndex, UNKNOWN_TIME);
+    seekInPeriod(periodIndex, C.TIME_UNSET);
   }
 
   @Override
   public void seekInPeriod(int periodIndex, long positionMs) {
-    boolean seekToDefaultPosition = positionMs == UNKNOWN_TIME;
+    boolean seekToDefaultPosition = positionMs == C.TIME_UNSET;
     maskingPeriodIndex = periodIndex;
     maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
     pendingSeekAcks++;
-    internalPlayer.seekTo(periodIndex, seekToDefaultPosition ? C.UNSET_TIME_US : positionMs * 1000);
+    internalPlayer.seekTo(periodIndex, seekToDefaultPosition ? C.TIME_UNSET : positionMs * 1000);
     if (!seekToDefaultPosition) {
       for (EventListener listener : listeners) {
         listener.onPositionDiscontinuity(periodIndex, positionMs);
@@ -186,7 +186,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     long periodPositionMs = timeline.getWindowOffsetInFirstPeriodUs(windowIndex) / 1000
         + positionMs;
     long periodDurationMs = timeline.getPeriodDurationMs(periodIndex);
-    while (periodDurationMs != UNKNOWN_TIME && periodPositionMs >= periodDurationMs
+    while (periodDurationMs != C.TIME_UNSET && periodPositionMs >= periodDurationMs
         && periodIndex < lastPeriodIndex) {
       periodPositionMs -= periodDurationMs;
       periodDurationMs = timeline.getPeriodDurationMs(++periodIndex);
@@ -225,7 +225,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Deprecated
   public long getCurrentPeriodDuration() {
     if (timeline == null) {
-      return UNKNOWN_TIME;
+      return C.TIME_UNSET;
     }
     return timeline.getPeriodDurationMs(getCurrentPeriodIndex());
   }
@@ -233,16 +233,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   @Deprecated
   public long getCurrentPositionInPeriod() {
-    return pendingSeekAcks > 0 ? maskingPositionMs
-        : playbackInfo.positionUs == C.UNSET_TIME_US ? 0 : (playbackInfo.positionUs / 1000);
+    return pendingSeekAcks > 0 ? maskingPositionMs : C.usToMs(playbackInfo.positionUs);
   }
 
   @Override
   @Deprecated
   public long getBufferedPositionInPeriod() {
     if (pendingSeekAcks == 0) {
-      long bufferedPositionUs = playbackInfo.bufferedPositionUs;
-      return bufferedPositionUs == C.UNSET_TIME_US ? UNKNOWN_TIME : (bufferedPositionUs / 1000);
+      return C.usToMs(playbackInfo.bufferedPositionUs);
     } else {
       return maskingPositionMs;
     }
@@ -256,14 +254,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     long bufferedPosition = getBufferedPositionInPeriod();
     long duration = getCurrentPeriodDuration();
-    return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
+    return (bufferedPosition == C.TIME_UNSET || duration == C.TIME_UNSET) ? 0
         : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
 
   @Override
   public int getCurrentWindowIndex() {
     if (timeline == null) {
-      return -1;
+      return C.INDEX_UNSET;
     }
     return timeline.getPeriodWindowIndex(getCurrentPeriodIndex());
   }
@@ -271,16 +269,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public long getDuration() {
     if (timeline == null) {
-      return UNKNOWN_TIME;
+      return C.TIME_UNSET;
     }
-    long durationUs = timeline.getWindow(getCurrentWindowIndex()).durationUs;
-    return durationUs == C.UNSET_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
+    return C.usToMs(timeline.getWindow(getCurrentWindowIndex()).durationUs);
   }
 
   @Override
   public long getCurrentPosition() {
     if (timeline == null) {
-      return UNKNOWN_TIME;
+      return C.TIME_UNSET;
     }
     int periodIndex = getCurrentPeriodIndex();
     int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
@@ -296,7 +293,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public long getBufferedPosition() {
     // TODO - Implement this properly.
     if (timeline == null) {
-      return UNKNOWN_TIME;
+      return C.TIME_UNSET;
     }
     int periodIndex = getCurrentPeriodIndex();
     int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
@@ -318,7 +315,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     long bufferedPosition = getBufferedPosition();
     long duration = getDuration();
-    return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
+    return (bufferedPosition == C.TIME_UNSET || duration == C.TIME_UNSET) ? 0
         : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
 
@@ -352,8 +349,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          long positionMs = playbackInfo.startPositionUs == C.UNSET_TIME_US ? 0
-              : playbackInfo.startPositionUs / 1000;
+          long positionMs = C.usToMs(playbackInfo.startPositionUs);
           if (playbackInfo.periodIndex != maskingPeriodIndex || positionMs != maskingPositionMs) {
             for (EventListener listener : listeners) {
               listener.onPositionDiscontinuity(playbackInfo.periodIndex, positionMs);
@@ -367,7 +363,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           for (EventListener listener : listeners) {
             listener.onPositionDiscontinuity(playbackInfo.periodIndex,
-                playbackInfo.startPositionUs / 1000);
+                C.usToMs(playbackInfo.startPositionUs));
           }
         }
         break;

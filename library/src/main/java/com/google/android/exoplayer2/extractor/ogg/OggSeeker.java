@@ -45,13 +45,14 @@ import java.io.IOException;
    * <p/>
    * If more data is required or if the position of the input needs to be modified then a position
    * from which data should be provided is returned. Else a negative value is returned. If a seek
-   * has been completed then the value returned is -(currentGranule + 2). Else -1 is returned.
+   * has been completed then the value returned is -(currentGranule + 2). Else it is -1.
    *
-   * @param input the {@link ExtractorInput} to read from.
-   * @return the non-negative position to seek the {@link ExtractorInput} to or -1 seeking not
-   *     necessary or at the end of seeking a negative number < -1 which is -(currentGranule + 2).
-   * @throws IOException thrown if reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while reading from the input.
+   * @param input The {@link ExtractorInput} to read from.
+   * @return A non-negative position to seek the {@link ExtractorInput} to, or -(currentGranule + 2)
+   *     if the progressive seek has completed, or -1 otherwise.
+   * @throws IOException If reading from the {@link ExtractorInput} fails.
+   * @throws InterruptedException If the thread is interrupted.
    */
   long read(ExtractorInput input) throws IOException, InterruptedException;
+
 }

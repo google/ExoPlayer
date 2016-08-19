@@ -83,7 +83,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
     try {
       // Create and open the input.
       long length = dataSource.open(loadDataSpec);
-      if (length != C.LENGTH_UNBOUNDED) {
+      if (length != C.LENGTH_UNSET) {
         length += bytesLoaded;
       }
       ExtractorInput extractorInput = new DefaultExtractorInput(dataSource, bytesLoaded, length);

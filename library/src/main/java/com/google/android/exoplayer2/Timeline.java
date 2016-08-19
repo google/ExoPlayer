@@ -21,12 +21,6 @@ package com.google.android.exoplayer2;
 public interface Timeline {
 
   /**
-   * Returned by {@link #getIndexOfPeriod(Object)} if no period index corresponds to the specified
-   * identifier.
-   */
-  int NO_PERIOD_INDEX = -1;
-
-  /**
    * Returns the number of periods in the timeline.
    */
   int getPeriodCount();
@@ -38,19 +32,19 @@ public interface Timeline {
 
   /**
    * Returns the duration of the period at {@code periodIndex} in the timeline, in milliseconds, or
-   * {@link ExoPlayer#UNKNOWN_TIME} if not known.
+   * {@link C#TIME_UNSET} if not known.
    *
    * @param periodIndex The index of the period.
-   * @return The duration of the period in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME}.
+   * @return The duration of the period in milliseconds, or {@link C#TIME_UNSET}.
    */
   long getPeriodDurationMs(int periodIndex);
 
   /**
    * Returns the duration of the period at {@code periodIndex} in the timeline, in microseconds, or
-   * {@link C#UNSET_TIME_US} if not known.
+   * {@link C#TIME_UNSET} if not known.
    *
    * @param periodIndex The index of the period.
-   * @return The duration of the period in microseconds, or {@link C#UNSET_TIME_US}.
+   * @return The duration of the period in microseconds, or {@link C#TIME_UNSET}.
    */
   long getPeriodDurationUs(int periodIndex);
 
@@ -81,11 +75,11 @@ public interface Timeline {
   int getPeriodWindowIndex(int periodIndex);
 
   /**
-   * Returns the index of the period identified by {@code id}, or {@link #NO_PERIOD_INDEX} if the
+   * Returns the index of the period identified by {@code id}, or {@link C#INDEX_UNSET} if the
    * period is not in the timeline.
    *
    * @param id An identifier for a period.
-   * @return The index of the period, or {@link #NO_PERIOD_INDEX} if the period was not found.
+   * @return The index of the period, or {@link C#INDEX_UNSET} if the period was not found.
    */
   int getIndexOfPeriod(Object id);
 

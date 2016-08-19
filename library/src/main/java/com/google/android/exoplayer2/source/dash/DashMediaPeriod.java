@@ -141,7 +141,7 @@ import java.util.List;
 
   @Override
   public long readDiscontinuity() {
-    return C.UNSET_TIME_US;
+    return C.TIME_UNSET;
   }
 
   @Override
@@ -149,11 +149,11 @@ import java.util.List;
     long bufferedPositionUs = Long.MAX_VALUE;
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       long rendererBufferedPositionUs = sampleStream.getBufferedPositionUs();
-      if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
+      if (rendererBufferedPositionUs != C.TIME_END_OF_SOURCE) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
     }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.END_OF_SOURCE_US : bufferedPositionUs;
+    return bufferedPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : bufferedPositionUs;
   }
 
   @Override

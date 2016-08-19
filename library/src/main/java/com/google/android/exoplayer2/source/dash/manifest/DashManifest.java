@@ -71,13 +71,12 @@ public class DashManifest {
 
   public final long getPeriodDurationMs(int index) {
     return index == periods.size() - 1
-        ? (duration == -1 ? -1 : duration - periods.get(index).startMs)
-        : periods.get(index + 1).startMs - periods.get(index).startMs;
+        ? (duration == C.TIME_UNSET ? C.TIME_UNSET : (duration - periods.get(index).startMs))
+        : (periods.get(index + 1).startMs - periods.get(index).startMs);
   }
 
   public final long getPeriodDurationUs(int index) {
-    long durationMs = getPeriodDurationMs(index);
-    return durationMs == -1 ? C.UNSET_TIME_US : durationMs * 1000;
+    return C.msToUs(getPeriodDurationMs(index));
   }
 
 }

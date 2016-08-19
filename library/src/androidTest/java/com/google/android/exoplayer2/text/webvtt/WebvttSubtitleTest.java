@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -208,9 +209,9 @@ public class WebvttSubtitleTest extends TestCase {
     assertEquals(3, subtitle.getNextEventTimeIndex(3999999));
 
     // Test null event (i.e. look for events after the last event)
-    assertEquals(-1, subtitle.getNextEventTimeIndex(4000000));
-    assertEquals(-1, subtitle.getNextEventTimeIndex(4500000));
-    assertEquals(-1, subtitle.getNextEventTimeIndex(Long.MAX_VALUE));
+    assertEquals(C.INDEX_UNSET, subtitle.getNextEventTimeIndex(4000000));
+    assertEquals(C.INDEX_UNSET, subtitle.getNextEventTimeIndex(4500000));
+    assertEquals(C.INDEX_UNSET, subtitle.getNextEventTimeIndex(Long.MAX_VALUE));
   }
 
   private void assertSingleCueEmpty(List<Cue> cues) {

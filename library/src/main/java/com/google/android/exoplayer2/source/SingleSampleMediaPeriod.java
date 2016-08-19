@@ -118,17 +118,17 @@ import java.util.Arrays;
 
   @Override
   public long readDiscontinuity() {
-    return C.UNSET_TIME_US;
+    return C.TIME_UNSET;
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return loadingFinished || loader.isLoading() ? C.END_OF_SOURCE_US : 0;
+    return loadingFinished || loader.isLoading() ? C.TIME_END_OF_SOURCE : 0;
   }
 
   @Override
   public long getBufferedPositionUs() {
-    return loadingFinished ? C.END_OF_SOURCE_US : 0;
+    return loadingFinished ? C.TIME_END_OF_SOURCE : 0;
   }
 
   @Override

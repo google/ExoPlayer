@@ -132,7 +132,7 @@ public final class TsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
+    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
@@ -653,7 +653,7 @@ public final class TsExtractor implements Extractor {
 
     private void parseHeaderExtension() {
       pesScratch.setPosition(0);
-      timeUs = C.UNSET_TIME_US;
+      timeUs = C.TIME_UNSET;
       if (ptsFlag) {
         pesScratch.skipBits(4); // '0010' or '0011'
         long pts = (long) pesScratch.readBits(3) << 30;

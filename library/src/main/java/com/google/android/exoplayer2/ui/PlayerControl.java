@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import android.widget.MediaController.MediaPlayerControl;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 
@@ -70,13 +71,13 @@ public class PlayerControl implements MediaPlayerControl {
   @Override
   public int getCurrentPosition() {
     long position = exoPlayer.getCurrentPosition();
-    return position == ExoPlayer.UNKNOWN_TIME ? 0 : (int) position;
+    return position == C.TIME_UNSET ? 0 : (int) position;
   }
 
   @Override
   public int getDuration() {
     long duration = exoPlayer.getDuration();
-    return duration == ExoPlayer.UNKNOWN_TIME ? 0 : (int) duration;
+    return duration == C.TIME_UNSET ? 0 : (int) duration;
   }
 
   @Override

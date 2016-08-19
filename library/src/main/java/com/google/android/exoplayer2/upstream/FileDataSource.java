@@ -61,7 +61,7 @@ public final class FileDataSource implements DataSource {
       uri = dataSpec.uri;
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
+      bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
           : dataSpec.length;
       if (bytesRemaining < 0) {
         throw new EOFException();

@@ -56,7 +56,7 @@ public final class XingSeekerTest extends InstrumentationTestCase {
     MpegAudioHeader xingFrameHeader = new MpegAudioHeader();
     MpegAudioHeader.populateHeader(XING_FRAME_HEADER_DATA, xingFrameHeader);
     seeker = XingSeeker.create(xingFrameHeader, new ParsableByteArray(XING_FRAME_PAYLOAD),
-        XING_FRAME_POSITION, C.LENGTH_UNBOUNDED);
+        XING_FRAME_POSITION, C.LENGTH_UNSET);
     seekerWithInputLength = XingSeeker.create(xingFrameHeader,
         new ParsableByteArray(XING_FRAME_PAYLOAD), XING_FRAME_POSITION, INPUT_LENGTH);
     xingFrameSize = xingFrameHeader.frameSize;

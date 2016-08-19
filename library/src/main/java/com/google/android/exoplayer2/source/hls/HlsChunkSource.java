@@ -139,7 +139,7 @@ public class HlsChunkSource {
   }
 
   /**
-   * Returns the duration of the source, or {@link C#UNSET_TIME_US} if the duration is unknown.
+   * Returns the duration of the source, or {@link C#TIME_UNSET} if the duration is unknown.
    */
   public long getDurationUs() {
     return durationUs;
@@ -182,7 +182,8 @@ public class HlsChunkSource {
    * @param out A holder to populate.
    */
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
-    int oldVariantIndex = previous == null ? -1 : trackGroup.indexOf(previous.trackFormat);
+    int oldVariantIndex = previous == null ? C.INDEX_UNSET
+        : trackGroup.indexOf(previous.trackFormat);
 
     // Use start time of the previous chunk rather than its end time because switching format will
     // require downloading overlapping segments.
@@ -422,7 +423,7 @@ public class HlsChunkSource {
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex, int trackSelectionReason,
       Object trackSelectionData) {
     Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants[variantIndex].url);
-    DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
+    DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNSET, null,
         DataSpec.FLAG_ALLOW_GZIP);
     return new MediaPlaylistChunk(dataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, playlistParser, variantIndex,
@@ -431,7 +432,7 @@ public class HlsChunkSource {
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
       int trackSelectionReason, Object trackSelectionData) {
-    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null, DataSpec.FLAG_ALLOW_GZIP);
+    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
     return new EncryptionKeyChunk(dataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, iv);
   }
@@ -467,7 +468,7 @@ public class HlsChunkSource {
     variantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
-    durationUs = live ? C.UNSET_TIME_US : mediaPlaylist.durationUs;
+    durationUs = live ? C.TIME_UNSET : mediaPlaylist.durationUs;
   }
 
   // Private classes.

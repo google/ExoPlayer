@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import android.view.View;
 import android.view.View.OnClickListener;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 
@@ -50,7 +51,7 @@ public class MediaControllerPrevNextClickListener implements OnClickListener {
   @Override
   public void onClick(View v) {
     int currentWindowIndex = player.getCurrentWindowIndex();
-    if (currentWindowIndex == -1) {
+    if (currentWindowIndex == C.INDEX_UNSET) {
       return;
     }
     Timeline timeline = player.getCurrentTimeline();

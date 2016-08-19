@@ -53,7 +53,7 @@ public final class Track {
   public final long movieTimescale;
 
   /**
-   * The duration of the track in microseconds, or {@link C#UNSET_TIME_US} if unknown.
+   * The duration of the track in microseconds, or {@link C#TIME_UNSET} if unknown.
    */
   public final long durationUs;
 

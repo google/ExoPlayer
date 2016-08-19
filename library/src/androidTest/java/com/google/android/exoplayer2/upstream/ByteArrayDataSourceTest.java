@@ -28,11 +28,11 @@ public class ByteArrayDataSourceTest extends TestCase {
   private static final byte[] TEST_DATA_ODD = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   public void testFullReadSingleBytes() {
-    readTestData(TEST_DATA, 0, C.LENGTH_UNBOUNDED, 1, 0, 1, false);
+    readTestData(TEST_DATA, 0, C.LENGTH_UNSET, 1, 0, 1, false);
   }
 
   public void testFullReadAllBytes() {
-    readTestData(TEST_DATA, 0, C.LENGTH_UNBOUNDED, 100, 0, 100, false);
+    readTestData(TEST_DATA, 0, C.LENGTH_UNSET, 100, 0, 100, false);
   }
 
   public void testLimitReadSingleBytes() {
@@ -44,9 +44,9 @@ public class ByteArrayDataSourceTest extends TestCase {
 
   public void testFullReadTwoBytes() {
     // Try with the total data length an exact multiple of the size of each individual read.
-    readTestData(TEST_DATA, 0, C.LENGTH_UNBOUNDED, 2, 0, 2, false);
+    readTestData(TEST_DATA, 0, C.LENGTH_UNSET, 2, 0, 2, false);
     // And not.
-    readTestData(TEST_DATA_ODD, 0, C.LENGTH_UNBOUNDED, 2, 0, 2, false);
+    readTestData(TEST_DATA_ODD, 0, C.LENGTH_UNSET, 2, 0, 2, false);
   }
 
   public void testLimitReadTwoBytes() {
@@ -58,18 +58,18 @@ public class ByteArrayDataSourceTest extends TestCase {
 
   public void testReadFromValidOffsets() {
     // Read from an offset without bound.
-    readTestData(TEST_DATA, 1, C.LENGTH_UNBOUNDED, 1, 0, 1, false);
+    readTestData(TEST_DATA, 1, C.LENGTH_UNSET, 1, 0, 1, false);
     // And with bound.
     readTestData(TEST_DATA, 1, 6, 1, 0, 1, false);
     // Read from the last possible offset without bound.
-    readTestData(TEST_DATA, TEST_DATA.length - 1, C.LENGTH_UNBOUNDED, 1, 0, 1, false);
+    readTestData(TEST_DATA, TEST_DATA.length - 1, C.LENGTH_UNSET, 1, 0, 1, false);
     // And with bound.
     readTestData(TEST_DATA, TEST_DATA.length - 1, 1, 1, 0, 1, false);
   }
 
   public void testReadFromInvalidOffsets() {
     // Read from first invalid offset and check failure without bound.
-    readTestData(TEST_DATA, TEST_DATA.length, C.LENGTH_UNBOUNDED, 1, 0, 1, true);
+    readTestData(TEST_DATA, TEST_DATA.length, C.LENGTH_UNSET, 1, 0, 1, true);
     // And with bound.
     readTestData(TEST_DATA, TEST_DATA.length, 1, 1, 0, 1, true);
   }
@@ -95,7 +95,7 @@ public class ByteArrayDataSourceTest extends TestCase {
   private void readTestData(byte[] testData, int dataOffset, int dataLength, int outputBufferLength,
       int writeOffset, int maxReadLength, boolean expectFailOnOpen) {
     int expectedFinalBytesRead =
-        dataLength == C.LENGTH_UNBOUNDED ? (testData.length - dataOffset) : dataLength;
+        dataLength == C.LENGTH_UNSET ? (testData.length - dataOffset) : dataLength;
     ByteArrayDataSource dataSource = new ByteArrayDataSource(testData);
     boolean opened = false;
     try {
@@ -116,7 +116,7 @@ public class ByteArrayDataSourceTest extends TestCase {
         assertTrue(requestedReadLength > 0);
 
         int bytesRead = dataSource.read(outputBuffer, writeOffset, requestedReadLength);
-        if (bytesRead != -1) {
+        if (bytesRead != C.RESULT_END_OF_INPUT) {
           assertTrue(bytesRead > 0);
           assertTrue(bytesRead <= requestedReadLength);
           // Check the data read was correct.

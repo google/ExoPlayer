@@ -128,7 +128,7 @@ import com.google.android.exoplayer2.util.Util;
     }
 
     long position = Math.round((1.0 / 256) * fx * sizeBytes) + firstFramePosition;
-    long maximumPosition = inputLength != C.LENGTH_UNBOUNDED ? inputLength - 1
+    long maximumPosition = inputLength != C.LENGTH_UNSET ? inputLength - 1
         : firstFramePosition - headerSize + sizeBytes - 1;
     return Math.min(position, maximumPosition);
   }

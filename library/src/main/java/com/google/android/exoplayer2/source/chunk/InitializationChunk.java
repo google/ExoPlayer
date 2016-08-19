@@ -58,7 +58,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
       int trackSelectionReason, Object trackSelectionData,
       ChunkExtractorWrapper extractorWrapper) {
     super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, trackFormat, trackSelectionReason,
-        trackSelectionData, C.UNSET_TIME_US, C.UNSET_TIME_US);
+        trackSelectionData, C.TIME_UNSET, C.TIME_UNSET);
     this.extractorWrapper = extractorWrapper;
   }
 

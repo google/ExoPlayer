@@ -128,7 +128,7 @@ public final class AdtsExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0), output.track(1));
     output.endTracks();
-    output.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
+    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
@@ -146,7 +146,7 @@ public final class AdtsExtractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
-    if (bytesRead == -1) {
+    if (bytesRead == C.RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;
     }
 

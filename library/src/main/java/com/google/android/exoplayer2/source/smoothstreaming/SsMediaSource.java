@@ -170,9 +170,9 @@ public final class SsMediaSource implements MediaSource,
         }
       }
       if (startTimeUs == Long.MAX_VALUE) {
-        timeline = new SinglePeriodTimeline(C.UNSET_TIME_US, false);
+        timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
       } else {
-        if (manifest.dvrWindowLengthUs != C.UNSET_TIME_US
+        if (manifest.dvrWindowLengthUs != C.TIME_UNSET
             && manifest.dvrWindowLengthUs > 0) {
           startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
         }
@@ -183,7 +183,7 @@ public final class SsMediaSource implements MediaSource,
         timeline = new SinglePeriodTimeline(startTimeUs, window);
       }
     } else {
-      boolean isSeekable = manifest.durationUs != C.UNSET_TIME_US;
+      boolean isSeekable = manifest.durationUs != C.TIME_UNSET;
       timeline = new SinglePeriodTimeline(manifest.durationUs, isSeekable);
     }
     sourceListener.onSourceInfoRefreshed(timeline, manifest);

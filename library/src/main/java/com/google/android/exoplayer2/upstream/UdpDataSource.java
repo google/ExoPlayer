@@ -124,7 +124,7 @@ public final class UdpDataSource implements DataSource {
     if (listener != null) {
       listener.onTransferStart(this, dataSpec);
     }
-    return C.LENGTH_UNBOUNDED;
+    return C.LENGTH_UNSET;
   }
 
   @Override

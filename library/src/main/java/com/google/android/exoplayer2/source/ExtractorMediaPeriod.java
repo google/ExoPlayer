@@ -113,9 +113,9 @@ import java.util.Arrays;
     extractorHolder = new ExtractorHolder(extractors, this);
     loadCondition = new ConditionVariable();
 
-    pendingResetPositionUs = C.UNSET_TIME_US;
+    pendingResetPositionUs = C.TIME_UNSET;
     sampleQueues = new DefaultTrackOutput[0];
-    length = C.LENGTH_UNBOUNDED;
+    length = C.LENGTH_UNSET;
     loadCondition.open();
     startLoading();
   }
@@ -225,13 +225,13 @@ import java.util.Arrays;
       notifyReset = false;
       return lastSeekPositionUs;
     }
-    return C.UNSET_TIME_US;
+    return C.TIME_UNSET;
   }
 
   @Override
   public long getBufferedPositionUs() {
     if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
+      return C.TIME_END_OF_SOURCE;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
@@ -294,7 +294,7 @@ import java.util.Arrays;
       long loadDurationMs) {
     copyLengthFromLoader(loadable);
     loadingFinished = true;
-    if (durationUs == C.UNSET_TIME_US) {
+    if (durationUs == C.TIME_UNSET) {
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
@@ -387,7 +387,7 @@ import java.util.Arrays;
   }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {
-    if (length == C.LENGTH_UNBOUNDED) {
+    if (length == C.LENGTH_UNSET) {
       length = loadable.length;
     }
   }
@@ -397,21 +397,21 @@ import java.util.Arrays;
         loadCondition);
     if (prepared) {
       Assertions.checkState(isPendingReset());
-      if (durationUs != C.UNSET_TIME_US && pendingResetPositionUs >= durationUs) {
+      if (durationUs != C.TIME_UNSET && pendingResetPositionUs >= durationUs) {
         loadingFinished = true;
-        pendingResetPositionUs = C.UNSET_TIME_US;
+        pendingResetPositionUs = C.TIME_UNSET;
         return;
       }
       loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs));
-      pendingResetPositionUs = C.UNSET_TIME_US;
+      pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
 
     int minRetryCount = minLoadableRetryCount;
     if (minRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
       // We assume on-demand before we're prepared.
-      minRetryCount = !prepared || length != C.LENGTH_UNBOUNDED
-          || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)
+      minRetryCount = !prepared || length != C.LENGTH_UNSET
+          || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)
           ? ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
           : ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
     }
@@ -419,8 +419,8 @@ import java.util.Arrays;
   }
 
   private void configureRetry(ExtractingLoadable loadable) {
-    if (length != C.LENGTH_UNBOUNDED
-        || (seekMap != null && seekMap.getDurationUs() != C.UNSET_TIME_US)) {
+    if (length != C.LENGTH_UNSET
+        || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)) {
       // We're playing an on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
     } else {
@@ -456,7 +456,7 @@ import java.util.Arrays;
   }
 
   private boolean isPendingReset() {
-    return pendingResetPositionUs != C.UNSET_TIME_US;
+    return pendingResetPositionUs != C.TIME_UNSET;
   }
 
   private boolean isLoadableExceptionFatal(IOException e) {
@@ -534,7 +534,7 @@ import java.util.Arrays;
       this.loadCondition = loadCondition;
       this.positionHolder = new PositionHolder();
       this.pendingExtractorSeek = true;
-      this.length = C.LENGTH_UNBOUNDED;
+      this.length = C.LENGTH_UNSET;
     }
 
     public void setLoadPosition(long position) {
@@ -560,8 +560,8 @@ import java.util.Arrays;
         try {
           long position = positionHolder.position;
           length = dataSource.open(
-              new DataSpec(uri, position, C.LENGTH_UNBOUNDED, Util.sha1(uri.toString())));
-          if (length != C.LENGTH_UNBOUNDED) {
+              new DataSpec(uri, position, C.LENGTH_UNSET, Util.sha1(uri.toString())));
+          if (length != C.LENGTH_UNSET) {
             length += position;
           }
           input = new DefaultExtractorInput(dataSource, position, length);

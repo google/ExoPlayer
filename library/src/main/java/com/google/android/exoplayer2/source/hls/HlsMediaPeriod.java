@@ -125,12 +125,13 @@ import java.util.List;
     int[] streamChildIndices = new int[selections.length];
     int[] selectionChildIndices = new int[selections.length];
     for (int i = 0; i < selections.length; i++) {
-      streamChildIndices[i] = streams[i] == null ? -1 : streamWrapperIndices.get(streams[i]);
-      selectionChildIndices[i] = -1;
+      streamChildIndices[i] = streams[i] == null ? C.INDEX_UNSET
+          : streamWrapperIndices.get(streams[i]);
+      selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
         TrackGroup trackGroup = selections[i].getTrackGroup();
         for (int j = 0; j < sampleStreamWrappers.length; j++) {
-          if (sampleStreamWrappers[j].getTrackGroups().indexOf(trackGroup) != -1) {
+          if (sampleStreamWrappers[j].getTrackGroups().indexOf(trackGroup) != C.INDEX_UNSET) {
             selectionChildIndices[i] = j;
             break;
           }
@@ -194,7 +195,7 @@ import java.util.List;
 
   @Override
   public long readDiscontinuity() {
-    return C.UNSET_TIME_US;
+    return C.TIME_UNSET;
   }
 
   @Override
@@ -202,11 +203,11 @@ import java.util.List;
     long bufferedPositionUs = Long.MAX_VALUE;
     for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
       long rendererBufferedPositionUs = sampleStreamWrapper.getBufferedPositionUs();
-      if (rendererBufferedPositionUs != C.END_OF_SOURCE_US) {
+      if (rendererBufferedPositionUs != C.TIME_END_OF_SOURCE) {
         bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
       }
     }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.END_OF_SOURCE_US : bufferedPositionUs;
+    return bufferedPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : bufferedPositionUs;
   }
 
   @Override

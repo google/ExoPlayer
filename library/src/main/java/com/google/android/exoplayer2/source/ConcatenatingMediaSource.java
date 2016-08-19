@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
@@ -177,19 +178,19 @@ public final class ConcatenatingMediaSource implements MediaSource {
     @Override
     public int getIndexOfPeriod(Object id) {
       if (!(id instanceof Pair)) {
-        return NO_PERIOD_INDEX;
+        return C.INDEX_UNSET;
       }
       Pair sourceIndexAndPeriodId = (Pair) id;
       if (!(sourceIndexAndPeriodId.first instanceof Integer)) {
-        return NO_PERIOD_INDEX;
+        return C.INDEX_UNSET;
       }
       int sourceIndex = (int) sourceIndexAndPeriodId.first;
       Object periodId = sourceIndexAndPeriodId.second;
       if (sourceIndex < 0 || sourceIndex >= timelines.length) {
-        return NO_PERIOD_INDEX;
+        return C.INDEX_UNSET;
       }
       int periodIndexInSource = timelines[sourceIndex].getIndexOfPeriod(periodId);
-      return periodIndexInSource == NO_PERIOD_INDEX ? NO_PERIOD_INDEX
+      return periodIndexInSource == C.INDEX_UNSET ? C.INDEX_UNSET
           : getFirstPeriodIndexInSource(sourceIndex) + periodIndexInSource;
     }
 

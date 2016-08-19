@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import com.google.android.exoplayer2.C;
 import junit.framework.TestCase;
 
 /**
@@ -33,8 +34,8 @@ public class RangedUriTest extends TestCase {
 
   public void testMergeUnbounded() {
     RangedUri rangeA = new RangedUri(null, FULL_URI, 0, 10);
-    RangedUri rangeB = new RangedUri(null, FULL_URI, 10, -1);
-    RangedUri expected = new RangedUri(null, FULL_URI, 0, -1);
+    RangedUri rangeB = new RangedUri(null, FULL_URI, 10, C.LENGTH_UNSET);
+    RangedUri expected = new RangedUri(null, FULL_URI, 0, C.LENGTH_UNSET);
     assertMerge(rangeA, rangeB, expected);
   }
 
@@ -46,7 +47,7 @@ public class RangedUriTest extends TestCase {
 
     // A and B do not overlap, so should not merge
     rangeA = new RangedUri(null, FULL_URI, 0, 10);
-    rangeB = new RangedUri(null, FULL_URI, 11, -1);
+    rangeB = new RangedUri(null, FULL_URI, 11, C.LENGTH_UNSET);
     assertNonMerge(rangeA, rangeB);
 
     // A and B are bounded but overlap, so should not merge
@@ -55,8 +56,8 @@ public class RangedUriTest extends TestCase {
     assertNonMerge(rangeA, rangeB);
 
     // A and B overlap due to unboundedness, so should not merge
-    rangeA = new RangedUri(null, FULL_URI, 0, -1);
-    rangeB = new RangedUri(null, FULL_URI, 10, -1);
+    rangeA = new RangedUri(null, FULL_URI, 0, C.LENGTH_UNSET);
+    rangeB = new RangedUri(null, FULL_URI, 10, C.LENGTH_UNSET);
     assertNonMerge(rangeA, rangeB);
 
   }

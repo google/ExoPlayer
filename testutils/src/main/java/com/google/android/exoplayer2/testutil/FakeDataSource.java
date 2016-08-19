@@ -71,7 +71,7 @@ public final class FakeDataSource implements DataSource {
     // If the source knows that the request is unsatisfiable then fail.
     if (dataSpec.position >= totalLength) {
       throw new IOException("Unsatisfiable position");
-    } else if (dataSpec.length != C.LENGTH_UNBOUNDED
+    } else if (dataSpec.length != C.LENGTH_UNSET
         && dataSpec.position + dataSpec.length > totalLength) {
       throw new IOException("Unsatisfiable range");
     }
@@ -90,9 +90,9 @@ public final class FakeDataSource implements DataSource {
       }
     }
     // Configure bytesRemaining, and return.
-    if (dataSpec.length == C.LENGTH_UNBOUNDED) {
+    if (dataSpec.length == C.LENGTH_UNSET) {
       bytesRemaining = totalLength - dataSpec.position;
-      return simulateUnknownLength ? C.LENGTH_UNBOUNDED : bytesRemaining;
+      return simulateUnknownLength ? C.LENGTH_UNSET : bytesRemaining;
     } else {
       bytesRemaining = dataSpec.length;
       return bytesRemaining;
@@ -104,7 +104,7 @@ public final class FakeDataSource implements DataSource {
     Assertions.checkState(opened);
     while (true) {
       if (currentSegmentIndex == segments.size() || bytesRemaining == 0) {
-        return -1;
+        return C.RESULT_END_OF_INPUT;
       }
       Segment current = segments.get(currentSegmentIndex);
       if (current.exception != null) {
@@ -198,7 +198,7 @@ public final class FakeDataSource implements DataSource {
      * When set, {@link FakeDataSource#open(DataSpec)} will behave as though the source is unable to
      * determine the length of the underlying data. Hence the return value will always be equal to
      * the {@link DataSpec#length} of the argument, including the case where the length is equal to
-     * {@link C#LENGTH_UNBOUNDED}.
+     * {@link C#LENGTH_UNSET}.
      */
     public Builder setSimulateUnknownLength(boolean simulateUnknownLength) {
       this.simulateUnknownLength = simulateUnknownLength;

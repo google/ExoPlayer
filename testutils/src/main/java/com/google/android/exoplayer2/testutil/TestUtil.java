@@ -103,8 +103,8 @@ public class TestUtil {
         if (!retryFromStartIfLive) {
           continue;
         }
-        boolean isOnDemand = input.getLength() != C.LENGTH_UNBOUNDED
-            || (output.seekMap != null && output.seekMap.getDurationUs() != C.UNSET_TIME_US);
+        boolean isOnDemand = input.getLength() != C.LENGTH_UNSET
+            || (output.seekMap != null && output.seekMap.getDurationUs() != C.TIME_UNSET);
         if (isOnDemand) {
           continue;
         }

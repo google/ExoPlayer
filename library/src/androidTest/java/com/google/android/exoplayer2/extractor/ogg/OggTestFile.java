@@ -23,7 +23,7 @@ import junit.framework.Assert;
 /**
  * Generates test data.
  */
-class OggTestFile {
+/* package */ final class OggTestFile {
 
   public static final int MAX_PACKET_LENGTH = 2048;
   public static final int MAX_SEGMENT_COUNT = 10;
@@ -41,7 +41,7 @@ class OggTestFile {
     this.pageCount = pageCount;
   }
 
-  static OggTestFile generate(Random random, int pageCount) {
+  public static OggTestFile generate(Random random, int pageCount) {
     ArrayList<byte[]> fileData = new ArrayList<>();
     int fileSize = 0;
     long granule = 0;
@@ -100,7 +100,7 @@ class OggTestFile {
     return new OggTestFile(file, granule, packetCount, pageCount);
   }
 
-  int findPreviousPageStart(long position) {
+  public int findPreviousPageStart(long position) {
     for (int i = (int) (position - 4); i >= 0; i--) {
       if (data[i] == 'O' && data[i + 1] == 'g' && data[i + 2] == 'g' && data[i + 3] == 'S') {
         return i;
@@ -109,4 +109,5 @@ class OggTestFile {
     Assert.fail();
     return -1;
   }
+
 }

@@ -44,7 +44,7 @@ import java.io.IOException;
    */
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     long inputLength = input.getLength();
-    int bytesToSearch = (int) (inputLength == C.LENGTH_UNBOUNDED || inputLength > SEARCH_LENGTH
+    int bytesToSearch = (int) (inputLength == C.LENGTH_UNSET || inputLength > SEARCH_LENGTH
         ? SEARCH_LENGTH : inputLength);
     // Find four bytes equal to ID_EBML near the start of the input.
     input.peekFully(scratch.data, 0, 4);
@@ -63,7 +63,7 @@ import java.io.IOException;
     long headerSize = readUint(input);
     long headerStart = peekLength;
     if (headerSize == Long.MIN_VALUE
-        || (inputLength != C.LENGTH_UNBOUNDED && headerStart + headerSize >= inputLength)) {
+        || (inputLength != C.LENGTH_UNSET && headerStart + headerSize >= inputLength)) {
       return false;
     }
 

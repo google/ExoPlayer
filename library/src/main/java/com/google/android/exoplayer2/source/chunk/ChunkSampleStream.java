@@ -95,11 +95,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * Returns an estimate of the position up to which data is buffered.
    *
    * @return An estimate of the absolute position in microseconds up to which data is buffered, or
-   *     {@link C#END_OF_SOURCE_US} if the track is fully buffered.
+   *     {@link C#TIME_END_OF_SOURCE} if the track is fully buffered.
    */
   public long getBufferedPositionUs() {
     if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
+      return C.TIME_END_OF_SOURCE;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
@@ -256,7 +256,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : positionUs,
+        pendingResetPositionUs != C.TIME_UNSET ? pendingResetPositionUs : positionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
@@ -272,7 +272,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     if (isMediaChunk(loadable)) {
-      pendingResetPositionUs = C.UNSET_TIME_US;
+      pendingResetPositionUs = C.TIME_UNSET;
       BaseMediaChunk mediaChunk = (BaseMediaChunk) loadable;
       mediaChunk.init(sampleQueue);
       mediaChunks.add(mediaChunk);
@@ -289,7 +289,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? C.END_OF_SOURCE_US : mediaChunks.getLast().endTimeUs;
+      return loadingFinished ? C.TIME_END_OF_SOURCE : mediaChunks.getLast().endTimeUs;
     }
   }
 
@@ -312,7 +312,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   private boolean isPendingReset() {
-    return pendingResetPositionUs != C.UNSET_TIME_US;
+    return pendingResetPositionUs != C.TIME_UNSET;
   }
 
   /**

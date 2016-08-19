@@ -23,6 +23,7 @@ import android.os.Message;
 import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
 import android.view.WindowManager;
+import com.google.android.exoplayer2.C;
 
 /**
  * Makes a best effort to adjust frame release timestamps for a smoother visual result.
@@ -55,7 +56,7 @@ public final class VideoFrameReleaseTimeHelper {
    * the default display's vsync signal.
    */
   public VideoFrameReleaseTimeHelper() {
-    this(-1, false);
+    this(-1 /* Value unused */, false);
   }
 
   /**
@@ -68,17 +69,17 @@ public final class VideoFrameReleaseTimeHelper {
     this(getDefaultDisplayRefreshRate(context), true);
   }
 
-  private VideoFrameReleaseTimeHelper(float defaultDisplayRefreshRate,
+  private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate,
       boolean useDefaultDisplayVsync) {
     this.useDefaultDisplayVsync = useDefaultDisplayVsync;
     if (useDefaultDisplayVsync) {
       vsyncSampler = VSyncSampler.getInstance();
-      vsyncDurationNs = (long) (1000000000d / defaultDisplayRefreshRate);
+      vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
     } else {
       vsyncSampler = null;
-      vsyncDurationNs = -1;
-      vsyncOffsetNs = -1;
+      vsyncDurationNs = -1; // Value unused.
+      vsyncOffsetNs = -1; // Value unused.
     }
   }
 

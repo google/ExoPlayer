@@ -35,7 +35,8 @@ public class RepresentationTest extends TestCase {
 
     format = Format.createVideoContainerFormat("150", MimeTypes.APPLICATION_MP4, null,
         MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null);
-    representation = Representation.newInstance("test_stream_1", -1, format, base);
+    representation = Representation.newInstance("test_stream_1", Representation.REVISION_ID_DEFAULT,
+        format, base);
     assertEquals("test_stream_1.150.-1", representation.getCacheKey());
   }
 

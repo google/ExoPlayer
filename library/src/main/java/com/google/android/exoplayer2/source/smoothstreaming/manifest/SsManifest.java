@@ -32,6 +32,8 @@ import java.util.UUID;
  */
 public class SsManifest {
 
+  public static final int UNSET_LOOKAHEAD = -1;
+
   /**
    * The client manifest major version.
    */
@@ -43,7 +45,8 @@ public class SsManifest {
   public final int minorVersion;
 
   /**
-   * The number of fragments in a lookahead, or -1 if the lookahead is unspecified.
+   * The number of fragments in a lookahead, or {@link #UNSET_LOOKAHEAD} if the lookahead is
+   * unspecified.
    */
   public final int lookAheadCount;
 
@@ -63,14 +66,14 @@ public class SsManifest {
   public final StreamElement[] streamElements;
 
   /**
-   * The overall presentation duration of the media in microseconds, or {@link C#UNSET_TIME_US}
+   * The overall presentation duration of the media in microseconds, or {@link C#TIME_UNSET}
    * if the duration is unknown.
    */
   public final long durationUs;
 
   /**
    * The length of the trailing window for a live broadcast in microseconds, or
-   * {@link C#UNSET_TIME_US} if the stream is not live or if the window length is unspecified.
+   * {@link C#TIME_UNSET} if the stream is not live or if the window length is unspecified.
    */
   public final long dvrWindowLengthUs;
 
@@ -82,8 +85,8 @@ public class SsManifest {
    *     if the duration is unknown.
    * @param dvrWindowLength The length of the trailing window in units of the timescale attribute,
    *     or 0 if this attribute is unspecified or not applicable.
-   * @param lookAheadCount The number of fragments in a lookahead, or -1 if this attribute is
-   *     unspecified or not applicable.
+   * @param lookAheadCount The number of fragments in a lookahead, or {@link #UNSET_LOOKAHEAD} if
+   *     this attribute is unspecified or not applicable.
    * @param isLive True if the manifest describes a live presentation still in progress. False
    *     otherwise.
    * @param protectionElement Content protection information, or null if the content is not
@@ -99,9 +102,9 @@ public class SsManifest {
     this.isLive = isLive;
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
-    dvrWindowLengthUs = dvrWindowLength == 0 ? C.UNSET_TIME_US
+    dvrWindowLengthUs = dvrWindowLength == 0 ? C.TIME_UNSET
         : Util.scaleLargeTimestamp(dvrWindowLength, C.MICROS_PER_SECOND, timescale);
-    durationUs = duration == 0 ? C.UNSET_TIME_US
+    durationUs = duration == 0 ? C.TIME_UNSET
         : Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale);
   }
 
@@ -132,7 +135,6 @@ public class SsManifest {
     public final String subType;
     public final long timescale;
     public final String name;
-    public final int qualityLevels;
     public final int maxWidth;
     public final int maxHeight;
     public final int displayWidth;
@@ -149,16 +151,15 @@ public class SsManifest {
     private final long lastChunkDurationUs;
 
     public StreamElement(String baseUri, String chunkTemplate, int type, String subType,
-        long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
-        int displayWidth, int displayHeight, String language, Format[] formats,
-        List<Long> chunkStartTimes, long lastChunkDuration) {
+        long timescale, String name, int maxWidth, int maxHeight, int displayWidth,
+        int displayHeight, String language, Format[] formats, List<Long> chunkStartTimes,
+        long lastChunkDuration) {
       this.baseUri = baseUri;
       this.chunkTemplate = chunkTemplate;
       this.type = type;
       this.subType = subType;
       this.timescale = timescale;
       this.name = name;
-      this.qualityLevels = qualityLevels;
       this.maxWidth = maxWidth;
       this.maxHeight = maxHeight;
       this.displayWidth = displayWidth;

@@ -168,7 +168,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     for (Mp4Track track : tracks) {
       TrackSampleTable sampleTable = track.sampleTable;
       int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
-      if (sampleIndex == TrackSampleTable.NO_SAMPLE) {
+      if (sampleIndex == C.INDEX_UNSET) {
         // Handle the case where the requested time is before the first synchronization sample.
         sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
       }
@@ -306,7 +306,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * Updates the stored track metadata to reflect the contents of the specified moov atom.
    */
   private void processMoovAtom(ContainerAtom moov) throws ParserException {
-    long durationUs = C.UNSET_TIME_US;
+    long durationUs = C.TIME_UNSET;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
 
@@ -322,8 +322,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         continue;
       }
 
-      Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), -1, null,
-          isQuickTime);
+      Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd),
+          C.TIME_UNSET, null, isQuickTime);
       if (track == null) {
         continue;
       }
@@ -379,7 +379,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int readSample(ExtractorInput input, PositionHolder positionHolder)
       throws IOException, InterruptedException {
     int trackIndex = getTrackIndexOfEarliestCurrentSample();
-    if (trackIndex == TrackSampleTable.NO_SAMPLE) {
+    if (trackIndex == C.INDEX_UNSET) {
       return RESULT_END_OF_INPUT;
     }
     Mp4Track track = tracks[trackIndex];
@@ -399,7 +399,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       return RESULT_SEEK;
     }
     input.skipFully((int) skipAmount);
-    if (track.track.nalUnitLengthFieldLength != -1) {
+    if (track.track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
       byte[] nalLengthData = nalLength.data;
@@ -446,10 +446,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   /**
    * Returns the index of the track that contains the earliest current sample, or
-   * {@link TrackSampleTable#NO_SAMPLE} if no samples remain.
+   * {@link C#INDEX_UNSET} if no samples remain.
    */
   private int getTrackIndexOfEarliestCurrentSample() {
-    int earliestSampleTrackIndex = TrackSampleTable.NO_SAMPLE;
+    int earliestSampleTrackIndex = C.INDEX_UNSET;
     long earliestSampleOffset = Long.MAX_VALUE;
     for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
       Mp4Track track = tracks[trackIndex];

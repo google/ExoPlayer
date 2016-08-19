@@ -73,22 +73,19 @@ import java.io.IOException;
     switch (state) {
       case STATE_IDLE:
         return -1;
-
       case STATE_SEEK_TO_END:
         positionBeforeSeekToEnd = input.getPosition();
         state = STATE_READ_LAST_PAGE;
-        // seek to the end just before the last page of stream to get the duration
+        // Seek to the end just before the last page of stream to get the duration.
         long lastPagePosition = endPosition - OggPageHeader.MAX_PAGE_SIZE;
         if (lastPagePosition > positionBeforeSeekToEnd) {
           return lastPagePosition;
         }
-        // fall through
-
+        // Fall through.
       case STATE_READ_LAST_PAGE:
         totalGranules = readGranuleOfLastPage(input);
         state = STATE_IDLE;
         return positionBeforeSeekToEnd;
-
       case STATE_SEEK:
         long currentGranule;
         if (targetGranule == 0) {
@@ -102,7 +99,6 @@ import java.io.IOException;
         }
         state = STATE_IDLE;
         return -(currentGranule + 2);
-
       default:
         // Never happens.
         throw new IllegalStateException();

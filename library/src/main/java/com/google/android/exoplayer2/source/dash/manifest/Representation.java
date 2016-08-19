@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase;
@@ -25,6 +26,11 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegm
  * A DASH representation.
  */
 public abstract class Representation {
+
+  /**
+   * A default value for {@link #revisionId}.
+   */
+  public static final long REVISION_ID_DEFAULT = -1;
 
   /**
    * Identifies the piece of content to which this {@link Representation} belongs.
@@ -82,7 +88,7 @@ public abstract class Representation {
       SegmentBase segmentBase, String customCacheKey) {
     if (segmentBase instanceof SingleSegmentBase) {
       return new SingleSegmentRepresentation(contentId, revisionId, format,
-          (SingleSegmentBase) segmentBase, customCacheKey, -1);
+          (SingleSegmentBase) segmentBase, customCacheKey, C.LENGTH_UNSET);
     } else if (segmentBase instanceof MultiSegmentBase) {
       return new MultiSegmentRepresentation(contentId, revisionId, format,
           (MultiSegmentBase) segmentBase, customCacheKey);
@@ -141,7 +147,7 @@ public abstract class Representation {
     public final Uri uri;
 
     /**
-     * The content length, or -1 if unknown.
+     * The content length, or {@link C#LENGTH_UNSET} if unknown.
      */
     public final long contentLength;
 
@@ -158,7 +164,7 @@ public abstract class Representation {
      * @param indexStart The offset of the first byte of index data.
      * @param indexEnd The offset of the last byte of index data.
      * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
-     * @param contentLength The content length, or -1 if unknown.
+     * @param contentLength The content length, or {@link C#LENGTH_UNSET} if unknown.
      */
     public static SingleSegmentRepresentation newInstance(String contentId, long revisionId,
         Format format, String uri, long initializationStart, long initializationEnd,
@@ -177,7 +183,7 @@ public abstract class Representation {
      * @param format The format of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
-     * @param contentLength The content length, or -1 if unknown.
+     * @param contentLength The content length, or {@link C#LENGTH_UNSET} if unknown.
      */
     public SingleSegmentRepresentation(String contentId, long revisionId, Format format,
         SingleSegmentBase segmentBase, String customCacheKey, long contentLength) {

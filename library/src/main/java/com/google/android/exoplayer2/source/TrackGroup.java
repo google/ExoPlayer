@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Arrays;
@@ -63,7 +64,7 @@ public final class TrackGroup {
    * Returns the index of the track with the given format in the group.
    *
    * @param format The format.
-   * @return The index of the track, or -1 if no such track exists.
+   * @return The index of the track, or {@link C#INDEX_UNSET} if no such track exists.
    */
   public int indexOf(Format format) {
     for (int i = 0; i < formats.length; i++) {
@@ -71,7 +72,7 @@ public final class TrackGroup {
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
   @Override

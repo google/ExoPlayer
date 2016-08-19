@@ -150,7 +150,7 @@ import java.util.Stack;
     while (true) {
       input.peekFully(scratch, 0, MAX_ID_BYTES);
       int varintLength = VarintReader.parseUnsignedVarintLength(scratch[0]);
-      if (varintLength != -1 && varintLength <= MAX_ID_BYTES) {
+      if (varintLength != C.LENGTH_UNSET && varintLength <= MAX_ID_BYTES) {
         int potentialId = (int) VarintReader.assembleVarint(scratch, varintLength, false);
         if (output.isLevel1Element(potentialId)) {
           input.skipFully(varintLength);

@@ -242,7 +242,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private long getNextEventTime() {
-    return ((nextSubtitleEventIndex == -1)
+    return ((nextSubtitleEventIndex == C.INDEX_UNSET)
         || (nextSubtitleEventIndex >= subtitle.getEventTimeCount())) ? Long.MAX_VALUE
         : (subtitle.getEventTime(nextSubtitleEventIndex));
   }

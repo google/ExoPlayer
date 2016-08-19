@@ -87,7 +87,7 @@ import java.io.IOException;
       }
       int firstByte = scratch[0] & 0xFF;
       length = parseUnsignedVarintLength(firstByte);
-      if (length == -1) {
+      if (length == C.LENGTH_UNSET) {
         throw new IllegalStateException("No valid varint length mask found");
       }
       state = STATE_READ_CONTENTS;
@@ -118,10 +118,11 @@ import java.io.IOException;
    * Parses and the length of the varint given the first byte.
    *
    * @param firstByte First byte of the varint.
-   * @return Length of the varint beginning with the given byte if it was valid, -1 otherwise.
+   * @return Length of the varint beginning with the given byte if it was valid,
+   *     {@link C#LENGTH_UNSET} otherwise.
    */
   public static int parseUnsignedVarintLength(int firstByte) {
-    int varIntLength = -1;
+    int varIntLength = C.LENGTH_UNSET;
     for (int i = 0; i < VARINT_LENGTH_MASKS.length; i++) {
       if ((VARINT_LENGTH_MASKS[i] & firstByte) != 0) {
         varIntLength = i + 1;

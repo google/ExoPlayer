@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -29,7 +30,7 @@ import java.io.IOException;
   private final ParsableByteArray packetArray =
       new ParsableByteArray(new byte[OggPageHeader.MAX_PAGE_PAYLOAD], 0);
 
-  private int currentSegmentIndex = -1;
+  private int currentSegmentIndex = C.INDEX_UNSET;
   private int segmentCount;
   private boolean populated;
 
@@ -39,7 +40,7 @@ import java.io.IOException;
   public void reset() {
     pageHeader.reset();
     packetArray.reset();
-    currentSegmentIndex = -1;
+    currentSegmentIndex = C.INDEX_UNSET;
     populated = false;
   }
 
@@ -88,8 +89,8 @@ import java.io.IOException;
         packetArray.setLimit(packetArray.limit() + size);
         populated = pageHeader.laces[segmentIndex - 1] != 255;
       }
-      // advance now since we are sure reading didn't throw an exception
-      currentSegmentIndex = segmentIndex == pageHeader.pageSegmentCount ? -1
+      // Advance now since we are sure reading didn't throw an exception.
+      currentSegmentIndex = segmentIndex == pageHeader.pageSegmentCount ? C.INDEX_UNSET
           : segmentIndex;
     }
     return true;

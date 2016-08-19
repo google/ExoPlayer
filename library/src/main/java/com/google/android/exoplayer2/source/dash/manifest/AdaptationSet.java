@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class AdaptationSet {
 
+  public static final int UNSET_ID = -1;
+
   public final int id;
 
   public final int type;

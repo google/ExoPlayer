@@ -427,7 +427,7 @@ public final class AudioTrack {
           : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
           : multipliedBufferSize;
     }
-    bufferSizeUs = passthrough ? C.UNSET_TIME_US : framesToDurationUs(pcmBytesToFrames(bufferSize));
+    bufferSizeUs = passthrough ? C.TIME_UNSET : framesToDurationUs(pcmBytesToFrames(bufferSize));
   }
 
   /**
@@ -494,13 +494,13 @@ public final class AudioTrack {
 
   /**
    * Returns the size of the buffer in microseconds for PCM {@link AudioTrack}s, or
-   * {@link C#UNSET_TIME_US} for passthrough {@link AudioTrack}s.
+   * {@link C#TIME_UNSET} for passthrough {@link AudioTrack}s.
    * <p>
    * The value returned from this method may change as a result of calling one of the
    * {@link #configure} methods.
    *
    * @return The size of the buffer in microseconds for PCM {@link AudioTrack}s, or
-   *     {@link C#UNSET_TIME_US} for passthrough {@link AudioTrack}s.
+   *     {@link C#TIME_UNSET} for passthrough {@link AudioTrack}s.
    */
   public long getBufferSizeUs() {
     return bufferSizeUs;
@@ -1088,7 +1088,7 @@ public final class AudioTrack {
         boolean needsPassthroughWorkaround) {
       this.audioTrack = audioTrack;
       this.needsPassthroughWorkaround = needsPassthroughWorkaround;
-      stopTimestampUs = C.UNSET_TIME_US;
+      stopTimestampUs = C.TIME_UNSET;
       lastRawPlaybackHeadPosition = 0;
       rawPlaybackHeadWrapCount = 0;
       passthroughWorkaroundPauseOffset = 0;
@@ -1116,7 +1116,7 @@ public final class AudioTrack {
      * this method does nothing.
      */
     public void pause() {
-      if (stopTimestampUs != C.UNSET_TIME_US) {
+      if (stopTimestampUs != C.TIME_UNSET) {
         // We don't want to knock the audio track back into the paused state.
         return;
       }
@@ -1133,7 +1133,7 @@ public final class AudioTrack {
      *     expressed as a long.
      */
     public long getPlaybackHeadPosition() {
-      if (stopTimestampUs != C.UNSET_TIME_US) {
+      if (stopTimestampUs != C.TIME_UNSET) {
         // Simulate the playback head position up to the total number of frames submitted.
         long elapsedTimeSinceStopUs = (SystemClock.elapsedRealtime() * 1000) - stopTimestampUs;
         long framesSinceStop = (elapsedTimeSinceStopUs * sampleRate) / C.MICROS_PER_SECOND;

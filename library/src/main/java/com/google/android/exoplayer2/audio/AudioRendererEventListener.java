@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -65,8 +66,8 @@ public interface AudioRendererEventListener {
    *
    * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
    * @param bufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds, if it is
-   *     configured for PCM output. -1 if it is configured for passthrough output, as the buffered
-   *     media can have a variable bitrate so the duration may be unknown.
+   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
+   *     as the buffered media can have a variable bitrate so the duration may be unknown.
    * @param elapsedSinceLastFeedMs The time since the {@link AudioTrack} was last fed data.
    */
   void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
@@ -183,7 +184,7 @@ public interface AudioRendererEventListener {
         });
       }
     }
-    
+
   }
 
 }

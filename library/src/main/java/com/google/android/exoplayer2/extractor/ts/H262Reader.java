@@ -75,7 +75,7 @@ import java.util.Collections;
 
   @Override
   public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
-    pesPtsUsAvailable = pesTimeUs != C.UNSET_TIME_US;
+    pesPtsUsAvailable = pesTimeUs != C.TIME_UNSET;
     if (pesPtsUsAvailable) {
       this.pesTimeUs = pesTimeUs;
     }

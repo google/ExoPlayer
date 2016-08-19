@@ -214,7 +214,7 @@ import java.util.LinkedList;
 
   public long getBufferedPositionUs() {
     if (loadingFinished) {
-      return C.END_OF_SOURCE_US;
+      return C.TIME_END_OF_SOURCE;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
@@ -302,7 +302,7 @@ import java.util.LinkedList;
     }
 
     chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != C.UNSET_TIME_US ? pendingResetPositionUs : positionUs,
+        pendingResetPositionUs != C.TIME_UNSET ? pendingResetPositionUs : positionUs,
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
@@ -318,7 +318,7 @@ import java.util.LinkedList;
     }
 
     if (isMediaChunk(loadable)) {
-      pendingResetPositionUs = C.UNSET_TIME_US;
+      pendingResetPositionUs = C.TIME_UNSET;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
       mediaChunk.init(this);
       mediaChunks.add(mediaChunk);
@@ -335,7 +335,7 @@ import java.util.LinkedList;
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? C.END_OF_SOURCE_US : mediaChunks.getLast().endTimeUs;
+      return loadingFinished ? C.TIME_END_OF_SOURCE : mediaChunks.getLast().endTimeUs;
     }
   }
 
@@ -505,7 +505,7 @@ import java.util.LinkedList;
     // Iterate through the extractor tracks to discover the "primary" track type, and the index
     // of the single track of this type.
     int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
-    int primaryExtractorTrackIndex = -1;
+    int primaryExtractorTrackIndex = C.INDEX_UNSET;
     int extractorTrackCount = sampleQueues.size();
     for (int i = 0; i < extractorTrackCount; i++) {
       String sampleMimeType = sampleQueues.valueAt(i).getUpstreamFormat().sampleMimeType;
@@ -522,10 +522,11 @@ import java.util.LinkedList;
       if (trackType > primaryExtractorTrackType) {
         primaryExtractorTrackType = trackType;
         primaryExtractorTrackIndex = i;
-      } else if (trackType == primaryExtractorTrackType && primaryExtractorTrackIndex != -1) {
-        // We have multiple tracks of the primary type. We only want an index if there only
-        // exists a single track of the primary type, so set the index back to -1.
-        primaryExtractorTrackIndex = -1;
+      } else if (trackType == primaryExtractorTrackType
+          && primaryExtractorTrackIndex != C.INDEX_UNSET) {
+        // We have multiple tracks of the primary type. We only want an index if there only exists a
+        // single track of the primary type, so unset the index again.
+        primaryExtractorTrackIndex = C.INDEX_UNSET;
       }
     }
 
@@ -533,7 +534,7 @@ import java.util.LinkedList;
     int chunkSourceTrackCount = chunkSourceTrackGroup.length;
 
     // Instantiate the necessary internal data-structures.
-    primaryTrackGroupIndex = -1;
+    primaryTrackGroupIndex = C.INDEX_UNSET;
     groupEnabledStates = new boolean[extractorTrackCount];
 
     // Construct the set of exposed track groups.
@@ -596,7 +597,7 @@ import java.util.LinkedList;
   }
 
   private boolean isPendingReset() {
-    return pendingResetPositionUs != C.UNSET_TIME_US;
+    return pendingResetPositionUs != C.TIME_UNSET;
   }
 
   private final class SampleStreamImpl implements SampleStream {

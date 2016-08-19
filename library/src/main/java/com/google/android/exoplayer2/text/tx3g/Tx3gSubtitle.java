@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.tx3g;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
@@ -40,7 +41,7 @@ import java.util.List;
 
   @Override
   public int getNextEventTimeIndex(long timeUs) {
-    return timeUs < 0 ? 0 : -1;
+    return timeUs < 0 ? 0 : C.INDEX_UNSET;
   }
 
   @Override

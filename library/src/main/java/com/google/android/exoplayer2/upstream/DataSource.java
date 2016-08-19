@@ -45,8 +45,8 @@ public interface DataSource {
    * @param dataSpec Defines the data to be read.
    * @throws IOException If an error occurs opening the source.
    * @return The number of bytes that can be read from the opened source. For unbounded requests
-   *     (i.e. requests where {@link DataSpec#length} equals {@link C#LENGTH_UNBOUNDED}) this value
-   *     is the resolved length of the request, or {@link C#LENGTH_UNBOUNDED} if the length is still
+   *     (i.e. requests where {@link DataSpec#length} equals {@link C#LENGTH_UNSET}) this value
+   *     is the resolved length of the request, or {@link C#LENGTH_UNSET} if the length is still
    *     unresolved. For all other requests, the value returned will be equal to the request's
    *     {@link DataSpec#length}.
    */

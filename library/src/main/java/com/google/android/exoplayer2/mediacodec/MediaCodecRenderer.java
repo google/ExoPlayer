@@ -358,9 +358,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           drmSessionRequiresSecureDecoder, codecName));
     }
     codecHotswapDeadlineMs = getState() == STATE_STARTED
-        ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : -1;
-    inputIndex = -1;
-    outputIndex = -1;
+        ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : C.TIME_UNSET;
+    inputIndex = C.INDEX_UNSET;
+    outputIndex = C.INDEX_UNSET;
     decoderCounters.decoderInitCount++;
   }
 
@@ -412,9 +412,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected void releaseCodec() {
     if (codec != null) {
-      codecHotswapDeadlineMs = -1;
-      inputIndex = -1;
-      outputIndex = -1;
+      codecHotswapDeadlineMs = C.TIME_UNSET;
+      inputIndex = C.INDEX_UNSET;
+      outputIndex = C.INDEX_UNSET;
       waitingForKeys = false;
       shouldSkipOutputBuffer = false;
       decodeOnlyPresentationTimestamps.clear();
@@ -489,9 +489,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   protected void flushCodec() throws ExoPlaybackException {
-    codecHotswapDeadlineMs = -1;
-    inputIndex = -1;
-    outputIndex = -1;
+    codecHotswapDeadlineMs = C.TIME_UNSET;
+    inputIndex = C.INDEX_UNSET;
+    outputIndex = C.INDEX_UNSET;
     waitingForKeys = false;
     shouldSkipOutputBuffer = false;
     decodeOnlyPresentationTimestamps.clear();
@@ -547,7 +547,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else {
         codecReceivedEos = true;
         codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        inputIndex = -1;
+        inputIndex = C.INDEX_UNSET;
       }
       codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
@@ -557,7 +557,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecNeedsAdaptationWorkaroundBuffer = false;
       buffer.data.put(ADAPTATION_WORKAROUND_BUFFER);
       codec.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
-      inputIndex = -1;
+      inputIndex = C.INDEX_UNSET;
       codecReceivedBuffers = true;
       return true;
     }
@@ -615,7 +615,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         } else {
           codecReceivedEos = true;
           codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-          inputIndex = -1;
+          inputIndex = C.INDEX_UNSET;
         }
       } catch (CryptoException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
@@ -650,7 +650,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else {
         codec.queueInputBuffer(inputIndex, 0, buffer.data.limit(), presentationTimeUs, 0);
       }
-      inputIndex = -1;
+      inputIndex = C.INDEX_UNSET;
       codecReceivedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       decoderCounters.inputBufferCount++;
@@ -820,7 +820,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   public boolean isReady() {
     return format != null && !waitingForKeys && (isSourceReady() || outputIndex >= 0
-        || (SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
+        || (codecHotswapDeadlineMs != C.TIME_UNSET
+        && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }
 
   /**
@@ -850,13 +851,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         if (shouldSkipAdaptationWorkaroundOutputBuffer) {
           shouldSkipAdaptationWorkaroundOutputBuffer = false;
           codec.releaseOutputBuffer(outputIndex, false);
-          outputIndex = -1;
+          outputIndex = C.INDEX_UNSET;
           return true;
         }
         if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
           // The dequeued buffer indicates the end of the stream. Process it immediately.
           processEndOfStream();
-          outputIndex = -1;
+          outputIndex = C.INDEX_UNSET;
           return true;
         } else {
           // The dequeued buffer is a media buffer. Do some initial setup. The buffer will be
@@ -888,7 +889,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         outputIndex, outputBufferInfo.flags, outputBufferInfo.presentationTimeUs,
         shouldSkipOutputBuffer)) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
-      outputIndex = -1;
+      outputIndex = C.INDEX_UNSET;
       return true;
     }
 

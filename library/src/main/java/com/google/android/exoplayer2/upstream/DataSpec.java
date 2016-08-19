@@ -33,8 +33,8 @@ public final class DataSpec {
    * <p>
    * When a {@link DataSource} is used to request data with this flag set, and if the
    * {@link DataSource} does make a network request, then the value returned from
-   * {@link DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNBOUNDED}. The data read
-   * from {@link DataSource#read(byte[], int, int)} will be the decompressed data.
+   * {@link DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNSET}. The data read from
+   * {@link DataSource#read(byte[], int, int)} will be the decompressed data.
    */
   public static final int FLAG_ALLOW_GZIP = 1;
 
@@ -58,7 +58,7 @@ public final class DataSpec {
    */
   public final long position;
   /**
-   * The length of the data. Greater than zero, or equal to {@link C#LENGTH_UNBOUNDED}.
+   * The length of the data, or {@link C#LENGTH_UNSET}.
    */
   public final long length;
   /**
@@ -87,7 +87,7 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    */
   public DataSpec(Uri uri, int flags) {
-    this(uri, 0, C.LENGTH_UNBOUNDED, null, flags);
+    this(uri, 0, C.LENGTH_UNSET, null, flags);
   }
 
   /**
@@ -147,7 +147,7 @@ public final class DataSpec {
       String key, int flags) {
     Assertions.checkArgument(absoluteStreamPosition >= 0);
     Assertions.checkArgument(position >= 0);
-    Assertions.checkArgument(length > 0 || length == C.LENGTH_UNBOUNDED);
+    Assertions.checkArgument(length > 0 || length == C.LENGTH_UNSET);
     this.uri = uri;
     this.postBody = postBody;
     this.absoluteStreamPosition = absoluteStreamPosition;

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.os.SystemClock;
 import android.util.Log;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -375,16 +376,16 @@ import java.util.Locale;
     if (format.bitrate != Format.NO_VALUE) {
       builder.append(", bitrate=").append(format.bitrate);
     }
-    if (format.width != -1 && format.height != -1) {
+    if (format.width != Format.NO_VALUE && format.height != Format.NO_VALUE) {
       builder.append(", res=").append(format.width).append("x").append(format.height);
     }
-    if (format.frameRate != -1) {
+    if (format.frameRate != Format.NO_VALUE) {
       builder.append(", fps=").append(format.frameRate);
     }
-    if (format.channelCount != -1) {
+    if (format.channelCount != Format.NO_VALUE) {
       builder.append(", channels=").append(format.channelCount);
     }
-    if (format.sampleRate != -1) {
+    if (format.sampleRate != Format.NO_VALUE) {
       builder.append(", sample_rate=").append(format.sampleRate);
     }
     if (format.language != null) {
@@ -396,7 +397,7 @@ import java.util.Locale;
   private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
       int trackIndex) {
     return getTrackStatusString(selection != null && selection.getTrackGroup() == group
-        && selection.indexOf(trackIndex) != -1);
+        && selection.indexOf(trackIndex) != C.INDEX_UNSET);
   }
 
   private static String getTrackStatusString(boolean enabled) {

@@ -80,7 +80,7 @@ public final class AssetDataSource implements DataSource {
         // fewer bytes than requested if the skip is beyond the end of the asset's data.
         throw new EOFException();
       }
-      if (dataSpec.length != C.LENGTH_UNBOUNDED) {
+      if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
         bytesRemaining = inputStream.available();
@@ -88,7 +88,7 @@ public final class AssetDataSource implements DataSource {
           // assetManager.open() returns an AssetInputStream, whose available() implementation
           // returns Integer.MAX_VALUE if the remaining length is greater than (or equal to)
           // Integer.MAX_VALUE. We don't know the true length in this case, so treat as unbounded.
-          bytesRemaining = C.LENGTH_UNBOUNDED;
+          bytesRemaining = C.LENGTH_UNSET;
         }
       }
     } catch (IOException e) {
@@ -109,7 +109,7 @@ public final class AssetDataSource implements DataSource {
     } else {
       int bytesRead;
       try {
-        int bytesToRead = bytesRemaining == C.LENGTH_UNBOUNDED ? readLength
+        int bytesToRead = bytesRemaining == C.LENGTH_UNSET ? readLength
             : (int) Math.min(bytesRemaining, readLength);
         bytesRead = inputStream.read(buffer, offset, bytesToRead);
       } catch (IOException e) {
@@ -117,7 +117,7 @@ public final class AssetDataSource implements DataSource {
       }
 
       if (bytesRead > 0) {
-        if (bytesRemaining != C.LENGTH_UNBOUNDED) {
+        if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= bytesRead;
         }
         if (listener != null) {

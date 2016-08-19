@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.subrip;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
@@ -42,7 +43,7 @@ import java.util.List;
   @Override
   public int getNextEventTimeIndex(long timeUs) {
     int index = Util.binarySearchCeil(cueTimesUs, timeUs, false, false);
-    return index < cueTimesUs.length ? index : -1;
+    return index < cueTimesUs.length ? index : C.INDEX_UNSET;
   }
 
   @Override

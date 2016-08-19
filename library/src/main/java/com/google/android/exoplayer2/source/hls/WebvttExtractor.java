@@ -75,7 +75,7 @@ import java.util.regex.Pattern;
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.UNSET_TIME_US));
+    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
@@ -97,14 +97,14 @@ import java.util.regex.Pattern;
     // Increase the size of sampleData if necessary.
     if (sampleSize == sampleData.length) {
       sampleData = Arrays.copyOf(sampleData,
-          (currentFileSize != C.LENGTH_UNBOUNDED ? currentFileSize : sampleData.length) * 3 / 2);
+          (currentFileSize != C.LENGTH_UNSET ? currentFileSize : sampleData.length) * 3 / 2);
     }
 
     // Consume to the input.
     int bytesRead = input.read(sampleData, sampleSize, sampleData.length - sampleSize);
     if (bytesRead != C.RESULT_END_OF_INPUT) {
       sampleSize += bytesRead;
-      if (currentFileSize == C.LENGTH_UNBOUNDED || sampleSize != currentFileSize) {
+      if (currentFileSize == C.LENGTH_UNSET || sampleSize != currentFileSize) {
         return Extractor.RESULT_CONTINUE;
       }
     }

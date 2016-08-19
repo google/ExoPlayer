@@ -40,7 +40,7 @@ import junit.framework.Assert;
  * bytes then it will be fully satisfied, since it has the same target position of 10.
  * <p>
  * Unknown data length can be simulated using {@link Builder#setSimulateUnknownLength}. When enabled
- * {@link #getLength()} will return {@link C#LENGTH_UNBOUNDED} rather than the length of the data.
+ * {@link #getLength()} will return {@link C#LENGTH_UNSET} rather than the length of the data.
  */
 public final class FakeExtractorInput implements ExtractorInput {
 
@@ -186,7 +186,7 @@ public final class FakeExtractorInput implements ExtractorInput {
 
   @Override
   public long getLength() {
-    return simulateUnknownLength ? C.LENGTH_UNBOUNDED : data.length;
+    return simulateUnknownLength ? C.LENGTH_UNSET : data.length;
   }
 
   @Override

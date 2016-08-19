@@ -36,7 +36,7 @@ public class DefaultExtractorInputTest extends TestCase {
   public void testInitialPosition() throws IOException {
     FakeDataSource testDataSource = buildDataSource();
     DefaultExtractorInput input =
-        new DefaultExtractorInput(testDataSource, 123, C.LENGTH_UNBOUNDED);
+        new DefaultExtractorInput(testDataSource, 123, C.LENGTH_UNSET);
     assertEquals(123, input.getPosition());
   }
 
@@ -55,7 +55,7 @@ public class DefaultExtractorInputTest extends TestCase {
     assertTrue(Arrays.equals(TEST_DATA, target));
     // Check we're now indicated that the end of input is reached.
     int expectedEndOfInput = input.read(target, 0, TEST_DATA.length);
-    assertEquals(-1, expectedEndOfInput);
+    assertEquals(C.RESULT_END_OF_INPUT, expectedEndOfInput);
   }
 
   public void testReadPeeked() throws IOException, InterruptedException {
@@ -143,7 +143,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testReadFullyWithFailingDataSource() throws IOException, InterruptedException {
     FakeDataSource testDataSource = buildFailingDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
     try {
       byte[] target = new byte[TEST_DATA.length];
       input.readFully(target, 0, TEST_DATA.length);
@@ -170,19 +170,19 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testSkip() throws IOException, InterruptedException {
     FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
     // We expect to perform three skips of three bytes, as setup in buildTestDataSource.
     for (int i = 0; i < 3; i++) {
       assertEquals(3, input.skip(TEST_DATA.length));
     }
     // Check we're now indicated that the end of input is reached.
     int expectedEndOfInput = input.skip(TEST_DATA.length);
-    assertEquals(-1, expectedEndOfInput);
+    assertEquals(C.RESULT_END_OF_INPUT, expectedEndOfInput);
   }
 
   public void testLargeSkip() throws IOException, InterruptedException {
     FakeDataSource testDataSource = buildLargeDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
     // Check that skipping the entire data source succeeds.
     int bytesToSkip = LARGE_TEST_DATA_LENGTH;
     while (bytesToSkip > 0) {
@@ -255,7 +255,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testSkipFullyWithFailingDataSource() throws IOException, InterruptedException {
     FakeDataSource testDataSource = buildFailingDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
     try {
       input.skipFully(TEST_DATA.length);
       fail();
@@ -274,7 +274,7 @@ public class DefaultExtractorInputTest extends TestCase {
     FakeDataSource testDataSource = builder.build();
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
 
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
     input.skipFully(largeSkipSize);
     assertEquals(largeSkipSize, input.getPosition());
     // Check that we fail with EOFException we skip again.
@@ -412,6 +412,6 @@ public class DefaultExtractorInputTest extends TestCase {
 
   private static DefaultExtractorInput createDefaultExtractorInput() throws IOException {
     FakeDataSource testDataSource = buildDataSource();
-    return new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    return new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
   }
 }

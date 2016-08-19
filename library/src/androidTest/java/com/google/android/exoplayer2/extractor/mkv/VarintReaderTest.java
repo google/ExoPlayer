@@ -201,6 +201,10 @@ public final class VarintReaderTest extends TestCase {
     while (result == -1) {
       try {
         result = reader.readUnsignedVarint(input, false, removeMask, 8);
+        if (result == C.RESULT_END_OF_INPUT || result == C.RESULT_MAX_LENGTH_EXCEEDED) {
+          // Unexpected.
+          fail();
+        }
       } catch (SimulatedIOException e) {
         // Expected.
       }
