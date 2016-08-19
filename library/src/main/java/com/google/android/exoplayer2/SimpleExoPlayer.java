@@ -101,6 +101,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private DecoderCounters videoDecoderCounters;
   private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
+  private float volume;
+  private PlaybackParamsHolder playbackParamsHolder;
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
       LoadControl loadControl, DrmSessionManager drmSessionManager,
@@ -134,7 +136,10 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
     this.videoRendererCount = videoRendererCount;
     this.audioRendererCount = audioRendererCount;
-    this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+
+    // Set initial values.
+    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    volume = 1;
 
     // Build the player and associated objects.
     player = new ExoPlayerImpl(renderers, trackSelector, loadControl);
@@ -204,6 +209,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * @param volume The volume.
    */
   public void setVolume(float volume) {
+    this.volume = volume;
     ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
     int count = 0;
     for (Renderer renderer : renderers) {
@@ -215,11 +221,30 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Sets {@link PlaybackParams} governing audio playback.
-   *
-   * @param params The {@link PlaybackParams}.
+   * Returns the audio volume, with 0 being silence and 1 being unity gain.
    */
+  public float getVolume() {
+    return volume;
+  }
+
+  /**
+   * Sets the {@link PlaybackParams} governing audio playback.
+   *
+   * @param params The {@link PlaybackParams}, or null to clear any previously set parameters.
+   */
+  @TargetApi(23)
   public void setPlaybackParams(PlaybackParams params) {
+    if (params != null) {
+      // The audio renderers will call this on the playback thread to ensure they can query
+      // parameters without failure. We do the same up front, which is redundant except that it
+      // ensures an immediate call to getPlaybackParams will retrieve the instance with defaults
+      // allowed, rather than this change becoming visible sometime later once the audio renderers
+      // receive the parameters.
+      params.allowDefaults();
+      playbackParamsHolder = new PlaybackParamsHolder(params);
+    } else {
+      playbackParamsHolder = null;
+    }
     ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
     int count = 0;
     for (Renderer renderer : renderers) {
@@ -228,6 +253,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
       }
     }
     player.sendMessages(messages);
+  }
+
+  /**
+   * Returns the {@link PlaybackParams} governing audio playback, or null if not set.
+   */
+  @TargetApi(23)
+  public PlaybackParams getPlaybackParams() {
+    return playbackParamsHolder == null ? null : playbackParamsHolder.params;
   }
 
   /**
@@ -717,6 +750,17 @@ public final class SimpleExoPlayer implements ExoPlayer {
       if (player != null) {
         setVideoSurfaceInternal(null);
       }
+    }
+
+  }
+
+  @TargetApi(23)
+  private static final class PlaybackParamsHolder {
+
+    public final PlaybackParams params;
+
+    public PlaybackParamsHolder(PlaybackParams params) {
+      this.params = params;
     }
 
   }
