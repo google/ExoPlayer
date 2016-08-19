@@ -52,6 +52,7 @@ import org.chromium.net.UrlResponseInfo;
  * <p>This class's methods are organized in the sequence of expected calls.
  */
 public class CronetDataSource extends UrlRequest.Callback implements HttpDataSource {
+
   /**
    * Thrown when an error is encountered when trying to open a {@link CronetDataSource}.
    */
@@ -76,15 +77,16 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   private static final String TAG = "CronetDataSource";
+
   private static final Pattern CONTENT_RANGE_HEADER_PATTERN =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
-  // The size of read buffer passed to cronet UrlRequest.read(). Cronet does not always fill the
-  // buffer completely before calling back the listener.
+  // The size of read buffer passed to cronet UrlRequest.read().
   private static final int READ_BUFFER_SIZE_BYTES = 32 * 1024;
-  static final int IDLE_CONNECTION = 5;
-  static final int OPENING_CONNECTION = 2;
-  static final int CONNECTED_CONNECTION = 3;
-  static final int OPEN_CONNECTION = 4;
+
+  /* package */ static final int IDLE_CONNECTION = 5;
+  /* package */static final int OPENING_CONNECTION = 2;
+  /* package */static final int CONNECTED_CONNECTION = 3;
+  /* package */static final int OPEN_CONNECTION = 4;
 
   private final CronetEngine cronetEngine;
   private final Executor executor;
@@ -93,7 +95,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
-  private final Map<String, String> headers;
+  private final Map<String, String> requestProperties;
   private final ConditionVariable operation;
   private final ByteBuffer readBuffer;
   private final Clock clock;
@@ -102,8 +104,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private DataSpec currentDataSpec;
   private UrlResponseInfo responseInfo;
 
-  volatile int connectionState;
-  TimeoutCheckerRunnable timeoutCheckerRunnable;
+  /* package */ TimeoutCheckerRunnable timeoutCheckerRunnable;
+  /* package */ volatile int connectionState;
   private volatile String currentUrl;
   private volatile HttpDataSourceException exception;
   private volatile long contentLength;
@@ -124,15 +126,9 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
    * @param readTimeoutMs The timeout to execute a connection.
    * @param resetTimeoutOnRedirects Allow to reset the timeout when redirects occur.
    */
-  public CronetDataSource(
-      CronetEngine cronetEngine,
-      Executor executor,
-      Clock clock,
-      Predicate<String> contentTypePredicate,
-      TransferListener transferListener,
-      int connectTimeoutMs,
-      int readTimeoutMs,
-      boolean resetTimeoutOnRedirects) {
+  public CronetDataSource(CronetEngine cronetEngine, Executor executor, Clock clock,
+      Predicate<String> contentTypePredicate, TransferListener transferListener,
+      int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects) {
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
     this.clock = Assertions.checkNotNull(clock);
@@ -141,26 +137,31 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     this.connectTimeoutMs = connectTimeoutMs;
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
-    this.headers = new HashMap<>();
-    this.connectionState = IDLE_CONNECTION;
-    this.readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
-    this.operation = new ConditionVariable();
-    readBuffer.clear();
+    readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
+    requestProperties = new HashMap<>();
+    operation = new ConditionVariable();
+    connectionState = IDLE_CONNECTION;
   }
 
   @Override
   public void setRequestProperty(String name, String value) {
-    headers.put(name, value);
+    synchronized (requestProperties) {
+      requestProperties.put(name, value);
+    }
   }
 
   @Override
   public void clearRequestProperty(String name) {
-    headers.remove(name);
+    synchronized (requestProperties) {
+      requestProperties.remove(name);
+    }
   }
 
   @Override
   public void clearAllRequestProperties() {
-    headers.clear();
+    synchronized (requestProperties) {
+      requestProperties.clear();
+    }
   }
 
   @Override
@@ -174,9 +175,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     try {
       Assertions.checkNotNull(dataSpec);
       synchronized (this) {
-        if (connectionState != IDLE_CONNECTION) {
-          throw new IllegalStateException("Connection already open");
-        }
+        Assertions.checkState(connectionState == IDLE_CONNECTION, "Connection already open");
         connectionState = OPENING_CONNECTION;
       }
 
@@ -201,7 +200,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         throw new OpenException(new SocketTimeoutException(), dataSpec, getCurrentRequestStatus());
       }
 
-      // At this point it's connected.
       if (transferListener != null) {
         transferListener.onTransferStart();
       }
@@ -215,10 +213,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private void createRequest(DataSpec dataSpec) throws HttpDataSourceException {
     currentUrl = dataSpec.uri.toString();
     currentDataSpec = dataSpec;
-    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(
-        currentUrl,
-        this, // UrlRequest.Callback
-        executor,
+    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(currentUrl, this, executor,
         cronetEngine);
     fillCurrentRequestHeader(urlRequestBuilder);
     fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
@@ -226,8 +221,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   private void fillCurrentRequestHeader(UrlRequest.Builder urlRequestBuilder) {
-    for (Entry<String, String> headerEntry : headers.entrySet()) {
-      urlRequestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
+    synchronized (requestProperties) {
+      for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
+        urlRequestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
+      }
     }
     if (currentDataSpec.position == 0 && currentDataSpec.length == C.LENGTH_UNBOUNDED) {
       // Not required.
@@ -246,7 +243,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private void fillCurrentRequestPostBody(UrlRequest.Builder urlRequestBuilder, DataSpec dataSpec)
       throws HttpDataSourceException {
     if (dataSpec.postBody != null) {
-      if (!headers.containsKey("Content-Type")) {
+      if (!requestProperties.containsKey("Content-Type")) {
         throw new OpenException("POST requests must set a Content-Type header", dataSpec,
             getCurrentRequestStatus());
       }
@@ -399,8 +396,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         return C.RESULT_END_OF_INPUT;
       }
 
-      // If buffer hasn't been fully consumed previously, reuse. Otherwise, read more from cronet.
       if (!hasData) {
+        // Read more data from cronet.
         operation.close();
         currentUrlRequest.read(readBuffer);
         if (!operation.block(readTimeoutMs)) {
@@ -434,7 +431,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         transferListener.onBytesTransferred(bytesRead);
       }
       return bytesRead;
-
     } finally {
       TraceUtil.endSection();
     }
@@ -451,9 +447,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       // For other redirect response codes the POST request is converted to a GET request and the
       // redirect is followed.
       if (responseCode == 307 || responseCode == 308) {
-        exception = new OpenException(
-            "POST request redirected with 307 or 308 response code.", currentDataSpec,
-            getCurrentRequestStatus());
+        exception = new OpenException("POST request redirected with 307 or 308 response code",
+            currentDataSpec, getCurrentRequestStatus());
         operation.open();
         return;
       }
@@ -465,8 +460,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   @Override
-  public synchronized void onReadCompleted(
-      UrlRequest request, UrlResponseInfo info, ByteBuffer buffer) {
+  public synchronized void onReadCompleted(UrlRequest request, UrlResponseInfo info,
+      ByteBuffer buffer) {
     if (request != currentUrlRequest) {
       return;
     }
@@ -494,22 +489,19 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         currentUrlRequest.cancel();
         currentUrlRequest = null;
       }
-
       if (timeoutCheckerRunnable != null) {
         timeoutCheckerRunnable.cancel();
         timeoutCheckerRunnable = null;
       }
-
+      readBuffer.clear();
       currentDataSpec = null;
       currentUrl = null;
       exception = null;
       contentLength = 0;
-      readBuffer.clear();
       hasData = false;
       responseInfo = null;
       expectedBytesRemainingToRead = null;
       responseFinished = false;
-
       if (transferListener != null && connectionState == OPEN_CONNECTION) {
         transferListener.onTransferEnd();
       }
