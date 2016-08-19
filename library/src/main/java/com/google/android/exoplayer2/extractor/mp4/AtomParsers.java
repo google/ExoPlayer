@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -663,6 +664,8 @@ import java.util.List;
 
     List<byte[]> initializationData = null;
     String mimeType = null;
+    byte[] projectionData = null;
+    int stereoMode = Format.NO_VALUE;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childStartPosition = parent.getPosition();
@@ -705,6 +708,27 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
         pixelWidthHeightRatioFromPasp = true;
+      } else if (childAtomType == Atom.TYPE_sv3d) {
+        projectionData = parseProjFromParent(parent, childStartPosition, childAtomSize);
+      } else if (childAtomType == Atom.TYPE_st3d) {
+        int version = parent.readUnsignedByte();
+        parent.skipBytes(3); // Flags.
+        if (version == 0) {
+          int layout = parent.readUnsignedByte();
+          switch (layout) {
+            case 0:
+              stereoMode = C.STEREO_MODE_MONO;
+              break;
+            case 1:
+              stereoMode = C.STEREO_MODE_TOP_BOTTOM;
+              break;
+            case 2:
+              stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+              break;
+            default:
+              break;
+          }
+        }
       }
       childPosition += childAtomSize;
     }
@@ -716,7 +740,7 @@ import java.util.List;
 
     out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
         Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
-        rotationDegrees, pixelWidthHeightRatio, drmInitData);
+        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode, drmInitData);
   }
 
   /**
@@ -1034,6 +1058,23 @@ import java.util.List;
         byte[] defaultKeyId = new byte[16];
         parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
         return new TrackEncryptionBox(defaultIsEncrypted, defaultInitVectorSize, defaultKeyId);
+      }
+      childPosition += childAtomSize;
+    }
+    return null;
+  }
+
+  /**
+   * Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media
+   */
+  private static byte[] parseProjFromParent(ParsableByteArray parent, int position, int size) {
+    int childPosition = position + Atom.HEADER_SIZE;
+    while (childPosition - position < size) {
+      parent.setPosition(childPosition);
+      int childAtomSize = parent.readInt();
+      int childAtomType = parent.readInt();
+      if (childAtomType == Atom.TYPE_proj) {
+        return Arrays.copyOfRange(parent.data, childPosition, childPosition + childAtomSize);
       }
       childPosition += childAtomSize;
     }

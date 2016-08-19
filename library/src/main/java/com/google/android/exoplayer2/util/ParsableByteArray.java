@@ -373,6 +373,13 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Reads the next four bytes as a 32-bit floating point value.
+   */
+  public float readFloat() {
+    return Float.intBitsToFloat(readInt());
+  }
+
+  /**
    * Reads the next eight bytes as a 64-bit floating point value.
    */
   public double readDouble() {
