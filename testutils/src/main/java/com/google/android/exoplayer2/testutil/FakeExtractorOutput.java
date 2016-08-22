@@ -95,6 +95,15 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     }
   }
 
+  /**
+   * Asserts that dump of this {@link FakeExtractorOutput} is equal to expected dump which is read
+   * from {@code dumpFile}.
+   *
+   * <p>If assertion fails because of an intended change in the output or a new dump file needs to
+   * be created, set {@link #WRITE_DUMP} flag to true and run the test again. Instead of assertion,
+   * actual dump will be written to {@code dumpFile}. This new dump file needs to be copied to the
+   * project, {@code library/src/androidTest/assets} folder manually.
+   */
   public void assertOutput(Instrumentation instrumentation, String dumpFile) throws IOException {
     String actual = new Dumper().add(this).toString();
 
