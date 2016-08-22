@@ -30,16 +30,16 @@ public interface LoadControl {
    * Called by the player when a track selection occurs.
    *
    * @param renderers The renderers.
-   * @param trackGroups The available {@link TrackGroup}s.
+   * @param trackGroups The {@link TrackGroup}s from which the selection was made.
    * @param trackSelections The {@link TrackSelection}s that were made.
    */
-  void onTrackSelections(Renderer[] renderers, TrackGroupArray trackGroups,
+  void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelectionArray trackSelections);
 
   /**
-   * Called by the player when a reset occurs, meaning all renderers have been disabled.
+   * Called by the player when all tracks are disabled.
    */
-  void reset();
+  void onTracksDisabled();
 
   /**
    * Returns the {@link Allocator} that should be used to obtain media buffer allocations.
@@ -51,7 +51,9 @@ public interface LoadControl {
    * started or resumed.
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
-   * @param rebuffering Whether the player is re-buffering.
+   * @param rebuffering Whether the player is rebuffering. A rebuffer is defined to be caused by
+   *     buffer depletion rather than a user action. Hence this parameter is false during initial
+   *     buffering and when buffering as a result of a seek operation.
    * @return Whether playback should be allowed to start or resume.
    */
   boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering);

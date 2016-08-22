@@ -314,13 +314,14 @@ public class DashManifestParser extends DefaultHandler
   /**
    * Parses a ContentProtection element.
    *
+   * @param xpp The parser from which to read.
    * @throws XmlPullParserException If an error occurs parsing the element.
    * @throws IOException If an error occurs reading the element.
    * @return {@link SchemeData} parsed from the ContentProtection element, or null if the element is
    *     unsupported.
-   **/
-  protected SchemeData parseContentProtection(XmlPullParser xpp)
-      throws XmlPullParserException, IOException {
+   */
+  protected SchemeData parseContentProtection(XmlPullParser xpp) throws XmlPullParserException,
+      IOException {
     byte[] data = null;
     UUID uuid = null;
     boolean seenPsshElement = false;
@@ -353,7 +354,7 @@ public class DashManifestParser extends DefaultHandler
    * @param xpp The XmpPullParser from which the AdaptationSet child should be parsed.
    * @throws XmlPullParserException If an error occurs parsing the element.
    * @throws IOException If an error occurs reading the element.
-   **/
+   */
   protected void parseAdaptationSetChild(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     // pass

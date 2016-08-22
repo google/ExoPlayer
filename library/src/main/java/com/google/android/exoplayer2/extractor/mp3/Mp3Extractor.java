@@ -38,7 +38,7 @@ import java.io.IOException;
 public final class Mp3Extractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is an {@link Mp3Extractor}.
+   * Factory for {@link Mp3Extractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

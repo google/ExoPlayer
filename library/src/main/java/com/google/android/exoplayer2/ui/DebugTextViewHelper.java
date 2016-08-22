@@ -55,7 +55,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     }
     started = true;
     player.addListener(this);
-    run();
+    updateAndPost();
   }
 
   /**
@@ -71,20 +71,52 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     textView.removeCallbacks(this);
   }
 
+  // ExoPlayer.EventListener implementation.
+
   @Override
-  public void run() {
-    updateTextView();
-    textView.postDelayed(this, REFRESH_INTERVAL_MS);
+  public void onLoadingChanged(boolean isLoading) {
+    // Do nothing.
   }
 
-  private void updateTextView() {
+  @Override
+  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    updateAndPost();
+  }
+
+  @Override
+  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
+    updateAndPost();
+  }
+
+  @Override
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onPlayerError(ExoPlaybackException error) {
+    // Do nothing.
+  }
+
+  // Runnable implementation.
+
+  @Override
+  public void run() {
+    updateAndPost();
+  }
+
+  // Private methods.
+
+  private void updateAndPost() {
     textView.setText(getPlayerStateString() + getPlayerWindowIndexString() + getVideoString()
         + getAudioString());
+    textView.removeCallbacks(this);
+    textView.postDelayed(this, REFRESH_INTERVAL_MS);
   }
 
   private String getPlayerStateString() {
     String text = "playWhenReady:" + player.getPlayWhenReady() + " playbackState:";
-    switch(player.getPlaybackState()) {
+    switch (player.getPlaybackState()) {
       case ExoPlayer.STATE_BUFFERING:
         text += "buffering";
         break;
@@ -137,33 +169,6 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
         + " sb:" + counters.skippedOutputBufferCount
         + " db:" + counters.droppedOutputBufferCount
         + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
-  }
-
-  // ExoPlayer.EventListener implementation
-
-  @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    updateTextView();
-  }
-
-  @Override
-  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
-    updateTextView();
-  }
-
-  @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerError(ExoPlaybackException error) {
-    // Do nothing.
   }
 
 }

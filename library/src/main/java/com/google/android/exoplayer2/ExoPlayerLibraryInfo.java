@@ -18,12 +18,12 @@ package com.google.android.exoplayer2;
 /**
  * Information about the ExoPlayer library.
  */
-public final class ExoPlayerLibraryInfo {
+public interface ExoPlayerLibraryInfo {
 
   /**
    * The version of the library, expressed as a string.
    */
-  public static final String VERSION = "2.0.0";
+  String VERSION = "2.0.0";
 
   /**
    * The version of the library, expressed as an integer.
@@ -32,20 +32,18 @@ public final class ExoPlayerLibraryInfo {
    * corresponding integer version 1002003 (001-002-003), and "123.45.6" has the corresponding
    * integer version 123045006 (123-045-006).
    */
-  public static final int VERSION_INT = 2000000;
+  int VERSION_INT = 2000000;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}
    * checks enabled.
    */
-  public static final boolean ASSERTIONS_ENABLED = true;
+  boolean ASSERTIONS_ENABLED = true;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.TraceUtil}
    * trace enabled.
    */
-  public static final boolean TRACE_ENABLED = true;
-
-  private ExoPlayerLibraryInfo() {}
-
+  boolean TRACE_ENABLED = true;
+ 
 }

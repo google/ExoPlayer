@@ -36,7 +36,7 @@ import java.nio.ByteBuffer;
 public final class MetadataRenderer<T> extends BaseRenderer implements Callback {
 
   /**
-   * An output for the renderer.
+   * Receives output from a {@link MetadataRenderer}.
    *
    * @param <T> The type of the metadata.
    */
@@ -45,7 +45,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
     /**
      * Called each time there is a metadata associated with current playback time.
      *
-     * @param metadata The metadata to process.
+     * @param metadata The metadata.
      */
     void onMetadata(T metadata);
 

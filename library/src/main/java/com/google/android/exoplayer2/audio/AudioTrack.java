@@ -178,7 +178,8 @@ public final class AudioTrack {
 
   /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
-   * active across releasing/initializing a new audio track, on platform API version &lt; 21.
+   * active across releasing/initializing a new audio track, on platform builds where
+   * {@link Util#SDK_INT} &lt; 21.
    * <p>
    * The flag must be set before creating a player.
    */
@@ -267,8 +268,10 @@ public final class AudioTrack {
   }
 
   /**
-   * Returns whether it is possible to play back input audio in the specified format using encoded
-   * audio passthrough.
+   * Returns whether it's possible to play audio in the specified format using encoded passthrough.
+   *
+   * @param mimeType The format mime type.
+   * @return Whether it's possible to play audio in the format using encoded passthrough.
    */
   public boolean isPassthroughSupported(String mimeType) {
     return audioCapabilities != null
@@ -679,13 +682,15 @@ public final class AudioTrack {
   }
 
   /**
-   * Sets the playback parameters. Only available for SDK_INT &gt;= 23
+   * Sets the playback parameters. Only available for {@link Util#SDK_INT} &gt;= 23
    *
+   * @param playbackParams The playback parameters to be used by the
+   *     {@link android.media.AudioTrack}.
    * @throws UnsupportedOperationException if the Playback Parameters are not supported. That is,
-   *     SDK_INT &lt; 23.
+   *     {@link Util#SDK_INT} &lt; 23.
    */
   public void setPlaybackParams(PlaybackParams playbackParams) {
-    audioTrackUtil.setPlaybackParameters(playbackParams);
+    audioTrackUtil.setPlaybackParams(playbackParams);
   }
 
   /**
@@ -1214,11 +1219,12 @@ public final class AudioTrack {
     /**
      * Sets the Playback Parameters to be used by the underlying {@link android.media.AudioTrack}.
      *
-     * @param playbackParams to be used by the {@link android.media.AudioTrack}.
+     * @param playbackParams The playback parameters to be used by the
+     *     {@link android.media.AudioTrack}.
      * @throws UnsupportedOperationException If Playback Parameters are not supported
-     *     (i.e. SDK_INT &lt; 23).
+     *     (i.e. {@link Util#SDK_INT} &lt; 23).
      */
-    public void setPlaybackParameters(PlaybackParams playbackParams) {
+    public void setPlaybackParams(PlaybackParams playbackParams) {
       throw new UnsupportedOperationException();
     }
 
@@ -1301,7 +1307,7 @@ public final class AudioTrack {
     }
 
     @Override
-    public void setPlaybackParameters(PlaybackParams playbackParams) {
+    public void setPlaybackParams(PlaybackParams playbackParams) {
       playbackParams = (playbackParams != null ? playbackParams : new PlaybackParams())
           .allowDefaults();
       this.playbackParams = playbackParams;

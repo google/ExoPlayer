@@ -56,9 +56,8 @@ public interface Decoder<I, O, E extends Exception> {
   O dequeueOutputBuffer() throws E;
 
   /**
-   * Flushes input/output buffers that have not been dequeued yet and returns ownership of any
-   * dequeued input buffer to the decoder. Flushes any pending output currently in the decoder. The
-   * caller is still responsible for releasing any dequeued output buffers.
+   * Flushes the decoder. Ownership of dequeued input buffers is returned to the decoder. The caller
+   * is still responsible for releasing any dequeued output buffers.
    */
   void flush();
 

@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 
 /**
- * A factory for instantiating {@link ExoPlayer} instances.
+ * A factory for {@link ExoPlayer} instances.
  */
 public final class ExoPlayerFactory {
 
@@ -34,9 +34,8 @@ public final class ExoPlayerFactory {
   private ExoPlayerFactory() {}
 
   /**
-   * Obtains a {@link SimpleExoPlayer} instance.
-   * <p>
-   * Must be called from a thread that has an associated {@link Looper}.
+   * Creates a {@link SimpleExoPlayer} instance. Must be called from a thread that has an associated
+   * {@link Looper}.
    *
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -46,9 +45,8 @@ public final class ExoPlayerFactory {
   }
 
   /**
-   * Obtains a {@link SimpleExoPlayer} instance.
-   * <p>
-   * Must be called from a thread that has an associated {@link Looper}.
+   * Creates a {@link SimpleExoPlayer} instance. Must be called from a thread that has an associated
+   * {@link Looper}.
    *
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -62,9 +60,8 @@ public final class ExoPlayerFactory {
   }
 
   /**
-   * Obtains a {@link SimpleExoPlayer} instance.
-   * <p>
-   * Must be called from a thread that has an associated {@link Looper}.
+   * Creates a {@link SimpleExoPlayer} instance. Must be called from a thread that has an associated
+   * {@link Looper}.
    *
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -83,9 +80,8 @@ public final class ExoPlayerFactory {
   }
 
   /**
-   * Obtains a {@link SimpleExoPlayer} instance.
-   * <p>
-   * Must be called from a thread that has an associated {@link Looper}.
+   * Creates a {@link SimpleExoPlayer} instance. Must be called from a thread that has an associated
+   * {@link Looper}.
    *
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -106,9 +102,8 @@ public final class ExoPlayerFactory {
   }
 
   /**
-   * Obtains an {@link ExoPlayer} instance.
-   * <p>
-   * Must be called from a thread that has an associated {@link Looper}.
+   * Creates an {@link ExoPlayer} instance. Must be called from a thread that has an associated
+   * {@link Looper}.
    *
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -118,9 +113,8 @@ public final class ExoPlayerFactory {
   }
 
   /**
-   * Obtains an {@link ExoPlayer} instance.
-   * <p>
-   * Must be called from a thread that has an associated {@link Looper}.
+   * Creates an {@link ExoPlayer} instance. Must be called from a thread that has an associated
+   * {@link Looper}.
    *
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.

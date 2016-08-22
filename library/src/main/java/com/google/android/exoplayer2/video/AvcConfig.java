@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.video;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -52,11 +53,11 @@ public final class AvcConfig {
       List<byte[]> initializationData = new ArrayList<>();
       int numSequenceParameterSets = data.readUnsignedByte() & 0x1F;
       for (int j = 0; j < numSequenceParameterSets; j++) {
-        initializationData.add(NalUnitUtil.parseChildNalUnit(data));
+        initializationData.add(buildNalUnitForChild(data));
       }
       int numPictureParameterSets = data.readUnsignedByte();
       for (int j = 0; j < numPictureParameterSets; j++) {
-        initializationData.add(NalUnitUtil.parseChildNalUnit(data));
+        initializationData.add(buildNalUnitForChild(data));
       }
 
       int width = Format.NO_VALUE;
@@ -84,6 +85,13 @@ public final class AvcConfig {
     this.width = width;
     this.height = height;
     this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+  }
+
+  private static byte[] buildNalUnitForChild(ParsableByteArray data) {
+    int length = data.readUnsignedShort();
+    int offset = data.getPosition();
+    data.skipBytes(length);
+    return CodecSpecificDataUtil.buildNalUnit(data.data, offset, length);
   }
 
 }

@@ -31,7 +31,7 @@ import java.io.IOException;
 public final class FlvExtractor implements Extractor, SeekMap {
 
   /**
-   * Factory that returns one extractor which is a {@link FlvExtractor}.
+   * Factory for {@link FlvExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

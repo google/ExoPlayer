@@ -24,8 +24,8 @@ import com.google.android.exoplayer2.Timeline;
 /**
  * An {@link OnClickListener} that can be passed to
  * {@link android.widget.MediaController#setPrevNextListeners(OnClickListener, OnClickListener)} to
- * make the controller's "previous" and "next" buttons visible and seek to the previous and next
- * windows in the timeline of the media being played.
+ * make the controller's previous and next buttons seek to the previous and next windows in the
+ * {@link Timeline}.
  */
 public class MediaControllerPrevNextClickListener implements OnClickListener {
 

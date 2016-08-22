@@ -18,11 +18,11 @@ package com.google.android.exoplayer2.trackselection;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -177,6 +177,18 @@ public abstract class BaseTrackSelection implements TrackSelection {
     }
     BaseTrackSelection other = (BaseTrackSelection) obj;
     return group == other.group && Arrays.equals(tracks, other.tracks);
+  }
+
+  /**
+   * Sorts {@link Format} objects in order of decreasing bandwidth.
+   */
+  private static final class DecreasingBandwidthComparator implements Comparator<Format> {
+
+    @Override
+    public int compare(Format a, Format b) {
+      return b.bitrate - a.bitrate;
+    }
+
   }
 
 }

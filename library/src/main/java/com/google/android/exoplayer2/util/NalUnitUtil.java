@@ -198,16 +198,6 @@ public final class NalUnitUtil {
   }
 
   /**
-   * Constructs and returns a NAL unit with a start code followed by the data in {@code atom}.
-   */
-  public static byte[] parseChildNalUnit(ParsableByteArray atom) {
-    int length = atom.readUnsignedShort();
-    int offset = atom.getPosition();
-    atom.skipBytes(length);
-    return CodecSpecificDataUtil.buildNalUnit(atom.data, offset, length);
-  }
-
-  /**
    * Returns the type of the NAL unit in {@code data} that starts at {@code offset}.
    *
    * @param data The data to search.

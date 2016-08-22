@@ -37,9 +37,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
- * A {@link SimpleSubtitleDecoder} for TTML supporting the DFXP presentation profile.
- * <p>
- * Supported features in this parser are:
+ * A {@link SimpleSubtitleDecoder} for TTML supporting the DFXP presentation profile. Features
+ * supported by this decoder are:
  * <ul>
  *   <li>content
  *   <li>core

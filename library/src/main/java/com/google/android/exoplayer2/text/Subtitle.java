@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 import java.util.List;
 
 /**
- * A subtitle that contains textual data associated with time indices.
+ * A subtitle consisting of timed {@link Cue}s.
  */
 public interface Subtitle {
 
@@ -49,7 +49,7 @@ public interface Subtitle {
   long getEventTime(int index);
 
   /**
-   * Retrieve the subtitle cues that should be displayed at a given time.
+   * Retrieve the cues that should be displayed at a given time.
    *
    * @param timeUs The time in microseconds.
    * @return A list of cues that should be displayed, possibly empty.

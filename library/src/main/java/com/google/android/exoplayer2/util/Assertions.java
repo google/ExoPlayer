@@ -97,7 +97,8 @@ public final class Assertions {
   /**
    * Throws {@link NullPointerException} if {@code reference} is null.
    *
-   * @param reference An object reference.
+   * @param <T> The type of the reference.
+   * @param reference The reference.
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
@@ -111,7 +112,8 @@ public final class Assertions {
   /**
    * Throws {@link NullPointerException} if {@code reference} is null.
    *
-   * @param reference An object reference.
+   * @param <T> The type of the reference.
+   * @param reference The reference.
    * @param errorMessage The exception message to use if the check fails. The message is converted
    *     to a string using {@link String#valueOf(Object)}.
    * @return The non-null reference that was validated.

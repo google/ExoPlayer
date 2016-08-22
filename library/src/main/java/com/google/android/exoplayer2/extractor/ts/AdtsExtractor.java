@@ -34,7 +34,7 @@ import java.io.IOException;
 public final class AdtsExtractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is an {@link AdtsExtractor}.
+   * Factory for {@link AdtsExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

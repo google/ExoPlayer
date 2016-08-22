@@ -22,16 +22,18 @@ import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 
 /**
  * An implementation of {@link MediaPlayerControl} for controlling an {@link ExoPlayer} instance.
- * <p>
  * This class is provided for convenience, however it is expected that most applications will
  * implement their own player controls and therefore not require this class.
  */
 public class PlayerControl implements MediaPlayerControl {
 
-  private final ExoPlayer exoPlayer;
+  private final ExoPlayer player;
 
-  public PlayerControl(ExoPlayer exoPlayer) {
-    this.exoPlayer = exoPlayer;
+  /**
+   * @param player The player to control.
+   */
+  public PlayerControl(ExoPlayer player) {
+    this.player = player;
   }
 
   @Override
@@ -65,39 +67,39 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getBufferPercentage() {
-    return exoPlayer.getBufferedPercentage();
+    return player.getBufferedPercentage();
   }
 
   @Override
   public int getCurrentPosition() {
-    long position = exoPlayer.getCurrentPosition();
+    long position = player.getCurrentPosition();
     return position == C.TIME_UNSET ? 0 : (int) position;
   }
 
   @Override
   public int getDuration() {
-    long duration = exoPlayer.getDuration();
+    long duration = player.getDuration();
     return duration == C.TIME_UNSET ? 0 : (int) duration;
   }
 
   @Override
   public boolean isPlaying() {
-    return exoPlayer.getPlayWhenReady();
+    return player.getPlayWhenReady();
   }
 
   @Override
   public void start() {
-    exoPlayer.setPlayWhenReady(true);
+    player.setPlayWhenReady(true);
   }
 
   @Override
   public void pause() {
-    exoPlayer.setPlayWhenReady(false);
+    player.setPlayWhenReady(false);
   }
 
   @Override
   public void seekTo(int timeMillis) {
-    exoPlayer.seekTo(timeMillis);
+    player.seekTo(timeMillis);
   }
 
 }

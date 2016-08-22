@@ -44,9 +44,9 @@ public final class DefaultLoadControl implements LoadControl {
   public static final int DEFAULT_BUFFER_FOR_PLAYBACK_MS = 2500;
 
   /**
-   * The default duration of media that must be buffered for playback to resume after a
-   * player-invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion rather than a user
-   * action), in milliseconds.
+   * The default duration of media that must be buffered for playback to resume after a rebuffer,
+   * in milliseconds. A rebuffer is defined to be caused by buffer depletion rather than a user
+   * action.
    */
   public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS  = 5000;
 
@@ -92,8 +92,8 @@ public final class DefaultLoadControl implements LoadControl {
    * @param bufferForPlaybackMs The duration of media that must be buffered for playback to start or
    *     resume following a user action such as a seek, in milliseconds.
    * @param bufferForPlaybackAfterRebufferMs The default duration of media that must be buffered for
-   *     playback to resume after a player-invoked rebuffer (i.e. a rebuffer that occurs due to
-   *     buffer depletion rather than a user action), in milliseconds.
+   *     playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by
+   *     buffer depletion rather than a user action.
    */
   public DefaultLoadControl(DefaultAllocator allocator, int minBufferMs, int maxBufferMs,
       long bufferForPlaybackMs, long bufferForPlaybackAfterRebufferMs) {
@@ -105,7 +105,7 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public void onTrackSelections(Renderer[] renderers, TrackGroupArray trackGroups,
+  public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelectionArray trackSelections) {
     targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
@@ -117,7 +117,7 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public void reset() {
+  public void onTracksDisabled() {
     targetBufferSize = 0;
     isBuffering = false;
   }

@@ -52,7 +52,7 @@ import java.util.UUID;
 public final class MatroskaExtractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is a {@link MatroskaExtractor}.
+   * Factory for {@link MatroskaExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

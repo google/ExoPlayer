@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 import java.io.IOException;
 
 /**
- * Facilitates extraction of data from a container format.
+ * Extracts media data from a container format.
  */
 public interface Extractor {
 

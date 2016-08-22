@@ -148,6 +148,7 @@ public final class Loader implements LoaderErrorThrower {
    * The calling thread must be a {@link Looper} thread, which is the thread on which the
    * {@link Callback} will be called.
    *
+   * @param <T> The type of the loadable.
    * @param loadable The {@link Loadable} to load.
    * @param callback A callback to called when the load ends.
    * @param defaultMinRetryCount The minimum number of times the load must be retried before

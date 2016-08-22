@@ -157,8 +157,8 @@ public interface ExoPlayer {
     /**
      * Handles a message delivered to the component. Called on the playback thread.
      *
-     * @param messageType An integer identifying the type of message.
-     * @param message The message object.
+     * @param messageType The message type.
+     * @param message The message.
      * @throws ExoPlaybackException If an error occurred whilst handling the message.
      */
     void handleMessage(int messageType, Object message) throws ExoPlaybackException;
@@ -170,14 +170,23 @@ public interface ExoPlayer {
    */
   final class ExoPlayerMessage {
 
+    /**
+     * The target to receive the message.
+     */
     public final ExoPlayerComponent target;
+    /**
+     * The type of the message.
+     */
     public final int messageType;
+    /**
+     * The message.
+     */
     public final Object message;
 
     /**
      * @param target The target of the message.
-     * @param messageType An integer identifying the type of message.
-     * @param message The message object.
+     * @param messageType The message type.
+     * @param message The message.
      */
     public ExoPlayerMessage(ExoPlayerComponent target, int messageType, Object message) {
       this.target = target;

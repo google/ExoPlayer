@@ -19,7 +19,7 @@ import android.annotation.TargetApi;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Compatibility wrapper around {@link android.media.MediaCodec.CryptoInfo}.
+ * Compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}.
  */
 public final class CryptoInfo {
 

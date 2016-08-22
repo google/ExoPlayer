@@ -33,30 +33,30 @@ public interface RendererCapabilities {
    */
   int FORMAT_HANDLED = 0b11;
   /**
-   * The {@link Renderer} is capable of rendering formats with the same mimeType, but the
+   * The {@link Renderer} is capable of rendering formats with the same mime type, but the
    * properties of the format exceed the renderer's capability.
    * <p>
-   * Example: The {@link Renderer} is capable of rendering H264 and the format's mimeType is
+   * Example: The {@link Renderer} is capable of rendering H264 and the format's mime type is
    * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
    * by the underlying H264 decoder.
    */
   int FORMAT_EXCEEDS_CAPABILITIES = 0b10;
   /**
    * The {@link Renderer} is a general purpose renderer for formats of the same top-level type,
-   * but is not capable of rendering the format or any other format with the same mimeType because
+   * but is not capable of rendering the format or any other format with the same mime type because
    * the sub-type is not supported.
    * <p>
    * Example: The {@link Renderer} is a general purpose audio renderer and the format's
-   * mimeType matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
+   * mime type matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
    */
   int FORMAT_UNSUPPORTED_SUBTYPE = 0b01;
   /**
    * The {@link Renderer} is not capable of rendering the format, either because it does not
    * support the format's top-level type, or because it's a specialized renderer for a different
-   * mimeType.
+   * mime type.
    * <p>
    * Example: The {@link Renderer} is a general purpose video renderer, but the format has an
-   * audio mimeType.
+   * audio mime type.
    */
   int FORMAT_UNSUPPORTED_TYPE = 0b00;
 
@@ -80,19 +80,23 @@ public interface RendererCapabilities {
   int ADAPTIVE_NOT_SUPPORTED = 0b0000;
 
   /**
+   * Returns the track type that the {@link Renderer} handles. For example, a video renderer will
+   * return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a
+   * text renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
+   *
    * @see Renderer#getTrackType()
+   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getTrackType();
 
   /**
-   * Returns the extent to which the {@link Renderer} supports a given format.
-   * <p>
-   * The returned value is the bitwise OR of two properties:
+   * Returns the extent to which the {@link Renderer} supports a given format. The returned value is
+   * the bitwise OR of two properties:
    * <ul>
-   * <li>The level of support for the format itself. One of {@code}link #FORMAT_HANDLED},
+   * <li>The level of support for the format itself. One of {@link #FORMAT_HANDLED},
    * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
    * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
-   * <li>The level of support for adapting from the format to another format of the same mimeType.
+   * <li>The level of support for adapting from the format to another format of the same mime type.
    * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
    * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
    * </ul>
@@ -107,10 +111,10 @@ public interface RendererCapabilities {
 
   /**
    * Returns the extent to which the {@link Renderer} supports adapting between supported formats
-   * that have different mimeTypes.
+   * that have different mime types.
    *
    * @return The extent to which the renderer supports adapting between supported formats that have
-   *     different mimeTypes. One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
+   *     different mime types. One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
    *     {@link #ADAPTIVE_NOT_SUPPORTED}.
    * @throws ExoPlaybackException If an error occurs.
    */

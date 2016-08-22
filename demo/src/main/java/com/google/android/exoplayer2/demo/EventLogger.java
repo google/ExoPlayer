@@ -17,13 +17,14 @@ package com.google.android.exoplayer2.demo;
 
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -41,6 +42,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
@@ -50,7 +52,7 @@ import java.util.Locale;
  * Logs player events using {@link Log}.
  */
 /* package */ final class EventLogger implements ExoPlayer.EventListener,
-    SimpleExoPlayer.DebugListener, AdaptiveMediaSourceEventListener,
+    AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
     ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
     MappingTrackSelector.EventListener, MetadataRenderer.Output<List<Id3Frame>> {
 
@@ -184,7 +186,7 @@ import java.util.Locale;
     }
   }
 
-  // SimpleExoPlayer.DebugListener
+  // AudioRendererEventListener
 
   @Override
   public void onAudioEnabled(DecoderCounters counters) {
@@ -203,7 +205,7 @@ import java.util.Locale;
   }
 
   @Override
-  public void onAudioFormatChanged(Format format) {
+  public void onAudioInputFormatChanged(Format format) {
     Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
         + "]");
   }
@@ -212,6 +214,14 @@ import java.util.Locale;
   public void onAudioDisabled(DecoderCounters counters) {
     Log.d(TAG, "audioDisabled [" + getSessionTimeString() + "]");
   }
+
+  @Override
+  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    printInternalError("audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
+        + elapsedSinceLastFeedMs + "]", null);
+  }
+
+  // VideoRendererEventListener
 
   @Override
   public void onVideoEnabled(DecoderCounters counters) {
@@ -225,7 +235,7 @@ import java.util.Locale;
   }
 
   @Override
-  public void onVideoFormatChanged(Format format) {
+  public void onVideoInputFormatChanged(Format format) {
     Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
         + "]");
   }
@@ -241,9 +251,14 @@ import java.util.Locale;
   }
 
   @Override
-  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    printInternalError("audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
-        + elapsedSinceLastFeedMs + "]", null);
+  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+      float pixelWidthHeightRatio) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onRenderedFirstFrame(Surface surface) {
+    // Do nothing.
   }
 
   // StreamingDrmSessionManager.EventListener

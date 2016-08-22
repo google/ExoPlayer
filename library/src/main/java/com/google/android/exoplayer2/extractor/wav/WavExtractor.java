@@ -32,7 +32,7 @@ import java.io.IOException;
 public final class WavExtractor implements Extractor, SeekMap {
 
   /**
-   * Factory that returns one extractor which is a {@link WavExtractor}.
+   * Factory for {@link WavExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

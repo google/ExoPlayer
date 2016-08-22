@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -39,13 +40,14 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import junit.framework.Assert;
 
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
  */
 public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListener,
-    SimpleExoPlayer.DebugListener {
+    AudioRendererEventListener, VideoRendererEventListener {
 
   static {
     // ExoPlayer's AudioTrack class is able to work around spurious timestamps reported by the
@@ -132,7 +134,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
     player.setMediaSource(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
     player.addListener(this);
-    player.setDebugListener(this);
+    player.setAudioDebugListener(this);
+    player.setVideoDebugListener(this);
     player.setPlayWhenReady(true);
     actionHandler = new Handler();
     // Schedule any pending actions.
@@ -216,7 +219,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     // Do nothing.
   }
 
-  // SimpleExoPlayer.DebugListener
+  // AudioRendererEventListener
 
   @Override
   public void onAudioEnabled(DecoderCounters counters) {
@@ -235,7 +238,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public void onAudioFormatChanged(Format format) {
+  public void onAudioInputFormatChanged(Format format) {
     Log.d(tag, "audioFormatChanged [" + format.id + "]");
   }
 
@@ -244,6 +247,14 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     Log.d(tag, "audioDisabled");
     audioDecoderCounters.merge(counters);
   }
+
+  @Override
+  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    Log.e(tag, "audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
+        + elapsedSinceLastFeedMs + "]", null);
+  }
+
+  // VideoRendererEventListener
 
   @Override
   public void onVideoEnabled(DecoderCounters counters) {
@@ -257,7 +268,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public void onVideoFormatChanged(Format format) {
+  public void onVideoInputFormatChanged(Format format) {
     Log.d(tag, "videoFormatChanged [" + format.id + "]");
   }
 
@@ -273,9 +284,14 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    Log.e(tag, "audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
-        + elapsedSinceLastFeedMs + "]", null);
+  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+      float pixelWidthHeightRatio) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onRenderedFirstFrame(Surface surface) {
+    // Do nothing.
   }
 
   // Internal logic

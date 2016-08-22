@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Contains information about a {@link MediaCodec} decoder.
+ * Information about a {@link MediaCodec} for a given mime type.
  */
 @TargetApi(16)
 public final class MediaCodecInfo {
@@ -51,10 +51,24 @@ public final class MediaCodecInfo {
   private final String mimeType;
   private final CodecCapabilities capabilities;
 
+  /**
+   * Creates an instance representing an audio passthrough decoder.
+   *
+   * @param name The name of the {@link MediaCodec}.
+   * @return The created instance.
+   */
   public static MediaCodecInfo newPassthroughInstance(String name) {
     return new MediaCodecInfo(name, null, null);
   }
 
+  /**
+   * Creates an instance.
+   *
+   * @param name The name of the {@link MediaCodec}.
+   * @param mimeType A mime type supported by the {@link MediaCodec}.
+   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type.
+   * @return The created instance.
+   */
   public static MediaCodecInfo newInstance(String name, String mimeType,
       CodecCapabilities capabilities) {
     return new MediaCodecInfo(name, mimeType, capabilities);

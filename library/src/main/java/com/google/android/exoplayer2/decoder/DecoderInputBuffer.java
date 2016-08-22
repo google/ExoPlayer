@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 
 /**
- * Holds input for a decoder and corresponding metadata.
+ * Holds input for a decoder.
  */
 public class DecoderInputBuffer extends Buffer {
 

@@ -33,7 +33,7 @@ import java.io.IOException;
 public final class PsExtractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is a {@link PsExtractor}.
+   * Factory for {@link PsExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

@@ -50,7 +50,7 @@ import java.util.UUID;
 public final class FragmentedMp4Extractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is a {@link FragmentedMp4Extractor}.
+   * Factory for {@link FragmentedMp4Extractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

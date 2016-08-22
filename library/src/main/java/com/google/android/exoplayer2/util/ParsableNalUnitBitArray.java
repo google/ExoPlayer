@@ -78,9 +78,10 @@ public final class ParsableNalUnitBitArray {
   }
 
   /**
-   * Returns whether it is possible to read {@code n} bits starting from the current offset. The
+   * Returns whether it's possible to read {@code n} bits starting from the current offset. The
    * offset is not modified.
    *
+   * @param n The number of bits.
    * @return Whether it is possible to read {@code n} bits.
    */
   public boolean canReadBits(int n) {

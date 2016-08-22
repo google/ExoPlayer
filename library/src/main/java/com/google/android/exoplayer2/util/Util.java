@@ -141,6 +141,7 @@ public final class Util {
    * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
    * permission read the specified {@link Uri}s, requesting the permission if necessary.
    *
+   * @param activity The host activity for checking and requesting the permission.
    * @param uris {@link Uri}s that may require {@link permission#READ_EXTERNAL_STORAGE} to read.
    * @return Whether a permission request was made.
    */
@@ -310,104 +311,108 @@ public final class Util {
 
   /**
    * Returns the index of the largest value in an array that is less than (or optionally equal to)
-   * a specified key.
+   * a specified value.
    * <p>
-   * The search is performed using a binary search algorithm, and so the array must be sorted.
+   * The search is performed using a binary search algorithm, so the array must be sorted.
    *
    * @param a The array to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the array, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the largest value in the array that is
-   *     strictly less than the key.
-   * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the array, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the largest value in the array that
+   *     is strictly less than the value.
+   * @param stayInBounds If true, then 0 will be returned in the case that the value is smaller than
    *     the smallest value in the array. If false then -1 will be returned.
    */
-  public static int binarySearchFloor(int[] a, int key, boolean inclusive, boolean stayInBounds) {
-    int index = Arrays.binarySearch(a, key);
+  public static int binarySearchFloor(int[] a, int value, boolean inclusive, boolean stayInBounds) {
+    int index = Arrays.binarySearch(a, value);
     index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
     return stayInBounds ? Math.max(0, index) : index;
   }
 
   /**
    * Returns the index of the largest value in an array that is less than (or optionally equal to)
-   * a specified key.
+   * a specified value.
    * <p>
-   * The search is performed using a binary search algorithm, and so the array must be sorted.
+   * The search is performed using a binary search algorithm, so the array must be sorted.
    *
    * @param a The array to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the array, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the largest value in the array that is
-   *     strictly less than the key.
-   * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the array, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the largest value in the array that
+   *     is strictly less than the value.
+   * @param stayInBounds If true, then 0 will be returned in the case that the value is smaller than
    *     the smallest value in the array. If false then -1 will be returned.
    */
-  public static int binarySearchFloor(long[] a, long key, boolean inclusive, boolean stayInBounds) {
-    int index = Arrays.binarySearch(a, key);
+  public static int binarySearchFloor(long[] a, long value, boolean inclusive,
+      boolean stayInBounds) {
+    int index = Arrays.binarySearch(a, value);
     index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
     return stayInBounds ? Math.max(0, index) : index;
   }
 
   /**
    * Returns the index of the smallest value in an array that is greater than (or optionally equal
-   * to) a specified key.
+   * to) a specified value.
    * <p>
-   * The search is performed using a binary search algorithm, and so the array must be sorted.
+   * The search is performed using a binary search algorithm, so the array must be sorted.
    *
    * @param a The array to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the array, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the smallest value in the array that is
-   *     strictly greater than the key.
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the array, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the largest value in the array that
+   *     is strictly less than the value.
    * @param stayInBounds If true, then {@code (a.length - 1)} will be returned in the case that the
-   *     key is greater than the largest value in the array. If false then {@code a.length} will be
-   *     returned.
+   *     value is greater than the largest value in the array. If false then {@code a.length} will
+   *     be returned.
    */
-  public static int binarySearchCeil(long[] a, long key, boolean inclusive, boolean stayInBounds) {
-    int index = Arrays.binarySearch(a, key);
+  public static int binarySearchCeil(long[] a, long value, boolean inclusive,
+      boolean stayInBounds) {
+    int index = Arrays.binarySearch(a, value);
     index = index < 0 ? ~index : (inclusive ? index : (index + 1));
     return stayInBounds ? Math.min(a.length - 1, index) : index;
   }
 
   /**
    * Returns the index of the largest value in an list that is less than (or optionally equal to)
-   * a specified key.
+   * a specified value.
    * <p>
-   * The search is performed using a binary search algorithm, and so the list must be sorted.
+   * The search is performed using a binary search algorithm, so the list must be sorted.
    *
+   * @param <T> The type of values being searched.
    * @param list The list to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the list, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the largest value in the list that is
-   *     strictly less than the key.
-   * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the list, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the largest value in the list that
+   *     is strictly less than the value.
+   * @param stayInBounds If true, then 0 will be returned in the case that the value is smaller than
    *     the smallest value in the list. If false then -1 will be returned.
    */
-  public static<T> int binarySearchFloor(List<? extends Comparable<? super T>> list, T key,
+  public static <T> int binarySearchFloor(List<? extends Comparable<? super T>> list, T value,
       boolean inclusive, boolean stayInBounds) {
-    int index = Collections.binarySearch(list, key);
+    int index = Collections.binarySearch(list, value);
     index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
     return stayInBounds ? Math.max(0, index) : index;
   }
 
   /**
    * Returns the index of the smallest value in an list that is greater than (or optionally equal
-   * to) a specified key.
+   * to) a specified value.
    * <p>
-   * The search is performed using a binary search algorithm, and so the list must be sorted.
+   * The search is performed using a binary search algorithm, so the list must be sorted.
    *
+   * @param <T> The type of values being searched.
    * @param list The list to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the list, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the smallest value in the list that is
-   *     strictly greater than the key.
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the list, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the smallest value in the list that
+   *     is strictly greater than the value.
    * @param stayInBounds If true, then {@code (list.size() - 1)} will be returned in the case that
-   *     the key is greater than the largest value in the list. If false then {@code list.size()}
+   *     the value is greater than the largest value in the list. If false then {@code list.size()}
    *     will be returned.
    */
-  public static<T> int binarySearchCeil(List<? extends Comparable<? super T>> list, T key,
+  public static <T> int binarySearchCeil(List<? extends Comparable<? super T>> list, T value,
       boolean inclusive, boolean stayInBounds) {
-    int index = Collections.binarySearch(list, key);
+    int index = Collections.binarySearch(list, value);
     index = index < 0 ? ~index : (inclusive ? index : (index + 1));
     return stayInBounds ? Math.min(list.size() - 1, index) : index;
   }
@@ -612,7 +617,9 @@ public final class Util {
 
   /**
    * Returns the integer equal to the big-endian concatenation of the characters in {@code string}
-   * as bytes. {@code string} must contain four or fewer characters.
+   * as bytes. The string must be no more than four characters long.
+   *
+   * @param string A string no more than four characters long.
    */
   public static int getIntegerCodeForString(String string) {
     int length = string.length();
@@ -641,7 +648,11 @@ public final class Util {
     return data;
   }
 
-  /** Returns a hex string representation of the given byte array. */
+  /**
+   * Returns a hex string representation of the given byte array.
+   *
+   * @param bytes The byte array.
+   */
   public static String getHexString(byte[] bytes) {
     char[] hexChars = new char[bytes.length * 2];
     int i = 0;
@@ -658,7 +669,7 @@ public final class Util {
    * @param objects The objects whose simple class names should be comma delimited and returned.
    * @return A string with comma delimited simple names of each object's class.
    */
-  public static <T> String getCommaDelimitedSimpleClassNames(T[] objects) {
+  public static String getCommaDelimitedSimpleClassNames(Object[] objects) {
     StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < objects.length; i++) {
       stringBuilder.append(objects[i].getClass().getSimpleName());
@@ -856,7 +867,11 @@ public final class Util {
     return builder.toString();
   }
 
-  /** Returns the SHA-1 digest of input as a hex string. */
+  /**
+   * Returns the SHA-1 digest of {@code input} as a hex string.
+   *
+   * @param input The string whose SHA-1 digest is required.
+   */
   public static String sha1(String input) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-1");

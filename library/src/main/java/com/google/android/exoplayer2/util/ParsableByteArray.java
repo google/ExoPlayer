@@ -36,6 +36,8 @@ public final class ParsableByteArray {
 
   /**
    * Creates a new instance with {@code length} bytes.
+   *
+   * @param length The length of the array.
    */
   public ParsableByteArray(int length) {
     this.data = new byte[length];
@@ -44,6 +46,8 @@ public final class ParsableByteArray {
 
   /**
    * Creates a new instance wrapping {@code data}.
+   *
+   * @param data The array to wrap.
    */
   public ParsableByteArray(byte[] data) {
     this.data = data;
@@ -135,6 +139,7 @@ public final class ParsableByteArray {
   /**
    * Moves the reading offset by {@code bytes}.
    *
+   * @param bytes The number of bytes to skip.
    * @throws IllegalArgumentException Thrown if the new position is neither in nor at the end of the
    *     array.
    */
@@ -157,7 +162,10 @@ public final class ParsableByteArray {
   /**
    * Reads the next {@code length} bytes into {@code buffer} at {@code offset}.
    *
-   * @see System#arraycopy
+   * @see System#arraycopy(Object, int, Object, int, int)
+   * @param buffer The array into which the read data should be written.
+   * @param offset The offset in {@code buffer} at which the read data should be written.
+   * @param length The number of bytes to read.
    */
   public void readBytes(byte[] buffer, int offset, int length) {
     System.arraycopy(data, position, buffer, offset, length);
@@ -168,6 +176,8 @@ public final class ParsableByteArray {
    * Reads the next {@code length} bytes into {@code buffer}.
    *
    * @see ByteBuffer#put(byte[], int, int)
+   * @param buffer The {@link ByteBuffer} into which the read data should be written.
+   * @param length The number of bytes to read.
    */
   public void readBytes(ByteBuffer buffer, int length) {
     buffer.put(data, position, length);

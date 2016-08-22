@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.text.eia608.Eia608Decoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
@@ -26,7 +25,7 @@ import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
- * A factory for {@link Decoder} instances that will decode subtitles.
+ * A factory for {@link SubtitleDecoder} instances.
  */
 public interface SubtitleDecoderFactory {
 

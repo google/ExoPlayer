@@ -42,7 +42,7 @@ import java.util.Stack;
 public final class Mp4Extractor implements Extractor, SeekMap {
 
   /**
-   * Factory that returns one extractor which is an {@link Mp4Extractor}.
+   * Factory for {@link Mp4Extractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

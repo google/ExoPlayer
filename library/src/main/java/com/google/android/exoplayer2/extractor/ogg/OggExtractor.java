@@ -31,7 +31,7 @@ import java.io.IOException;
 public class OggExtractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is an {@link OggExtractor}.
+   * Factory for {@link OggExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

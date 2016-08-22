@@ -31,7 +31,7 @@ public final class UnsupportedDrmException extends Exception {
   public static final int REASON_INSTANTIATION_ERROR = 2;
 
   /**
-   * {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
+   * Either {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
    */
   public final int reason;
 

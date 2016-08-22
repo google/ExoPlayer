@@ -27,7 +27,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,24 +35,14 @@ import java.util.List;
 public final class Format implements Parcelable {
 
   /**
-   * Sorts {@link Format} objects in order of decreasing bandwidth.
+   * A value for various fields to indicate that the field's value is unknown or not applicable.
    */
-  public static final class DecreasingBandwidthComparator implements Comparator<Format> {
-
-    @Override
-    public int compare(Format a, Format b) {
-      return b.bitrate - a.bitrate;
-    }
-
-  }
-
   public static final int NO_VALUE = -1;
 
   /**
    * Indicates that the track should be selected if user preferences do not state otherwise.
    */
   public static final int SELECTION_FLAG_DEFAULT = 1;
-
   /**
    * Indicates that the track must be displayed. Only applies to text tracks.
    */
@@ -595,6 +584,9 @@ public final class Format implements Parcelable {
     dest.writeParcelable(drmInitData, 0);
   }
 
+  /**
+   * {@link Creator} implementation.
+   */
   public static final Creator<Format> CREATOR = new Creator<Format>() {
 
     @Override

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.text;
 
 /**
- * Thrown when an error occurs decoding text data.
+ * Thrown when an error occurs decoding subtitle data.
  */
 public class SubtitleDecoderException extends Exception {
 

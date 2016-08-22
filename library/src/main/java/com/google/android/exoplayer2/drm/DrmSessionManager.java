@@ -25,10 +25,8 @@ import android.os.Looper;
 public interface DrmSessionManager {
 
   /**
-   * Acquires a {@link DrmSession} for the specified {@link DrmInitData}.
-   * <p>
-   * The {@link DrmSession} must be returned to {@link #releaseSession(DrmSession)} when it is no
-   * longer required
+   * Acquires a {@link DrmSession} for the specified {@link DrmInitData}. The {@link DrmSession}
+   * must be returned to {@link #releaseSession(DrmSession)} when it is no longer required.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param drmInitData DRM initialization data.

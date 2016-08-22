@@ -25,7 +25,7 @@ import android.media.MediaCrypto;
 public interface DrmSession {
 
   /**
-   * The session is in an error state. {@link #getError()} can be used to retrieve the cause.
+   * The session has encountered an error. {@link #getError()} can be used to retrieve the cause.
    */
   int STATE_ERROR = 0;
   /**
@@ -56,7 +56,7 @@ public interface DrmSession {
   /**
    * Returns a {@link MediaCrypto} for the open session.
    * <p>
-   * This method may be called when the manager is in the following states:
+   * This method may be called when the session is in the following states:
    * {@link #STATE_OPENED}, {@link #STATE_OPENED_WITH_KEYS}
    *
    * @return A {@link MediaCrypto} for the open session.
@@ -71,7 +71,7 @@ public interface DrmSession {
    * however in some cases implementations  may wish to modify the return value (i.e. to force a
    * secure decoder even when one is not required).
    * <p>
-   * This method may be called when the manager is in the following states:
+   * This method may be called when the session is in the following states:
    * {@link #STATE_OPENED}, {@link #STATE_OPENED_WITH_KEYS}
    *
    * @return Whether the open session requires a secure decoder for the specified mime type.
@@ -82,7 +82,7 @@ public interface DrmSession {
   /**
    * Returns the cause of the error state.
    * <p>
-   * This method may be called when the manager is in any state.
+   * This method may be called when the session is in any state.
    *
    * @return An exception if the state is {@link #STATE_ERROR}. Null otherwise.
    */

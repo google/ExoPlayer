@@ -39,7 +39,7 @@ import java.util.List;
 public final class TextRenderer extends BaseRenderer implements Callback {
 
   /**
-   * An output for the renderer.
+   * Receives output from a {@link TextRenderer}.
    */
   public interface Output {
 

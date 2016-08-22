@@ -636,7 +636,7 @@ import java.io.IOException;
     loadingPeriod = null;
     timeline = null;
     bufferAheadPeriodCount = 0;
-    loadControl.reset();
+    loadControl.onTracksDisabled();
     setIsLoading(false);
   }
 
@@ -1253,7 +1253,7 @@ import java.io.IOException;
       }
 
       // The track selection has changed.
-      loadControl.onTrackSelections(renderers, mediaPeriod.getTrackGroups(), trackSelections);
+      loadControl.onTracksSelected(renderers, mediaPeriod.getTrackGroups(), trackSelections);
       return positionUs;
     }
 

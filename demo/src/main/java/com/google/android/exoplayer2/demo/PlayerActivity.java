@@ -275,7 +275,8 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
           drmSessionManager, preferExtensionDecoders);
       player.addListener(this);
       player.addListener(eventLogger);
-      player.setDebugListener(eventLogger);
+      player.setAudioDebugListener(eventLogger);
+      player.setVideoDebugListener(eventLogger);
       player.setId3Output(eventLogger);
       player.setTextOutput(subtitleView);
       player.setVideoListener(this);

@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.UUID;
 
 /**
- * Defines constants that are generally useful throughout the library.
+ * Defines constants used by the library.
  */
 public final class C {
 

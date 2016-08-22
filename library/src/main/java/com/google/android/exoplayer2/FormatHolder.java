@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2;
 
 /**
- * Holds a {@link Format} and corresponding drm scheme initialization data.
+ * Holds a {@link Format}.
  */
 public final class FormatHolder {
 
   /**
-   * The format of the media.
+   * The held {@link Format}.
    */
   public Format format;
 

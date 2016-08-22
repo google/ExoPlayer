@@ -21,15 +21,14 @@ import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 
 /**
- * Renders media samples read from a {@link SampleStream}.
+ * Renders media read from a {@link SampleStream}.
  * <p>
- * Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The player will
- * transition its renderers through various states as the overall playback state changes. The valid
- * state transitions are shown below, annotated with the methods that are called during each
- * transition.
- * <p align="center"><img src="doc-files/renderer-states.png"
- *     alt="Renderer state transitions"
- *     border="0"></p>
+ * Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The renderer is
+ * transitioned through various states as the overall playback state changes. The valid state
+ * transitions are shown below, annotated with the methods that are called during each transition.
+ * <p align="center">
+ *   <img src="doc-files/renderer-states.svg" alt="Renderer state transitions">
+ * </p>
  */
 public interface Renderer extends ExoPlayerComponent {
 
@@ -38,8 +37,8 @@ public interface Renderer extends ExoPlayerComponent {
    */
   int STATE_DISABLED = 0;
   /**
-   * The renderer is enabled but not started. A renderer in this state will typically hold any
-   * resources that it requires for rendering (e.g. media decoders).
+   * The renderer is enabled but not started. A renderer in this state is not actively rendering
+   * media, but will typically hold resources that it requires for rendering (e.g. media decoders).
    */
   int STATE_ENABLED = 1;
   /**
@@ -88,7 +87,7 @@ public interface Renderer extends ExoPlayerComponent {
   int getState();
 
   /**
-   * Enable the renderer to consume from the specified {@link SampleStream}.
+   * Enables the renderer to consume from the specified {@link SampleStream}.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_DISABLED}.
@@ -165,7 +164,7 @@ public interface Renderer extends ExoPlayerComponent {
   void maybeThrowStreamError() throws IOException;
 
   /**
-   * Called when a position discontinuity is encountered.
+   * Signals to the renderer that a position discontinuity has occurred.
    * <p>
    * After a position discontinuity, the renderer's {@link SampleStream} is guaranteed to provide
    * samples starting from a key frame.
@@ -231,7 +230,7 @@ public interface Renderer extends ExoPlayerComponent {
   boolean isEnded();
 
   /**
-   * Stops the renderer.
+   * Stops the renderer, transitioning it to the {@link #STATE_ENABLED} state.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_STARTED}.
@@ -241,7 +240,7 @@ public interface Renderer extends ExoPlayerComponent {
   void stop() throws ExoPlaybackException;
 
   /**
-   * Disable the renderer.
+   * Disable the renderer, transitioning it to the {@link #STATE_DISABLED} state.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}.

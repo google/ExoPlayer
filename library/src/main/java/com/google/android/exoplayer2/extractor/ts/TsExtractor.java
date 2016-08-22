@@ -38,7 +38,7 @@ import java.io.IOException;
 public final class TsExtractor implements Extractor {
 
   /**
-   * Factory that returns one extractor which is a {@link TsExtractor}.
+   * Factory for {@link TsExtractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 

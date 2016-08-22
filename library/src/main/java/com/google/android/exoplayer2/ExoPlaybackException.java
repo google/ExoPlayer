@@ -54,14 +54,33 @@ public final class ExoPlaybackException extends Exception {
    */
   public final int rendererIndex;
 
+  /**
+   * Creates an instance of type {@link #TYPE_RENDERER}.
+   *
+   * @param cause The cause of the failure.
+   * @param rendererIndex The index of the renderer in which the failure occurred.
+   * @return The created instance.
+   */
   public static ExoPlaybackException createForRenderer(Exception cause, int rendererIndex) {
     return new ExoPlaybackException(TYPE_RENDERER, null, cause, rendererIndex);
   }
 
+  /**
+   * Creates an instance of type {@link #TYPE_SOURCE}.
+   *
+   * @param cause The cause of the failure.
+   * @return The created instance.
+   */
   public static ExoPlaybackException createForSource(IOException cause) {
     return new ExoPlaybackException(TYPE_SOURCE, null, cause, C.INDEX_UNSET);
   }
 
+  /**
+   * Creates an instance of type {@link #TYPE_UNEXPECTED}.
+   *
+   * @param cause The cause of the failure.
+   * @return The created instance.
+   */
   /* package */ static ExoPlaybackException createForUnexpected(RuntimeException cause) {
     return new ExoPlaybackException(TYPE_UNEXPECTED, null, cause, C.INDEX_UNSET);
   }
@@ -74,6 +93,8 @@ public final class ExoPlaybackException extends Exception {
 
   /**
    * Retrieves the underlying error when {@link #type} is {@link #TYPE_SOURCE}.
+   *
+   * @throws IllegalStateException If {@link #type} is not {@link #TYPE_SOURCE}.
    */
   public IOException getSourceException() {
     Assertions.checkState(type == TYPE_SOURCE);
@@ -82,6 +103,8 @@ public final class ExoPlaybackException extends Exception {
 
   /**
    * Retrieves the underlying error when {@link #type} is {@link #TYPE_RENDERER}.
+   *
+   * @throws IllegalStateException If {@link #type} is not {@link #TYPE_RENDERER}.
    */
   public Exception getRendererException() {
     Assertions.checkState(type == TYPE_RENDERER);
@@ -90,6 +113,8 @@ public final class ExoPlaybackException extends Exception {
 
   /**
    * Retrieves the underlying error when {@link #type} is {@link #TYPE_UNEXPECTED}.
+   *
+   * @throws IllegalStateException If {@link #type} is not {@link #TYPE_UNEXPECTED}.
    */
   public RuntimeException getUnexpectedException() {
     Assertions.checkState(type == TYPE_UNEXPECTED);
