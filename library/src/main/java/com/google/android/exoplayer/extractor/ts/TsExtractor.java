@@ -25,6 +25,7 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
@@ -64,6 +65,9 @@ public final class TsExtractor implements Extractor {
   private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
   private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
+  private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
+  private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
+
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final int workaroundFlags;
   private final ParsableByteArray tsPacketBuffer;
@@ -87,7 +91,7 @@ public final class TsExtractor implements Extractor {
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, int workaroundFlags) {
     this.ptsTimestampAdjuster = ptsTimestampAdjuster;
     this.workaroundFlags = workaroundFlags;
-    tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
+    tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
@@ -99,15 +103,20 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    byte[] scratch = new byte[1];
-    for (int i = 0; i < 5; i++) {
-      input.peekFully(scratch, 0, 1);
-      if ((scratch[0] & 0xFF) != 0x47) {
-        return false;
+    byte[] buffer = tsPacketBuffer.data;
+    input.peekFully(buffer, 0, BUFFER_SIZE);
+    for (int j = 0; j < TS_PACKET_SIZE; j++) {
+      for (int i = 0; true; i++) {
+        if (i == BUFFER_PACKET_COUNT) {
+          input.skipFully(j);
+          return true;
+        }
+        if (buffer[j + i * TS_PACKET_SIZE] != TS_SYNC_BYTE) {
+          break;
+        }
       }
-      input.advancePeekPosition(TS_PACKET_SIZE - 1);
     }
-    return true;
+    return false;
   }
 
   @Override
@@ -122,6 +131,7 @@ public final class TsExtractor implements Extractor {
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();
     }
+    tsPacketBuffer.reset();
   }
 
   @Override
@@ -132,19 +142,40 @@ public final class TsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
-    if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
-      return RESULT_END_OF_INPUT;
+    byte[] data = tsPacketBuffer.data;
+    // Shift bytes to the start of the buffer if there isn't enough space left at the end
+    if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
+      int bytesLeft = tsPacketBuffer.bytesLeft();
+      if (bytesLeft > 0) {
+        System.arraycopy(data, tsPacketBuffer.getPosition(), data, 0, bytesLeft);
+      }
+      tsPacketBuffer.reset(data, bytesLeft);
+    }
+    // Read more bytes until there is at least one packet size
+    while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
+      int limit = tsPacketBuffer.limit();
+      int read = input.read(data, limit, BUFFER_SIZE - limit);
+      if (read == C.RESULT_END_OF_INPUT) {
+        return RESULT_END_OF_INPUT;
+      }
+      tsPacketBuffer.setLimit(limit + read);
     }
 
     // Note: see ISO/IEC 13818-1, section 2.4.3.2 for detailed information on the format of
     // the header.
-    tsPacketBuffer.setPosition(0);
-    tsPacketBuffer.setLimit(TS_PACKET_SIZE);
-    int syncByte = tsPacketBuffer.readUnsignedByte();
-    if (syncByte != TS_SYNC_BYTE) {
+    final int limit = tsPacketBuffer.limit();
+    int position = tsPacketBuffer.getPosition();
+    while (position < limit && data[position] != TS_SYNC_BYTE) {
+      position++;
+    }
+    tsPacketBuffer.setPosition(position);
+
+    int endOfPacket = position + TS_PACKET_SIZE;
+    if (endOfPacket > limit) {
       return RESULT_CONTINUE;
     }
 
+    tsPacketBuffer.skipBytes(1);
     tsPacketBuffer.readBytes(tsScratch, 3);
     tsScratch.skipBits(1); // transport_error_indicator
     boolean payloadUnitStartIndicator = tsScratch.readBit();
@@ -165,10 +196,14 @@ public final class TsExtractor implements Extractor {
     if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
       if (payloadReader != null) {
+        tsPacketBuffer.setLimit(endOfPacket);
         payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
+        Assertions.checkState(tsPacketBuffer.getPosition() <= endOfPacket);
+        tsPacketBuffer.setLimit(limit);
       }
     }
 
+    tsPacketBuffer.setPosition(endOfPacket);
     return RESULT_CONTINUE;
   }
 
