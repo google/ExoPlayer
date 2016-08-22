@@ -29,7 +29,7 @@ import java.io.IOException;
  * transition.
  * <p align="center"><img src="doc-files/renderer-states.png"
  *     alt="Renderer state transitions"
- *     border="0"/></p>
+ *     border="0"></p>
  */
 public interface Renderer extends ExoPlayerComponent {
 

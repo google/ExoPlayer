@@ -56,7 +56,7 @@ import com.google.android.exoplayer2.source.MediaSource;
  * <p>The figure below shows the {@link ExoPlayer} threading model.</p>
  * <p align="center"><img src="doc-files/exoplayer-threading-model.png"
  *     alt="MediaPlayer state diagram"
- *     border="0"/></p>
+ *     border="0"></p>
  *
  * <ul>
  * <li>It is recommended that instances are created and accessed from a single application thread.
@@ -84,14 +84,14 @@ import com.google.android.exoplayer2.source.MediaSource;
  *
  * <p align="center"><img src="doc-files/exoplayer-state.png"
  *     alt="ExoPlayer state"
- *     border="0"/></p>
+ *     border="0"></p>
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link Renderer}s being used, or as a result of
  * {@link #setMediaSource(MediaSource)}, {@link #stop()} or {@link #release()} being called.</p>
  * <p align="center"><img src="doc-files/exoplayer-playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
- *     border="0"/></p>
+ *     border="0"></p>
  */
 public interface ExoPlayer {
 

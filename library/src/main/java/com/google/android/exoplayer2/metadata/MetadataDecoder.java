@@ -31,11 +31,11 @@ public interface MetadataDecoder<T> {
   boolean canDecode(String mimeType);
 
   /**
-   * Decodes metadata objects of type <T> from the provided binary data.
+   * Decodes metadata object from the provided binary data.
    *
    * @param data The raw binary data from which to decode the metadata.
    * @param size The size of the input data.
-   * @return @return A decoded metadata object of type <T>.
+   * @return @return A decoded metadata object.
    * @throws MetadataDecoderException If a problem occurred decoding the data.
    */
   T decode(byte[] data, int size) throws MetadataDecoderException;
