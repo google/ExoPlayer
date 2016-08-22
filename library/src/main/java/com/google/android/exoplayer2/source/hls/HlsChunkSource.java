@@ -309,7 +309,8 @@ public class HlsChunkSource {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
         return;
       }
-      int workaroundFlags = 0;
+      // This flag ensures the change of pid between streams does not affect the sample queues.
+      int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
       String codecs = variants[newVariantIndex].codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
