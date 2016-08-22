@@ -18,7 +18,7 @@ package com.google.android.exoplayer2;
 /**
  * The player's timeline consisting of one or more periods. Instances are immutable.
  */
-public interface Timeline {
+public interface MediaTimeline {
 
   /**
    * Returns the number of periods in the timeline.
@@ -50,8 +50,7 @@ public interface Timeline {
 
   /**
    * Returns a unique identifier for the period at {@code periodIndex}, or {@code null} if the
-   * period at {@code periodIndex} is not known. The identifier is stable across {@link Timeline}
-   * changes.
+   * period at {@code periodIndex} is not known. The identifier is stable across timeline changes.
    *
    * @param periodIndex A period index.
    * @return An identifier for the period, or {@code null} if the period is not known.
@@ -59,12 +58,12 @@ public interface Timeline {
   Object getPeriodId(int periodIndex);
 
   /**
-   * Returns the {@link Window} to which the period with the specified index belongs.
+   * Returns the {@link MediaWindow} to which the period with the specified index belongs.
    *
    * @param periodIndex The period index.
    * @return The corresponding window.
    */
-  Window getPeriodWindow(int periodIndex);
+  MediaWindow getPeriodWindow(int periodIndex);
 
   /**
    * Returns the index of the window to which the period with the specified index belongs.
@@ -89,14 +88,14 @@ public interface Timeline {
   int getWindowCount();
 
   /**
-   * Returns the {@link Window} at the specified index.
+   * Returns the {@link MediaWindow} at the specified index.
    *
    * @param windowIndex The window index.
    */
-  Window getWindow(int windowIndex);
+  MediaWindow getWindow(int windowIndex);
 
   /**
-   * Returns the index of the first period belonging to the {@link Window} at the specified index.
+   * Returns the index of the first period belonging to the window at the specified index.
    *
    * @param windowIndex The window index.
    * @return The index of the first period in the window.
@@ -104,7 +103,7 @@ public interface Timeline {
   int getWindowFirstPeriodIndex(int windowIndex);
 
   /**
-   * Returns the index of the last period belonging to the {@link Window} at the specified index.
+   * Returns the index of the last period belonging to the window at the specified index.
    *
    * @param windowIndex The window index.
    * @return The index of the last period in the window.

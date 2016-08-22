@@ -19,15 +19,15 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.MediaWindow;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.SinglePeriodMediaTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
@@ -157,7 +157,7 @@ public final class SsMediaSource implements MediaSource,
     for (int i = 0; i < mediaPeriods.size(); i++) {
       mediaPeriods.get(i).updateManifest(manifest);
     }
-    Timeline timeline;
+    MediaTimeline timeline;
     if (manifest.isLive) {
       long startTimeUs = Long.MAX_VALUE;
       long endTimeUs = Long.MIN_VALUE;
@@ -170,7 +170,7 @@ public final class SsMediaSource implements MediaSource,
         }
       }
       if (startTimeUs == Long.MAX_VALUE) {
-        timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
+        timeline = new SinglePeriodMediaTimeline(C.TIME_UNSET, false);
       } else {
         if (manifest.dvrWindowLengthUs != C.TIME_UNSET
             && manifest.dvrWindowLengthUs > 0) {
@@ -178,13 +178,13 @@ public final class SsMediaSource implements MediaSource,
         }
         long durationUs = endTimeUs - startTimeUs;
         long defaultInitialStartPositionUs = Math.max(0, durationUs - (liveEdgeOffsetMs * 1000));
-        Window window = new Window(durationUs, true /* isSeekable */, true /* isDynamic */,
-            defaultInitialStartPositionUs);
-        timeline = new SinglePeriodTimeline(startTimeUs, window);
+        MediaWindow window = new MediaWindow(durationUs, true /* isSeekable */,
+            true /* isDynamic */, defaultInitialStartPositionUs);
+        timeline = new SinglePeriodMediaTimeline(startTimeUs, window);
       }
     } else {
       boolean isSeekable = manifest.durationUs != C.TIME_UNSET;
-      timeline = new SinglePeriodTimeline(manifest.durationUs, isSeekable);
+      timeline = new SinglePeriodMediaTimeline(manifest.durationUs, isSeekable);
     }
     sourceListener.onSourceInfoRefreshed(timeline, manifest);
     scheduleManifestRefresh();

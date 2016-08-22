@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -94,7 +94,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   private final EventListener eventListener;
 
   private MediaSource.Listener sourceListener;
-  private Timeline timeline;
+  private MediaTimeline timeline;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -135,7 +135,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
+    timeline = new SinglePeriodMediaTimeline(C.TIME_UNSET, false);
     listener.onSourceInfoRefreshed(timeline, null);
   }
 
@@ -166,7 +166,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   // MediaSource.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
     if (this.timeline.getPeriodDurationUs(0) != C.TIME_UNSET
         && timeline.getPeriodDurationUs(0) == C.TIME_UNSET) {
       // Suppress source info changes that would make the duration unknown when it is already known.

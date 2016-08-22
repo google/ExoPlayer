@@ -27,6 +27,7 @@ import java.util.IdentityHashMap;
 /* package */ final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   public final MediaPeriod[] periods;
+
   private final Callback callback;
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
 

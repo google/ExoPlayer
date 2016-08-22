@@ -18,19 +18,19 @@ package com.google.android.exoplayer2;
 /**
  * A window of available media. Instances are immutable.
  */
-public final class Window {
+public final class MediaWindow {
 
   /**
-   * Creates a new {@link Window} consisting of a single period with the specified duration. The
-   * default start position is zero.
+   * Creates a new window consisting of a single period with the specified duration. The default
+   * start position is zero.
    *
    * @param durationUs The duration of the window, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether this seek window may change when the timeline is updated.
    */
-  public static Window createWindowFromZero(long durationUs, boolean isSeekable,
+  public static MediaWindow createWindowFromZero(long durationUs, boolean isSeekable,
       boolean isDynamic) {
-    return new Window(durationUs, isSeekable, isDynamic, 0);
+    return new MediaWindow(durationUs, isSeekable, isDynamic, 0);
   }
 
   /**
@@ -59,7 +59,7 @@ public final class Window {
    * @param defaultStartPositionUs The default position relative to the start of the window at which
    *     to start playback, in microseconds.
    */
-  public Window(long durationUs, boolean isSeekable, boolean isDynamic,
+  public MediaWindow(long durationUs, boolean isSeekable, boolean isDynamic,
       long defaultStartPositionUs) {
     this.durationUs = durationUs;
     this.isSeekable = isSeekable;
@@ -85,7 +85,7 @@ public final class Window {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    Window other = (Window) obj;
+    MediaWindow other = (MediaWindow) obj;
     return other.durationUs == durationUs
         && other.isSeekable == isSeekable
         && other.isDynamic == isDynamic
@@ -94,7 +94,7 @@ public final class Window {
 
   @Override
   public String toString() {
-    return "Window[" + durationUs + ", " + defaultStartPositionUs + ", " + isSeekable + ", "
+    return "MediaWindow[" + durationUs + ", " + defaultStartPositionUs + ", " + isSeekable + ", "
         + isDynamic + "]";
   }
 

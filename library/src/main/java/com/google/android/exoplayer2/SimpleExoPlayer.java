@@ -505,7 +505,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public Timeline getCurrentTimeline() {
+  public MediaTimeline getCurrentTimeline() {
     return player.getCurrentTimeline();
   }
 

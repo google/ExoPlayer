@@ -19,14 +19,14 @@ import android.net.Uri;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.SinglePeriodMediaTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -282,7 +282,7 @@ import java.util.List;
     callback.onPrepared(this);
 
     // TODO[playlists]: Calculate the window.
-    Timeline timeline = new SinglePeriodTimeline(durationUs, !isLive);
+    MediaTimeline timeline = new SinglePeriodMediaTimeline(durationUs, !isLive);
     sourceListener.onSourceInfoRefreshed(timeline, playlist);
   }
 

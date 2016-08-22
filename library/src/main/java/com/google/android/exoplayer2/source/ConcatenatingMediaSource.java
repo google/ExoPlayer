@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Window;
+import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.MediaWindow;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
@@ -32,18 +32,18 @@ import java.util.Map;
 public final class ConcatenatingMediaSource implements MediaSource {
 
   private final MediaSource[] mediaSources;
-  private final Timeline[] timelines;
+  private final MediaTimeline[] timelines;
   private final Object[] manifests;
   private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
 
-  private ConcatenatedTimeline timeline;
+  private ConcatenatedMediaTimeline timeline;
 
   /**
    * @param mediaSources The {@link MediaSource}s to concatenate.
    */
   public ConcatenatingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
-    timelines = new Timeline[mediaSources.length];
+    timelines = new MediaTimeline[mediaSources.length];
     manifests = new Object[mediaSources.length];
     sourceIndexByMediaPeriod = new HashMap<>();
   }
@@ -55,16 +55,16 @@ public final class ConcatenatingMediaSource implements MediaSource {
       mediaSources[i].prepareSource(new Listener() {
 
         @Override
-        public void onSourceInfoRefreshed(Timeline sourceTimeline, Object manifest) {
+        public void onSourceInfoRefreshed(MediaTimeline sourceTimeline, Object manifest) {
           timelines[index] = sourceTimeline;
           manifests[index] = manifest;
-          for (Timeline timeline : timelines) {
+          for (MediaTimeline timeline : timelines) {
             if (timeline == null) {
               // Don't invoke the listener until all sources have timelines.
               return;
             }
           }
-          timeline = new ConcatenatedTimeline(timelines.clone());
+          timeline = new ConcatenatedMediaTimeline(timelines.clone());
           listener.onSourceInfoRefreshed(timeline, manifests.clone());
         }
 
@@ -105,21 +105,21 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   /**
-   * A {@link Timeline} that is the concatenation of one or more {@link Timeline}s.
+   * A {@link MediaTimeline} that is the concatenation of one or more {@link MediaTimeline}s.
    */
-  private static final class ConcatenatedTimeline implements Timeline {
+  private static final class ConcatenatedMediaTimeline implements MediaTimeline {
 
-    private final Timeline[] timelines;
+    private final MediaTimeline[] timelines;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
 
-    public ConcatenatedTimeline(Timeline[] timelines) {
+    public ConcatenatedMediaTimeline(MediaTimeline[] timelines) {
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       int periodCount = 0;
       int windowCount = 0;
       for (int i = 0; i < timelines.length; i++) {
-        Timeline timeline = timelines[i];
+        MediaTimeline timeline = timelines[i];
         periodCount += timeline.getPeriodCount();
         sourcePeriodOffsets[i] = periodCount;
         windowCount += timeline.getWindowCount();
@@ -163,7 +163,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getPeriodWindow(int periodIndex) {
+    public MediaWindow getPeriodWindow(int periodIndex) {
       return getWindow(getPeriodWindowIndex(periodIndex));
     }
 
@@ -200,7 +200,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex) {
+    public MediaWindow getWindow(int windowIndex) {
       int sourceIndex = getSourceIndexForWindow(windowIndex);
       int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
       return timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource);

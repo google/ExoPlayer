@@ -133,7 +133,7 @@ public interface ExoPlayer {
      * @param timeline The source's timeline.
      * @param manifest The loaded manifest.
      */
-    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
+    void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest);
 
     /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
@@ -376,9 +376,9 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
+   * Returns the current {@link MediaTimeline}, or {@code null} if there is no timeline.
    */
-  Timeline getCurrentTimeline();
+  MediaTimeline getCurrentTimeline();
 
   /**
    * Returns the current manifest. The type depends on the {@link MediaSource} passed to
@@ -421,7 +421,7 @@ public interface ExoPlayer {
   @Deprecated
   int getBufferedPercentageInPeriod();
 
-  // Window based.
+  // MediaWindow based.
 
   /**
    * Returns the index of the seek window associated with the current period, or

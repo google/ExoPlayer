@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.Eve
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.SinglePeriodMediaTimeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -64,7 +64,7 @@ public final class HlsMediaSource implements MediaSource {
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
     // TODO: Defer until the playlist has been loaded.
-    listener.onSourceInfoRefreshed(new SinglePeriodTimeline(C.TIME_UNSET, false), null);
+    listener.onSourceInfoRefreshed(new SinglePeriodMediaTimeline(C.TIME_UNSET, false), null);
   }
 
   @Override

@@ -22,8 +22,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -89,7 +89,7 @@ import java.util.Locale;
   }
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
     int periodCount = timeline.getPeriodCount();
     int windowCount = timeline.getWindowCount();
     Log.d(TAG, "sourceInfo[startTime=" + timeline.getAbsoluteStartTime() + ", periodCount="

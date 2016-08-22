@@ -16,19 +16,19 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Window;
+import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.MediaWindow;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * A {@link Timeline} consisting of a single period and static window.
+ * A {@link MediaTimeline} consisting of a single period and static window.
  */
-public final class SinglePeriodTimeline implements Timeline {
+public final class SinglePeriodMediaTimeline implements MediaTimeline {
 
   private static final Object ID = new Object();
 
   private final long offsetInFirstPeriodUs;
-  private final Window window;
+  private final MediaWindow window;
 
   /**
    * Creates a timeline with one period of known duration and a window extending from zero to its
@@ -37,8 +37,8 @@ public final class SinglePeriodTimeline implements Timeline {
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
    */
-  public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
-    this(0, Window.createWindowFromZero(durationUs, isSeekable, false /* isDynamic */));
+  public SinglePeriodMediaTimeline(long durationUs, boolean isSeekable) {
+    this(0, MediaWindow.createWindowFromZero(durationUs, isSeekable, false /* isDynamic */));
   }
 
   /**
@@ -48,7 +48,7 @@ public final class SinglePeriodTimeline implements Timeline {
    * @param offsetInFirstPeriodUs The offset of the start of the window in the period.
    * @param window The available window within the period.
    */
-  public SinglePeriodTimeline(long offsetInFirstPeriodUs, Window window) {
+  public SinglePeriodMediaTimeline(long offsetInFirstPeriodUs, MediaWindow window) {
     this.offsetInFirstPeriodUs = offsetInFirstPeriodUs;
     this.window = window;
   }
@@ -82,7 +82,7 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public Window getPeriodWindow(int periodIndex) {
+  public MediaWindow getPeriodWindow(int periodIndex) {
     Assertions.checkIndex(periodIndex, 0, 1);
     return window;
   }
@@ -104,7 +104,7 @@ public final class SinglePeriodTimeline implements Timeline {
   }
 
   @Override
-  public Window getWindow(int windowIndex) {
+  public MediaWindow getWindow(int windowIndex) {
     Assertions.checkIndex(windowIndex, 0, 1);
     return window;
   }

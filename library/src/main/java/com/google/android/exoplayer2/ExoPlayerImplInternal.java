@@ -131,7 +131,7 @@ import java.io.IOException;
   private Period loadingPeriod;
   private long playingPeriodEndPositionUs;
 
-  private Timeline timeline;
+  private MediaTimeline timeline;
 
   public ExoPlayerImplInternal(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl, boolean playWhenReady, Handler eventHandler,
@@ -224,7 +224,7 @@ import java.io.IOException;
   // MediaSource.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
     handler.obtainMessage(MSG_REFRESH_SOURCE_INFO, Pair.create(timeline, manifest)).sendToTarget();
   }
 
@@ -282,7 +282,7 @@ import java.io.IOException;
           return true;
         }
         case MSG_REFRESH_SOURCE_INFO: {
-          handleSourceInfoRefreshed((Pair<Timeline, Object>) msg.obj);
+          handleSourceInfoRefreshed((Pair<MediaTimeline, Object>) msg.obj);
           return true;
         }
         case MSG_SOURCE_CONTINUE_LOADING_REQUESTED: {
@@ -785,10 +785,10 @@ import java.io.IOException;
     }
   }
 
-  private void handleSourceInfoRefreshed(Pair<Timeline, Object> timelineAndManifest)
+  private void handleSourceInfoRefreshed(Pair<MediaTimeline, Object> timelineAndManifest)
       throws ExoPlaybackException, IOException {
     eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, timelineAndManifest).sendToTarget();
-    Timeline oldTimeline = this.timeline;
+    MediaTimeline oldTimeline = this.timeline;
     this.timeline = timelineAndManifest.first;
 
     // Update the loaded periods to take into account the new timeline.
@@ -866,8 +866,8 @@ import java.io.IOException;
     }
   }
 
-  private void attemptRestart(Timeline newTimeline, Timeline oldTimeline, int oldPeriodIndex)
-      throws ExoPlaybackException {
+  private void attemptRestart(MediaTimeline newTimeline, MediaTimeline oldTimeline,
+      int oldPeriodIndex) throws ExoPlaybackException {
     int newPeriodIndex = C.INDEX_UNSET;
     while (newPeriodIndex == C.INDEX_UNSET
         && oldPeriodIndex < oldTimeline.getPeriodCount() - 1) {
@@ -1196,7 +1196,7 @@ import java.io.IOException;
       this.nextPeriod = nextPeriod;
     }
 
-    public void setIndex(Timeline timeline, int index) {
+    public void setIndex(MediaTimeline timeline, int index) {
       this.index = index;
       isLast = index == timeline.getPeriodCount() - 1 && !timeline.getPeriodWindow(index).isDynamic;
     }

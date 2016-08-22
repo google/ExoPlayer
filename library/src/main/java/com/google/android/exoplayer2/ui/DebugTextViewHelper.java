@@ -19,8 +19,8 @@ import android.widget.TextView;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 
 /**
@@ -89,7 +89,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
     // Do nothing.
   }
 

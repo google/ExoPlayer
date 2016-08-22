@@ -40,9 +40,9 @@ import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.MediaWindow;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -376,9 +376,9 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       debugViewHelper.stop();
       debugViewHelper = null;
       shouldRestorePosition = false;
-      Timeline playerTimeline = player.getCurrentTimeline();
+      MediaTimeline playerTimeline = player.getCurrentTimeline();
       if (playerTimeline != null) {
-        Window window = playerTimeline.getWindow(player.getCurrentWindowIndex());
+        MediaWindow window = playerTimeline.getWindow(player.getCurrentWindowIndex());
         if (!window.isDynamic) {
           shouldRestorePosition = true;
           playerPeriod = player.getCurrentPeriodIndex();
@@ -417,7 +417,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
     // Do nothing.
   }
 

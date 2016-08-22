@@ -42,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int playbackState;
   private int pendingSeekAcks;
   private boolean isLoading;
-  private Timeline timeline;
+  private MediaTimeline timeline;
   private Object manifest;
 
   // Playback information when there is no pending seek/set source operation.
@@ -166,7 +166,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(long positionMs) {
-    Timeline timeline = getCurrentTimeline();
+    MediaTimeline timeline = getCurrentTimeline();
     if (timeline == null) {
       throw new IllegalArgumentException("Windows are not yet known");
     }
@@ -297,7 +297,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     int periodIndex = getCurrentPeriodIndex();
     int windowIndex = timeline.getPeriodWindowIndex(periodIndex);
-    Window window = timeline.getWindow(windowIndex);
+    MediaWindow window = timeline.getWindow(windowIndex);
     int firstPeriodIndex = timeline.getWindowFirstPeriodIndex(windowIndex);
     int lastPeriodIndex = timeline.getWindowLastPeriodIndex(windowIndex);
     if (firstPeriodIndex == periodIndex && lastPeriodIndex == periodIndex
@@ -320,7 +320,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public Timeline getCurrentTimeline() {
+  public MediaTimeline getCurrentTimeline() {
     return timeline;
   }
 
@@ -370,7 +370,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
         @SuppressWarnings("unchecked")
-        Pair<Timeline, Object> timelineAndManifest = (Pair<Timeline, Object>) msg.obj;
+        Pair<MediaTimeline, Object> timelineAndManifest = (Pair<MediaTimeline, Object>) msg.obj;
         timeline = timelineAndManifest.first;
         manifest = timelineAndManifest.second;
         for (EventListener listener : listeners) {

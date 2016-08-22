@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -47,7 +47,7 @@ public final class MergingMediaSource implements MediaSource {
     mediaSources[0].prepareSource(new Listener() {
 
       @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+      public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
         checkConsistentTimeline(timeline);
 
         // All source timelines must match.
@@ -59,7 +59,7 @@ public final class MergingMediaSource implements MediaSource {
       mediaSources[i].prepareSource(new Listener() {
 
         @Override
-        public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+        public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
           checkConsistentTimeline(timeline);
         }
 
@@ -102,7 +102,7 @@ public final class MergingMediaSource implements MediaSource {
     }
   }
 
-  private void checkConsistentTimeline(Timeline timeline) {
+  private void checkConsistentTimeline(MediaTimeline timeline) {
     int windowCount = timeline.getWindowCount();
     for (int i = 0; i < windowCount; i++) {
       Assertions.checkArgument(!timeline.getWindow(i).isDynamic);

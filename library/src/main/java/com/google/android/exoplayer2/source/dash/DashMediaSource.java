@@ -21,9 +21,9 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.MediaWindow;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Window;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -71,8 +71,8 @@ public final class DashMediaSource implements MediaSource {
   public static final long DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS = 30000;
   /**
    * The interval in milliseconds between invocations of
-   * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} when the source's
-   * {@link Window} is changing dynamically (for example, for incomplete live streams).
+   * {@link MediaSource.Listener#onSourceInfoRefreshed(MediaTimeline, Object)} when the source's
+   * {@link MediaWindow} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
 
@@ -99,7 +99,7 @@ public final class DashMediaSource implements MediaSource {
   private long manifestLoadEndTimestamp;
   private DashManifest manifest;
   private Handler handler;
-  private Window window;
+  private MediaWindow window;
   private long elapsedRealtimeOffsetMs;
 
   private int firstPeriodId;
@@ -384,9 +384,9 @@ public final class DashMediaSource implements MediaSource {
       }
       defaultInitialTimeUs = Math.max(0, windowDurationUs - (liveEdgeOffsetForManifestMs * 1000));
     }
-    window = new Window(windowDurationUs, true /* isSeekable */, manifest.dynamic,
+    window = new MediaWindow(windowDurationUs, true /* isSeekable */, manifest.dynamic,
         defaultInitialTimeUs);
-    sourceListener.onSourceInfoRefreshed(new DashTimeline(firstPeriodId, currentStartTimeUs,
+    sourceListener.onSourceInfoRefreshed(new DashMediaTimeline(firstPeriodId, currentStartTimeUs,
         manifest, window), manifest);
   }
 
@@ -466,15 +466,15 @@ public final class DashMediaSource implements MediaSource {
 
   }
 
-  private static final class DashTimeline implements Timeline {
+  private static final class DashMediaTimeline implements MediaTimeline {
 
     private final int firstPeriodId;
     private final long offsetInFirstPeriodUs;
     private final DashManifest manifest;
-    private final Window window;
+    private final MediaWindow window;
 
-    public DashTimeline(int firstPeriodId, long offsetInFirstPeriodUs, DashManifest manifest,
-        Window window) {
+    public DashMediaTimeline(int firstPeriodId, long offsetInFirstPeriodUs, DashManifest manifest,
+        MediaWindow window) {
       this.firstPeriodId = firstPeriodId;
       this.offsetInFirstPeriodUs = offsetInFirstPeriodUs;
       this.manifest = manifest;
@@ -509,7 +509,7 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getPeriodWindow(int periodIndex) {
+    public MediaWindow getPeriodWindow(int periodIndex) {
       Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount());
       return window;
     }
@@ -536,7 +536,7 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex) {
+    public MediaWindow getWindow(int windowIndex) {
       Assertions.checkIndex(windowIndex, 0, 1);
       return window;
     }
