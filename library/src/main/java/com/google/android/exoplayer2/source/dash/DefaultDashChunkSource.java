@@ -186,15 +186,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (indexUnbounded) {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
-      long liveEdgeTimestampUs = nowUs - manifest.availabilityStartTime * 1000;
+      long liveEdgeTimeUs = nowUs - manifest.availabilityStartTime * 1000;
+      long periodStartUs = manifest.getPeriod(periodIndex).startMs * 1000;
+      long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
       if (manifest.timeShiftBufferDepth != C.TIME_UNSET) {
         long bufferDepthUs = manifest.timeShiftBufferDepth * 1000;
         firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
-            representationHolder.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));
+            representationHolder.getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
       }
       // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
       // index of the last completed segment.
-      lastAvailableSegmentNum = representationHolder.getSegmentNum(liveEdgeTimestampUs) - 1;
+      lastAvailableSegmentNum = representationHolder.getSegmentNum(liveEdgeTimeInPeriodUs) - 1;
     }
 
     int segmentNum;

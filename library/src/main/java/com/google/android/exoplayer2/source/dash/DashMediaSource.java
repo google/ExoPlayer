@@ -354,22 +354,33 @@ public final class DashMediaSource implements MediaSource {
         manifest.getPeriodDurationUs(0));
     PeriodSeekInfo lastPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(
         manifest.getPeriod(lastPeriodIndex), manifest.getPeriodDurationUs(lastPeriodIndex));
-    long currentStartTimeUs;
-    long currentEndTimeUs;
+    // Get the period-relative start/end times.
+    long currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
+    long currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
-      long minStartPositionUs = firstPeriodSeekInfo.availableStartTimeUs;
-      long maxEndPositionUs = lastPeriodSeekInfo.availableEndTimeUs;
-      long timeShiftBufferDepthUs = manifest.timeShiftBufferDepth == C.TIME_UNSET
-          ? C.TIME_UNSET : (manifest.timeShiftBufferDepth * 1000);
-      currentEndTimeUs = Math.min(maxEndPositionUs,
-          getNowUnixTimeUs() - manifest.availabilityStartTime * 1000);
-      currentStartTimeUs = timeShiftBufferDepthUs == C.TIME_UNSET ? minStartPositionUs
-          : Math.max(minStartPositionUs, currentEndTimeUs - timeShiftBufferDepthUs);
+      // The manifest describes an incomplete live stream. Update the start/end times to reflect the
+      // live stream duration and the manifest's time shift buffer depth.
+      long liveStreamDurationUs = getNowUnixTimeUs() - manifest.availabilityStartTime * 1000;
+      long liveStreamEndPositionInLastPeriodUs =
+          liveStreamDurationUs - manifest.getPeriod(lastPeriodIndex).startMs * 1000;
+      currentEndTimeUs = Math.min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
+      if (manifest.timeShiftBufferDepth != C.TIME_UNSET) {
+        long timeShiftBufferDepthUs = manifest.timeShiftBufferDepth * 1000;
+        long offsetInPeriodUs = currentEndTimeUs - timeShiftBufferDepthUs;
+        int periodIndex = lastPeriodIndex;
+        while (offsetInPeriodUs < 0 && periodIndex > 0) {
+          offsetInPeriodUs += manifest.getPeriodDurationUs(--periodIndex);
+        }
+        if (periodIndex == 0) {
+          currentStartTimeUs = Math.max(currentStartTimeUs, offsetInPeriodUs);
+        } else {
+          // The time shift buffer starts after the earliest period.
+          // TODO: Does this ever happen?
+          currentStartTimeUs = manifest.getPeriodDurationUs(0);
+        }
+      }
       // The window is changing implicitly. Post a simulated manifest refresh to update it.
       handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
-    } else {
-      currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
-      currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     }
     long windowDurationUs = currentEndTimeUs - currentStartTimeUs;
     for (int i = 0; i < manifest.getPeriodCount() - 1; i++) {
@@ -382,7 +393,31 @@ public final class DashMediaSource implements MediaSource {
         liveEdgeOffsetForManifestMs = manifest.suggestedPresentationDelay != C.TIME_UNSET
             ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
       }
-      defaultInitialTimeUs = Math.max(0, windowDurationUs - (liveEdgeOffsetForManifestMs * 1000));
+      // Snap the default position to the start of the segment containing it.
+      long initialTimeOffsetInWindowUs =
+          Math.max(0, windowDurationUs - (liveEdgeOffsetForManifestMs * 1000));
+      int periodIndex = 0;
+      long initialTimeOffsetInPeriodUs = currentStartTimeUs + initialTimeOffsetInWindowUs;
+      long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
+      while (periodIndex < manifest.getPeriodCount() - 1
+          && initialTimeOffsetInPeriodUs >= periodDurationUs) {
+        initialTimeOffsetInPeriodUs -= periodDurationUs;
+        periodIndex++;
+        periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
+      }
+      Period period = manifest.getPeriod(periodIndex);
+      int videoAdaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_VIDEO);
+      if (videoAdaptationSetIndex != C.INDEX_UNSET) {
+        // If there are multiple video adaptation sets with unaligned segments, the initial time may
+        // not correspond to the start of a segment in both, but this is an edge case.
+        DashSegmentIndex index =
+            period.adaptationSets.get(videoAdaptationSetIndex).representations.get(0).getIndex();
+        int segmentNum = index.getSegmentNum(initialTimeOffsetInPeriodUs, periodDurationUs);
+        defaultInitialTimeUs =
+            initialTimeOffsetInWindowUs - initialTimeOffsetInPeriodUs + index.getTimeUs(segmentNum);
+      } else {
+        defaultInitialTimeUs = initialTimeOffsetInWindowUs;
+      }
     }
     window = new MediaWindow(windowDurationUs, true /* isSeekable */, manifest.dynamic,
         defaultInitialTimeUs);
