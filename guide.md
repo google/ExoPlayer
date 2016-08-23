@@ -20,9 +20,9 @@ build custom media player solutions.
 ExoPlayer is an open source, application level media player built on top of Android's low level
 media APIs. The open source project contains both the ExoPlayer library and a demo app:
 
-* [ExoPlayer library](https://github.com/google/ExoPlayer/tree/master/library) &ndash; This part of
+* [ExoPlayer library](https://github.com/google/ExoPlayer/tree/release-v1/library) &ndash; This part of
   the project contains the core library classes.
-* [Demo app](https://github.com/google/ExoPlayer/tree/master/demo) &ndash; This part of the project
+* [Demo app](https://github.com/google/ExoPlayer/tree/release-v1/demo) &ndash; This part of the project
   demonstrates usage of ExoPlayer.
 
 This guide describes the ExoPlayer library and its use. It refers to code in the demo app throughout
