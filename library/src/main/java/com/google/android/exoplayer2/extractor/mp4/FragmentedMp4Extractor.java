@@ -917,7 +917,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
     if (parserState == STATE_READING_SAMPLE_START) {
       if (currentTrackBundle == null) {
-        currentTrackBundle = getNextFragmentRun(trackBundles);
+        TrackBundle currentTrackBundle = getNextFragmentRun(trackBundles);
         if (currentTrackBundle == null) {
           // We've run out of samples in the current mdat. Discard any trailing data and prepare to
           // read the header of the next atom.
@@ -938,6 +938,7 @@ public final class FragmentedMp4Extractor implements Extractor {
           throw new ParserException("Offset to sample data was negative.");
         }
         input.skipFully(bytesToSkip);
+        this.currentTrackBundle = currentTrackBundle;
       }
       sampleSize = currentTrackBundle.fragment
           .sampleSizeTable[currentTrackBundle.currentSampleIndex];
