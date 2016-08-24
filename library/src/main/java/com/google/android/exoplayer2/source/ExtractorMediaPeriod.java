@@ -299,7 +299,7 @@ import java.util.Arrays;
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
       sourceListener.onSourceInfoRefreshed(
-          new SinglePeriodMediaTimeline(durationUs, seekMap.isSeekable()), null);
+          new SinglePeriodTimeline(durationUs, seekMap.isSeekable()), null);
     }
   }
 
@@ -382,7 +382,7 @@ import java.util.Arrays;
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
     sourceListener.onSourceInfoRefreshed(
-        new SinglePeriodMediaTimeline(durationUs, seekMap.isSeekable()), null);
+        new SinglePeriodTimeline(durationUs, seekMap.isSeekable()), null);
     callback.onPrepared(this);
   }
 

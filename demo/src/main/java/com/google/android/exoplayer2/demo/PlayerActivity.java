@@ -40,9 +40,8 @@ import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.MediaTimeline;
-import com.google.android.exoplayer2.MediaWindow;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -127,7 +126,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private boolean playerNeedsSource;
 
   private boolean shouldRestorePosition;
-  private int playerPeriod;
+  private int playerWindow;
   private long playerPosition;
 
   // Activity lifecycle
@@ -283,9 +282,9 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setVideoSurfaceHolder(surfaceView.getHolder());
       if (shouldRestorePosition) {
         if (playerPosition == C.TIME_UNSET) {
-          player.seekToDefaultPositionForPeriod(playerPeriod);
+          player.seekToDefaultPosition(playerWindow);
         } else {
-          player.seekInPeriod(playerPeriod, playerPosition);
+          player.seekTo(playerWindow, playerPosition);
         }
       }
       player.setPlayWhenReady(true);
@@ -376,13 +375,13 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       debugViewHelper.stop();
       debugViewHelper = null;
       shouldRestorePosition = false;
-      MediaTimeline playerTimeline = player.getCurrentTimeline();
-      if (playerTimeline != null) {
-        MediaWindow window = playerTimeline.getWindow(player.getCurrentWindowIndex());
+      Timeline timeline = player.getCurrentTimeline();
+      if (timeline != null) {
+        playerWindow = player.getCurrentWindowIndex();
+        Timeline.Window window = timeline.getWindow(playerWindow, new Timeline.Window());
         if (!window.isDynamic) {
           shouldRestorePosition = true;
-          playerPeriod = player.getCurrentPeriodIndex();
-          playerPosition = window.isSeekable ? player.getCurrentPositionInPeriod() : C.TIME_UNSET;
+          playerPosition = window.isSeekable ? player.getCurrentPosition() : C.TIME_UNSET;
         }
       }
       player.release();
@@ -417,7 +416,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   @Override
-  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     // Do nothing.
   }
 

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -31,6 +31,7 @@ public final class MergingMediaSource implements MediaSource {
   private static final int PERIOD_COUNT_UNSET = -1;
 
   private final MediaSource[] mediaSources;
+  private final Timeline.Window window;
 
   private int periodCount;
 
@@ -39,30 +40,26 @@ public final class MergingMediaSource implements MediaSource {
    */
   public MergingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
+    window = new Timeline.Window();
     periodCount = PERIOD_COUNT_UNSET;
   }
 
   @Override
   public void prepareSource(final Listener listener) {
     mediaSources[0].prepareSource(new Listener() {
-
       @Override
-      public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
+      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
         checkConsistentTimeline(timeline);
-
         // All source timelines must match.
         listener.onSourceInfoRefreshed(timeline, manifest);
       }
-
     });
     for (int i = 1; i < mediaSources.length; i++) {
       mediaSources[i].prepareSource(new Listener() {
-
         @Override
-        public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
+        public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
           checkConsistentTimeline(timeline);
         }
-
       });
     }
   }
@@ -102,10 +99,10 @@ public final class MergingMediaSource implements MediaSource {
     }
   }
 
-  private void checkConsistentTimeline(MediaTimeline timeline) {
+  private void checkConsistentTimeline(Timeline timeline) {
     int windowCount = timeline.getWindowCount();
     for (int i = 0; i < windowCount; i++) {
-      Assertions.checkArgument(!timeline.getWindow(i).isDynamic);
+      Assertions.checkArgument(!timeline.getWindow(i, window, false).isDynamic);
     }
     int periodCount = timeline.getPeriodCount();
     if (this.periodCount == PERIOD_COUNT_UNSET) {

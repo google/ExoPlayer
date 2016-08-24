@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public interface MediaSource {
      * @param timeline The source's timeline.
      * @param manifest The loaded manifest.
      */
-    void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest);
+    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
 
   }
 

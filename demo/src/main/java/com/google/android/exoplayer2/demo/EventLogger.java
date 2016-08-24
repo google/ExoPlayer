@@ -22,8 +22,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -57,16 +57,22 @@ import java.util.Locale;
     MappingTrackSelector.EventListener, MetadataRenderer.Output<List<Id3Frame>> {
 
   private static final String TAG = "EventLogger";
+  private static final int MAX_TIMELINE_ITEM_LINES = 3;
   private static final NumberFormat TIME_FORMAT;
   static {
     TIME_FORMAT = NumberFormat.getInstance(Locale.US);
     TIME_FORMAT.setMinimumFractionDigits(2);
     TIME_FORMAT.setMaximumFractionDigits(2);
+    TIME_FORMAT.setGroupingUsed(false);
   }
 
+  private final Timeline.Window window;
+  private final Timeline.Period period;
   private final long startTimeMs;
 
   public EventLogger() {
+    window = new Timeline.Window();
+    period = new Timeline.Period();
     startTimeMs = SystemClock.elapsedRealtime();
   }
 
@@ -89,13 +95,24 @@ import java.util.Locale;
   }
 
   @Override
-  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
+  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     int periodCount = timeline.getPeriodCount();
     int windowCount = timeline.getWindowCount();
-    Log.d(TAG, "sourceInfo[startTime=" + timeline.getAbsoluteStartTime() + ", periodCount="
-        + periodCount + ", windows: " + windowCount);
-    for (int windowIndex = 0; windowIndex < windowCount; windowIndex++) {
-      Log.d(TAG, "  " + timeline.getWindow(windowIndex));
+    Log.d(TAG, "sourceInfo [periodCount=" + periodCount + ", windowCount=" + windowCount);
+    for (int i = 0; i < Math.min(periodCount, MAX_TIMELINE_ITEM_LINES); i++) {
+      timeline.getPeriod(i, period);
+      Log.d(TAG, "  " +  "period [" + getTimeString(period.getDurationMs()) + "]");
+    }
+    if (periodCount > MAX_TIMELINE_ITEM_LINES) {
+      Log.d(TAG, "  ...");
+    }
+    for (int i = 0; i < Math.min(windowCount, MAX_TIMELINE_ITEM_LINES); i++) {
+      timeline.getWindow(i, window);
+      Log.d(TAG, "  " +  "window [" + getTimeString(window.getDurationMs()) + ", "
+          + window.isSeekable + ", " + window.isDynamic + "]");
+    }
+    if (windowCount > MAX_TIMELINE_ITEM_LINES) {
+      Log.d(TAG, "  ...");
     }
     Log.d(TAG, "]");
   }
@@ -333,7 +350,7 @@ import java.util.Locale;
   }
 
   private static String getTimeString(long timeMs) {
-    return TIME_FORMAT.format((timeMs) / 1000f);
+    return timeMs == C.TIME_UNSET ? "?" : TIME_FORMAT.format((timeMs) / 1000f);
   }
 
   private static String getStateString(int state) {

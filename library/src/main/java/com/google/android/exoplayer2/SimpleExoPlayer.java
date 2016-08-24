@@ -392,24 +392,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  @Deprecated
-  public void seekInCurrentPeriod(long positionMs) {
-    player.seekInCurrentPeriod(positionMs);
-  }
-
-  @Override
-  @Deprecated
-  public void seekToDefaultPositionForPeriod(int periodIndex) {
-    player.seekToDefaultPositionForPeriod(periodIndex);
-  }
-
-  @Override
-  @Deprecated
-  public void seekInPeriod(int periodIndex, long positionMs) {
-    player.seekInPeriod(periodIndex, positionMs);
-  }
-
-  @Override
   public void seekToDefaultPosition() {
     player.seekToDefaultPosition();
   }
@@ -450,36 +432,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  @Deprecated
-  public int getCurrentPeriodIndex() {
-    return player.getCurrentPeriodIndex();
-  }
-
-  @Override
-  @Deprecated
-  public long getCurrentPeriodDuration() {
-    return player.getCurrentPeriodDuration();
-  }
-
-  @Override
-  @Deprecated
-  public long getCurrentPositionInPeriod() {
-    return player.getCurrentPositionInPeriod();
-  }
-
-  @Override
-  @Deprecated
-  public long getBufferedPositionInPeriod() {
-    return player.getBufferedPositionInPeriod();
-  }
-
-  @Override
-  @Deprecated
-  public int getBufferedPercentageInPeriod() {
-    return player.getBufferedPercentageInPeriod();
-  }
-
-  @Override
   public int getCurrentWindowIndex() {
     return player.getCurrentWindowIndex();
   }
@@ -505,7 +457,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public MediaTimeline getCurrentTimeline() {
+  public Timeline getCurrentTimeline() {
     return player.getCurrentTimeline();
   }
 

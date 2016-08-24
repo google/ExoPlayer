@@ -17,8 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.MediaTimeline;
-import com.google.android.exoplayer2.MediaWindow;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
@@ -32,18 +31,18 @@ import java.util.Map;
 public final class ConcatenatingMediaSource implements MediaSource {
 
   private final MediaSource[] mediaSources;
-  private final MediaTimeline[] timelines;
+  private final Timeline[] timelines;
   private final Object[] manifests;
   private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
 
-  private ConcatenatedMediaTimeline timeline;
+  private ConcatenatedTimeline timeline;
 
   /**
    * @param mediaSources The {@link MediaSource}s to concatenate.
    */
   public ConcatenatingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
-    timelines = new MediaTimeline[mediaSources.length];
+    timelines = new Timeline[mediaSources.length];
     manifests = new Object[mediaSources.length];
     sourceIndexByMediaPeriod = new HashMap<>();
   }
@@ -55,16 +54,16 @@ public final class ConcatenatingMediaSource implements MediaSource {
       mediaSources[i].prepareSource(new Listener() {
 
         @Override
-        public void onSourceInfoRefreshed(MediaTimeline sourceTimeline, Object manifest) {
+        public void onSourceInfoRefreshed(Timeline sourceTimeline, Object manifest) {
           timelines[index] = sourceTimeline;
           manifests[index] = manifest;
-          for (MediaTimeline timeline : timelines) {
+          for (Timeline timeline : timelines) {
             if (timeline == null) {
               // Don't invoke the listener until all sources have timelines.
               return;
             }
           }
-          timeline = new ConcatenatedMediaTimeline(timelines.clone());
+          timeline = new ConcatenatedTimeline(timelines.clone());
           listener.onSourceInfoRefreshed(timeline, manifests.clone());
         }
 
@@ -105,21 +104,21 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   /**
-   * A {@link MediaTimeline} that is the concatenation of one or more {@link MediaTimeline}s.
+   * A {@link Timeline} that is the concatenation of one or more {@link Timeline}s.
    */
-  private static final class ConcatenatedMediaTimeline implements MediaTimeline {
+  private static final class ConcatenatedTimeline extends Timeline {
 
-    private final MediaTimeline[] timelines;
+    private final Timeline[] timelines;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
 
-    public ConcatenatedMediaTimeline(MediaTimeline[] timelines) {
+    public ConcatenatedTimeline(Timeline[] timelines) {
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       int periodCount = 0;
       int windowCount = 0;
       for (int i = 0; i < timelines.length; i++) {
-        MediaTimeline timeline = timelines[i];
+        Timeline timeline = timelines[i];
         periodCount += timeline.getPeriodCount();
         sourcePeriodOffsets[i] = periodCount;
         windowCount += timeline.getWindowCount();
@@ -131,8 +130,19 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public long getAbsoluteStartTime() {
-      return timelines[0].getAbsoluteStartTime();
+    public int getWindowCount() {
+      return sourceWindowOffsets[sourceWindowOffsets.length - 1];
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, boolean setIds) {
+      int sourceIndex = getSourceIndexForWindow(windowIndex);
+      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
+      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
+      timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource, window, setIds);
+      window.firstPeriodIndex += firstPeriodIndexInSource;
+      window.lastPeriodIndex += firstPeriodIndexInSource;
+      return window;
     }
 
     @Override
@@ -141,50 +151,28 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public long getPeriodDurationMs(int periodIndex) {
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       int sourceIndex = getSourceIndexForPeriod(periodIndex);
+      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-      return timelines[sourceIndex].getPeriodDurationMs(periodIndex - firstPeriodIndexInSource);
+      timelines[sourceIndex].getPeriod(periodIndex - firstPeriodIndexInSource, period, setIds);
+      period.windowIndex += firstWindowIndexInSource;
+      if (setIds) {
+        period.uid = Pair.create(sourceIndex, period.uid);
+      }
+      return period;
     }
 
     @Override
-    public long getPeriodDurationUs(int periodIndex) {
-      int sourceIndex = getSourceIndexForPeriod(periodIndex);
-      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-      return timelines[sourceIndex].getPeriodDurationUs(periodIndex - firstPeriodIndexInSource);
-    }
-
-    @Override
-    public Object getPeriodId(int periodIndex) {
-      int sourceIndex = getSourceIndexForPeriod(periodIndex);
-      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(periodIndex);
-      Object periodId = timelines[sourceIndex].getPeriodId(periodIndex - firstPeriodIndexInSource);
-      return Pair.create(sourceIndex, periodId);
-    }
-
-    @Override
-    public MediaWindow getPeriodWindow(int periodIndex) {
-      return getWindow(getPeriodWindowIndex(periodIndex));
-    }
-
-    @Override
-    public int getPeriodWindowIndex(int periodIndex) {
-      int sourceIndex = getSourceIndexForPeriod(periodIndex);
-      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(periodIndex);
-      return (sourceIndex > 0 ? sourceWindowOffsets[sourceIndex - 1] : 0)
-          + timelines[sourceIndex].getPeriodWindowIndex(periodIndex - firstPeriodIndexInSource);
-    }
-
-    @Override
-    public int getIndexOfPeriod(Object id) {
-      if (!(id instanceof Pair)) {
+    public int getIndexOfPeriod(Object uid) {
+      if (!(uid instanceof Pair)) {
         return C.INDEX_UNSET;
       }
-      Pair sourceIndexAndPeriodId = (Pair) id;
+      Pair<?, ?> sourceIndexAndPeriodId = (Pair<?, ?>) uid;
       if (!(sourceIndexAndPeriodId.first instanceof Integer)) {
         return C.INDEX_UNSET;
       }
-      int sourceIndex = (int) sourceIndexAndPeriodId.first;
+      int sourceIndex = (Integer) sourceIndexAndPeriodId.first;
       Object periodId = sourceIndexAndPeriodId.second;
       if (sourceIndex < 0 || sourceIndex >= timelines.length) {
         return C.INDEX_UNSET;
@@ -192,44 +180,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
       int periodIndexInSource = timelines[sourceIndex].getIndexOfPeriod(periodId);
       return periodIndexInSource == C.INDEX_UNSET ? C.INDEX_UNSET
           : getFirstPeriodIndexInSource(sourceIndex) + periodIndexInSource;
-    }
-
-    @Override
-    public int getWindowCount() {
-      return sourceWindowOffsets[sourceWindowOffsets.length - 1];
-    }
-
-    @Override
-    public MediaWindow getWindow(int windowIndex) {
-      int sourceIndex = getSourceIndexForWindow(windowIndex);
-      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
-      return timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource);
-    }
-
-    @Override
-    public int getWindowFirstPeriodIndex(int windowIndex) {
-      int sourceIndex = getSourceIndexForWindow(windowIndex);
-      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
-      return firstPeriodIndexInSource + timelines[sourceIndex].getWindowFirstPeriodIndex(
-          windowIndex - firstWindowIndexInSource);
-    }
-
-    @Override
-    public int getWindowLastPeriodIndex(int windowIndex) {
-      int sourceIndex = getSourceIndexForWindow(windowIndex);
-      int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
-      return firstPeriodIndexInSource + timelines[sourceIndex].getWindowLastPeriodIndex(
-          windowIndex - firstWindowIndexInSource);
-    }
-
-    @Override
-    public long getWindowOffsetInFirstPeriodUs(int windowIndex) {
-      int sourceIndex = getSourceIndexForWindow(windowIndex);
-      int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
-      return timelines[sourceIndex].getWindowOffsetInFirstPeriodUs(
-          windowIndex - firstWindowIndexInSource);
     }
 
     private int getSourceIndexForPeriod(int periodIndex) {

@@ -117,10 +117,10 @@ public interface ExoPlayer {
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
-    // TODO[playlists]: Should source-initiated resets also cause this to be called?
+    // TODO: Should be windowIndex and position in the window.
     /**
-     * Called when the player's position changes due to a discontinuity (seeking or playback
-     * transitioning to the next period).
+     * Called when the player's position changes due to a discontinuity (i.e. due to seeking,
+     * playback transitioning to the next window, or a source induced discontinuity).
      *
      * @param periodIndex The index of the period being played.
      * @param positionMs The playback position in that period, in milliseconds.
@@ -133,7 +133,7 @@ public interface ExoPlayer {
      * @param timeline The source's timeline.
      * @param manifest The loaded manifest.
      */
-    void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest);
+    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
 
     /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
@@ -249,7 +249,7 @@ public interface ExoPlayer {
    * @param mediaSource The {@link MediaSource} to play.
    * @param resetPosition Whether the playback position should be reset to the source's default
    *     position. If false, playback will start from the position defined by
-   *     {@link #getCurrentPeriodIndex()} and {@link #getCurrentPositionInPeriod()}.
+   *     {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
    */
   void setMediaSource(MediaSource mediaSource, boolean resetPosition);
 
@@ -278,35 +278,6 @@ public interface ExoPlayer {
   boolean isLoading();
 
   /**
-   * Seeks to a position specified in milliseconds in the current period.
-   *
-   * @param positionMs The seek position.
-   */
-  @Deprecated
-  void seekInCurrentPeriod(long positionMs);
-
-  /**
-   * Seeks to the default position associated with the specified period. The position can depend on
-   * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
-   * typically be the live edge of the window to which the period belongs. For other streams it will
-   * typically be the start of the period.
-   *
-   * @param periodIndex The index of the period whose associated default position should be seeked
-   *     to.
-   */
-  @Deprecated
-  void seekToDefaultPositionForPeriod(int periodIndex);
-
-  /**
-   * Seeks to a position specified in milliseconds in the specified period.
-   *
-   * @param periodIndex The index of the period.
-   * @param positionMs The seek position relative to the start of the period.
-   */
-  @Deprecated
-  void seekInPeriod(int periodIndex, long positionMs);
-
-  /**
    * Seeks to the default position associated with the current window. The position can depend on
    * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
    * typically be the live edge of the window. For other streams it will typically be the start of
@@ -333,7 +304,7 @@ public interface ExoPlayer {
   void seekTo(long positionMs);
 
   /**
-   * Seeks to a position specified in milliseconds in the specified seek window.
+   * Seeks to a position specified in milliseconds in the specified window.
    *
    * @param windowIndex The index of the window.
    * @param positionMs The seek position relative to the start of the window.
@@ -376,9 +347,9 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Returns the current {@link MediaTimeline}, or {@code null} if there is no timeline.
+   * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
    */
-  MediaTimeline getCurrentTimeline();
+  Timeline getCurrentTimeline();
 
   /**
    * Returns the current manifest. The type depends on the {@link MediaSource} passed to
@@ -386,46 +357,9 @@ public interface ExoPlayer {
    */
   Object getCurrentManifest();
 
-  // Period based.
-
   /**
-   * Returns the index of the current period.
-   */
-  @Deprecated
-  int getCurrentPeriodIndex();
-
-  /**
-   * Returns the duration of the current period in milliseconds, or {@link C#TIME_UNSET} if the
-   * duration is not known.
-   */
-  @Deprecated
-  long getCurrentPeriodDuration();
-
-  /**
-   * Returns the playback position in the current period, in milliseconds.
-   */
-  @Deprecated
-  long getCurrentPositionInPeriod();
-
-  /**
-   * Returns an estimate of the position in the current period up to which data is buffered, or
-   * {@link C#TIME_UNSET} if no estimate is available.
-   */
-  @Deprecated
-  long getBufferedPositionInPeriod();
-
-  /**
-   * Returns an estimate of the percentage in the current period up to which data is buffered, or 0
-   * if no estimate is available.
-   */
-  @Deprecated
-  int getBufferedPercentageInPeriod();
-
-  // MediaWindow based.
-
-  /**
-   * Returns the index of the seek window associated with the current period, or
-   * {@link C#INDEX_UNSET} if the timeline is not set.
+   * Returns the index of the window associated with the current period, or {@link C#INDEX_UNSET} if
+   * the timeline is not set.
    */
   int getCurrentWindowIndex();
 
@@ -436,8 +370,8 @@ public interface ExoPlayer {
   long getDuration();
 
   /**
-   * Returns the playback position in the current seek window, in milliseconds, or
-   * {@link C#TIME_UNSET} if the timeline is not set.
+   * Returns the playback position in the current window, in milliseconds, or {@link C#TIME_UNSET}
+   * if the timeline is not set.
    */
   long getCurrentPosition();
 

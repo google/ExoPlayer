@@ -17,15 +17,14 @@ package com.google.android.exoplayer2.ui;
 
 import android.view.View;
 import android.view.View.OnClickListener;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaTimeline;
+import com.google.android.exoplayer2.Timeline;
 
 /**
  * An {@link OnClickListener} that can be passed to
  * {@link android.widget.MediaController#setPrevNextListeners(OnClickListener, OnClickListener)} to
  * make the controller's previous and next buttons seek to the previous and next windows in the
- * {@link MediaTimeline}.
+ * {@link Timeline}.
  */
 public class MediaControllerPrevNextClickListener implements OnClickListener {
 
@@ -50,15 +49,15 @@ public class MediaControllerPrevNextClickListener implements OnClickListener {
 
   @Override
   public void onClick(View v) {
-    int currentWindowIndex = player.getCurrentWindowIndex();
-    if (currentWindowIndex == C.INDEX_UNSET) {
+    Timeline timeline = player.getCurrentTimeline();
+    if (timeline == null) {
       return;
     }
-    MediaTimeline timeline = player.getCurrentTimeline();
+    int currentWindowIndex = player.getCurrentWindowIndex();
     if (isNext) {
       if (currentWindowIndex < timeline.getWindowCount() - 1) {
         player.seekToDefaultPosition(currentWindowIndex + 1);
-      } else if (timeline.getWindow(currentWindowIndex).isDynamic) {
+      } else if (timeline.getWindow(currentWindowIndex, new Timeline.Window(), false).isDynamic) {
         // Seek to the live edge.
         player.seekToDefaultPosition();
       }
@@ -67,7 +66,7 @@ public class MediaControllerPrevNextClickListener implements OnClickListener {
           && player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS) {
         player.seekToDefaultPosition(currentWindowIndex - 1);
       } else {
-        player.seekTo(currentWindowIndex, 0);
+        player.seekTo(0);
       }
     }
   }

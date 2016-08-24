@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -92,9 +92,11 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
+  private final Timeline.Period period;
 
   private MediaSource.Listener sourceListener;
-  private MediaTimeline timeline;
+  private Timeline timeline;
+  private boolean timelineHasDuration;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -130,12 +132,13 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    period = new Timeline.Period();
   }
 
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    timeline = new SinglePeriodMediaTimeline(C.TIME_UNSET, false);
+    timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
     listener.onSourceInfoRefreshed(timeline, null);
   }
 
@@ -166,13 +169,15 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   // MediaSource.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
-    if (this.timeline.getPeriodDurationUs(0) != C.TIME_UNSET
-        && timeline.getPeriodDurationUs(0) == C.TIME_UNSET) {
+  public void onSourceInfoRefreshed(Timeline newTimeline, Object manifest) {
+    long newTimelineDurationUs = newTimeline.getPeriod(0, period).getDurationUs();
+    boolean newTimelineHasDuration = newTimelineDurationUs != C.TIME_UNSET;
+    if (timelineHasDuration && !newTimelineHasDuration) {
       // Suppress source info changes that would make the duration unknown when it is already known.
       return;
     }
-    this.timeline = timeline;
+    timeline = newTimeline;
+    timelineHasDuration = newTimelineHasDuration;
     sourceListener.onSourceInfoRefreshed(timeline, null);
   }
 

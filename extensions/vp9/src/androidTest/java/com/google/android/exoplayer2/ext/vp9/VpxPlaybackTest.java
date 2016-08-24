@@ -22,8 +22,8 @@ import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.MediaTimeline;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -115,7 +115,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onSourceInfoRefreshed(MediaTimeline timeline, Object manifest) {
+    public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
       // Do nothing.
     }
 
