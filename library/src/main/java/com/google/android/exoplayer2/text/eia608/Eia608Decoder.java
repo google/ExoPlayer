@@ -15,14 +15,27 @@
  */
 package com.google.android.exoplayer2.text.eia608;
 
-import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.text.Layout;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
+
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -85,6 +98,12 @@ public final class Eia608Decoder implements SubtitleDecoder {
   private static final byte CTRL_ERASE_DISPLAYED_MEMORY = 0x2C;
   private static final byte CTRL_CARRIAGE_RETURN = 0x2D;
   private static final byte CTRL_ERASE_NON_DISPLAYED_MEMORY = 0x2E;
+
+  private static final byte CTRL_TAB_OFFSET_CHAN_1 = 0x17;
+  private static final byte CTRL_TAB_OFFSET_CHAN_2 = 0x1F;
+  private static final byte CTRL_TAB_OFFSET_1 = 0x21;
+  private static final byte CTRL_TAB_OFFSET_2 = 0x22;
+  private static final byte CTRL_TAB_OFFSET_3 = 0x23;
 
   private static final byte CTRL_BACKSPACE = 0x21;
 
@@ -159,13 +178,66 @@ public final class Eia608Decoder implements SubtitleDecoder {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
+  // Maps EIA-608 PAC row numbers to WebVTT cue line settings.
+  // Adapted from: https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
+  private static final float[] CUE_LINE_MAP = new float[] {
+    10.00f, // Row 1
+    15.33f,
+    20.66f,
+    26.00f,
+    31.33f,
+    36.66f,
+    42.00f,
+    47.33f,
+    52.66f,
+    58.00f,
+    63.33f,
+    68.66f,
+    74.00f,
+    79.33f,
+    84.66f // Row 15
+  };
+
+  // Maps EIA-608 PAC indents to WebVTT cue position values.
+  // Adapted from: https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
+  // Note that these cue position values may not give the intended result, unless the font size is set
+  // to allow for a maximum of 32 (or 41) characters per line.
+  private static final float[] INDENT_MAP = new float[] {
+    10.0f, // Indent 0/Column 1
+    20.0f, // Indent 4/Column 5
+    30.0f, // Indent 8/Column 9
+    40.0f, // Indent 12/Column 13
+    50.0f, // Indent 16/Column 17
+    60.0f, // Indent 20/Column 21
+    70.0f, // Indent 24/Column 25
+    80.0f, // Indent 28/Column 29
+  };
+
+  private static final int[] COLOR_MAP = new int[] {
+    Color.WHITE,
+    Color.GREEN,
+    Color.BLUE,
+    Color.CYAN,
+    Color.RED,
+    Color.YELLOW,
+    Color.MAGENTA,
+    Color.BLACK // Only used by Mid Row style changes, for PAC an value of 0x7 means italics.
+  };
+
+  // Transparency is defined in the two left most bytes of an integer.
+  private static final int TRANSPARENCY_MASK = 0x80FFFFFF;
+
+  private static final int STYLE_ITALIC = Typeface.ITALIC;
+  private static final float DEFAULT_CUE_LINE = CUE_LINE_MAP[10]; // Row 11
+  private static final float DEFAULT_INDENT = INDENT_MAP[0]; // Indent 0
+
   private final LinkedList<SubtitleInputBuffer> availableInputBuffers;
   private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
   private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
 
   private final ParsableByteArray ccData;
 
-  private final StringBuilder captionStringBuilder;
+  private final SpannableStringBuilder captionStringBuilder;
 
   private long playbackPositionUs;
 
@@ -173,9 +245,12 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private int captionMode;
   private int captionRowCount;
-  private String captionString;
 
-  private String lastCaptionString;
+  private LinkedList<Cue> cues;
+  private HashMap<Integer, CharacterStyle> captionStyles;
+  float cueIndent;
+  float cueLine;
+  int tabOffset;
 
   private boolean repeatableControlSet;
   private byte repeatableControlCc1;
@@ -194,10 +269,14 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
     ccData = new ParsableByteArray();
 
-    captionStringBuilder = new StringBuilder();
+    captionStringBuilder = new SpannableStringBuilder();
+    captionStyles = new HashMap<>();
 
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
+    cueIndent = DEFAULT_INDENT;
+    cueLine = DEFAULT_CUE_LINE;
+    tabOffset = 0;
   }
 
   @Override
@@ -253,11 +332,11 @@ public final class Eia608Decoder implements SubtitleDecoder {
       decode(inputBuffer);
 
       // check if we have any caption updates to report
-      if (!TextUtils.equals(captionString, lastCaptionString)) {
-        lastCaptionString = captionString;
+      if (!cues.isEmpty()) {
         if (!inputBuffer.isDecodeOnly()) {
           SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
+          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(cues), 0);
+          cues = new LinkedList<>();
           releaseInputBuffer(inputBuffer);
           return outputBuffer;
         }
@@ -284,9 +363,11 @@ public final class Eia608Decoder implements SubtitleDecoder {
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
     playbackPositionUs = 0;
-    captionStringBuilder.setLength(0);
-    captionString = null;
-    lastCaptionString = null;
+    flushCaptionBuilder();
+    cues = new LinkedList<>();
+    cueIndent = DEFAULT_INDENT;
+    cueLine = DEFAULT_CUE_LINE;
+    tabOffset = 0;
     repeatableControlSet = false;
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
@@ -342,6 +423,11 @@ public final class Eia608Decoder implements SubtitleDecoder {
         continue;
       }
 
+      // Mid row changes.
+      if ((ccData1 == 0x11 || ccData1 == 0x19) && ccData2 >= 0x20 && ccData2 <= 0x2F) {
+        handleMidrowCode(ccData1, ccData2);
+      }
+
       // Control character.
       if (ccData1 < 0x20) {
         isRepeatableControl = handleCtrl(ccData1, ccData2);
@@ -360,7 +446,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
         repeatableControlSet = false;
       }
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-        captionString = getDisplayCaption();
+        buildCue();
       }
     }
   }
@@ -380,8 +466,9 @@ public final class Eia608Decoder implements SubtitleDecoder {
     if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     } else if (isPreambleAddressCode(cc1, cc2)) {
-      // TODO: Add better handling of this with specific positioning.
-      maybeAppendNewline();
+      handlePreambleCode(cc1, cc2);
+    } else if (isTabOffset(cc1, cc2)) {
+      handleTabOffset(cc2);
     }
     return isRepeatableControl;
   }
@@ -414,32 +501,197 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
     switch (cc2) {
       case CTRL_ERASE_DISPLAYED_MEMORY:
-        captionString = null;
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-          captionStringBuilder.setLength(0);
+          flushCaptionBuilder();
         }
         return;
       case CTRL_ERASE_NON_DISPLAYED_MEMORY:
-        captionStringBuilder.setLength(0);
+        flushCaptionBuilder();
         return;
       case CTRL_END_OF_CAPTION:
-        captionString = getDisplayCaption();
-        captionStringBuilder.setLength(0);
+        buildCue();
+        flushCaptionBuilder();
         return;
       case CTRL_CARRIAGE_RETURN:
         maybeAppendNewline();
         return;
       case CTRL_BACKSPACE:
-        if (captionStringBuilder.length() > 0) {
-          captionStringBuilder.setLength(captionStringBuilder.length() - 1);
-        }
+        backspace();
         return;
     }
   }
 
+  private void handlePreambleCode(byte cc1, byte cc2) {
+    // For PAC layout see: https://en.wikipedia.org/wiki/EIA-608#Control_commands
+    applySpan(); // Apply any spans.
+
+    // Parse the "next row down" flag.
+    boolean nextRowDown = (cc2 & 0x20) != 0;
+    if (nextRowDown) {
+      // TODO: We should create a new cue instead, this may cause issues when
+      // the new line receives it's own PAC which we ignore currently.
+      // As a result of that the new line will be positioned directly below the
+      // previous line.
+      maybeAppendNewline();
+    }
+
+    // Go through the bits, starting with the last bit - the underline flag:
+    boolean underline = (cc2 & 0x1) != 0;
+    if (underline) {
+      captionStyles.put(getSpanStartIndex(), new UnderlineSpan());
+    }
+
+    // Next, parse the attribute bits:
+    int attribute = cc2 >> 1 & 0xF;
+    if (attribute >= 0x0 && attribute < 0x7) {
+      // Attribute is a foreground color
+      captionStyles.put(getSpanStartIndex(), new ForegroundColorSpan(COLOR_MAP[attribute]));
+    } else if (attribute == 0x7) {
+      // Attribute is "italics"
+      captionStyles.put(getSpanStartIndex(), new StyleSpan(STYLE_ITALIC));
+    } else if (attribute >= 0x8 && attribute <= 0xF) {
+      // Attribute is an indent
+      if (cueIndent == DEFAULT_INDENT) {
+        // Only update the indent, if it's the default indent.
+        // This is not conform the spec, but otherwise indentations may be off
+        // because we don't create a new cue when we see the nextRowDown flag.
+        cueIndent = INDENT_MAP[attribute & 0x7];
+      }
+    }
+
+    // Parse the row bits
+    int row = cc1 & 0x7;
+    if (row >= 0x4) {
+      // Extended Preamble Code
+      row = row & 0x3;
+      switch (row) {
+        case 0x0:
+          // Row 14 or 15
+          cueLine = CUE_LINE_MAP[13];
+          break;
+        case 0x1:
+          // Row 5 or 6
+          cueLine = CUE_LINE_MAP[4];
+          break;
+        case 0x2:
+          // Row 7 or 8
+          cueLine = CUE_LINE_MAP[7];
+          break;
+        case 0x3:
+          // Row 9 or 10
+          cueLine = CUE_LINE_MAP[8];
+          break;
+      }
+    } else {
+      // Regular Preamble Code
+      switch (row) {
+        case 0x0:
+          // Row 11 (Default)
+          cueLine = CUE_LINE_MAP[10];
+          break;
+        case 0x1:
+          // Row 1 (Top)
+          cueLine = CUE_LINE_MAP[0];
+          break;
+        case 0x2:
+          // Row 4 (Top)
+          cueLine = CUE_LINE_MAP[3];
+          break;
+        case 0x3:
+          // Row 12 or 13 (Bottom)
+          cueLine = CUE_LINE_MAP[11];
+          break;
+      }
+    }
+  }
+
+  private void handleMidrowCode(byte cc1, byte cc2) {
+    boolean transparentOrUnderline = (cc2 & 0x1) != 0;
+    int attribute = cc2 >> 1 & 0xF;
+    if ((cc1 & 0x1) != 0) {
+      // Background Color
+      captionStyles.put(getSpanStartIndex(), new BackgroundColorSpan(transparentOrUnderline ?
+        COLOR_MAP[attribute] & TRANSPARENCY_MASK : COLOR_MAP[attribute]));
+    } else {
+      // Foreground color
+      captionStyles.put(getSpanStartIndex(), new ForegroundColorSpan(COLOR_MAP[attribute]));
+      if (transparentOrUnderline) {
+        // Text should be underlined
+        captionStyles.put(getSpanStartIndex(), new UnderlineSpan());
+      }
+    }
+  }
+
+  private void handleTabOffset(byte cc2) {
+    // Formula for tab offset handling adapted from:
+    // https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
+    // We're ignoring any tab offsets that do not occur at the beginning of a new cue.
+    // This is not conform the spec, but works in most cases.
+    if (captionStringBuilder.length() == 0) {
+      switch (cc2) {
+        case CTRL_TAB_OFFSET_1:
+          tabOffset++;
+          break;
+        case CTRL_TAB_OFFSET_2:
+          tabOffset += 2;
+          break;
+        case CTRL_TAB_OFFSET_3:
+          tabOffset += 3;
+          break;
+      }
+    }
+  }
+
+  private int getSpanStartIndex() {
+    return captionStringBuilder.length() > 0 ? captionStringBuilder.length() - 1 : 0;
+  }
+
+  /**
+   * Applies a Span to the SpannableStringBuilder.
+   */
+  private void applySpan() {
+    // Check if we have to do anything.
+    if (captionStyles.size() == 0) {
+      return;
+    }
+
+    for (Integer startIndex : captionStyles.keySet()) {
+      CharacterStyle captionStyle = captionStyles.get(startIndex);
+      captionStringBuilder.setSpan(captionStyle, startIndex,
+        captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      captionStyles.remove(startIndex);
+    }
+  }
+
+  /**
+   * Builds a cue from whatever is in the SpannableStringBuilder now.
+   */
+  private void buildCue() {
+    applySpan(); // Apply Spans
+    CharSequence captionString = getDisplayCaption();
+    if (captionString != null) {
+      cueIndent = tabOffset * 2.5f + cueIndent;
+      tabOffset = 0;
+      Cue cue = new Cue(captionString, Layout.Alignment.ALIGN_NORMAL, cueLine / 100, Cue.LINE_TYPE_FRACTION,
+        Cue.ANCHOR_TYPE_START, cueIndent / 100, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
+      cues.add(cue);
+      if (captionMode == CC_MODE_POP_ON) {
+        captionStringBuilder.clear();
+        captionStringBuilder.clearSpans();
+        cueLine = DEFAULT_CUE_LINE;
+      }
+      cueIndent = DEFAULT_INDENT;
+    }
+  }
+
+  private void flushCaptionBuilder() {
+    captionStringBuilder.clear();
+    captionStringBuilder.clearSpans();
+  }
+
   private void backspace() {
     if (captionStringBuilder.length() > 0) {
-      captionStringBuilder.setLength(captionStringBuilder.length() - 1);
+      captionStringBuilder.replace(captionStringBuilder.length() - 1, captionStringBuilder.length(), "");
     }
   }
 
@@ -450,7 +702,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
     }
   }
 
-  private String getDisplayCaption() {
+  private CharSequence getDisplayCaption() {
     int buildLength = captionStringBuilder.length();
     if (buildLength == 0) {
       return null;
@@ -463,19 +715,19 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
     int endIndex = endsWithNewline ? buildLength - 1 : buildLength;
     if (captionMode != CC_MODE_ROLL_UP) {
-      return captionStringBuilder.substring(0, endIndex);
+      return captionStringBuilder.subSequence(0, endIndex);
     }
 
     int startIndex = 0;
     int searchBackwardFromIndex = endIndex;
     for (int i = 0; i < captionRowCount && searchBackwardFromIndex != -1; i++) {
-      searchBackwardFromIndex = captionStringBuilder.lastIndexOf("\n", searchBackwardFromIndex - 1);
+      searchBackwardFromIndex = captionStringBuilder.toString().lastIndexOf("\n", searchBackwardFromIndex - 1);
     }
     if (searchBackwardFromIndex != -1) {
       startIndex = searchBackwardFromIndex + 1;
     }
     captionStringBuilder.delete(0, startIndex);
-    return captionStringBuilder.substring(0, endIndex - startIndex);
+    return captionStringBuilder.subSequence(0, endIndex - startIndex);
   }
 
   private void setCaptionMode(int captionMode) {
@@ -485,10 +737,11 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
     this.captionMode = captionMode;
     // Clear the working memory.
-    captionStringBuilder.setLength(0);
+    captionStringBuilder.clear();
+    captionStringBuilder.clearSpans();
     if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
       // When switching to roll-up or unknown, we also need to clear the caption.
-      captionString = null;
+      cues = new LinkedList<>();
     }
   }
 
@@ -523,6 +776,11 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private static boolean isRepeatable(byte cc1) {
     return cc1 >= 0x10 && cc1 <= 0x1F;
+  }
+
+  private static boolean isTabOffset(byte cc1, byte cc2) {
+    return (cc1 == CTRL_TAB_OFFSET_CHAN_1 || cc1 == CTRL_TAB_OFFSET_CHAN_2)
+      && (cc2 >= 0x21 && cc2 <= 0x23);
   }
 
   /**
