@@ -633,6 +633,10 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         int samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
         List<byte[]> codecSpecificData = buildCodecSpecificData(
             parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
+        if (codecSpecificData.isEmpty() && MimeTypes.AUDIO_AAC.equals(sampleMimeType)) {
+          codecSpecificData = Collections.singletonList(
+              CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(samplingRate, channels));
+        }
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, null,
             bitrate, channels, samplingRate, codecSpecificData, 0, language);

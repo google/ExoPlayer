@@ -67,6 +67,8 @@ public final class CodecSpecificDataUtil {
         AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID
       };
 
+  // Advanced Audio Coding Low-Complexity profile.
+  private static final int AUDIO_OBJECT_TYPE_AAC_LC = 2;
   // Spectral Band Replication.
   private static final int AUDIO_OBJECT_TYPE_SBR = 5;
   // Error Resilient Bit-Sliced Arithmetic Coding.
@@ -116,6 +118,33 @@ public final class CodecSpecificDataUtil {
     int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[channelConfiguration];
     Assertions.checkArgument(channelCount != AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID);
     return Pair.create(sampleRate, channelCount);
+  }
+
+  /**
+   * Builds a simple HE-AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
+   *
+   * @param sampleRate The sample rate in Hz.
+   * @param numChannels The number of channels.
+   * @return The AudioSpecificConfig.
+   */
+  public static byte[] buildAacLcAudioSpecificConfig(int sampleRate, int numChannels) {
+    int sampleRateIndex = C.INDEX_UNSET;
+    for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE.length; ++i) {
+      if (sampleRate == AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[i]) {
+        sampleRateIndex = i;
+      }
+    }
+    int channelConfig = C.INDEX_UNSET;
+    for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE.length; ++i) {
+      if (numChannels == AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[i]) {
+        channelConfig = i;
+      }
+    }
+    if (sampleRate == C.INDEX_UNSET || channelConfig == C.INDEX_UNSET) {
+      throw new IllegalArgumentException("Invalid sample rate or number of channels: "
+          + sampleRate + ", " + numChannels);
+    }
+    return buildAacAudioSpecificConfig(AUDIO_OBJECT_TYPE_AAC_LC, sampleRateIndex, channelConfig);
   }
 
   /**

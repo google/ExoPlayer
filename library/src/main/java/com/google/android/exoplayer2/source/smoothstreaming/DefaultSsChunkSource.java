@@ -95,7 +95,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     for (int i = 0; i < extractorWrappers.length; i++) {
       int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
       Format format = streamElement.formats[manifestTrackIndex];
-      int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : -1;
+      int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : 0;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
           C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
           trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
