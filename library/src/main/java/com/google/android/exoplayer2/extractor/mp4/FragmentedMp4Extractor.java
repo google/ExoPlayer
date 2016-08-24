@@ -246,6 +246,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       int trackCount = trackBundles.size();
       for (int i = 0; i < trackCount; i++) {
         TrackFragment fragment = trackBundles.valueAt(i).fragment;
+        fragment.atomPosition = atomPosition;
         fragment.auxiliaryDataPosition = atomPosition;
         fragment.dataPosition = atomPosition;
       }
@@ -935,7 +936,13 @@ public final class FragmentedMp4Extractor implements Extractor {
         // We skip bytes preceding the next sample to read.
         int bytesToSkip = (int) (nextDataPosition - input.getPosition());
         if (bytesToSkip < 0) {
-          throw new ParserException("Offset to sample data was negative.");
+          if (nextDataPosition == currentTrackBundle.fragment.atomPosition) {
+            // Assume the sample data must be contiguous in the mdat with no preceeding data.
+            Log.w(TAG, "Offset to sample data was missing.");
+            bytesToSkip = 0;
+          } else {
+            throw new ParserException("Offset to sample data was negative.");
+          }
         }
         input.skipFully(bytesToSkip);
         this.currentTrackBundle = currentTrackBundle;

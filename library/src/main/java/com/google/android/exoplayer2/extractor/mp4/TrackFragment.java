@@ -29,6 +29,10 @@ import java.io.IOException;
    */
   public DefaultSampleValues header;
   /**
+   * The position (byte offset) of the start of fragment.
+   */
+  public long atomPosition;
+  /**
    * The position (byte offset) of the start of data contained in the fragment.
    */
   public long dataPosition;
