@@ -664,8 +664,9 @@ public final class FragmentedMp4Extractor implements Extractor {
     DefaultSampleValues defaultSampleValues = fragment.header;
 
     fragment.trunLength[index] = trun.readUnsignedIntToInt();
+    fragment.trunDataPosition[index] = fragment.dataPosition;
     if ((atomFlags & 0x01 /* data_offset_present */) != 0) {
-      fragment.trunDataPosition[index] = fragment.dataPosition + trun.readInt();
+      fragment.trunDataPosition[index] += trun.readInt();
     }
 
     boolean firstSampleFlagsPresent = (atomFlags & 0x04 /* first_sample_flags_present */) != 0;
