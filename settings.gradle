@@ -19,7 +19,9 @@ include ':extension-opus'
 include ':extension-vp9'
 include ':extension-okhttp'
 include ':extension-flac'
-include ':extension-cronet'
+
+// Uncomment the following line to use the Cronet Extension.
+// include ':extension-cronet'
 
 project(':demo-ext').projectDir = new File(settingsDir, 'demo_ext')
 project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')

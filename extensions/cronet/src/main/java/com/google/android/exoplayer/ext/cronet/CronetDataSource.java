@@ -18,7 +18,6 @@ package com.google.android.exoplayer.ext.cronet;
 import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource;
@@ -27,7 +26,6 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Clock;
 import com.google.android.exoplayer.util.Predicate;
 import com.google.android.exoplayer.util.TraceUtil;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -41,7 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.chromium.net.CronetEngine;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlRequestException;
@@ -77,16 +74,15 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   private static final String TAG = "CronetDataSource";
-
   private static final Pattern CONTENT_RANGE_HEADER_PATTERN =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
   // The size of read buffer passed to cronet UrlRequest.read().
   private static final int READ_BUFFER_SIZE_BYTES = 32 * 1024;
 
   /* package */ static final int IDLE_CONNECTION = 5;
-  /* package */static final int OPENING_CONNECTION = 2;
-  /* package */static final int CONNECTED_CONNECTION = 3;
-  /* package */static final int OPEN_CONNECTION = 4;
+  /* package */ static final int OPENING_CONNECTION = 2;
+  /* package */ static final int CONNECTED_CONNECTION = 3;
+  /* package */ static final int OPEN_CONNECTION = 4;
 
   private final CronetEngine cronetEngine;
   private final Executor executor;
@@ -104,9 +100,9 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private DataSpec currentDataSpec;
   private UrlResponseInfo responseInfo;
 
-  /* package */ TimeoutCheckerRunnable timeoutCheckerRunnable;
   /* package */ volatile int connectionState;
   private volatile String currentUrl;
+  private volatile long currentConnectTimeoutMs;
   private volatile HttpDataSourceException exception;
   private volatile long contentLength;
   private volatile AtomicLong expectedBytesRemainingToRead;
@@ -116,7 +112,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   /**
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the request.
-   * @param clock A {@link com.google.android.exoplayer.util.Clock} for keeping track of timeout
+   * @param clock A {@link com.google.android.exoplayer.util.Clock} for keeping track of timeout.
    * @param contentTypePredicate A {@link Predicate}. If a content type is rejected by the
    *     predicate then a
    *     {@link com.google.android.exoplayer.upstream.HttpDataSource.InvalidContentTypeException}
@@ -179,27 +175,20 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         connectionState = OPENING_CONNECTION;
       }
 
-      createRequest(dataSpec);
-
-      if (resetTimeoutOnRedirects) {
-        operation.close();
-        timeoutCheckerRunnable = new TimeoutCheckerRunnable();
-        executor.execute(timeoutCheckerRunnable);
-        currentUrlRequest.start();
-        operation.block();
-      } else {
-        operation.close();
-        currentUrlRequest.start();
-        operation.block(connectTimeoutMs);
-      }
+      operation.close();
+      resetConnectTimeout();
+      startRequest(dataSpec);
+      boolean requestStarted = blockUntilConnectTimeout();
 
       if (exception != null) {
+        // An error occurred opening the connection.
         throw exception;
-      } else if (connectionState != CONNECTED_CONNECTION) {
-        // If the connection timed out. Get the last connection status then throw with exception.
+      } else if (!requestStarted) {
+        // The timeout was reached before the connection was opened.
         throw new OpenException(new SocketTimeoutException(), dataSpec, getCurrentRequestStatus());
       }
 
+      // Connection was opened.
       if (transferListener != null) {
         transferListener.onTransferStart();
       }
@@ -210,7 +199,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     }
   }
 
-  private void createRequest(DataSpec dataSpec) throws HttpDataSourceException {
+  private void startRequest(DataSpec dataSpec) throws HttpDataSourceException {
     currentUrl = dataSpec.uri.toString();
     currentDataSpec = dataSpec;
     UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(currentUrl, this, executor,
@@ -218,6 +207,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     fillCurrentRequestHeader(urlRequestBuilder);
     fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
     currentUrlRequest = urlRequestBuilder.build();
+    currentUrlRequest.start();
   }
 
   private void fillCurrentRequestHeader(UrlRequest.Builder urlRequestBuilder) {
@@ -253,8 +243,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   @Override
-  public synchronized void onFailed(
-      UrlRequest request, UrlResponseInfo info, UrlRequestException error) {
+  public synchronized void onFailed(UrlRequest request, UrlResponseInfo info,
+      UrlRequestException error) {
     if (request != currentUrlRequest) {
       return;
     }
@@ -262,18 +252,12 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       IOException cause = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
           ? new UnknownHostException() : error;
       exception = new OpenException(cause, currentDataSpec, getCurrentRequestStatus());
-      if (timeoutCheckerRunnable != null) {
-        timeoutCheckerRunnable.cancel();
-        timeoutCheckerRunnable = null;
-      }
-      operation.open();
-
     } else if (connectionState == OPEN_CONNECTION) {
       readBuffer.limit(0);
-      exception = new HttpDataSourceException(
-          error, currentDataSpec, HttpDataSourceException.TYPE_READ);
-      operation.open();
+      exception = new HttpDataSourceException(error, currentDataSpec,
+          HttpDataSourceException.TYPE_READ);
     }
+    operation.open();
   }
 
   @Override
@@ -306,10 +290,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     } catch (HttpDataSourceException e) {
       exception = e;
     } finally {
-      if (timeoutCheckerRunnable != null) {
-        timeoutCheckerRunnable.cancel();
-        timeoutCheckerRunnable = null;
-      }
       operation.open();
       TraceUtil.endSection();
     }
@@ -324,7 +304,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
           info.getAllHeaders(),
           currentDataSpec);
     }
-
     // Check for a valid content type.
     try {
       String contentType = info.getAllHeaders().get("Content-Type").get(0);
@@ -376,7 +355,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         }
       }
     }
-
     return contentLength;
   }
 
@@ -453,8 +431,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         return;
       }
     }
-    if (timeoutCheckerRunnable != null) {
-      timeoutCheckerRunnable.resetTimeoutLimit();
+    if (resetTimeoutOnRedirects) {
+      resetConnectTimeout();
     }
     request.followRedirect();
   }
@@ -488,10 +466,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       if (currentUrlRequest != null) {
         currentUrlRequest.cancel();
         currentUrlRequest = null;
-      }
-      if (timeoutCheckerRunnable != null) {
-        timeoutCheckerRunnable.cancel();
-        timeoutCheckerRunnable = null;
       }
       readBuffer.clear();
       currentDataSpec = null;
@@ -538,49 +512,18 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     return result.get();
   }
 
-  class TimeoutCheckerRunnable implements Runnable {
-
-    private volatile long connectTimeoutElapsedTimeMs;
-    private boolean cancelled;
-
-    private TimeoutCheckerRunnable() {
-      resetTimeoutLimit();
+  private boolean blockUntilConnectTimeout() {
+    long now = clock.elapsedRealtime();
+    boolean opened = false;
+    while (!opened && now < currentConnectTimeoutMs) {
+      opened = operation.block(currentConnectTimeoutMs - now + 5 /* fudge factor */);
+      now = clock.elapsedRealtime();
     }
+    return opened;
+  }
 
-    @Override
-    public void run() {
-      try {
-        while (true) {
-          if (checkTimeout()) {
-            return;
-          }
-
-          Thread.sleep(200);
-        }
-      } catch (InterruptedException e) {
-        // Shouldn't happen but if it does, it results in timing out.
-      }
-    }
-
-    boolean checkTimeout() {
-      if (cancelled) {
-        return true;
-      }
-      if (clock.elapsedRealtime() > connectTimeoutElapsedTimeMs) {
-        operation.open();
-        return true;
-      }
-      return false;
-    }
-
-    private void resetTimeoutLimit() {
-      connectTimeoutElapsedTimeMs = clock.elapsedRealtime() + connectTimeoutMs;
-    }
-
-    private void cancel() {
-      cancelled = true;
-    }
-
+  private void resetConnectTimeout() {
+    currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
   }
 
 }
