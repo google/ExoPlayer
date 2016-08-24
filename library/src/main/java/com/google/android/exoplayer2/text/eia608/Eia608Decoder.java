@@ -656,9 +656,13 @@ public final class Eia608Decoder implements SubtitleDecoder {
     }
 
     for (Integer startIndex : captionStyles.keySet()) {
-      CharacterStyle captionStyle = captionStyles.get(startIndex);
-      captionStringBuilder.setSpan(captionStyle, startIndex,
-        captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      // There may be cases, e.g. when seeking where the startIndex becomes greater
+      // than what is actually in the string builder, in that case, just discard the span.
+      if (startIndex < captionStringBuilder.length()) {
+        CharacterStyle captionStyle = captionStyles.get(startIndex);
+        captionStringBuilder.setSpan(captionStyle, startIndex,
+          captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
       captionStyles.remove(startIndex);
     }
   }
