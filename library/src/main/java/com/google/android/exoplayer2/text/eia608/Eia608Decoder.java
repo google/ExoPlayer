@@ -224,7 +224,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
     Color.BLACK // Only used by Mid Row style changes, for PAC an value of 0x7 means italics.
   };
 
-  // Transparency is defined in the two left most bytes of an integer.
+  // Transparency is defined in the first byte of an integer.
   private static final int TRANSPARENCY_MASK = 0x80FFFFFF;
 
   private static final int STYLE_ITALIC = Typeface.ITALIC;
