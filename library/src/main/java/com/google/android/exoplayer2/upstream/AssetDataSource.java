@@ -137,18 +137,18 @@ public final class AssetDataSource implements DataSource {
   @Override
   public void close() throws AssetDataSourceException {
     uri = null;
-    if (inputStream != null) {
-      try {
+    try {
+      if (inputStream != null) {
         inputStream.close();
-      } catch (IOException e) {
-        throw new AssetDataSourceException(e);
-      } finally {
-        inputStream = null;
-        if (opened) {
-          opened = false;
-          if (listener != null) {
-            listener.onTransferEnd(this);
-          }
+      }
+    } catch (IOException e) {
+      throw new AssetDataSourceException(e);
+    } finally {
+      inputStream = null;
+      if (opened) {
+        opened = false;
+        if (listener != null) {
+          listener.onTransferEnd(this);
         }
       }
     }

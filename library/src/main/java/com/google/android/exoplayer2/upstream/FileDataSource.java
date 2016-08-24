@@ -109,18 +109,18 @@ public final class FileDataSource implements DataSource {
   @Override
   public void close() throws FileDataSourceException {
     uri = null;
-    if (file != null) {
-      try {
+    try {
+      if (file != null) {
         file.close();
-      } catch (IOException e) {
-        throw new FileDataSourceException(e);
-      } finally {
-        file = null;
-        if (opened) {
-          opened = false;
-          if (listener != null) {
-            listener.onTransferEnd(this);
-          }
+      }
+    } catch (IOException e) {
+      throw new FileDataSourceException(e);
+    } finally {
+      file = null;
+      if (opened) {
+        opened = false;
+        if (listener != null) {
+          listener.onTransferEnd(this);
         }
       }
     }
