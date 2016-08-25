@@ -101,9 +101,6 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private static final byte CTRL_TAB_OFFSET_CHAN_1 = 0x17;
   private static final byte CTRL_TAB_OFFSET_CHAN_2 = 0x1F;
-  private static final byte CTRL_TAB_OFFSET_1 = 0x21;
-  private static final byte CTRL_TAB_OFFSET_2 = 0x22;
-  private static final byte CTRL_TAB_OFFSET_3 = 0x23;
 
   private static final byte CTRL_BACKSPACE = 0x21;
 
@@ -181,21 +178,14 @@ public final class Eia608Decoder implements SubtitleDecoder {
   // Maps EIA-608 PAC row numbers to WebVTT cue line settings.
   // Adapted from: https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
   private static final float[] CUE_LINE_MAP = new float[] {
+    63.33f, // Row 11
     10.00f, // Row 1
-    15.33f,
-    20.66f,
-    26.00f,
-    31.33f,
-    36.66f,
-    42.00f,
-    47.33f,
-    52.66f,
-    58.00f,
-    63.33f,
-    68.66f,
-    74.00f,
-    79.33f,
-    84.66f // Row 15
+    26.00f, // Row 4
+    68.66f, // Row 12
+    79.33f, // Row 14
+    31.33f, // Row 5
+    42.00f, // Row 7
+    52.66f, // Row 9
   };
 
   // Maps EIA-608 PAC indents to WebVTT cue position values.
@@ -228,7 +218,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
   private static final int TRANSPARENCY_MASK = 0x80FFFFFF;
 
   private static final int STYLE_ITALIC = Typeface.ITALIC;
-  private static final float DEFAULT_CUE_LINE = CUE_LINE_MAP[10]; // Row 11
+  private static final float DEFAULT_CUE_LINE = CUE_LINE_MAP[4]; // Row 11
   private static final float DEFAULT_INDENT = INDENT_MAP[0]; // Indent 0
 
   private final LinkedList<SubtitleInputBuffer> availableInputBuffers;
@@ -560,49 +550,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
     }
 
     // Parse the row bits
-    int row = cc1 & 0x7;
-    if (row >= 0x4) {
-      // Extended Preamble Code
-      row = row & 0x3;
-      switch (row) {
-        case 0x0:
-          // Row 14 or 15
-          cueLine = CUE_LINE_MAP[13];
-          break;
-        case 0x1:
-          // Row 5 or 6
-          cueLine = CUE_LINE_MAP[4];
-          break;
-        case 0x2:
-          // Row 7 or 8
-          cueLine = CUE_LINE_MAP[7];
-          break;
-        case 0x3:
-          // Row 9 or 10
-          cueLine = CUE_LINE_MAP[8];
-          break;
-      }
-    } else {
-      // Regular Preamble Code
-      switch (row) {
-        case 0x0:
-          // Row 11 (Default)
-          cueLine = CUE_LINE_MAP[10];
-          break;
-        case 0x1:
-          // Row 1 (Top)
-          cueLine = CUE_LINE_MAP[0];
-          break;
-        case 0x2:
-          // Row 4 (Top)
-          cueLine = CUE_LINE_MAP[3];
-          break;
-        case 0x3:
-          // Row 12 or 13 (Bottom)
-          cueLine = CUE_LINE_MAP[11];
-          break;
-      }
-    }
+    cueLine = CUE_LINE_MAP[cc1 & 0x7];
   }
 
   private void handleMidrowCode(byte cc1, byte cc2) {
@@ -628,17 +576,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
     // We're ignoring any tab offsets that do not occur at the beginning of a new cue.
     // This is not conform the spec, but works in most cases.
     if (captionStringBuilder.length() == 0) {
-      switch (cc2) {
-        case CTRL_TAB_OFFSET_1:
-          tabOffset++;
-          break;
-        case CTRL_TAB_OFFSET_2:
-          tabOffset += 2;
-          break;
-        case CTRL_TAB_OFFSET_3:
-          tabOffset += 3;
-          break;
-      }
+      tabOffset = cc2 - 0x20;
     }
   }
 
