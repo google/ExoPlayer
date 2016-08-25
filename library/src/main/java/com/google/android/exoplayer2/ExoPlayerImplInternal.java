@@ -1294,6 +1294,10 @@ import java.io.IOException;
   }
 
   private void setPlayingPeriodHolder(MediaPeriodHolder periodHolder) throws ExoPlaybackException {
+    if (playingPeriodHolder == periodHolder) {
+      return;
+    }
+
     playingPeriodHolder = periodHolder;
     int enabledRendererCount = 0;
     boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
