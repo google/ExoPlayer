@@ -272,10 +272,17 @@ public final class TsExtractor implements Extractor {
         int pointerField = data.readUnsignedByte();
         data.skipBytes(pointerField);
       }
-
       data.readBytes(patScratch, 3);
       patScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
       int sectionLength = patScratch.readBits(12);
+
+      int crcStart = data.getPosition() - 3;
+      int crcEnd = data.getPosition() + sectionLength;
+      if (Util.crc(data.data, crcStart, crcEnd, 0xffffffff) != 0) {
+        // CRC Invalid. The section gets discarded.
+        return;
+      }
+
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8)
       data.skipBytes(5);
@@ -292,8 +299,6 @@ public final class TsExtractor implements Extractor {
           tsPayloadReaders.put(pid, new PmtReader());
         }
       }
-
-      // Skip CRC_32.
     }
 
   }
