@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public static final int MSG_STATE_CHANGED = 2;
   public static final int MSG_SET_PLAY_WHEN_READY_ACK = 3;
   public static final int MSG_ERROR = 4;
+  public static final int MSG_SEEK_COMPLETE = 1000;
 
   // Internal messages
   private static final int MSG_PREPARE = 1;
@@ -88,6 +89,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile long durationUs;
   private volatile long positionUs;
   private volatile long bufferedPositionUs;
+
+  private boolean pendingSeek;
 
   public ExoPlayerImplInternal(Handler eventHandler, boolean playWhenReady,
       int[] selectedTrackIndices, int minBufferMs, int minRebufferMs) {
@@ -465,6 +468,10 @@ import java.util.concurrent.atomic.AtomicInteger;
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded) {
+      if (pendingSeek) {
+        pendingSeek = false;
+        eventHandler.sendEmptyMessage(MSG_SEEK_COMPLETE);
+      }
       setState(ExoPlayer.STATE_READY);
       if (playWhenReady) {
         startRenderers();
@@ -500,6 +507,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     try {
       if (positionMs == (positionUs / 1000)) {
         // Seek is to the current position. Do nothing.
+        pendingSeek = false;
+        eventHandler.sendEmptyMessage(MSG_SEEK_COMPLETE);
         return;
       }
 
@@ -515,6 +524,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         ensureStopped(renderer);
         renderer.seekTo(positionUs);
       }
+      pendingSeek = true;
       setState(ExoPlayer.STATE_BUFFERING);
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } finally {
