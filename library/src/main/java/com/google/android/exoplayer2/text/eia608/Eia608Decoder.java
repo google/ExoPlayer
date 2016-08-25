@@ -513,7 +513,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private void handlePreambleCode(byte cc1, byte cc2) {
     // For PAC layout see: https://en.wikipedia.org/wiki/EIA-608#Control_commands
-    applySpan(); // Apply any spans.
+    applySpans(); // Apply any open spans.
 
     // Parse the "next row down" flag.
     boolean nextRowDown = (cc2 & 0x20) != 0;
@@ -528,17 +528,17 @@ public final class Eia608Decoder implements SubtitleDecoder {
     // Go through the bits, starting with the last bit - the underline flag:
     boolean underline = (cc2 & 0x1) != 0;
     if (underline) {
-      captionStyles.put(getSpanStartIndex(), new UnderlineSpan());
+      setCharacterStyle(new UnderlineSpan());
     }
 
     // Next, parse the attribute bits:
     int attribute = cc2 >> 1 & 0xF;
     if (attribute >= 0x0 && attribute < 0x7) {
       // Attribute is a foreground color
-      captionStyles.put(getSpanStartIndex(), new ForegroundColorSpan(COLOR_MAP[attribute]));
+      setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
     } else if (attribute == 0x7) {
       // Attribute is "italics"
-      captionStyles.put(getSpanStartIndex(), new StyleSpan(STYLE_ITALIC));
+      setCharacterStyle(new StyleSpan(STYLE_ITALIC));
     } else if (attribute >= 0x8 && attribute <= 0xF) {
       // Attribute is an indent
       if (cueIndent == DEFAULT_INDENT) {
@@ -558,14 +558,14 @@ public final class Eia608Decoder implements SubtitleDecoder {
     int attribute = cc2 >> 1 & 0xF;
     if ((cc1 & 0x1) != 0) {
       // Background Color
-      captionStyles.put(getSpanStartIndex(), new BackgroundColorSpan(transparentOrUnderline ?
+      setCharacterStyle(new BackgroundColorSpan(transparentOrUnderline ?
         COLOR_MAP[attribute] & TRANSPARENCY_MASK : COLOR_MAP[attribute]));
     } else {
       // Foreground color
-      captionStyles.put(getSpanStartIndex(), new ForegroundColorSpan(COLOR_MAP[attribute]));
+      setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
       if (transparentOrUnderline) {
         // Text should be underlined
-        captionStyles.put(getSpanStartIndex(), new UnderlineSpan());
+        setCharacterStyle(new UnderlineSpan());
       }
     }
   }
@@ -585,9 +585,43 @@ public final class Eia608Decoder implements SubtitleDecoder {
   }
 
   /**
-   * Applies a Span to the SpannableStringBuilder.
+   * Sets a character style at the current cueIndex.
+   * Takes care of style priorities.
+   *
+   * @param style the style to set.
    */
-  private void applySpan() {
+  private void setCharacterStyle(CharacterStyle style) {
+    int startIndex = getSpanStartIndex();
+    // Close all open spans of the same type, and add a new one.
+    if (style instanceof ForegroundColorSpan) {
+      // Setting a foreground color clears the italics style.
+      applySpan(StyleSpan.class); //
+    }
+    applySpan(style.getClass());
+    captionStyles.put(startIndex, style);
+  }
+
+  /**
+   * Closes all open spans of the spansToApply class.
+   * @param spansToClose the class of which the spans should be closed.
+   */
+  private void applySpan(Class<? extends CharacterStyle> spansToClose) {
+    for (Integer index : captionStyles.keySet()) {
+      CharacterStyle style = captionStyles.get(index);
+      if (spansToClose.isInstance(style)) {
+        if (index < captionStringBuilder.length()) {
+          captionStringBuilder.setSpan(style, index,
+            captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        captionStyles.remove(index);
+      }
+    }
+  }
+
+  /**
+   * Applies all currently opened spans to the SpannableStringBuilder.
+   */
+  private void applySpans() {
     // Check if we have to do anything.
     if (captionStyles.size() == 0) {
       return;
@@ -609,7 +643,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
    * Builds a cue from whatever is in the SpannableStringBuilder now.
    */
   private void buildCue() {
-    applySpan(); // Apply Spans
+    applySpans(); // Apply Spans
     CharSequence captionString = getDisplayCaption();
     if (captionString != null) {
       cueIndent = tabOffset * 2.5f + cueIndent;
@@ -633,7 +667,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private void backspace() {
     if (captionStringBuilder.length() > 0) {
-      captionStringBuilder.replace(captionStringBuilder.length() - 1, captionStringBuilder.length(), "");
+      captionStringBuilder.delete(captionStringBuilder.length() - 1, captionStringBuilder.length());
     }
   }
 
