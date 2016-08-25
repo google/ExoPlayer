@@ -69,6 +69,7 @@ import com.google.android.exoplayer2.ui.KeyCompatibleMediaController;
 import com.google.android.exoplayer2.ui.MediaControllerPrevNextClickListener;
 import com.google.android.exoplayer2.ui.PlayerControl;
 import com.google.android.exoplayer2.ui.SubtitleView;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -118,7 +119,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   private Button retryButton;
 
   private String userAgent;
-  private DefaultDataSourceFactory mediaDataSourceFactory;
+  private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
   private MappingTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
@@ -135,7 +136,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-    mediaDataSourceFactory = new DefaultDataSourceFactory(this, userAgent, BANDWIDTH_METER);
+    mediaDataSourceFactory = buildMediaDataSourceFactory();
     mainHandler = new Handler();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
@@ -338,10 +339,10 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
         : uri.getLastPathSegment());
     switch (type) {
       case Util.TYPE_SS:
-        return new SsMediaSource(uri, new DefaultDataSourceFactory(this, userAgent),
+        return new SsMediaSource(uri, buildManifestDataSourceFactory(),
             new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
       case Util.TYPE_DASH:
-        return new DashMediaSource(uri, new DefaultDataSourceFactory(this, userAgent),
+        return new DashMediaSource(uri, buildManifestDataSourceFactory(),
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
       case Util.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
@@ -390,6 +391,16 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       trackSelectionHelper = null;
       eventLogger = null;
     }
+  }
+
+  /** Build a DataSource factory for manifest data, that does not affect the bandwidth estimate. */
+  private DataSource.Factory buildManifestDataSourceFactory() {
+    return new DefaultDataSourceFactory(this, userAgent);
+  }
+
+  /** Build a DataSource factory for media data, that does affect the bandwidth estimate. */
+  private DataSource.Factory buildMediaDataSourceFactory() {
+    return new DefaultDataSourceFactory(this, userAgent, BANDWIDTH_METER);
   }
 
   // ExoPlayer.EventListener implementation
