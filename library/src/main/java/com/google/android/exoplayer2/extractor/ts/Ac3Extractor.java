@@ -16,64 +16,64 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+
 import java.io.IOException;
 
 /**
- * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
- * headers.
+ * Facilitates the extraction of AC-3 samples from elementary audio files formatted as AC-3
+ * bitstreams.
  */
-public final class AdtsExtractor implements Extractor {
+public final class Ac3Extractor implements Extractor {
 
   /**
-   * Factory for {@link AdtsExtractor} instances.
+   * Factory for {@link Ac3Extractor} instances.
    */
   public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
 
     @Override
     public Extractor[] createExtractors() {
-      return new Extractor[] {new AdtsExtractor()};
+      return new Extractor[] {new Ac3Extractor()};
     }
 
   };
 
-  private static final int MAX_PACKET_SIZE = 200;
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
   /**
-   * The maximum number of bytes to search when sniffing, excluding the header, before giving up.
-   * Frame sizes are represented by 13-bit fields, so expect a valid frame in the first 8192 bytes.
+   * The maximum number of bytes to search when sniffing, excluding ID3 information, before giving
+   * up.
    */
   private static final int MAX_SNIFF_BYTES = 8 * 1024;
+  private static final int AC3_SYNC_WORD = 0x0B77;
+  private static final int MAX_SYNC_FRAME_SIZE = 2786;
+  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
 
   private final long firstSampleTimestampUs;
-  private final ParsableByteArray packetBuffer;
+  private final ParsableByteArray sampleData;
 
-  // Accessed only by the loading thread.
-  private AdtsReader reader;
+  private Ac3Reader reader;
   private boolean startedPacket;
 
-  public AdtsExtractor() {
+  public Ac3Extractor() {
     this(0);
   }
 
-  public AdtsExtractor(long firstSampleTimestampUs) {
+  public Ac3Extractor(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
-    packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
+    sampleData = new ParsableByteArray(MAX_SYNC_FRAME_SIZE);
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     // Skip any ID3 headers.
     ParsableByteArray scratch = new ParsableByteArray(10);
-    ParsableBitArray scratchBits = new ParsableBitArray(scratch.data);
     int startPosition = 0;
     while (true) {
       input.peekFully(scratch.data, 0, 10);
@@ -89,44 +89,32 @@ public final class AdtsExtractor implements Extractor {
     input.resetPeekPosition();
     input.advancePeekPosition(startPosition);
 
-    // Try to find four or more consecutive AAC audio frames, exceeding the MPEG TS packet size.
     int headerPosition = startPosition;
-    int validFramesSize = 0;
     int validFramesCount = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 2);
+      input.peekFully(scratch.data, 0, 5);
       scratch.setPosition(0);
       int syncBytes = scratch.readUnsignedShort();
-      if ((syncBytes & 0xFFF6) != 0xFFF0) {
+      if (syncBytes != AC3_SYNC_WORD) {
         validFramesCount = 0;
-        validFramesSize = 0;
         input.resetPeekPosition();
         if (++headerPosition - startPosition >= MAX_SNIFF_BYTES) {
           return false;
         }
         input.advancePeekPosition(headerPosition);
       } else {
-        if (++validFramesCount >= 4 && validFramesSize > 188) {
+        if (++validFramesCount >= 4) {
           return true;
         }
-
-        // Skip the frame.
-        input.peekFully(scratch.data, 0, 4);
-        scratchBits.setPosition(14);
-        int frameSize = scratchBits.readBits(13);
-        // Either the stream is malformed OR we're not parsing an ADTS stream.
-        if (frameSize <= 6) {
-          return false;
-        }
-        input.advancePeekPosition(frameSize - 6);
-        validFramesSize += frameSize;
+        int frameSize = Ac3Util.parseAc3SyncframeSize(scratch.data);
+        input.advancePeekPosition(frameSize - 5);
       }
     }
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    reader = new AdtsReader(output.track(0), output.track(1));
+    reader = new Ac3Reader(output.track(0), false); // TODO: Add support for embedded ID3.
     output.endTracks();
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
@@ -139,29 +127,29 @@ public final class AdtsExtractor implements Extractor {
 
   @Override
   public void release() {
-    // Do nothing
+    // Do nothing.
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
-    int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
+      InterruptedException {
+    int bytesRead = input.read(sampleData.data, 0, MAX_SYNC_FRAME_SIZE);
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;
     }
 
     // Feed whatever data we have to the reader, regardless of whether the read finished or not.
-    packetBuffer.setPosition(0);
-    packetBuffer.setLimit(bytesRead);
+    sampleData.setPosition(0);
+    sampleData.setLimit(bytesRead);
 
     if (!startedPacket) {
       // Pass data to the reader as though it's contained within a single infinitely long packet.
       reader.packetStarted(firstSampleTimestampUs, true);
       startedPacket = true;
     }
-    // TODO: Make it possible for reader to consume the dataSource directly, so that it becomes
+    // TODO: Make it possible for the reader to consume the dataSource directly, so that it becomes
     // unnecessary to copy the data through packetBuffer.
-    reader.consume(packetBuffer);
+    reader.consume(sampleData);
     return RESULT_CONTINUE;
   }
 

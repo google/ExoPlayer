@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   // Used when reading the samples.
   private long timeUs;
 
+  // TODO: Remove the isEac3 parameter by reading the BSID field.
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
    *

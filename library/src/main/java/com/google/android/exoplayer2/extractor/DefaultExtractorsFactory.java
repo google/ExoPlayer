@@ -89,6 +89,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         }
         try {
           extractorClasses.add(
+              Class.forName("com.google.android.exoplayer2.extractor.ts.Ac3Extractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
               Class.forName("com.google.android.exoplayer2.extractor.ts.TsExtractor")
                   .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
