@@ -136,7 +136,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-    mediaDataSourceFactory = buildMediaDataSourceFactory();
+    mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
@@ -339,10 +339,10 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
         : uri.getLastPathSegment());
     switch (type) {
       case Util.TYPE_SS:
-        return new SsMediaSource(uri, buildManifestDataSourceFactory(),
+        return new SsMediaSource(uri, buildDataSourceFactory(false),
             new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
       case Util.TYPE_DASH:
-        return new DashMediaSource(uri, buildManifestDataSourceFactory(),
+        return new DashMediaSource(uri, buildDataSourceFactory(false),
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
       case Util.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
@@ -393,14 +393,15 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
   }
 
-  /** Build a DataSource factory for manifest data, that does not affect the bandwidth estimate. */
-  private DataSource.Factory buildManifestDataSourceFactory() {
-    return new DefaultDataSourceFactory(this, userAgent);
-  }
-
-  /** Build a DataSource factory for media data, that does affect the bandwidth estimate. */
-  private DataSource.Factory buildMediaDataSourceFactory() {
-    return new DefaultDataSourceFactory(this, userAgent, BANDWIDTH_METER);
+  /**
+   * Build a DataSource factory.
+   *
+   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
+   *     DataSource factory.
+   */
+  private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
+    return new DefaultDataSourceFactory(this, userAgent,
+        useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   // ExoPlayer.EventListener implementation
