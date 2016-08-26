@@ -278,7 +278,7 @@ public final class TsExtractor implements Extractor {
 
       int crcStart = data.getPosition() - 3;
       int crcEnd = data.getPosition() + sectionLength;
-      if (Util.crc(data.data, crcStart, crcEnd, 0xffffffff) != 0) {
+      if (Util.crc(data.data, crcStart, crcEnd, 0xFFFFFFFF) != 0) {
         // CRC Invalid. The section gets discarded.
         return;
       }
@@ -313,6 +313,7 @@ public final class TsExtractor implements Extractor {
 
     private int sectionLength;
     private int sectionBytesRead;
+    private int crc;
 
     public PmtReader() {
       pmtScratch = new ParsableBitArray(new byte[5]);
@@ -337,6 +338,7 @@ public final class TsExtractor implements Extractor {
         data.readBytes(pmtScratch, 3);
         pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
         sectionLength = pmtScratch.readBits(12);
+        crc = Util.crc(pmtScratch.data, 0, 3, 0xFFFFFFFF);
 
         if (sectionData.capacity() < sectionLength) {
           sectionData.reset(new byte[sectionLength], sectionLength);
@@ -351,6 +353,11 @@ public final class TsExtractor implements Extractor {
       sectionBytesRead += bytesToRead;
       if (sectionBytesRead < sectionLength) {
         // Not yet fully read.
+        return;
+      }
+
+      if (Util.crc(sectionData.data, 0, sectionLength, crc) != 0) {
+        // CRC Invalid. The section gets discarded.
         return;
       }
 
