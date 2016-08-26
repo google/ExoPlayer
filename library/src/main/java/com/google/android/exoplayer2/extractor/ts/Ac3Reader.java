@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private static final int HEADER_SIZE = 8;
 
-  private final boolean isEac3;
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
 
@@ -47,21 +46,18 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private long sampleDurationUs;
   private Format format;
   private int sampleSize;
+  private boolean isEac3;
 
   // Used when reading the samples.
   private long timeUs;
 
-  // TODO: Remove the isEac3 parameter by reading the BSID field.
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
    *
    * @param output Track output for extracted samples.
-   * @param isEac3 Whether the stream is E-AC-3 (ETSI TS 102 366 Annex E). Specify {@code false} to
-   *     decode sample headers as AC-3.
    */
-  public Ac3Reader(TrackOutput output, boolean isEac3) {
+  public Ac3Reader(TrackOutput output) {
     super(output);
-    this.isEac3 = isEac3;
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -163,6 +159,10 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
    */
   private void parseHeader() {
     if (format == null) {
+      // We read ahead to distinguish between AC-3 and E-AC-3.
+      headerScratchBits.skipBits(40);
+      isEac3 = headerScratchBits.readBits(5) == 16;
+      headerScratchBits.setPosition(headerScratchBits.getPosition() - 45);
       format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, null, null)
           : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, null, null);
       output.format(format);

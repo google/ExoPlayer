@@ -114,7 +114,7 @@ public final class Ac3Extractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    reader = new Ac3Reader(output.track(0), false); // TODO: Add support for embedded ID3.
+    reader = new Ac3Reader(output.track(0)); // TODO: Add support for embedded ID3.
     output.endTracks();
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }

@@ -189,7 +189,7 @@ public final class PsExtractor implements Extractor {
           // Private stream, used for AC3 audio.
           // NOTE: This may need further parsing to determine if its DTS, but that's likely only
           // valid for DVDs.
-          elementaryStreamReader = new Ac3Reader(output.track(streamId), false);
+          elementaryStreamReader = new Ac3Reader(output.track(streamId));
           foundAudioTrack = true;
         } else if (!foundAudioTrack && (streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
           elementaryStreamReader = new MpegAudioReader(output.track(streamId));
