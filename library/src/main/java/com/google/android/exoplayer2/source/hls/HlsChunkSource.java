@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
@@ -63,6 +64,7 @@ public class HlsChunkSource {
   private static final double LIVE_VARIANT_SWITCH_SAFETY_EXTRA_SECS = 2.0;
   private static final String TAG = "HlsChunkSource";
   private static final String AAC_FILE_EXTENSION = ".aac";
+  private static final String AC3_FILE_EXTENSION = ".ac3";
   private static final String MP3_FILE_EXTENSION = ".mp3";
   private static final String VTT_FILE_EXTENSION = ".vtt";
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
@@ -286,6 +288,8 @@ public class HlsChunkSource {
       // identifier com.apple.streaming.transportStreamTimestamp. This may also apply to the MP3
       // case below.
       extractor = new AdtsExtractor(startTimeUs);
+    } else if (lastPathSegment.endsWith(AC3_FILE_EXTENSION)) {
+      extractor = new Ac3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
       extractor = new Mp3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
