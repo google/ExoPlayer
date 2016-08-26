@@ -302,7 +302,7 @@ import java.util.List;
     String baseUri = playlist.baseUri;
 
     if (playlist instanceof HlsMediaPlaylist) {
-      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null,
+      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
           Format.NO_VALUE);
       Variant[] variants = new Variant[] {new Variant(playlist.baseUri, format, null)};
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,

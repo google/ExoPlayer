@@ -425,10 +425,10 @@ public class DashManifestParser extends DefaultHandler
         return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
             bitrate, 0, language);
       } else {
-        return Format.createContainerFormat(id, containerMimeType, sampleMimeType, bitrate);
+        return Format.createContainerFormat(id, containerMimeType, codecs, sampleMimeType, bitrate);
       }
     } else {
-      return Format.createContainerFormat(id, containerMimeType, sampleMimeType, bitrate);
+      return Format.createContainerFormat(id, containerMimeType, codecs, sampleMimeType, bitrate);
     }
   }
 

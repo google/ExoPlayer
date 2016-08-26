@@ -297,9 +297,9 @@ public final class Format implements Parcelable {
 
   // Generic.
 
-  public static Format createContainerFormat(String id, String containerMimeType,
+  public static Format createContainerFormat(String id, String containerMimeType, String codecs,
       String sampleMimeType, int bitrate) {
-    return new Format(id, containerMimeType, sampleMimeType, null, bitrate, NO_VALUE, NO_VALUE,
+    return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, 0, null, OFFSET_SAMPLE_RELATIVE, null, null);
   }

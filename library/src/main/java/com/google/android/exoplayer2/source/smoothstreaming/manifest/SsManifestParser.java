@@ -457,7 +457,6 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     private static final String KEY_TYPE_TEXT = "text";
     private static final String KEY_SUB_TYPE = "Subtype";
     private static final String KEY_NAME = "Name";
-    private static final String KEY_QUALITY_LEVELS = "QualityLevels";
     private static final String KEY_URL = "Url";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
@@ -645,7 +644,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
             null, bitrate, 0, language);
       } else {
-        format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
+        format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, null, sampleMimeType,
             bitrate);
       }
     }
