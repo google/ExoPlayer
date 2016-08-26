@@ -77,6 +77,8 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   private byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
       throws IOException {
     HttpDataSource dataSource = dataSourceFactory.createDataSource();
+    // Note: This will be overridden by a Content-Type in requestProperties, if one is set.
+    dataSource.setRequestProperty("Content-Type", "application/octet-stream");
     if (requestProperties != null) {
       for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
         dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());

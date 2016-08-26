@@ -69,8 +69,8 @@ public final class DefaultDataSourceFactory implements Factory {
    */
   public DefaultDataSourceFactory(Context context, String userAgent,
       TransferListener<? super DataSource> listener, boolean allowCrossProtocolRedirects) {
-    this(context, userAgent, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS, allowCrossProtocolRedirects);
+    this(context, userAgent, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS,
+        allowCrossProtocolRedirects);
   }
 
   /**
