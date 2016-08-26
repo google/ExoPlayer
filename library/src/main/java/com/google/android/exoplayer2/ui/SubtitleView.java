@@ -18,7 +18,11 @@ package com.google.android.exoplayer2.ui;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -221,29 +225,44 @@ public final class SubtitleView extends View implements TextRenderer.Output {
   @Override
   public void dispatchDraw(Canvas canvas) {
     int cueCount = (cues == null) ? 0 : cues.size();
-    int rawTop = getTop();
-    int rawBottom = getBottom();
 
-    // Calculate the bounds after padding is taken into account.
-    int left = getLeft() + getPaddingLeft();
-    int top = rawTop + getPaddingTop();
-    int right = getRight() + getPaddingRight();
-    int bottom = rawBottom - getPaddingBottom();
-    if (bottom <= top || right <= left) {
-      // No space to draw subtitles.
-      return;
-    }
+    if (cueCount > 0) {
+      Cue cue;
+      cue = cues.get(0);
+      if (cue.isGraphic) {
+        Bitmap subsBitmap = cue.bitmap;
+        if (subsBitmap == null) {
+          return;
+        }
+        Paint paint = new Paint(); // fixme default paint
+        Rect src = new Rect(0, 0, subsBitmap.getWidth(), subsBitmap.getHeight());
+        RectF dst = new RectF(0, 0, getWidth(), getHeight());
+        canvas.drawBitmap(subsBitmap, src, dst, paint);
+      } else {
+        int rawTop = getTop();
+        int rawBottom = getBottom();
 
-    float textSizePx = textSizeType == ABSOLUTE ? textSize
-        : textSize * (textSizeType == FRACTIONAL ? (bottom - top) : (rawBottom - rawTop));
-    if (textSizePx <= 0) {
-      // Text has no height.
-      return;
-    }
+        // Calculate the bounds after padding is taken into account.
+        int left = getLeft() + getPaddingLeft();
+        int top = rawTop + getPaddingTop();
+        int right = getRight() + getPaddingRight();
+        int bottom = rawBottom - getPaddingBottom();
+        if (bottom <= top || right <= left) {
+          // No space to draw subtitles.
+          return;
+        }
+        float textSizePx = textSizeType == ABSOLUTE ? textSize
+                : textSize * (textSizeType == FRACTIONAL ? (bottom - top) : (rawBottom - rawTop));
+        if (textSizePx <= 0) {
+          // Text has no height.
+          return;
+        }
 
-    for (int i = 0; i < cueCount; i++) {
-      painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, textSizePx,
-          bottomPaddingFraction, canvas, left, top, right, bottom);
+        for (int i = 0; i < cueCount; i++) {
+          painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, textSizePx,
+                  bottomPaddingFraction, canvas, left, top, right, bottom);
+        }
+      }
     }
   }
 
