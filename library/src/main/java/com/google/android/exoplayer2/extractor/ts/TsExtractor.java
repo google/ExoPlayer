@@ -73,6 +73,7 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_H265 = 0x24;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
+  private static final int TS_STREAM_TYPE_DVBSUBS   = 0x59;
   private static final int BASE_EMBEDDED_TRACK_ID = 0x2000; // 0xFF + 1
 
   private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
@@ -481,6 +482,9 @@ public final class TsExtractor implements Extractor {
               pesPayloadReader = new Id3Reader(output.track(nextEmbeddedTrackId++));
             }
             break;
+          case TS_STREAM_TYPE_DVBSUBS:
+            pesPayloadReader = new DvbSubtitlesReader(output.track(trackId));
+            break;
           default:
             pesPayloadReader = null;
             break;
@@ -532,6 +536,8 @@ public final class TsExtractor implements Extractor {
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
           language = new String(data.data, data.getPosition(), 3).trim();
           audioType = data.data[data.getPosition() + 3];
+        } else if (descriptorTag == 0x59) {
+          streamType = TS_STREAM_TYPE_DVBSUBS;
         }
         // Skip unused bytes of current descriptor.
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
