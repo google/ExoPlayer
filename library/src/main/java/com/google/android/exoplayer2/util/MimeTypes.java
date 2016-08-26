@@ -70,6 +70,7 @@ public final class MimeTypes {
   public static final String APPLICATION_RAWCC = BASE_TYPE_APPLICATION + "/x-rawcc";
   public static final String APPLICATION_VOBSUB = BASE_TYPE_APPLICATION + "/vobsub";
   public static final String APPLICATION_PGS = BASE_TYPE_APPLICATION + "/pgs";
+  public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
 
   private MimeTypes() {}
 
