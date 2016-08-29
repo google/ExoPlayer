@@ -70,8 +70,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(Format[] formats, SampleStream stream, long positionUs,
-      boolean joining, long offsetUs) throws ExoPlaybackException {
+  public final void enable(Format[] formats, SampleStream stream, long positionUs, boolean joining,
+      long offsetUs) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
     onEnabled(joining);
@@ -200,8 +200,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onPositionReset(long positionUs, boolean joining)
-      throws ExoPlaybackException {
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     // Do nothing.
   }
 

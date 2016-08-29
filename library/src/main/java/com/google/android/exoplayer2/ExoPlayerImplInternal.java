@@ -137,6 +137,14 @@ import java.io.IOException;
    */
   private static final int MAXIMUM_BUFFER_AHEAD_PERIODS = 100;
 
+  /**
+   * Offset added to all sample timestamps read by renderers to make them non-negative. This is
+   * provided for convenience of sources that may return negative timestamps due to prerolling
+   * samples from a keyframe before their first sample with timestamp zero, so it must be set to a
+   * value greater than or equal to the maximum key-frame interval in seekable periods.
+   */
+  private static final int RENDERER_TIMESTAMP_OFFSET_US = 60000000;
+
   private final Renderer[] renderers;
   private final RendererCapabilities[] rendererCapabilities;
   private final TrackSelector trackSelector;
@@ -637,7 +645,8 @@ import java.io.IOException;
   }
 
   private void resetRendererPosition(long periodPositionUs) throws ExoPlaybackException {
-    rendererPositionUs = playingPeriodHolder == null ? periodPositionUs
+    rendererPositionUs = playingPeriodHolder == null
+        ? periodPositionUs + RENDERER_TIMESTAMP_OFFSET_US
         : playingPeriodHolder.toRendererTime(periodPositionUs);
     standaloneMediaClock.setPositionUs(rendererPositionUs);
     for (Renderer renderer : enabledRenderers) {
@@ -1147,22 +1156,30 @@ import java.io.IOException;
       TrackSelectionArray oldTrackSelections = readingPeriodHolder.trackSelections;
       readingPeriodHolder = readingPeriodHolder.next;
       TrackSelectionArray newTrackSelections = readingPeriodHolder.trackSelections;
+
+      boolean initialDiscontinuity =
+          readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET;
       for (int i = 0; i < renderers.length; i++) {
         Renderer renderer = renderers[i];
         TrackSelection oldSelection = oldTrackSelections.get(i);
         TrackSelection newSelection = newTrackSelections.get(i);
-        if (oldSelection != null) {
-          boolean isCurrentStreamFinal = renderer.isCurrentStreamFinal();
-          if (newSelection != null && !isCurrentStreamFinal) {
-            // Replace the renderer's SampleStream so the transition to playing the next period can
-            // be seamless.
+        if (oldSelection == null) {
+          // The renderer has no current stream and will be enabled when we play the next period.
+        } else if (initialDiscontinuity) {
+          // The new period starts with a discontinuity, so the renderer will play out all data then
+          // be disabled and re-enabled when it starts playing the next period.
+          renderer.setCurrentStreamFinal();
+        } else if (!renderer.isCurrentStreamFinal()) {
+          if (newSelection != null) {
+            // Replace the renderer's SampleStream so the transition to playing the next period
+            // can be seamless.
             Format[] formats = new Format[newSelection.length()];
             for (int j = 0; j < formats.length; j++) {
               formats[j] = newSelection.getFormat(j);
             }
             renderer.replaceStream(formats, readingPeriodHolder.sampleStreams[i],
                 readingPeriodHolder.getRendererOffset());
-          } else if (!isCurrentStreamFinal) {
+          } else {
             // The renderer will be disabled when transitioning to playing the next period. Mark the
             // SampleStream as final to play out any remaining data.
             renderer.setCurrentStreamFinal();
@@ -1228,7 +1245,8 @@ import java.io.IOException;
       }
     }
 
-    long rendererPositionOffsetUs = loadingPeriodHolder == null ? newLoadingPeriodStartPositionUs
+    long rendererPositionOffsetUs = loadingPeriodHolder == null
+        ? newLoadingPeriodStartPositionUs + RENDERER_TIMESTAMP_OFFSET_US
         : (loadingPeriodHolder.getRendererOffset()
             + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs());
     timeline.getPeriod(newLoadingPeriodIndex, period, true);
