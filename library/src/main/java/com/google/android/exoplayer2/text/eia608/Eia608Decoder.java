@@ -26,16 +26,12 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.text.Layout;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -98,6 +94,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
   private static final byte CTRL_ERASE_DISPLAYED_MEMORY = 0x2C;
   private static final byte CTRL_CARRIAGE_RETURN = 0x2D;
   private static final byte CTRL_ERASE_NON_DISPLAYED_MEMORY = 0x2E;
+  private static final byte CTRL_DELETE_TO_END_OF_ROW = 0x24;
 
   private static final byte CTRL_TAB_OFFSET_CHAN_1 = 0x17;
   private static final byte CTRL_TAB_OFFSET_CHAN_2 = 0x1F;
@@ -175,33 +172,13 @@ public final class Eia608Decoder implements SubtitleDecoder {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
-  // Maps EIA-608 PAC row numbers to WebVTT cue line settings.
-  // Adapted from: https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
-  private static final float[] CUE_LINE_MAP = new float[] {
-    63.33f, // Row 11
-    10.00f, // Row 1
-    26.00f, // Row 4
-    68.66f, // Row 12
-    79.33f, // Row 14
-    31.33f, // Row 5
-    42.00f, // Row 7
-    52.66f, // Row 9
-  };
+  // Maps EIA-608 PAC row bits to rows.
+  private static final int[] ROW_INDICES = new int[] { 11, 1, 3, 12, 14, 5, 7, 9 };
 
-  // Maps EIA-608 PAC indents to WebVTT cue position values.
-  // Adapted from: https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
-  // Note that these cue position values may not give the intended result, unless the font size is set
+  // Maps EIA-608 PAC cursor bits to indents.
+  // Note that these indents may not give the intended result, unless the font size is set
   // to allow for a maximum of 32 (or 41) characters per line.
-  private static final float[] INDENT_MAP = new float[] {
-    10.0f, // Indent 0/Column 1
-    20.0f, // Indent 4/Column 5
-    30.0f, // Indent 8/Column 9
-    40.0f, // Indent 12/Column 13
-    50.0f, // Indent 16/Column 17
-    60.0f, // Indent 20/Column 21
-    70.0f, // Indent 24/Column 25
-    80.0f, // Indent 28/Column 29
-  };
+  private static final int[] CURSOR_INDICES = new int[] { 0, 4, 8, 12, 16, 20, 24, 28 };
 
   private static final int[] COLOR_MAP = new int[] {
     Color.WHITE,
@@ -216,18 +193,14 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   // Transparency is defined in the first byte of an integer.
   private static final int TRANSPARENCY_MASK = 0x80FFFFFF;
-
   private static final int STYLE_ITALIC = Typeface.ITALIC;
-  private static final float DEFAULT_CUE_LINE = CUE_LINE_MAP[4]; // Row 11
-  private static final float DEFAULT_INDENT = INDENT_MAP[0]; // Indent 0
 
   private final LinkedList<SubtitleInputBuffer> availableInputBuffers;
   private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
   private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
 
   private final ParsableByteArray ccData;
-
-  private final SpannableStringBuilder captionStringBuilder;
+  private final LinkedList<Eia608CueBuilder> cues;
 
   private long playbackPositionUs;
 
@@ -235,16 +208,16 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private int captionMode;
   private int captionRowCount;
+  boolean nextRowDown;
 
-  private LinkedList<Cue> cues;
-  private HashMap<Integer, CharacterStyle> captionStyles;
-  float cueIndent;
-  float cueLine;
-  int tabOffset;
+  // The Cue that's currently being built and decoded.
+  private Eia608CueBuilder currentCue;
 
   private boolean repeatableControlSet;
   private byte repeatableControlCc1;
   private byte repeatableControlCc2;
+
+  private Eia608Subtitle subtitle;
 
   public Eia608Decoder() {
     availableInputBuffers = new LinkedList<>();
@@ -258,15 +231,12 @@ public final class Eia608Decoder implements SubtitleDecoder {
     queuedInputBuffers = new TreeSet<>();
 
     ccData = new ParsableByteArray();
-
-    captionStringBuilder = new SpannableStringBuilder();
-    captionStyles = new HashMap<>();
+    subtitle = new Eia608Subtitle();
+    cues = new LinkedList<>();
+    nextRowDown = false;
 
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
-    cueIndent = DEFAULT_INDENT;
-    cueLine = DEFAULT_CUE_LINE;
-    tabOffset = 0;
   }
 
   @Override
@@ -322,14 +292,11 @@ public final class Eia608Decoder implements SubtitleDecoder {
       decode(inputBuffer);
 
       // check if we have any caption updates to report
-      if (!cues.isEmpty()) {
-        if (!inputBuffer.isDecodeOnly()) {
-          SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(cues), 0);
-          cues = new LinkedList<>();
-          releaseInputBuffer(inputBuffer);
-          return outputBuffer;
-        }
+      if (!inputBuffer.isDecodeOnly()) {
+        SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+        outputBuffer.setContent(inputBuffer.timeUs, subtitle, 0);
+        releaseInputBuffer(inputBuffer);
+        return outputBuffer;
       }
 
       releaseInputBuffer(inputBuffer);
@@ -353,11 +320,9 @@ public final class Eia608Decoder implements SubtitleDecoder {
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
     playbackPositionUs = 0;
-    flushCaptionBuilder();
-    cues = new LinkedList<>();
-    cueIndent = DEFAULT_INDENT;
-    cueLine = DEFAULT_CUE_LINE;
-    tabOffset = 0;
+    currentCue = new Eia608CueBuilder();
+    cues.clear();
+    nextRowDown = false;
     repeatableControlSet = false;
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
@@ -393,23 +358,23 @@ public final class Eia608Decoder implements SubtitleDecoder {
       // Special North American character set.
       // ccData2 - P|0|1|1|X|X|X|X
       if ((ccData1 == 0x11 || ccData1 == 0x19) && ((ccData2 & 0x70) == 0x30)) {
-        captionStringBuilder.append(getSpecialChar(ccData2));
+        currentCue.append(getSpecialChar(ccData2));
         continue;
       }
 
       // Extended Spanish/Miscellaneous and French character set.
       // ccData2 - P|0|1|X|X|X|X|X
       if ((ccData1 == 0x12 || ccData1 == 0x1A) && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
-        captionStringBuilder.append(getExtendedEsFrChar(ccData2));
+        currentCue.backspace(); // Remove standard equivalent of the special extended char.
+        currentCue.append(getExtendedEsFrChar(ccData2));
         continue;
       }
 
       // Extended Portuguese and German/Danish character set.
       // ccData2 - P|0|1|X|X|X|X|X
       if ((ccData1 == 0x13 || ccData1 == 0x1B) && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
-        captionStringBuilder.append(getExtendedPtDeChar(ccData2));
+        currentCue.backspace(); // Remove standard equivalent of the special extended char.
+        currentCue.append(getExtendedPtDeChar(ccData2));
         continue;
       }
 
@@ -425,9 +390,9 @@ public final class Eia608Decoder implements SubtitleDecoder {
       }
 
       // Basic North American character set.
-      captionStringBuilder.append(getChar(ccData1));
+      currentCue.append(getChar(ccData1));
       if (ccData2 >= 0x20) {
-        captionStringBuilder.append(getChar(ccData2));
+        currentCue.append(getChar(ccData2));
       }
     }
 
@@ -435,8 +400,8 @@ public final class Eia608Decoder implements SubtitleDecoder {
       if (!isRepeatableControl) {
         repeatableControlSet = false;
       }
-      if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-        buildCue();
+      if (captionMode == CC_MODE_PAINT_ON || captionMode == CC_MODE_ROLL_UP) {
+        renderCues();
       }
     }
   }
@@ -456,7 +421,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
     if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     } else if (isPreambleAddressCode(cc1, cc2)) {
-      handlePreambleCode(cc1, cc2);
+      handlePreambleAddressCode(cc1, cc2);
     } else if (isTabOffset(cc1, cc2)) {
       handleTabOffset(cc2);
     }
@@ -492,65 +457,75 @@ public final class Eia608Decoder implements SubtitleDecoder {
     switch (cc2) {
       case CTRL_ERASE_DISPLAYED_MEMORY:
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-          flushCaptionBuilder();
+          currentCue = new Eia608CueBuilder();
+          cues.clear();
         }
+        subtitle.setCues(Collections.<Cue>emptyList());
         return;
       case CTRL_ERASE_NON_DISPLAYED_MEMORY:
-        flushCaptionBuilder();
+        currentCue = new Eia608CueBuilder();
+        cues.clear();
         return;
       case CTRL_END_OF_CAPTION:
-        buildCue();
-        flushCaptionBuilder();
+        renderCues();
+        cues.clear();
         return;
       case CTRL_CARRIAGE_RETURN:
-        maybeAppendNewline();
+        // Each time a Carriage Return is received, the text in the top row of the window is erased
+        // from memory and from the display. The remaining rows of text are each rolled up into the
+        // next highest row in the window, leaving the base row blank and ready to accept new text.
+        if (captionMode == CC_MODE_ROLL_UP) {
+          for (Eia608CueBuilder cue : cues) {
+            // Roll up all the other rows.
+            if (!cue.rollUp()) {
+              cues.remove(cue);
+            }
+          }
+          currentCue = new Eia608CueBuilder();
+          cues.add(currentCue);
+          while (cues.size() > captionRowCount) {
+            cues.pollFirst();
+          }
+        }
         return;
       case CTRL_BACKSPACE:
-        backspace();
+        currentCue.backspace();
+        return;
+      case CTRL_DELETE_TO_END_OF_ROW:
+        // TODO: Clear currentCue's captionText.
         return;
     }
   }
 
-  private void handlePreambleCode(byte cc1, byte cc2) {
+  private void handlePreambleAddressCode(byte cc1, byte cc2) {
     // For PAC layout see: https://en.wikipedia.org/wiki/EIA-608#Control_commands
-    applySpans(); // Apply any open spans.
 
-    // Parse the "next row down" flag.
-    boolean nextRowDown = (cc2 & 0x20) != 0;
-    if (nextRowDown) {
-      // TODO: We should create a new cue instead, this may cause issues when
-      // the new line receives it's own PAC which we ignore currently.
-      // As a result of that the new line will be positioned directly below the
-      // previous line.
-      maybeAppendNewline();
+    // Parse the "next row down" toggle.
+    nextRowDown = (cc2 & 0x20) != 0;
+
+    int row = ROW_INDICES[cc1 & 0x7];
+    if (row != currentCue.getRow() || nextRowDown) {
+      currentCue = new Eia608CueBuilder();
+      cues.add(currentCue);
     }
+    currentCue.setRow(nextRowDown ? ++row : row);
 
-    // Go through the bits, starting with the last bit - the underline flag:
     boolean underline = (cc2 & 0x1) != 0;
     if (underline) {
-      setCharacterStyle(new UnderlineSpan());
+      currentCue.setCharacterStyle(new UnderlineSpan());
     }
 
-    // Next, parse the attribute bits:
     int attribute = cc2 >> 1 & 0xF;
     if (attribute >= 0x0 && attribute < 0x7) {
       // Attribute is a foreground color
-      setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
+      currentCue.setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
     } else if (attribute == 0x7) {
       // Attribute is "italics"
-      setCharacterStyle(new StyleSpan(STYLE_ITALIC));
+      currentCue.setCharacterStyle(new StyleSpan(STYLE_ITALIC));
     } else if (attribute >= 0x8 && attribute <= 0xF) {
       // Attribute is an indent
-      if (cueIndent == DEFAULT_INDENT) {
-        // Only update the indent, if it's the default indent.
-        // This is not conform the spec, but otherwise indentations may be off
-        // because we don't create a new cue when we see the nextRowDown flag.
-        cueIndent = INDENT_MAP[attribute & 0x7];
-      }
+      currentCue.setIndent(CURSOR_INDICES[attribute & 0x7]);
     }
-
-    // Parse the row bits
-    cueLine = CUE_LINE_MAP[cc1 & 0x7];
   }
 
   private void handleMidrowCode(byte cc1, byte cc2) {
@@ -558,152 +533,20 @@ public final class Eia608Decoder implements SubtitleDecoder {
     int attribute = cc2 >> 1 & 0xF;
     if ((cc1 & 0x1) != 0) {
       // Background Color
-      setCharacterStyle(new BackgroundColorSpan(transparentOrUnderline ?
+      currentCue.setCharacterStyle(new BackgroundColorSpan(transparentOrUnderline ?
         COLOR_MAP[attribute] & TRANSPARENCY_MASK : COLOR_MAP[attribute]));
     } else {
       // Foreground color
-      setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
+      currentCue.setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
       if (transparentOrUnderline) {
         // Text should be underlined
-        setCharacterStyle(new UnderlineSpan());
+        currentCue.setCharacterStyle(new UnderlineSpan());
       }
     }
   }
 
   private void handleTabOffset(byte cc2) {
-    // Formula for tab offset handling adapted from:
-    // https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html#x1-preamble-address-code-pac
-    // We're ignoring any tab offsets that do not occur at the beginning of a new cue.
-    // This is not conform the spec, but works in most cases.
-    if (captionStringBuilder.length() == 0) {
-      tabOffset = cc2 - 0x20;
-    }
-  }
-
-  private int getSpanStartIndex() {
-    return captionStringBuilder.length() > 0 ? captionStringBuilder.length() - 1 : 0;
-  }
-
-  /**
-   * Sets a character style at the current cueIndex.
-   * Takes care of style priorities.
-   *
-   * @param style the style to set.
-   */
-  private void setCharacterStyle(CharacterStyle style) {
-    int startIndex = getSpanStartIndex();
-    // Close all open spans of the same type, and add a new one.
-    if (style instanceof ForegroundColorSpan) {
-      // Setting a foreground color clears the italics style.
-      applySpan(StyleSpan.class); //
-    }
-    applySpan(style.getClass());
-    captionStyles.put(startIndex, style);
-  }
-
-  /**
-   * Closes all open spans of the spansToApply class.
-   * @param spansToClose the class of which the spans should be closed.
-   */
-  private void applySpan(Class<? extends CharacterStyle> spansToClose) {
-    for (Integer index : captionStyles.keySet()) {
-      CharacterStyle style = captionStyles.get(index);
-      if (spansToClose.isInstance(style)) {
-        if (index < captionStringBuilder.length()) {
-          captionStringBuilder.setSpan(style, index,
-            captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-        captionStyles.remove(index);
-      }
-    }
-  }
-
-  /**
-   * Applies all currently opened spans to the SpannableStringBuilder.
-   */
-  private void applySpans() {
-    // Check if we have to do anything.
-    if (captionStyles.size() == 0) {
-      return;
-    }
-
-    for (Integer startIndex : captionStyles.keySet()) {
-      // There may be cases, e.g. when seeking where the startIndex becomes greater
-      // than what is actually in the string builder, in that case, just discard the span.
-      if (startIndex < captionStringBuilder.length()) {
-        CharacterStyle captionStyle = captionStyles.get(startIndex);
-        captionStringBuilder.setSpan(captionStyle, startIndex,
-          captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      captionStyles.remove(startIndex);
-    }
-  }
-
-  /**
-   * Builds a cue from whatever is in the SpannableStringBuilder now.
-   */
-  private void buildCue() {
-    applySpans(); // Apply Spans
-    CharSequence captionString = getDisplayCaption();
-    if (captionString != null) {
-      cueIndent = tabOffset * 2.5f + cueIndent;
-      tabOffset = 0;
-      Cue cue = new Cue(captionString, Layout.Alignment.ALIGN_NORMAL, cueLine / 100, Cue.LINE_TYPE_FRACTION,
-        Cue.ANCHOR_TYPE_START, cueIndent / 100, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
-      cues.add(cue);
-      if (captionMode == CC_MODE_POP_ON) {
-        captionStringBuilder.clear();
-        captionStringBuilder.clearSpans();
-        cueLine = DEFAULT_CUE_LINE;
-      }
-      cueIndent = DEFAULT_INDENT;
-    }
-  }
-
-  private void flushCaptionBuilder() {
-    captionStringBuilder.clear();
-    captionStringBuilder.clearSpans();
-  }
-
-  private void backspace() {
-    if (captionStringBuilder.length() > 0) {
-      captionStringBuilder.delete(captionStringBuilder.length() - 1, captionStringBuilder.length());
-    }
-  }
-
-  private void maybeAppendNewline() {
-    int buildLength = captionStringBuilder.length();
-    if (buildLength > 0 && captionStringBuilder.charAt(buildLength - 1) != '\n') {
-      captionStringBuilder.append('\n');
-    }
-  }
-
-  private CharSequence getDisplayCaption() {
-    int buildLength = captionStringBuilder.length();
-    if (buildLength == 0) {
-      return null;
-    }
-
-    boolean endsWithNewline = captionStringBuilder.charAt(buildLength - 1) == '\n';
-    if (buildLength == 1 && endsWithNewline) {
-      return null;
-    }
-
-    int endIndex = endsWithNewline ? buildLength - 1 : buildLength;
-    if (captionMode != CC_MODE_ROLL_UP) {
-      return captionStringBuilder.subSequence(0, endIndex);
-    }
-
-    int startIndex = 0;
-    int searchBackwardFromIndex = endIndex;
-    for (int i = 0; i < captionRowCount && searchBackwardFromIndex != -1; i++) {
-      searchBackwardFromIndex = captionStringBuilder.toString().lastIndexOf("\n", searchBackwardFromIndex - 1);
-    }
-    if (searchBackwardFromIndex != -1) {
-      startIndex = searchBackwardFromIndex + 1;
-    }
-    captionStringBuilder.delete(0, startIndex);
-    return captionStringBuilder.subSequence(0, endIndex - startIndex);
+    currentCue.tab(cc2 - 0x20);
   }
 
   private void setCaptionMode(int captionMode) {
@@ -713,12 +556,15 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
     this.captionMode = captionMode;
     // Clear the working memory.
-    captionStringBuilder.clear();
-    captionStringBuilder.clearSpans();
+    currentCue = new Eia608CueBuilder();
     if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
       // When switching to roll-up or unknown, we also need to clear the caption.
-      cues = new LinkedList<>();
+      cues.clear();
     }
+  }
+
+  private void renderCues() {
+    subtitle.setCues(Eia608CueBuilder.buildCues(cues));
   }
 
   private static char getChar(byte ccData) {

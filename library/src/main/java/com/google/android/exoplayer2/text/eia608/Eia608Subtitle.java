@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.eia608;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,9 +26,13 @@ import java.util.List;
  */
 /* package */ final class Eia608Subtitle implements Subtitle {
 
-  private final List<Cue> cues;
+  private List<Cue> cues;
 
-  public Eia608Subtitle(List<Cue> cues) {
+  public Eia608Subtitle() {
+    cues = new LinkedList<>();
+  }
+
+  /* package */ void setCues(List<Cue> cues) {
     this.cues = cues;
   }
 
