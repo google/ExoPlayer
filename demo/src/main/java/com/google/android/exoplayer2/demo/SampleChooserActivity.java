@@ -64,7 +64,7 @@ public class SampleChooserActivity extends Activity {
       uris = new String[] {dataUri};
     } else {
       uris = new String[] {
-          "asset:///sample_media.exolist.json",
+          "asset:///media.exolist.json",
       };
     }
     SampleListLoader loaderTask = new SampleListLoader();
@@ -136,7 +136,8 @@ public class SampleChooserActivity extends Activity {
 
       reader.beginObject();
       while (reader.hasNext()) {
-        switch (reader.nextName()) {
+        String name = reader.nextName();
+        switch (name) {
           case "name":
             groupName = reader.nextString();
             break;
@@ -147,6 +148,11 @@ public class SampleChooserActivity extends Activity {
             }
             reader.endArray();
             break;
+          case "_comment":
+            reader.nextString(); // Ignore.
+            break;
+          default:
+            throw new ParserException("Unsupported name: " + name);
         }
       }
       reader.endObject();

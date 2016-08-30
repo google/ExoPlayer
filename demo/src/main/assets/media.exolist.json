@@ -287,8 +287,7 @@
       {
         "name": "Super speed (PlayReady)",
         "uri": "http://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
-        "drm_scheme": "playready",
-        "drm_license_url": "http://playready.directtaps.net/pr/svc/rightsmanager.asmx"
+        "drm_scheme": "playready"
       }
     ]
   },
