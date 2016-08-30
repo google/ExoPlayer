@@ -37,6 +37,9 @@
     Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
+// JNI references for SimpleOutputBuffer class.
+static jmethodID outputBufferInit;
+
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv* env;
   if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
@@ -66,30 +69,37 @@ FUNC(jlong, opusInit, jint sampleRate, jint channelCount, jint numStreams,
     LOGE("Failed to set Opus header gain; status=%s", opus_strerror(status));
     return 0;
   }
+
+  // Populate JNI References.
+  const jclass outputBufferClass = env->FindClass(
+      "com/google/android/exoplayer2/decoder/SimpleOutputBuffer");
+  outputBufferInit = env->GetMethodID(outputBufferClass, "init",
+      "(JI)Ljava/nio/ByteBuffer;");
+
   return reinterpret_cast<intptr_t>(decoder);
 }
 
-FUNC(jint, opusDecode, jlong jDecoder, jobject jInputBuffer, jint inputSize,
-     jobject jOutputBuffer, jint outputSize) {
+FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs, jobject jInputBuffer,
+     jint inputSize, jobject jOutputBuffer, jint sampleRate) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
   const uint8_t* inputBuffer =
       reinterpret_cast<const uint8_t*>(
           env->GetDirectBufferAddress(jInputBuffer));
-  int16_t* outputBuffer = reinterpret_cast<int16_t*>(
-      env->GetDirectBufferAddress(jOutputBuffer));
-  int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
-                                            outputBuffer, outputSize, 0);
-  return (sampleCount < 0) ? sampleCount
-                           : sampleCount * kBytesPerSample * channelCount;
-}
 
-FUNC(jint, opusGetRequiredOutputBufferSize, jobject jInputBuffer,
-     jint inputSize, jint sampleRate) {
-  const uint8_t* inputBuffer = reinterpret_cast<const uint8_t*>(
-      env->GetDirectBufferAddress(jInputBuffer));
-  const int32_t sampleCount =
+  const int32_t inputSampleCount =
       opus_packet_get_nb_samples(inputBuffer, inputSize, sampleRate);
-  return sampleCount * kBytesPerSample * channelCount;
+  const jint outputSize = inputSampleCount * kBytesPerSample * channelCount;
+
+  env->CallObjectMethod(jOutputBuffer, outputBufferInit, jTimeUs, outputSize);
+  const jobject jOutputBufferData = env->CallObjectMethod(jOutputBuffer,
+      outputBufferInit, jTimeUs, outputSize);
+
+  int16_t* outputBufferData = reinterpret_cast<int16_t*>(
+      env->GetDirectBufferAddress(jOutputBufferData));
+  int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
+      outputBufferData, outputSize, 0);
+  return (sampleCount < 0) ? sampleCount
+      : sampleCount * kBytesPerSample * channelCount;
 }
 
 FUNC(void, opusClose, jlong jDecoder) {

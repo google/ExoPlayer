@@ -156,16 +156,12 @@ import java.util.List;
       skipSamples = (inputBuffer.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
     }
     ByteBuffer inputData = inputBuffer.data;
-    int inputSize = inputData.limit();
-    int outputSize = opusGetRequiredOutputBufferSize(inputData, inputSize, SAMPLE_RATE);
-    if (outputSize < 0) {
-      return new OpusDecoderException("Error when computing required output buffer size.");
-    }
-    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputSize);
-    int result = opusDecode(nativeDecoderContext, inputData, inputSize, outputData, outputSize);
+    int result = opusDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
+        outputBuffer, SAMPLE_RATE);
     if (result < 0) {
       return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
     }
+    ByteBuffer outputData = outputBuffer.data;
     outputData.position(0);
     outputData.limit(result);
     if (skipSamples > 0) {
@@ -191,10 +187,8 @@ import java.util.List;
 
   private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
       int gain, byte[] streamMap);
-  private native int opusDecode(long decoder, ByteBuffer inputBuffer, int inputSize,
-      ByteBuffer outputBuffer, int outputSize);
-  private native int opusGetRequiredOutputBufferSize(
-      ByteBuffer inputBuffer, int inputSize, int sampleRate);
+  private native int opusDecode(long decoder, long timeUs, ByteBuffer inputBuffer, int inputSize,
+      SimpleOutputBuffer outputBuffer, int sampleRate);
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);
   private native String opusGetErrorMessage(int errorCode);
