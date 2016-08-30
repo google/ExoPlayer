@@ -32,8 +32,8 @@ public interface CacheEvictor extends Cache.Listener {
    * @param cache The source of the event.
    * @param key The key being written.
    * @param position The starting position of the data being written.
-   * @param length The maximum length of the data being written.
+   * @param maxLength The maximum length of the data being written.
    */
-  void onStartFile(Cache cache, String key, long position, long length);
+  void onStartFile(Cache cache, String key, long position, long maxLength);
 
 }

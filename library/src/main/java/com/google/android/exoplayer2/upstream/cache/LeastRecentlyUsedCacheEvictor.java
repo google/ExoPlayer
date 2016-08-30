@@ -39,8 +39,8 @@ public final class LeastRecentlyUsedCacheEvictor implements CacheEvictor, Compar
   }
 
   @Override
-  public void onStartFile(Cache cache, String key, long position, long length) {
-    evictCache(cache, length);
+  public void onStartFile(Cache cache, String key, long position, long maxLength) {
+    evictCache(cache, maxLength);
   }
 
   @Override

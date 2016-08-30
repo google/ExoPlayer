@@ -143,11 +143,11 @@ public interface Cache {
    *
    * @param key The cache key for the data.
    * @param position The starting position of the data.
-   * @param length The length of the data to be written. Used only to ensure that there is enough
-   *     space in the cache.
+   * @param maxLength The maximum length of the data to be written. Used only to ensure that there
+   *     is enough space in the cache.
    * @return The file into which data should be written.
    */
-  File startFile(String key, long position, long length);
+  File startFile(String key, long position, long maxLength);
 
   /**
    * Commits a file into the cache. Must only be called when holding a corresponding hole
@@ -181,5 +181,23 @@ public interface Cache {
   * @return true if the data is available in the Cache otherwise false;
   */
   boolean isCached(String key, long position, long length);
+
+  /**
+   * Sets the content length for the given key.
+   *
+   * @param key The cache key for the data.
+   * @param length The length of the data.
+   * @return Whether the length was set successfully. Returns false if the length conflicts with the
+   *     existing contents of the cache.
+   */
+  boolean setContentLength(String key, long length);
+
+  /**
+   * Returns the content length for the given key if one set, or {@link
+   * com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
+   *
+   * @param key The cache key for the data.
+   */
+  long getContentLength(String key);
 
 }

@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -301,6 +302,15 @@ public class TestUtil {
     }
 
     return extractorOutput;
+  }
+
+  public static void recursiveDelete(File fileOrDirectory) {
+    if (fileOrDirectory.isDirectory()) {
+      for (File child : fileOrDirectory.listFiles()) {
+        recursiveDelete(child);
+      }
+    }
+    fileOrDirectory.delete();
   }
 
 }

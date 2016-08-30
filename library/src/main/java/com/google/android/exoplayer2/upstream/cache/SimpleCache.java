@@ -16,6 +16,9 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.os.ConditionVariable;
+
+import android.util.Pair;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
 import java.util.ArrayList;
@@ -35,7 +38,7 @@ public final class SimpleCache implements Cache {
   private final File cacheDir;
   private final CacheEvictor evictor;
   private final HashMap<String, CacheSpan> lockedSpans;
-  private final HashMap<String, TreeSet<CacheSpan>> cachedSpans;
+  private final HashMap<String, Pair<Long, TreeSet<CacheSpan>>> cachedSpans;
   private final HashMap<String, ArrayList<Listener>> listeners;
   private long totalSpace = 0;
 
@@ -89,7 +92,7 @@ public final class SimpleCache implements Cache {
 
   @Override
   public synchronized NavigableSet<CacheSpan> getCachedSpans(String key) {
-    TreeSet<CacheSpan> spansForKey = cachedSpans.get(key);
+    TreeSet<CacheSpan> spansForKey = getSpansForKey(key);
     return spansForKey == null ? null : new TreeSet<>(spansForKey);
   }
 
@@ -127,26 +130,21 @@ public final class SimpleCache implements Cache {
   }
 
   private synchronized CacheSpan startReadWriteNonBlocking(CacheSpan lookupSpan) {
-    CacheSpan spanningRegion = getSpan(lookupSpan);
+    CacheSpan cacheSpan = getSpan(lookupSpan);
 
     // Read case.
-    if (spanningRegion.isCached) {
-      CacheSpan oldCacheSpan = spanningRegion;
-      // Remove the old span from the in-memory representation.
-      TreeSet<CacheSpan> spansForKey = cachedSpans.get(oldCacheSpan.key);
-      Assertions.checkState(spansForKey.remove(oldCacheSpan));
+    if (cacheSpan.isCached) {
       // Obtain a new span with updated last access timestamp.
-      spanningRegion = oldCacheSpan.touch();
-      // Add the updated span back into the in-memory representation.
-      spansForKey.add(spanningRegion);
-      notifySpanTouched(oldCacheSpan, spanningRegion);
-      return spanningRegion;
+      CacheSpan newCacheSpan = cacheSpan.touch();
+      replaceSpan(cacheSpan, newCacheSpan);
+      notifySpanTouched(cacheSpan, newCacheSpan);
+      return newCacheSpan;
     }
 
     // Write case, lock available.
     if (!lockedSpans.containsKey(lookupSpan.key)) {
-      lockedSpans.put(lookupSpan.key, spanningRegion);
-      return spanningRegion;
+      lockedSpans.put(lookupSpan.key, cacheSpan);
+      return cacheSpan;
     }
 
     // Write case, lock not available.
@@ -154,14 +152,14 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized File startFile(String key, long position, long length) {
+  public synchronized File startFile(String key, long position, long maxLength) {
     Assertions.checkState(lockedSpans.containsKey(key));
     if (!cacheDir.exists()) {
       // For some reason the cache directory doesn't exist. Make a best effort to create it.
       removeStaleSpans();
       cacheDir.mkdirs();
     }
-    evictor.onStartFile(this, key, position, length);
+    evictor.onStartFile(this, key, position, maxLength);
     return CacheSpan.getCacheFileName(cacheDir, key, position, System.currentTimeMillis(), false);
   }
 
@@ -175,10 +173,14 @@ public final class SimpleCache implements Cache {
       return;
     }
     // If the file has length 0, delete it and don't add it to the in-memory representation.
-    long length = file.length();
-    if (length == 0) {
+    if (file.length() == 0) {
       file.delete();
       return;
+    }
+    // Check if the span conflicts with the set content length
+    Long length = getContentLength(span.key);
+    if (length != C.LENGTH_UNSET) {
+      Assertions.checkState((span.position + span.length) <= length);
     }
     addSpan(span);
     notifyAll();
@@ -204,7 +206,7 @@ public final class SimpleCache implements Cache {
   private CacheSpan getSpan(CacheSpan lookupSpan) {
     String key = lookupSpan.key;
     long offset = lookupSpan.position;
-    TreeSet<CacheSpan> entries = cachedSpans.get(key);
+    TreeSet<CacheSpan> entries = getSpansForKey(key);
     if (entries == null) {
       return CacheSpan.createOpenHole(key, lookupSpan.position);
     }
@@ -260,10 +262,13 @@ public final class SimpleCache implements Cache {
    * @param span The span to be added.
    */
   private void addSpan(CacheSpan span) {
-    TreeSet<CacheSpan> spansForKey = cachedSpans.get(span.key);
-    if (spansForKey == null) {
+    Pair<Long, TreeSet<CacheSpan>> entryForKey = cachedSpans.get(span.key);
+    TreeSet<CacheSpan> spansForKey;
+    if (entryForKey == null) {
       spansForKey = new TreeSet<>();
-      cachedSpans.put(span.key, spansForKey);
+      setKeyValue(span.key, C.LENGTH_UNSET, spansForKey);
+    } else {
+      spansForKey = entryForKey.second;
     }
     spansForKey.add(span);
     totalSpace += span.length;
@@ -272,7 +277,7 @@ public final class SimpleCache implements Cache {
 
   @Override
   public synchronized void removeSpan(CacheSpan span) {
-    TreeSet<CacheSpan> spansForKey = cachedSpans.get(span.key);
+    TreeSet<CacheSpan> spansForKey = getSpansForKey(span.key);
     totalSpace -= span.length;
     Assertions.checkState(spansForKey.remove(span));
     span.file.delete();
@@ -287,10 +292,11 @@ public final class SimpleCache implements Cache {
    * no longer exist.
    */
   private void removeStaleSpans() {
-    Iterator<Entry<String, TreeSet<CacheSpan>>> iterator = cachedSpans.entrySet().iterator();
+    Iterator<Entry<String, Pair<Long, TreeSet<CacheSpan>>>> iterator =
+        cachedSpans.entrySet().iterator();
     while (iterator.hasNext()) {
-      Entry<String, TreeSet<CacheSpan>> next = iterator.next();
-      Iterator<CacheSpan> spanIterator = next.getValue().iterator();
+      Entry<String, Pair<Long, TreeSet<CacheSpan>>> next = iterator.next();
+      Iterator<CacheSpan> spanIterator = next.getValue().second.iterator();
       boolean isEmpty = true;
       while (spanIterator.hasNext()) {
         CacheSpan span = spanIterator.next();
@@ -342,7 +348,7 @@ public final class SimpleCache implements Cache {
 
   @Override
   public synchronized boolean isCached(String key, long position, long length) {
-    TreeSet<CacheSpan> entries = cachedSpans.get(key);
+    TreeSet<CacheSpan> entries = getSpansForKey(key);
     if (entries == null) {
       return false;
     }
@@ -373,6 +379,51 @@ public final class SimpleCache implements Cache {
     }
     // We ran out of spans before covering the queried region.
     return false;
+  }
+
+  @Override
+  public synchronized boolean setContentLength(String key, long length) {
+    Pair<Long, TreeSet<CacheSpan>> entryForKey = cachedSpans.get(key);
+    TreeSet<CacheSpan> entries;
+    if (entryForKey != null) {
+      entries = entryForKey.second;
+      if (entries != null && !entries.isEmpty()) {
+        CacheSpan last = entries.last();
+        long end = last.position + last.length;
+        if (end > length) {
+          return false;
+        }
+      }
+    } else {
+      entries = new TreeSet<>();
+    }
+    // TODO persist the length value
+    setKeyValue(key, length, entries);
+    return true;
+  }
+
+  @Override
+  public synchronized long getContentLength(String key) {
+    Pair<Long, TreeSet<CacheSpan>> entryForKey = cachedSpans.get(key);
+    return entryForKey == null ? C.LENGTH_UNSET : entryForKey.first;
+  }
+
+
+  private TreeSet<CacheSpan> getSpansForKey(String key) {
+    Pair<Long, TreeSet<CacheSpan>> entryForKey = cachedSpans.get(key);
+    return entryForKey != null ? entryForKey.second : null;
+  }
+
+  private void setKeyValue(String key, long length, TreeSet<CacheSpan> entries) {
+    cachedSpans.put(key, Pair.create(length, entries));
+  }
+
+  private void replaceSpan(CacheSpan oldSpan, CacheSpan newSpan) {
+    // Remove the old span from the in-memory representation.
+    TreeSet<CacheSpan> spansForKey = getSpansForKey(oldSpan.key);
+    Assertions.checkState(spansForKey.remove(oldSpan));
+    // Add the updated span back into the in-memory representation.
+    spansForKey.add(newSpan);
   }
 
 }
