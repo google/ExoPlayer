@@ -145,7 +145,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     this.drmSessionManager = drmSessionManager;
     formatHolder = new FormatHolder();
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
   }
@@ -245,8 +245,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
 
     if (!audioTrack.isInitialized()) {
-      if (audioSessionId == AudioTrack.SESSION_ID_NOT_SET) {
-        audioSessionId = audioTrack.initialize(AudioTrack.SESSION_ID_NOT_SET);
+      if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
+        audioSessionId = audioTrack.initialize(C.AUDIO_SESSION_ID_UNSET);
         eventDispatcher.audioSessionId(audioSessionId);
         onAudioSessionId(audioSessionId);
       } else {
@@ -425,7 +425,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     audioTrackNeedsConfigure = true;
     waitingForKeys = false;
     try {
@@ -554,7 +554,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       case C.MSG_SET_STREAM_TYPE:
         @C.StreamType int streamType = (Integer) message;
         if (audioTrack.setStreamType(streamType)) {
-          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+          audioSessionId = C.AUDIO_SESSION_ID_UNSET;
         }
         break;
       default:

@@ -97,6 +97,13 @@ public final class C {
   public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
 
   /**
+   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
+   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
+
+  /**
    * Represents an audio encoding, or an invalid or unset value.
    */
   @Retention(RetentionPolicy.SOURCE)

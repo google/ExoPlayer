@@ -19,7 +19,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTimestamp;
 import android.media.PlaybackParams;
 import android.os.ConditionVariable;
@@ -146,13 +145,6 @@ public final class AudioTrack {
    * Returned in the result of {@link #handleBuffer} if the buffer can be released.
    */
   public static final int RESULT_BUFFER_CONSUMED = 2;
-
-  /**
-   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
-   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int SESSION_ID_NOT_SET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
   /**
    * Returned by {@link #getCurrentPositionUs} when the position is not set.
@@ -508,7 +500,8 @@ public final class AudioTrack {
   /**
    * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
    *
-   * @param sessionId Audio track session identifier, or {@link #SESSION_ID_NOT_SET} to create one.
+   * @param sessionId Audio track session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} to create
+   *     one.
    * @return The audio track session identifier.
    */
   public int initialize(int sessionId) throws InitializationException {
@@ -518,7 +511,8 @@ public final class AudioTrack {
   /**
    * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
    *
-   * @param sessionId Audio track session identifier, or {@link #SESSION_ID_NOT_SET} to create one.
+   * @param sessionId Audio track session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} to create
+   *     one.
    * @param tunneling Whether the audio track is to be used with tunneling video playback.
    * @return The audio track session identifier.
    */
@@ -539,7 +533,7 @@ public final class AudioTrack {
     if (useHwAvSync) {
       audioTrack = createHwAvSyncAudioTrackV21(sampleRate, channelConfig, targetEncoding,
           bufferSize, sessionId);
-    } else if (sessionId == SESSION_ID_NOT_SET) {
+    } else if (sessionId == C.AUDIO_SESSION_ID_UNSET) {
       audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig,
           targetEncoding, bufferSize, MODE_STREAM);
     } else {
