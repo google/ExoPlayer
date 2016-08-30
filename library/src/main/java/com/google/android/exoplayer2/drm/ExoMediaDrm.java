@@ -100,17 +100,17 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   void provideProvisionResponse(byte[] response) throws DeniedByServerException;
 
   /**
-   * @see MediaDrm#queryKeyStatus(byte[]).
+   * @see MediaDrm#queryKeyStatus(byte[])
    */
   Map<String, String> queryKeyStatus(byte[] sessionId);
 
   /**
-   * @see MediaDrm#release().
+   * @see MediaDrm#release()
    */
   void release();
 
   /**
-   * @see MediaDrm#restoreKeys(byte[], byte[]).
+   * @see MediaDrm#restoreKeys(byte[], byte[])
    */
   void restoreKeys(byte[] sessionId, byte[] keySetId);
 
