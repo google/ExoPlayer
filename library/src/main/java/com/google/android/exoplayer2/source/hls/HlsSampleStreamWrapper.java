@@ -154,7 +154,7 @@ import java.util.LinkedList;
     // Disable old tracks.
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
-        int group = ((SampleStreamImpl) streams[i]).group;
+        int group = ((HlsSampleStream) streams[i]).group;
         setTrackGroupEnabledState(group, false);
         sampleQueues.valueAt(group).disable();
         streams[i] = null;
@@ -170,7 +170,7 @@ import java.util.LinkedList;
         if (group == primaryTrackGroupIndex) {
           chunkSource.selectTracks(selection);
         }
-        streams[i] = new SampleStreamImpl(group);
+        streams[i] = new HlsSampleStream(this, group);
         streamResetFlags[i] = true;
         selectedNewTracks = true;
       }
@@ -281,6 +281,10 @@ import java.util.LinkedList;
 
     return sampleQueues.valueAt(group).readData(formatHolder, buffer, loadingFinished,
         lastSeekPositionUs);
+  }
+
+  /* package */ void skipToKeyframeBefore(int group, long timeUs) {
+    sampleQueues.valueAt(group).skipToKeyframeBefore(timeUs);
   }
 
   private boolean finishedReadingChunk(HlsMediaChunk chunk) {
@@ -598,36 +602,6 @@ import java.util.LinkedList;
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != C.TIME_UNSET;
-  }
-
-  private final class SampleStreamImpl implements SampleStream {
-
-    private final int group;
-
-    public SampleStreamImpl(int group) {
-      this.group = group;
-    }
-
-    @Override
-    public boolean isReady() {
-      return HlsSampleStreamWrapper.this.isReady(group);
-    }
-
-    @Override
-    public void maybeThrowError() throws IOException {
-      HlsSampleStreamWrapper.this.maybeThrowError();
-    }
-
-    @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      return HlsSampleStreamWrapper.this.readData(group, formatHolder, buffer);
-    }
-
-    @Override
-    public void skipToKeyframeBefore(long timeUs) {
-      sampleQueues.valueAt(group).skipToKeyframeBefore(timeUs);
-    }
-
   }
 
 }
