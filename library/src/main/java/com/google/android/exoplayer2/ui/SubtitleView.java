@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.util.Util;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
@@ -23,10 +28,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.accessibility.CaptioningManager;
-import com.google.android.exoplayer2.text.CaptionStyleCompat;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextRenderer;
-import com.google.android.exoplayer2.util.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -230,7 +232,7 @@ public final class SubtitleView extends View implements TextRenderer.Output {
     int right = getRight() + getPaddingRight();
     int bottom = rawBottom - getPaddingBottom();
     if (bottom <= top || right <= left) {
-      // No space to draw subtitles.
+      // No space to layout subtitles.
       return;
     }
 
@@ -242,8 +244,12 @@ public final class SubtitleView extends View implements TextRenderer.Output {
     }
 
     for (int i = 0; i < cueCount; i++) {
-      painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, textSizePx,
-          bottomPaddingFraction, canvas, left, top, right, bottom);
+      painters.get(i).layout(cues.get(i), applyEmbeddedStyles, style, textSizePx,
+          bottomPaddingFraction, left, top, right, bottom);
+      painters.get(i).drawBackground(canvas);
+    }
+    for (int i = 0; i < cueCount; i++) {
+      painters.get(i).drawForeground(canvas);
     }
   }
 

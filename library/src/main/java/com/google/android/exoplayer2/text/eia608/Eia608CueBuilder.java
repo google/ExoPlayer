@@ -89,16 +89,12 @@ import java.util.List;
     this.indent = indent;
   }
 
+  /**
+   * Indents the Cue.
+   * @param tabs The amount of tabs to indent the cue with.
+   */
   public void tab(int tabs) {
     tabOffset += tabs;
-  }
-
-  /**
-   * Indents the cue position with amountOfTabs.
-   * @param tabOffset the amount of tabs the cue position should be indented.
-   */
-  public void setTabOffset(int tabOffset) {
-    this.tabOffset = tabOffset;
   }
 
   /**

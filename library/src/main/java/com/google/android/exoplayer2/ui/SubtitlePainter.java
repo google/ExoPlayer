@@ -117,30 +117,30 @@ import android.util.Log;
   }
 
   /**
-   * Draws the provided {@link Cue} into a canvas with the specified styling.
+   * Creates layouts so that the provided {@link Cue} can be drawn in a {@link Canvas} by calls to
+   * {@link #drawBackground(Canvas)} and {@link #drawForeground(Canvas)} with the specified styling.
    * <p>
    * A call to this method is able to use cached results of calculations made during the previous
    * call, and so an instance of this class is able to optimize repeated calls to this method in
    * which the same parameters are passed.
    *
-   * @param cue The cue to draw.
+   * @param cue The cue to layout.
    * @param applyEmbeddedStyles Whether styling embedded within the cue should be applied.
    * @param style The style to use when drawing the cue text.
    * @param textSizePx The text size to use when drawing the cue text, in pixels.
    * @param bottomPaddingFraction The bottom padding fraction to apply when {@link Cue#line} is
    *     {@link Cue#DIMEN_UNSET}, as a fraction of the viewport height
-   * @param canvas The canvas into which to draw.
    * @param cueBoxLeft The left position of the enclosing cue box.
    * @param cueBoxTop The top position of the enclosing cue box.
    * @param cueBoxRight The right position of the enclosing cue box.
    * @param cueBoxBottom The bottom position of the enclosing cue box.
    */
-  public void draw(Cue cue, boolean applyEmbeddedStyles, CaptionStyleCompat style, float textSizePx,
-      float bottomPaddingFraction, Canvas canvas, int cueBoxLeft, int cueBoxTop, int cueBoxRight,
-      int cueBoxBottom) {
+  public void layout(Cue cue, boolean applyEmbeddedStyles, CaptionStyleCompat style, float textSizePx,
+                     float bottomPaddingFraction, int cueBoxLeft, int cueBoxTop, int cueBoxRight,
+                     int cueBoxBottom) {
     CharSequence cueText = cue.text;
     if (TextUtils.isEmpty(cueText)) {
-      // Nothing to draw.
+      // Nothing to layout.
       return;
     }
     if (!applyEmbeddedStyles) {
@@ -169,7 +169,6 @@ import android.util.Log;
         && this.parentRight == cueBoxRight
         && this.parentBottom == cueBoxBottom) {
       // We can use the cached layout.
-      drawLayout(canvas);
       return;
     }
 
@@ -272,19 +271,17 @@ import android.util.Log;
     this.textLeft = textLeft;
     this.textTop = textTop;
     this.textPaddingX = textPaddingX;
-
-    drawLayout(canvas);
   }
 
   /**
-   * Draws {@link #textLayout} into the provided canvas.
+   * Draws the background of the {@link #textLayout} into the provided canvas.
    *
-   * @param canvas The canvas into which to draw.
+   * @param canvas The canvas into which to layout.
    */
-  private void drawLayout(Canvas canvas) {
+  public void drawBackground(Canvas canvas) {
     final StaticLayout layout = textLayout;
     if (layout == null) {
-      // Nothing to draw.
+      // Nothing to layout.
       return;
     }
 
@@ -311,6 +308,24 @@ import android.util.Log;
       }
     }
 
+    canvas.restoreToCount(saveCount);
+  }
+
+  /**
+   * Draws the foreground of the {@link #textLayout} into the provided canvas.
+   *
+   * @param canvas The canvas into which to layout.
+   */
+  public void drawForeground(Canvas canvas) {
+    final StaticLayout layout = textLayout;
+    if (layout == null) {
+      // Nothing to layout.
+      return;
+    }
+
+    int saveCount = canvas.save();
+    canvas.translate(textLeft, textTop);
+
     if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
       textPaint.setStrokeJoin(Join.ROUND);
       textPaint.setStrokeWidth(outlineWidth);
@@ -320,7 +335,7 @@ import android.util.Log;
     } else if (edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
       textPaint.setShadowLayer(shadowRadius, shadowOffset, shadowOffset, edgeColor);
     } else if (edgeType == CaptionStyleCompat.EDGE_TYPE_RAISED
-        || edgeType == CaptionStyleCompat.EDGE_TYPE_DEPRESSED) {
+      || edgeType == CaptionStyleCompat.EDGE_TYPE_DEPRESSED) {
       boolean raised = edgeType == CaptionStyleCompat.EDGE_TYPE_RAISED;
       int colorUp = raised ? Color.WHITE : edgeColor;
       int colorDown = raised ? edgeColor : Color.WHITE;
