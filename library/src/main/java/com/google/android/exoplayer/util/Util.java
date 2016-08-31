@@ -16,13 +16,18 @@
 package com.google.android.exoplayer.util;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -103,17 +108,15 @@ public final class Util {
    */
   public static final int TYPE_OTHER = 3;
 
+  private static final String TAG = "Util";
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
       + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
       + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
-
   private static final Pattern XS_DURATION_PATTERN =
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
-
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
-
   private static final long MAX_BYTES_TO_DRAIN = 2048;
 
   private Util() {}
@@ -926,6 +929,87 @@ public final class Util {
           ^ CRC32_BYTES_MSBF[((initialValue >>> 24) ^ (bytes[i] & 0xFF)) & 0xFF];
     }
     return initialValue;
+  }
+
+  /**
+   * Gets the physical size of the default display, in pixels.
+   *
+   * @param context Any context.
+   * @return The physical display size, in pixels.
+   */
+  public static Point getPhysicalDisplaySize(Context context) {
+    // Before API 25 the platform Display object does not provide a working way to identify Android
+    // TVs that can show 4k resolution in a SurfaceView, so check for supported devices here.
+    if (Util.SDK_INT < 25) {
+      if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+          && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
+        return new Point(3840, 2160);
+      } else if ("NVIDIA".equals(Util.MANUFACTURER) && Util.MODEL != null
+          && Util.MODEL.contains("SHIELD")) {
+        // Attempt to read sys.display-size.
+        String sysDisplaySize = null;
+        try {
+          Class<?> systemProperties = Class.forName("android.os.SystemProperties");
+          Method getMethod = systemProperties.getMethod("get", String.class);
+          sysDisplaySize = (String) getMethod.invoke(systemProperties, "sys.display-size");
+        } catch (Exception e) {
+          Log.e(TAG, "Failed to read sys.display-size", e);
+        }
+        // If we managed to read sys.display-size, attempt to parse it.
+        if (!TextUtils.isEmpty(sysDisplaySize)) {
+          try {
+            String[] sysDisplaySizeParts = sysDisplaySize.trim().split("x");
+            if (sysDisplaySizeParts.length == 2) {
+              int width = Integer.parseInt(sysDisplaySizeParts[0]);
+              int height = Integer.parseInt(sysDisplaySizeParts[1]);
+              if (width > 0 && height > 0) {
+                return new Point(width, height);
+              }
+            }
+          } catch (NumberFormatException e) {
+            // Do nothing.
+          }
+          Log.e(TAG, "Invalid sys.display-size: " + sysDisplaySize);
+        }
+      }
+    }
+
+    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    Display display = windowManager.getDefaultDisplay();
+    Point displaySize = new Point();
+    if (Util.SDK_INT >= 23) {
+      getDisplaySizeV23(display, displaySize);
+    } else if (Util.SDK_INT >= 17) {
+      getDisplaySizeV17(display, displaySize);
+    } else if (Util.SDK_INT >= 16) {
+      getDisplaySizeV16(display, displaySize);
+    } else {
+      getDisplaySizeV9(display, displaySize);
+    }
+    return displaySize;
+  }
+
+  @TargetApi(23)
+  private static void getDisplaySizeV23(Display display, Point outSize) {
+    Display.Mode mode = display.getMode();
+    outSize.x = mode.getPhysicalWidth();
+    outSize.y = mode.getPhysicalHeight();
+  }
+
+  @TargetApi(17)
+  private static void getDisplaySizeV17(Display display, Point outSize) {
+    display.getRealSize(outSize);
+  }
+
+  @TargetApi(16)
+  private static void getDisplaySizeV16(Display display, Point outSize) {
+    display.getSize(outSize);
+  }
+
+  @SuppressWarnings("deprecation")
+  private static void getDisplaySizeV9(Display display, Point outSize) {
+    outSize.x = display.getWidth();
+    outSize.y = display.getHeight();
   }
 
   /**
