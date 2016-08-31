@@ -214,6 +214,9 @@ public final class WebmExtractor implements Extractor {
   private final ParsableByteArray seekEntryIdBytes;
   private final ParsableByteArray sampleStrippedBytes;
   private final ParsableByteArray subripSample;
+  private final ParsableByteArray encryptionInitializationVector;
+  private final ParsableByteArray encryptionSubsampleData;
+  private ByteBuffer encryptionSubsampleDataBuffer;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -255,6 +258,11 @@ public final class WebmExtractor implements Extractor {
   // Sample reading state.
   private int sampleBytesRead;
   private boolean sampleEncodingHandled;
+  private boolean sampleSignalByteRead;
+  private boolean sampleInitializationVectorRead;
+  private boolean samplePartitionCountRead;
+  private byte sampleSignalByte;
+  private int samplePartitionCount;
   private int sampleCurrentNalBytesRemaining;
   private int sampleBytesWritten;
   private boolean sampleRead;
@@ -279,6 +287,8 @@ public final class WebmExtractor implements Extractor {
     nalLength = new ParsableByteArray(4);
     sampleStrippedBytes = new ParsableByteArray();
     subripSample = new ParsableByteArray();
+    encryptionInitializationVector = new ParsableByteArray(ENCRYPTION_IV_SIZE);
+    encryptionSubsampleData = new ParsableByteArray();
   }
 
   @Override
@@ -839,6 +849,11 @@ public final class WebmExtractor implements Extractor {
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     sampleEncodingHandled = false;
+    sampleSignalByteRead = false;
+    samplePartitionCountRead = false;
+    samplePartitionCount = 0;
+    sampleSignalByte = (byte) 0;
+    sampleInitializationVectorRead = false;
     sampleStrippedBytes.reset();
   }
 
@@ -882,17 +897,85 @@ public final class WebmExtractor implements Extractor {
         // If the sample is encrypted, read its encryption signal byte and set the IV size.
         // Clear the encrypted flag.
         blockFlags &= ~C.SAMPLE_FLAG_ENCRYPTED;
-        input.readFully(scratch.data, 0, 1);
-        sampleBytesRead++;
-        if ((scratch.data[0] & 0x80) == 0x80) {
-          throw new ParserException("Extension bit is set in signal byte");
+        if (!sampleSignalByteRead) {
+          input.readFully(scratch.data, 0, 1);
+          sampleBytesRead++;
+          if ((scratch.data[0] & 0x80) == 0x80) {
+            throw new ParserException("Extension bit is set in signal byte");
+          }
+          sampleSignalByte = scratch.data[0];
+          sampleSignalByteRead = true;
         }
-        if ((scratch.data[0] & 0x01) == 0x01) {
-          scratch.data[0] = (byte) ENCRYPTION_IV_SIZE;
-          scratch.setPosition(0);
-          output.sampleData(scratch, 1);
-          sampleBytesWritten++;
+        boolean isEncrypted = (sampleSignalByte & 0x01) == 0x01;
+        if (isEncrypted) {
+          boolean hasSubsampleEncryption = (sampleSignalByte & 0x02) == 0x02;
           blockFlags |= C.SAMPLE_FLAG_ENCRYPTED;
+          if (!sampleInitializationVectorRead) {
+            input.readFully(encryptionInitializationVector.data, 0, ENCRYPTION_IV_SIZE);
+            sampleBytesRead += ENCRYPTION_IV_SIZE;
+            sampleInitializationVectorRead = true;
+            // Write the signal byte, containing the IV size and the subsample encryption flag.
+            scratch.data[0] = (byte) (ENCRYPTION_IV_SIZE | (hasSubsampleEncryption ? 0x80 : 0x00));
+            scratch.setPosition(0);
+            output.sampleData(scratch, 1);
+            sampleBytesWritten++;
+            // Write the IV.
+            encryptionInitializationVector.setPosition(0);
+            output.sampleData(encryptionInitializationVector, ENCRYPTION_IV_SIZE);
+            sampleBytesWritten += ENCRYPTION_IV_SIZE;
+          }
+          if (hasSubsampleEncryption) {
+            if (!samplePartitionCountRead) {
+              input.readFully(scratch.data, 0, 1);
+              sampleBytesRead++;
+              scratch.setPosition(0);
+              samplePartitionCount = scratch.readUnsignedByte();
+              samplePartitionCountRead = true;
+            }
+            int samplePartitionDataSize = samplePartitionCount * 4;
+            if (scratch.limit() < samplePartitionDataSize) {
+              scratch.reset(new byte[samplePartitionDataSize], samplePartitionDataSize);
+            }
+            input.readFully(scratch.data, 0, samplePartitionDataSize);
+            sampleBytesRead += samplePartitionDataSize;
+            scratch.setPosition(0);
+            scratch.setLimit(samplePartitionDataSize);
+            short subsampleCount = (short) (1 + (samplePartitionCount / 2));
+            int subsampleDataSize = 2 + 6 * subsampleCount;
+            if (encryptionSubsampleDataBuffer == null
+                || encryptionSubsampleDataBuffer.capacity() < subsampleDataSize) {
+              encryptionSubsampleDataBuffer = ByteBuffer.allocate(subsampleDataSize);
+            }
+            encryptionSubsampleDataBuffer.position(0);
+            encryptionSubsampleDataBuffer.putShort(subsampleCount);
+            // Loop through the partition offsets and write out the data in the way ExoPlayer
+            // wants it (ISO 23001-7 Part 7):
+            //   2 bytes - sub sample count.
+            //   for each sub sample:
+            //     2 bytes - clear data size.
+            //     4 bytes - encrypted data size.
+            int partitionOffset = 0;
+            for (int i = 0; i < samplePartitionCount; i++) {
+              int previousPartitionOffset = partitionOffset;
+              partitionOffset = scratch.readUnsignedIntToInt();
+              if ((i % 2) == 0) {
+                encryptionSubsampleDataBuffer.putShort(
+                    (short) (partitionOffset - previousPartitionOffset));
+              } else {
+                encryptionSubsampleDataBuffer.putInt(partitionOffset - previousPartitionOffset);
+              }
+            }
+            int finalPartitionSize = size - sampleBytesRead - partitionOffset;
+            if ((samplePartitionCount % 2) == 1) {
+              encryptionSubsampleDataBuffer.putInt(finalPartitionSize);
+            } else {
+              encryptionSubsampleDataBuffer.putShort((short) finalPartitionSize);
+              encryptionSubsampleDataBuffer.putInt(0);
+            }
+            encryptionSubsampleData.reset(encryptionSubsampleDataBuffer.array(), subsampleDataSize);
+            output.sampleData(encryptionSubsampleData, subsampleDataSize);
+            sampleBytesWritten += subsampleDataSize;
+          }
         }
       } else if (track.sampleStrippedBytes != null) {
         // If the sample has header stripping, prepare to read/output the stripped bytes first.
