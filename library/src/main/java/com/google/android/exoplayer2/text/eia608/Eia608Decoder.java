@@ -379,7 +379,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
       }
 
       // Mid row changes.
-      if ((ccData1 == 0x11 || ccData1 == 0x19) && ccData2 >= 0x20 && ccData2 <= 0x2F) {
+      if ((ccData1 == 0x11 || ccData1 == 0x19) && (ccData2 >= 0x20 && ccData2 <= 0x2F)) {
         handleMidrowCode(ccData1, ccData2);
       }
 
@@ -531,13 +531,18 @@ public final class Eia608Decoder implements SubtitleDecoder {
   private void handleMidrowCode(byte cc1, byte cc2) {
     boolean transparentOrUnderline = (cc2 & 0x1) != 0;
     int attribute = cc2 >> 1 & 0xF;
-    if ((cc1 & 0x1) != 0) {
+    if ((cc1 & 0x1) == 0) {
       // Background Color
       currentCue.setCharacterStyle(new BackgroundColorSpan(transparentOrUnderline ?
         COLOR_MAP[attribute] & TRANSPARENCY_MASK : COLOR_MAP[attribute]));
     } else {
-      // Foreground color
-      currentCue.setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
+      if (attribute < 7) {
+        // Foreground color
+        currentCue.setCharacterStyle(new ForegroundColorSpan(COLOR_MAP[attribute]));
+      } else {
+        // Italics
+        currentCue.setCharacterStyle(new StyleSpan(STYLE_ITALIC));
+      }
       if (transparentOrUnderline) {
         // Text should be underlined
         currentCue.setCharacterStyle(new UnderlineSpan());
