@@ -178,7 +178,8 @@ import java.util.List;
     float cueLine = 10 + (5.33f * row);
     float cuePosition = 10 + (2.5f * indent);
     cuePosition = (tabOffset * 2.5f) + cuePosition;
-    return new Cue(captionStringBuilder, Layout.Alignment.ALIGN_NORMAL, cueLine / 100, Cue.LINE_TYPE_FRACTION,
+    return new Cue(new SpannableStringBuilder(captionStringBuilder),
+      Layout.Alignment.ALIGN_NORMAL, cueLine / 100, Cue.LINE_TYPE_FRACTION,
       Cue.ANCHOR_TYPE_START, cuePosition / 100, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
   }
 
