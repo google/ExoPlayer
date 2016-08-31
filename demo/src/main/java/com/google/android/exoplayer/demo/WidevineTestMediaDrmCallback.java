@@ -22,6 +22,8 @@ import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,6 +34,8 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
 
   private static final String WIDEVINE_GTS_DEFAULT_BASE_URI =
       "https://proxy.uat.widevine.com/proxy";
+  private static final Map<String, String> REQUEST_PROPERTIES =
+      Collections.singletonMap("Content-Type", "application/octet-stream");
 
   private final String defaultUri;
 
@@ -43,7 +47,7 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
   @Override
   public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
     String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
-    return Util.executePost(url, null, null);
+    return Util.executePost(url, null, REQUEST_PROPERTIES);
   }
 
   @Override
@@ -52,7 +56,7 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
     if (TextUtils.isEmpty(url)) {
       url = defaultUri;
     }
-    return Util.executePost(url, request.getData(), null);
+    return Util.executePost(url, request.getData(), REQUEST_PROPERTIES);
   }
 
 }
