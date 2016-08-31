@@ -116,7 +116,7 @@ public final class MediaCodecInfo {
     if (!codecMimeType.equals(MimeTypes.VIDEO_H265)) {
       return true;
     }
-    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getHevcProfileAndLevel(codec);
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(codec);
     if (codecProfileAndLevel == null) {
       // If we don't know any better, we assume that the profile and level are supported.
       return true;

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,8 +59,11 @@ public final class MediaCodecUtil {
   private static final MediaCodecInfo PASSTHROUGH_DECODER_INFO =
       MediaCodecInfo.newPassthroughInstance("OMX.google.raw.decoder");
   private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
+  private static final Map<String, Integer> AVC_CODEC_STRING_TO_PROFILE_LEVEL;
   private static final String CODEC_ID_HEV1 = "hev1";
   private static final String CODEC_ID_HVC1 = "hvc1";
+  private static final String CODEC_ID_AVC1 = "avc1";
+  private static final String CODEC_ID_AVC2 = "avc2";
   private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
 
   private static final HashMap<CodecKey, List<MediaCodecInfo>> decoderInfosCache = new HashMap<>();
@@ -296,21 +300,31 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns the HEVC profile and level (as defined by {@link CodecProfileLevel}) corresponding to
-   * the given codec description string (as defined by RFC 6381).
+   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the given
+   * codec description string (as defined by RFC 6381).
    *
-   * @param codec An HEVC codec description string, as defined by RFC 6381.
+   * @param codec A codec description string, as defined by RFC 6381.
    * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
    *     supported, null otherwise.
    */
-  public static Pair<Integer, Integer> getHevcProfileAndLevel(String codec) {
+  public static Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
     if (codec == null) {
       return null;
     }
     String[] parts = codec.split("\\.");
-    if (!CODEC_ID_HEV1.equals(parts[0]) && !CODEC_ID_HVC1.equals(parts[0])) {
-      return null;
+    switch (parts[0]) {
+      case CODEC_ID_HEV1:
+      case CODEC_ID_HVC1:
+        return getHevcProileAndLevel(codec, parts);
+      case CODEC_ID_AVC1:
+      case CODEC_ID_AVC2:
+        return getAvcProfileAndLevel(codec, parts);
+      default:
+        return null;
     }
+  }
+
+  private static Pair<Integer, Integer> getHevcProileAndLevel(String codec, String[] parts) {
     if (parts.length < 4) {
       // The codec has fewer parts than required by the HEVC codec string format.
       Log.w(TAG, "Ignoring malformed HEVC codec string: " + codec);
@@ -335,6 +349,36 @@ public final class MediaCodecUtil {
     Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(parts[3]);
     if (level == null) {
       Log.w(TAG, "Unknown HEVC level string: " + matcher.group(1));
+      return null;
+    }
+    return new Pair<>(profile, level);
+  }
+
+  private static Pair<Integer, Integer> getAvcProfileAndLevel(String codec, String[] codecsParts) {
+    if (codecsParts.length < 2) {
+      // The codec has fewer parts than required by the AVC codec string format.
+      Log.w(TAG, "Ignoring malformed AVC codec string: " + codec);
+      return null;
+    }
+    int profile;
+    String profileString = codecsParts[1].substring(0, 2).toUpperCase(Locale.US);
+    if ("42".equals(profileString)) {
+      profile = CodecProfileLevel.AVCProfileBaseline;
+    } else if ("4D".equals(profileString)) {
+      profile = CodecProfileLevel.AVCProfileMain;
+    } else if ("58".equals(profileString)) {
+      profile = CodecProfileLevel.AVCProfileExtended;
+    } else if ("64".equals(profileString)) {
+      profile = CodecProfileLevel.AVCProfileHigh;
+    } else {
+      Log.w(TAG, "Unknown AVC profile string: " + profileString);
+      return null;
+    }
+
+    String levelString = codecsParts[1].substring(4).toUpperCase(Locale.US);
+    Integer level = AVC_CODEC_STRING_TO_PROFILE_LEVEL.get(levelString);
+    if (level == null) {
+      Log.w(TAG, "Unknown AVC level string: " + levelString);
       return null;
     }
     return new Pair<>(profile, level);
@@ -497,6 +541,25 @@ public final class MediaCodecUtil {
   }
 
   static {
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL = new HashMap<>();
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("01", CodecProfileLevel.AVCLevel1);
+    // TODO: Find string for CodecProfileLevel.AVCLevel1b.
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("0B", CodecProfileLevel.AVCLevel11);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("0C", CodecProfileLevel.AVCLevel12);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("0D", CodecProfileLevel.AVCLevel13);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("14", CodecProfileLevel.AVCLevel2);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("15", CodecProfileLevel.AVCLevel21);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("16", CodecProfileLevel.AVCLevel22);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("1E", CodecProfileLevel.AVCLevel3);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("1F", CodecProfileLevel.AVCLevel31);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("20", CodecProfileLevel.AVCLevel32);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("32", CodecProfileLevel.AVCLevel4);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("33", CodecProfileLevel.AVCLevel41);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("34", CodecProfileLevel.AVCLevel42);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("3C", CodecProfileLevel.AVCLevel5);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("3D", CodecProfileLevel.AVCLevel51);
+    AVC_CODEC_STRING_TO_PROFILE_LEVEL.put("3E", CodecProfileLevel.AVCLevel52);
+
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL = new HashMap<>();
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L30", CodecProfileLevel.HEVCMainTierLevel1);
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L60", CodecProfileLevel.HEVCMainTierLevel2);
