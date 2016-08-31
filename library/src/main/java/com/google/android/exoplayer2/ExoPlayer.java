@@ -15,83 +15,93 @@
  */
 package com.google.android.exoplayer2;
 
-import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.SingleSampleMediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as
- * the ability to buffer media, play, pause and seek.
+ * the ability to buffer media, play, pause and seek. Instances can be obtained from
+ * {@link ExoPlayerFactory}.
  *
- * <p>Topics covered here are:
- * <ol>
- * <li><a href="#Assumptions">Assumptions and player composition</a>
- * <li><a href="#Threading">Threading model</a>
- * <li><a href="#State">Player state</a>
- * </ol>
+ * <h3>Player composition</h3>
+ * <p>ExoPlayer is designed to make few assumptions about (and hence impose few restrictions on) the
+ * type of the media being played, how and where it is stored, and how it is rendered. Rather than
+ * implementing the loading and rendering of media directly, ExoPlayer implementations delegate this
+ * work to components that are injected when a player is created or when it's prepared for playback.
+ * Components common to all ExoPlayer implementations are:
+ * <ul>
+ *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
+ *   which the loaded media can be read. A MediaSource is injected via {@link #prepare} to prepare
+ *   the player for playback. The library provides default implementations for regular media files
+ *   ({@link ExtractorMediaSource}), DASH ({@link DashMediaSource}), SmoothStreaming
+ *   ({@link SsMediaSource}) and HLS ({@link HlsMediaSource}), implementations for merging
+ *   ({@link MergingMediaSource}) and concatenating ({@link ConcatenatingMediaSource}) other
+ *   MediaSources, and an implementation for loading single samples
+ *   ({@link SingleSampleMediaSource}) most often used for side-loaded subtitle and closed
+ *   caption files.</li>
+ *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
+ *   provides default implementations for common media types ({@link MediaCodecVideoRenderer},
+ *   {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A Renderer
+ *   consumes media of its corresponding type from the MediaSource being played. Renderers are
+ *   injected when the player is created.</li>
+ *   <li>A <b>{@link TrackSelector}</b> that selects tracks provided by the MediaSource to be
+ *   consumed by each of the available Renderers. The library provides a default implementation
+ *   ({@link DefaultTrackSelector}) suitable for most use cases. A TrackSelector is injected when
+ *   the player is created.</li>
+ *   <li>A <b>{@link LoadControl}</b> that controls when the MediaSource buffers more media, and how
+ *   much media is buffered. The library provides a default implementation
+ *   ({@link DefaultLoadControl}) suitable for most use cases. A LoadControl is injected when the
+ *   player is created.</li>
+ * </ul>
+ * <p>An ExoPlayer can be built using the default components provided by the library, but may also
+ * be built using custom implementations if non-standard behaviors are required. For example a
+ * custom LoadControl could be injected to change the player's buffering strategy, or a custom
+ * Renderer could be injected to use a video codec not supported natively by Android.
  *
- * <a name="Assumptions"></a>
- * <h3>Assumptions and player construction</h3>
+ * <p>The concept of injecting components that implement pieces of player functionality is present
+ * throughout the library. The default component implementations listed above delegate work to
+ * further injected components. This allows many sub-components to be individually replaced with
+ * custom implementations. For example the default MediaSource implementations require one or more
+ * {@link DataSource} factories to be injected via their constructors. By providing a custom factory
+ * it's possible to load data from a non-standard source or through a different network stack.
  *
- * <p>The implementation is designed to make no assumptions about (and hence impose no restrictions
- * on) the type of the media being played, how and where it is stored, or how it is rendered.
- * Rather than implementing the loading and rendering of media directly, {@link ExoPlayer} instead
- * delegates this work to one or more {@link Renderer}s, which are injected when the player
- * is created. Hence {@link ExoPlayer} is capable of loading and playing any media for which a
- * {@link Renderer} implementation can be provided.
- *
- * <p>{@link com.google.android.exoplayer2.audio.MediaCodecAudioRenderer} and
- * {@link com.google.android.exoplayer2.video.MediaCodecVideoRenderer} can be used for the common
- * cases of rendering audio and video. These components in turn require an <i>upstream</i>
- * {@link MediaPeriod} to be injected through their constructors, where upstream is defined to
- * denote a component that is closer to the source of the media. This pattern of upstream dependency
- * injection is actively encouraged, since it means that the functionality of the player is built up
- * through the composition of components that can easily be exchanged for alternate implementations.
- * For example a {@link MediaPeriod} implementation may require a further upstream data loading
- * component to be injected through its constructor, with different implementations enabling the
- * loading of data from various sources.
- *
- * <a name="Threading"></a>
  * <h3>Threading model</h3>
- *
- * <p>The figure below shows the {@link ExoPlayer} threading model.</p>
- * <p align="center"><img src="doc-files/exoplayer-threading-model.png"
- *     alt="MediaPlayer state diagram"
- *     border="0"></p>
+ * <p>The figure below shows ExoPlayer's threading model.</p>
+ * <p align="center">
+ *   <img src="doc-files/exoplayer-threading-model.svg" alt="ExoPlayer's threading model">
+ * </p>
  *
  * <ul>
- * <li>It is recommended that instances are created and accessed from a single application thread.
- * An application's main thread is ideal. Accessing an instance from multiple threads is
+ * <li>It is recommended that ExoPlayer instances are created and accessed from a single application
+ * thread. The application's main thread is ideal. Accessing an instance from multiple threads is
  * discouraged, however if an application does wish to do this then it may do so provided that it
- * ensures accesses are synchronized.
- * </li>
- * <li>Registered {@link EventListener}s are called on the thread that created the {@link ExoPlayer}
- * instance.</li>
- * <li>An internal playback thread is responsible for managing playback and invoking the
- * {@link Renderer}s in order to load and play the media.</li>
- * <li>{@link Renderer} implementations (or any upstream components that they depend on) may
- * use additional background threads (e.g. to load data). These are implementation specific.</li>
+ * ensures accesses are synchronized.</li>
+ * <li>Registered listeners are called on the thread that created the ExoPlayer instance.</li>
+ * <li>An internal playback thread is responsible for playback. Injected player components such as
+ * Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
+ * thread.</li>
+ * <li>When the application performs an operation on the player, for example a seek, a message is
+ * delivered to the internal playback thread via a message queue. The internal playback thread
+ * consumes messages from the queue and performs the corresponding operations. Similarly, when a
+ * playback event occurs on the internal playback thread, a message is delivered to the application
+ * thread via a second message queue. The application thread consumes messages from the queue,
+ * updating the application visible state and calling corresponding listener methods.</li>
+ * <li>Injected player components may use additional background threads. For example a MediaSource
+ * may use a background thread to load data. These are implementation specific.</li>
  * </ul>
- *
- * <a name="State"></a>
- * <h3>Player state</h3>
- *
- * <p>The components of an {@link ExoPlayer}'s state can be divided into two distinct groups. The
- * state accessed by calling {@link #getPlayWhenReady()} is only ever changed by invoking
- * {@link #setPlayWhenReady(boolean)}, and is never changed as a result of operations that have been
- * performed asynchronously by the playback thread. In contrast, the playback state accessed by
- * calling {@link #getPlaybackState()} is only ever changed as a result of operations completing on
- * the playback thread, as illustrated below.</p>
- *
- * <p align="center"><img src="doc-files/exoplayer-state.png"
- *     alt="ExoPlayer state"
- *     border="0"></p>
- *
- * <p>The possible playback state transitions are shown below. Transitions can be triggered either
- * by changes in the state of the {@link Renderer}s being used, or as a result of
- * {@link #setMediaSource(MediaSource)}, {@link #stop()} or {@link #release()} being called.</p>
- * <p align="center"><img src="doc-files/exoplayer-playbackstate.png"
- *     alt="ExoPlayer playback state transitions"
- *     border="0"></p>
  */
 public interface ExoPlayer {
 
@@ -117,23 +127,13 @@ public interface ExoPlayer {
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
-    // TODO: Should be windowIndex and position in the window.
     /**
-     * Called when the player's position changes due to a discontinuity (i.e. due to seeking,
-     * playback transitioning to the next window, or a source induced discontinuity).
+     * Called when timeline and/or manifest has been refreshed.
      *
-     * @param periodIndex The index of the period being played.
-     * @param positionMs The playback position in that period, in milliseconds.
+     * @param timeline The latest timeline.
+     * @param manifest The latest manifest.
      */
-    void onPositionDiscontinuity(int periodIndex, long positionMs);
-
-    /**
-     * Called when manifest and/or timeline has been refreshed.
-     *
-     * @param timeline The source's timeline.
-     * @param manifest The loaded manifest.
-     */
-    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
+    void onTimelineChanged(Timeline timeline, Object manifest);
 
     /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
@@ -143,6 +143,16 @@ public interface ExoPlayer {
      * @param error The error.
      */
     void onPlayerError(ExoPlaybackException error);
+
+    // TODO: Should be windowIndex and position in the window.
+    /**
+     * Called when the player's position changes due to a discontinuity (i.e. due to seeking,
+     * playback transitioning to the next window, or a source induced discontinuity).
+     *
+     * @param periodIndex The index of the period being played.
+     * @param positionMs The playback position in that period, in milliseconds.
+     */
+    void onPositionDiscontinuity(int periodIndex, long positionMs);
 
   }
 
@@ -239,19 +249,21 @@ public interface ExoPlayer {
   int getPlaybackState();
 
   /**
-   * Sets the {@link MediaSource} to play. Equivalent to {@code setMediaSource(mediaSource, true)}.
+   * Prepares the player to play the provided {@link MediaSource}. Equivalent to
+   * {@code prepare(mediaSource, true)}.
    */
-  void setMediaSource(MediaSource mediaSource);
+  void prepare(MediaSource mediaSource);
 
   /**
-   * Sets the {@link MediaSource} to play.
+   * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
+   * position the default position in the first {@link Timeline.Window}.
    *
    * @param mediaSource The {@link MediaSource} to play.
-   * @param resetPosition Whether the playback position should be reset to the source's default
-   *     position. If false, playback will start from the position defined by
-   *     {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   * @param resetPosition Whether the playback position should be reset to the default position in
+   *     the first {@link Timeline.Window}. If false, playback will start from the position defined
+   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
    */
-  void setMediaSource(MediaSource mediaSource, boolean resetPosition);
+  void prepare(MediaSource mediaSource, boolean resetPosition);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
@@ -279,17 +291,15 @@ public interface ExoPlayer {
 
   /**
    * Seeks to the default position associated with the current window. The position can depend on
-   * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
-   * typically be the live edge of the window. For other streams it will typically be the start of
-   * the window.
+   * the type of source passed to {@link #prepare(MediaSource)}. For live streams it will typically
+   * be the live edge of the window. For other streams it will typically be the start of the window.
    */
   void seekToDefaultPosition();
 
   /**
    * Seeks to the default position associated with the specified window. The position can depend on
-   * the type of source passed to {@link #setMediaSource(MediaSource)}. For live streams it will
-   * typically be the live edge of the window. For other streams it will typically be the start of
-   * the window.
+   * the type of source passed to {@link #prepare(MediaSource)}. For live streams it will typically
+   * be the live edge of the window. For other streams it will typically be the start of the window.
    *
    * @param windowIndex The index of the window whose associated default position should be seeked
    *     to.
@@ -353,7 +363,7 @@ public interface ExoPlayer {
 
   /**
    * Returns the current manifest. The type depends on the {@link MediaSource} passed to
-   * {@link #setMediaSource(MediaSource)} or {@link #setMediaSource(MediaSource, boolean)}.
+   * {@link #prepare}.
    */
   Object getCurrentManifest();
 

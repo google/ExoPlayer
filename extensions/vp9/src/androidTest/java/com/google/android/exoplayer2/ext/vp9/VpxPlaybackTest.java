@@ -99,7 +99,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
           LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));
-      player.setMediaSource(mediaSource);
+      player.prepare(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }
@@ -115,7 +115,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
       // Do nothing.
     }
 

@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Concrete implementation of {@link ExoPlayer}.
+ * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}.
  */
 /* package */ final class ExoPlayerImpl implements ExoPlayer {
 
@@ -62,8 +62,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl) {
+  public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     Assertions.checkNotNull(renderers);
     Assertions.checkState(renderers.length > 0);
@@ -99,12 +98,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void setMediaSource(MediaSource mediaSource) {
-    setMediaSource(mediaSource, true);
+  public void prepare(MediaSource mediaSource) {
+    prepare(mediaSource, true);
   }
 
   @Override
-  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
+  public void prepare(MediaSource mediaSource, boolean resetPosition) {
     timeline = null;
     internalPlayer.setMediaSource(mediaSource, resetPosition);
   }
@@ -342,7 +341,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         timeline = timelineAndManifest.first;
         manifest = timelineAndManifest.second;
         for (EventListener listener : listeners) {
-          listener.onSourceInfoRefreshed(timeline, manifest);
+          listener.onTimelineChanged(timeline, manifest);
         }
         break;
       }

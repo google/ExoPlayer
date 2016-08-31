@@ -89,7 +89,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onTimelineChanged(Timeline timeline, Object manifest) {
     // Do nothing.
   }
 

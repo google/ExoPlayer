@@ -132,7 +132,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     String userAgent = "ExoPlayerPlaybackTests";
     DrmSessionManager drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
-    player.setMediaSource(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
+    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
     player.addListener(this);
     player.setAudioDebugListener(this);
     player.setVideoDebugListener(this);
@@ -215,7 +215,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public final void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public final void onTimelineChanged(Timeline timeline, Object manifest) {
     // Do nothing.
   }
 

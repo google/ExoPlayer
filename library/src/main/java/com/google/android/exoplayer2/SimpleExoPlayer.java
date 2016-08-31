@@ -45,8 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An {@link ExoPlayer} that uses default {@link Renderer} components. Instances can be obtained
- * from {@link ExoPlayerFactory}.
+ * An {@link ExoPlayer} implementation that uses default {@link Renderer} components. Instances can
+ * be obtained from {@link ExoPlayerFactory}.
  */
 @TargetApi(16)
 public final class SimpleExoPlayer implements ExoPlayer {
@@ -367,13 +367,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void setMediaSource(MediaSource mediaSource) {
-    player.setMediaSource(mediaSource);
+  public void prepare(MediaSource mediaSource) {
+    player.prepare(mediaSource);
   }
 
   @Override
-  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
-    player.setMediaSource(mediaSource, resetPosition);
+  public void prepare(MediaSource mediaSource, boolean resetPosition) {
+    player.prepare(mediaSource, resetPosition);
   }
 
   @Override

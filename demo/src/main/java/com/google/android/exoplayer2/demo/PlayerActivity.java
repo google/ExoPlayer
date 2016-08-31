@@ -330,7 +330,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
-      player.setMediaSource(mediaSource, !shouldRestorePosition);
+      player.prepare(mediaSource, !shouldRestorePosition);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -431,7 +431,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+  public void onTimelineChanged(Timeline timeline, Object manifest) {
     // Do nothing.
   }
 

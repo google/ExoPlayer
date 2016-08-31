@@ -80,7 +80,7 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
           MatroskaExtractor.FACTORY,
           null,
           null);
-      player.setMediaSource(mediaSource);
+      player.prepare(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();
     }
@@ -96,7 +96,7 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
       // Do nothing.
     }
 
