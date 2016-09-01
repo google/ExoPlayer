@@ -134,7 +134,7 @@ public final class DefaultAllocator implements Allocator {
         if (lowAllocation.data == initialAllocationBlock) {
           lowIndex++;
         } else {
-          Allocation highAllocation = availableAllocations[lowIndex];
+          Allocation highAllocation = availableAllocations[highIndex];
           if (highAllocation.data != initialAllocationBlock) {
             highIndex--;
           } else {
