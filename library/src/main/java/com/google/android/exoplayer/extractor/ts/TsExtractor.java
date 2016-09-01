@@ -240,9 +240,15 @@ public final class TsExtractor implements Extractor {
    */
   private class PatReader extends TsPayloadReader {
 
+    private final ParsableByteArray sectionData;
     private final ParsableBitArray patScratch;
 
+    private int sectionLength;
+    private int sectionBytesRead;
+    private int crc;
+
     public PatReader() {
+      sectionData = new ParsableByteArray();
       patScratch = new ParsableBitArray(new byte[4]);
     }
 
@@ -258,25 +264,38 @@ public final class TsExtractor implements Extractor {
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
         data.skipBytes(pointerField);
-      }
-      data.readBytes(patScratch, 3);
-      patScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
-      int sectionLength = patScratch.readBits(12);
 
-      int crcStart = data.getPosition() - 3;
-      int crcEnd = data.getPosition() + sectionLength;
-      if (Util.crc(data.data, crcStart, crcEnd, 0xFFFFFFFF) != 0) {
+        // Note: see ISO/IEC 13818-1, section 2.4.4.3 for detailed information on the format of
+        // the header.
+        data.readBytes(patScratch, 3);
+        patScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
+        sectionLength = patScratch.readBits(12);
+        sectionBytesRead = 0;
+        crc = Util.crc(patScratch.data, 0, 3, 0xFFFFFFFF);
+
+        sectionData.reset(sectionLength);
+      }
+
+      int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
+      data.readBytes(sectionData.data, sectionBytesRead, bytesToRead);
+      sectionBytesRead += bytesToRead;
+      if (sectionBytesRead < sectionLength) {
+        // Not yet fully read.
+        return;
+      }
+
+      if (Util.crc(sectionData.data, 0, sectionLength, crc) != 0) {
         // CRC Invalid. The section gets discarded.
         return;
       }
 
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8)
-      data.skipBytes(5);
+      sectionData.skipBytes(5);
 
       int programCount = (sectionLength - 9) / 4;
       for (int i = 0; i < programCount; i++) {
-        data.readBytes(patScratch, 4);
+        sectionData.readBytes(patScratch, 4);
         int programNumber = patScratch.readBits(16);
         patScratch.skipBits(3); // reserved (3)
         if (programNumber == 0) {
@@ -327,14 +346,10 @@ public final class TsExtractor implements Extractor {
         data.readBytes(pmtScratch, 3);
         pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
         sectionLength = pmtScratch.readBits(12);
+        sectionBytesRead = 0;
         crc = Util.crc(pmtScratch.data, 0, 3, 0xFFFFFFFF);
 
-        if (sectionData.capacity() < sectionLength) {
-          sectionData.reset(new byte[sectionLength], sectionLength);
-        } else {
-          sectionData.reset();
-          sectionData.setLimit(sectionLength);
-        }
+        sectionData.reset(sectionLength);
       }
 
       int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
