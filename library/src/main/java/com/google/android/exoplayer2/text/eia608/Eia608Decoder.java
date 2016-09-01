@@ -208,7 +208,6 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private int captionMode;
   private int captionRowCount;
-  boolean nextRowDown;
 
   // The Cue that's currently being built and decoded.
   private Eia608CueBuilder currentCue;
@@ -233,7 +232,6 @@ public final class Eia608Decoder implements SubtitleDecoder {
     ccData = new ParsableByteArray();
     subtitle = new Eia608Subtitle();
     cues = new LinkedList<>();
-    nextRowDown = false;
 
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
@@ -322,7 +320,6 @@ public final class Eia608Decoder implements SubtitleDecoder {
     playbackPositionUs = 0;
     currentCue = new Eia608CueBuilder();
     cues.clear();
-    nextRowDown = false;
     repeatableControlSet = false;
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
@@ -501,7 +498,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
     // For PAC layout see: https://en.wikipedia.org/wiki/EIA-608#Control_commands
 
     // Parse the "next row down" toggle.
-    nextRowDown = (cc2 & 0x20) != 0;
+    boolean nextRowDown = (cc2 & 0x20) != 0;
 
     int row = ROW_INDICES[cc1 & 0x7];
     if (row != currentCue.getRow() || nextRowDown) {
