@@ -20,45 +20,79 @@ import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- * Merges multiple {@link MediaPeriod} instances.
+ * Merges multiple {@link MediaSource}s.
  * <p>
- * The {@link MediaSource}s being merged must have final windows and an equal number of periods.
+ * The {@link Timeline}s of the sources being merged must have the same number of periods, and must
+ * not have any dynamic windows.
  */
 public final class MergingMediaSource implements MediaSource {
+
+  /**
+   * Thrown when a {@link MergingMediaSource} cannot merge its sources.
+   */
+  public static final class IllegalMergeException extends IOException {
+
+    /**
+     * The merge failed because one of the sources being merged has a dynamic window.
+     */
+    public static final int REASON_WINDOWS_ARE_DYNAMIC = 0;
+
+    /**
+     * The merge failed because the sources have different period counts.
+     */
+    public static final int REASON_PERIOD_COUNT_MISMATCH = 1;
+
+    /**
+     * The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
+     * {@link #REASON_PERIOD_COUNT_MISMATCH}.
+     */
+    public final int reason;
+
+    /**
+     * @param reason The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
+     *     {@link #REASON_PERIOD_COUNT_MISMATCH}.
+     */
+    public IllegalMergeException(int reason) {
+      this.reason = reason;
+    }
+
+  }
 
   private static final int PERIOD_COUNT_UNSET = -1;
 
   private final MediaSource[] mediaSources;
+  private final ArrayList<MediaSource> pendingTimelineSources;
   private final Timeline.Window window;
 
+  private Listener listener;
+  private Timeline primaryTimeline;
+  private Object primaryManifest;
   private int periodCount;
+  private IllegalMergeException mergeError;
 
   /**
    * @param mediaSources The {@link MediaSource}s to merge.
    */
   public MergingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
+    pendingTimelineSources = new ArrayList<>(Arrays.asList(mediaSources));
     window = new Timeline.Window();
     periodCount = PERIOD_COUNT_UNSET;
   }
 
   @Override
   public void prepareSource(final Listener listener) {
-    mediaSources[0].prepareSource(new Listener() {
-      @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-        checkConsistentTimeline(timeline);
-        // All source timelines must match.
-        listener.onSourceInfoRefreshed(timeline, manifest);
-      }
-    });
-    for (int i = 1; i < mediaSources.length; i++) {
-      mediaSources[i].prepareSource(new Listener() {
+    this.listener = listener;
+    for (int i = 0; i < mediaSources.length; i++) {
+      final int sourceIndex = i;
+      mediaSources[sourceIndex].prepareSource(new Listener() {
         @Override
         public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-          checkConsistentTimeline(timeline);
+          handleSourceInfoRefreshed(sourceIndex, timeline, manifest);
         }
       });
     }
@@ -66,6 +100,9 @@ public final class MergingMediaSource implements MediaSource {
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
+    if (mergeError != null) {
+      throw mergeError;
+    }
     for (MediaSource mediaSource : mediaSources) {
       mediaSource.maybeThrowSourceInfoRefreshError();
     }
@@ -99,17 +136,36 @@ public final class MergingMediaSource implements MediaSource {
     }
   }
 
-  private void checkConsistentTimeline(Timeline timeline) {
+  private void handleSourceInfoRefreshed(int sourceIndex, Timeline timeline, Object manifest) {
+    if (mergeError == null) {
+      mergeError = checkTimelineMerges(timeline);
+    }
+    if (mergeError != null) {
+      return;
+    }
+    pendingTimelineSources.remove(mediaSources[sourceIndex]);
+    if (sourceIndex == 0) {
+      primaryTimeline = timeline;
+      primaryManifest = manifest;
+    }
+    if (pendingTimelineSources.isEmpty()) {
+      listener.onSourceInfoRefreshed(primaryTimeline, primaryManifest);
+    }
+  }
+
+  private IllegalMergeException checkTimelineMerges(Timeline timeline) {
     int windowCount = timeline.getWindowCount();
     for (int i = 0; i < windowCount; i++) {
-      Assertions.checkArgument(!timeline.getWindow(i, window, false).isDynamic);
+      if (timeline.getWindow(i, window, false).isDynamic) {
+        return new IllegalMergeException(IllegalMergeException.REASON_WINDOWS_ARE_DYNAMIC);
+      }
     }
-    int periodCount = timeline.getPeriodCount();
-    if (this.periodCount == PERIOD_COUNT_UNSET) {
-      this.periodCount = periodCount;
-    } else {
-      Assertions.checkState(this.periodCount == periodCount);
+    if (periodCount == PERIOD_COUNT_UNSET) {
+      periodCount = timeline.getPeriodCount();
+    } else if (timeline.getPeriodCount() != periodCount) {
+      return new IllegalMergeException(IllegalMergeException.REASON_PERIOD_COUNT_MISMATCH);
     }
+    return null;
   }
 
 }

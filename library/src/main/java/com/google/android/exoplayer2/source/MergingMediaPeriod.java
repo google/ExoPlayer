@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 
 /**
- * Merges multiple {@link MediaPeriod} instances.
+ * Merges multiple {@link MediaPeriod}s.
  */
 /* package */ final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 

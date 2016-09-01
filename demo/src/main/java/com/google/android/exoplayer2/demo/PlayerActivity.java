@@ -562,8 +562,14 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   private void showControls() {
-    mediaController.show(0);
     debugRootView.setVisibility(View.VISIBLE);
+    // TODO: Remove this hack when transitioning to our own playback controls.
+    mainHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        mediaController.show(0);
+      }
+    });
   }
 
   private void showToast(int messageId) {
