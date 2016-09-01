@@ -66,6 +66,16 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Resets the position to zero and the limit to the specified value. If the limit exceeds the
+   * capacity, {@code data} is replaced with a new array of sufficient size.
+   *
+   * @param limit The limit to set.
+   */
+  public void reset(int limit) {
+    reset(capacity() < limit ? new byte[limit] : data, limit);
+  }
+
+  /**
    * Updates the instance to wrap {@code data}, and resets the position to zero.
    *
    * @param data The array to wrap.
