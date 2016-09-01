@@ -303,8 +303,8 @@ public class SampleChooserActivity extends Activity {
         ViewGroup parent) {
       View view = convertView;
       if (view == null) {
-        view = LayoutInflater.from(context).inflate(R.layout.sample_chooser_inline_header, parent,
-            false);
+        view = LayoutInflater.from(context).inflate(android.R.layout.simple_expandable_list_item_1,
+            parent, false);
       }
       ((TextView) view).setText(getGroup(groupPosition).title);
       return view;

@@ -17,8 +17,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'bintray-release'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion project.ext.compileSdkVersion
+    buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
         // Important: ExoPlayerLib specifies a minSdkVersion of 9 because
@@ -27,7 +27,7 @@ android {
         // functionality provided by the library requires API level 16 or
         // greater.
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion project.ext.targetSdkVersion
     }
 
     buildTypes {
