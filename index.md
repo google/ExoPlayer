@@ -23,15 +23,10 @@ Read news, hints and tips on the [developer blog](https://medium.com/google-exop
 [developer guide]: https://google.github.io/ExoPlayer/guide.html
 [FAQs page]: https://google.github.io/ExoPlayer/faqs.html
 [class reference]: https://google.github.io/ExoPlayer/doc/reference
-[release notes]: https://github.com/google/ExoPlayer/blob/dev/RELEASENOTES.md
+[release notes]: https://github.com/google/ExoPlayer/blob/dev-v2/RELEASENOTES.md
 
 ## Source code ##
 
 * Source code can be found in the [ExoPlayer project][] on GitHub.
-* The [master][] branch holds the most recent minor release.
-* Most development work happens on the [dev][] branch.
-* Additional development branches may be established for major features.
 
-[ExoPlayer project]: https://github.com/google/ExoPlayer/tree/master
-[master]: https://github.com/google/ExoPlayer/tree/master
-[dev]: https://github.com/google/ExoPlayer/tree/dev
+[ExoPlayer project]: https://github.com/google/ExoPlayer
