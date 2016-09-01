@@ -20,7 +20,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.2.0-beta3'
         classpath 'com.novoda:bintray-release:0.3.4'
     }
 }
@@ -28,5 +28,10 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+    }
+    project.ext {
+        compileSdkVersion=24
+        targetSdkVersion=24
+        buildToolsVersion='23.0.3'
     }
 }
