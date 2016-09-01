@@ -49,8 +49,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -708,12 +707,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
               ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID;
           HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(
               WIDEVINE_LICENSE_URL + widevineContentId,
-              new HttpDataSource.Factory() {
-                @Override
-                public HttpDataSource createDataSource() {
-                  return new DefaultHttpDataSource(userAgent, null);
-                }
-              });
+              new DefaultHttpDataSourceFactory(userAgent));
           drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(drmCallback, null,
               null, null);
           if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {

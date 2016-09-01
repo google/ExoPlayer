@@ -74,7 +74,7 @@ import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
@@ -363,12 +363,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       return null;
     }
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
-        new HttpDataSource.Factory() {
-          @Override
-          public HttpDataSource createDataSource() {
-            return new DefaultHttpDataSource(userAgent, null);
-          }
-        });
+        buildHttpDataSourceFactory(false));
     return new StreamingDrmSessionManager<FrameworkMediaCrypto>(uuid,
         FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
   }
@@ -403,8 +398,16 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
    *     DataSource factory.
    */
   private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-    return new DefaultDataSourceFactory(this, userAgent,
-        useBandwidthMeter ? BANDWIDTH_METER : null);
+    return new DefaultDataSourceFactory(this, useBandwidthMeter ? BANDWIDTH_METER : null,
+        buildHttpDataSourceFactory(useBandwidthMeter));
+  }
+
+  /**
+   * Build a HttpDataSource factory.
+   * @param useBandwidthMeter
+   */
+  private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
+    return new DefaultHttpDataSourceFactory(userAgent, useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   // ExoPlayer.EventListener implementation

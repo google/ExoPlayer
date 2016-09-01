@@ -24,23 +24,9 @@ import com.google.android.exoplayer2.upstream.DataSource.Factory;
  */
 public final class DefaultDataSourceFactory implements Factory {
 
-  /**
-   * The default connection timeout, in milliseconds.
-   */
-  public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS =
-      DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-  /**
-   * The default read timeout, in milliseconds.
-   */
-  public static final int DEFAULT_READ_TIMEOUT_MILLIS =
-      DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
-
   private final Context context;
-  private final String userAgent;
   private final TransferListener<? super DataSource> listener;
-  private final int connectTimeoutMillis;
-  private final int readTimeoutMillis;
-  private final boolean allowCrossProtocolRedirects;
+  private final DataSource.Factory baseDataSourceFactory;
 
   /**
    * @param context A context.
@@ -57,48 +43,26 @@ public final class DefaultDataSourceFactory implements Factory {
    */
   public DefaultDataSourceFactory(Context context, String userAgent,
       TransferListener<? super DataSource> listener) {
-    this(context, userAgent, listener, false);
+    this(context, listener, new DefaultHttpDataSourceFactory(userAgent, listener));
   }
 
   /**
    * @param context A context.
-   * @param userAgent The User-Agent string that should be used.
    * @param listener An optional listener.
-   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled.
+   * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
+   *     for {@link DefaultDataSource}.
+   * @see DefaultDataSource#DefaultDataSource(Context, TransferListener, DataSource)
    */
-  public DefaultDataSourceFactory(Context context, String userAgent,
-      TransferListener<? super DataSource> listener, boolean allowCrossProtocolRedirects) {
-    this(context, userAgent, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS,
-        allowCrossProtocolRedirects);
-  }
-
-  /**
-   * @param context A context.
-   * @param userAgent The User-Agent string that should be used.
-   * @param listener An optional listener.
-   * @param connectTimeoutMillis The connection timeout that should be used when requesting remote
-   *     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout that should be used when requesting remote data,
-   *     in milliseconds. A timeout of zero is interpreted as an infinite timeout.
-   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled.
-   */
-  public DefaultDataSourceFactory(Context context, String userAgent,
-      TransferListener<? super DataSource> listener, int connectTimeoutMillis,
-      int readTimeoutMillis, boolean allowCrossProtocolRedirects) {
+  public DefaultDataSourceFactory(Context context, TransferListener<? super DataSource> listener,
+      DataSource.Factory baseDataSourceFactory) {
     this.context = context.getApplicationContext();
-    this.userAgent = userAgent;
     this.listener = listener;
-    this.connectTimeoutMillis = connectTimeoutMillis;
-    this.readTimeoutMillis = readTimeoutMillis;
-    this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
+    this.baseDataSourceFactory = baseDataSourceFactory;
   }
 
   @Override
   public DefaultDataSource createDataSource() {
-    return new DefaultDataSource(context, listener, userAgent, connectTimeoutMillis,
-        readTimeoutMillis, allowCrossProtocolRedirects);
+    return new DefaultDataSource(context, listener, baseDataSourceFactory.createDataSource());
   }
 
 }

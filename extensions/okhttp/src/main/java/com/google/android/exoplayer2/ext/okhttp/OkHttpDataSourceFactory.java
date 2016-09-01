@@ -15,34 +15,29 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
-import android.content.Context;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSource.Factory;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 
 /**
- * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to
- * {@link OkHttpDataSource}s for non-file/asset/content URIs.
+ * A {@link Factory} that produces {@link OkHttpDataSource}.
  */
-public final class DefaultOkHttpDataSourceFactory implements Factory {
+public final class OkHttpDataSourceFactory implements Factory {
 
-  private final Context context;
   private final OkHttpClient client;
   private final String userAgent;
   private final TransferListener<? super DataSource> transferListener;
   private final CacheControl cacheControl;
 
-  public DefaultOkHttpDataSourceFactory(Context context, OkHttpClient client, String userAgent,
+  public OkHttpDataSourceFactory(OkHttpClient client, String userAgent,
       TransferListener<? super DataSource> transferListener) {
-    this(context, client, userAgent, transferListener, null);
+    this(client, userAgent, transferListener, null);
   }
 
-  public DefaultOkHttpDataSourceFactory(Context context, OkHttpClient client, String userAgent,
+  public OkHttpDataSourceFactory(OkHttpClient client, String userAgent,
       TransferListener<? super DataSource> transferListener, CacheControl cacheControl) {
-    this.context = context.getApplicationContext();
     this.client = client;
     this.userAgent = userAgent;
     this.transferListener = transferListener;
@@ -50,10 +45,8 @@ public final class DefaultOkHttpDataSourceFactory implements Factory {
   }
 
   @Override
-  public DefaultDataSource createDataSource() {
-    DataSource httpDataSource = new OkHttpDataSource(client, userAgent, null, transferListener,
-        cacheControl);
-    return new DefaultDataSource(context, transferListener, httpDataSource);
+  public OkHttpDataSource createDataSource() {
+    return new OkHttpDataSource(client, userAgent, null, transferListener, cacheControl);
   }
 
 }

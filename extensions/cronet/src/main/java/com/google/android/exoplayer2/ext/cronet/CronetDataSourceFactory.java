@@ -15,20 +15,17 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
-import android.content.Context;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSource.Factory;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Predicate;
 import java.util.concurrent.Executor;
 import org.chromium.net.CronetEngine;
 
 /**
- * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to
- * {@link CronetDataSource}s for non-file/asset/content URIs.
+ * A {@link Factory} that produces {@link CronetDataSource}.
  */
-public final class DefaultCronetDataSourceFactory implements Factory {
+public final class CronetDataSourceFactory implements Factory {
 
   /**
    * The default connection timeout, in milliseconds.
@@ -41,7 +38,6 @@ public final class DefaultCronetDataSourceFactory implements Factory {
   public static final int DEFAULT_READ_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
 
-  private final Context context;
   private final CronetEngine cronetEngine;
   private final Executor executor;
   private final Predicate<String> contentTypePredicate;
@@ -50,18 +46,17 @@ public final class DefaultCronetDataSourceFactory implements Factory {
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
 
-  public DefaultCronetDataSourceFactory(Context context, CronetEngine cronetEngine,
+  public CronetDataSourceFactory(CronetEngine cronetEngine,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener) {
-    this(context, cronetEngine, executor, contentTypePredicate, transferListener,
+    this(cronetEngine, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false);
   }
 
-  public DefaultCronetDataSourceFactory(Context context, CronetEngine cronetEngine,
+  public CronetDataSourceFactory(CronetEngine cronetEngine,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener, int connectTimeoutMs,
       int readTimeoutMs, boolean resetTimeoutOnRedirects) {
-    this.context = context;
     this.cronetEngine = cronetEngine;
     this.executor = executor;
     this.contentTypePredicate = contentTypePredicate;
@@ -72,10 +67,9 @@ public final class DefaultCronetDataSourceFactory implements Factory {
   }
 
   @Override
-  public DefaultDataSource createDataSource() {
-    DataSource cronetDataSource = new CronetDataSource(cronetEngine, executor, contentTypePredicate,
-        transferListener, connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects);
-    return new DefaultDataSource(context, transferListener, cronetDataSource);
+  public CronetDataSource createDataSource() {
+    return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
+        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects);
   }
 
 }
