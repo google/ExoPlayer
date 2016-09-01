@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
+import android.os.Handler;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -60,6 +61,7 @@ import java.util.List;
   private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final HlsPlaylistParser manifestParser;
+  private final Handler continueLoadingHandler;
   private final Loader manifestFetcher;
   private final long preparePositionUs;
 
@@ -72,10 +74,11 @@ import java.util.List;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
+  private Runnable continueLoadingRunnable;
 
   public HlsMediaPeriod(Uri manifestUri, DataSource.Factory dataSourceFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher,
-      MediaSource.Listener sourceListener, Callback callback, Allocator allocator,
+      MediaSource.Listener sourceListener, final Callback callback, Allocator allocator,
       long positionUs) {
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -86,8 +89,15 @@ import java.util.List;
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
     manifestParser = new HlsPlaylistParser();
+    continueLoadingHandler = new Handler();
     manifestFetcher = new Loader("Loader:ManifestFetcher");
     preparePositionUs = positionUs;
+    continueLoadingRunnable = new Runnable() {
+      @Override
+      public void run() {
+        callback.onContinueLoadingRequested(HlsMediaPeriod.this);
+      }
+    };
 
     ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(
         dataSourceFactory.createDataSource(), manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
@@ -96,6 +106,7 @@ import java.util.List;
   }
 
   public void release() {
+    continueLoadingHandler.removeCallbacksAndMessages(null);
     manifestFetcher.release();
     for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
       sampleStreamWrapper.release();
@@ -284,6 +295,12 @@ import java.util.List;
     // TODO[playlists]: Calculate the window.
     Timeline timeline = new SinglePeriodTimeline(durationUs, !isLive);
     sourceListener.onSourceInfoRefreshed(timeline, playlist);
+  }
+
+  @Override
+  public void onContinueLoadingRequiredInMs(final HlsSampleStreamWrapper sampleStreamWrapper,
+      long delayMs) {
+    continueLoadingHandler.postDelayed(continueLoadingRunnable, delayMs);
   }
 
   @Override

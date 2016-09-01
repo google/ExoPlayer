@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
-import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -56,6 +55,12 @@ import java.util.LinkedList;
      */
     void onPrepared();
 
+    /**
+     * Called to schedule a {@link #continueLoading(long)} call.
+     */
+    void onContinueLoadingRequiredInMs(HlsSampleStreamWrapper sampleStreamSource,
+        long delayMs);
+
   }
 
   private static final int PRIMARY_TYPE_NONE = 0;
@@ -72,7 +77,7 @@ import java.util.LinkedList;
   private final int minLoadableRetryCount;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
-  private final ChunkHolder nextChunkHolder;
+  private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final LinkedList<HlsMediaChunk> mediaChunks;
 
@@ -121,7 +126,7 @@ import java.util.LinkedList;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
-    nextChunkHolder = new ChunkHolder();
+    nextChunkHolder = new HlsChunkSource.HlsChunkHolder();
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
     lastSeekPositionUs = positionUs;
@@ -310,6 +315,7 @@ import java.util.LinkedList;
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
+    long retryInMs = nextChunkHolder.retryInMs;
     nextChunkHolder.clear();
 
     if (endOfStream) {
@@ -318,6 +324,8 @@ import java.util.LinkedList;
     }
 
     if (loadable == null) {
+      Assertions.checkState(retryInMs != C.TIME_UNSET && chunkSource.isLive());
+      callback.onContinueLoadingRequiredInMs(this, retryInMs);
       return false;
     }
 

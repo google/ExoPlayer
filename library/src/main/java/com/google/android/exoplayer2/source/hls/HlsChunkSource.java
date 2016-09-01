@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
-import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
@@ -49,9 +48,44 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * A temporary test source of HLS chunks.
+ * Source of Hls(possibly adaptive) chunks.
  */
-public class HlsChunkSource {
+/* package */ class HlsChunkSource {
+
+  /**
+   * Chunk holder that allows the scheduling of retries.
+   */
+  public static final class HlsChunkHolder {
+
+    public HlsChunkHolder() {
+      clear();
+    }
+
+    /**
+     * The chunk.
+     */
+    public Chunk chunk;
+
+    /**
+     * Indicates that the end of the stream has been reached.
+     */
+    public boolean endOfStream;
+
+    /**
+     * Milliseconds to wait before retrying.
+     */
+    public long retryInMs;
+
+    /**
+     * Clears the holder.
+     */
+    public void clear() {
+      chunk = null;
+      endOfStream = false;
+      retryInMs = C.TIME_UNSET;
+    }
+
+  }
 
   /**
    * The default time for which a media playlist should be blacklisted.
@@ -173,9 +207,10 @@ public class HlsChunkSource {
   /**
    * Returns the next chunk to load.
    * <p>
-   * If a chunk is available then {@link ChunkHolder#chunk} is set. If the end of the stream has
-   * been reached then {@link ChunkHolder#endOfStream} is set. If a chunk is not available but the
-   * end of the stream has not been reached, the {@link ChunkHolder} is not modified.
+   * If a chunk is available then {@link HlsChunkHolder#chunk} is set. If the end of the stream has
+   * been reached then {@link HlsChunkHolder#endOfStream} is set. If a chunk is not available but
+   * the end of the stream has not been reached, {@link HlsChunkHolder#retryInMs} is set to contain
+   * the amount of milliseconds to wait before retrying.
    *
    * @param previous The most recently loaded media chunk.
    * @param playbackPositionUs The current playback position. If {@code previous} is null then this
@@ -183,7 +218,7 @@ public class HlsChunkSource {
    *     should be interpreted as a seek position.
    * @param out A holder to populate.
    */
-  public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, ChunkHolder out) {
+  public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
 
@@ -206,8 +241,13 @@ public class HlsChunkSource {
     int chunkMediaSequence;
     if (live) {
       if (previous == null) {
-        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
-            true, true) + mediaPlaylist.mediaSequence;
+        // When playling a live stream, the starting chunk will be the third counting from the live
+        // edge.
+        chunkMediaSequence = Math.max(0, mediaPlaylist.segments.size() - 3)
+            + mediaPlaylist.mediaSequence;
+        // TODO: Bring this back for live window seeking.
+        // chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
+        //     true, true) + mediaPlaylist.mediaSequence;
       } else {
         chunkMediaSequence = getLiveNextChunkSequenceNumber(previous.chunkIndex, oldVariantIndex,
             newVariantIndex);
@@ -233,9 +273,16 @@ public class HlsChunkSource {
     if (chunkIndex >= mediaPlaylist.segments.size()) {
       if (!mediaPlaylist.live) {
         out.endOfStream = true;
-      } else if (shouldRerequestLiveMediaPlaylist(newVariantIndex)) {
-        out.chunk = newMediaPlaylistChunk(newVariantIndex,
-            trackSelection.getSelectionReason(), trackSelection.getSelectionData());
+      } else /* Live */ {
+        long msToRerequestLiveMediaPlaylist = msToRerequestLiveMediaPlaylist(newVariantIndex);
+        if (msToRerequestLiveMediaPlaylist <= 0) {
+          out.chunk = newMediaPlaylistChunk(newVariantIndex,
+              trackSelection.getSelectionReason(), trackSelection.getSelectionData());
+        } else {
+          // 10 milliseconds are added to the wait to make sure the playlist is refreshed when
+          // getNextChunk() is called.
+          out.retryInMs = msToRerequestLiveMediaPlaylist + 10;
+        }
       }
       return;
     }
@@ -417,12 +464,12 @@ public class HlsChunkSource {
 
   // Private methods.
 
-  private boolean shouldRerequestLiveMediaPlaylist(int variantIndex) {
+  private long msToRerequestLiveMediaPlaylist(int variantIndex) {
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
     long timeSinceLastMediaPlaylistLoadMs =
         SystemClock.elapsedRealtime() - variantLastPlaylistLoadTimesMs[variantIndex];
     // Don't re-request media playlist more often than one-half of the target duration.
-    return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
+    return (mediaPlaylist.targetDurationSecs * 1000) / 2 - timeSinceLastMediaPlaylistLoadMs;
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex, int trackSelectionReason,
