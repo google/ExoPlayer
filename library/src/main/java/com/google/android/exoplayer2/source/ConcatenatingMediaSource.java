@@ -23,10 +23,12 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * Concatenates multiple {@link MediaSource}s.
+ * Concatenates multiple {@link MediaSource}s. It is valid for the same {@link MediaSource} instance
+ * to be present more than once in the concatenation.
  */
 public final class ConcatenatingMediaSource implements MediaSource {
 
@@ -34,47 +36,45 @@ public final class ConcatenatingMediaSource implements MediaSource {
   private final Timeline[] timelines;
   private final Object[] manifests;
   private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
+  private final boolean[] duplicateFlags;
 
+  private Listener listener;
   private ConcatenatedTimeline timeline;
 
   /**
-   * @param mediaSources The {@link MediaSource}s to concatenate.
+   * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same
+   *     {@link MediaSource} instance to be present more than once in the array.
    */
   public ConcatenatingMediaSource(MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
     timelines = new Timeline[mediaSources.length];
     manifests = new Object[mediaSources.length];
     sourceIndexByMediaPeriod = new HashMap<>();
+    duplicateFlags = buildDuplicateFlags(mediaSources);
   }
 
   @Override
-  public void prepareSource(final Listener listener) {
+  public void prepareSource(Listener listener) {
+    this.listener = listener;
     for (int i = 0; i < mediaSources.length; i++) {
-      final int index = i;
-      mediaSources[i].prepareSource(new Listener() {
-
-        @Override
-        public void onSourceInfoRefreshed(Timeline sourceTimeline, Object manifest) {
-          timelines[index] = sourceTimeline;
-          manifests[index] = manifest;
-          for (Timeline timeline : timelines) {
-            if (timeline == null) {
-              // Don't invoke the listener until all sources have timelines.
-              return;
-            }
+      if (!duplicateFlags[i]) {
+        final int index = i;
+        mediaSources[i].prepareSource(new Listener() {
+          @Override
+          public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+            handleSourceInfoRefreshed(index, timeline, manifest);
           }
-          timeline = new ConcatenatedTimeline(timelines.clone());
-          listener.onSourceInfoRefreshed(timeline, manifests.clone());
-        }
-
-      });
+        });
+      }
     }
   }
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    for (MediaSource mediaSource : mediaSources) {
-      mediaSource.maybeThrowSourceInfoRefreshError();
+    for (int i = 0; i < mediaSources.length; i++) {
+      if (!duplicateFlags[i]) {
+        mediaSources[i].maybeThrowSourceInfoRefreshError();
+      }
     }
   }
 
@@ -98,9 +98,47 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
   @Override
   public void releaseSource() {
-    for (MediaSource mediaSource : mediaSources) {
-      mediaSource.releaseSource();
+    for (int i = 0; i < mediaSources.length; i++) {
+      if (!duplicateFlags[i]) {
+        mediaSources[i].releaseSource();
+      }
     }
+  }
+
+  private void handleSourceInfoRefreshed(int sourceFirstIndex, Timeline sourceTimeline,
+      Object sourceManifest) {
+    // Set the timeline and manifest.
+    timelines[sourceFirstIndex] = sourceTimeline;
+    manifests[sourceFirstIndex] = sourceManifest;
+    // Also set the timeline and manifest for any duplicate entries of the same source.
+    for (int i = sourceFirstIndex + 1; i < mediaSources.length; i++) {
+      if (mediaSources[i] == mediaSources[sourceFirstIndex]) {
+        timelines[i] = sourceTimeline;
+        manifests[i] = sourceManifest;
+      }
+    }
+    for (Timeline timeline : timelines) {
+      if (timeline == null) {
+        // Don't invoke the listener until all sources have timelines.
+        return;
+      }
+    }
+    timeline = new ConcatenatedTimeline(timelines.clone());
+    listener.onSourceInfoRefreshed(timeline, manifests.clone());
+  }
+
+  private static boolean[] buildDuplicateFlags(MediaSource[] mediaSources) {
+    boolean[] duplicateFlags = new boolean[mediaSources.length];
+    IdentityHashMap<MediaSource, Void> sources = new IdentityHashMap<>(mediaSources.length);
+    for (int i = 0; i < mediaSources.length; i++) {
+      MediaSource source = mediaSources[i];
+      if (!sources.containsKey(source)) {
+        sources.put(source, null);
+      } else {
+        duplicateFlags[i] = true;
+      }
+    }
+    return duplicateFlags;
   }
 
   /**

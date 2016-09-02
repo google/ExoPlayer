@@ -43,7 +43,6 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -364,7 +363,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
         buildHttpDataSourceFactory(false));
-    return new StreamingDrmSessionManager<FrameworkMediaCrypto>(uuid,
+    return new StreamingDrmSessionManager<>(uuid,
         FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
   }
 
@@ -404,7 +403,9 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
 
   /**
    * Build a HttpDataSource factory.
-   * @param useBandwidthMeter
+   *
+   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
+   *     DataSource factory.
    */
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
     return new DefaultHttpDataSourceFactory(userAgent, useBandwidthMeter ? BANDWIDTH_METER : null);
