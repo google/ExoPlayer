@@ -24,21 +24,38 @@ import java.util.List;
  */
 public final class HlsMasterPlaylist extends HlsPlaylist {
 
-  public final List<Variant> variants;
-  public final List<Variant> audios;
-  public final List<Variant> subtitles;
+  public final List<HlsUrl> variants;
+  public final List<HlsUrl> audios;
+  public final List<HlsUrl> subtitles;
 
   public final Format muxedAudioFormat;
   public final Format muxedCaptionFormat;
 
-  public HlsMasterPlaylist(String baseUri, List<Variant> variants, List<Variant> audios,
-      List<Variant> subtitles, Format muxedAudioFormat, Format muxedCaptionFormat) {
+  public HlsMasterPlaylist(String baseUri, List<HlsUrl> variants, List<HlsUrl> audios,
+      List<HlsUrl> subtitles, Format muxedAudioFormat, Format muxedCaptionFormat) {
     super(baseUri, HlsPlaylist.TYPE_MASTER);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormat = muxedCaptionFormat;
+  }
+
+  /**
+   * Represents a url in an HLS master playlist.
+   */
+  public static final class HlsUrl {
+
+    public final String url;
+    public final Format format;
+    public final String codecs;
+
+    public HlsUrl(String url, Format format, String codecs) {
+      this.url = url;
+      this.format = format;
+      this.codecs = codecs;
+    }
+
   }
 
 }

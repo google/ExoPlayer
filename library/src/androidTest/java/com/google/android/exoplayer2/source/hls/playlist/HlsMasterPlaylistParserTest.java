@@ -56,7 +56,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
 
       HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
 
-      List<Variant> variants = masterPlaylist.variants;
+      List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
       assertNotNull(variants);
       assertEquals(5, variants.size());
 

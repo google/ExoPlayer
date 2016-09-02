@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
-import com.google.android.exoplayer2.source.hls.playlist.Variant;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -321,7 +320,8 @@ import java.util.List;
     if (playlist instanceof HlsMediaPlaylist) {
       Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
           Format.NO_VALUE);
-      Variant[] variants = new Variant[] {new Variant(playlist.baseUri, format, null)};
+      HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[] {
+          new HlsMasterPlaylist.HlsUrl(playlist.baseUri, format, null)};
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
           null, null));
       return sampleStreamWrappers;
@@ -330,11 +330,11 @@ import java.util.List;
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
 
     // Build the default stream wrapper.
-    List<Variant> selectedVariants = new ArrayList<>(masterPlaylist.variants);
-    ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
-    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
+    List<HlsMasterPlaylist.HlsUrl> selectedVariants = new ArrayList<>(masterPlaylist.variants);
+    ArrayList<HlsMasterPlaylist.HlsUrl> definiteVideoVariants = new ArrayList<>();
+    ArrayList<HlsMasterPlaylist.HlsUrl> definiteAudioOnlyVariants = new ArrayList<>();
     for (int i = 0; i < selectedVariants.size(); i++) {
-      Variant variant = selectedVariants.get(i);
+      HlsMasterPlaylist.HlsUrl variant = selectedVariants.get(i);
       if (variant.format.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
         definiteVideoVariants.add(variant);
       } else if (variantHasExplicitCodecWithPrefix(variant, "mp4a")) {
@@ -354,25 +354,25 @@ import java.util.List;
       // Leave the enabled variants unchanged. They're likely either all video or all audio.
     }
     if (!selectedVariants.isEmpty()) {
-      Variant[] variants = new Variant[selectedVariants.size()];
+      HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[selectedVariants.size()];
       selectedVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
           masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat));
     }
 
     // Build the audio stream wrapper if applicable.
-    List<Variant> audioVariants = masterPlaylist.audios;
+    List<HlsMasterPlaylist.HlsUrl> audioVariants = masterPlaylist.audios;
     if (!audioVariants.isEmpty()) {
-      Variant[] variants = new Variant[audioVariants.size()];
+      HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[audioVariants.size()];
       audioVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
           null));
     }
 
     // Build the text stream wrapper if applicable.
-    List<Variant> subtitleVariants = masterPlaylist.subtitles;
+    List<HlsMasterPlaylist.HlsUrl> subtitleVariants = masterPlaylist.subtitles;
     if (!subtitleVariants.isEmpty()) {
-      Variant[] variants = new Variant[subtitleVariants.size()];
+      HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[subtitleVariants.size()];
       subtitleVariants.toArray(variants);
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
           null));
@@ -382,7 +382,7 @@ import java.util.List;
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, String baseUri,
-      Variant[] variants, Format muxedAudioFormat, Format muxedCaptionFormat) {
+      HlsMasterPlaylist.HlsUrl[] variants, Format muxedAudioFormat, Format muxedCaptionFormat) {
     DataSource dataSource = dataSourceFactory.createDataSource();
     HlsChunkSource defaultChunkSource = new HlsChunkSource(baseUri, variants, dataSource,
         timestampAdjusterProvider);
@@ -391,7 +391,8 @@ import java.util.List;
         eventDispatcher);
   }
 
-  private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
+  private static boolean variantHasExplicitCodecWithPrefix(HlsMasterPlaylist.HlsUrl variant,
+      String prefix) {
     String codecs = variant.codecs;
     if (TextUtils.isEmpty(codecs)) {
       return false;

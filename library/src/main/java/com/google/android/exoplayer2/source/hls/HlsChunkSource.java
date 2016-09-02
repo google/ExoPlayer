@@ -31,9 +31,9 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
-import com.google.android.exoplayer2.source.hls.playlist.Variant;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -107,7 +107,7 @@ import java.util.Locale;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
-  private final Variant[] variants;
+  private final HlsMasterPlaylist.HlsUrl[] variants;
   private final HlsMediaPlaylist[] variantPlaylists;
   private final TrackGroup trackGroup;
   private final long[] variantLastPlaylistLoadTimesMs;
@@ -135,7 +135,7 @@ import java.util.Locale;
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
    */
-  public HlsChunkSource(String baseUri, Variant[] variants, DataSource dataSource,
+  public HlsChunkSource(String baseUri, HlsMasterPlaylist.HlsUrl[] variants, DataSource dataSource,
       PtsTimestampAdjusterProvider timestampAdjusterProvider) {
     this.baseUri = baseUri;
     this.variants = variants;

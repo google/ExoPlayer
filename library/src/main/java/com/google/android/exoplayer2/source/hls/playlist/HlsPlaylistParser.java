@@ -122,9 +122,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
-    ArrayList<Variant> variants = new ArrayList<>();
-    ArrayList<Variant> audios = new ArrayList<>();
-    ArrayList<Variant> subtitles = new ArrayList<>();
+    ArrayList<HlsMasterPlaylist.HlsUrl> variants = new ArrayList<>();
+    ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
+    ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
     int width = Format.NO_VALUE;
@@ -163,7 +163,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
           Format format = Format.createTextContainerFormat(subtitleName, MimeTypes.APPLICATION_M3U8,
               MimeTypes.TEXT_VTT, null, bitrate, selectionFlags, language);
-          subtitles.add(new Variant(uri, format, codecs));
+          subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format, codecs));
         } else if (TYPE_AUDIO.equals(type)) {
           // We assume all audios belong to the same group.
           String uri = parseOptionalStringAttr(line, REGEX_URI);
@@ -174,7 +174,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               null, null, audioBitrate, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
               language);
           if (uri != null) {
-            audios.add(new Variant(uri, format, codecs));
+            audios.add(new HlsMasterPlaylist.HlsUrl(uri, format, codecs));
           } else {
             muxedAudioFormat = format;
           }
@@ -207,7 +207,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
             null, bitrate, width, height, Format.NO_VALUE, null);
-        variants.add(new Variant(line, format, codecs));
+        variants.add(new HlsMasterPlaylist.HlsUrl(line, format, codecs));
         bitrate = 0;
         codecs = null;
         name = null;
