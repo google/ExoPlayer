@@ -209,7 +209,12 @@ public class DefaultHttpDataSource implements HttpDataSource {
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
       closeConnectionQuietly();
-      throw new InvalidResponseCodeException(responseCode, headers, dataSpec);
+      InvalidResponseCodeException exception =
+          new InvalidResponseCodeException(responseCode, headers, dataSpec);
+      if (responseCode == 416) {
+        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+      }
+      throw exception;
     }
 
     // Check for a valid content type.

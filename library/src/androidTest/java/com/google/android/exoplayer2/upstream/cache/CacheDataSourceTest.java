@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Builder;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
   }
 
   public void testMaxCacheFileSize() throws Exception {
-    CacheDataSource cacheDataSource = createCacheDataSource(false, false, false);
+    CacheDataSource cacheDataSource = createCacheDataSource(false, false);
     assertReadDataContentLength(cacheDataSource, false, false);
     assertEquals((int) Math.ceil((double) TEST_DATA.length / MAX_CACHE_FILE_SIZE),
         cacheDir.listFiles().length);
@@ -85,28 +85,28 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
     // Now do an unbounded request. This will read all of the data from cache and then try to read
     // more from upstream which will cause to a 416 so CDS will store the length.
-    CacheDataSource cacheDataSource = createCacheDataSource(true, true, true);
+    CacheDataSource cacheDataSource = createCacheDataSource(true, true);
     assertReadDataContentLength(cacheDataSource, true, true);
 
     // If the user try to access off range then it should throw an IOException
     try {
-      cacheDataSource = createCacheDataSource(false, false, false);
+      cacheDataSource = createCacheDataSource(false, false);
       cacheDataSource.open(new DataSpec(Uri.EMPTY, TEST_DATA.length, 5, KEY_1));
       fail();
-    } catch (TestIOException e) {
+    } catch (IOException e) {
       // success
     }
   }
 
   public void testContentLengthEdgeCases() throws Exception {
     // Read partial at EOS but don't cross it so length is unknown
-    CacheDataSource cacheDataSource = createCacheDataSource(false, false, true);
+    CacheDataSource cacheDataSource = createCacheDataSource(false, true);
     assertReadData(cacheDataSource, true, TEST_DATA.length - 2, 2);
     assertEquals(C.LENGTH_UNSET, simpleCache.getContentLength(KEY_1));
 
     // Now do an unbounded request for whole data. This will cause a bounded request from upstream.
     // End of data from upstream shouldn't be mixed up with EOS and cause length set wrong.
-    cacheDataSource = createCacheDataSource(true, false, true);
+    cacheDataSource = createCacheDataSource(false, true);
     assertReadDataContentLength(cacheDataSource, true, true);
 
     // Now the length set correctly do an unbounded request with offset
@@ -121,11 +121,11 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
   private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength)
       throws IOException {
     // Read all data from upstream and cache
-    CacheDataSource cacheDataSource = createCacheDataSource(false, false, simulateUnknownLength);
+    CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength);
     assertReadDataContentLength(cacheDataSource, unboundedRequest, simulateUnknownLength);
 
     // Just read from cache
-    cacheDataSource = createCacheDataSource(false, true, simulateUnknownLength);
+    cacheDataSource = createCacheDataSource(true, simulateUnknownLength);
     assertReadDataContentLength(cacheDataSource, unboundedRequest,
         false /*length is already cached*/);
   }
@@ -168,7 +168,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     cacheDataSource.close();
   }
 
-  private CacheDataSource createCacheDataSource(boolean set416exception, boolean setReadException,
+  private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength) {
     Builder builder = new Builder();
     if (setReadException) {
@@ -177,14 +177,9 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     builder.setSimulateUnknownLength(simulateUnknownLength);
     builder.appendReadData(TEST_DATA);
     FakeDataSource upstream = builder.build();
-    upstream.setUnsatisfiableRangeException(set416exception
-        ? new InvalidResponseCodeException(416, null, null)
-        : new TestIOException());
     return new CacheDataSource(simpleCache, upstream,
         CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_CACHE_UNBOUNDED_REQUESTS,
         MAX_CACHE_FILE_SIZE);
   }
-
-  private static class TestIOException extends IOException {}
 
 }

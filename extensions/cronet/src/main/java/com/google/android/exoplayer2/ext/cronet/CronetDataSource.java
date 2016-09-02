@@ -20,6 +20,7 @@ import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -329,7 +330,12 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     // Check for a valid response code.
     int responseCode = info.getHttpStatusCode();
     if (responseCode < 200 || responseCode > 299) {
-      throw new InvalidResponseCodeException(responseCode, info.getAllHeaders(), currentDataSpec);
+      InvalidResponseCodeException exception = new InvalidResponseCodeException(
+          responseCode, info.getAllHeaders(), currentDataSpec);
+      if (responseCode == 416) {
+        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+      }
+      throw exception;
     }
     // Check for a valid content type.
     try {

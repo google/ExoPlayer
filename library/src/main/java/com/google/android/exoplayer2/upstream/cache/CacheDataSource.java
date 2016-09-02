@@ -20,9 +20,9 @@ import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
 import java.io.IOException;
@@ -184,6 +184,9 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int max) throws IOException {
+    if (bytesRemaining == 0) {
+      return C.RESULT_END_OF_INPUT;
+    }
     try {
       int bytesRead = currentDataSource.read(buffer, offset, max);
       if (bytesRead >= 0) {
@@ -287,23 +290,34 @@ public final class CacheDataSource implements DataSource {
 
     currentRequestUnbounded = dataSpec.length == C.LENGTH_UNSET;
     boolean successful = false;
-    long currentBytesRemaining;
+    long currentBytesRemaining = 0;
     try {
       currentBytesRemaining = currentDataSource.open(dataSpec);
       successful = true;
-    } catch (InvalidResponseCodeException e) {
-      // if this isn't the initial open call (we had read some bytes) and got an 'unsatisfiable
-      // byte-range' (416) response for an unbounded range request then mute the exception. We are
-      // trying to find the stream end.
-      if (!initial && e.responseCode == 416 && currentRequestUnbounded) {
-        currentBytesRemaining = 0;
-      } else {
+    } catch (IOException e) {
+      // if this isn't the initial open call (we had read some bytes) and an unbounded range request
+      // failed because of POSITION_OUT_OF_RANGE then mute the exception. We are trying to find the
+      // end of the stream.
+      if (!initial && currentRequestUnbounded) {
+        Throwable cause = e;
+        while (cause != null) {
+          if (cause instanceof DataSourceException) {
+            int reason = ((DataSourceException) cause).reason;
+            if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
+              e = null;
+              break;
+            }
+          }
+          cause = cause.getCause();
+        }
+      }
+      if (e != null) {
         throw e;
       }
     }
 
-    // If we did an unbounded request (which means bytesRemaining == C.LENGTH_UNSET) and got a
-    // resolved length from open() request
+    // If we did an unbounded request (which means it's to upstream and
+    // bytesRemaining == C.LENGTH_UNSET) and got a resolved length from open() request
     if (currentRequestUnbounded && currentBytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining = currentBytesRemaining;
       // If writing into cache

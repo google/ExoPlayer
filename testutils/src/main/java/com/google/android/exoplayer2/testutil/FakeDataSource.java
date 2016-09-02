@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -49,7 +50,6 @@ public final class FakeDataSource implements DataSource {
   private boolean opened;
   private int currentSegmentIndex;
   private long bytesRemaining;
-  private IOException unsatisfiableRangeException;
 
   private FakeDataSource(boolean simulateUnknownLength, ArrayList<Segment> segments) {
     this.simulateUnknownLength = simulateUnknownLength;
@@ -60,7 +60,6 @@ public final class FakeDataSource implements DataSource {
     }
     this.totalLength = totalLength;
     openedDataSpecs = new ArrayList<>();
-    unsatisfiableRangeException = new IOException("Unsatisfiable range");
   }
 
   @Override
@@ -73,7 +72,7 @@ public final class FakeDataSource implements DataSource {
     // If the source knows that the request is unsatisfiable then fail.
     if (dataSpec.position >= totalLength || (dataSpec.length != C.LENGTH_UNSET
         && (dataSpec.position + dataSpec.length > totalLength))) {
-      throw (IOException) unsatisfiableRangeException.fillInStackTrace();
+      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
     // Scan through the segments, configuring them for the current read.
     boolean findingCurrentSegmentIndex = true;
@@ -158,10 +157,6 @@ public final class FakeDataSource implements DataSource {
     openedDataSpecs.toArray(dataSpecs);
     openedDataSpecs.clear();
     return dataSpecs;
-  }
-
-  public void setUnsatisfiableRangeException(IOException unsatisfiableRangeException) {
-    this.unsatisfiableRangeException = unsatisfiableRangeException;
   }
 
   private static class Segment {

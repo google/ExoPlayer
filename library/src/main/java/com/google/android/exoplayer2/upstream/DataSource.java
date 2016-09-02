@@ -43,7 +43,8 @@ public interface DataSource {
    * that any partial effects of the invocation are cleaned up.
    *
    * @param dataSpec Defines the data to be read.
-   * @throws IOException If an error occurs opening the source.
+   * @throws IOException If an error occurs opening the source. {@link DataSourceException} can be
+   *     thrown or used as a cause of the thrown exception to specify the reason of the error.
    * @return The number of bytes that can be read from the opened source. For unbounded requests
    *     (i.e. requests where {@link DataSpec#length} equals {@link C#LENGTH_UNSET}) this value
    *     is the resolved length of the request, or {@link C#LENGTH_UNSET} if the length is still

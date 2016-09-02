@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.okhttp;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -162,7 +163,12 @@ public class OkHttpDataSource implements HttpDataSource {
     if (!response.isSuccessful()) {
       Map<String, List<String>> headers = request.headers().toMultimap();
       closeConnectionQuietly();
-      throw new InvalidResponseCodeException(responseCode, headers, dataSpec);
+      InvalidResponseCodeException exception = new InvalidResponseCodeException(
+          responseCode, headers, dataSpec);
+      if (responseCode == 416) {
+        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+      }
+      throw exception;
     }
 
     // Check for a valid content type.
