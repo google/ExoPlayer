@@ -737,8 +737,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
           mediaDataSourceFactory);
       return new DashMediaSource(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-          MIN_LOADABLE_RETRY_COUNT, DashMediaSource.DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS,
-          null, null);
+          MIN_LOADABLE_RETRY_COUNT, 0 /* livePresentationDelayMs */, null, null);
     }
 
     @Override

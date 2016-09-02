@@ -57,30 +57,35 @@ public final class DashMediaSource implements MediaSource {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
-   * A constant indicating that the live edge offset (the offset subtracted from the live edge
-   * when calculating the default initial playback position) should be set to
+   * A constant indicating that the presentation delay for live streams should be set to
    * {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
-   * {@link #DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS} otherwise.
+   * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS} otherwise. The presentation delay is the
+   * duration by which the default start position precedes the end of the live window.
    */
-  public static final long DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS = -1;
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS = -1;
   /**
-   * A fixed default live edge offset (the offset subtracted from the live edge when calculating the
-   * default initial playback position).
+   * A fixed default presentation delay for live streams. The presentation delay is the duration
+   * by which the default start position precedes the end of the live window.
    */
-  public static final long DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS = 30000;
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS = 30000;
+
   /**
    * The interval in milliseconds between invocations of
    * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} when the source's
    * {@link Timeline} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
+  /**
+   * The minimum default start position for live streams, relative to the start of the live window.
+   */
+  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
 
   private static final String TAG = "DashMediaSource";
 
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
-  private final long liveEdgeOffsetMs;
+  private final long livePresentationDelayMs;
   private final EventDispatcher eventDispatcher;
   private final DashManifestParser manifestParser;
   private final ManifestCallback manifestCallback;
@@ -106,18 +111,19 @@ public final class DashMediaSource implements MediaSource {
       DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS, eventHandler,
-        eventListener);
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
+        eventHandler, eventListener);
   }
 
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount, long liveEdgeOffsetMs,
-      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+      long livePresentationDelayMs, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.liveEdgeOffsetMs = liveEdgeOffsetMs;
+    this.livePresentationDelayMs = livePresentationDelayMs;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new DashManifestParser(generateContentId());
     manifestCallback = new ManifestCallback();
@@ -386,20 +392,26 @@ public final class DashMediaSource implements MediaSource {
     }
     long windowDefaultStartPositionUs = 0;
     if (manifest.dynamic) {
-      long liveEdgeOffsetForManifestMs = liveEdgeOffsetMs;
-      if (liveEdgeOffsetForManifestMs == DEFAULT_LIVE_EDGE_OFFSET_PREFER_MANIFEST_MS) {
-        liveEdgeOffsetForManifestMs = manifest.suggestedPresentationDelay != C.TIME_UNSET
-            ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_EDGE_OFFSET_FIXED_MS;
+      long presentationDelayForManifestMs = livePresentationDelayMs;
+      if (presentationDelayForManifestMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS) {
+        presentationDelayForManifestMs = manifest.suggestedPresentationDelay != C.TIME_UNSET
+            ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
       }
       // Snap the default position to the start of the segment containing it.
-      long initialTimeOffsetInWindowUs =
-          Math.max(0, windowDurationUs - C.msToUs(liveEdgeOffsetForManifestMs));
+      long defaultStartPositionUs = windowDurationUs - C.msToUs(presentationDelayForManifestMs);
+      if (defaultStartPositionUs < MIN_LIVE_DEFAULT_START_POSITION_US) {
+        // The default start position is too close to the start of the live window. Set it to the
+        // minimum default start position provided the window is at least twice as big. Else set
+        // it to the middle of the window.
+        defaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
+      }
+
       int periodIndex = 0;
-      long initialTimeOffsetInPeriodUs = currentStartTimeUs + initialTimeOffsetInWindowUs;
+      long defaultStartPositionInPeriodUs = currentStartTimeUs + defaultStartPositionUs;
       long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
       while (periodIndex < manifest.getPeriodCount() - 1
-          && initialTimeOffsetInPeriodUs >= periodDurationUs) {
-        initialTimeOffsetInPeriodUs -= periodDurationUs;
+          && defaultStartPositionInPeriodUs >= periodDurationUs) {
+        defaultStartPositionInPeriodUs -= periodDurationUs;
         periodIndex++;
         periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
       }
@@ -410,11 +422,11 @@ public final class DashMediaSource implements MediaSource {
         // not correspond to the start of a segment in both, but this is an edge case.
         DashSegmentIndex index =
             period.adaptationSets.get(videoAdaptationSetIndex).representations.get(0).getIndex();
-        int segmentNum = index.getSegmentNum(initialTimeOffsetInPeriodUs, periodDurationUs);
+        int segmentNum = index.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
         windowDefaultStartPositionUs =
-            initialTimeOffsetInWindowUs - initialTimeOffsetInPeriodUs + index.getTimeUs(segmentNum);
+            defaultStartPositionUs - defaultStartPositionInPeriodUs + index.getTimeUs(segmentNum);
       } else {
-        windowDefaultStartPositionUs = initialTimeOffsetInWindowUs;
+        windowDefaultStartPositionUs = defaultStartPositionUs;
       }
     }
     long windowStartTimeMs = manifest.availabilityStartTime

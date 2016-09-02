@@ -50,18 +50,25 @@ public final class SsMediaSource implements MediaSource,
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
-   * A default live edge offset (the offset subtracted from the live edge when calculating the
-   * default initial playback position.
+   * The default presentation delay for live streams. The presentation delay is the duration by
+   * which the default start position precedes the end of the live window.
    */
-  public static final long DEFAULT_LIVE_EDGE_OFFSET_MS = 30000;
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30000;
 
+  /**
+   * The minimum period between manifest refreshes.
+   */
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
+  /**
+   * The minimum default start position for live streams, relative to the start of the live window.
+   */
+  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
 
   private final Uri manifestUri;
   private final DataSource.Factory dataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
-  private final long liveEdgeOffsetMs;
+  private final long livePresentationDelayMs;
   private final EventDispatcher eventDispatcher;
   private final SsManifestParser manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
@@ -79,18 +86,20 @@ public final class SsMediaSource implements MediaSource,
       SsChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_EDGE_OFFSET_MS, eventHandler, eventListener);
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_PRESENTATION_DELAY_MS, eventHandler,
+        eventListener);
   }
 
   public SsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      long liveEdgeOffsetMs, Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+      long livePresentationDelayMs, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
         ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.dataSourceFactory = dataSourceFactory;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.liveEdgeOffsetMs = liveEdgeOffsetMs;
+    this.livePresentationDelayMs = livePresentationDelayMs;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestParser = new SsManifestParser();
     mediaPeriods = new ArrayList<>();
@@ -176,7 +185,13 @@ public final class SsMediaSource implements MediaSource,
           startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
         }
         long durationUs = endTimeUs - startTimeUs;
-        long defaultStartPositionUs = Math.max(0, durationUs - (liveEdgeOffsetMs * 1000));
+        long defaultStartPositionUs = durationUs - C.msToUs(livePresentationDelayMs);
+        if (defaultStartPositionUs < MIN_LIVE_DEFAULT_START_POSITION_US) {
+          // The default start position is too close to the start of the live window. Set it to the
+          // minimum default start position provided the window is at least twice as big. Else set
+          // it to the middle of the window.
+          defaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US, durationUs / 2);
+        }
         timeline = new SinglePeriodTimeline(C.TIME_UNSET, durationUs, startTimeUs,
             defaultStartPositionUs, true /* isSeekable */, true /* isDynamic */);
       }
