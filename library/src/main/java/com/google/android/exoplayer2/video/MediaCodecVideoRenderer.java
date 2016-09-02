@@ -187,8 +187,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
 
-    boolean decoderCapable;
-    if (format.width > 0 && format.height > 0) {
+    boolean decoderCapable = decoderInfo.isCodecSupported(format.codecs);
+    if (decoderCapable && format.width > 0 && format.height > 0) {
       if (Util.SDK_INT >= 21) {
         if (format.frameRate > 0) {
           decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
@@ -196,13 +196,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         } else {
           decoderCapable = decoderInfo.isVideoSizeSupportedV21(format.width, format.height);
         }
-        decoderCapable &= decoderInfo.isCodecSupported(format.codecs);
       } else {
         decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
       }
-    } else {
-      // We don't know any better, so assume true.
-      decoderCapable = true;
     }
 
     int adaptiveSupport = decoderInfo.adaptive ? ADAPTIVE_SEAMLESS : ADAPTIVE_NOT_SEAMLESS;
