@@ -187,18 +187,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
 
+    // If vertical video, width & height is reversed.
+    // So we need to switch them when checking capability to decode.
+    // Please see MediaCodecInfo.VideoCapabilities.isSizeSupported()
+    int width = format.width, height = format.height;
+    if (width < height) {
+      int tempWidth = width;
+      width = height;
+      height = tempWidth;
+    }
+
     boolean decoderCapable;
-    if (format.width > 0 && format.height > 0) {
+    if (width > 0 && height > 0) {
       if (Util.SDK_INT >= 21) {
         if (format.frameRate > 0) {
-          decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
-              format.frameRate);
+          decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(width, height,
+                  format.frameRate);
         } else {
-          decoderCapable = decoderInfo.isVideoSizeSupportedV21(format.width, format.height);
+          decoderCapable = decoderInfo.isVideoSizeSupportedV21(width, height);
         }
         decoderCapable &= decoderInfo.isCodecSupported(format.codecs);
       } else {
-        decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
+        decoderCapable = width * height <= MediaCodecUtil.maxH264DecodableFrameSize();
       }
     } else {
       // We don't know any better, so assume true.
