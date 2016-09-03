@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import java.util.Arrays;
+
 /**
  * Binary ID3 frame.
  */
@@ -26,5 +30,50 @@ public final class BinaryFrame extends Id3Frame {
     super(type);
     this.data = data;
   }
+
+  public BinaryFrame(Parcel in) {
+    super(in);
+    data = in.createByteArray();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    BinaryFrame that = (BinaryFrame) o;
+
+    if (id != null ? !id.equals(that.id) : that.id != null)
+      return false;
+    return Arrays.equals(data, that.data);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = id != null ? id.hashCode() : 0;
+    result = 31 * result + Arrays.hashCode(data);
+    return result;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(id);
+    dest.writeByteArray(data);
+  }
+
+  public static final Parcelable.Creator<BinaryFrame> CREATOR =
+      new Parcelable.Creator<BinaryFrame>() {
+
+        @Override
+        public BinaryFrame createFromParcel(Parcel in) {
+          return new BinaryFrame(in);
+        }
+
+        @Override
+        public BinaryFrame[] newArray(int size) {
+          return new BinaryFrame[size];
+        }
+
+      };
 
 }
