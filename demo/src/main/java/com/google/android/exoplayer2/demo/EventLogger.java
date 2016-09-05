@@ -27,8 +27,11 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.extractor.GaplessInfo;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
+import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.GeobFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
@@ -54,7 +57,7 @@ import java.util.Locale;
 /* package */ final class EventLogger implements ExoPlayer.EventListener,
     AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
     ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
-    MappingTrackSelector.EventListener, MetadataRenderer.Output<List<Id3Frame>> {
+    MappingTrackSelector.EventListener, MetadataRenderer.Output<Metadata> {
 
   private static final String TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
@@ -173,10 +176,11 @@ import java.util.Locale;
     Log.d(TAG, "]");
   }
 
-  // MetadataRenderer.Output<List<Id3Frame>>
+  // MetadataRenderer.Output<Metadata>
 
   @Override
-  public void onMetadata(List<Id3Frame> id3Frames) {
+  public void onMetadata(Metadata metadata) {
+    List<Id3Frame> id3Frames = metadata.getFrames();
     for (Id3Frame id3Frame : id3Frames) {
       if (id3Frame instanceof TxxxFrame) {
         TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
@@ -197,9 +201,18 @@ import java.util.Locale;
         TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s", textInformationFrame.id,
             textInformationFrame.description));
+      } else if (id3Frame instanceof CommentFrame) {
+        CommentFrame commentFrame = (CommentFrame) id3Frame;
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: language=%s text=%s", commentFrame.id,
+            commentFrame.language, commentFrame.text));
       } else {
         Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
       }
+    }
+    GaplessInfo gaplessInfo = metadata.getGaplessInfo();
+    if (gaplessInfo != null) {
+      Log.i(TAG, String.format("ID3 TimedMetadata encoder delay=%d padding=%d",
+          gaplessInfo.encoderDelay, gaplessInfo.encoderPadding));
     }
   }
 
