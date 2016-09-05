@@ -414,8 +414,7 @@ import java.util.List;
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
         udtaData.setLimit(udtaData.getPosition() + atomSize);
-        parseMetaAtom(udtaData);
-        break;
+        return parseMetaAtom(udtaData);
       }
       udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
