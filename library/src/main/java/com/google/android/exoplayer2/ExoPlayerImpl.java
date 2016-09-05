@@ -51,8 +51,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private PlaybackInfo playbackInfo;
 
   // Playback information when there is a pending seek/set source operation.
-  private int maskingPeriodIndex;
-  private long maskingPositionMs;
+  private int maskingWindowIndex;
+  private long maskingWindowPositionMs;
 
   /**
    * Constructs an instance. Must be called from a thread that has an associated {@link Looper}.
@@ -138,39 +138,45 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public void seekToDefaultPosition(int windowIndex) {
     if (timeline == null) {
       // TODO: Handle seeks before the timeline is set.
-      return;
+    } else {
+      Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
+      pendingSeekAcks++;
+      maskingWindowIndex = windowIndex;
+      maskingWindowPositionMs = 0;
+      internalPlayer.seekTo(timeline.getWindow(windowIndex, window).firstPeriodIndex, C.TIME_UNSET);
     }
-    Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
-    int periodIndex = timeline.getWindow(windowIndex, window).firstPeriodIndex;
-    seekToDefaultPositionForPeriod(periodIndex);
   }
 
   @Override
   public void seekTo(long positionMs) {
-    if (timeline == null) {
-      // TODO: Handle seeks before the timeline is set.
-      return;
-    }
     seekTo(getCurrentWindowIndex(), positionMs);
   }
 
   @Override
   public void seekTo(int windowIndex, long positionMs) {
-    if (timeline == null) {
+    if (positionMs == C.TIME_UNSET) {
+      seekToDefaultPosition(windowIndex);
+    } else if (timeline == null) {
       // TODO: Handle seeks before the timeline is set.
-      return;
+    } else {
+      Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
+      pendingSeekAcks++;
+      maskingWindowIndex = windowIndex;
+      maskingWindowPositionMs = positionMs;
+      timeline.getWindow(windowIndex, window);
+      int periodIndex = window.firstPeriodIndex;
+      long periodPositionMs = window.getPositionInFirstPeriodMs() + positionMs;
+      long periodDurationMs = timeline.getPeriod(periodIndex, period).getDurationMs();
+      while (periodDurationMs != C.TIME_UNSET && periodPositionMs >= periodDurationMs
+          && periodIndex < window.lastPeriodIndex) {
+        periodPositionMs -= periodDurationMs;
+        periodDurationMs = timeline.getPeriod(++periodIndex, period).getDurationMs();
+      }
+      internalPlayer.seekTo(periodIndex, C.msToUs(periodPositionMs));
+      for (EventListener listener : listeners) {
+        listener.onPositionDiscontinuity(periodIndex, periodPositionMs);
+      }
     }
-    Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
-    timeline.getWindow(windowIndex, window);
-    int periodIndex = window.firstPeriodIndex;
-    long periodPositionMs = window.getPositionInFirstPeriodMs() + positionMs;
-    long periodDurationMs = timeline.getPeriod(periodIndex, period).getDurationMs();
-    while (periodDurationMs != C.TIME_UNSET && periodPositionMs >= periodDurationMs
-        && periodIndex < window.lastPeriodIndex) {
-      periodPositionMs -= periodDurationMs;
-      periodDurationMs = timeline.getPeriod(++periodIndex, period).getDurationMs();
-    }
-    seekInPeriod(periodIndex, periodPositionMs);
   }
 
   @Override
@@ -198,8 +204,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public int getCurrentWindowIndex() {
     if (timeline == null) {
       return C.INDEX_UNSET;
+    } else if (pendingSeekAcks > 0) {
+      return maskingWindowIndex;
+    } else {
+      return timeline.getPeriod(playbackInfo.periodIndex, period).windowIndex;
     }
-    return timeline.getPeriod(getCurrentPeriodIndex(), period).windowIndex;
   }
 
   @Override
@@ -214,9 +223,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public long getCurrentPosition() {
     if (timeline == null) {
       return C.TIME_UNSET;
+    } else if (pendingSeekAcks > 0) {
+      return maskingWindowPositionMs;
+    } else {
+      timeline.getPeriod(playbackInfo.periodIndex, period);
+      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.positionUs);
     }
-    timeline.getPeriod(getCurrentPeriodIndex(), period);
-    return period.getPositionInWindowMs() + getCurrentPositionInPeriod();
   }
 
   @Override
@@ -224,17 +236,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
     // TODO - Implement this properly.
     if (timeline == null) {
       return C.TIME_UNSET;
+    } else if (pendingSeekAcks > 0) {
+      return maskingWindowPositionMs;
+    } else {
+      int periodIndex = playbackInfo.periodIndex;
+      timeline.getPeriod(periodIndex, period);
+      int windowIndex = period.windowIndex;
+      timeline.getWindow(windowIndex, window);
+      if (window.firstPeriodIndex == periodIndex && window.lastPeriodIndex == periodIndex
+          && window.getPositionInFirstPeriodUs() == 0
+          && window.getDurationUs() == period.getDurationUs()) {
+        return C.usToMs(playbackInfo.bufferedPositionUs);
+      }
+      return getCurrentPosition();
     }
-    int periodIndex = getCurrentPeriodIndex();
-    timeline.getPeriod(periodIndex, period);
-    int windowIndex = period.windowIndex;
-    timeline.getWindow(windowIndex, window);
-    if (window.firstPeriodIndex == periodIndex && window.lastPeriodIndex == periodIndex
-        && window.getPositionInFirstPeriodUs() == 0
-        && window.getDurationUs() == period.getDurationUs()) {
-      return getBufferedPositionInPeriod();
-    }
-    return getCurrentPosition();
   }
 
   @Override
@@ -258,44 +273,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return manifest;
   }
 
-  // TODO: Remove
-  private void seekToDefaultPositionForPeriod(int periodIndex) {
-    seekInPeriod(periodIndex, C.TIME_UNSET);
-  }
-
-  // TODO: Remove
-  private void seekInPeriod(int periodIndex, long positionMs) {
-    boolean seekToDefaultPosition = positionMs == C.TIME_UNSET;
-    maskingPeriodIndex = periodIndex;
-    maskingPositionMs = seekToDefaultPosition ? 0 : positionMs;
-    pendingSeekAcks++;
-    internalPlayer.seekTo(periodIndex, seekToDefaultPosition ? C.TIME_UNSET : positionMs * 1000);
-    if (!seekToDefaultPosition) {
-      for (EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(periodIndex, positionMs);
-      }
-    }
-  }
-
-  // TODO: Remove
-  private int getCurrentPeriodIndex() {
-    return pendingSeekAcks == 0 ? playbackInfo.periodIndex : maskingPeriodIndex;
-  }
-
-  // TODO: Remove
-  private long getCurrentPositionInPeriod() {
-    return pendingSeekAcks > 0 ? maskingPositionMs : C.usToMs(playbackInfo.positionUs);
-  }
-
-  // TODO: Remove
-  private long getBufferedPositionInPeriod() {
-    if (pendingSeekAcks == 0) {
-      return C.usToMs(playbackInfo.bufferedPositionUs);
-    } else {
-      return maskingPositionMs;
-    }
-  }
-
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
@@ -317,10 +294,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           long positionMs = C.usToMs(playbackInfo.startPositionUs);
-          if (playbackInfo.periodIndex != maskingPeriodIndex || positionMs != maskingPositionMs) {
-            for (EventListener listener : listeners) {
-              listener.onPositionDiscontinuity(playbackInfo.periodIndex, positionMs);
-            }
+          for (EventListener listener : listeners) {
+            listener.onPositionDiscontinuity(playbackInfo.periodIndex, positionMs);
           }
         }
         break;
