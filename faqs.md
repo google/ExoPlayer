@@ -57,9 +57,9 @@ you should report this to the developer of the emulator rather than to the
 ExoPlayer team. Where possible, we recommend testing media applications on
 physical devices rather than emulators.
 
-[What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support?
-[How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animation/scrolling-of-video?
-[Should I use SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview?
-[Does ExoPlayer support emulators?]: #does-exoplayer-support-emulators?
+[What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
+[How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animation/scrolling-of-video
+[Should I use SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview
+[Does ExoPlayer support emulators?]: #does-exoplayer-support-emulators
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
 [`SDK_INT`]: https://developer.android.com/reference/android/os/Build.VERSION.html#SDK_INT
