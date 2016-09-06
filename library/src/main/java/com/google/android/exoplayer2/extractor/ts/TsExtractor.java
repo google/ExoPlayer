@@ -190,7 +190,11 @@ public final class TsExtractor implements Extractor {
 
     tsPacketBuffer.skipBytes(1);
     tsPacketBuffer.readBytes(tsScratch, 3);
-    tsScratch.skipBits(1); // transport_error_indicator
+    if (tsScratch.readBit()) { // transport_error_indicator
+      // There are uncorrectable errors in this packet.
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
+    }
     boolean payloadUnitStartIndicator = tsScratch.readBit();
     tsScratch.skipBits(1); // transport_priority
     int pid = tsScratch.readBits(13);
