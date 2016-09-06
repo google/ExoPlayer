@@ -281,7 +281,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setId3Output(eventLogger);
       player.setTextOutput(subtitleView);
       player.setVideoListener(this);
-      player.setVideoSurfaceHolder(surfaceView.getHolder());
+      player.setVideoSurfaceView(surfaceView);
       if (shouldRestorePosition) {
         if (playerPosition == C.TIME_UNSET) {
           player.seekToDefaultPosition(playerWindow);
