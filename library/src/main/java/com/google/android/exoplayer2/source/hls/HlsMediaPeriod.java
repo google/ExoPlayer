@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -318,10 +317,8 @@ import java.util.List;
     String baseUri = playlist.baseUri;
 
     if (playlist instanceof HlsMediaPlaylist) {
-      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
-          Format.NO_VALUE);
       HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[] {
-          new HlsMasterPlaylist.HlsUrl(playlist.baseUri, format, null)};
+          HlsMasterPlaylist.HlsUrl.createMediaPlaylistHlsUrl(playlist.baseUri)};
       sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
           null, null));
       return sampleStreamWrappers;
@@ -393,7 +390,7 @@ import java.util.List;
 
   private static boolean variantHasExplicitCodecWithPrefix(HlsMasterPlaylist.HlsUrl variant,
       String prefix) {
-    String codecs = variant.codecs;
+    String codecs = variant.format.codecs;
     if (TextUtils.isEmpty(codecs)) {
       return false;
     }

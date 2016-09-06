@@ -324,8 +324,10 @@ import java.util.LinkedList;
     }
 
     if (loadable == null) {
-      Assertions.checkState(retryInMs != C.TIME_UNSET && chunkSource.isLive());
-      callback.onContinueLoadingRequiredInMs(this, retryInMs);
+      if (retryInMs != C.TIME_UNSET) {
+        Assertions.checkState(chunkSource.isLive());
+        callback.onContinueLoadingRequiredInMs(this, retryInMs);
+      }
       return false;
     }
 

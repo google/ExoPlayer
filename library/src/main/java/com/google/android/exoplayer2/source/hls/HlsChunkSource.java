@@ -362,7 +362,7 @@ import java.util.Locale;
       }
       // This flag ensures the change of pid between streams does not affect the sample queues.
       int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
-      String codecs = variants[newVariantIndex].codecs;
+      String codecs = variants[newVariantIndex].format.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
         // exist. If we know from the codec attribute that they don't exist, then we can explicitly

@@ -62,6 +62,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String BOOLEAN_TRUE = "YES";
   private static final String BOOLEAN_FALSE = "NO";
 
+
+  private static final Pattern REGEX_GROUP_ID = Pattern.compile("GROUP-ID=\"(.+?)\"");
+  private static final Pattern REGEX_VIDEO = Pattern.compile("VIDEO=\"(.+?)\"");
+  private static final Pattern REGEX_AUDIO = Pattern.compile("AUDIO=\"(.+?)\"");
+  private static final Pattern REGEX_CLOSED_CAPTIONS = Pattern.compile("CLOSED-CAPTIONS=\"(.+?)\"");
+  private static final Pattern REGEX_SUBTITLES = Pattern.compile("SUBTITLES=\"(.+?)\"");
   private static final Pattern REGEX_BANDWIDTH = Pattern.compile("BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
@@ -125,99 +131,80 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<HlsMasterPlaylist.HlsUrl> variants = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
-    int bitrate = 0;
-    String codecs = null;
-    int width = Format.NO_VALUE;
-    int height = Format.NO_VALUE;
-    String name = null;
     Format muxedAudioFormat = null;
     Format muxedCaptionFormat = null;
 
-    boolean expectingStreamInfUrl = false;
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
       if (line.startsWith(TAG_MEDIA)) {
-        boolean isDefault = parseBooleanAttribute(line, REGEX_DEFAULT, false);
-        boolean isForced = parseBooleanAttribute(line, REGEX_FORCED, false);
-        boolean isAutoselect = parseBooleanAttribute(line, REGEX_AUTOSELECT,
-            false);
-        int selectionFlags = (isDefault ? Format.SELECTION_FLAG_DEFAULT : 0)
-            | (isForced ? Format.SELECTION_FLAG_FORCED : 0)
-            | (isAutoselect ? Format.SELECTION_FLAG_AUTOSELECT : 0);
-        String type = parseStringAttr(line, REGEX_TYPE);
-        if (TYPE_CLOSED_CAPTIONS.equals(type)) {
-          String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID);
-          if ("CC1".equals(instreamId)) {
-            // We assume all subtitles belong to the same group.
-            String captionName = parseStringAttr(line, REGEX_NAME);
-            String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
-            muxedCaptionFormat = Format.createTextContainerFormat(captionName,
-                MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE,
-                selectionFlags, language);
-          }
-        } else if (TYPE_SUBTITLES.equals(type)) {
-          // We assume all subtitles belong to the same group.
-          String subtitleName = parseStringAttr(line, REGEX_NAME);
-          String uri = parseStringAttr(line, REGEX_URI);
-          String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
-          Format format = Format.createTextContainerFormat(subtitleName, MimeTypes.APPLICATION_M3U8,
-              MimeTypes.TEXT_VTT, null, bitrate, selectionFlags, language);
-          subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format, codecs));
-        } else if (TYPE_AUDIO.equals(type)) {
-          // We assume all audios belong to the same group.
-          String uri = parseOptionalStringAttr(line, REGEX_URI);
-          String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
-          String audioName = parseStringAttr(line, REGEX_NAME);
-          int audioBitrate = uri != null ? bitrate : Format.NO_VALUE;
-          Format format = Format.createAudioContainerFormat(audioName, MimeTypes.APPLICATION_M3U8,
-              null, null, audioBitrate, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
-              language);
-          if (uri != null) {
-            audios.add(new HlsMasterPlaylist.HlsUrl(uri, format, codecs));
-          } else {
-            muxedAudioFormat = format;
-          }
+        int selectionFlags = parseSelectionFlags(line);
+        String uri = parseOptionalStringAttr(line, REGEX_URI);
+        String name = parseStringAttr(line, REGEX_NAME);
+        String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
+        Format format;
+        switch (parseStringAttr(line, REGEX_TYPE)) {
+          case TYPE_AUDIO:
+             format = Format.createAudioContainerFormat(name, MimeTypes.APPLICATION_M3U8,
+                null, null, Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
+                language);
+            if (uri == null) {
+              muxedAudioFormat = format;
+            } else {
+              audios.add(new HlsMasterPlaylist.HlsUrl(name, uri, format, null, format, null));
+            }
+            break;
+          case TYPE_SUBTITLES:
+            format = Format.createTextContainerFormat(name, MimeTypes.APPLICATION_M3U8,
+                MimeTypes.TEXT_VTT, null, Format.NO_VALUE, selectionFlags, language);
+            subtitles.add(new HlsMasterPlaylist.HlsUrl(name, uri, format, null, format, null));
+            break;
+          case TYPE_CLOSED_CAPTIONS:
+            if ("CC1".equals(parseOptionalStringAttr(line, REGEX_INSTREAM_ID))) {
+              muxedCaptionFormat = Format.createTextContainerFormat(name,
+                  MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE,
+                  selectionFlags, language);
+            }
+            break;
+          default:
+            // Do nothing.
+            break;
         }
       } else if (line.startsWith(TAG_STREAM_INF)) {
-        bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
-        codecs = parseOptionalStringAttr(line, REGEX_CODECS);
-        name = parseOptionalStringAttr(line, REGEX_NAME);
+        int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
+        String codecs = parseOptionalStringAttr(line, REGEX_CODECS);
         String resolutionString = parseOptionalStringAttr(line, REGEX_RESOLUTION);
+        int width;
+        int height;
         if (resolutionString != null) {
           String[] widthAndHeight = resolutionString.split("x");
           width = Integer.parseInt(widthAndHeight[0]);
-          if (width <= 0) {
-            // Width was invalid.
-            width = Format.NO_VALUE;
-          }
           height = Integer.parseInt(widthAndHeight[1]);
-          if (height <= 0) {
-            // Height was invalid.
+          if (width <= 0 || height <= 0) {
+            // Resolution string is invalid.
+            width = Format.NO_VALUE;
             height = Format.NO_VALUE;
           }
         } else {
           width = Format.NO_VALUE;
           height = Format.NO_VALUE;
         }
-        expectingStreamInfUrl = true;
-      } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        if (name == null) {
-          name = Integer.toString(variants.size());
-        }
+        line = iterator.next();
+        String name = Integer.toString(variants.size());
         Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
-            null, bitrate, width, height, Format.NO_VALUE, null);
-        variants.add(new HlsMasterPlaylist.HlsUrl(line, format, codecs));
-        bitrate = 0;
-        codecs = null;
-        name = null;
-        width = Format.NO_VALUE;
-        height = Format.NO_VALUE;
-        expectingStreamInfUrl = false;
+            codecs, bitrate, width, height, Format.NO_VALUE, null);
+        variants.add(new HlsMasterPlaylist.HlsUrl(name, line, format, null, null, null));
       }
     }
     return new HlsMasterPlaylist(baseUri, variants, audios, subtitles, muxedAudioFormat,
         muxedCaptionFormat);
+  }
+
+  private static int parseSelectionFlags(String line) {
+    return (parseBooleanAttribute(line, REGEX_DEFAULT, false) ? Format.SELECTION_FLAG_DEFAULT : 0)
+        | (parseBooleanAttribute(line, REGEX_FORCED, false) ? Format.SELECTION_FLAG_FORCED : 0)
+        | (parseBooleanAttribute(line, REGEX_AUTOSELECT, false) ? Format.SELECTION_FLAG_AUTOSELECT
+        : 0);
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
