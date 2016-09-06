@@ -182,7 +182,9 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    periodsById.remove(((DashMediaPeriod) mediaPeriod).id);
+    DashMediaPeriod dashMediaPeriod = (DashMediaPeriod) mediaPeriod;
+    dashMediaPeriod.release();
+    periodsById.remove(dashMediaPeriod.id);
   }
 
   @Override

@@ -626,12 +626,12 @@ import java.io.IOException;
       }
     }
     enabledRenderers = new Renderer[0];
+    releasePeriodHoldersFrom(playingPeriodHolder != null ? playingPeriodHolder
+        : loadingPeriodHolder);
     if (mediaSource != null) {
       mediaSource.releaseSource();
       mediaSource = null;
     }
-    releasePeriodHoldersFrom(playingPeriodHolder != null ? playingPeriodHolder
-        : loadingPeriodHolder);
     isTimelineReady = false;
     isTimelineEnded = false;
     playingPeriodHolder = null;

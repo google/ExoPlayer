@@ -91,6 +91,12 @@ import java.util.List;
     }
   }
 
+  public void release() {
+    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+      sampleStream.release();
+    }
+  }
+
   @Override
   public void maybeThrowPrepareError() throws IOException {
     manifestLoaderErrorThrower.maybeThrowError();
