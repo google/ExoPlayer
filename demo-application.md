@@ -19,7 +19,7 @@ how to use it to play your own media.
 ## Getting the code ##
 
 The source code for the demo app can be found in the `demo` folder of our
-[GitHub project][]]. If you haven't already done so, clone the project into a
+[GitHub project][]. If you haven't already done so, clone the project into a
 local directory:
 
 {% highlight shell %}
