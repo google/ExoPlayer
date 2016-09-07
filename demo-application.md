@@ -29,7 +29,7 @@ git clone https://github.com/google/ExoPlayer.git
 Next, open the project in Android Studio. You should see the following in the
 Android Project view (the relevant folders of the demo app have been expanded):
 
-{% include figure.html url="/images/demo-app-project.png" index="1" caption="The project in Android Studio project view" %}
+{% include figure.html url="/images/demo-app-project.png" index="1" caption="The project in Android Studio" %}
 
 ## Compiling and running ##
 
@@ -189,5 +189,5 @@ Supported optional extras for a playlist intent are:
 * `drm_scheme_uuid`, `drm_license_url` and `prefer_extension_decoders`, all as
   described above
 
-[`GitHub project`]: https://github.com/google/ExoPlayer
-[`FAQ - Does ExoPlayer support emulators?`]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators
+[GitHub project]: https://github.com/google/ExoPlayer
+[FAQ - Does ExoPlayer support emulators?]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators
