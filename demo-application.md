@@ -89,9 +89,9 @@ app. The schema for samples is:
       {
         "name": "Name of sample",
         "uri": "The URI/URL of the sample",
-        "extension": "[Optional] Sample type hint. Valid values: mpd, ism, m3u8"
-        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders to platform ones"
-        "drm_scheme": "[Optional] Drm scheme if protected. Valid values: widevine, playready"
+        "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8",
+        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders",
+        "drm_scheme": "[Optional] Drm scheme if protected. Values: widevine, playready",
         "drm_license_url": "[Optional] URL of the license server if protected"
       },
       ...etc
@@ -110,17 +110,17 @@ Playlists of samples can also be added using the schema:
     "samples": [
       {
         "name": "Name of playlist sample",
-        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders to platform ones"
-        "drm_scheme": "[Optional] Drm scheme if protected. Valid values: widevine, playready"
-        "drm_license_url": "[Optional] URL of the license server if protected"
+        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders",
+        "drm_scheme": "[Optional] Drm scheme if protected. Values: widevine, playready",
+        "drm_license_url": "[Optional] URL of the license server if protected",
         "playlist": [
           {
             "uri": "The URI/URL of the first sample in the playlist",
-            "extension": "[Optional] Sample type hint. Valid values: mpd, ism, m3u8"
+            "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8"
           },
           {
             "uri": "The URI/URL of the first sample in the playlist",
-            "extension": "[Optional] Sample type hint. Valid values: mpd, ism, m3u8"
+            "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8"
           },
           ...etc
         ]
