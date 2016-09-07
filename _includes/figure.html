@@ -1,4 +1,8 @@
 <figure align="center">
-    <img src="{{ site.baseurl }}{{ include.url }}" alt="{{ include.caption }}" />
+    <img src="{{ site.baseurl }}{{ include.url }}" alt="{{ include.caption }}"
+      {% if include.scale %}
+        width="{{ include.scale }}" height="{{ include.scale }}"
+      {% endif %}
+    />
     <figcaption><strong>Figure {{ include.index }}.</strong> {{ include.caption }}</figcaption>
 </figure>
