@@ -334,6 +334,32 @@ public final class TsExtractor implements Extractor {
     private int sectionBytesRead;
     private int crc;
 
+    private static final int TS_PMT_DESC_REGISTRATION = 0x05;
+    private static final int TS_PMT_DESC_ISO639_LANG  = 0x0A;
+    private static final int TS_PMT_DESC_VBI_DATA     = 0x45;
+    private static final int TS_PMT_DESC_VBI_TELETEXT = 0x46;
+    private static final int TS_PMT_DESC_TELETEXT     = 0x56;
+    private static final int TS_PMT_DESC_SUBTITLING   = 0x59;
+    private static final int TS_PMT_DESC_AC3          = 0x6A;
+    private static final int TS_PMT_DESC_EAC3         = 0x7A;
+    private static final int TS_PMT_DESC_DTS          = 0x7B;
+    private static final int TS_PMT_DESC_AAC          = 0x7C;
+
+    class EsInfo {
+      int streamType;
+      String streamLanguage;
+      int audioType;
+
+      public EsInfo() {
+        // REGISTRATION
+        streamType = -1;
+
+        // ISO639LANG
+        streamLanguage = null;
+        audioType = -1;
+      }
+    }
+
     public PmtReader() {
       pmtScratch = new ParsableBitArray(new byte[5]);
       sectionData = new ParsableByteArray();
@@ -404,11 +430,9 @@ public final class TsExtractor implements Extractor {
         int elementaryPid = pmtScratch.readBits(13);
         pmtScratch.skipBits(4); // reserved
         int esInfoLength = pmtScratch.readBits(12); // ES_info_length
+        EsInfo esInfo = readEsInfo(sectionData, esInfoLength);
         if (streamType == 0x06) {
-          // Read descriptors in PES packets containing private data.
-          streamType = readPrivateDataStreamType(sectionData, esInfoLength);
-        } else {
-          sectionData.skipBytes(esInfoLength);
+          streamType = esInfo.streamType;
         }
         remainingEntriesLength -= esInfoLength + 5;
         int trackId = (workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 ? streamType : elementaryPid;
@@ -418,22 +442,22 @@ public final class TsExtractor implements Extractor {
         ElementaryStreamReader pesPayloadReader;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
-            pesPayloadReader = new MpegAudioReader(output.track(trackId));
+            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.streamLanguage);
             break;
           case TS_STREAM_TYPE_MPA_LSF:
-            pesPayloadReader = new MpegAudioReader(output.track(trackId));
+            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.streamLanguage);
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_AAC_STREAM) != 0 ? null
-                : new AdtsReader(output.track(trackId), new DummyTrackOutput());
+                : new AdtsReader(output.track(trackId), new DummyTrackOutput(), esInfo.streamLanguage);
             break;
           case TS_STREAM_TYPE_AC3:
           case TS_STREAM_TYPE_E_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(trackId));
+            pesPayloadReader = new Ac3Reader(output.track(trackId), esInfo.streamLanguage);
             break;
           case TS_STREAM_TYPE_DTS:
           case TS_STREAM_TYPE_HDMV_DTS:
-            pesPayloadReader = new DtsReader(output.track(trackId));
+            pesPayloadReader = new DtsReader(output.track(trackId), esInfo.streamLanguage);
             break;
           case TS_STREAM_TYPE_H262:
             pesPayloadReader = new H262Reader(output.track(trackId));
@@ -472,42 +496,45 @@ public final class TsExtractor implements Extractor {
     }
 
     /**
-     * Returns the stream type read from a registration descriptor in private data, or -1 if no
-     * stream type is present. Sets {@code data}'s position to the end of the descriptors.
+     * Returns the stream info read from the available descriptors, or -1 if no
+     * descriptors are present. Sets {@code data}'s position to the end of the descriptors.
      *
      * @param data A buffer with its position set to the start of the first descriptor.
      * @param length The length of descriptors to read from the current position in {@code data}.
-     * @return The stream type read from a registration descriptor in private data, or -1 if no
-     *     stream type is present.
+     * @return The stream info read from the available descriptors, or -1 if no
+     *     descriptors are present.
      */
-    private int readPrivateDataStreamType(ParsableByteArray data, int length) {
-      int streamType = -1;
+    private EsInfo readEsInfo(ParsableByteArray data, int length) {
+      EsInfo esInfo = new EsInfo();
       int descriptorsEndPosition = data.getPosition() + length;
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
-        if (descriptorTag == 0x05) { // registration_descriptor
+        if (descriptorTag == TS_PMT_DESC_REGISTRATION) { // registration_descriptor
           long formatIdentifier = data.readUnsignedInt();
           if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
-            streamType = TS_STREAM_TYPE_AC3;
+            esInfo.streamType = TS_STREAM_TYPE_AC3;
           } else if (formatIdentifier == E_AC3_FORMAT_IDENTIFIER) {
-            streamType = TS_STREAM_TYPE_E_AC3;
+            esInfo.streamType = TS_STREAM_TYPE_E_AC3;
           } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
-            streamType = TS_STREAM_TYPE_H265;
+            esInfo.streamType = TS_STREAM_TYPE_H265;
           }
           break;
-        } else if (descriptorTag == 0x6A) { // AC-3_descriptor in DVB (ETSI EN 300 468)
-          streamType = TS_STREAM_TYPE_AC3;
-        } else if (descriptorTag == 0x7A) { // enhanced_AC-3_descriptor
-          streamType = TS_STREAM_TYPE_E_AC3;
-        } else if (descriptorTag == 0x7B) { // DTS_descriptor
-          streamType = TS_STREAM_TYPE_DTS;
+        } else if (descriptorTag == TS_PMT_DESC_AC3) { // AC-3_descriptor in DVB (ETSI EN 300 468)
+          esInfo.streamType = TS_STREAM_TYPE_AC3;
+        } else if (descriptorTag == TS_PMT_DESC_EAC3) { // enhanced_AC-3_descriptor
+          esInfo.streamType = TS_STREAM_TYPE_E_AC3;
+        } else if (descriptorTag == TS_PMT_DESC_DTS) { // DTS_descriptor
+          esInfo.streamType = TS_STREAM_TYPE_DTS;
+        } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
+          esInfo.streamLanguage = new String(data.data, data.getPosition(), 3).trim();
+          esInfo.audioType = data.data[data.getPosition() + 3];
         }
 
         data.skipBytes(descriptorLength);
       }
       data.setPosition(descriptorsEndPosition);
-      return streamType;
+      return esInfo;
     }
 
   }

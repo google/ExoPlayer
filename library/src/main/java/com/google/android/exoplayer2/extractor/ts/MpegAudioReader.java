@@ -32,6 +32,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private static final int HEADER_SIZE = 4;
 
+  private String language;
+
   private final ParsableByteArray headerScratch;
   private final MpegAudioHeader header;
 
@@ -50,12 +52,17 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private long timeUs;
 
   public MpegAudioReader(TrackOutput output) {
+    this(output, null);
+  }
+
+  public MpegAudioReader(TrackOutput output, String language) {
     super(output);
     state = STATE_FINDING_HEADER;
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
     headerScratch.data[0] = (byte) 0xFF;
     header = new MpegAudioHeader();
+    this.language = language;
   }
 
   @Override
@@ -164,7 +171,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
       Format format = Format.createAudioSampleFormat(null, header.mimeType, null, Format.NO_VALUE,
           MpegAudioHeader.MAX_FRAME_SIZE_BYTES, header.channels, header.sampleRate, null, null, 0,
-          null);
+          language);
       output.format(format);
       hasOutputFormat = true;
     }
