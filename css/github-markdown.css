@@ -15,3 +15,7 @@
   margin: 0 auto;
   padding: 30px;
 }
+
+.markdown-body hr {
+  height: 1px;
+}
