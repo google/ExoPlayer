@@ -19,7 +19,7 @@ how to use it to play your own media.
 ## Getting the code ##
 
 The source code for the demo app can be found in the `demo` folder of our
-[GitHub project][]]. If you haven't already done so, clone the project into a
+[GitHub project][]. If you haven't already done so, clone the project into a
 local directory:
 
 {% highlight shell %}
@@ -29,7 +29,7 @@ git clone https://github.com/google/ExoPlayer.git
 Next, open the project in Android Studio. You should see the following in the
 Android Project view (the relevant folders of the demo app have been expanded):
 
-{% include figure.html url="/images/demo-app-project.png" index="1" caption="The project in Android Studio project view" %}
+{% include figure.html url="/images/demo-app-project.png" index="1" caption="The project in Android Studio" %}
 
 ## Compiling and running ##
 
@@ -89,9 +89,9 @@ app. The schema for samples is:
       {
         "name": "Name of sample",
         "uri": "The URI/URL of the sample",
-        "extension": "[Optional] Sample type hint. Valid values: mpd, ism, m3u8"
-        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders to platform ones"
-        "drm_scheme": "[Optional] Drm scheme if protected. Valid values: widevine, playready"
+        "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8",
+        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders",
+        "drm_scheme": "[Optional] Drm scheme if protected. Values: widevine, playready",
         "drm_license_url": "[Optional] URL of the license server if protected"
       },
       ...etc
@@ -110,17 +110,17 @@ Playlists of samples can also be added using the schema:
     "samples": [
       {
         "name": "Name of playlist sample",
-        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders to platform ones"
-        "drm_scheme": "[Optional] Drm scheme if protected. Valid values: widevine, playready"
-        "drm_license_url": "[Optional] URL of the license server if protected"
+        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders",
+        "drm_scheme": "[Optional] Drm scheme if protected. Values: widevine, playready",
+        "drm_license_url": "[Optional] URL of the license server if protected",
         "playlist": [
           {
             "uri": "The URI/URL of the first sample in the playlist",
-            "extension": "[Optional] Sample type hint. Valid values: mpd, ism, m3u8"
+            "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8"
           },
           {
             "uri": "The URI/URL of the first sample in the playlist",
-            "extension": "[Optional] Sample type hint. Valid values: mpd, ism, m3u8"
+            "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8"
           },
           ...etc
         ]
@@ -143,8 +143,8 @@ demo app using:
 adb shell am start -d https://yourdomain.com/samples.exolist.json
 {% endhighlight %}
 
-Clicking a `*.exolist.json` link on a device with the demo app installed (e.g.
-in the browser or an email client) will also open it in the demo app. Hence
+Clicking a `*.exolist.json` link (e.g. in the browser or an email client) on a
+device with the demo app installed will also open it in the demo app. Hence
 hosting a `*.exolist.json` JSON file provides a simple way of distributing
 content for others to try in the demo app.
 
@@ -189,5 +189,5 @@ Supported optional extras for a playlist intent are:
 * `drm_scheme_uuid`, `drm_license_url` and `prefer_extension_decoders`, all as
   described above
 
-[`GitHub project`]: https://github.com/google/ExoPlayer
-[`FAQ - Does ExoPlayer support emulators?`]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators
+[GitHub project]: https://github.com/google/ExoPlayer
+[FAQ - Does ExoPlayer support emulators?]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators

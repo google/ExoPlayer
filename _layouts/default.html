@@ -33,7 +33,7 @@
             <ul class="pure-menu-list">
               {% assign pages = site.pages | sort:"weight"  %}
               {% for node in pages %}
-                {% unless page.exclude_from_menu %}
+                {% unless node.exclude_from_menu %}
                   {% if page.url == node.url %}
                     <li class="pure-menu-item pure-menu-selected"><a href="{{ site.baseurl }}{{ node.url }}" class="pure-menu-link">{{ node.title }}</a></li>
                   {% else %}
