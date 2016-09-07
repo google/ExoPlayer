@@ -6,7 +6,7 @@ exclude_from_menu: true
 ---
 
 {% include infobox.html content="This guide is for ExoPlayer 1.x, which is now deprecated.
-this is a test" %}
+The latest developer guide can be found <a href="guide.html">here</a>" %}
 
 <div id="table-of-contents">
 <div id="table-of-contents-header">Contents</div>
