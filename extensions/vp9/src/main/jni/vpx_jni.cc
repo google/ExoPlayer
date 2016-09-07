@@ -60,7 +60,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
 FUNC(jlong, vpxInit) {
   vpx_codec_ctx_t* context = new vpx_codec_ctx_t();
-  vpx_codec_dec_cfg_t cfg = {0};
+  vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
   if (vpx_codec_dec_init(context, &vpx_codec_vp9_dx_algo, &cfg, 0)) {
     LOGE("ERROR: Fail to initialize libvpx decoder.");
