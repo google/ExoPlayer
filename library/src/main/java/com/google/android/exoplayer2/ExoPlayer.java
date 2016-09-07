@@ -144,15 +144,12 @@ public interface ExoPlayer {
      */
     void onPlayerError(ExoPlaybackException error);
 
-    // TODO: Should be windowIndex and position in the window.
     /**
-     * Called when the player's position changes due to a discontinuity (i.e. due to seeking,
-     * playback transitioning to the next window, or a source induced discontinuity).
-     *
-     * @param periodIndex The index of the period being played.
-     * @param positionMs The playback position in that period, in milliseconds.
+     * Called when a position discontinuity occurs. Position discontinuities occur when seeks are
+     * performed, when playbacks transition from one period in the timeline to the next, and when
+     * the player introduces discontinuities internally.
      */
-    void onPositionDiscontinuity(int periodIndex, long positionMs);
+    void onPositionDiscontinuity();
 
   }
 
@@ -309,17 +306,17 @@ public interface ExoPlayer {
   /**
    * Seeks to a position specified in milliseconds in the current window.
    *
-   * @param positionMs The seek position.
+   * @param windowPositionMs The seek position in the current window.
    */
-  void seekTo(long positionMs);
+  void seekTo(long windowPositionMs);
 
   /**
    * Seeks to a position specified in milliseconds in the specified window.
    *
    * @param windowIndex The index of the window.
-   * @param positionMs The seek position relative to the start of the window.
+   * @param windowPositionMs The seek position in the specified window.
    */
-  void seekTo(int windowIndex, long positionMs);
+  void seekTo(int windowIndex, long windowPositionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -357,19 +354,23 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
-   * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
-   */
-  Timeline getCurrentTimeline();
-
-  /**
    * Returns the current manifest. The type depends on the {@link MediaSource} passed to
    * {@link #prepare}.
    */
   Object getCurrentManifest();
 
   /**
-   * Returns the index of the window associated with the current period, or {@link C#INDEX_UNSET} if
-   * the timeline is not set.
+   * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
+   */
+  Timeline getCurrentTimeline();
+
+  /**
+   * Returns the index of the period currently being played, or {@link C#INDEX_UNSET} if unknown.
+   */
+  int getCurrentPeriodIndex();
+
+  /**
+   * Returns the index of the window currently being played.
    */
   int getCurrentWindowIndex();
 
@@ -380,14 +381,13 @@ public interface ExoPlayer {
   long getDuration();
 
   /**
-   * Returns the playback position in the current window, in milliseconds, or {@link C#TIME_UNSET}
-   * if the timeline is not set.
+   * Returns the playback position in the current window, in milliseconds.
    */
   long getCurrentPosition();
 
   /**
-   * Returns an estimate of the position in the current window up to which data is buffered, or
-   * {@link C#TIME_UNSET} if no estimate is available.
+   * Returns an estimate of the position in the current window up to which data is buffered, in
+   * milliseconds.
    */
   long getBufferedPosition();
 

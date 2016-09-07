@@ -427,7 +427,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
   }
 
   @Override
-  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
+  public void onPositionDiscontinuity() {
     if (mediaController.isShowing()) {
       // The MediaController is visible, so force it to show the updated position immediately.
       mediaController.show();

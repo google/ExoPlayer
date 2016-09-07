@@ -210,7 +210,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public final void onPositionDiscontinuity(int periodIndex, long positionMs) {
+  public final void onPositionDiscontinuity() {
     // Do nothing.
   }
 

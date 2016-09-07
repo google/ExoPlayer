@@ -84,7 +84,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
-  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
+  public void onPositionDiscontinuity() {
     updateAndPost();
   }
 

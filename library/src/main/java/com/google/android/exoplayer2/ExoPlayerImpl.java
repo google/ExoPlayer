@@ -40,6 +40,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Timeline.Window window;
   private final Timeline.Period period;
 
+  private boolean pendingInitialSeek;
   private boolean playWhenReady;
   private int playbackState;
   private int pendingSeekAcks;
@@ -137,7 +138,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public void seekToDefaultPosition(int windowIndex) {
     if (timeline == null) {
-      // TODO: Handle seeks before the timeline is set.
+      maskingWindowIndex = windowIndex;
+      maskingWindowPositionMs = C.TIME_UNSET;
+      pendingInitialSeek = true;
     } else {
       Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
       pendingSeekAcks++;
@@ -157,7 +160,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (positionMs == C.TIME_UNSET) {
       seekToDefaultPosition(windowIndex);
     } else if (timeline == null) {
-      // TODO: Handle seeks before the timeline is set.
+      maskingWindowIndex = windowIndex;
+      maskingWindowPositionMs = positionMs;
+      pendingInitialSeek = true;
     } else {
       Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
       pendingSeekAcks++;
@@ -174,7 +179,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       internalPlayer.seekTo(periodIndex, C.msToUs(periodPositionMs));
       for (EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(periodIndex, periodPositionMs);
+        listener.onPositionDiscontinuity();
       }
     }
   }
@@ -201,10 +206,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public int getCurrentPeriodIndex() {
+    return playbackInfo.periodIndex;
+  }
+
+  @Override
   public int getCurrentWindowIndex() {
-    if (timeline == null) {
-      return C.INDEX_UNSET;
-    } else if (pendingSeekAcks > 0) {
+    if (timeline == null || pendingSeekAcks > 0) {
       return maskingWindowIndex;
     } else {
       return timeline.getPeriod(playbackInfo.periodIndex, period).windowIndex;
@@ -221,9 +229,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getCurrentPosition() {
-    if (timeline == null) {
-      return C.TIME_UNSET;
-    } else if (pendingSeekAcks > 0) {
+    if (timeline == null || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
       timeline.getPeriod(playbackInfo.periodIndex, period);
@@ -234,9 +240,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public long getBufferedPosition() {
     // TODO - Implement this properly.
-    if (timeline == null) {
-      return C.TIME_UNSET;
-    } else if (pendingSeekAcks > 0) {
+    if (timeline == null || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
       int periodIndex = playbackInfo.periodIndex;
@@ -293,9 +297,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          long positionMs = C.usToMs(playbackInfo.startPositionUs);
           for (EventListener listener : listeners) {
-            listener.onPositionDiscontinuity(playbackInfo.periodIndex, positionMs);
+            listener.onPositionDiscontinuity();
           }
         }
         break;
@@ -303,9 +306,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_POSITION_DISCONTINUITY: {
         if (pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          long positionMs = C.usToMs(playbackInfo.startPositionUs);
           for (EventListener listener : listeners) {
-            listener.onPositionDiscontinuity(playbackInfo.periodIndex, positionMs);
+            listener.onPositionDiscontinuity();
           }
         }
         break;
@@ -315,6 +317,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
         Pair<Timeline, Object> timelineAndManifest = (Pair<Timeline, Object>) msg.obj;
         timeline = timelineAndManifest.first;
         manifest = timelineAndManifest.second;
+        if (pendingInitialSeek) {
+          pendingInitialSeek = false;
+          seekTo(maskingWindowIndex, maskingWindowPositionMs);
+        }
         for (EventListener listener : listeners) {
           listener.onTimelineChanged(timeline, manifest);
         }

@@ -461,6 +461,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public int getCurrentPeriodIndex() {
+    return player.getCurrentPeriodIndex();
+  }
+
+  @Override
   public int getCurrentWindowIndex() {
     return player.getCurrentWindowIndex();
   }

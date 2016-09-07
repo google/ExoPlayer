@@ -90,8 +90,8 @@ import java.util.Locale;
   }
 
   @Override
-  public void onPositionDiscontinuity(int periodIndex, long positionMs) {
-    Log.d(TAG, "discontinuity [" + periodIndex + ", " + positionMs + "]");
+  public void onPositionDiscontinuity() {
+    Log.d(TAG, "positionDiscontinuity");
   }
 
   @Override
