@@ -39,7 +39,7 @@ We recommend using a physical device if possible. If you wish to use an emulator
 instead, please read [FAQ - Does ExoPlayer support emulators?][] and ensure
 that your Virtual Device uses a system image with an API level of at least 23.
 
-{% include figure.html url="/images/demo-app-screenshots.png" index="2" caption="SampleChooserActivity and PlayerActivity" scale="50%" %}
+{% include figure.html url="/images/demo-app-screenshots.png" index="2" caption="SampleChooserActivity and PlayerActivity" %}
 
 The demo app presents of a list of samples (`SampleChooserActivity`). Selecting
 a sample will open a second activity (`PlayerActivity`) for playback. The demo
