@@ -80,7 +80,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     /**
      * Called when a frame is rendered for the first time since setting the surface, and when a
-     * frame is rendered for the first time since video was enabled.
+     * frame is rendered for the first time since the renderer was reset.
      *
      * @param surface The {@link Surface} to which a first frame has been rendered.
      */
