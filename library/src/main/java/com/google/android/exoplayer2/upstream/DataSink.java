@@ -23,6 +23,18 @@ import java.io.IOException;
 public interface DataSink {
 
   /**
+   * A factory for {@link DataSink} instances.
+   */
+  interface Factory {
+
+    /**
+     * Creates a {@link DataSink} instance.
+     */
+    DataSink createDataSink();
+
+  }
+
+  /**
    * Opens the sink to consume the specified data.
    *
    * @param dataSpec Defines the data to be consumed.
