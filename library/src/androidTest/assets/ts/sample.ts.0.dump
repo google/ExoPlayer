@@ -54,7 +54,7 @@ track 257:
     encoderPadding = -1
     subsampleOffsetUs = 9223372036854775807
     selectionFlags = 0
-    language = null
+    language = und
     drmInitData = -
     initializationData:
   sample count = 4
