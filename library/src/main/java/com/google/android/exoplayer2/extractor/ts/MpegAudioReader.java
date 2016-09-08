@@ -32,10 +32,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private static final int HEADER_SIZE = 4;
 
-  private String language;
-
   private final ParsableByteArray headerScratch;
   private final MpegAudioHeader header;
+  private final String language;
 
   private int state;
   private int frameBytesRead;

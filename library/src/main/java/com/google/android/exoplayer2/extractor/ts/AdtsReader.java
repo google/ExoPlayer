@@ -42,8 +42,6 @@ import java.util.Collections;
   private static final int HEADER_SIZE = 5;
   private static final int CRC_SIZE = 2;
 
-  private String language;
-
   // Match states used while looking for the next sample
   private static final int MATCH_STATE_VALUE_SHIFT = 8;
   private static final int MATCH_STATE_START = 1 << MATCH_STATE_VALUE_SHIFT;
@@ -58,6 +56,7 @@ import java.util.Collections;
   private final ParsableBitArray adtsScratch;
   private final ParsableByteArray id3HeaderBuffer;
   private final TrackOutput id3Output;
+  private final String language;
 
   private int state;
   private int bytesRead;

@@ -327,6 +327,12 @@ public final class TsExtractor implements Extractor {
    */
   private class PmtReader extends TsPayloadReader {
 
+    private static final int TS_PMT_DESC_REGISTRATION = 0x05;
+    private static final int TS_PMT_DESC_ISO639_LANG = 0x0A;
+    private static final int TS_PMT_DESC_AC3 = 0x6A;
+    private static final int TS_PMT_DESC_EAC3 = 0x7A;
+    private static final int TS_PMT_DESC_DTS = 0x7B;
+
     private final ParsableBitArray pmtScratch;
     private final ParsableByteArray sectionData;
 
@@ -334,30 +340,18 @@ public final class TsExtractor implements Extractor {
     private int sectionBytesRead;
     private int crc;
 
-    private static final int TS_PMT_DESC_REGISTRATION = 0x05;
-    private static final int TS_PMT_DESC_ISO639_LANG  = 0x0A;
-    private static final int TS_PMT_DESC_VBI_DATA     = 0x45;
-    private static final int TS_PMT_DESC_VBI_TELETEXT = 0x46;
-    private static final int TS_PMT_DESC_TELETEXT     = 0x56;
-    private static final int TS_PMT_DESC_SUBTITLING   = 0x59;
-    private static final int TS_PMT_DESC_AC3          = 0x6A;
-    private static final int TS_PMT_DESC_EAC3         = 0x7A;
-    private static final int TS_PMT_DESC_DTS          = 0x7B;
-    private static final int TS_PMT_DESC_AAC          = 0x7C;
+    private final class EsInfo {
 
-    class EsInfo {
-      int streamType;
-      String streamLanguage;
-      int audioType;
+      final int streamType;
+      final int audioType;
+      final String language;
 
-      public EsInfo() {
-        // REGISTRATION
-        streamType = -1;
-
-        // ISO639LANG
-        streamLanguage = null;
-        audioType = -1;
+      public EsInfo(int streamType, int audioType, String language) {
+        this.streamType = streamType;
+        this.audioType = audioType;
+        this.language = language;
       }
+
     }
 
     public PmtReader() {
@@ -442,22 +436,22 @@ public final class TsExtractor implements Extractor {
         ElementaryStreamReader pesPayloadReader;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
-            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.streamLanguage);
+            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.language);
             break;
           case TS_STREAM_TYPE_MPA_LSF:
-            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.streamLanguage);
+            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.language);
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_AAC_STREAM) != 0 ? null
-                : new AdtsReader(output.track(trackId), new DummyTrackOutput(), esInfo.streamLanguage);
+                : new AdtsReader(output.track(trackId), new DummyTrackOutput(), esInfo.language);
             break;
           case TS_STREAM_TYPE_AC3:
           case TS_STREAM_TYPE_E_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(trackId), esInfo.streamLanguage);
+            pesPayloadReader = new Ac3Reader(output.track(trackId), esInfo.language);
             break;
           case TS_STREAM_TYPE_DTS:
           case TS_STREAM_TYPE_HDMV_DTS:
-            pesPayloadReader = new DtsReader(output.track(trackId), esInfo.streamLanguage);
+            pesPayloadReader = new DtsReader(output.track(trackId), esInfo.language);
             break;
           case TS_STREAM_TYPE_H262:
             pesPayloadReader = new H262Reader(output.track(trackId));
@@ -505,36 +499,38 @@ public final class TsExtractor implements Extractor {
      *     descriptors are present.
      */
     private EsInfo readEsInfo(ParsableByteArray data, int length) {
-      EsInfo esInfo = new EsInfo();
       int descriptorsEndPosition = data.getPosition() + length;
+      int streamType = -1;
+      int audioType = -1;
+      String language = null;
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
         if (descriptorTag == TS_PMT_DESC_REGISTRATION) { // registration_descriptor
           long formatIdentifier = data.readUnsignedInt();
           if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
-            esInfo.streamType = TS_STREAM_TYPE_AC3;
+            streamType = TS_STREAM_TYPE_AC3;
           } else if (formatIdentifier == E_AC3_FORMAT_IDENTIFIER) {
-            esInfo.streamType = TS_STREAM_TYPE_E_AC3;
+            streamType = TS_STREAM_TYPE_E_AC3;
           } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
-            esInfo.streamType = TS_STREAM_TYPE_H265;
+            streamType = TS_STREAM_TYPE_H265;
           }
           break;
         } else if (descriptorTag == TS_PMT_DESC_AC3) { // AC-3_descriptor in DVB (ETSI EN 300 468)
-          esInfo.streamType = TS_STREAM_TYPE_AC3;
+          streamType = TS_STREAM_TYPE_AC3;
         } else if (descriptorTag == TS_PMT_DESC_EAC3) { // enhanced_AC-3_descriptor
-          esInfo.streamType = TS_STREAM_TYPE_E_AC3;
+          streamType = TS_STREAM_TYPE_E_AC3;
         } else if (descriptorTag == TS_PMT_DESC_DTS) { // DTS_descriptor
-          esInfo.streamType = TS_STREAM_TYPE_DTS;
+          streamType = TS_STREAM_TYPE_DTS;
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
-          esInfo.streamLanguage = new String(data.data, data.getPosition(), 3).trim();
-          esInfo.audioType = data.data[data.getPosition() + 3];
+          language = new String(data.data, data.getPosition(), 3).trim();
+          audioType = data.data[data.getPosition() + 3];
         }
 
         data.skipBytes(descriptorLength);
       }
       data.setPosition(descriptorsEndPosition);
-      return esInfo;
+      return new EsInfo(streamType, audioType, language);
     }
 
   }

@@ -34,9 +34,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private static final int SYNC_VALUE = 0x7FFE8001;
   private static final int SYNC_VALUE_SIZE = 4;
 
-  private String language;
-
   private final ParsableByteArray headerScratchBytes;
+  private final String language;
 
   private int state;
   private int bytesRead;

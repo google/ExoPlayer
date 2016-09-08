@@ -33,10 +33,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private static final int HEADER_SIZE = 8;
 
-  private String language;
-
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
+  private final String language;
 
   private int state;
   private int bytesRead;
