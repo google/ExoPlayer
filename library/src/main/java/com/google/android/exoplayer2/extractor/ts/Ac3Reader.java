@@ -175,7 +175,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       headerScratchBits.skipBits(40);
       isEac3 = headerScratchBits.readBits(5) == 16;
       headerScratchBits.setPosition(headerScratchBits.getPosition() - 45);
-      format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, language, null)
+      format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, language , null)
           : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, language, null);
       output.format(format);
     }
