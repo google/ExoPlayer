@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
-import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
+import com.google.android.exoplayer2.extractor.ts.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -107,7 +107,7 @@ import java.util.Locale;
   private final String baseUri;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
-  private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
+  private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final HlsMasterPlaylist.HlsUrl[] variants;
   private final HlsMediaPlaylist[] variantPlaylists;
   private final TrackGroup trackGroup;
@@ -132,12 +132,12 @@ import java.util.Locale;
    * @param baseUri The playlist's base uri.
    * @param variants The available variants.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
+   * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
    */
   public HlsChunkSource(String baseUri, HlsMasterPlaylist.HlsUrl[] variants, DataSource dataSource,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider) {
+      TimestampAdjusterProvider timestampAdjusterProvider) {
     this.baseUri = baseUri;
     this.variants = variants;
     this.dataSource = dataSource;
@@ -343,7 +343,7 @@ import java.util.Locale;
       extractor = new Mp3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
-      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
+      TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
           segment.discontinuitySequenceNumber, startTimeUs);
       if (timestampAdjuster == null) {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
@@ -356,7 +356,7 @@ import java.util.Locale;
         || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || format != previous.trackFormat) {
       // MPEG-2 TS segments, but we need a new extractor.
-      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
+      TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
           segment.discontinuitySequenceNumber, startTimeUs);
       if (timestampAdjuster == null) {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.

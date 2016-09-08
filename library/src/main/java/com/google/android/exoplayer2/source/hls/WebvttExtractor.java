@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
+import com.google.android.exoplayer2.extractor.ts.TimestampAdjuster;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(\\d+)");
 
   private final String language;
-  private final PtsTimestampAdjuster ptsTimestampAdjuster;
+  private final TimestampAdjuster timestampAdjuster;
   private final ParsableByteArray sampleDataWrapper;
 
   private ExtractorOutput output;
@@ -57,9 +57,9 @@ import java.util.regex.Pattern;
   private byte[] sampleData;
   private int sampleSize;
 
-  public WebvttExtractor(String language, PtsTimestampAdjuster ptsTimestampAdjuster) {
+  public WebvttExtractor(String language, TimestampAdjuster timestampAdjuster) {
     this.language = language;
-    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+    this.timestampAdjuster = timestampAdjuster;
     this.sampleDataWrapper = new ParsableByteArray();
     sampleData = new byte[1024];
   }
@@ -141,7 +141,7 @@ import java.util.regex.Pattern;
           throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
         }
         vttTimestampUs = WebvttParserUtil.parseTimestampUs(localTimestampMatcher.group(1));
-        tsTimestampUs = PtsTimestampAdjuster.ptsToUs(
+        tsTimestampUs = TimestampAdjuster.ptsToUs(
             Long.parseLong(mediaTimestampMatcher.group(1)));
       }
     }
@@ -155,8 +155,8 @@ import java.util.regex.Pattern;
     }
 
     long firstCueTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
-    long sampleTimeUs = ptsTimestampAdjuster.adjustTimestamp(
-        PtsTimestampAdjuster.usToPts(firstCueTimeUs + tsTimestampUs - vttTimestampUs));
+    long sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(
+        firstCueTimeUs + tsTimestampUs - vttTimestampUs);
     long subsampleOffsetUs = sampleTimeUs - firstCueTimeUs;
     // Output the track.
     TrackOutput trackOutput = buildTrackOutput(subsampleOffsetUs);

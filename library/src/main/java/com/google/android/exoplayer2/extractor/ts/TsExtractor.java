@@ -81,7 +81,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
-  private final PtsTimestampAdjuster ptsTimestampAdjuster;
+  private final TimestampAdjuster timestampAdjuster;
   private final int workaroundFlags;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
@@ -94,15 +94,15 @@ public final class TsExtractor implements Extractor {
   /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
-    this(new PtsTimestampAdjuster(0));
+    this(new TimestampAdjuster(0));
   }
 
-  public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster) {
-    this(ptsTimestampAdjuster, 0);
+  public TsExtractor(TimestampAdjuster timestampAdjuster) {
+    this(timestampAdjuster, 0);
   }
 
-  public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, int workaroundFlags) {
-    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+  public TsExtractor(TimestampAdjuster timestampAdjuster, int workaroundFlags) {
+    this.timestampAdjuster = timestampAdjuster;
     this.workaroundFlags = workaroundFlags;
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
@@ -140,7 +140,7 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public void seek(long position) {
-    ptsTimestampAdjuster.reset();
+    timestampAdjuster.reset();
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();
     }
@@ -486,7 +486,7 @@ public final class TsExtractor implements Extractor {
         if (pesPayloadReader != null) {
           trackIds.put(trackId, true);
           tsPayloadReaders.put(elementaryPid,
-              new PesReader(pesPayloadReader, ptsTimestampAdjuster));
+              new PesReader(pesPayloadReader, timestampAdjuster));
         }
       }
 
@@ -554,7 +554,7 @@ public final class TsExtractor implements Extractor {
     private static final int PES_SCRATCH_SIZE = 10; // max(HEADER_SIZE, MAX_HEADER_EXTENSION_SIZE)
 
     private final ElementaryStreamReader pesPayloadReader;
-    private final PtsTimestampAdjuster ptsTimestampAdjuster;
+    private final TimestampAdjuster timestampAdjuster;
     private final ParsableBitArray pesScratch;
 
     private int state;
@@ -569,9 +569,9 @@ public final class TsExtractor implements Extractor {
     private long timeUs;
 
     public PesReader(ElementaryStreamReader pesPayloadReader,
-        PtsTimestampAdjuster ptsTimestampAdjuster) {
+        TimestampAdjuster timestampAdjuster) {
       this.pesPayloadReader = pesPayloadReader;
-      this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+      this.timestampAdjuster = timestampAdjuster;
       pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);
       state = STATE_FINDING_HEADER;
     }
@@ -734,10 +734,10 @@ public final class TsExtractor implements Extractor {
           // decode timestamp to the adjuster here so that in the case that this is the first to be
           // fed, the adjuster will be able to compute an offset to apply such that the adjusted
           // presentation timestamps of all future packets are non-negative.
-          ptsTimestampAdjuster.adjustTimestamp(dts);
+          timestampAdjuster.adjustTsTimestamp(dts);
           seenFirstDts = true;
         }
-        timeUs = ptsTimestampAdjuster.adjustTimestamp(pts);
+        timeUs = timestampAdjuster.adjustTsTimestamp(pts);
       }
     }
 

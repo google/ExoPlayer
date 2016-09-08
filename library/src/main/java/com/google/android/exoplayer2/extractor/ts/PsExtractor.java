@@ -56,7 +56,7 @@ public final class PsExtractor implements Extractor {
   public static final int VIDEO_STREAM = 0xE0;
   public static final int VIDEO_STREAM_MASK = 0xF0;
 
-  private final PtsTimestampAdjuster ptsTimestampAdjuster;
+  private final TimestampAdjuster timestampAdjuster;
   private final SparseArray<PesReader> psPayloadReaders; // Indexed by pid
   private final ParsableByteArray psPacketBuffer;
   private boolean foundAllTracks;
@@ -67,11 +67,11 @@ public final class PsExtractor implements Extractor {
   private ExtractorOutput output;
 
   public PsExtractor() {
-    this(new PtsTimestampAdjuster(0));
+    this(new TimestampAdjuster(0));
   }
 
-  public PsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster) {
-    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+  public PsExtractor(TimestampAdjuster timestampAdjuster) {
+    this.timestampAdjuster = timestampAdjuster;
     psPacketBuffer = new ParsableByteArray(4096);
     psPayloadReaders = new SparseArray<>();
   }
@@ -125,7 +125,7 @@ public final class PsExtractor implements Extractor {
 
   @Override
   public void seek(long position) {
-    ptsTimestampAdjuster.reset();
+    timestampAdjuster.reset();
     for (int i = 0; i < psPayloadReaders.size(); i++) {
       psPayloadReaders.valueAt(i).seek();
     }
@@ -199,7 +199,7 @@ public final class PsExtractor implements Extractor {
           foundVideoTrack = true;
         }
         if (elementaryStreamReader != null) {
-          payloadReader = new PesReader(elementaryStreamReader, ptsTimestampAdjuster);
+          payloadReader = new PesReader(elementaryStreamReader, timestampAdjuster);
           psPayloadReaders.put(streamId, payloadReader);
         }
       }
@@ -244,7 +244,7 @@ public final class PsExtractor implements Extractor {
     private static final int PES_SCRATCH_SIZE = 64;
 
     private final ElementaryStreamReader pesPayloadReader;
-    private final PtsTimestampAdjuster ptsTimestampAdjuster;
+    private final TimestampAdjuster timestampAdjuster;
     private final ParsableBitArray pesScratch;
 
     private boolean ptsFlag;
@@ -254,9 +254,9 @@ public final class PsExtractor implements Extractor {
     private long timeUs;
 
     public PesReader(ElementaryStreamReader pesPayloadReader,
-        PtsTimestampAdjuster ptsTimestampAdjuster) {
+        TimestampAdjuster timestampAdjuster) {
       this.pesPayloadReader = pesPayloadReader;
-      this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+      this.timestampAdjuster = timestampAdjuster;
       pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);
     }
 
@@ -327,10 +327,10 @@ public final class PsExtractor implements Extractor {
           // decode timestamp to the adjuster here so that in the case that this is the first to be
           // fed, the adjuster will be able to compute an offset to apply such that the adjusted
           // presentation timestamps of all future packets are non-negative.
-          ptsTimestampAdjuster.adjustTimestamp(dts);
+          timestampAdjuster.adjustTsTimestamp(dts);
           seenFirstDts = true;
         }
-        timeUs = ptsTimestampAdjuster.adjustTimestamp(pts);
+        timeUs = timestampAdjuster.adjustTsTimestamp(pts);
       }
     }
 

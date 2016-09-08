@@ -16,23 +16,23 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.util.SparseArray;
-import com.google.android.exoplayer2.extractor.ts.PtsTimestampAdjuster;
+import com.google.android.exoplayer2.extractor.ts.TimestampAdjuster;
 
 /**
- * Provides {@link PtsTimestampAdjuster} instances for use during HLS playbacks.
+ * Provides {@link TimestampAdjuster} instances for use during HLS playbacks.
  */
-public final class PtsTimestampAdjusterProvider {
+public final class TimestampAdjusterProvider {
 
   // TODO: Prevent this array from growing indefinitely large by removing adjusters that are no
   // longer required.
-  private final SparseArray<PtsTimestampAdjuster> ptsTimestampAdjusters;
+  private final SparseArray<TimestampAdjuster> timestampAdjusters;
 
-  public PtsTimestampAdjusterProvider() {
-    ptsTimestampAdjusters = new SparseArray<>();
+  public TimestampAdjusterProvider() {
+    timestampAdjusters = new SparseArray<>();
   }
 
   /**
-   * Returns a {@link PtsTimestampAdjuster} suitable for adjusting the pts timestamps contained in
+   * Returns a {@link TimestampAdjuster} suitable for adjusting the pts timestamps contained in
    * a chunk with a given discontinuity sequence.
    * <p>
    * This method may return null if the master source has yet to initialize a suitable adjuster.
@@ -40,14 +40,14 @@ public final class PtsTimestampAdjusterProvider {
    * @param isMasterSource True if the calling chunk source is the master.
    * @param discontinuitySequence The chunk's discontinuity sequence.
    * @param startTimeUs The chunk's start time.
-   * @return A {@link PtsTimestampAdjuster}.
+   * @return A {@link TimestampAdjuster}.
    */
-  public PtsTimestampAdjuster getAdjuster(boolean isMasterSource, int discontinuitySequence,
+  public TimestampAdjuster getAdjuster(boolean isMasterSource, int discontinuitySequence,
       long startTimeUs) {
-    PtsTimestampAdjuster adjuster = ptsTimestampAdjusters.get(discontinuitySequence);
+    TimestampAdjuster adjuster = timestampAdjusters.get(discontinuitySequence);
     if (isMasterSource && adjuster == null) {
-      adjuster = new PtsTimestampAdjuster(startTimeUs);
-      ptsTimestampAdjusters.put(discontinuitySequence, adjuster);
+      adjuster = new TimestampAdjuster(startTimeUs);
+      timestampAdjusters.put(discontinuitySequence, adjuster);
     }
     return isMasterSource || (adjuster != null && adjuster.isInitialized()) ? adjuster : null;
   }
@@ -56,7 +56,7 @@ public final class PtsTimestampAdjusterProvider {
    * Resets the provider.
    */
   public void reset() {
-    ptsTimestampAdjusters.clear();
+    timestampAdjusters.clear();
   }
 
 }
