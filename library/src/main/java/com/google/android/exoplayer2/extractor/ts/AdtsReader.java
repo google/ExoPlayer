@@ -42,6 +42,8 @@ import java.util.Collections;
   private static final int HEADER_SIZE = 5;
   private static final int CRC_SIZE = 2;
 
+  private String language;
+
   // Match states used while looking for the next sample
   private static final int MATCH_STATE_VALUE_SHIFT = 8;
   private static final int MATCH_STATE_START = 1 << MATCH_STATE_VALUE_SHIFT;
@@ -80,6 +82,15 @@ import java.util.Collections;
    * @param id3Output A {@link TrackOutput} to which ID3 samples should be written.
    */
   public AdtsReader(TrackOutput output, TrackOutput id3Output) {
+    this(output, id3Output, null);
+  }
+
+  /**
+   * @param output A {@link TrackOutput} to which AAC samples should be written.
+   * @param id3Output A {@link TrackOutput} to which ID3 samples should be written.
+   * @param language Track language.
+   */
+  public AdtsReader(TrackOutput output, TrackOutput id3Output, String language) {
     super(output);
     this.id3Output = id3Output;
     id3Output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null,
@@ -87,6 +98,7 @@ import java.util.Collections;
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
+    this.language = language;
   }
 
   @Override
@@ -278,7 +290,7 @@ import java.util.Collections;
 
       Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null,
           Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-          Collections.singletonList(audioSpecificConfig), null, 0, null);
+          Collections.singletonList(audioSpecificConfig), null, 0, language);
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.
       sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / format.sampleRate;

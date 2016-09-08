@@ -34,6 +34,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private static final int SYNC_VALUE = 0x7FFE8001;
   private static final int SYNC_VALUE_SIZE = 4;
 
+  private String language;
+
   private final ParsableByteArray headerScratchBytes;
 
   private int state;
@@ -56,6 +58,16 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
    * @param output Track output for extracted samples.
    */
   public DtsReader(TrackOutput output) {
+    this(output, null);
+  }
+
+  /**
+   * Constructs a new reader for DTS elementary streams.
+   *
+   * @param output Track output for extracted samples.
+   * @param language Track language.
+   */
+  public DtsReader(TrackOutput output, String language) {
     super(output);
     headerScratchBytes = new ParsableByteArray(new byte[HEADER_SIZE]);
     headerScratchBytes.data[0] = (byte) ((SYNC_VALUE >> 24) & 0xFF);
@@ -63,6 +75,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
     headerScratchBytes.data[2] = (byte) ((SYNC_VALUE >> 8) & 0xFF);
     headerScratchBytes.data[3] = (byte) (SYNC_VALUE & 0xFF);
     state = STATE_FINDING_SYNC;
+    this.language = language;
   }
 
   @Override
@@ -155,7 +168,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private void parseHeader() {
     byte[] frameData = headerScratchBytes.data;
     if (format == null) {
-      format = DtsUtil.parseDtsFormat(frameData, null, null, null);
+      format = DtsUtil.parseDtsFormat(frameData, null, language, null);
       output.format(format);
     }
     sampleSize = DtsUtil.getDtsFrameSize(frameData);

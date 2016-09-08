@@ -33,6 +33,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private static final int HEADER_SIZE = 8;
 
+  private String language;
+
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
 
@@ -57,10 +59,21 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
    * @param output Track output for extracted samples.
    */
   public Ac3Reader(TrackOutput output) {
+    this(output, null);
+  }
+
+  /**
+   * Constructs a new reader for (E-)AC-3 elementary streams.
+   *
+   * @param output Track output for extracted samples.
+   * @param language Track language.
+   */
+  public Ac3Reader(TrackOutput output, String language) {
     super(output);
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
+    this.language = language;
   }
 
   @Override
@@ -163,8 +176,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       headerScratchBits.skipBits(40);
       isEac3 = headerScratchBits.readBits(5) == 16;
       headerScratchBits.setPosition(headerScratchBits.getPosition() - 45);
-      format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, null, null)
-          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, null, null);
+      format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, language, null)
+          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, language, null);
       output.format(format);
     }
     sampleSize = isEac3 ? Ac3Util.parseEAc3SyncframeSize(headerScratchBits.data)
