@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -85,6 +86,7 @@ public final class TsExtractor implements Extractor {
   private final int workaroundFlags;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
+  private final SparseIntArray continuityCounters;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   /* package */ final SparseBooleanArray trackIds;
 
@@ -110,6 +112,7 @@ public final class TsExtractor implements Extractor {
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     trackIds = new SparseBooleanArray();
     nextEmbeddedTrackId = BASE_EMBEDDED_TRACK_ID;
+    continuityCounters = new SparseIntArray();
   }
 
   // Extractor implementation.
@@ -145,6 +148,7 @@ public final class TsExtractor implements Extractor {
       tsPayloadReaders.valueAt(i).seek();
     }
     tsPacketBuffer.reset();
+    continuityCounters.clear();
   }
 
   @Override
@@ -201,7 +205,17 @@ public final class TsExtractor implements Extractor {
     tsScratch.skipBits(2); // transport_scrambling_control
     boolean adaptationFieldExists = tsScratch.readBit();
     boolean payloadExists = tsScratch.readBit();
-    // Last 4 bits of scratch are skipped: continuity_counter
+    boolean discontinuityFound = false;
+    int continuityCounter = tsScratch.readBits(4);
+    int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
+    continuityCounters.put(pid, continuityCounter);
+    if (previousCounter == continuityCounter) {
+      // Duplicate packet found.
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
+    } else if (continuityCounter != (previousCounter + 1) % 16) {
+      discontinuityFound = true;
+    }
 
     // Skip the adaptation field.
     if (adaptationFieldExists) {
@@ -213,6 +227,9 @@ public final class TsExtractor implements Extractor {
     if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
       if (payloadReader != null) {
+        if (discontinuityFound) {
+          payloadReader.seek();
+        }
         tsPacketBuffer.setLimit(endOfPacket);
         payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
         Assertions.checkState(tsPacketBuffer.getPosition() <= endOfPacket);
