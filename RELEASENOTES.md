@@ -1,5 +1,18 @@
 # Release notes #
 
+### r1.5.11 ###
+
+* Cronet network stack extension.
+* HLS: Fix propagation of language for alternative audio renditions
+  ([#1784](https://github.com/google/ExoPlayer/issues/1784)).
+* WebM: Support for subsample encryption.
+* ID3: Fix EOS detection for 2-byte encodings
+  ([#1774](https://github.com/google/ExoPlayer/issues/1774)).
+* MPEG-TS: Support multiple tracks of the same type.
+* MPEG-TS: Work toward robust handling of stream corruption.
+* Fix ContentDataSource failures triggered by garbage collector
+  ([#1759](https://github.com/google/ExoPlayer/issues/1759)).
+
 ### r1.5.10 ###
 
 * HLS: Stability fixes.
