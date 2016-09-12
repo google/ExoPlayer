@@ -24,13 +24,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -82,9 +80,9 @@ public class PlaybackControlView extends FrameLayout {
   private final Runnable updateProgressAction = new Runnable() {
     @Override
     public void run() {
-      long pos = updateProgress();
+      long position = updateProgress();
       if (!dragging && isVisible() && isPlaying()) {
-        postDelayed(updateProgressAction, 1000 - (pos % 1000));
+        postDelayed(updateProgressAction, 1000 - (position % 1000));
       } else {
         isProgressUpdating = false;
       }
@@ -146,7 +144,6 @@ public class PlaybackControlView extends FrameLayout {
     updatePlayPauseButton();
     updateTime();
   }
-
 
   /**
    * Sets the {@link VisibilityListener}.
@@ -248,35 +245,24 @@ public class PlaybackControlView extends FrameLayout {
       previousButton.setVisibility(GONE);
       nextButton.setVisibility(GONE);
     } else if (player.getCurrentWindowIndex() == 0) {
-      disableView(previousButton);
-      enableViews(nextButton);
+      setButtonEnabled(previousButton, false);
+      setButtonEnabled(nextButton, true);
     } else if (player.getCurrentWindowIndex() == player.getCurrentTimeline().getWindowCount() - 1) {
-      enableViews(previousButton);
-      disableView(nextButton);
+      setButtonEnabled(previousButton, true);
+      setButtonEnabled(nextButton, false);
     } else {
-      enableViews(previousButton, nextButton);
+      setButtonEnabled(previousButton, true);
+      setButtonEnabled(nextButton, true);
     }
   }
 
-  private void disableView(View view) {
-    view.setEnabled(false);
+  private void setButtonEnabled(View button, boolean enabled) {
+    button.setEnabled(enabled);
     if (Util.SDK_INT >= 11) {
-      view.setAlpha(0.3f);
-      view.setVisibility(VISIBLE);
+      button.setAlpha(enabled ? 1f : 0.3f);
+      button.setVisibility(VISIBLE);
     } else {
-      view.setVisibility(INVISIBLE);
-    }
-  }
-
-  private void enableViews(View... views) {
-    for (View view : views) {
-      view.setEnabled(true);
-      if (Util.SDK_INT >= 11) {
-        view.setAlpha(1f);
-        view.setVisibility(VISIBLE);
-      } else {
-        view.setVisibility(VISIBLE);
-      }
+      button.setVisibility(enabled ? VISIBLE : INVISIBLE);
     }
   }
 
@@ -317,9 +303,7 @@ public class PlaybackControlView extends FrameLayout {
     long seconds = totalSeconds % 60;
     long minutes = (totalSeconds / 60) % 60;
     long hours = totalSeconds / 3600;
-
     formatBuilder.setLength(0);
-
     return hours > 0 ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString()
         : formatter.format("%02d:%02d", minutes, seconds).toString();
   }
@@ -348,8 +332,6 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void rewind() {
-    Timeline currentTimeline = player.getCurrentTimeline();
-    currentTimeline.getWindow(player.getCurrentWindowIndex(), currentWindow);
     player.seekTo(Math.max(player.getCurrentPosition() - rewindMs, 0));
   }
 
