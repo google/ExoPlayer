@@ -138,7 +138,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
     long nowMs = SystemClock.elapsedRealtime();
     boolean canBlacklist = isBlacklisted(index, nowMs);
     for (int i = 0; i < length && !canBlacklist; i++) {
-      canBlacklist = i != index && !isBlacklisted(index, nowMs);
+      canBlacklist = i != index && !isBlacklisted(i, nowMs);
     }
     if (!canBlacklist) {
       return false;
