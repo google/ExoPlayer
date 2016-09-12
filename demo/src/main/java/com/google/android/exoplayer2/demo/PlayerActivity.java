@@ -111,6 +111,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsSource;
 
+  private boolean shouldAutoPlay;
   private boolean shouldRestorePosition;
   private int playerWindow;
   private long playerPosition;
@@ -120,6 +121,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    shouldAutoPlay = true;
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
@@ -253,7 +255,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
           player.seekTo(playerWindow, playerPosition);
         }
       }
-      player.setPlayWhenReady(true);
+      player.setPlayWhenReady(shouldAutoPlay);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
       playerNeedsSource = true;
@@ -331,6 +333,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     if (player != null) {
       debugViewHelper.stop();
       debugViewHelper = null;
+      shouldAutoPlay = player.getPlayWhenReady();
       shouldRestorePosition = false;
       Timeline timeline = player.getCurrentTimeline();
       if (timeline != null) {
