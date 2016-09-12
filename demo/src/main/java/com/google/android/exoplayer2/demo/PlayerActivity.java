@@ -353,10 +353,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   /**
-   * Build a DataSource factory.
+   * Returns a new DataSource factory.
    *
    * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
    *     DataSource factory.
+   * @return A new DataSource factory.
    */
   private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
     return new DefaultDataSourceFactory(this, useBandwidthMeter ? BANDWIDTH_METER : null,
@@ -364,10 +365,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   /**
-   * Build a HttpDataSource factory.
+   * Returns a new HttpDataSource factory.
    *
    * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
    *     DataSource factory.
+   * @return A new HttpDataSource factory.
    */
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
     return new DefaultHttpDataSourceFactory(userAgent, useBandwidthMeter ? BANDWIDTH_METER : null);

@@ -52,7 +52,7 @@ package com.google.android.exoplayer2;
  *   <img src="doc-files/timeline-live-limited.svg" alt="Example timeline for a live stream with
  *       limited availability">
  * </p>
- * A timeline for a live stream consists of a period whose duration is unknown, since its
+ * A timeline for a live stream consists of a period whose duration is unknown, since it's
  * continually extending as more content is broadcast. If content only remains available for a
  * limited period of time then the window may start at a non-zero position, defining the region of
  * content that can still be played. The window will have {@link Window#isDynamic} set to true if

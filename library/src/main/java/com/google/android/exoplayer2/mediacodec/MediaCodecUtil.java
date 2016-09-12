@@ -319,7 +319,7 @@ public final class MediaCodecUtil {
     switch (parts[0]) {
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
-        return getHevcProileAndLevel(codec, parts);
+        return getHevcProfileAndLevel(codec, parts);
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
         return getAvcProfileAndLevel(codec, parts);
@@ -328,7 +328,7 @@ public final class MediaCodecUtil {
     }
   }
 
-  private static Pair<Integer, Integer> getHevcProileAndLevel(String codec, String[] parts) {
+  private static Pair<Integer, Integer> getHevcProfileAndLevel(String codec, String[] parts) {
     if (parts.length < 4) {
       // The codec has fewer parts than required by the HEVC codec string format.
       Log.w(TAG, "Ignoring malformed HEVC codec string: " + codec);

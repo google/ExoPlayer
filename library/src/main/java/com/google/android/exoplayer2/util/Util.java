@@ -929,8 +929,7 @@ public final class Util {
       if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL.startsWith("BRAVIA")
           && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
         return new Point(3840, 2160);
-      } else if ("NVIDIA".equals(Util.MANUFACTURER) && Util.MODEL != null
-          && Util.MODEL.contains("SHIELD")) {
+      } else if ("NVIDIA".equals(Util.MANUFACTURER) && Util.MODEL.contains("SHIELD")) {
         // Attempt to read sys.display-size.
         String sysDisplaySize = null;
         try {

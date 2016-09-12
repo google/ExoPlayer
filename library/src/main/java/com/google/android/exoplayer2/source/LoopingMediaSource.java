@@ -106,7 +106,7 @@ public final class LoopingMediaSource implements MediaSource {
       int maxLoopCount = Integer.MAX_VALUE / childPeriodCount;
       if (loopCount > maxLoopCount) {
         if (loopCount != Integer.MAX_VALUE) {
-          Log.w(TAG, "Capped loops to avoid overflow:" + loopCount + " -> " + maxLoopCount);
+          Log.w(TAG, "Capped loops to avoid overflow: " + loopCount + " -> " + maxLoopCount);
         }
         this.loopCount = maxLoopCount;
       } else {

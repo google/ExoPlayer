@@ -48,7 +48,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * Source of Hls(possibly adaptive) chunks.
+ * Source of Hls (possibly adaptive) chunks.
  */
 /* package */ class HlsChunkSource {
 
@@ -96,7 +96,6 @@ import java.util.Locale;
    * gaps in playback in case playlist drift apart.
    */
   private static final double LIVE_VARIANT_SWITCH_SAFETY_EXTRA_SECS = 2.0;
-  private static final String TAG = "HlsChunkSource";
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final String AC3_FILE_EXTENSION = ".ac3";
   private static final String EC3_FILE_EXTENSION = ".ec3";
@@ -242,7 +241,7 @@ import java.util.Locale;
     int chunkMediaSequence;
     if (live) {
       if (previous == null) {
-        // When playling a live stream, the starting chunk will be the third counting from the live
+        // When playing a live stream, the starting chunk will be the third counting from the live
         // edge.
         chunkMediaSequence = Math.max(0, mediaPlaylist.segments.size() - 3)
             + mediaPlaylist.mediaSequence;
