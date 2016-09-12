@@ -86,6 +86,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
      */
     void onRenderedFirstFrame(Surface surface);
 
+    /**
+     * Called when the renderer is disabled.
+     *
+     * @param counters {@link DecoderCounters} that were updated by the renderer.
+     */
+    void onVideoDisabled(DecoderCounters counters);
+
   }
 
   private static final String TAG = "SimpleExoPlayer";
@@ -672,6 +679,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
+      if (videoListener != null) {
+        videoListener.onVideoDisabled(counters);
+      }
       if (videoDebugListener != null) {
         videoDebugListener.onVideoDisabled(counters);
       }

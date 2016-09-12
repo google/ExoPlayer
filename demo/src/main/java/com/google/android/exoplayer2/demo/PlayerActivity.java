@@ -22,17 +22,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
@@ -64,12 +57,9 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
-import com.google.android.exoplayer2.ui.KeyCompatibleMediaController;
-import com.google.android.exoplayer2.ui.MediaControllerPrevNextClickListener;
-import com.google.android.exoplayer2.ui.PlayerControl;
-import com.google.android.exoplayer2.ui.SubtitleView;
+import com.google.android.exoplayer2.ui.PlaybackControlView;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -84,9 +74,8 @@ import java.util.UUID;
 /**
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
-public class PlayerActivity extends Activity implements OnKeyListener, OnTouchListener,
-    OnClickListener, ExoPlayer.EventListener, SimpleExoPlayer.VideoListener,
-    MappingTrackSelector.EventListener {
+public class PlayerActivity extends Activity implements OnClickListener, ExoPlayer.EventListener,
+    MappingTrackSelector.EventListener, PlaybackControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -109,14 +98,9 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
 
   private Handler mainHandler;
   private EventLogger eventLogger;
-  private MediaController mediaController;
-  private View rootView;
+  private SimpleExoPlayerView simpleExoPlayerView;
   private LinearLayout debugRootView;
-  private View shutterView;
-  private AspectRatioFrameLayout videoFrame;
-  private SurfaceView surfaceView;
   private TextView debugTextView;
-  private SubtitleView subtitleView;
   private Button retryButton;
 
   private String userAgent;
@@ -144,21 +128,16 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
 
     setContentView(R.layout.player_activity);
-    rootView = findViewById(R.id.root);
-    rootView.setOnTouchListener(this);
-    rootView.setOnKeyListener(this);
-    shutterView = findViewById(R.id.shutter);
+    View rootView = findViewById(R.id.root);
+    rootView.setOnClickListener(this);
     debugRootView = (LinearLayout) findViewById(R.id.controls_root);
-    videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
-    surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
-    subtitleView = (SubtitleView) findViewById(R.id.subtitles);
-    subtitleView.setUserDefaultStyle();
-    subtitleView.setUserDefaultTextSize();
-    mediaController = new KeyCompatibleMediaController(this);
-    mediaController.setPrevNextListeners(this, this);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
+
+    simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
+    simpleExoPlayerView.setControllerVisibilityListener(this);
+    simpleExoPlayerView.requestFocus();
   }
 
   @Override
@@ -211,26 +190,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
   }
 
-  // OnTouchListener methods
-
-  @Override
-  public boolean onTouch(View view, MotionEvent motionEvent) {
-    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-      toggleControlsVisibility();
-    } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-      view.performClick();
-    }
-    return true;
-  }
-
-  // OnKeyListener methods
-
-  @Override
-  public boolean onKey(View v, int keyCode, KeyEvent event) {
-    return keyCode != KeyEvent.KEYCODE_BACK && keyCode != KeyEvent.KEYCODE_ESCAPE
-        && keyCode != KeyEvent.KEYCODE_MENU && mediaController.dispatchKeyEvent(event);
-  }
-
   // OnClickListener methods
 
   @Override
@@ -241,6 +200,13 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
           trackSelector.getTrackInfo(), (int) view.getTag());
     }
+  }
+
+  // PlaybackControlView.VisibilityListener implementation
+
+  @Override
+  public void onVisibilityChange(int visibility) {
+    debugRootView.setVisibility(visibility);
   }
 
   // Internal methods
@@ -279,9 +245,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
       player.setAudioDebugListener(eventLogger);
       player.setVideoDebugListener(eventLogger);
       player.setId3Output(eventLogger);
-      player.setTextOutput(subtitleView);
-      player.setVideoListener(this);
-      player.setVideoSurfaceView(surfaceView);
+      simpleExoPlayerView.setPlayer(player);
       if (shouldRestorePosition) {
         if (playerPosition == C.TIME_UNSET) {
           player.seekToDefaultPosition(playerWindow);
@@ -290,10 +254,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
         }
       }
       player.setPlayWhenReady(true);
-      mediaController.setMediaPlayer(new PlayerControl(player));
-      mediaController.setPrevNextListeners(new MediaControllerPrevNextClickListener(player, true),
-          new MediaControllerPrevNextClickListener(player, false));
-      mediaController.setAnchorView(rootView);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
       playerNeedsSource = true;
@@ -369,7 +329,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
 
   private void releasePlayer() {
     if (player != null) {
-      shutterView.setVisibility(View.VISIBLE);
       debugViewHelper.stop();
       debugViewHelper = null;
       shouldRestorePosition = false;
@@ -428,10 +387,7 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
 
   @Override
   public void onPositionDiscontinuity() {
-    if (mediaController.isShowing()) {
-      // The MediaController is visible, so force it to show the updated position immediately.
-      mediaController.show();
-    }
+    // Do nothing.
   }
 
   @Override
@@ -472,19 +428,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     showControls();
   }
 
-  // SimpleExoPlayer.VideoListener implementation
-
-  @Override
-  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-      float pixelWidthAspectRatio) {
-    videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
-  }
-
-  @Override
-  public void onRenderedFirstFrame(Surface surface) {
-    shutterView.setVisibility(View.GONE);
-  }
-
   // MappingTrackSelector.EventListener implementation
 
   @Override
@@ -495,17 +438,6 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
     if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
       showToast(R.string.error_unsupported_audio);
-    }
-    boolean renderingVideo = false;
-    for (int i = 0; i < trackInfo.rendererCount; i++) {
-      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO
-          && trackInfo.getTrackSelection(i) != null) {
-        renderingVideo = true;
-        break;
-      }
-    }
-    if (!renderingVideo) {
-      shutterView.setVisibility(View.VISIBLE);
     }
   }
 
@@ -553,24 +485,8 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
     }
   }
 
-  private void toggleControlsVisibility()  {
-    if (mediaController.isShowing()) {
-      mediaController.hide();
-      debugRootView.setVisibility(View.GONE);
-    } else {
-      showControls();
-    }
-  }
-
   private void showControls() {
     debugRootView.setVisibility(View.VISIBLE);
-    // TODO: Remove this hack when transitioning to our own playback controls.
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        mediaController.show(0);
-      }
-    });
   }
 
   private void showToast(int messageId) {

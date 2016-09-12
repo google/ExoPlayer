@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+
+  <style name="MediaButton">
+    <item name="android:background">@null</item>
+    <item name="android:layout_width">71dip</item>
+    <item name="android:layout_height">52dip</item>
+  </style>
+
+  <style name="MediaButton.Previous">
+    <item name="android:src">@drawable/ic_media_previous</item>
+    <item name="android:contentDescription">@string/prev_description</item>
+  </style>
+
+  <style name="MediaButton.Next">
+    <item name="android:src">@drawable/ic_media_next</item>
+    <item name="android:contentDescription">@string/next_description</item>
+  </style>
+
+  <style name="MediaButton.Play">
+    <item name="android:src">@drawable/ic_media_play</item>
+    <item name="android:contentDescription">@string/play_description</item>
+  </style>
+
+  <style name="MediaButton.Ffwd">
+    <item name="android:src">@drawable/ic_media_ff</item>
+    <item name="android:contentDescription">@string/ffw_description</item>
+  </style>
+
+  <style name="MediaButton.Rew">
+    <item name="android:src">@drawable/ic_media_rew</item>
+    <item name="android:contentDescription">@string/rew_description</item>
+  </style>
+
+  <style name="MediaButton.Pause">
+    <item name="android:src">@drawable/ic_media_pause</item>
+    <item name="android:contentDescription">@string/pause_description</item>
+  </style>
+
+</resources>
+
