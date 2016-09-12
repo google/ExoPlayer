@@ -911,9 +911,21 @@ public final class Util {
    * @return The physical display size, in pixels.
    */
   public static Point getPhysicalDisplaySize(Context context) {
-    // Before API 25 the platform Display object does not provide a working way to identify Android
-    // TVs that can show 4k resolution in a SurfaceView, so check for supported devices here.
-    if (Util.SDK_INT < 25) {
+    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    return getPhysicalDisplaySize(context, windowManager.getDefaultDisplay());
+  }
+
+  /**
+   * Gets the physical size of the specified display, in pixels.
+   *
+   * @param context Any context.
+   * @param display The display whose size is to be returned.
+   * @return The physical display size, in pixels.
+   */
+  public static Point getPhysicalDisplaySize(Context context, Display display) {
+    if (Util.SDK_INT < 25 && display.getDisplayId() == Display.DEFAULT_DISPLAY) {
+      // Before API 25 the Display object does not provide a working way to identify Android TVs
+      // that can show 4k resolution in a SurfaceView, so check for supported devices here.
       if ("Sony".equals(Util.MANUFACTURER) && Util.MODEL.startsWith("BRAVIA")
           && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
         return new Point(3840, 2160);
@@ -947,8 +959,6 @@ public final class Util {
       }
     }
 
-    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    Display display = windowManager.getDefaultDisplay();
     Point displaySize = new Point();
     if (Util.SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
