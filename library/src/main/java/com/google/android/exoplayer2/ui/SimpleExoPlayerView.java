@@ -160,30 +160,30 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Set the number of milliseconds to rewind for each step.
+   * Sets the rewind increment in milliseconds.
    *
-   * @param rewindMs Rewind step in milliseconds.
+   * @param rewindMs The rewind increment in milliseconds.
    */
-  public void setRewindMs(int rewindMs) {
-    controller.setRewindMs(rewindMs);
+  public void setRewindIncrementMs(int rewindMs) {
+    controller.setRewindIncrementMs(rewindMs);
   }
 
   /**
-   * Set the number of milliseconds to fast forward for each step.
+   * Sets the fast forward increment in milliseconds.
    *
-   * @param fastForwardMs Fast forward step in milliseconds.
+   * @param fastForwardMs The fast forward increment in milliseconds.
    */
-  public void setFastForwardMs(int fastForwardMs) {
-    controller.setFastForwardMs(fastForwardMs);
+  public void setFastForwardIncrementMs(int fastForwardMs) {
+    controller.setFastForwardIncrementMs(fastForwardMs);
   }
 
   /**
-   * Set the duration to show the playback control in milliseconds.
+   * Sets the duration to show the playback control in milliseconds.
    *
-   * @param showDuration Duration in milliseconds.
+   * @param showDurationMs The duration in milliseconds.
    */
-  public void setControlShowDuration(int showDuration) {
-    controller.setShowDuration(showDuration);
+  public void setControlShowDurationMs(int showDurationMs) {
+    controller.setShowDurationMs(showDurationMs);
   }
 
   /**

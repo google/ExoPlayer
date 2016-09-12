@@ -14,72 +14,74 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#CC000000"
-    android:layout_gravity="bottom"
-    android:orientation="vertical"
-    android:layoutDirection="ltr">
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_gravity="bottom"
+  android:background="#CC000000"
+  android:orientation="vertical"
+  android:layoutDirection="ltr">
 
   <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center"
-      android:paddingTop="4dp"
-      android:orientation="horizontal">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingTop="4dp"
+    android:orientation="horizontal">
 
     <ImageButton android:id="@+id/prev"
-        style="@style/MediaButton.Previous"
-        android:contentDescription="@string/prev_description"
-        android:visibility="gone"/>
+      android:contentDescription="@string/prev_description"
+      style="@style/MediaButton.Previous"/>
+
     <ImageButton android:id="@+id/rew"
-        style="@style/MediaButton.Rew"
-        android:contentDescription="@string/rew_description"/>
+      android:contentDescription="@string/rew_description"
+      style="@style/MediaButton.Rew"/>
+
     <ImageButton android:id="@+id/pause"
-        style="@style/MediaButton.Pause"
-        android:contentDescription="@string/pause_description"/>
+      android:contentDescription="@string/pause_description"
+      style="@style/MediaButton.Pause"/>
+
     <ImageButton android:id="@+id/ffwd"
-        style="@style/MediaButton.Ffwd"
-        android:contentDescription="@string/ffw_description"/>
+      android:contentDescription="@string/ffw_description"
+      style="@style/MediaButton.Ffwd"/>
+
     <ImageButton android:id="@+id/next"
-        style="@style/MediaButton.Next"
-        android:contentDescription="@string/prev_description"
-        android:visibility="gone"/>
+      android:contentDescription="@string/prev_description"
+      style="@style/MediaButton.Next"/>
 
   </LinearLayout>
 
   <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <TextView android:id="@+id/time_current"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:paddingTop="4dp"
-        android:paddingStart="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingEnd="4dp"
-        android:textColor="#FFBEBEBE"/>
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      android:paddingTop="4dp"
+      android:paddingStart="4dp"
+      android:paddingEnd="4dp"
+      android:textColor="#FFBEBEBE"/>
 
     <SeekBar android:id="@+id/mediacontroller_progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="32dp"/>
+      android:layout_width="0dp"
+      android:layout_weight="1"
+      android:layout_height="32dp"
+      style="?android:attr/progressBarStyleHorizontal"/>
 
     <TextView android:id="@+id/time"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:paddingTop="4dp"
-        android:paddingEnd="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="4dp"
-        android:textColor="#FFBEBEBE"/>
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      android:paddingTop="4dp"
+      android:paddingEnd="4dp"
+      android:paddingStart="4dp"
+      android:textColor="#FFBEBEBE"/>
 
   </LinearLayout>
 

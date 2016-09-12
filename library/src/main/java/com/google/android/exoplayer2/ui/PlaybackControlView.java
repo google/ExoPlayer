@@ -44,9 +44,9 @@ public class PlaybackControlView extends FrameLayout {
    */
   public interface VisibilityListener {
     /**
-     * Called after the visibility changed.
+     * Called when the visibility changes.
      *
-     * @param visibility The visibility value of the UI control after having changed.
+     * @param visibility The new visibility. Either {@link View#VISIBLE} or {@link View#GONE}.
      */
     void onVisibilityChange(int visibility);
   }
@@ -54,9 +54,8 @@ public class PlaybackControlView extends FrameLayout {
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
   public static final int DEFAULT_REWIND_MS = 5000;
   public static final int DEFAULT_SHOW_DURATION_MS = 5000;
-  private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
-  private ExoPlayer player;
+  private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
   private final ComponentListener componentListener;
   private final View previousButton;
@@ -67,16 +66,18 @@ public class PlaybackControlView extends FrameLayout {
   private final SeekBar progressBar;
   private final View fastForwardButton;
   private final View rewindButton;
-  private VisibilityListener visibilityListener;
   private final StringBuilder formatBuilder;
   private final Formatter formatter;
+  private final Timeline.Window currentWindow;
 
-  private final Timeline.Window currentWindow = new Timeline.Window();
+  private ExoPlayer player;
+  private VisibilityListener visibilityListener;
+
   private boolean dragging;
   private boolean isProgressUpdating;
   private int rewindMs = DEFAULT_REWIND_MS;
   private int fastForwardMs = DEFAULT_FAST_FORWARD_MS;
-  private int showDuration = DEFAULT_SHOW_DURATION_MS;
+  private int showDurationMs = DEFAULT_SHOW_DURATION_MS;
 
   private final Runnable updateProgressAction = new Runnable() {
     @Override
@@ -104,6 +105,7 @@ public class PlaybackControlView extends FrameLayout {
   public PlaybackControlView(Context context, AttributeSet attrs) {
     super(context, attrs);
 
+    currentWindow = new Timeline.Window();
     formatBuilder = new StringBuilder();
     formatter = new Formatter(formatBuilder, Locale.getDefault());
     componentListener = new ComponentListener();
@@ -147,7 +149,7 @@ public class PlaybackControlView extends FrameLayout {
 
 
   /**
-   * Set the {@link VisibilityListener}.
+   * Sets the {@link VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes.
    */
@@ -156,47 +158,47 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Set the duration to rewind in milliseconds.
+   * Sets the rewind increment in milliseconds.
    *
-   * @param rewindMs Duration to rewind in milliseconds.
+   * @param rewindMs The rewind increment in milliseconds.
    */
-  public void setRewindMs(int rewindMs) {
+  public void setRewindIncrementMs(int rewindMs) {
     this.rewindMs = rewindMs;
   }
 
   /**
-   * Set the duration to fast forward in milliseconds.
+   * Sets the fast forward increment in milliseconds.
    *
-   * @param fastForwardMs Duration to fast forward in milliseconds.
+   * @param fastForwardMs The fast forward increment in milliseconds.
    */
-  public void setFastForwardMs(int fastForwardMs) {
+  public void setFastForwardIncrementMs(int fastForwardMs) {
     this.fastForwardMs = fastForwardMs;
   }
 
   /**
-   * Set the duration to show the playback control in milliseconds.
+   * Sets the duration to show the playback control in milliseconds.
    *
-   * @param showDuration Duration in milliseconds.
+   * @param showDurationMs The duration in milliseconds.
    */
-  public void setShowDuration(int showDuration) {
-    this.showDuration = showDuration;
+  public void setShowDurationMs(int showDurationMs) {
+    this.showDurationMs = showDurationMs;
   }
 
   /**
-   * Show the controller for the duration set by {@link #setShowDuration(int)} or
-   * for {@link #DEFAULT_SHOW_DURATION_MS} in milliseconds if not yet set.
+   * Shows the controller for the duration last passed to {@link #setShowDurationMs(int)}, or for
+   * {@link #DEFAULT_SHOW_DURATION_MS} if {@link #setShowDurationMs(int)} has not been called.
    */
   public void show() {
-    show(showDuration);
+    show(showDurationMs);
   }
 
   /**
-   * Show the controller for the given {@code duration} in milliseconds. If {@code duration} is 0
-   * the controller is shown until {@code hide()} is called.
+   * Shows the controller for the {@code durationMs}. If {@code durationMs} is 0 the controller is
+   * shown until {@link #hide()} is called.
    *
-   * @param duration number of milliseconds the controller is shown.
+   * @param durationMs The duration in milliseconds.
    */
-  public void show(int duration) {
+  public void show(int durationMs) {
     setVisibility(VISIBLE);
     if (visibilityListener != null) {
       visibilityListener.onVisibilityChange(getVisibility());
@@ -204,14 +206,14 @@ public class PlaybackControlView extends FrameLayout {
     isProgressUpdating = true;
     post(updateProgressAction);
     removeCallbacks(hideAction);
-    showDuration = duration;
-    if (duration > 0) {
-      postDelayed(hideAction, duration);
+    showDurationMs = durationMs;
+    if (durationMs > 0) {
+      postDelayed(hideAction, durationMs);
     }
   }
 
   /**
-   * Hide the controller.
+   * Hides the controller.
    */
   public void hide() {
     setVisibility(GONE);
@@ -223,9 +225,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Returns {@code true} if the controller is currently visible or {@code false} otherwise.
-   *
-   * @return {@code true} if shown or {@code false}.
+   * Returns whether the controller is currently visible.
    */
   public boolean isVisible() {
     return getVisibility() == VISIBLE;
@@ -233,8 +233,8 @@ public class PlaybackControlView extends FrameLayout {
 
   private void hideDeferred() {
     removeCallbacks(hideAction);
-    if (showDuration != 0) {
-      postDelayed(hideAction, showDuration);
+    if (showDurationMs != 0) {
+      postDelayed(hideAction, showDurationMs);
     }
   }
 
@@ -395,6 +395,7 @@ public class PlaybackControlView extends FrameLayout {
 
   private final class ComponentListener implements ExoPlayer.EventListener,
       SeekBar.OnSeekBarChangeListener, OnClickListener {
+
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
       removeCallbacks(hideAction);
@@ -432,13 +433,19 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) { /* do nothing. */ }
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+      // Do nothing.
+    }
 
     @Override
-    public void onLoadingChanged(boolean isLoading) { /* do nothing */ }
+    public void onLoadingChanged(boolean isLoading) {
+      // Do nothing.
+    }
 
     @Override
-    public void onPlayerError(ExoPlaybackException error) { /* do nothing */ }
+    public void onPlayerError(ExoPlaybackException error) {
+      // Do nothing.
+    }
 
     @Override
     public void onClick(View view) {
