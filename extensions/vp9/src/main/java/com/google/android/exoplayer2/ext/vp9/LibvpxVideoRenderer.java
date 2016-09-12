@@ -116,30 +116,10 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
   }
 
-  /**
-   * Returns whether the underlying libvpx library is available.
-   */
-  public static boolean isLibvpxAvailable() {
-    return VpxDecoder.IS_AVAILABLE;
-  }
-
-  /**
-   * Returns the version of the underlying libvpx library if available, otherwise {@code null}.
-   */
-  public static String getLibvpxVersion() {
-    return isLibvpxAvailable() ? VpxDecoder.getLibvpxVersion() : null;
-  }
-
-  /**
-   * Returns the configuration string with which the underlying libvpx library was built.
-   */
-  public static String getLibvpxConfig() {
-    return isLibvpxAvailable() ? VpxDecoder.getLibvpxConfig() : null;
-  }
-
   @Override
   public int supportsFormat(Format format) {
-    return isLibvpxAvailable() && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
+    return VpxNativeLibraryHelper.isLibvpxAvailable()
+        && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
         ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
   }
 

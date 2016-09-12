@@ -30,32 +30,6 @@ import java.nio.ByteBuffer;
   public static final int OUTPUT_MODE_YUV = 0;
   public static final int OUTPUT_MODE_RGB = 1;
 
-  /**
-   * Whether the underlying libvpx library is available.
-   */
-  public static final boolean IS_AVAILABLE;
-  static {
-    boolean isAvailable;
-    try {
-      System.loadLibrary("vpx");
-      System.loadLibrary("vpxJNI");
-      isAvailable = true;
-    } catch (UnsatisfiedLinkError exception) {
-      isAvailable = false;
-    }
-    IS_AVAILABLE = isAvailable;
-  }
-
-  /**
-   * Returns the version string of the underlying libvpx decoder.
-   */
-  public static native String getLibvpxVersion();
-
-  /**
-   * Returns the configuration string with which the underlying libvpx library was built.
-   */
-  public static native String getLibvpxConfig();
-
   private final long vpxDecContext;
 
   private volatile int outputMode;
@@ -71,6 +45,9 @@ import java.nio.ByteBuffer;
   public VpxDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize)
       throws VpxDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
+    if (!VpxNativeLibraryHelper.isLibvpxAvailable()) {
+      throw new VpxDecoderException("Failed to load decoder native libraries.");
+    }
     vpxDecContext = vpxInit();
     if (vpxDecContext == 0) {
       throw new VpxDecoderException("Failed to initialize decoder");
@@ -80,7 +57,7 @@ import java.nio.ByteBuffer;
 
   @Override
   public String getName() {
-    return "libvpx" + getLibvpxVersion();
+    return "libvpx" + VpxNativeLibraryHelper.getLibvpxVersion();
   }
 
   /**
@@ -134,5 +111,4 @@ import java.nio.ByteBuffer;
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
   private native int vpxGetFrame(long context, VpxOutputBuffer outputBuffer);
   private native String vpxGetErrorMessage(long context);
-
 }

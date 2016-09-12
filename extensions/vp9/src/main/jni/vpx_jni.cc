@@ -34,7 +34,7 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                                              __VA_ARGS__))
 
-#define FUNC(RETURN_TYPE, NAME, ...) \
+#define VPX_DECODER_FUNC(RETURN_TYPE, NAME, ...) \
   extern "C" { \
   JNIEXPORT RETURN_TYPE \
     Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_ ## NAME \
@@ -42,6 +42,16 @@
   } \
   JNIEXPORT RETURN_TYPE \
     Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_ ## NAME \
+      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+
+#define VPX_NATIVE_LIBRARY_HELPER_FUNC(RETURN_TYPE, NAME, ...) \
+  extern "C" { \
+  JNIEXPORT RETURN_TYPE \
+    Java_com_google_android_exoplayer2_ext_vp9_VpxNativeLibraryHelper_ ## NAME \
+      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
+  } \
+  JNIEXPORT RETURN_TYPE \
+    Java_com_google_android_exoplayer2_ext_vp9_VpxNativeLibraryHelper_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
 // JNI references for VpxOutputBuffer class.
@@ -58,7 +68,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   return JNI_VERSION_1_6;
 }
 
-FUNC(jlong, vpxInit) {
+VPX_DECODER_FUNC(jlong, vpxInit) {
   vpx_codec_ctx_t* context = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
@@ -81,7 +91,7 @@ FUNC(jlong, vpxInit) {
   return reinterpret_cast<intptr_t>(context);
 }
 
-FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {
+VPX_DECODER_FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   const uint8_t* const buffer =
       reinterpret_cast<const uint8_t*>(env->GetDirectBufferAddress(encoded));
@@ -94,14 +104,14 @@ FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {
   return 0;
 }
 
-FUNC(jlong, vpxClose, jlong jContext) {
+VPX_DECODER_FUNC(jlong, vpxClose, jlong jContext) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   vpx_codec_destroy(context);
   delete context;
   return 0;
 }
 
-FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
+VPX_DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   vpx_codec_iter_t iter = NULL;
   const vpx_image_t* const img = vpx_codec_get_frame(context, &iter);
@@ -166,15 +176,16 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   return 0;
 }
 
-FUNC(jstring, getLibvpxVersion) {
-  return env->NewStringUTF(vpx_codec_version_str());
-}
-
-FUNC(jstring, getLibvpxConfig) {
-  return env->NewStringUTF(vpx_codec_build_config());
-}
-
-FUNC(jstring, vpxGetErrorMessage, jlong jContext) {
+VPX_DECODER_FUNC(jstring, vpxGetErrorMessage, jlong jContext) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   return env->NewStringUTF(vpx_codec_error(context));
 }
+
+VPX_NATIVE_LIBRARY_HELPER_FUNC(jstring, nativeGetLibvpxVersion) {
+  return env->NewStringUTF(vpx_codec_version_str());
+}
+
+VPX_NATIVE_LIBRARY_HELPER_FUNC(jstring, nativeGetLibvpxConfig) {
+  return env->NewStringUTF(vpx_codec_build_config());
+}
+
