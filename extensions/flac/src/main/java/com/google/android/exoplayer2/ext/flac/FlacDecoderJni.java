@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 /**
  * JNI wrapper for the libflac Flac decoder.
  */
-/* package */ final class FlacJni {
+/* package */ final class FlacDecoderJni {
 
   private static final int TEMP_BUFFER_SIZE = 8192; // The same buffer size which libflac has
 
@@ -35,7 +35,7 @@ import java.nio.ByteBuffer;
   private boolean endOfExtractorInput;
   private byte[] tempBuffer;
 
-  public FlacJni() throws FlacDecoderException {
+  public FlacDecoderJni() throws FlacDecoderException {
     if (!FlacLibrary.isAvailable()) {
       throw new FlacDecoderException("Failed to load decoder native libraries.");
     }
