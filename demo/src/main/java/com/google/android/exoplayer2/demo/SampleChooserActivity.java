@@ -167,6 +167,7 @@ public class SampleChooserActivity extends Activity {
       String extension = null;
       UUID drmUuid = null;
       String drmLicenseUrl = null;
+      String[] drmKeyRequestProperties = null;
       boolean preferExtensionDecoders = false;
       ArrayList<UriSample> playlistSamples = null;
 
@@ -192,6 +193,18 @@ public class SampleChooserActivity extends Activity {
                 "Invalid attribute on nested item: drm_license_url");
             drmLicenseUrl = reader.nextString();
             break;
+          case "drm_key_request_properties":
+            Assertions.checkState(!insidePlaylist,
+                "Invalid attribute on nested item: drm_key_request_properties");
+            ArrayList<String> drmKeyRequestPropertiesList = new ArrayList<>();
+            reader.beginObject();
+            while (reader.hasNext()) {
+              drmKeyRequestPropertiesList.add(reader.nextName());
+              drmKeyRequestPropertiesList.add(reader.nextString());
+            }
+            reader.endObject();
+            drmKeyRequestProperties = drmKeyRequestPropertiesList.toArray(new String[0]);
+            break;
           case "prefer_extension_decoders":
             Assertions.checkState(!insidePlaylist,
                 "Invalid attribute on nested item: prefer_extension_decoders");
@@ -215,11 +228,11 @@ public class SampleChooserActivity extends Activity {
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(
             new UriSample[playlistSamples.size()]);
-        return new PlaylistSample(sampleName, drmUuid, drmLicenseUrl, preferExtensionDecoders,
-            playlistSamplesArray);
+        return new PlaylistSample(sampleName, drmUuid, drmLicenseUrl, drmKeyRequestProperties,
+            preferExtensionDecoders, playlistSamplesArray);
       } else {
-        return new UriSample(sampleName, drmUuid, drmLicenseUrl, preferExtensionDecoders, uri,
-            extension);
+        return new UriSample(sampleName, drmUuid, drmLicenseUrl, drmKeyRequestProperties,
+            preferExtensionDecoders, uri, extension);
       }
     }
 
@@ -345,12 +358,14 @@ public class SampleChooserActivity extends Activity {
     public final boolean preferExtensionDecoders;
     public final UUID drmSchemeUuid;
     public final String drmLicenseUrl;
+    public final String[] drmKeyRequestProperties;
 
     public Sample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
-        boolean preferExtensionDecoders) {
+        String[] drmKeyRequestProperties, boolean preferExtensionDecoders) {
       this.name = name;
       this.drmSchemeUuid = drmSchemeUuid;
       this.drmLicenseUrl = drmLicenseUrl;
+      this.drmKeyRequestProperties = drmKeyRequestProperties;
       this.preferExtensionDecoders = preferExtensionDecoders;
     }
 
@@ -360,6 +375,7 @@ public class SampleChooserActivity extends Activity {
       if (drmSchemeUuid != null) {
         intent.putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid.toString());
         intent.putExtra(PlayerActivity.DRM_LICENSE_URL, drmLicenseUrl);
+        intent.putExtra(PlayerActivity.DRM_KEY_REQUEST_PROPERTIES, drmKeyRequestProperties);
       }
       return intent;
     }
@@ -372,8 +388,9 @@ public class SampleChooserActivity extends Activity {
     public final String extension;
 
     public UriSample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
-        boolean preferExtensionDecoders, String uri, String extension) {
-      super(name, drmSchemeUuid, drmLicenseUrl, preferExtensionDecoders);
+        String[] drmKeyRequestProperties, boolean preferExtensionDecoders, String uri,
+        String extension) {
+      super(name, drmSchemeUuid, drmLicenseUrl, drmKeyRequestProperties, preferExtensionDecoders);
       this.uri = uri;
       this.extension = extension;
     }
@@ -393,8 +410,9 @@ public class SampleChooserActivity extends Activity {
     public final UriSample[] children;
 
     public PlaylistSample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
-        boolean preferExtensionDecoders, UriSample... children) {
-      super(name, drmSchemeUuid, drmLicenseUrl, preferExtensionDecoders);
+        String[] drmKeyRequestProperties, boolean preferExtensionDecoders,
+        UriSample... children) {
+      super(name, drmSchemeUuid, drmLicenseUrl, drmKeyRequestProperties, preferExtensionDecoders);
       this.children = children;
     }
 

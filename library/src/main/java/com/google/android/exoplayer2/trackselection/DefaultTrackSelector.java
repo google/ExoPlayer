@@ -286,20 +286,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         : RendererCapabilities.ADAPTIVE_SEAMLESS;
     boolean allowMixedMimeTypes = allowMixedMimeAdaptiveness
         && (rendererCapabilities.supportsMixedMimeTypeAdaptation() & requiredAdaptiveSupport) != 0;
-    TrackGroup largestAdaptiveGroup = null;
-    int[] largestAdaptiveGroupTracks = NO_TRACKS;
     for (int i = 0; i < groups.length; i++) {
       TrackGroup group = groups.get(i);
       int[] adaptiveTracks = getAdaptiveTracksForGroup(group, formatSupport[i],
           allowMixedMimeTypes, requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight,
           viewportWidth, viewportHeight, orientationMayChange);
-      if (adaptiveTracks.length > largestAdaptiveGroupTracks.length) {
-        largestAdaptiveGroup = group;
-        largestAdaptiveGroupTracks = adaptiveTracks;
+      if (adaptiveTracks.length > 0) {
+        return adaptiveVideoTrackSelectionFactory.createTrackSelection(group, adaptiveTracks);
       }
     }
-    return largestAdaptiveGroup == null ? null : adaptiveVideoTrackSelectionFactory
-        .createTrackSelection(largestAdaptiveGroup, largestAdaptiveGroupTracks);
+    return null;
   }
 
   private static int[] getAdaptiveTracksForGroup(TrackGroup group, int[] formatSupport,

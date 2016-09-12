@@ -38,23 +38,34 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final Map<String, String> PLAYREADY_KEY_REQUEST_PROPERTIES;
   static {
-    HashMap<String, String> keyRequestProperties = new HashMap<>();
-    keyRequestProperties.put("Content-Type", "text/xml");
-    keyRequestProperties.put("SOAPAction",
+    PLAYREADY_KEY_REQUEST_PROPERTIES = new HashMap<>();
+    PLAYREADY_KEY_REQUEST_PROPERTIES.put("Content-Type", "text/xml");
+    PLAYREADY_KEY_REQUEST_PROPERTIES.put("SOAPAction",
         "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");
-    PLAYREADY_KEY_REQUEST_PROPERTIES = keyRequestProperties;
   }
 
   private final HttpDataSource.Factory dataSourceFactory;
   private final String defaultUrl;
+  private final Map<String, String> keyRequestProperties;
 
   /**
    * @param defaultUrl The default license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
   public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory) {
+    this(defaultUrl, dataSourceFactory, null);
+  }
+
+  /**
+   * @param defaultUrl The default license URL.
+   * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param keyRequestProperties Request properties to set when making key requests, or null.
+   */
+  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory,
+      Map<String, String> keyRequestProperties) {
     this.dataSourceFactory = dataSourceFactory;
     this.defaultUrl = defaultUrl;
+    this.keyRequestProperties = keyRequestProperties;
   }
 
   @Override
@@ -69,9 +80,14 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
     if (TextUtils.isEmpty(url)) {
       url = defaultUrl;
     }
-    Map<String, String> keyRequestProperties = C.PLAYREADY_UUID.equals(uuid)
-        ? PLAYREADY_KEY_REQUEST_PROPERTIES : null;
-    return executePost(url, request.getData(), keyRequestProperties);
+    Map<String, String> requestProperties = new HashMap<>();
+    if (C.PLAYREADY_UUID.equals(uuid)) {
+      requestProperties.putAll(PLAYREADY_KEY_REQUEST_PROPERTIES);
+    }
+    if (keyRequestProperties != null) {
+      requestProperties.putAll(keyRequestProperties);
+    }
+    return executePost(url, request.getData(), requestProperties);
   }
 
   private byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)

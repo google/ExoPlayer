@@ -69,6 +69,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -79,6 +81,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
+  public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
   public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
@@ -222,8 +225,20 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       DrmSessionManager drmSessionManager = null;
       if (drmSchemeUuid != null) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
+        String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
+        Map<String, String> keyRequestProperties;
+        if (keyRequestPropertiesArray == null || keyRequestPropertiesArray.length < 2) {
+          keyRequestProperties = null;
+        } else {
+          keyRequestProperties = new HashMap<>();
+          for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
+            keyRequestProperties.put(keyRequestPropertiesArray[i],
+                keyRequestPropertiesArray[i + 1]);
+          }
+        }
         try {
-          drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl);
+          drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl,
+              keyRequestProperties);
         } catch (UnsupportedDrmException e) {
           int errorStringId = Util.SDK_INT < 18 ? R.string.error_drm_not_supported
               : (e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
@@ -318,13 +333,14 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     }
   }
 
-  private DrmSessionManager buildDrmSessionManager(UUID uuid, String licenseUrl)
+  private DrmSessionManager buildDrmSessionManager(UUID uuid, String licenseUrl,
+      Map<String, String> keyRequestProperties)
       throws UnsupportedDrmException {
     if (Util.SDK_INT < 18) {
       return null;
     }
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
-        buildHttpDataSourceFactory(false));
+        buildHttpDataSourceFactory(false), keyRequestProperties);
     return new StreamingDrmSessionManager<>(uuid,
         FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
   }

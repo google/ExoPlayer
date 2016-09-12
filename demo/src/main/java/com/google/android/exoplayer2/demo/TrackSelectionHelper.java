@@ -233,7 +233,8 @@ import java.util.Locale;
       Pair<Integer, Integer> tag = (Pair<Integer, Integer>) view.getTag();
       int groupIndex = tag.first;
       int trackIndex = tag.second;
-      if (!trackGroupsAdaptive[groupIndex] || override == null) {
+      if (!trackGroupsAdaptive[groupIndex] || override == null
+          || override.groupIndex != groupIndex) {
         override = new SelectionOverride(FIXED_FACTORY, groupIndex, trackIndex);
       } else {
         // The group being modified is adaptive and we already have a non-null override.
