@@ -30,13 +30,6 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
 
   private static final int NUM_BUFFERS = 16;
 
-  /**
-   * Returns whether the underlying libflac library is available.
-   */
-  public static boolean isLibflacAvailable() {
-    return FlacJni.IS_AVAILABLE;
-  }
-
   public LibflacAudioRenderer() {
     this(null, null);
   }
@@ -65,7 +58,7 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
 
   @Override
   public int supportsFormat(Format format) {
-    return isLibflacAvailable() && MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)
+    return FlacLibrary.isAvailable() && MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)
         ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
   }
 

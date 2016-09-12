@@ -23,11 +23,11 @@
 #include "opus.h"  // NOLINT
 #include "opus_multistream.h"  // NOLINT
 
-#define LOG_TAG "libopus_native"
+#define LOG_TAG "opus_jni"
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                                              __VA_ARGS__))
 
-#define FUNC(RETURN_TYPE, NAME, ...) \
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...) \
   extern "C" { \
   JNIEXPORT RETURN_TYPE \
     Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
@@ -35,6 +35,16 @@
   } \
   JNIEXPORT RETURN_TYPE \
     Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
+      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
+  extern "C" { \
+  JNIEXPORT RETURN_TYPE \
+    Java_com_google_android_exoplayer2_ext_opus_OpusLibrary_ ## NAME \
+      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
+  } \
+  JNIEXPORT RETURN_TYPE \
+    Java_com_google_android_exoplayer2_ext_opus_OpusLibrary_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
 // JNI references for SimpleOutputBuffer class.
@@ -51,8 +61,8 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 static const int kBytesPerSample = 2;  // opus fixed point uses 16 bit samples.
 static int channelCount;
 
-FUNC(jlong, opusInit, jint sampleRate, jint channelCount, jint numStreams,
-     jint numCoupled, jint gain, jbyteArray jStreamMap) {
+DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
+     jint numStreams, jint numCoupled, jint gain, jbyteArray jStreamMap) {
   int status = OPUS_INVALID_STATE;
   ::channelCount = channelCount;
   jbyte* streamMapBytes = env->GetByteArrayElements(jStreamMap, 0);
@@ -79,8 +89,9 @@ FUNC(jlong, opusInit, jint sampleRate, jint channelCount, jint numStreams,
   return reinterpret_cast<intptr_t>(decoder);
 }
 
-FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs, jobject jInputBuffer,
-     jint inputSize, jobject jOutputBuffer, jint sampleRate) {
+DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
+     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
+     jint sampleRate) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
   const uint8_t* inputBuffer =
       reinterpret_cast<const uint8_t*>(
@@ -102,20 +113,20 @@ FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs, jobject jInputBuffer,
       : sampleCount * kBytesPerSample * channelCount;
 }
 
-FUNC(void, opusClose, jlong jDecoder) {
+DECODER_FUNC(void, opusClose, jlong jDecoder) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
   opus_multistream_decoder_destroy(decoder);
 }
 
-FUNC(void, opusReset, jlong jDecoder) {
+DECODER_FUNC(void, opusReset, jlong jDecoder) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
   opus_multistream_decoder_ctl(decoder, OPUS_RESET_STATE);
 }
 
-FUNC(jstring, getLibopusVersion) {
-  return env->NewStringUTF(opus_get_version_string());
+DECODER_FUNC(jstring, opusGetErrorMessage, jint errorCode) {
+  return env->NewStringUTF(opus_strerror(errorCode));
 }
 
-FUNC(jstring, opusGetErrorMessage, jint errorCode) {
-  return env->NewStringUTF(opus_strerror(errorCode));
+LIBRARY_FUNC(jstring, opusGetVersion) {
+  return env->NewStringUTF(opus_get_version_string());
 }

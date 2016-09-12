@@ -118,8 +118,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   public int supportsFormat(Format format) {
-    return VpxNativeLibraryHelper.isLibvpxAvailable()
-        && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
+    return VpxLibrary.isAvailable() && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
         ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
   }
 

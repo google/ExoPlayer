@@ -62,11 +62,11 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
   @Override
   public int supportsFormat(Format format) {
-    if (!FfmpegDecoder.IS_AVAILABLE) {
+    if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
     String mimeType = format.sampleMimeType;
-    return FfmpegDecoder.supportsFormat(mimeType) ? FORMAT_HANDLED
+    return FfmpegLibrary.supportsFormat(mimeType) ? FORMAT_HANDLED
         : MimeTypes.isAudio(mimeType) ? FORMAT_UNSUPPORTED_SUBTYPE : FORMAT_UNSUPPORTED_TYPE;
   }
 

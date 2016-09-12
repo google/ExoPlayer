@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import java.nio.ByteBuffer;
 
 /**
- * JNI wrapper for the libvpx VP9 decoder.
+ * Vpx decoder.
  */
 /* package */ final class VpxDecoder extends
     SimpleDecoder<DecoderInputBuffer, VpxOutputBuffer, VpxDecoderException> {
@@ -45,7 +45,7 @@ import java.nio.ByteBuffer;
   public VpxDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize)
       throws VpxDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
-    if (!VpxNativeLibraryHelper.isLibvpxAvailable()) {
+    if (!VpxLibrary.isAvailable()) {
       throw new VpxDecoderException("Failed to load decoder native libraries.");
     }
     vpxDecContext = vpxInit();
@@ -57,7 +57,7 @@ import java.nio.ByteBuffer;
 
   @Override
   public String getName() {
-    return "libvpx" + VpxNativeLibraryHelper.getLibvpxVersion();
+    return "libvpx" + VpxLibrary.getVersion();
   }
 
   /**
@@ -111,4 +111,5 @@ import java.nio.ByteBuffer;
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
   private native int vpxGetFrame(long context, VpxOutputBuffer outputBuffer);
   private native String vpxGetErrorMessage(long context);
+
 }

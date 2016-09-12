@@ -23,38 +23,10 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * JNI wrapper for FFmpeg. Only audio decoding is supported.
+ * FFmpeg audio decoder.
  */
 /* package */ final class FfmpegDecoder extends
     SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FfmpegDecoderException> {
-
-  private static final String TAG = "FfmpegDecoder";
-
-  /**
-   * Whether the underlying FFmpeg library is available.
-   */
-  public static final boolean IS_AVAILABLE;
-  static {
-    boolean isAvailable;
-    try {
-      System.loadLibrary("avutil");
-      System.loadLibrary("avresample");
-      System.loadLibrary("avcodec");
-      System.loadLibrary("ffmpeg");
-      isAvailable = true;
-    } catch (UnsatisfiedLinkError exception) {
-      isAvailable = false;
-    }
-    IS_AVAILABLE = isAvailable;
-  }
-
-  /**
-   * Returns whether this decoder can decode samples in the specified MIME type.
-   */
-  public static boolean supportsFormat(String mimeType) {
-    String codecName = getCodecName(mimeType);
-    return codecName != null && nativeHasDecoder(codecName);
-  }
 
   // Space for 64 ms of 6 channel 48 kHz 16-bit PCM audio.
   private static final int OUTPUT_BUFFER_SIZE = 1536 * 6 * 2 * 2;
@@ -70,9 +42,12 @@ import java.util.List;
   public FfmpegDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
       String mimeType, List<byte[]> initializationData) throws FfmpegDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
-    codecName = getCodecName(mimeType);
+    if (!FfmpegLibrary.isAvailable()) {
+      throw new FfmpegDecoderException("Failed to load decoder native libraries.");
+    }
+    codecName = FfmpegLibrary.getCodecName(mimeType);
     extraData = getExtraData(mimeType, initializationData);
-    nativeContext = nativeInitialize(codecName, extraData);
+    nativeContext = ffmpegInitialize(codecName, extraData);
     if (nativeContext == 0) {
       throw new FfmpegDecoderException("Initialization failed.");
     }
@@ -81,7 +56,7 @@ import java.util.List;
 
   @Override
   public String getName() {
-    return "ffmpeg" + nativeGetFfmpegVersion() + "-" + codecName;
+    return "ffmpeg" + FfmpegLibrary.getVersion() + "-" + codecName;
   }
 
   @Override
@@ -98,7 +73,7 @@ import java.util.List;
   public FfmpegDecoderException decode(DecoderInputBuffer inputBuffer,
       SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
-      nativeContext = nativeReset(nativeContext, extraData);
+      nativeContext = ffmpegReset(nativeContext, extraData);
       if (nativeContext == 0) {
         return new FfmpegDecoderException("Error resetting (see logcat).");
       }
@@ -106,13 +81,13 @@ import java.util.List;
     ByteBuffer inputData = inputBuffer.data;
     int inputSize = inputData.limit();
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, OUTPUT_BUFFER_SIZE);
-    int result = nativeDecode(nativeContext, inputData, inputSize, outputData, OUTPUT_BUFFER_SIZE);
+    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, OUTPUT_BUFFER_SIZE);
     if (result < 0) {
       return new FfmpegDecoderException("Error decoding (see logcat). Code: " + result);
     }
     if (!hasOutputFormat) {
-      channelCount = nativeGetChannelCount(nativeContext);
-      sampleRate = nativeGetSampleRate(nativeContext);
+      channelCount = ffmpegGetChannelCount(nativeContext);
+      sampleRate = ffmpegGetSampleRate(nativeContext);
       hasOutputFormat = true;
     }
     outputBuffer.data.position(0);
@@ -123,7 +98,7 @@ import java.util.List;
   @Override
   public void release() {
     super.release();
-    nativeRelease(nativeContext);
+    ffmpegRelease(nativeContext);
     nativeContext = 0;
   }
 
@@ -169,50 +144,12 @@ import java.util.List;
     }
   }
 
-  /**
-   * Returns the name of the FFmpeg decoder that could be used to decode {@code mimeType}. The codec
-   * can only be used if {@link #nativeHasDecoder(String)} returns true for the returned codec name.
-   */
-  private static String getCodecName(String mimeType) {
-    switch (mimeType) {
-      case MimeTypes.AUDIO_AAC:
-        return "aac";
-      case MimeTypes.AUDIO_MPEG:
-      case MimeTypes.AUDIO_MPEG_L1:
-      case MimeTypes.AUDIO_MPEG_L2:
-        return "mp3";
-      case MimeTypes.AUDIO_AC3:
-        return "ac3";
-      case MimeTypes.AUDIO_E_AC3:
-        return "eac3";
-      case MimeTypes.AUDIO_TRUEHD:
-        return "truehd";
-      case MimeTypes.AUDIO_DTS:
-      case MimeTypes.AUDIO_DTS_HD:
-        return "dca";
-      case MimeTypes.AUDIO_VORBIS:
-        return "vorbis";
-      case MimeTypes.AUDIO_OPUS:
-        return "opus";
-      case MimeTypes.AUDIO_AMR_NB:
-        return "amrnb";
-      case MimeTypes.AUDIO_AMR_WB:
-        return "amrwb";
-      case MimeTypes.AUDIO_FLAC:
-        return "flac";
-      default:
-        return null;
-    }
-  }
-
-  private static native String nativeGetFfmpegVersion();
-  private static native boolean nativeHasDecoder(String codecName);
-  private native long nativeInitialize(String codecName, byte[] extraData);
-  private native int nativeDecode(long context, ByteBuffer inputData, int inputSize,
+  private native long ffmpegInitialize(String codecName, byte[] extraData);
+  private native int ffmpegDecode(long context, ByteBuffer inputData, int inputSize,
       ByteBuffer outputData, int outputSize);
-  private native int nativeGetChannelCount(long context);
-  private native int nativeGetSampleRate(long context);
-  private native long nativeReset(long context, byte[] extraData);
-  private native void nativeRelease(long context);
+  private native int ffmpegGetChannelCount(long context);
+  private native int ffmpegGetSampleRate(long context);
+  private native long ffmpegReset(long context, byte[] extraData);
+  private native void ffmpegRelease(long context);
 
 }

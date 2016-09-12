@@ -34,7 +34,8 @@ extern "C" {
 #define LOG_TAG "ffmpeg_jni"
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                    __VA_ARGS__))
-#define FUNC(RETURN_TYPE, NAME, ...) \
+
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...) \
   extern "C" { \
   JNIEXPORT RETURN_TYPE \
     Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegDecoder_ ## NAME \
@@ -42,6 +43,16 @@ extern "C" {
   } \
   JNIEXPORT RETURN_TYPE \
     Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegDecoder_ ## NAME \
+      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
+  extern "C" { \
+  JNIEXPORT RETURN_TYPE \
+    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_ ## NAME \
+      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
+  } \
+  JNIEXPORT RETURN_TYPE \
+    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
 #define ERROR_STRING_BUFFER_LENGTH 256
@@ -88,15 +99,15 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
   return JNI_VERSION_1_6;
 }
 
-FUNC(jstring, nativeGetFfmpegVersion) {
+LIBRARY_FUNC(jstring, ffmpegGetVersion) {
   return env->NewStringUTF(LIBAVCODEC_IDENT);
 }
 
-FUNC(jboolean, nativeHasDecoder, jstring codecName) {
+LIBRARY_FUNC(jboolean, ffmpegHasDecoder, jstring codecName) {
   return getCodecByName(env, codecName) != NULL;
 }
 
-FUNC(jlong, nativeInitialize, jstring codecName, jbyteArray extraData) {
+DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData) {
   AVCodec *codec = getCodecByName(env, codecName);
   if (!codec) {
     LOGE("Codec not found.");
@@ -105,8 +116,8 @@ FUNC(jlong, nativeInitialize, jstring codecName, jbyteArray extraData) {
   return (jlong) createContext(env, codec, extraData);
 }
 
-FUNC(jint, nativeDecode, jlong context, jobject inputData, jint inputSize,
-     jobject outputData, jint outputSize) {
+DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
+    jint inputSize, jobject outputData, jint outputSize) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -133,7 +144,7 @@ FUNC(jint, nativeDecode, jlong context, jobject inputData, jint inputSize,
                       outputSize);
 }
 
-FUNC(jint, nativeGetChannelCount, jlong context) {
+DECODER_FUNC(jint, ffmpegGetChannelCount, jlong context) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -141,7 +152,7 @@ FUNC(jint, nativeGetChannelCount, jlong context) {
   return ((AVCodecContext *) context)->channels;
 }
 
-FUNC(jint, nativeGetSampleRate, jlong context) {
+DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -149,7 +160,7 @@ FUNC(jint, nativeGetSampleRate, jlong context) {
   return ((AVCodecContext *) context)->sample_rate;
 }
 
-FUNC(jlong, nativeReset, jlong jContext, jbyteArray extraData) {
+DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
   AVCodecContext *context = (AVCodecContext *) jContext;
   if (!context) {
     LOGE("Tried to reset without a context.");
@@ -173,7 +184,7 @@ FUNC(jlong, nativeReset, jlong jContext, jbyteArray extraData) {
   return (jlong) context;
 }
 
-FUNC(void, nativeRelease, jlong context) {
+DECODER_FUNC(void, ffmpegRelease, jlong context) {
   if (context) {
     releaseContext((AVCodecContext *) context);
   }

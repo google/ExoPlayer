@@ -31,20 +31,6 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   private static final int NUM_BUFFERS = 16;
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
 
-  /**
-   * Returns whether the underlying libopus library is available.
-   */
-  public static boolean isLibopusAvailable() {
-    return OpusDecoder.IS_AVAILABLE;
-  }
-
-  /**
-   * Returns the version of the underlying libopus library if available, otherwise {@code null}.
-   */
-  public static String getLibopusVersion() {
-    return isLibopusAvailable() ? OpusDecoder.getLibopusVersion() : null;
-  }
-
   public LibopusAudioRenderer() {
     this(null, null);
   }
@@ -73,7 +59,7 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
   @Override
   public int supportsFormat(Format format) {
-    return isLibopusAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
+    return OpusLibrary.isAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
         ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
   }
 

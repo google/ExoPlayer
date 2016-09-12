@@ -69,7 +69,6 @@ public final class FlacExtractor implements Extractor {
     extractorOutput = output;
     trackOutput = extractorOutput.track(0);
     extractorOutput.endTracks();
-
     try {
       decoder = new FlacJni();
     } catch (FlacDecoderException e) {

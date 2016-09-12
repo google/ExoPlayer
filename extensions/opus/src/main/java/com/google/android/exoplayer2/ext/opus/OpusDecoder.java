@@ -24,31 +24,10 @@ import java.nio.ByteOrder;
 import java.util.List;
 
 /**
- * JNI wrapper for the libopus Opus decoder.
+ * Opus decoder.
  */
 /* package */ final class OpusDecoder extends
     SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
-
-  /**
-   * Whether the underlying libopus library is available.
-   */
-  public static final boolean IS_AVAILABLE;
-  static {
-    boolean isAvailable;
-    try {
-      System.loadLibrary("opus");
-      System.loadLibrary("opusJNI");
-      isAvailable = true;
-    } catch (UnsatisfiedLinkError exception) {
-      isAvailable = false;
-    }
-    IS_AVAILABLE = isAvailable;
-  }
-
-  /**
-   * Returns the version string of the underlying libopus decoder.
-   */
-  public static native String getLibopusVersion();
 
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
 
@@ -78,6 +57,9 @@ import java.util.List;
   public OpusDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
       List<byte[]> initializationData) throws OpusDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
+    if (!OpusLibrary.isAvailable()) {
+      throw new OpusDecoderException("Failed to load decoder native libraries.");
+    }
     byte[] headerBytes = initializationData.get(0);
     if (headerBytes.length < 19) {
       throw new OpusDecoderException("Header size is too small.");
@@ -90,7 +72,8 @@ import java.util.List;
     int gain = readLittleEndian16(headerBytes, 16);
 
     byte[] streamMap = new byte[8];
-    int numStreams, numCoupled;
+    int numStreams;
+    int numCoupled;
     if (headerBytes[18] == 0) { // Channel mapping
       // If there is no channel mapping, use the defaults.
       if (channelCount > 2) { // Maximum channel count with default layout.
@@ -133,7 +116,7 @@ import java.util.List;
 
   @Override
   public String getName() {
-    return "libopus" + getLibopusVersion();
+    return "libopus" + OpusLibrary.getVersion();
   }
 
   @Override
@@ -185,14 +168,6 @@ import java.util.List;
     opusClose(nativeDecoderContext);
   }
 
-  private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
-      int gain, byte[] streamMap);
-  private native int opusDecode(long decoder, long timeUs, ByteBuffer inputBuffer, int inputSize,
-      SimpleOutputBuffer outputBuffer, int sampleRate);
-  private native void opusClose(long decoder);
-  private native void opusReset(long decoder);
-  private native String opusGetErrorMessage(int errorCode);
-
   private static int nsToSamples(long ns) {
     return (int) (ns * SAMPLE_RATE / 1000000000);
   }
@@ -202,5 +177,13 @@ import java.util.List;
     value |= (input[offset + 1] & 0xFF) << 8;
     return value;
   }
+
+  private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
+      int gain, byte[] streamMap);
+  private native int opusDecode(long decoder, long timeUs, ByteBuffer inputBuffer, int inputSize,
+      SimpleOutputBuffer outputBuffer, int sampleRate);
+  private native void opusClose(long decoder);
+  private native void opusReset(long decoder);
+  private native String opusGetErrorMessage(int errorCode);
 
 }

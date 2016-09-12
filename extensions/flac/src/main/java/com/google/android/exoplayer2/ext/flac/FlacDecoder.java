@@ -45,13 +45,10 @@ import java.util.List;
       throws FlacDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (initializationData.size() != 1) {
-      throw new FlacDecoderException("Wrong number of initialization data");
+      throw new FlacDecoderException("Initialization data must be of length 1");
     }
-
     decoder = new FlacJni();
-
-    ByteBuffer metadata = ByteBuffer.wrap(initializationData.get(0));
-    decoder.setData(metadata);
+    decoder.setData(ByteBuffer.wrap(initializationData.get(0)));
     FlacStreamInfo streamInfo;
     try {
       streamInfo = decoder.decodeMetadata();
