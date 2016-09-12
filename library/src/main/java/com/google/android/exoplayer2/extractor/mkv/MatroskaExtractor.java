@@ -80,6 +80,7 @@ public final class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_H264 = "V_MPEG4/ISO/AVC";
   private static final String CODEC_ID_H265 = "V_MPEGH/ISO/HEVC";
   private static final String CODEC_ID_FOURCC = "V_MS/VFW/FOURCC";
+  private static final String CODEC_ID_THEORA = "V_THEORA";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
@@ -1190,6 +1191,7 @@ public final class MatroskaExtractor implements Extractor {
         || CODEC_ID_H264.equals(codecId)
         || CODEC_ID_H265.equals(codecId)
         || CODEC_ID_FOURCC.equals(codecId)
+        || CODEC_ID_THEORA.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
@@ -1348,8 +1350,13 @@ public final class MatroskaExtractor implements Extractor {
           nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
           break;
         case CODEC_ID_FOURCC:
-          mimeType = MimeTypes.VIDEO_VC1;
           initializationData = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
+          mimeType = initializationData == null ? MimeTypes.VIDEO_UNKNOWN : MimeTypes.VIDEO_VC1;
+          break;
+        case CODEC_ID_THEORA:
+          // TODO: This can be set to the real mimeType if/when we work out what initializationData
+          // should be set to for this case.
+          mimeType = MimeTypes.VIDEO_UNKNOWN;
           break;
         case CODEC_ID_VORBIS:
           mimeType = MimeTypes.AUDIO_VORBIS;
@@ -1467,7 +1474,8 @@ public final class MatroskaExtractor implements Extractor {
      * <p>
      * VC1 is the only supported compression type.
      *
-     * @return The initialization data for the {@link Format}.
+     * @return The initialization data for the {@link Format}, or null if the compression type is
+     *     not VC1.
      * @throws ParserException If the initialization data could not be built.
      */
     private static List<byte[]> parseFourCcVc1Private(ParsableByteArray buffer)
@@ -1476,7 +1484,7 @@ public final class MatroskaExtractor implements Extractor {
         buffer.skipBytes(16); // size(4), width(4), height(4), planes(2), bitcount(2).
         long compression = buffer.readLittleEndianUnsignedInt();
         if (compression != FOURCC_COMPRESSION_VC1) {
-          throw new ParserException("Unsupported FourCC compression type: " + compression);
+          return null;
         }
 
         // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
