@@ -25,8 +25,8 @@ package com.google.android.exoplayer2;
  * logical piece of media, for example a media file. A window spans one or more periods, defining
  * the region within those periods that's currently available for playback along with additional
  * information such as whether seeking is supported within the window. Each window defines a default
- * start position, which is the position from which playback will start when the player starts
- * playing the window. The following examples illustrate timelines for various use cases.
+ * position, which is the position from which playback will start when the player starts playing the
+ * window. The following examples illustrate timelines for various use cases.
  *
  * <h3 id="single-file">Single media file or on-demand stream</h3>
  * <p align="center">
@@ -34,18 +34,18 @@ package com.google.android.exoplayer2;
  * </p>
  * A timeline for a single media file or on-demand stream consists of a single period and window.
  * The window spans the whole period, indicating that all parts of the media are available for
- * playback. The window's default start position is typically at the start of the period (indicated
- * by the black dot in the figure above).
-
+ * playback. The window's default position is typically at the start of the period (indicated by the
+ * black dot in the figure above).
+ *
  * <h3>Playlist of media files or on-demand streams</h3>
  * <p align="center">
  *   <img src="doc-files/timeline-playlist.svg" alt="Example timeline for a playlist of files">
  * </p>
  * A timeline for a playlist of media files or on-demand streams consists of multiple periods, each
  * with its own window. Each window spans the whole of the corresponding period, and typically has a
- * default start position at the start of the period. The properties of the periods and windows
- * (e.g. their durations and whether the window is seekable) will often only become known when the
- * player starts buffering the corresponding file or stream.
+ * default position at the start of the period. The properties of the periods and windows (e.g.
+ * their durations and whether the window is seekable) will often only become known when the player
+ * starts buffering the corresponding file or stream.
  *
  * <h3 id="live-limited">Live stream with limited availability</h3>
  * <p align="center">
@@ -56,8 +56,8 @@ package com.google.android.exoplayer2;
  * continually extending as more content is broadcast. If content only remains available for a
  * limited period of time then the window may start at a non-zero position, defining the region of
  * content that can still be played. The window will have {@link Window#isDynamic} set to true if
- * the stream is still live. Its default start position is typically near to the live edge
- * (indicated by the black dot in the figure above).
+ * the stream is still live. Its default position is typically near to the live edge (indicated by
+ * the black dot in the figure above).
  *
  * <h3>Live stream with indefinite availability</h3>
  * <p align="center">
@@ -86,8 +86,8 @@ package com.google.android.exoplayer2;
  * </p>
  * This case is the concatenation of the <a href="#single-file">Single media file or on-demand
  * stream</a> and <a href="#multi-period">Live stream with multiple periods</a> cases. When playback
- * of the pre-roll ends, playback of the live stream will start from its default start position near
- * the live edge.
+ * of the pre-roll ends, playback of the live stream will start from its default position near the
+ * live edge.
  */
 public abstract class Timeline {
 
@@ -206,7 +206,7 @@ public abstract class Timeline {
      */
     public int lastPeriodIndex;
 
-    private long defaultStartPositionUs;
+    private long defaultPositionUs;
     private long durationUs;
     private long positionInFirstPeriodUs;
 
@@ -214,14 +214,14 @@ public abstract class Timeline {
      * Sets the data held by this window.
      */
     public Window set(Object id, long presentationStartTimeMs, long windowStartTimeMs,
-        boolean isSeekable, boolean isDynamic, long defaultStartPositionUs, long durationUs,
+        boolean isSeekable, boolean isDynamic, long defaultPositionUs, long durationUs,
         int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs) {
       this.id = id;
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
-      this.defaultStartPositionUs = defaultStartPositionUs;
+      this.defaultPositionUs = defaultPositionUs;
       this.durationUs = durationUs;
       this.firstPeriodIndex = firstPeriodIndex;
       this.lastPeriodIndex = lastPeriodIndex;
@@ -233,16 +233,16 @@ public abstract class Timeline {
      * Returns the default position relative to the start of the window at which to begin playback,
      * in milliseconds.
      */
-    public long getDefaultStartPositionMs() {
-      return C.usToMs(defaultStartPositionUs);
+    public long getDefaultPositionMs() {
+      return C.usToMs(defaultPositionUs);
     }
 
     /**
      * Returns the default position relative to the start of the window at which to begin playback,
      * in microseconds.
      */
-    public long getDefaultStartPositionUs() {
-      return defaultStartPositionUs;
+    public long getDefaultPositionUs() {
+      return defaultPositionUs;
     }
 
     /**

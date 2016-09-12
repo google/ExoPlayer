@@ -913,7 +913,7 @@ import java.io.IOException;
     timeline.getWindow(period.windowIndex, window);
     periodIndex = window.firstPeriodIndex;
     long periodPositionUs = window.getPositionInFirstPeriodUs()
-        + window.getDefaultStartPositionUs();
+        + window.getDefaultPositionUs();
     timeline.getPeriod(periodIndex, period);
     while (periodIndex < window.lastPeriodIndex
         && periodPositionUs > period.getDurationMs()) {
