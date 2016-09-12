@@ -361,20 +361,6 @@ public final class TsExtractor implements Extractor {
     private int sectionBytesRead;
     private int crc;
 
-    private final class EsInfo {
-
-      final int streamType;
-      final int audioType;
-      final String language;
-
-      public EsInfo(int streamType, int audioType, String language) {
-        this.streamType = streamType;
-        this.audioType = audioType;
-        this.language = language;
-      }
-
-    }
-
     public PmtReader() {
       pmtScratch = new ParsableBitArray(new byte[5]);
       sectionData = new ParsableByteArray();
@@ -444,7 +430,7 @@ public final class TsExtractor implements Extractor {
         pmtScratch.skipBits(3); // reserved
         int elementaryPid = pmtScratch.readBits(13);
         pmtScratch.skipBits(4); // reserved
-        int esInfoLength = pmtScratch.readBits(12); // ES_info_length
+        int esInfoLength = pmtScratch.readBits(12); // ES_info_length.
         EsInfo esInfo = readEsInfo(sectionData, esInfoLength);
         if (streamType == 0x06) {
           streamType = esInfo.streamType;
@@ -527,6 +513,7 @@ public final class TsExtractor implements Extractor {
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
+        int positionOfNextDescriptor = data.getPosition() + descriptorLength;
         if (descriptorTag == TS_PMT_DESC_REGISTRATION) { // registration_descriptor
           long formatIdentifier = data.readUnsignedInt();
           if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
@@ -536,7 +523,6 @@ public final class TsExtractor implements Extractor {
           } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
             streamType = TS_STREAM_TYPE_H265;
           }
-          break;
         } else if (descriptorTag == TS_PMT_DESC_AC3) { // AC-3_descriptor in DVB (ETSI EN 300 468)
           streamType = TS_STREAM_TYPE_AC3;
         } else if (descriptorTag == TS_PMT_DESC_EAC3) { // enhanced_AC-3_descriptor
@@ -547,11 +533,25 @@ public final class TsExtractor implements Extractor {
           language = new String(data.data, data.getPosition(), 3).trim();
           audioType = data.data[data.getPosition() + 3];
         }
-
-        data.skipBytes(descriptorLength);
+        // Skip unused bytes of current descriptor.
+        data.skipBytes(positionOfNextDescriptor - data.getPosition());
       }
       data.setPosition(descriptorsEndPosition);
       return new EsInfo(streamType, audioType, language);
+    }
+
+    private final class EsInfo {
+
+      final int streamType;
+      final int audioType;
+      final String language;
+
+      public EsInfo(int streamType, int audioType, String language) {
+        this.streamType = streamType;
+        this.audioType = audioType;
+        this.language = language;
+      }
+
     }
 
   }
