@@ -31,11 +31,6 @@
     <item name="android:contentDescription">@string/next_description</item>
   </style>
 
-  <style name="MediaButton.Play">
-    <item name="android:src">@drawable/ic_media_play</item>
-    <item name="android:contentDescription">@string/play_description</item>
-  </style>
-
   <style name="MediaButton.Ffwd">
     <item name="android:src">@drawable/ic_media_ff</item>
     <item name="android:contentDescription">@string/ffw_description</item>
@@ -44,11 +39,6 @@
   <style name="MediaButton.Rew">
     <item name="android:src">@drawable/ic_media_rew</item>
     <item name="android:contentDescription">@string/rew_description</item>
-  </style>
-
-  <style name="MediaButton.Pause">
-    <item name="android:src">@drawable/ic_media_pause</item>
-    <item name="android:contentDescription">@string/pause_description</item>
   </style>
 
 </resources>

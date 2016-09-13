@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
@@ -53,6 +54,7 @@ public class PlaybackControlView extends FrameLayout {
   public static final int DEFAULT_REWIND_MS = 5000;
   public static final int DEFAULT_SHOW_DURATION_MS = 5000;
 
+  private static final int PROGRESS_BAR_MAX = 1000;
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
   private final ComponentListener componentListener;
@@ -72,7 +74,6 @@ public class PlaybackControlView extends FrameLayout {
   private VisibilityListener visibilityListener;
 
   private boolean dragging;
-  private boolean isProgressUpdating;
   private int rewindMs = DEFAULT_REWIND_MS;
   private int fastForwardMs = DEFAULT_FAST_FORWARD_MS;
   private int showDurationMs = DEFAULT_SHOW_DURATION_MS;
@@ -80,12 +81,7 @@ public class PlaybackControlView extends FrameLayout {
   private final Runnable updateProgressAction = new Runnable() {
     @Override
     public void run() {
-      long position = updateProgress();
-      if (!dragging && isVisible() && isPlaying()) {
-        postDelayed(updateProgressAction, 1000 - (position % 1000));
-      } else {
-        isProgressUpdating = false;
-      }
+      updateProgress();
     }
   };
 
@@ -109,14 +105,12 @@ public class PlaybackControlView extends FrameLayout {
     componentListener = new ComponentListener();
 
     LayoutInflater.from(context).inflate(R.layout.playback_control_view, this);
-
     time = (TextView) findViewById(R.id.time);
     timeCurrent = (TextView) findViewById(R.id.time_current);
     progressBar = (SeekBar) findViewById(R.id.mediacontroller_progress);
     progressBar.setOnSeekBarChangeListener(componentListener);
-    progressBar.setMax(1000);
-
-    playButton = (ImageButton) findViewById(R.id.pause);
+    progressBar.setMax(PROGRESS_BAR_MAX);
+    playButton = (ImageButton) findViewById(R.id.play);
     playButton.setOnClickListener(componentListener);
     previousButton = findViewById(R.id.prev);
     previousButton.setOnClickListener(componentListener);
@@ -126,6 +120,7 @@ public class PlaybackControlView extends FrameLayout {
     rewindButton.setOnClickListener(componentListener);
     fastForwardButton = findViewById(R.id.ffwd);
     fastForwardButton.setOnClickListener(componentListener);
+    updateAll();
   }
 
   /**
@@ -141,8 +136,7 @@ public class PlaybackControlView extends FrameLayout {
     if (player != null) {
       player.addListener(componentListener);
     }
-    updatePlayPauseButton();
-    updateTime();
+    updateAll();
   }
 
   /**
@@ -200,13 +194,9 @@ public class PlaybackControlView extends FrameLayout {
     if (visibilityListener != null) {
       visibilityListener.onVisibilityChange(getVisibility());
     }
-    isProgressUpdating = true;
-    post(updateProgressAction);
-    removeCallbacks(hideAction);
+    updateAll();
     showDurationMs = durationMs;
-    if (durationMs > 0) {
-      postDelayed(hideAction, durationMs);
-    }
+    hideDeferred();
   }
 
   /**
@@ -230,76 +220,99 @@ public class PlaybackControlView extends FrameLayout {
 
   private void hideDeferred() {
     removeCallbacks(hideAction);
-    if (showDurationMs != 0) {
+    if (showDurationMs > 0) {
       postDelayed(hideAction, showDurationMs);
     }
   }
 
+  private void updateAll() {
+    updatePlayPauseButton();
+    updateNavigation();
+    updateProgress();
+  }
+
   private void updatePlayPauseButton() {
-    playButton.setImageResource(player != null && player.getPlayWhenReady()
-        ? R.drawable.ic_media_pause : R.drawable.ic_media_play);
-  }
-
-  private void updateNavigationButtons() {
-    if (player.getCurrentTimeline() == null || player.getCurrentTimeline().getWindowCount() < 2) {
-      previousButton.setVisibility(GONE);
-      nextButton.setVisibility(GONE);
-    } else if (player.getCurrentWindowIndex() == 0) {
-      setButtonEnabled(previousButton, false);
-      setButtonEnabled(nextButton, true);
-    } else if (player.getCurrentWindowIndex() == player.getCurrentTimeline().getWindowCount() - 1) {
-      setButtonEnabled(previousButton, true);
-      setButtonEnabled(nextButton, false);
-    } else {
-      setButtonEnabled(previousButton, true);
-      setButtonEnabled(nextButton, true);
+    if (!isVisible()) {
+      return;
     }
+    boolean playing = player != null && player.getPlayWhenReady();
+    playButton.setImageResource(playing ? R.drawable.ic_media_pause : R.drawable.ic_media_play);
+    playButton.setContentDescription(
+        getResources().getString(playing ? R.string.pause_description : R.string.play_description));
   }
 
-  private void setButtonEnabled(View button, boolean enabled) {
-    button.setEnabled(enabled);
-    if (Util.SDK_INT >= 11) {
-      button.setAlpha(enabled ? 1f : 0.3f);
-      button.setVisibility(VISIBLE);
-    } else {
-      button.setVisibility(enabled ? VISIBLE : INVISIBLE);
+  private void updateNavigation() {
+    if (!isVisible()) {
+      return;
     }
-  }
-
-  private void updateUiForLiveStream() {
-    int visibility = player.getCurrentTimeline() != null && player.getCurrentTimeline()
-        .getWindow(player.getCurrentWindowIndex(), currentWindow).isDynamic ? GONE
-        : VISIBLE;
-    progressBar.setVisibility(visibility);
-    timeCurrent.setVisibility(visibility);
-    time.setVisibility(visibility);
-    fastForwardButton.setVisibility(visibility);
-    rewindButton.setVisibility(visibility);
-  }
-
-  private long updateProgress() {
-    if (player == null || dragging) {
-      return 0;
+    Timeline currentTimeline = player != null ? player.getCurrentTimeline() : null;
+    boolean haveTimeline = currentTimeline != null;
+    boolean isSeekable = false;
+    boolean enablePrevious = false;
+    boolean enableNext = false;
+    if (haveTimeline) {
+      int currentWindowIndex = player.getCurrentWindowIndex();
+      currentTimeline.getWindow(currentWindowIndex, currentWindow);
+      isSeekable = currentWindow.isSeekable;
+      enablePrevious = currentWindowIndex > 0 || isSeekable || !currentWindow.isDynamic;
+      enableNext = (currentWindowIndex < currentTimeline.getWindowCount() - 1)
+          || currentWindow.isDynamic;
     }
-    long position = player.getCurrentPosition();
-    long duration = player.getDuration();
-    if (progressBar != null) {
-      if (duration > 0) {
-        progressBar.setProgress((int) (1000 * position / duration));
+    setButtonEnabled(enablePrevious , previousButton);
+    setButtonEnabled(enableNext, nextButton);
+    setButtonEnabled(isSeekable, fastForwardButton);
+    setButtonEnabled(isSeekable, rewindButton);
+    progressBar.setEnabled(isSeekable);
+  }
+
+  private void updateProgress() {
+    if (!isVisible()) {
+      return;
+    }
+    long duration = player == null ? 0 : player.getDuration();
+    long position = player == null ? 0 : player.getCurrentPosition();
+    time.setText(stringForTime(duration));
+    if (!dragging) {
+      timeCurrent.setText(stringForTime(position));
+    }
+    if (!dragging) {
+      progressBar.setProgress(progressBarValue(position));
+    }
+    long bufferedPosition = player == null ? 0 : player.getBufferedPosition();
+    progressBar.setSecondaryProgress(progressBarValue(bufferedPosition));
+    // Remove scheduled updates.
+    removeCallbacks(updateProgressAction);
+    // Schedule an update if necessary.
+    int playbackState = player == null ? ExoPlayer.STATE_IDLE : player.getPlaybackState();
+    if (playbackState != ExoPlayer.STATE_IDLE && playbackState != ExoPlayer.STATE_ENDED) {
+      long delayMs;
+      if (player.getPlayWhenReady() && playbackState == ExoPlayer.STATE_READY) {
+        delayMs = 1000 - (position % 1000);
+        if (delayMs < 200) {
+          delayMs += 1000;
+        }
+      } else {
+        delayMs = 1000;
       }
-      progressBar.setSecondaryProgress(player.getBufferedPercentage() * 10);
+      postDelayed(updateProgressAction, delayMs);
     }
-    updateTime();
-    return position;
   }
 
-  private void updateTime() {
-    time.setText(stringForTime(player == null ? 0 : player.getDuration()));
-    timeCurrent.setText(stringForTime(player == null ? 0 : player.getCurrentPosition()));
+  private void setButtonEnabled(boolean enabled, View view) {
+    view.setEnabled(enabled);
+    if (Util.SDK_INT >= 11) {
+      view.setAlpha(enabled ? 1f : 0.3f);
+      view.setVisibility(VISIBLE);
+    } else {
+      view.setVisibility(enabled ? VISIBLE : INVISIBLE);
+    }
   }
 
   private String stringForTime(long timeMs) {
-    long totalSeconds = timeMs / 1000;
+    if (timeMs == C.TIME_UNSET) {
+      timeMs = 0;
+    }
+    long totalSeconds = (timeMs + 500) / 1000;
     long seconds = totalSeconds % 60;
     long minutes = (totalSeconds / 60) % 60;
     long hours = totalSeconds / 3600;
@@ -308,15 +321,26 @@ public class PlaybackControlView extends FrameLayout {
         : formatter.format("%02d:%02d", minutes, seconds).toString();
   }
 
-  private boolean isPlaying() {
-    return player != null && player.getPlayWhenReady() && (player.getPlaybackState()
-        == ExoPlayer.STATE_READY || player.getPlaybackState() == ExoPlayer.STATE_BUFFERING);
+  private int progressBarValue(long position) {
+    long duration = player == null ? C.TIME_UNSET : player.getDuration();
+    return duration == C.TIME_UNSET || duration == 0 ? 0
+        : (int) ((position * PROGRESS_BAR_MAX) / duration);
+  }
+
+  private long positionValue(int progress) {
+    long duration = player == null ? C.TIME_UNSET : player.getDuration();
+    return duration == C.TIME_UNSET ? 0 : ((duration * progress) / PROGRESS_BAR_MAX);
   }
 
   private void previous() {
+    Timeline currentTimeline = player.getCurrentTimeline();
+    if (currentTimeline == null) {
+      return;
+    }
     int currentWindowIndex = player.getCurrentWindowIndex();
-    if (currentWindowIndex > 0 && player.getCurrentPosition()
-        <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS) {
+    currentTimeline.getWindow(currentWindowIndex, currentWindow);
+    if (currentWindowIndex > 0 && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
+        || (currentWindow.isDynamic && !currentWindow.isSeekable))) {
       player.seekToDefaultPosition(currentWindowIndex - 1);
     } else {
       player.seekTo(0);
@@ -324,10 +348,15 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void next() {
-    int currentWindowIndex = player.getCurrentWindowIndex();
     Timeline currentTimeline = player.getCurrentTimeline();
-    if (currentTimeline != null && currentWindowIndex < currentTimeline.getWindowCount() - 1) {
+    if (currentTimeline == null) {
+      return;
+    }
+    int currentWindowIndex = player.getCurrentWindowIndex();
+    if (currentWindowIndex < currentTimeline.getWindowCount() - 1) {
       player.seekToDefaultPosition(currentWindowIndex + 1);
+    } else if (currentTimeline.getWindow(currentWindowIndex, currentWindow, false).isDynamic) {
+      player.seekToDefaultPosition();
     }
   }
 
@@ -386,37 +415,34 @@ public class PlaybackControlView extends FrameLayout {
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-      timeCurrent.setText(stringForTime(player == null ? 0 : player.getDuration() * progress
-          / 1000));
-      progressBar.setSecondaryProgress(player == null ? 0 : player.getBufferedPercentage() * 10);
+      if (fromUser) {
+        timeCurrent.setText(stringForTime(positionValue(progress)));
+      }
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
       dragging = false;
-      player.seekTo(player.getDuration() * seekBar.getProgress() / 1000);
+      player.seekTo(positionValue(seekBar.getProgress()));
       hideDeferred();
     }
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      if (isPlaying() && !isProgressUpdating) {
-        isProgressUpdating = true;
-        post(updateProgressAction);
-      }
       updatePlayPauseButton();
+      updateProgress();
     }
 
     @Override
     public void onPositionDiscontinuity() {
-      updateNavigationButtons();
+      updateNavigation();
       updateProgress();
-      updateUiForLiveStream();
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-      // Do nothing.
+      updateNavigation();
+      updateProgress();
     }
 
     @Override
