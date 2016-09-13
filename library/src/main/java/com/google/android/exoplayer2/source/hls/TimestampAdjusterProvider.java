@@ -34,22 +34,18 @@ public final class TimestampAdjusterProvider {
   /**
    * Returns a {@link TimestampAdjuster} suitable for adjusting the pts timestamps contained in
    * a chunk with a given discontinuity sequence.
-   * <p>
-   * This method may return null if the master source has yet to initialize a suitable adjuster.
    *
-   * @param isMasterSource True if the calling chunk source is the master.
    * @param discontinuitySequence The chunk's discontinuity sequence.
    * @param startTimeUs The chunk's start time.
    * @return A {@link TimestampAdjuster}.
    */
-  public TimestampAdjuster getAdjuster(boolean isMasterSource, int discontinuitySequence,
-      long startTimeUs) {
+  public TimestampAdjuster getAdjuster(int discontinuitySequence, long startTimeUs) {
     TimestampAdjuster adjuster = timestampAdjusters.get(discontinuitySequence);
-    if (isMasterSource && adjuster == null) {
+    if (adjuster == null) {
       adjuster = new TimestampAdjuster(startTimeUs);
       timestampAdjusters.put(discontinuitySequence, adjuster);
     }
-    return isMasterSource || (adjuster != null && adjuster.isInitialized()) ? adjuster : null;
+    return adjuster;
   }
 
   /**

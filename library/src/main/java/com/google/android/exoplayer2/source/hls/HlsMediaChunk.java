@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.ts.TimestampAdjuster;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -51,6 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean isEncrypted;
   private final boolean extractorNeedsInit;
   private final boolean shouldSpliceIn;
+  private final boolean isMasterTimestampSource;
+  private final TimestampAdjuster timestampAdjuster;
 
   private int bytesLoaded;
   private HlsSampleStreamWrapper extractorOutput;
@@ -68,6 +71,8 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The media sequence number of the chunk.
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
+   * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
+   * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param extractor The extractor to decode samples from the data.
    * @param extractorNeedsInit Whether the extractor needs initializing with the target
    *     {@link HlsSampleStreamWrapper}.
@@ -78,12 +83,14 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
       int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, int discontinuitySequenceNumber, Extractor extractor,
-      boolean extractorNeedsInit, boolean shouldSpliceIn, byte[] encryptionKey,
-      byte[] encryptionIv) {
+      int chunkIndex, int discontinuitySequenceNumber, boolean isMasterTimestampSource,
+      TimestampAdjuster timestampAdjuster, Extractor extractor, boolean extractorNeedsInit,
+      boolean shouldSpliceIn, byte[] encryptionKey, byte[] encryptionIv) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, trackFormat,
         trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
+    this.isMasterTimestampSource = isMasterTimestampSource;
+    this.timestampAdjuster = timestampAdjuster;
     this.extractor = extractor;
     this.extractorNeedsInit = extractorNeedsInit;
     this.shouldSpliceIn = shouldSpliceIn;
@@ -166,6 +173,9 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
       try {
         int result = Extractor.RESULT_CONTINUE;
+        if (!isMasterTimestampSource && timestampAdjuster != null) {
+          timestampAdjuster.waitUntilInitialized();
+        }
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractor.read(input, null);
         }

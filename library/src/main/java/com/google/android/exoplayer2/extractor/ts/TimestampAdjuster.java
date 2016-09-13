@@ -59,13 +59,6 @@ public final class TimestampAdjuster {
   }
 
   /**
-   * Whether this adjuster has been initialized with a first MPEG-2 TS presentation timestamp.
-   */
-  public boolean isInitialized() {
-    return lastSampleTimestamp != C.TIME_UNSET;
-  }
-
-  /**
    * Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.
    *
    * @param pts The MPEG-2 TS presentation timestamp.
@@ -92,13 +85,32 @@ public final class TimestampAdjuster {
    * @return The adjusted timestamp in microseconds.
    */
   public long adjustSampleTimestamp(long timeUs) {
-    if (firstSampleTimestampUs != DO_NOT_OFFSET && lastSampleTimestamp == C.TIME_UNSET) {
-      // Calculate the timestamp offset.
-      timestampOffsetUs = firstSampleTimestampUs - timeUs;
-    }
     // Record the adjusted PTS to adjust for wraparound next time.
-    lastSampleTimestamp = timeUs;
+    if (lastSampleTimestamp != C.TIME_UNSET) {
+      lastSampleTimestamp = timeUs;
+    } else {
+      if (firstSampleTimestampUs != DO_NOT_OFFSET) {
+        // Calculate the timestamp offset.
+        timestampOffsetUs = firstSampleTimestampUs - timeUs;
+      }
+      synchronized (this) {
+        lastSampleTimestamp = timeUs;
+        // Notify threads waiting for this adjuster to be initialized.
+        notifyAll();
+      }
+    }
     return timeUs + timestampOffsetUs;
+  }
+
+  /**
+   * Blocks the calling thread until this adjuster is initialized.
+   *
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  public synchronized void waitUntilInitialized() throws InterruptedException {
+    while (lastSampleTimestamp == C.TIME_UNSET) {
+      wait();
+    }
   }
 
   /**

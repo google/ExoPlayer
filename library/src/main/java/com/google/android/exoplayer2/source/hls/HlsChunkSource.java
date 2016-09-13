@@ -329,6 +329,8 @@ import java.util.Locale;
     // Configure the extractor that will read the chunk.
     Extractor extractor;
     boolean extractorNeedsInit = true;
+    boolean isTimestampMaster = false;
+    TimestampAdjuster timestampAdjuster = null;
     String lastPathSegment = chunkUri.getLastPathSegment();
     if (lastPathSegment.endsWith(AAC_FILE_EXTENSION)) {
       // TODO: Inject a timestamp adjuster and use it along with ID3 PRIV tag values with owner
@@ -342,25 +344,16 @@ import java.util.Locale;
       extractor = new Mp3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
-      TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
-          segment.discontinuitySequenceNumber, startTimeUs);
-      if (timestampAdjuster == null) {
-        // The master source has yet to instantiate an adjuster for the discontinuity sequence.
-        // TODO: There's probably an edge case if the master starts playback at a chunk belonging to
-        // a discontinuity sequence greater than the one that this source is trying to start at.
-        return;
-      }
+      timestampAdjuster = timestampAdjusterProvider.getAdjuster(segment.discontinuitySequenceNumber,
+          startTimeUs);
       extractor = new WebvttExtractor(format.language, timestampAdjuster);
     } else if (previous == null
         || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || format != previous.trackFormat) {
       // MPEG-2 TS segments, but we need a new extractor.
-      TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
-          segment.discontinuitySequenceNumber, startTimeUs);
-      if (timestampAdjuster == null) {
-        // The master source has yet to instantiate an adjuster for the discontinuity sequence.
-        return;
-      }
+      isTimestampMaster = true;
+      timestampAdjuster = timestampAdjusterProvider.getAdjuster(segment.discontinuitySequenceNumber,
+          startTimeUs);
       // This flag ensures the change of pid between streams does not affect the sample queues.
       int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
       String codecs = variants[newVariantIndex].format.codecs;
@@ -384,8 +377,9 @@ import java.util.Locale;
 
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, format,
         trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        startTimeUs, endTimeUs, chunkMediaSequence, segment.discontinuitySequenceNumber, extractor,
-        extractorNeedsInit, switchingVariant, encryptionKey, encryptionIv);
+        startTimeUs, endTimeUs, chunkMediaSequence, segment.discontinuitySequenceNumber,
+        isTimestampMaster, timestampAdjuster, extractor, extractorNeedsInit, switchingVariant,
+        encryptionKey, encryptionIv);
   }
 
   /**
