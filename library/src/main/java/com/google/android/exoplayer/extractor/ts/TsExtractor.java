@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.ts;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.DummyTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
@@ -39,6 +41,7 @@ public final class TsExtractor implements Extractor {
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;
   public static final int WORKAROUND_IGNORE_H264_STREAM = 4;
   public static final int WORKAROUND_DETECT_ACCESS_UNITS = 8;
+  public static final int WORKAROUND_MAP_BY_TYPE = 16;
 
   private static final String TAG = "TsExtractor";
 
@@ -57,21 +60,26 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_H265 = 0x24;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
-  private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
+  private static final int BASE_EMBEDDED_TRACK_ID = 0x2000; // Max PID + 1.
 
   private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
   private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
   private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
+  private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
+  private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
+
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final int workaroundFlags;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
+  private final SparseIntArray continuityCounters;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  /* package */ final SparseBooleanArray streamTypes;
+  /* package */ final SparseBooleanArray trackIds;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
+  private int nextEmbeddedTrackId;
   /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
@@ -85,26 +93,33 @@ public final class TsExtractor implements Extractor {
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, int workaroundFlags) {
     this.ptsTimestampAdjuster = ptsTimestampAdjuster;
     this.workaroundFlags = workaroundFlags;
-    tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
+    tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    streamTypes = new SparseBooleanArray();
+    trackIds = new SparseBooleanArray();
+    nextEmbeddedTrackId = BASE_EMBEDDED_TRACK_ID;
+    continuityCounters = new SparseIntArray();
   }
 
   // Extractor implementation.
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    byte[] scratch = new byte[1];
-    for (int i = 0; i < 5; i++) {
-      input.peekFully(scratch, 0, 1);
-      if ((scratch[0] & 0xFF) != 0x47) {
-        return false;
+    byte[] buffer = tsPacketBuffer.data;
+    input.peekFully(buffer, 0, BUFFER_SIZE);
+    for (int j = 0; j < TS_PACKET_SIZE; j++) {
+      for (int i = 0; true; i++) {
+        if (i == BUFFER_PACKET_COUNT) {
+          input.skipFully(j);
+          return true;
+        }
+        if (buffer[j + i * TS_PACKET_SIZE] != TS_SYNC_BYTE) {
+          break;
+        }
       }
-      input.advancePeekPosition(TS_PACKET_SIZE - 1);
     }
-    return true;
+    return false;
   }
 
   @Override
@@ -119,6 +134,8 @@ public final class TsExtractor implements Extractor {
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();
     }
+    tsPacketBuffer.reset();
+    continuityCounters.clear();
   }
 
   @Override
@@ -129,28 +146,63 @@ public final class TsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
-    if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
-      return RESULT_END_OF_INPUT;
+    byte[] data = tsPacketBuffer.data;
+    // Shift bytes to the start of the buffer if there isn't enough space left at the end
+    if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
+      int bytesLeft = tsPacketBuffer.bytesLeft();
+      if (bytesLeft > 0) {
+        System.arraycopy(data, tsPacketBuffer.getPosition(), data, 0, bytesLeft);
+      }
+      tsPacketBuffer.reset(data, bytesLeft);
+    }
+    // Read more bytes until there is at least one packet size
+    while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
+      int limit = tsPacketBuffer.limit();
+      int read = input.read(data, limit, BUFFER_SIZE - limit);
+      if (read == C.RESULT_END_OF_INPUT) {
+        return RESULT_END_OF_INPUT;
+      }
+      tsPacketBuffer.setLimit(limit + read);
     }
 
     // Note: see ISO/IEC 13818-1, section 2.4.3.2 for detailed information on the format of
     // the header.
-    tsPacketBuffer.setPosition(0);
-    tsPacketBuffer.setLimit(TS_PACKET_SIZE);
-    int syncByte = tsPacketBuffer.readUnsignedByte();
-    if (syncByte != TS_SYNC_BYTE) {
+    final int limit = tsPacketBuffer.limit();
+    int position = tsPacketBuffer.getPosition();
+    while (position < limit && data[position] != TS_SYNC_BYTE) {
+      position++;
+    }
+    tsPacketBuffer.setPosition(position);
+
+    int endOfPacket = position + TS_PACKET_SIZE;
+    if (endOfPacket > limit) {
       return RESULT_CONTINUE;
     }
 
+    tsPacketBuffer.skipBytes(1);
     tsPacketBuffer.readBytes(tsScratch, 3);
-    tsScratch.skipBits(1); // transport_error_indicator
+    if (tsScratch.readBit()) { // transport_error_indicator
+      // There are uncorrectable errors in this packet.
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
+    }
     boolean payloadUnitStartIndicator = tsScratch.readBit();
     tsScratch.skipBits(1); // transport_priority
     int pid = tsScratch.readBits(13);
     tsScratch.skipBits(2); // transport_scrambling_control
     boolean adaptationFieldExists = tsScratch.readBit();
     boolean payloadExists = tsScratch.readBit();
-    // Last 4 bits of scratch are skipped: continuity_counter
+    boolean discontinuityFound = false;
+    int continuityCounter = tsScratch.readBits(4);
+    int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
+    continuityCounters.put(pid, continuityCounter);
+    if (previousCounter == continuityCounter) {
+      // Duplicate packet found.
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
+    } else if (continuityCounter != (previousCounter + 1) % 16) {
+      discontinuityFound = true;
+    }
 
     // Skip the adaptation field.
     if (adaptationFieldExists) {
@@ -162,10 +214,17 @@ public final class TsExtractor implements Extractor {
     if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
       if (payloadReader != null) {
+        if (discontinuityFound) {
+          payloadReader.seek();
+        }
+        tsPacketBuffer.setLimit(endOfPacket);
         payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
+        Assertions.checkState(tsPacketBuffer.getPosition() <= endOfPacket);
+        tsPacketBuffer.setLimit(limit);
       }
     }
 
+    tsPacketBuffer.setPosition(endOfPacket);
     return RESULT_CONTINUE;
   }
 
@@ -202,9 +261,15 @@ public final class TsExtractor implements Extractor {
    */
   private class PatReader extends TsPayloadReader {
 
+    private final ParsableByteArray sectionData;
     private final ParsableBitArray patScratch;
 
+    private int sectionLength;
+    private int sectionBytesRead;
+    private int crc;
+
     public PatReader() {
+      sectionData = new ParsableByteArray();
       patScratch = new ParsableBitArray(new byte[4]);
     }
 
@@ -220,18 +285,38 @@ public final class TsExtractor implements Extractor {
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
         data.skipBytes(pointerField);
+
+        // Note: see ISO/IEC 13818-1, section 2.4.4.3 for detailed information on the format of
+        // the header.
+        data.readBytes(patScratch, 3);
+        patScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
+        sectionLength = patScratch.readBits(12);
+        sectionBytesRead = 0;
+        crc = Util.crc(patScratch.data, 0, 3, 0xFFFFFFFF);
+
+        sectionData.reset(sectionLength);
       }
 
-      data.readBytes(patScratch, 3);
-      patScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
-      int sectionLength = patScratch.readBits(12);
+      int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
+      data.readBytes(sectionData.data, sectionBytesRead, bytesToRead);
+      sectionBytesRead += bytesToRead;
+      if (sectionBytesRead < sectionLength) {
+        // Not yet fully read.
+        return;
+      }
+
+      if (Util.crc(sectionData.data, 0, sectionLength, crc) != 0) {
+        // CRC Invalid. The section gets discarded.
+        return;
+      }
+
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8)
-      data.skipBytes(5);
+      sectionData.skipBytes(5);
 
       int programCount = (sectionLength - 9) / 4;
       for (int i = 0; i < programCount; i++) {
-        data.readBytes(patScratch, 4);
+        sectionData.readBytes(patScratch, 4);
         int programNumber = patScratch.readBits(16);
         patScratch.skipBits(3); // reserved (3)
         if (programNumber == 0) {
@@ -257,6 +342,7 @@ public final class TsExtractor implements Extractor {
 
     private int sectionLength;
     private int sectionBytesRead;
+    private int crc;
 
     public PmtReader() {
       pmtScratch = new ParsableBitArray(new byte[5]);
@@ -281,13 +367,10 @@ public final class TsExtractor implements Extractor {
         data.readBytes(pmtScratch, 3);
         pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
         sectionLength = pmtScratch.readBits(12);
+        sectionBytesRead = 0;
+        crc = Util.crc(pmtScratch.data, 0, 3, 0xFFFFFFFF);
 
-        if (sectionData.capacity() < sectionLength) {
-          sectionData.reset(new byte[sectionLength], sectionLength);
-        } else {
-          sectionData.reset();
-          sectionData.setLimit(sectionLength);
-        }
+        sectionData.reset(sectionLength);
       }
 
       int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
@@ -295,6 +378,11 @@ public final class TsExtractor implements Extractor {
       sectionBytesRead += bytesToRead;
       if (sectionBytesRead < sectionLength) {
         // Not yet fully read.
+        return;
+      }
+
+      if (Util.crc(sectionData.data, 0, sectionLength, crc) != 0) {
+        // CRC Invalid. The section gets discarded.
         return;
       }
 
@@ -311,7 +399,7 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if (id3Reader == null) {
+      if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See b/20261500.
         id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
@@ -333,48 +421,52 @@ public final class TsExtractor implements Extractor {
           sectionData.skipBytes(esInfoLength);
         }
         remainingEntriesLength -= esInfoLength + 5;
-        if (streamTypes.get(streamType)) {
+        int trackId = (workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 ? streamType : elementaryPid;
+        if (trackIds.get(trackId)) {
           continue;
         }
-
         ElementaryStreamReader pesPayloadReader;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
-            pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA));
+            pesPayloadReader = new MpegAudioReader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_MPA_LSF:
-            pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA_LSF));
+            pesPayloadReader = new MpegAudioReader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_AAC_STREAM) != 0 ? null
-                : new AdtsReader(output.track(TS_STREAM_TYPE_AAC), new DummyTrackOutput());
+                : new AdtsReader(output.track(trackId), new DummyTrackOutput());
             break;
           case TS_STREAM_TYPE_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);
+            pesPayloadReader = new Ac3Reader(output.track(trackId), false);
             break;
           case TS_STREAM_TYPE_E_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_E_AC3), true);
+            pesPayloadReader = new Ac3Reader(output.track(trackId), true);
             break;
           case TS_STREAM_TYPE_DTS:
           case TS_STREAM_TYPE_HDMV_DTS:
-            pesPayloadReader = new DtsReader(output.track(TS_STREAM_TYPE_DTS));
+            pesPayloadReader = new DtsReader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_H262:
-            pesPayloadReader = new H262Reader(output.track(TS_STREAM_TYPE_H262));
+            pesPayloadReader = new H262Reader(output.track(trackId));
             break;
           case TS_STREAM_TYPE_H264:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_H264_STREAM) != 0 ? null
-                : new H264Reader(output.track(TS_STREAM_TYPE_H264),
-                    new SeiReader(output.track(TS_STREAM_TYPE_EIA608)),
+                : new H264Reader(output.track(trackId),
+                    new SeiReader(output.track(nextEmbeddedTrackId++)),
                     (workaroundFlags & WORKAROUND_ALLOW_NON_IDR_KEYFRAMES) != 0,
                     (workaroundFlags & WORKAROUND_DETECT_ACCESS_UNITS) != 0);
             break;
           case TS_STREAM_TYPE_H265:
-            pesPayloadReader = new H265Reader(output.track(TS_STREAM_TYPE_H265),
-                new SeiReader(output.track(TS_STREAM_TYPE_EIA608)));
+            pesPayloadReader = new H265Reader(output.track(trackId),
+                new SeiReader(output.track(nextEmbeddedTrackId++)));
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = id3Reader;
+            if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0) {
+              pesPayloadReader = id3Reader;
+            } else {
+              pesPayloadReader = new Id3Reader(output.track(nextEmbeddedTrackId++));
+            }
             break;
           default:
             pesPayloadReader = null;
@@ -382,7 +474,7 @@ public final class TsExtractor implements Extractor {
         }
 
         if (pesPayloadReader != null) {
-          streamTypes.put(streamType, true);
+          trackIds.put(trackId, true);
           tsPayloadReaders.put(elementaryPid,
               new PesReader(pesPayloadReader, ptsTimestampAdjuster));
         }

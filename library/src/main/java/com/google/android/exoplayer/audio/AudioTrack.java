@@ -168,7 +168,7 @@ public final class AudioTrack {
 
   /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
-   * active across releasing/initializing a new audio track, on platform API version before 21.
+   * active across releasing/initializing a new audio track, on platform API version &lt; 21.
    * <p>
    * The flag must be set before creating a player.
    */
@@ -693,10 +693,10 @@ public final class AudioTrack {
   }
 
   /**
-   * Sets the playback parameters. Only available for SDK_INT >= 23
+   * Sets the playback parameters. Only available for SDK_INT &gt;= 23
    *
    * @throws UnsupportedOperationException if the Playback Parameters are not supported. That is,
-   *     SDK_INT < 23.
+   *     SDK_INT &lt; 23.
    */
   public void setPlaybackParams(PlaybackParams playbackParams) {
     audioTrackUtil.setPlaybackParameters(playbackParams);
@@ -1225,7 +1225,7 @@ public final class AudioTrack {
      *
      * @param playbackParams to be used by the {@link android.media.AudioTrack}.
      * @throws UnsupportedOperationException If Playback Parameters are not supported
-     *     (i.e. SDK_INT < 23).
+     *     (i.e. SDK_INT &lt; 23).
      */
     public void setPlaybackParameters(PlaybackParams playbackParams) {
       throw new UnsupportedOperationException();

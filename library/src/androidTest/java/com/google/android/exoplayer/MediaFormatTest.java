@@ -45,7 +45,7 @@ public final class MediaFormatTest extends TestCase {
   public void testParcelable() {
     MediaFormat formatToParcel = new MediaFormat("id", MimeTypes.VIDEO_H264, 1024, 2048,
         C.UNKNOWN_TIME_US, 1920, 1080, 90, 2, 6, 44100, "und", MediaFormat.OFFSET_SAMPLE_RELATIVE,
-        INIT_DATA, false, 5000, 5001, 5002, 5003, 5004);
+        INIT_DATA, false, 5000, 5001, 5002, 5003, 5004, null, C.STEREO_MODE_TOP_BOTTOM);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);

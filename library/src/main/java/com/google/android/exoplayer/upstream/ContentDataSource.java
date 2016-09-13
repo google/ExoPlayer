@@ -43,6 +43,7 @@ public final class ContentDataSource implements UriDataSource {
   private final ContentResolver resolver;
   private final TransferListener listener;
 
+  private AssetFileDescriptor assetFileDescriptor;
   private InputStream inputStream;
   private String uriString;
   private long bytesRemaining;
@@ -69,8 +70,8 @@ public final class ContentDataSource implements UriDataSource {
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
       uriString = dataSpec.uri.toString();
-      AssetFileDescriptor assetFd = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
-      inputStream = new FileInputStream(assetFd.getFileDescriptor());
+      assetFileDescriptor = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
+      inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
@@ -135,13 +136,22 @@ public final class ContentDataSource implements UriDataSource {
   @Override
   public void close() throws ContentDataSourceException {
     uriString = null;
-    if (inputStream != null) {
-      try {
+    try {
+      if (inputStream != null) {
         inputStream.close();
+      }
+    } catch (IOException e) {
+      throw new ContentDataSourceException(e);
+    } finally {
+      inputStream = null;
+      try {
+        if (assetFileDescriptor != null) {
+          assetFileDescriptor.close();
+        }
       } catch (IOException e) {
         throw new ContentDataSourceException(e);
       } finally {
-        inputStream = null;
+        assetFileDescriptor = null;
         if (opened) {
           opened = false;
           if (listener != null) {

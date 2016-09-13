@@ -97,7 +97,7 @@ public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
 
     // Otherwise look for a second zero byte.
     while (terminationPos < data.length - 1) {
-      if (data[terminationPos + 1] == (byte) 0) {
+      if (terminationPos % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
         return terminationPos;
       }
       terminationPos = indexOfZeroByte(data, terminationPos + 1);

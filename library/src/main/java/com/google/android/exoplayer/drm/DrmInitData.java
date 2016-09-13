@@ -17,6 +17,7 @@ package com.google.android.exoplayer.drm;
 
 import android.media.MediaDrm;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +34,7 @@ public interface DrmInitData {
    * @param schemeUuid The DRM scheme's UUID.
    * @return The initialization data for the scheme, or null if the scheme is not supported.
    */
-  public abstract SchemeInitData get(UUID schemeUuid);
+  public SchemeInitData get(UUID schemeUuid);
 
   /**
    * A {@link DrmInitData} implementation that maps UUID onto scheme specific data.
@@ -61,6 +62,28 @@ public interface DrmInitData {
       schemeData.put(schemeUuid, schemeInitData);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      Mapped rhs = (Mapped) obj;
+      if (schemeData.size() != rhs.schemeData.size()) {
+        return false;
+      }
+      for (UUID uuid : schemeData.keySet()) {
+        if (!Util.areEqual(schemeData.get(uuid), rhs.schemeData.get(uuid))) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return schemeData.hashCode();
+    }
+
   }
 
   /**
@@ -79,6 +102,19 @@ public interface DrmInitData {
       return data;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      } else {
+        return Util.areEqual(data, ((Universal) obj).data);
+      }
+    }
+
+    @Override
+    public int hashCode() {
+      return data.hashCode();
+    }
   }
 
   /**

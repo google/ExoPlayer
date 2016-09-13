@@ -496,7 +496,7 @@ public class DashChunkSource implements ChunkSource, Output {
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
           : queue.get(out.queueSize - 1).getNextChunkIndex();
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
-        mediaFormat, enabledTrack, segmentNum, evaluation.trigger);
+        mediaFormat, enabledTrack, segmentNum, evaluation.trigger, mediaFormat != null);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -696,7 +696,8 @@ public class DashChunkSource implements ChunkSource, Output {
 
   protected Chunk newMediaChunk(
       PeriodHolder periodHolder, RepresentationHolder representationHolder, DataSource dataSource,
-      MediaFormat mediaFormat, ExposedTrack enabledTrack, int segmentNum, int trigger) {
+      MediaFormat mediaFormat, ExposedTrack enabledTrack, int segmentNum, int trigger,
+      boolean isMediaFormatFinal) {
     Representation representation = representationHolder.representation;
     Format format = representation.format;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
@@ -711,7 +712,6 @@ public class DashChunkSource implements ChunkSource, Output {
           startTimeUs, endTimeUs, segmentNum, enabledTrack.trackFormat, null,
           periodHolder.localIndex);
     } else {
-      boolean isMediaFormatFinal = (mediaFormat != null);
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
           segmentNum, sampleOffsetUs, representationHolder.extractorWrapper, mediaFormat,
           enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight, periodHolder.drmInitData,

@@ -56,6 +56,16 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Resets the position to zero and the limit to the specified value. If the limit exceeds the
+   * capacity, {@code data} is replaced with a new array of sufficient size.
+   *
+   * @param limit The limit to set.
+   */
+  public void reset(int limit) {
+    reset(capacity() < limit ? new byte[limit] : data, limit);
+  }
+
+  /**
    * Updates the instance to wrap {@code data}, and resets the position to zero.
    *
    * @param data The array to wrap.
@@ -326,6 +336,11 @@ public final class ParsableByteArray {
       throw new IllegalStateException("Top bit not zero: " + result);
     }
     return result;
+  }
+
+  /** Reads the next four bytes as a 32-bit floating point value. */
+  public float readFloat() {
+    return Float.intBitsToFloat(readInt());
   }
 
   /** Reads the next eight bytes as a 64-bit floating point value. */
