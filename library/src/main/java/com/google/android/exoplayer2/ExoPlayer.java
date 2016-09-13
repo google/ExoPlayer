@@ -44,8 +44,8 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * Components common to all ExoPlayer implementations are:
  * <ul>
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
- *   which the loaded media can be read. A MediaSource is injected via {@link #prepare} to prepare
- *   the player for playback. The library provides default implementations for regular media files
+ *   which the loaded media can be read. A MediaSource is injected via {@link #prepare} at the start
+ *   of playback. The library provides default implementations for regular media files
  *   ({@link ExtractorMediaSource}), DASH ({@link DashMediaSource}), SmoothStreaming
  *   ({@link SsMediaSource}) and HLS ({@link HlsMediaSource}), implementations for merging
  *   ({@link MergingMediaSource}) and concatenating ({@link ConcatenatingMediaSource}) other

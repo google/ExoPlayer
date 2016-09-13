@@ -39,9 +39,11 @@ public final class ExoPlayerFactory {
    *
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector) {
-    return newSimpleInstance(context, trackSelector, new DefaultLoadControl(), null);
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
+      LoadControl loadControl) {
+    return newSimpleInstance(context, trackSelector, loadControl, null);
   }
 
   /**
