@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Supported formats
-weight: 2
+weight: 3
 ---
 
 When defining the formats that ExoPlayer supports, it's important to note that
@@ -99,6 +99,7 @@ ExoPlayer. The contained sample formats must also be supported (see the
 | Container format | Supported    | Comment              |
 |------------------|:------------:|:---------------------|
 | MP4 | YES ||
+| M4A | YES ||
 | FMP4 | YES ||
 | WebM| YES ||
 | Matroska| YES ||
@@ -127,8 +128,34 @@ In addition to using Android's platform decoders, ExoPlayer can also make use of
 software decoder extensions. These must be manually built and included in
 projects that wish to make use of them. We currently provide software decoder
 extensions for
-[VP9](https://github.com/google/ExoPlayer/tree/master/extensions/vp9),
-[Flac](https://github.com/google/ExoPlayer/tree/master/extensions/flac) and
-[Opus](https://github.com/google/ExoPlayer/tree/master/extensions/opus).
+[VP9](https://github.com/google/ExoPlayer/tree/release-v2/extensions/vp9),
+[Flac](https://github.com/google/ExoPlayer/tree/release-v2/extensions/flac),
+[Opus](https://github.com/google/ExoPlayer/tree/release-v2/extensions/opus) and
+[FFmpeg](https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg).
 
-[Flac extension]: https://github.com/google/ExoPlayer/tree/master/extensions/flac
+### FFmpeg extension ###
+
+The [FFmpeg extension][] supports decoding a variety of different audio sample
+formats. You can choose which decoders to include by passing command line
+arguments to FFmpeg's `configure` script:
+
+| Sample format  | Argument(s) to `configure` |
+|---------------:|----------------------------|
+| Vorbis         | --enable-decoder=vorbis |
+| Opus           | --enable-decoder=opus |
+| FLAC           | --enable-decoder=flac |
+| MP3            | --enable-decoder=mp3 |
+| AMR-NB         | --enable-decoder=armnb |
+| ARM-WB         | --enable-decoder=armwb |
+| AAC            | --enable-decoder=aac |
+| AC-3           | --enable-decoder=ac3 |
+| E-AC-3         | --enable-decoder=eac3 |
+| DTS, DTS-HD    | --enable-decoder=dca |
+| TrueHD         | --enable-decoder=mlp --enable-decoder=truehd |
+
+See the extension's
+[README.md](https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg/README.md)
+for an example command line to `configure`.
+
+[Flac extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/flac
+[FFmpeg extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffpmeg

@@ -1,8 +1,7 @@
 ---
 layout: default
 title: Demo application
-weight: 3
-exclude_from_menu: true
+weight: 2
 ---
 
 The ExoPlayer demo app serves two primary purposes:
@@ -78,8 +77,8 @@ There are multiple ways to play your own content in the demo app.
 ### 1. Editing assets/media.exolist.json ###
 
 The samples listed in the demo app are loaded from `assets/media.exolist.json`.
-By editing this JSON file it's possible add and remove samples from the demo
-app. The schema for samples is:
+By editing this JSON file it's possible to add and remove samples from the demo
+app. The schema is as follows, where [O] indicates an optional attribute.
 
 {% highlight json %}
 [
@@ -89,10 +88,11 @@ app. The schema for samples is:
       {
         "name": "Name of sample",
         "uri": "The URI/URL of the sample",
-        "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8",
-        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders",
-        "drm_scheme": "[Optional] Drm scheme if protected. Values: widevine, playready",
-        "drm_license_url": "[Optional] URL of the license server if protected"
+        "extension": "[O] Sample type hint. Values: mpd, ism, m3u8",
+        "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
+        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready",
+        "drm_license_url": "[O] URL of the license server if protected",
+        "drm_key_request_properties": "[O] Key request headers if protected"
       },
       ...etc
     ]
@@ -101,7 +101,7 @@ app. The schema for samples is:
 ]
 {% endhighlight %}
 
-Playlists of samples can also be added using the schema:
+Playlists of samples can be specified using the schema:
 
 {% highlight json %}
 [
@@ -110,17 +110,18 @@ Playlists of samples can also be added using the schema:
     "samples": [
       {
         "name": "Name of playlist sample",
-        "prefer_extension_decoders": "[Optional] Boolean to prefer extension decoders",
-        "drm_scheme": "[Optional] Drm scheme if protected. Values: widevine, playready",
-        "drm_license_url": "[Optional] URL of the license server if protected",
+        "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
+        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready",
+        "drm_license_url": "[O] URL of the license server if protected",
+        "drm_key_request_properties": "[O] Key request headers if protected"
         "playlist": [
           {
             "uri": "The URI/URL of the first sample in the playlist",
-            "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8"
+            "extension": "[O] Sample type hint. Values: mpd, ism, m3u8"
           },
           {
             "uri": "The URI/URL of the first sample in the playlist",
-            "extension": "[Optional] Sample type hint. Values: mpd, ism, m3u8"
+            "extension": "[O] Sample type hint. Values: mpd, ism, m3u8"
           },
           ...etc
         ]
@@ -130,6 +131,17 @@ Playlists of samples can also be added using the schema:
   },
   ...etc
 ]
+{% endhighlight %}
+
+If required, key request headers are specified as an object containing a string
+attribute for each header:
+
+{% highlight json %}
+"drm_key_request_properties": {
+  "name1": "value1",
+  "name2": "value2",
+  ...etc
+}
 {% endhighlight %}
 
 ### 2. Loading an external exolist.json file ###
@@ -163,19 +175,22 @@ adb shell am start -a com.google.android.exoplayer.demo.action.VIEW \
 Supported optional extras for a single sample intent are:
 
 * `extension` [String] Sample type hint. Valid values: mpd, ism, m3u8
-* `drm_scheme_uuid` [String] Drm scheme UUID if protected
-* `drm_license_url` [String] Url of the license server if protected
 * `prefer_extension_decoders` [Boolean] Whether extension decoders are preferred
   to platform ones
+* `drm_scheme_uuid` [String] Drm scheme UUID if protected
+* `drm_license_url` [String] Url of the license server if protected
+* `drm_key_request_properties` [String array] Key request headers packed as
+  name1, value1, name2, value2 etc. if protected
 
 When using `adb shell am start` to fire an intent, an optional string extra can
 be set with `--es` (e.g. `--es extension mpd`). An optional boolean extra can be
-set with `--ez` (e.g. `--ez prefer_extension_decoders TRUE`).
+set with `--ez` (e.g. `--ez prefer_extension_decoders TRUE`). An optional string
+array extra can be set with `--esa` (e.g. `--esa drm_key_request_properties
+name1,value1`).
 
 To play a playlist of samples set the intent's action to
 `com.google.android.exoplayer.demo.action.VIEW_LIST` and use a `uri_list` string
-array extra instead of a data URI. When using `adb shell am start` to fire an
-intent, a string array extra can be set with `--esa`. For example:
+array extra instead of a data URI. For example:
 
 {% highlight shell %}
 adb shell am start -a com.google.android.exoplayer.demo.action.VIEW_LIST \
@@ -186,8 +201,8 @@ Supported optional extras for a playlist intent are:
 
 * `extension_list` [String array] Sample type hints. Entries may be empty or one
   of: mpd, ism, m3u8
-* `drm_scheme_uuid`, `drm_license_url` and `prefer_extension_decoders`, all as
-  described above
+* `prefer_extension_decoders`, `drm_scheme_uuid`, `drm_license_url` and
+  `drm_key_request_properties`, all as described above
 
 [GitHub project]: https://github.com/google/ExoPlayer
 [FAQ - Does ExoPlayer support emulators?]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators

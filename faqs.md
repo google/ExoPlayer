@@ -1,7 +1,7 @@
 ---
 layout: default
 title: FAQs
-weight: 4
+weight: 5
 ---
 
 * [What formats does ExoPlayer support?][]

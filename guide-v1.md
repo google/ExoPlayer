@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Developer guide (1.x)
-weight: 1
 exclude_from_menu: true
 ---
 
