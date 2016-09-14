@@ -1,14 +1,14 @@
 package com.google.android.exoplayer2.text.eia608;
 
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.util.Assertions;
-
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Assertions;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -73,7 +73,7 @@ import java.util.List;
    * @return true if rolling was possible.
    */
   public boolean rollUp() {
-    if (row < 1) {
+    if (row <= 1) {
       return false;
     }
     setRow(row - 1);

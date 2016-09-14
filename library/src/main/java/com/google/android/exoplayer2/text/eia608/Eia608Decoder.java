@@ -15,6 +15,13 @@
  */
 package com.google.android.exoplayer2.text.eia608;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
@@ -24,14 +31,8 @@ import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.text.style.UnderlineSpan;
-
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -472,10 +473,12 @@ public final class Eia608Decoder implements SubtitleDecoder {
         // from memory and from the display. The remaining rows of text are each rolled up into the
         // next highest row in the window, leaving the base row blank and ready to accept new text.
         if (captionMode == CC_MODE_ROLL_UP) {
-          for (Eia608CueBuilder cue : cues) {
+          Iterator<Eia608CueBuilder> iterator = cues.iterator();
+          while (iterator.hasNext()) {
+            Eia608CueBuilder cue = iterator.next();
             // Roll up all the other rows.
             if (!cue.rollUp()) {
-              cues.remove(cue);
+              iterator.remove();
             }
           }
           currentCue = new Eia608CueBuilder();
