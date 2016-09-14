@@ -55,8 +55,10 @@ public final class RawResourceDataSource implements DataSource {
    * @return The corresponding {@link Uri}.
    */
   public static final Uri buildRawResourceUri(int rawResourceId) {
-    return Uri.parse("rawresource:///" + rawResourceId);
+    return Uri.parse(RAW_RESOURCE_SCHEME + ":///" + rawResourceId);
   }
+
+  private static final String RAW_RESOURCE_SCHEME = "rawresource";
 
   private final Resources resources;
   private final TransferListener<? super RawResourceDataSource> listener;
