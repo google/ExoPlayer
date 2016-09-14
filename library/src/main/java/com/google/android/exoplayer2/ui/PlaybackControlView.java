@@ -97,7 +97,11 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   public PlaybackControlView(Context context, AttributeSet attrs) {
-    super(context, attrs);
+    this(context, attrs, 0);
+  }
+
+  public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
 
     currentWindow = new Timeline.Window();
     formatBuilder = new StringBuilder();
