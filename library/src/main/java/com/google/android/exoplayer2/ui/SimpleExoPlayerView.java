@@ -64,12 +64,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   public SimpleExoPlayerView(Context context, AttributeSet attrs, int defStyleAttr) {
-    this(context, attrs, defStyleAttr, 0);
-  }
-
-  public SimpleExoPlayerView(Context context, AttributeSet attrs, int defStyleAttr,
-      int defStyleRes) {
-    super(context, attrs, defStyleAttr, defStyleRes);
+    super(context, attrs, defStyleAttr);
 
     boolean useTextureView = false;
     if (attrs != null) {
@@ -86,7 +81,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     LayoutInflater.from(context).inflate(R.layout.exoplayer_video_view, this);
-
     componentListener = new ComponentListener();
     layout = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
     controller = (PlaybackControlView) findViewById(R.id.control);
