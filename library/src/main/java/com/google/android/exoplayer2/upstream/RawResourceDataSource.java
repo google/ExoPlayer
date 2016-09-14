@@ -20,7 +20,6 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.text.TextUtils;
-
 import com.google.android.exoplayer2.C;
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -30,8 +29,9 @@ import java.io.InputStream;
 /**
  * A {@link DataSource} for reading a raw resource inside the APK.
  * <p>
- * URIs supported by this source are of the form {@code rawresource:///resourceId}, where resourceId
- * is the integer identifier of a raw resource.
+ * URIs supported by this source are of the form {@code rawresource:///rawResourceId}, where
+ * rawResourceId is the integer identifier of a raw resource. {@link #buildRawResourceUri(int)} can
+ * be used to build {@link Uri}s in this format.
  */
 public final class RawResourceDataSource implements DataSource {
 
@@ -49,9 +49,14 @@ public final class RawResourceDataSource implements DataSource {
   }
 
   /**
-   * The URI scheme used to identify raw resources. URIs used with this class must use this scheme.
+   * Builds a {@link Uri} for the specified raw resource identifier.
+   *
+   * @param rawResourceId A raw resource identifier (i.e. a constant defined in {@code R.raw}).
+   * @return The corresponding {@link Uri}.
    */
-  public static final String RAW_RESOURCE_SCHEME = "rawresource";
+  public static final Uri buildRawResourceUri(int rawResourceId) {
+    return Uri.parse("rawresource:///" + rawResourceId);
+  }
 
   private final Resources resources;
   private final TransferListener<? super RawResourceDataSource> listener;
@@ -106,13 +111,10 @@ public final class RawResourceDataSource implements DataSource {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
-        bytesRemaining = inputStream.available();
-        if (bytesRemaining == 0) {
-          // FileInputStream.available() returns 0 if the remaining length cannot be determined, or
-          // if it's greater than Integer.MAX_VALUE. We don't know the true length in either case,
-          // so treat as unbounded.
-          bytesRemaining = C.LENGTH_UNSET;
-        }
+        long assetFileDescriptorLength = assetFileDescriptor.getLength();
+        // If the length is UNKNOWN_LENGTH then the asset extends to the end of the file.
+        bytesRemaining = assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH
+            ? C.LENGTH_UNSET : (assetFileDescriptorLength - dataSpec.position);
       }
     } catch (IOException e) {
       throw new RawResourceDataSourceException(e);
@@ -174,7 +176,7 @@ public final class RawResourceDataSource implements DataSource {
           assetFileDescriptor.close();
         }
       } catch (IOException e) {
-         throw new RawResourceDataSourceException(e);
+        throw new RawResourceDataSourceException(e);
       } finally {
         assetFileDescriptor = null;
         if (opened) {
