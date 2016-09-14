@@ -160,7 +160,7 @@ public final class SimpleCache implements Cache {
       cacheDir.mkdirs();
     }
     evictor.onStartFile(this, key, position, maxLength);
-    return CacheSpan.getCacheFileName(cacheDir, key, position, System.currentTimeMillis(), false);
+    return CacheSpan.getCacheFileName(cacheDir, key, position, System.currentTimeMillis());
   }
 
   @Override
