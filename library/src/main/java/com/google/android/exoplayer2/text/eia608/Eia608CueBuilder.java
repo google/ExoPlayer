@@ -171,7 +171,7 @@ import java.util.List;
 
   public Cue build() {
     closeSpans();
-    float cueLine = 10 + (5.33f * row);
+    float cueLine = 10 + (5.33f * (row - 1));
     float cuePosition = 10 + (2.5f * indent);
     cuePosition = (tabOffset * 2.5f) + cuePosition;
     return new Cue(new SpannableStringBuilder(captionStringBuilder),
