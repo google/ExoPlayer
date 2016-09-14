@@ -159,4 +159,4 @@ See the extension's
 for an example command line to `configure`.
 
 [Flac extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/flac
-[FFmpeg extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffpmeg
+[FFmpeg extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg
