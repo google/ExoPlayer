@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Алдыңғы трек"</string>
-  <string name="next_description">"Келесі трек"</string>
-  <string name="pause_description">"Кідірту"</string>
-  <string name="play_description">"Ойнату"</string>
-  <string name="stop_description">"Тоқтату"</string>
-  <string name="rew_description">"Кері айналдыру"</string>
-  <string name="ffw_description">"Жылдам алға айналдыру"</string>
+  <string name="exo_controls_previous_description">"Алдыңғы трек"</string>
+  <string name="exo_controls_next_description">"Келесі трек"</string>
+  <string name="exo_controls_pause_description">"Кідірту"</string>
+  <string name="exo_controls_play_description">"Ойнату"</string>
+  <string name="exo_controls_stop_description">"Тоқтату"</string>
+  <string name="exo_controls_rewind_description">"Кері айналдыру"</string>
+  <string name="exo_controls_fastforward_description">"Жылдам алға айналдыру"</string>
 </resources>

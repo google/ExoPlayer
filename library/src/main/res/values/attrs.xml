@@ -15,8 +15,7 @@
 -->
 <resources>
   <declare-styleable name="SimpleExoPlayerView">
-    <attr name="use_controller" format="boolean" />
-    <attr name="use_texture_view" format="boolean" />
+    <attr name="use_controller" format="boolean"/>
+    <attr name="use_texture_view" format="boolean"/>
   </declare-styleable>
 </resources>
-

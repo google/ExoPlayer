@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Poprzedni utwór"</string>
-  <string name="next_description">"Następny utwór"</string>
-  <string name="pause_description">"Wstrzymaj"</string>
-  <string name="play_description">"Odtwórz"</string>
-  <string name="stop_description">"Zatrzymaj"</string>
-  <string name="rew_description">"Przewiń do tyłu"</string>
-  <string name="ffw_description">"Przewiń do przodu"</string>
+  <string name="exo_controls_previous_description">"Poprzedni utwór"</string>
+  <string name="exo_controls_next_description">"Następny utwór"</string>
+  <string name="exo_controls_pause_description">"Wstrzymaj"</string>
+  <string name="exo_controls_play_description">"Odtwórz"</string>
+  <string name="exo_controls_stop_description">"Zatrzymaj"</string>
+  <string name="exo_controls_rewind_description">"Przewiń do tyłu"</string>
+  <string name="exo_controls_fastforward_description">"Przewiń do przodu"</string>
 </resources>

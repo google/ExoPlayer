@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Претходна песна"</string>
-  <string name="next_description">"Следна песна"</string>
-  <string name="pause_description">"Пауза"</string>
-  <string name="play_description">"Пушти"</string>
-  <string name="stop_description">"Запри"</string>
-  <string name="rew_description">"Премотај назад"</string>
-  <string name="ffw_description">"Брзо премотај напред"</string>
+  <string name="exo_controls_previous_description">"Претходна песна"</string>
+  <string name="exo_controls_next_description">"Следна песна"</string>
+  <string name="exo_controls_pause_description">"Пауза"</string>
+  <string name="exo_controls_play_description">"Пушти"</string>
+  <string name="exo_controls_stop_description">"Запри"</string>
+  <string name="exo_controls_rewind_description">"Премотај назад"</string>
+  <string name="exo_controls_fastforward_description">"Брзо премотај напред"</string>
 </resources>

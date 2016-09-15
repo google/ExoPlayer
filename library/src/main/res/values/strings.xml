@@ -14,12 +14,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">Previous track</string>
-  <string name="next_description">Next track</string>
-  <string name="pause_description">Pause</string>
-  <string name="play_description">Play</string>
-  <string name="stop_description">Stop</string>
-  <string name="rew_description">Rewind</string>
-  <string name="ffw_description">Fast forward</string>
+  <string name="exo_controls_previous_description">Previous track</string>
+  <string name="exo_controls_next_description">Next track</string>
+  <string name="exo_controls_pause_description">Pause</string>
+  <string name="exo_controls_play_description">Play</string>
+  <string name="exo_controls_stop_description">Stop</string>
+  <string name="exo_controls_rewind_description">Rewind</string>
+  <string name="exo_controls_fastforward_description">Fast forward</string>
 </resources>
-

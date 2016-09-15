@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"अघिल्लो ट्रयाक"</string>
-  <string name="next_description">"अर्को ट्रयाक"</string>
-  <string name="pause_description">"रोक्नुहोस्"</string>
-  <string name="play_description">"चलाउनुहोस्"</string>
-  <string name="stop_description">"रोक्नुहोस्"</string>
-  <string name="rew_description">"दोहोर्याउनुहोस्"</string>
-  <string name="ffw_description">"फास्ट फर्वार्ड"</string>
+  <string name="exo_controls_previous_description">"अघिल्लो ट्रयाक"</string>
+  <string name="exo_controls_next_description">"अर्को ट्रयाक"</string>
+  <string name="exo_controls_pause_description">"रोक्नुहोस्"</string>
+  <string name="exo_controls_play_description">"चलाउनुहोस्"</string>
+  <string name="exo_controls_stop_description">"रोक्नुहोस्"</string>
+  <string name="exo_controls_rewind_description">"दोहोर्याउनुहोस्"</string>
+  <string name="exo_controls_fastforward_description">"फास्ट फर्वार्ड"</string>
 </resources>

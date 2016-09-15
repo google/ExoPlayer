@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"پچھلا ٹریک"</string>
-  <string name="next_description">"اگلا ٹریک"</string>
-  <string name="pause_description">"موقوف کریں"</string>
-  <string name="play_description">"چلائیں"</string>
-  <string name="stop_description">"روکیں"</string>
-  <string name="rew_description">"ریوائینڈ کریں"</string>
-  <string name="ffw_description">"تیزی سے فارورڈ کریں"</string>
+  <string name="exo_controls_previous_description">"پچھلا ٹریک"</string>
+  <string name="exo_controls_next_description">"اگلا ٹریک"</string>
+  <string name="exo_controls_pause_description">"موقوف کریں"</string>
+  <string name="exo_controls_play_description">"چلائیں"</string>
+  <string name="exo_controls_stop_description">"روکیں"</string>
+  <string name="exo_controls_rewind_description">"ریوائینڈ کریں"</string>
+  <string name="exo_controls_fastforward_description">"تیزی سے فارورڈ کریں"</string>
 </resources>

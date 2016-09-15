@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Bản nhạc trước"</string>
-  <string name="next_description">"Bản nhạc tiếp theo"</string>
-  <string name="pause_description">"Tạm dừng"</string>
-  <string name="play_description">"Phát"</string>
-  <string name="stop_description">"Ngừng"</string>
-  <string name="rew_description">"Tua lại"</string>
-  <string name="ffw_description">"Tua đi"</string>
+  <string name="exo_controls_previous_description">"Bản nhạc trước"</string>
+  <string name="exo_controls_next_description">"Bản nhạc tiếp theo"</string>
+  <string name="exo_controls_pause_description">"Tạm dừng"</string>
+  <string name="exo_controls_play_description">"Phát"</string>
+  <string name="exo_controls_stop_description">"Ngừng"</string>
+  <string name="exo_controls_rewind_description">"Tua lại"</string>
+  <string name="exo_controls_fastforward_description">"Tua đi"</string>
 </resources>

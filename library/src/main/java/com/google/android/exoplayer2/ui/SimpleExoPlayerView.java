@@ -71,8 +71,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
       try {
-        useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller,
-            useController);
+        useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
         useTextureView = a.getBoolean(R.styleable.SimpleExoPlayerView_use_texture_view,
             useTextureView);
       } finally {
@@ -80,7 +79,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       }
     }
 
-    LayoutInflater.from(context).inflate(R.layout.exoplayer_video_view, this);
+    LayoutInflater.from(context).inflate(R.layout.exo_simple_player_view, this);
     componentListener = new ComponentListener();
     layout = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
     controller = (PlaybackControlView) findViewById(R.id.control);

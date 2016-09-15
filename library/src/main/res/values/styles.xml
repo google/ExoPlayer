@@ -15,31 +15,30 @@
 -->
 <resources>
 
-  <style name="MediaButton">
+  <style name="ExoMediaButton">
     <item name="android:background">@null</item>
     <item name="android:layout_width">71dip</item>
     <item name="android:layout_height">52dip</item>
   </style>
 
-  <style name="MediaButton.Previous">
-    <item name="android:src">@drawable/ic_media_previous</item>
-    <item name="android:contentDescription">@string/prev_description</item>
+  <style name="ExoMediaButton.Previous">
+    <item name="android:src">@drawable/exo_controls_previous</item>
+    <item name="android:contentDescription">@string/exo_controls_previous_description</item>
   </style>
 
-  <style name="MediaButton.Next">
-    <item name="android:src">@drawable/ic_media_next</item>
-    <item name="android:contentDescription">@string/next_description</item>
+  <style name="ExoMediaButton.Next">
+    <item name="android:src">@drawable/exo_controls_next</item>
+    <item name="android:contentDescription">@string/exo_controls_next_description</item>
   </style>
 
-  <style name="MediaButton.Ffwd">
-    <item name="android:src">@drawable/ic_media_ff</item>
-    <item name="android:contentDescription">@string/ffw_description</item>
+  <style name="ExoMediaButton.FastForward">
+    <item name="android:src">@drawable/exo_controls_fastforward</item>
+    <item name="android:contentDescription">@string/exo_controls_fastforward_description</item>
   </style>
 
-  <style name="MediaButton.Rew">
-    <item name="android:src">@drawable/ic_media_rew</item>
-    <item name="android:contentDescription">@string/rew_description</item>
+  <style name="ExoMediaButton.Rewind">
+    <item name="android:src">@drawable/exo_controls_rewind</item>
+    <item name="android:contentDescription">@string/exo_controls_rewind_description</item>
   </style>
 
 </resources>
-

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"المقطع الصوتي السابق"</string>
-  <string name="next_description">"المقطع الصوتي التالي"</string>
-  <string name="pause_description">"إيقاف مؤقت"</string>
-  <string name="play_description">"تشغيل"</string>
-  <string name="stop_description">"إيقاف"</string>
-  <string name="rew_description">"إرجاع"</string>
-  <string name="ffw_description">"تقديم سريع"</string>
+  <string name="exo_controls_previous_description">"المقطع الصوتي السابق"</string>
+  <string name="exo_controls_next_description">"المقطع الصوتي التالي"</string>
+  <string name="exo_controls_pause_description">"إيقاف مؤقت"</string>
+  <string name="exo_controls_play_description">"تشغيل"</string>
+  <string name="exo_controls_stop_description">"إيقاف"</string>
+  <string name="exo_controls_rewind_description">"إرجاع"</string>
+  <string name="exo_controls_fastforward_description">"تقديم سريع"</string>
 </resources>

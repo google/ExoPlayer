@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"முந்தைய ட்ராக்"</string>
-  <string name="next_description">"அடுத்த ட்ராக்"</string>
-  <string name="pause_description">"இடைநிறுத்து"</string>
-  <string name="play_description">"இயக்கு"</string>
-  <string name="stop_description">"நிறுத்து"</string>
-  <string name="rew_description">"மீண்டும் காட்டு"</string>
-  <string name="ffw_description">"வேகமாக முன்செல்"</string>
+  <string name="exo_controls_previous_description">"முந்தைய ட்ராக்"</string>
+  <string name="exo_controls_next_description">"அடுத்த ட்ராக்"</string>
+  <string name="exo_controls_pause_description">"இடைநிறுத்து"</string>
+  <string name="exo_controls_play_description">"இயக்கு"</string>
+  <string name="exo_controls_stop_description">"நிறுத்து"</string>
+  <string name="exo_controls_rewind_description">"மீண்டும் காட்டு"</string>
+  <string name="exo_controls_fastforward_description">"வேகமாக முன்செல்"</string>
 </resources>

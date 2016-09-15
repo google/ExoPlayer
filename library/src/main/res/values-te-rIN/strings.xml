@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"మునుపటి ట్రాక్"</string>
-  <string name="next_description">"తదుపరి ట్రాక్"</string>
-  <string name="pause_description">"పాజ్ చేయి"</string>
-  <string name="play_description">"ప్లే చేయి"</string>
-  <string name="stop_description">"ఆపివేయి"</string>
-  <string name="rew_description">"రివైండ్ చేయి"</string>
-  <string name="ffw_description">"వేగంగా ఫార్వార్డ్ చేయి"</string>
+  <string name="exo_controls_previous_description">"మునుపటి ట్రాక్"</string>
+  <string name="exo_controls_next_description">"తదుపరి ట్రాక్"</string>
+  <string name="exo_controls_pause_description">"పాజ్ చేయి"</string>
+  <string name="exo_controls_play_description">"ప్లే చేయి"</string>
+  <string name="exo_controls_stop_description">"ఆపివేయి"</string>
+  <string name="exo_controls_rewind_description">"రివైండ్ చేయి"</string>
+  <string name="exo_controls_fastforward_description">"వేగంగా ఫార్వార్డ్ చేయి"</string>
 </resources>

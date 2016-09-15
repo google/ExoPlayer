@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"แทร็กก่อนหน้า"</string>
-  <string name="next_description">"แทร็กถัดไป"</string>
-  <string name="pause_description">"หยุดชั่วคราว"</string>
-  <string name="play_description">"เล่น"</string>
-  <string name="stop_description">"หยุด"</string>
-  <string name="rew_description">"กรอกลับ"</string>
-  <string name="ffw_description">"กรอไปข้างหน้า"</string>
+  <string name="exo_controls_previous_description">"แทร็กก่อนหน้า"</string>
+  <string name="exo_controls_next_description">"แทร็กถัดไป"</string>
+  <string name="exo_controls_pause_description">"หยุดชั่วคราว"</string>
+  <string name="exo_controls_play_description">"เล่น"</string>
+  <string name="exo_controls_stop_description">"หยุด"</string>
+  <string name="exo_controls_rewind_description">"กรอกลับ"</string>
+  <string name="exo_controls_fastforward_description">"กรอไปข้างหน้า"</string>
 </resources>

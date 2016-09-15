@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"પહેલાનો ટ્રૅક"</string>
-  <string name="next_description">"આગલો ટ્રૅક"</string>
-  <string name="pause_description">"થોભો"</string>
-  <string name="play_description">"ચલાવો"</string>
-  <string name="stop_description">"રોકો"</string>
-  <string name="rew_description">"રીવાઇન્ડ કરો"</string>
-  <string name="ffw_description">"ઝડપી ફોરવર્ડ કરો"</string>
+  <string name="exo_controls_previous_description">"પહેલાનો ટ્રૅક"</string>
+  <string name="exo_controls_next_description">"આગલો ટ્રૅક"</string>
+  <string name="exo_controls_pause_description">"થોભો"</string>
+  <string name="exo_controls_play_description">"ચલાવો"</string>
+  <string name="exo_controls_stop_description">"રોકો"</string>
+  <string name="exo_controls_rewind_description">"રીવાઇન્ડ કરો"</string>
+  <string name="exo_controls_fastforward_description">"ઝડપી ફોરવર્ડ કરો"</string>
 </resources>

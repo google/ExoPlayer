@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Lagu sebelumnya"</string>
-  <string name="next_description">"Lagu berikutnya"</string>
-  <string name="pause_description">"Jeda"</string>
-  <string name="play_description">"Putar"</string>
-  <string name="stop_description">"Berhenti"</string>
-  <string name="rew_description">"Putar Ulang"</string>
-  <string name="ffw_description">"Maju cepat"</string>
+  <string name="exo_controls_previous_description">"Lagu sebelumnya"</string>
+  <string name="exo_controls_next_description">"Lagu berikutnya"</string>
+  <string name="exo_controls_pause_description">"Jeda"</string>
+  <string name="exo_controls_play_description">"Putar"</string>
+  <string name="exo_controls_stop_description">"Berhenti"</string>
+  <string name="exo_controls_rewind_description">"Putar Ulang"</string>
+  <string name="exo_controls_fastforward_description">"Maju cepat"</string>
 </resources>

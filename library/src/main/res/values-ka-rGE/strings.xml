@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"წინა ჩანაწერი"</string>
-  <string name="next_description">"შემდეგი ჩანაწერი"</string>
-  <string name="pause_description">"პაუზა"</string>
-  <string name="play_description">"დაკვრა"</string>
-  <string name="stop_description">"შეწყვეტა"</string>
-  <string name="rew_description">"უკან გადახვევა"</string>
-  <string name="ffw_description">"წინ გადახვევა"</string>
+  <string name="exo_controls_previous_description">"წინა ჩანაწერი"</string>
+  <string name="exo_controls_next_description">"შემდეგი ჩანაწერი"</string>
+  <string name="exo_controls_pause_description">"პაუზა"</string>
+  <string name="exo_controls_play_description">"დაკვრა"</string>
+  <string name="exo_controls_stop_description">"შეწყვეტა"</string>
+  <string name="exo_controls_rewind_description">"უკან გადახვევა"</string>
+  <string name="exo_controls_fastforward_description">"წინ გადახვევა"</string>
 </resources>

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Ithrekhi yangaphambilini"</string>
-  <string name="next_description">"Ithrekhi elandelayo"</string>
-  <string name="pause_description">"Misa isikhashana"</string>
-  <string name="play_description">"Dlala"</string>
-  <string name="stop_description">"Misa"</string>
-  <string name="rew_description">"Buyisela emumva"</string>
-  <string name="ffw_description">"Ukudlulisa ngokushesha"</string>
+  <string name="exo_controls_previous_description">"Ithrekhi yangaphambilini"</string>
+  <string name="exo_controls_next_description">"Ithrekhi elandelayo"</string>
+  <string name="exo_controls_pause_description">"Misa isikhashana"</string>
+  <string name="exo_controls_play_description">"Dlala"</string>
+  <string name="exo_controls_stop_description">"Misa"</string>
+  <string name="exo_controls_rewind_description">"Buyisela emumva"</string>
+  <string name="exo_controls_fastforward_description">"Ukudlulisa ngokushesha"</string>
 </resources>

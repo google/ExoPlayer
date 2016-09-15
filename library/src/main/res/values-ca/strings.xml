@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Ruta anterior"</string>
-  <string name="next_description">"Ruta següent"</string>
-  <string name="pause_description">"Posa en pausa"</string>
-  <string name="play_description">"Reprodueix"</string>
-  <string name="stop_description">"Atura"</string>
-  <string name="rew_description">"Rebobina"</string>
-  <string name="ffw_description">"Avança ràpidament"</string>
+  <string name="exo_controls_previous_description">"Ruta anterior"</string>
+  <string name="exo_controls_next_description">"Ruta següent"</string>
+  <string name="exo_controls_pause_description">"Posa en pausa"</string>
+  <string name="exo_controls_play_description">"Reprodueix"</string>
+  <string name="exo_controls_stop_description">"Atura"</string>
+  <string name="exo_controls_rewind_description">"Rebobina"</string>
+  <string name="exo_controls_fastforward_description">"Avança ràpidament"</string>
 </resources>

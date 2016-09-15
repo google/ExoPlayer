@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Előző szám"</string>
-  <string name="next_description">"Következő szám"</string>
-  <string name="pause_description">"Szünet"</string>
-  <string name="play_description">"Lejátszás"</string>
-  <string name="stop_description">"Leállítás"</string>
-  <string name="rew_description">"Visszatekerés"</string>
-  <string name="ffw_description">"Előretekerés"</string>
+  <string name="exo_controls_previous_description">"Előző szám"</string>
+  <string name="exo_controls_next_description">"Következő szám"</string>
+  <string name="exo_controls_pause_description">"Szünet"</string>
+  <string name="exo_controls_play_description">"Lejátszás"</string>
+  <string name="exo_controls_stop_description">"Leállítás"</string>
+  <string name="exo_controls_rewind_description">"Visszatekerés"</string>
+  <string name="exo_controls_fastforward_description">"Előretekerés"</string>
 </resources>

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Prethodna numera"</string>
-  <string name="next_description">"Sljedeća numera"</string>
-  <string name="pause_description">"Pauziraj"</string>
-  <string name="play_description">"Reproduciraj"</string>
-  <string name="stop_description">"Zaustavi"</string>
-  <string name="rew_description">"Premotaj"</string>
-  <string name="ffw_description">"Ubrzaj"</string>
+  <string name="exo_controls_previous_description">"Prethodna numera"</string>
+  <string name="exo_controls_next_description">"Sljedeća numera"</string>
+  <string name="exo_controls_pause_description">"Pauziraj"</string>
+  <string name="exo_controls_play_description">"Reproduciraj"</string>
+  <string name="exo_controls_stop_description">"Zaustavi"</string>
+  <string name="exo_controls_rewind_description">"Premotaj"</string>
+  <string name="exo_controls_fastforward_description">"Ubrzaj"</string>
 </resources>

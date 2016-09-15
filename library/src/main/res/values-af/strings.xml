@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Vorige snit"</string>
-  <string name="next_description">"Volgende snit"</string>
-  <string name="pause_description">"Wag"</string>
-  <string name="play_description">"Speel"</string>
-  <string name="stop_description">"Stop"</string>
-  <string name="rew_description">"Spoel terug"</string>
-  <string name="ffw_description">"Vinnig vorentoe"</string>
+  <string name="exo_controls_previous_description">"Vorige snit"</string>
+  <string name="exo_controls_next_description">"Volgende snit"</string>
+  <string name="exo_controls_pause_description">"Wag"</string>
+  <string name="exo_controls_play_description">"Speel"</string>
+  <string name="exo_controls_stop_description">"Stop"</string>
+  <string name="exo_controls_rewind_description">"Spoel terug"</string>
+  <string name="exo_controls_fastforward_description">"Vinnig vorentoe"</string>
 </resources>

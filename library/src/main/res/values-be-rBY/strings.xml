@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Папярэдні трэк"</string>
-  <string name="next_description">"Наступны трэк"</string>
-  <string name="pause_description">"Прыпыніць"</string>
-  <string name="play_description">"Прайграць"</string>
-  <string name="stop_description">"Спыніць"</string>
-  <string name="rew_description">"Перамотка назад"</string>
-  <string name="ffw_description">"Перамотка ўперад"</string>
+  <string name="exo_controls_previous_description">"Папярэдні трэк"</string>
+  <string name="exo_controls_next_description">"Наступны трэк"</string>
+  <string name="exo_controls_pause_description">"Прыпыніць"</string>
+  <string name="exo_controls_play_description">"Прайграць"</string>
+  <string name="exo_controls_stop_description">"Спыніць"</string>
+  <string name="exo_controls_rewind_description">"Перамотка назад"</string>
+  <string name="exo_controls_fastforward_description">"Перамотка ўперад"</string>
 </resources>

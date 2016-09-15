@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Նախորդը"</string>
-  <string name="next_description">"Հաջորդը"</string>
-  <string name="pause_description">"Դադարեցնել"</string>
-  <string name="play_description">"Նվագարկել"</string>
-  <string name="stop_description">"Դադարեցնել"</string>
-  <string name="rew_description">"Հետ փաթաթել"</string>
-  <string name="ffw_description">"Արագ առաջ անցնել"</string>
+  <string name="exo_controls_previous_description">"Նախորդը"</string>
+  <string name="exo_controls_next_description">"Հաջորդը"</string>
+  <string name="exo_controls_pause_description">"Դադարեցնել"</string>
+  <string name="exo_controls_play_description">"Նվագարկել"</string>
+  <string name="exo_controls_stop_description">"Դադարեցնել"</string>
+  <string name="exo_controls_rewind_description">"Հետ փաթաթել"</string>
+  <string name="exo_controls_fastforward_description">"Արագ առաջ անցնել"</string>
 </resources>

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Fyrra lag"</string>
-  <string name="next_description">"Næsta lag"</string>
-  <string name="pause_description">"Hlé"</string>
-  <string name="play_description">"Spila"</string>
-  <string name="stop_description">"Stöðva"</string>
-  <string name="rew_description">"Spóla til baka"</string>
-  <string name="ffw_description">"Spóla áfram"</string>
+  <string name="exo_controls_previous_description">"Fyrra lag"</string>
+  <string name="exo_controls_next_description">"Næsta lag"</string>
+  <string name="exo_controls_pause_description">"Hlé"</string>
+  <string name="exo_controls_play_description">"Spila"</string>
+  <string name="exo_controls_stop_description">"Stöðva"</string>
+  <string name="exo_controls_rewind_description">"Spóla til baka"</string>
+  <string name="exo_controls_fastforward_description">"Spóla áfram"</string>
 </resources>
