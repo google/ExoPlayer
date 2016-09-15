@@ -306,9 +306,14 @@ public final class Format implements Parcelable {
 
   public static Format createSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, DrmInitData drmInitData) {
+    return createSampleFormat(id, sampleMimeType, codecs, bitrate, drmInitData, null);
+  }
+
+  public static Format createSampleFormat(String id, String sampleMimeType, String codecs,
+                                          int bitrate, DrmInitData drmInitData, String language) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, 0, null, OFFSET_SAMPLE_RELATIVE, null, drmInitData);
+            NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+            NO_VALUE, 0, language, OFFSET_SAMPLE_RELATIVE, null, drmInitData);
   }
 
   /* package */ Format(String id, String containerMimeType, String sampleMimeType, String codecs,

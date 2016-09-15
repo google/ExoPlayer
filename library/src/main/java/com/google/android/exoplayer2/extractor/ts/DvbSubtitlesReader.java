@@ -18,9 +18,13 @@ public class DvbSubtitlesReader extends ElementaryStreamReader {
 
 
     public DvbSubtitlesReader(TrackOutput output) {
+        this(output, null);
+    }
+
+    public DvbSubtitlesReader(TrackOutput output, String language) {
         super(output);
         output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE,
-                null));
+                null, language));
     }
 
     @Override
