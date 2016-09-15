@@ -137,6 +137,15 @@ import java.util.LinkedList;
     continueLoading(lastSeekPositionUs);
   }
 
+  /**
+   * Prepares a sample stream wrapper for which the master playlist provides enough information to
+   * prepare.
+   */
+  public void prepareSingleTrack(Format format) {
+    track(0).format(format);
+    endTracks();
+  }
+
   public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
   }

@@ -239,13 +239,7 @@ import java.util.List;
     eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded());
     playlist = loadable.getResult();
-    List<HlsSampleStreamWrapper> sampleStreamWrapperList = buildSampleStreamWrappers();
-    sampleStreamWrappers = new HlsSampleStreamWrapper[sampleStreamWrapperList.size()];
-    sampleStreamWrapperList.toArray(sampleStreamWrappers);
-    pendingPrepareCount = sampleStreamWrappers.length;
-    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      sampleStreamWrapper.prepare();
-    }
+    buildAndPrepareSampleStreamWrappers();
   }
 
   @Override
@@ -313,16 +307,16 @@ import java.util.List;
 
   // Internal methods.
 
-  private List<HlsSampleStreamWrapper> buildSampleStreamWrappers() {
-    ArrayList<HlsSampleStreamWrapper> sampleStreamWrappers = new ArrayList<>();
+  private void buildAndPrepareSampleStreamWrappers() {
     String baseUri = playlist.baseUri;
-
     if (playlist instanceof HlsMediaPlaylist) {
       HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[] {
           HlsMasterPlaylist.HlsUrl.createMediaPlaylistHlsUrl(playlist.baseUri)};
-      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          null, null));
-      return sampleStreamWrappers;
+      sampleStreamWrappers = new HlsSampleStreamWrapper[] {
+          buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants, null, null)};
+      pendingPrepareCount = 1;
+      sampleStreamWrappers[0].prepare();
+      return;
     }
 
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
@@ -351,32 +345,37 @@ import java.util.List;
     } else {
       // Leave the enabled variants unchanged. They're likely either all video or all audio.
     }
+    List<HlsMasterPlaylist.HlsUrl> audioVariants = masterPlaylist.audios;
+    List<HlsMasterPlaylist.HlsUrl> subtitleVariants = masterPlaylist.subtitles;
+    sampleStreamWrappers = new HlsSampleStreamWrapper[(selectedVariants.isEmpty() ? 0 : 1)
+        + audioVariants.size() + subtitleVariants.size()];
+    int currentWrapperIndex = 0;
+    pendingPrepareCount = sampleStreamWrappers.length;
     if (!selectedVariants.isEmpty()) {
       HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[selectedVariants.size()];
       selectedVariants.toArray(variants);
-      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants,
-          masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat));
+      HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT,
+          baseUri, variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat);
+      sampleStreamWrapper.prepare();
+      sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     }
 
-    // Build the audio stream wrapper if applicable.
-    List<HlsMasterPlaylist.HlsUrl> audioVariants = masterPlaylist.audios;
-    if (!audioVariants.isEmpty()) {
-      HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[audioVariants.size()];
-      audioVariants.toArray(variants);
-      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO, baseUri, variants, null,
-          null));
+    // Build audio stream wrappers.
+    for (int i = 0; i < audioVariants.size(); i++) {
+      HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO,
+          baseUri, new HlsMasterPlaylist.HlsUrl[] {audioVariants.get(i)}, null, null);
+      sampleStreamWrapper.prepare();
+      sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     }
 
-    // Build the text stream wrapper if applicable.
-    List<HlsMasterPlaylist.HlsUrl> subtitleVariants = masterPlaylist.subtitles;
-    if (!subtitleVariants.isEmpty()) {
-      HlsMasterPlaylist.HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[subtitleVariants.size()];
-      subtitleVariants.toArray(variants);
-      sampleStreamWrappers.add(buildSampleStreamWrapper(C.TRACK_TYPE_TEXT, baseUri, variants, null,
-          null));
+    // Build subtitle stream wrappers.
+    for (int i = 0; i < subtitleVariants.size(); i++) {
+      HlsMasterPlaylist.HlsUrl url = subtitleVariants.get(i);
+      HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_TEXT,
+          baseUri, new HlsMasterPlaylist.HlsUrl[] {url}, null, null);
+      sampleStreamWrapper.prepareSingleTrack(url.format);
+      sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     }
-
-    return sampleStreamWrappers;
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, String baseUri,
