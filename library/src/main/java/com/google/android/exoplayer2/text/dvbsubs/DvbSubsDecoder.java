@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 /**
  * Created by opatino on 8/17/16.
  */
-final class DvbSubsDecoder extends SimpleSubtitleDecoder {
+public final class DvbSubsDecoder extends SimpleSubtitleDecoder {
     private final String TAG = "DVBSubs Decoder";
 
     DvbSubtitlesParser parser;
