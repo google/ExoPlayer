@@ -84,7 +84,7 @@ public final class FakeExtractorInput implements ExtractorInput {
    * @param position The position to set.
    */
   public void setPosition(int position) {
-    Assert.assertTrue(0 <= position && position < data.length);
+    Assert.assertTrue(0 <= position && position <= data.length);
     readPosition = position;
     peekPosition = position;
   }
@@ -203,7 +203,7 @@ public final class FakeExtractorInput implements ExtractorInput {
       peekPosition = readPosition;
       throw new SimulatedIOException("Simulated IO error at position: " + position);
     }
-    if (isEof()) {
+    if (length > 0 && position == data.length) {
       if (allowEndOfInput) {
         return false;
       }
@@ -217,6 +217,10 @@ public final class FakeExtractorInput implements ExtractorInput {
   }
 
   private int getReadLength(int requestedLength) {
+    if (readPosition == data.length) {
+      // If the requested length is non-zero, the end of the input will be read.
+      return requestedLength == 0 ? 0 : Integer.MAX_VALUE;
+    }
     int targetPosition = readPosition + requestedLength;
     if (simulatePartialReads && requestedLength > 1
         && !partiallySatisfiedTargetPositions.get(targetPosition)) {
@@ -224,10 +228,6 @@ public final class FakeExtractorInput implements ExtractorInput {
       return 1;
     }
     return Math.min(requestedLength, data.length - readPosition);
-  }
-
-  private boolean isEof() {
-    return readPosition == data.length;
   }
 
   /**

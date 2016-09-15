@@ -1,0 +1,29 @@
+seekMap:
+  isSeekable = true
+  duration = 26125
+  getPosition(0) = 0
+numberOfTracks = 1
+track 0:
+  format:
+    bitrate = -1
+    id = null
+    containerMimeType = null
+    sampleMimeType = audio/mpeg
+    maxInputSize = 4096
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = -1.0
+    channelCount = 2
+    sampleRate = 44100
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+  sample count = 0
+tracksEnded = true
