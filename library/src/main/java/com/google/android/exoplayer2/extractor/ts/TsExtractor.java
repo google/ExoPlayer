@@ -538,7 +538,7 @@ public final class TsExtractor implements Extractor {
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
           language = new String(data.data, data.getPosition(), 3).trim();
           streamSubType = data.data[data.getPosition() + 3];
-        } else if (descriptorTag == TS_PMT_DESC_DVBSUBS) {
+        } else if (descriptorTag == TS_PMT_DESC_DVBSUBS && descriptorLength == 8) { // we only support one subtitle service per PID
           streamType = TS_STREAM_TYPE_DVBSUBS;
           language = new String(data.data, data.getPosition(), 3).trim();
           streamSubType = data.data[data.getPosition() + 3];
