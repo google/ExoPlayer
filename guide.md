@@ -308,8 +308,8 @@ be useful for performance monitoring.
 
 ### High level events ###
 
-ExoPlayer allows instances of `ExoPlayer.EventListener` to be added and removed 
-sing its `addListener and `removeListener methods. Registered listeners
+ExoPlayer allows instances of `ExoPlayer.EventListener` to be added and removed
+using its `addListener` and `removeListener` methods. Registered listeners
 are notified of changes in playback state, as well as when errors occur that
 cause playback to fail.
 
