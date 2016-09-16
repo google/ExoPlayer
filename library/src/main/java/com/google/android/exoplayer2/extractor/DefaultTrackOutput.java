@@ -298,6 +298,7 @@ public final class DefaultTrackOutput implements TrackOutput {
     long offset = extrasHolder.offset;
 
     // Read the signal byte.
+    scratch.reset(1);
     readData(offset, scratch.data, 1);
     offset++;
     byte signalByte = scratch.data[0];
@@ -314,9 +315,9 @@ public final class DefaultTrackOutput implements TrackOutput {
     // Read the subsample count, if present.
     int subsampleCount;
     if (subsampleEncryption) {
+      scratch.reset(2);
       readData(offset, scratch.data, 2);
       offset += 2;
-      scratch.setPosition(0);
       subsampleCount = scratch.readUnsignedShort();
     } else {
       subsampleCount = 1;
@@ -333,7 +334,7 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
     if (subsampleEncryption) {
       int subsampleDataLength = 6 * subsampleCount;
-      ensureCapacity(scratch, subsampleDataLength);
+      scratch.reset(subsampleDataLength);
       readData(offset, scratch.data, subsampleDataLength);
       offset += subsampleDataLength;
       scratch.setPosition(0);
@@ -409,15 +410,6 @@ public final class DefaultTrackOutput implements TrackOutput {
     for (int i = 0; i < allocationIndex; i++) {
       allocator.release(dataQueue.remove());
       totalBytesDropped += allocationLength;
-    }
-  }
-
-  /**
-   * Ensure that the passed {@link ParsableByteArray} is of at least the specified limit.
-   */
-  private static void ensureCapacity(ParsableByteArray byteArray, int limit) {
-    if (byteArray.limit() < limit) {
-      byteArray.reset(new byte[limit], limit);
     }
   }
 

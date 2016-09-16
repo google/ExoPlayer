@@ -950,13 +950,9 @@ public final class MatroskaExtractor implements Extractor {
               samplePartitionCountRead = true;
             }
             int samplePartitionDataSize = samplePartitionCount * 4;
-            if (scratch.limit() < samplePartitionDataSize) {
-              scratch.reset(new byte[samplePartitionDataSize], samplePartitionDataSize);
-            }
+            scratch.reset(samplePartitionDataSize);
             input.readFully(scratch.data, 0, samplePartitionDataSize);
             sampleBytesRead += samplePartitionDataSize;
-            scratch.setPosition(0);
-            scratch.setLimit(samplePartitionDataSize);
             short subsampleCount = (short) (1 + (samplePartitionCount / 2));
             int subsampleDataSize = 2 + 6 * subsampleCount;
             if (encryptionSubsampleDataBuffer == null
