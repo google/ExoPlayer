@@ -74,7 +74,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
       return;
     }
 
-    if (aspectDeformation > 0) {
+    if (height == 0 || (width > 0 && aspectDeformation > 0)) {
       height = (int) (width / videoAspectRatio);
     } else {
       width = (int) (height * videoAspectRatio);
