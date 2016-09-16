@@ -243,16 +243,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline == null || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      int periodIndex = playbackInfo.periodIndex;
-      timeline.getPeriod(periodIndex, period);
-      int windowIndex = period.windowIndex;
-      timeline.getWindow(windowIndex, window);
-      if (window.firstPeriodIndex == periodIndex && window.lastPeriodIndex == periodIndex
-          && window.getPositionInFirstPeriodUs() == 0
-          && window.getDurationUs() == period.getDurationUs()) {
-        return C.usToMs(playbackInfo.bufferedPositionUs);
-      }
-      return getCurrentPosition();
+      timeline.getPeriod(playbackInfo.periodIndex, period);
+      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.bufferedPositionUs);
     }
   }
 

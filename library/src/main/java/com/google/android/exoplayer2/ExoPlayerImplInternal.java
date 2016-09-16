@@ -1071,7 +1071,7 @@ import java.io.IOException;
     long nextLoadPositionUs = loadingPeriodHolder.mediaPeriod.getNextLoadPositionUs();
     if (nextLoadPositionUs != C.TIME_END_OF_SOURCE) {
       long loadingPeriodPositionUs = rendererPositionUs
-          - loadingPeriodHolder.rendererPositionOffsetUs + loadingPeriodHolder.startPositionUs;
+          - loadingPeriodHolder.rendererPositionOffsetUs;
       long bufferedDurationUs = nextLoadPositionUs - loadingPeriodPositionUs;
       boolean continueLoading = loadControl.shouldContinueLoading(bufferedDurationUs);
       setIsLoading(continueLoading);
