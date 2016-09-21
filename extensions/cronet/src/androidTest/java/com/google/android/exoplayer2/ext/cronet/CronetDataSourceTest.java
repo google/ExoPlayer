@@ -100,7 +100,8 @@ public final class CronetDataSourceTest {
         Executor executor, int priority,
         Collection<Object> connectionAnnotations,
         boolean disableCache,
-        boolean disableConnectionMigration);
+        boolean disableConnectionMigration,
+        boolean allowDirectExecutor);
   }
 
   @Mock
@@ -142,6 +143,7 @@ public final class CronetDataSourceTest {
         any(Executor.class),
         anyInt(),
         eq(Collections.emptyList()),
+        any(Boolean.class),
         any(Boolean.class),
         any(Boolean.class))).thenReturn(mockUrlRequest);
     mockStatusResponse();
@@ -194,6 +196,7 @@ public final class CronetDataSourceTest {
         anyInt(),
         eq(Collections.emptyList()),
         any(Boolean.class),
+        any(Boolean.class),
         any(Boolean.class))).thenReturn(mockUrlRequest2);
     doAnswer(new Answer<Object>() {
       @Override
@@ -223,6 +226,7 @@ public final class CronetDataSourceTest {
         any(Executor.class),
         anyInt(),
         eq(Collections.emptyList()),
+        any(Boolean.class),
         any(Boolean.class),
         any(Boolean.class));
     verify(mockUrlRequest).start();
