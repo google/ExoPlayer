@@ -62,7 +62,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String BOOLEAN_TRUE = "YES";
   private static final String BOOLEAN_FALSE = "NO";
 
-
   private static final Pattern REGEX_GROUP_ID = Pattern.compile("GROUP-ID=\"(.+?)\"");
   private static final Pattern REGEX_VIDEO = Pattern.compile("VIDEO=\"(.+?)\"");
   private static final Pattern REGEX_AUDIO = Pattern.compile("AUDIO=\"(.+?)\"");
@@ -138,7 +137,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     while (iterator.hasNext()) {
       line = iterator.next();
       if (line.startsWith(TAG_MEDIA)) {
-        int selectionFlags = parseSelectionFlags(line);
+        @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
         String uri = parseOptionalStringAttr(line, REGEX_URI);
         String name = parseStringAttr(line, REGEX_NAME);
         String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
@@ -200,11 +199,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         muxedCaptionFormat);
   }
 
+  @C.SelectionFlags
   private static int parseSelectionFlags(String line) {
-    return (parseBooleanAttribute(line, REGEX_DEFAULT, false) ? Format.SELECTION_FLAG_DEFAULT : 0)
-        | (parseBooleanAttribute(line, REGEX_FORCED, false) ? Format.SELECTION_FLAG_FORCED : 0)
-        | (parseBooleanAttribute(line, REGEX_AUTOSELECT, false) ? Format.SELECTION_FLAG_AUTOSELECT
-        : 0);
+    return (parseBooleanAttribute(line, REGEX_DEFAULT, false) ? C.SELECTION_FLAG_DEFAULT : 0)
+        | (parseBooleanAttribute(line, REGEX_FORCED, false) ? C.SELECTION_FLAG_FORCED : 0)
+        | (parseBooleanAttribute(line, REGEX_AUTOSELECT, false) ? C.SELECTION_FLAG_AUTOSELECT : 0);
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)

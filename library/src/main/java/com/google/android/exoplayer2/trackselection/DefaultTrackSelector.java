@@ -442,7 +442,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupported(trackFormatSupport[trackIndex])) {
           Format format = trackGroup.getFormat(trackIndex);
-          boolean isDefault = (format.selectionFlags & Format.SELECTION_FLAG_DEFAULT) != 0;
+          boolean isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
           int trackScore;
           if (formatHasLanguage(format, preferredAudioLanguage)) {
             if (isDefault) {
@@ -480,8 +480,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupported(trackFormatSupport[trackIndex])) {
           Format format = trackGroup.getFormat(trackIndex);
-          boolean isDefault = (format.selectionFlags & Format.SELECTION_FLAG_DEFAULT) != 0;
-          boolean isForced = (format.selectionFlags & Format.SELECTION_FLAG_FORCED) != 0;
+          boolean isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
+          boolean isForced = (format.selectionFlags & C.SELECTION_FLAG_FORCED) != 0;
           int trackScore;
           if (formatHasLanguage(format, preferredTextLanguage)) {
             if (isDefault) {
@@ -530,7 +530,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         if (isSupported(trackFormatSupport[trackIndex])) {
           Format format = trackGroup.getFormat(trackIndex);
-          boolean isDefault = (format.selectionFlags & Format.SELECTION_FLAG_DEFAULT) != 0;
+          boolean isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
           int trackScore = isDefault ? 2 : 1;
           if (trackScore > selectedTrackScore) {
             selectedGroup = trackGroup;

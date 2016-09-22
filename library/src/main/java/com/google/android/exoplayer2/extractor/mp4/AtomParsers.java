@@ -665,6 +665,7 @@ import java.util.List;
     List<byte[]> initializationData = null;
     String mimeType = null;
     byte[] projectionData = null;
+    @C.StereoMode
     int stereoMode = Format.NO_VALUE;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -889,7 +890,7 @@ import java.util.List;
 
     if (out.format == null && mimeType != null) {
       // TODO: Determine the correct PCM encoding.
-      int pcmEncoding =
+      @C.PcmEncoding int pcmEncoding =
           MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT : Format.NO_VALUE;
       out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
           Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
@@ -1169,6 +1170,7 @@ import java.util.List;
 
     public Format format;
     public int nalUnitLengthFieldLength;
+    @Track.Transformation
     public int requiredSampleTransformation;
 
     public StsdData(int numberOfEntries) {

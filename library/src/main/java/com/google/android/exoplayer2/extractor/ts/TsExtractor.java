@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -32,6 +33,8 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
@@ -50,6 +53,13 @@ public final class TsExtractor implements Extractor {
 
   };
 
+  /**
+   * Flags controlling what workarounds are enabled for the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {WORKAROUND_ALLOW_NON_IDR_KEYFRAMES, WORKAROUND_IGNORE_AAC_STREAM,
+      WORKAROUND_IGNORE_H264_STREAM, WORKAROUND_DETECT_ACCESS_UNITS, WORKAROUND_MAP_BY_TYPE})
+  public @interface WorkaroundFlags {}
   public static final int WORKAROUND_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;
   public static final int WORKAROUND_IGNORE_H264_STREAM = 4;
@@ -83,6 +93,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
   private final TimestampAdjuster timestampAdjuster;
+  @WorkaroundFlags
   private final int workaroundFlags;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
@@ -103,7 +114,7 @@ public final class TsExtractor implements Extractor {
     this(timestampAdjuster, 0);
   }
 
-  public TsExtractor(TimestampAdjuster timestampAdjuster, int workaroundFlags) {
+  public TsExtractor(TimestampAdjuster timestampAdjuster, @WorkaroundFlags int workaroundFlags) {
     this.timestampAdjuster = timestampAdjuster;
     this.workaroundFlags = workaroundFlags;
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);

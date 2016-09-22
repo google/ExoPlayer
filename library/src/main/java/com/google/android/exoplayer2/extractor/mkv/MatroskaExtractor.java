@@ -264,6 +264,7 @@ public final class MatroskaExtractor implements Extractor {
   private int[] blockLacingSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
+  @C.BufferFlags
   private int blockFlags;
 
   // Sample reading state.
@@ -1314,7 +1315,7 @@ public final class MatroskaExtractor implements Extractor {
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
       String mimeType;
       int maxInputSize = Format.NO_VALUE;
-      int pcmEncoding = Format.NO_VALUE;
+      @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
       List<byte[]> initializationData = null;
       switch (codecId) {
         case CODEC_ID_VP8:
@@ -1429,9 +1430,9 @@ public final class MatroskaExtractor implements Extractor {
       }
 
       Format format;
-      int selectionFlags = 0;
-      selectionFlags |= flagDefault ? Format.SELECTION_FLAG_DEFAULT : 0;
-      selectionFlags |= flagForced ? Format.SELECTION_FLAG_FORCED : 0;
+      @C.SelectionFlags int selectionFlags = 0;
+      selectionFlags |= flagDefault ? C.SELECTION_FLAG_DEFAULT : 0;
+      selectionFlags |= flagForced ? C.SELECTION_FLAG_FORCED : 0;
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {

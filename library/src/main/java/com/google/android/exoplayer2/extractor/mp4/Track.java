@@ -15,14 +15,23 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Encapsulates information describing an MP4 track.
  */
 public final class Track {
 
+  /**
+   * The transformation to apply to samples in the track, if any.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TRANSFORMATION_NONE, TRANSFORMATION_CEA608_CDAT})
+  public @interface Transformation {}
   /**
    * A no-op sample transformation.
    */
@@ -66,6 +75,7 @@ public final class Track {
    * One of {@code TRANSFORMATION_*}. Defines the transformation to apply before outputting each
    * sample.
    */
+  @Transformation
   public final int sampleTransformation;
 
   /**
@@ -90,7 +100,7 @@ public final class Track {
   public final int nalUnitLengthFieldLength;
 
   public Track(int id, int type, long timescale, long movieTimescale, long durationUs,
-      Format format, int sampleTransformation,
+      Format format, @Transformation int sampleTransformation,
       TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength,
       long[] editListDurations, long[] editListMediaTimes) {
     this.id = id;

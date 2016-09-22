@@ -420,7 +420,7 @@ import java.util.List;
     }
 
     private void outputSample(int offset) {
-      int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
+      @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
       int size = (int) (nalUnitStartPosition - samplePosition);
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
     }

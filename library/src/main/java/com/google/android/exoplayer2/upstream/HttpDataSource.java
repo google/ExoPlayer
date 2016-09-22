@@ -15,10 +15,13 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Map;
 
@@ -57,10 +60,14 @@ public interface HttpDataSource extends DataSource {
    */
   class HttpDataSourceException extends IOException {
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
+    public @interface Type {}
     public static final int TYPE_OPEN = 1;
     public static final int TYPE_READ = 2;
     public static final int TYPE_CLOSE = 3;
 
+    @Type
     public final int type;
 
     /**
@@ -68,25 +75,26 @@ public interface HttpDataSource extends DataSource {
      */
     public final DataSpec dataSpec;
 
-    public HttpDataSourceException(DataSpec dataSpec, int type) {
+    public HttpDataSourceException(DataSpec dataSpec, @Type int type) {
       super();
       this.dataSpec = dataSpec;
       this.type = type;
     }
 
-    public HttpDataSourceException(String message, DataSpec dataSpec, int type) {
+    public HttpDataSourceException(String message, DataSpec dataSpec, @Type int type) {
       super(message);
       this.dataSpec = dataSpec;
       this.type = type;
     }
 
-    public HttpDataSourceException(IOException cause, DataSpec dataSpec, int type) {
+    public HttpDataSourceException(IOException cause, DataSpec dataSpec, @Type int type) {
       super(cause);
       this.dataSpec = dataSpec;
       this.type = type;
     }
 
-    public HttpDataSourceException(String message, IOException cause, DataSpec dataSpec, int type) {
+    public HttpDataSourceException(String message, IOException cause, DataSpec dataSpec,
+        @Type int type) {
       super(message, cause);
       this.dataSpec = dataSpec;
       this.type = type;

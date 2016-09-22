@@ -17,8 +17,11 @@ package com.google.android.exoplayer2;
 
 import android.media.AudioFormat;
 import android.media.MediaCodec;
+import android.support.annotation.IntDef;
 import android.view.Surface;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 /**
@@ -71,54 +74,78 @@ public final class C {
   public static final String UTF8_NAME = "UTF-8";
 
   /**
+   * Crypto modes for a codec.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
+  public @interface CryptoMode {}
+  /**
+   * @see MediaCodec#CRYPTO_MODE_UNENCRYPTED
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CRYPTO_MODE_UNENCRYPTED = MediaCodec.CRYPTO_MODE_UNENCRYPTED;
+  /**
    * @see MediaCodec#CRYPTO_MODE_AES_CTR
    */
   @SuppressWarnings("InlinedApi")
   public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+  /**
+   * @see MediaCodec#CRYPTO_MODE_AES_CBC
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
 
+  /**
+   * Represents an audio encoding, or an invalid or unset value.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
+      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_AC3, ENCODING_E_AC3, ENCODING_DTS,
+      ENCODING_DTS_HD})
+  public @interface Encoding {}
+
+  /**
+   * Represents a PCM audio encoding, or an invalid or unset value.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
+      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT})
+  public @interface PcmEncoding {}
   /**
    * @see AudioFormat#ENCODING_INVALID
    */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
-
   /**
    * @see AudioFormat#ENCODING_PCM_8BIT
    */
   public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
-
   /**
    * @see AudioFormat#ENCODING_PCM_16BIT
    */
   public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
-
   /**
    * PCM encoding with 24 bits per sample.
    */
   public static final int ENCODING_PCM_24BIT = 0x80000000;
-
   /**
    * PCM encoding with 32 bits per sample.
    */
   public static final int ENCODING_PCM_32BIT = 0x40000000;
-
   /**
    * @see AudioFormat#ENCODING_AC3
    */
   @SuppressWarnings("InlinedApi")
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
-
   /**
    * @see AudioFormat#ENCODING_E_AC3
    */
   @SuppressWarnings("InlinedApi")
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
-
   /**
    * @see AudioFormat#ENCODING_DTS
    */
   @SuppressWarnings("InlinedApi")
   public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
-
   /**
    * @see AudioFormat#ENCODING_DTS_HD
    */
@@ -133,47 +160,92 @@ public final class C {
       ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
   /**
+   * Flags which can apply to a buffer containing a media sample.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {BUFFER_FLAG_KEY_FRAME, BUFFER_FLAG_END_OF_STREAM,
+      BUFFER_FLAG_ENCRYPTED, BUFFER_FLAG_DECODE_ONLY})
+  public @interface BufferFlags {}
+  /**
    * Indicates that a buffer holds a synchronization sample.
    */
   @SuppressWarnings("InlinedApi")
   public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
-
   /**
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   @SuppressWarnings("InlinedApi")
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-
   /**
    * Indicates that a buffer is (at least partially) encrypted.
    */
   public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
-
   /**
    * Indicates that a buffer should be decoded but not rendered.
    */
   public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
+   * Track selection flags.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED,
+      SELECTION_FLAG_AUTOSELECT})
+  public @interface SelectionFlags {}
+  /**
+   * Indicates that the track should be selected if user preferences do not state otherwise.
+   */
+  public static final int SELECTION_FLAG_DEFAULT = 1;
+  /**
+   * Indicates that the track must be displayed. Only applies to text tracks.
+   */
+  public static final int SELECTION_FLAG_FORCED = 2;
+  /**
+   * Indicates that the player may choose to play the track in absence of an explicit user
+   * preference.
+   */
+  public static final int SELECTION_FLAG_AUTOSELECT = 4;
+
+  /**
+   * Represents a streaming or other media type.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
+  public @interface ContentType {}
+  /**
+   * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
+   */
+  public static final int TYPE_DASH = 0;
+  /**
+   * Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests.
+   */
+  public static final int TYPE_SS = 1;
+  /**
+   * Value returned by {@link Util#inferContentType(String)} for HLS manifests.
+   */
+  public static final int TYPE_HLS = 2;
+  /**
+   * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
+   * Smooth Streaming manifests.
+   */
+  public static final int TYPE_OTHER = 3;
+
+  /**
    * A return value for methods where the end of an input was encountered.
    */
   public static final int RESULT_END_OF_INPUT = -1;
-
   /**
    * A return value for methods where the length of parsed data exceeds the maximum length allowed.
    */
   public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
-
   /**
    * A return value for methods where nothing was read.
    */
   public static final int RESULT_NOTHING_READ = -3;
-
   /**
    * A return value for methods where a buffer was read.
    */
   public static final int RESULT_BUFFER_READ = -4;
-
   /**
    * A return value for methods where a format was read.
    */
@@ -183,32 +255,26 @@ public final class C {
    * A data type constant for data of unknown or unspecified type.
    */
   public static final int DATA_TYPE_UNKNOWN = 0;
-
   /**
    * A data type constant for media, typically containing media samples.
    */
   public static final int DATA_TYPE_MEDIA = 1;
-
   /**
    * A data type constant for media, typically containing only initialization data.
    */
   public static final int DATA_TYPE_MEDIA_INITIALIZATION = 2;
-
   /**
    * A data type constant for drm or encryption data.
    */
   public static final int DATA_TYPE_DRM = 3;
-
   /**
    * A data type constant for a manifest file.
    */
   public static final int DATA_TYPE_MANIFEST = 4;
-
   /**
    * A data type constant for time synchronization data.
    */
   public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
-
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
@@ -219,32 +285,26 @@ public final class C {
    * A type constant for tracks of unknown type.
    */
   public static final int TRACK_TYPE_UNKNOWN = -1;
-
   /**
    * A type constant for tracks of some default type, where the type itself is unknown.
    */
   public static final int TRACK_TYPE_DEFAULT = 0;
-
   /**
    * A type constant for audio tracks.
    */
   public static final int TRACK_TYPE_AUDIO = 1;
-
   /**
    * A type constant for video tracks.
    */
   public static final int TRACK_TYPE_VIDEO = 2;
-
   /**
    * A type constant for text tracks.
    */
   public static final int TRACK_TYPE_TEXT = 3;
-
   /**
    * A type constant for metadata tracks.
    */
   public static final int TRACK_TYPE_METADATA = 4;
-
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
@@ -255,27 +315,22 @@ public final class C {
    * A selection reason constant for selections whose reasons are unknown or unspecified.
    */
   public static final int SELECTION_REASON_UNKNOWN = 0;
-
   /**
    * A selection reason constant for an initial track selection.
    */
   public static final int SELECTION_REASON_INITIAL = 1;
-
   /**
    * A selection reason constant for an manual (i.e. user initiated) track selection.
    */
   public static final int SELECTION_REASON_MANUAL = 2;
-
   /**
    * A selection reason constant for an adaptive track selection.
    */
   public static final int SELECTION_REASON_ADAPTIVE = 3;
-
   /**
    * A selection reason constant for a trick play track selection.
    */
   public static final int SELECTION_REASON_TRICK_PLAY = 4;
-
   /**
    * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
    * or equal to this value.
@@ -364,15 +419,19 @@ public final class C {
   public static final int MSG_CUSTOM_BASE = 10000;
 
   /**
+   * The stereo mode for 360/3D/VR videos.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({Format.NO_VALUE, STEREO_MODE_MONO, STEREO_MODE_TOP_BOTTOM, STEREO_MODE_LEFT_RIGHT})
+  public @interface StereoMode {}
+  /**
    * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_MONO = 0;
-
   /**
    * Indicates Top-Bottom stereo layout, used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_TOP_BOTTOM = 1;
-
   /**
    * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
    */

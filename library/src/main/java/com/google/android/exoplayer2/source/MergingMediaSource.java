@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,10 +40,15 @@ public final class MergingMediaSource implements MediaSource {
   public static final class IllegalMergeException extends IOException {
 
     /**
+     * The reason the merge failed.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({REASON_WINDOWS_ARE_DYNAMIC, REASON_PERIOD_COUNT_MISMATCH})
+    public @interface Reason {}
+    /**
      * The merge failed because one of the sources being merged has a dynamic window.
      */
     public static final int REASON_WINDOWS_ARE_DYNAMIC = 0;
-
     /**
      * The merge failed because the sources have different period counts.
      */
@@ -50,13 +58,14 @@ public final class MergingMediaSource implements MediaSource {
      * The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
      * {@link #REASON_PERIOD_COUNT_MISMATCH}.
      */
+    @Reason
     public final int reason;
 
     /**
      * @param reason The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
      *     {@link #REASON_PERIOD_COUNT_MISMATCH}.
      */
-    public IllegalMergeException(int reason) {
+    public IllegalMergeException(@Reason int reason) {
       this.reason = reason;
     }
 

@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.C;
   /** Bits per sample for the audio data. */
   private final int bitsPerSample;
   /** The PCM encoding */
+  @C.PcmEncoding
   private final int encoding;
 
   /** Offset to the start of sample data. */
@@ -39,7 +40,7 @@ import com.google.android.exoplayer2.C;
   private long dataSize;
 
   public WavHeader(int numChannels, int sampleRateHz, int averageBytesPerSecond, int blockAlignment,
-      int bitsPerSample, int encoding) {
+      int bitsPerSample, @C.PcmEncoding int encoding) {
     this.numChannels = numChannels;
     this.sampleRateHz = sampleRateHz;
     this.averageBytesPerSecond = averageBytesPerSecond;
@@ -99,6 +100,7 @@ import com.google.android.exoplayer2.C;
   }
 
   /** Returns the PCM encoding. **/
+  @C.PcmEncoding
   public int getEncoding() {
     return encoding;
   }

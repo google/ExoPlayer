@@ -15,11 +15,21 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.support.annotation.IntDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Thrown when the requested DRM scheme is not supported.
  */
 public final class UnsupportedDrmException extends Exception {
 
+  /**
+   * The reason for the exception.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({REASON_UNSUPPORTED_SCHEME, REASON_INSTANTIATION_ERROR})
+  public @interface Reason {}
   /**
    * The requested DRM scheme is unsupported by the device.
    */
@@ -33,12 +43,13 @@ public final class UnsupportedDrmException extends Exception {
   /**
    * Either {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
    */
+  @Reason
   public final int reason;
 
   /**
    * @param reason {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
    */
-  public UnsupportedDrmException(int reason) {
+  public UnsupportedDrmException(@Reason int reason) {
     this.reason = reason;
   }
 
@@ -46,7 +57,7 @@ public final class UnsupportedDrmException extends Exception {
    * @param reason {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
    * @param cause The cause of this exception.
    */
-  public UnsupportedDrmException(int reason, Exception cause) {
+  public UnsupportedDrmException(@Reason int reason, Exception cause) {
     super(cause);
     this.reason = reason;
   }

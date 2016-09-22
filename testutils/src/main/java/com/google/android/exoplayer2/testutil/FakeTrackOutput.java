@@ -88,7 +88,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   @Override
-  public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+  public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
+      byte[] encryptionKey) {
     sampleTimesUs.add(timeUs);
     sampleFlags.add(flags);
     sampleStartOffsets.add(sampleData.length - offset - size);

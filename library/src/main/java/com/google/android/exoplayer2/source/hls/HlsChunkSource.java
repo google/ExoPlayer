@@ -355,7 +355,7 @@ import java.util.Locale;
       timestampAdjuster = timestampAdjusterProvider.getAdjuster(segment.discontinuitySequenceNumber,
           startTimeUs);
       // This flag ensures the change of pid between streams does not affect the sample queues.
-      int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
+      @TsExtractor.WorkaroundFlags int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
       String codecs = variants[newVariantIndex].format.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really

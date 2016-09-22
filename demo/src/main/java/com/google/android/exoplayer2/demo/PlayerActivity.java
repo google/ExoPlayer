@@ -316,15 +316,15 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
         : uri.getLastPathSegment());
     switch (type) {
-      case Util.TYPE_SS:
+      case C.TYPE_SS:
         return new SsMediaSource(uri, buildDataSourceFactory(false),
             new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
-      case Util.TYPE_DASH:
+      case C.TYPE_DASH:
         return new DashMediaSource(uri, buildDataSourceFactory(false),
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
-      case Util.TYPE_HLS:
+      case C.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
-      case Util.TYPE_OTHER:
+      case C.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
       default: {
