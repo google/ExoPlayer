@@ -458,12 +458,11 @@ import java.io.IOException;
           startRenderers();
         }
       }
-    } else if (state == ExoPlayer.STATE_READY) {
-      if (enabledRenderers.length > 0 ? !allRenderersReadyOrEnded : !isTimelineReady) {
-        rebuffering = playWhenReady;
-        setState(ExoPlayer.STATE_BUFFERING);
-        stopRenderers();
-      }
+    } else if (state == ExoPlayer.STATE_READY
+        && (enabledRenderers.length > 0 ? !allRenderersReadyOrEnded : !isTimelineReady)) {
+      rebuffering = playWhenReady;
+      setState(ExoPlayer.STATE_BUFFERING);
+      stopRenderers();
     }
 
     if (state == ExoPlayer.STATE_BUFFERING) {
@@ -995,10 +994,18 @@ import java.io.IOException;
       eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
     }
     updateTimelineState();
+
+    if (readingPeriodHolder != null && readingPeriodHolder.isLast) {
+      readingPeriodHolder = null;
+      for (Renderer renderer : enabledRenderers) {
+        renderer.setCurrentStreamIsFinal();
+      }
+    }
     if (readingPeriodHolder == null) {
       // The renderers have their final SampleStreams.
       return;
     }
+
     for (Renderer renderer : enabledRenderers) {
       if (!renderer.hasReadStreamToEnd()) {
         return;
@@ -1028,11 +1035,6 @@ import java.io.IOException;
             renderer.setCurrentStreamIsFinal();
           }
         }
-      }
-    } else if (readingPeriodHolder.isLast) {
-      readingPeriodHolder = null;
-      for (Renderer renderer : enabledRenderers) {
-        renderer.setCurrentStreamIsFinal();
       }
     }
   }
