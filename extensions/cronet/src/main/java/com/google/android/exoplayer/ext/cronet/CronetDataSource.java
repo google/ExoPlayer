@@ -269,15 +269,20 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     try {
       validateResponse(info);
       responseInfo = info;
-      // Check content length.
-      contentLength = getContentLength(info.getAllHeaders());
-      // If a specific length is requested and a specific length is returned but the 2 don't match
-      // it's an error.
-      if (currentDataSpec.length != C.LENGTH_UNBOUNDED
-          && contentLength != C.LENGTH_UNBOUNDED
-          && currentDataSpec.length != contentLength) {
-        throw new OpenException("Content length did not match requested length", currentDataSpec,
-            getCurrentRequestStatus());
+
+      if (isCompressed(info)) {
+        contentLength = currentDataSpec.length;
+      } else {
+        // Check content length.
+        contentLength = getContentLength(info.getAllHeaders());
+        // If a specific length is requested and a specific length is returned but the 2 don't match
+        // it's an error.
+        if (currentDataSpec.length != C.LENGTH_UNBOUNDED
+            && contentLength != C.LENGTH_UNBOUNDED
+            && currentDataSpec.length != contentLength) {
+          throw new OpenException("Content length did not match requested length", currentDataSpec,
+              getCurrentRequestStatus());
+        }
       }
 
       if (contentLength > 0) {
@@ -293,6 +298,23 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       operation.open();
       TraceUtil.endSection();
     }
+  }
+
+  /**
+   * Returns {@code true} iff the content is compressed.
+   *
+   * <p>If {@code true}, clients cannot use the value of content length from the request headers to
+   * read the data, since Cronet returns the uncompressed data and this content length reflects the
+   * compressed content length.
+   */
+  private boolean isCompressed(UrlResponseInfo info) {
+    for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
+      if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
+        return !entry.getValue().equalsIgnoreCase("identity");
+      }
+    }
+
+    return false;
   }
 
   private void validateResponse(UrlResponseInfo info) throws HttpDataSourceException {
