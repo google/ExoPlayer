@@ -65,7 +65,6 @@ public class SampleChooserActivity extends Activity {
     } else {
       uris = new String[] {
           "asset:///media.exolist.json",
-          "https://raw.githubusercontent.com/Axinom/dash-test-vectors/master/axinom.exolist.json",
       };
     }
     SampleListLoader loaderTask = new SampleListLoader();
