@@ -37,6 +37,6 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   /**
    * Releases a {@link DrmSession}.
    */
-  void releaseSession(DrmSession drmSession);
+  void releaseSession(DrmSession<T> drmSession);
 
 }
