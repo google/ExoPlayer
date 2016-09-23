@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.text.TextUtils;
+import com.google.android.exoplayer2.C;
+
 /**
  * Defines common MIME types and helper methods.
  */
@@ -189,6 +192,44 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_VORBIS;
     }
     return null;
+  }
+
+  /**
+   * Returns the {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified mime type.
+   * {@link C#TRACK_TYPE_UNKNOWN} if the mime type is not known or the mapping cannot be
+   * established.
+   *
+   * @param mimeType The mimeType.
+   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified mime type.
+   */
+  public static int getTrackType(String mimeType) {
+    if (TextUtils.isEmpty(mimeType)) {
+      return C.TRACK_TYPE_UNKNOWN;
+    } else if (isAudio(mimeType)) {
+      return C.TRACK_TYPE_AUDIO;
+    } else if (isVideo(mimeType)) {
+      return C.TRACK_TYPE_VIDEO;
+    } else if (isText(mimeType) || APPLICATION_EIA608.equals(mimeType)
+        || APPLICATION_SUBRIP.equals(mimeType) || APPLICATION_TTML.equals(mimeType)
+        || APPLICATION_TX3G.equals(mimeType) || APPLICATION_MP4VTT.equals(mimeType)
+        || APPLICATION_RAWCC.equals(mimeType) || APPLICATION_VOBSUB.equals(mimeType)
+        || APPLICATION_PGS.equals(mimeType)) {
+      return C.TRACK_TYPE_TEXT;
+    } else if (APPLICATION_ID3.equals(mimeType)) {
+      return C.TRACK_TYPE_METADATA;
+    } else {
+      return C.TRACK_TYPE_UNKNOWN;
+    }
+  }
+
+  /**
+   * Equivalent to {@code getTrackType(getMediaMimeType(codec))}.
+   *
+   * @param codec The codec.
+   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified codec.
+   */
+  public static int getTrackTypeOfCodec(String codec) {
+    return getTrackType(getMediaMimeType(codec));
   }
 
   /**

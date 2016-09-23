@@ -380,7 +380,7 @@ public final class Format implements Parcelable {
         selectionFlags, language, subsampleOffsetUs, initializationData, drmInitData);
   }
 
-  public Format copyWithContainerInfo(String id, int bitrate, int width, int height,
+  public Format copyWithContainerInfo(String id, String codecs, int bitrate, int width, int height,
       @C.SelectionFlags int selectionFlags, String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData,

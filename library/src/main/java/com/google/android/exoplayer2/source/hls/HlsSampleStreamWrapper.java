@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.text.TextUtils;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -567,7 +568,7 @@ import java.util.LinkedList;
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
-          formats[j] = getSampleFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat);
+          formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat);
         }
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
@@ -580,7 +581,7 @@ import java.util.LinkedList;
             trackFormat = muxedCaptionFormat;
           }
         }
-        trackGroups[i] = new TrackGroup(getSampleFormat(trackFormat, sampleFormat));
+        trackGroups[i] = new TrackGroup(deriveFormat(trackFormat, sampleFormat));
       }
     }
     this.trackGroups = new TrackGroupArray(trackGroups);
@@ -599,18 +600,25 @@ import java.util.LinkedList;
   }
 
   /**
-   * Derives a sample format corresponding to a given container format, by combining it with sample
-   * level information obtained from a second sample format.
+   * Derives a track format corresponding to a given container format, by combining it with sample
+   * level information obtained from the samples.
    *
-   * @param containerFormat The container format for which the sample format should be derived.
+   * @param containerFormat The container format for which the track format should be derived.
    * @param sampleFormat A sample format from which to obtain sample level information.
-   * @return The derived sample format.
+   * @return The derived track format.
    */
-  private static Format getSampleFormat(Format containerFormat, Format sampleFormat) {
+  private static Format deriveFormat(Format containerFormat, Format sampleFormat) {
     if (containerFormat == null) {
       return sampleFormat;
     }
-    return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate,
+    String codecs = null;
+    int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
+    if (sampleTrackType == C.TRACK_TYPE_AUDIO) {
+      codecs = getAudioCodecs(containerFormat.codecs);
+    } else if (sampleTrackType == C.TRACK_TYPE_VIDEO) {
+      codecs = getVideoCodecs(containerFormat.codecs);
+    }
+    return sampleFormat.copyWithContainerInfo(containerFormat.id, codecs, containerFormat.bitrate,
         containerFormat.width, containerFormat.height, containerFormat.selectionFlags,
         containerFormat.language);
   }
@@ -621,6 +629,31 @@ import java.util.LinkedList;
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != C.TIME_UNSET;
+  }
+
+  private static String getAudioCodecs(String codecs) {
+    return getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO);
+  }
+
+  private static String getVideoCodecs(String codecs) {
+    return getCodecsOfType(codecs, C.TRACK_TYPE_VIDEO);
+  }
+
+  private static String getCodecsOfType(String codecs, int trackType) {
+    if (TextUtils.isEmpty(codecs)) {
+      return null;
+    }
+    String[] codecArray = codecs.split("(\\s*,\\s*)|(\\s*$)");
+    StringBuilder builder = new StringBuilder();
+    for (String codec : codecArray) {
+      if (trackType == MimeTypes.getTrackTypeOfCodec(codec)) {
+        if (builder.length() > 0) {
+          builder.append(",");
+        }
+        builder.append(codec);
+      }
+    }
+    return builder.length() > 0 ? builder.toString() : null;
   }
 
 }
