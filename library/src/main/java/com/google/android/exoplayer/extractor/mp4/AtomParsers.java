@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
+import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
@@ -37,6 +38,8 @@ import java.util.List;
  * Utility methods for parsing MP4 format atom payloads according to ISO 14496-12.
  */
 /* package */ final class AtomParsers {
+
+  private static final String TAG = "AtomParsers";
 
   /**
    * Parses a trak atom (defined in 14496-12).
@@ -241,11 +244,16 @@ import java.util.List;
         remainingTimestampOffsetChanges--;
       }
 
-      // Check all the expected samples have been seen.
-      Assertions.checkArgument(remainingSynchronizationSamples == 0);
-      Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
-      Assertions.checkArgument(remainingSamplesInChunk == 0);
-      Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
+      // If the stbl's child boxes are not consistent the container is malformed, but the stream may
+      // still be playable.
+      if (remainingSynchronizationSamples != 0 || remainingSamplesAtTimestampDelta != 0
+          || remainingSamplesInChunk != 0 || remainingTimestampDeltaChanges != 0) {
+        Log.w(TAG, "Inconsistent stbl box for track " + track.id
+            + ": remainingSynchronizationSamples " + remainingSynchronizationSamples
+            + ", remainingSamplesAtTimestampDelta " + remainingSamplesAtTimestampDelta
+            + ", remainingSamplesInChunk " + remainingSamplesInChunk
+            + ", remainingTimestampDeltaChanges " + remainingTimestampDeltaChanges);
+      }
     } else {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
       int[] chunkSampleCounts = new int[chunkIterator.length];
