@@ -22,8 +22,17 @@ and extend, and can be updated through Play Store application updates.
 
 #### Via jCenter ####
 
-The easiest way to get started using ExoPlayer is by including the following in
-your project's `build.gradle` file:
+The easiest way to get started using ExoPlayer is to add it as a gradle
+dependency. You need to make sure you have the jcenter repository included in
+the `build.gradle` file in the root of your project:
+
+```gradle
+repositories {
+    jcenter()
+}
+```
+
+Next, include the following in your module's `build.gradle` file:
 
 ```gradle
 compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
