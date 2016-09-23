@@ -203,11 +203,7 @@ import java.util.Locale;
 
   @Override
   public void onClick(DialogInterface dialog, int which) {
-    if (isDisabled) {
-      selector.setRendererDisabled(rendererIndex, true);
-      return;
-    }
-    selector.setRendererDisabled(rendererIndex, false);
+    selector.setRendererDisabled(rendererIndex, isDisabled);
     if (override != null) {
       selector.setSelectionOverride(rendererIndex, trackGroups, override);
     } else {
