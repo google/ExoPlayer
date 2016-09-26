@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.text.eia608;
 
+import android.text.Layout.Alignment;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
@@ -159,6 +161,14 @@ public final class Eia608Decoder implements SubtitleDecoder {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
+  private static final Alignment CUE_TEXT_ALIGNMENT = Alignment.ALIGN_NORMAL;
+  private static final float CUE_LINE = Cue.DIMEN_UNSET;
+  private static final int CUE_LINE_TYPE = Cue.TYPE_UNSET;
+  private static final int CUE_LINE_ANCHOR = Cue.TYPE_UNSET;
+  private static final float CUE_POSITION = 0.1f;
+  private static final int CUE_POSITION_ANCHOR = Cue.TYPE_UNSET;
+  private static final float CUE_SIZE = 0.8f;
+
   private final LinkedList<SubtitleInputBuffer> availableInputBuffers;
   private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
   private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
@@ -256,8 +266,13 @@ public final class Eia608Decoder implements SubtitleDecoder {
       if (!TextUtils.equals(captionString, lastCaptionString)) {
         lastCaptionString = captionString;
         if (!inputBuffer.isDecodeOnly()) {
+          Cue cue = null;
+          if (!TextUtils.isEmpty(captionString)) {
+            cue = new Cue(captionString, CUE_TEXT_ALIGNMENT, CUE_LINE, CUE_LINE_TYPE,
+                CUE_LINE_ANCHOR, CUE_POSITION, CUE_POSITION_ANCHOR, CUE_SIZE);
+          }
           SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
+          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(cue), 0);
           releaseInputBuffer(inputBuffer);
           return outputBuffer;
         }
@@ -320,26 +335,33 @@ public final class Eia608Decoder implements SubtitleDecoder {
       captionDataProcessed = true;
 
       // Special North American character set.
+      // ccData1 - P|0|0|1|C|0|0|1
       // ccData2 - P|0|1|1|X|X|X|X
       if ((ccData1 == 0x11 || ccData1 == 0x19) && ((ccData2 & 0x70) == 0x30)) {
+        // TODO: Make use of the channel bit
         captionStringBuilder.append(getSpecialChar(ccData2));
         continue;
       }
 
-      // Extended Spanish/Miscellaneous and French character set.
+      // Extended Western European character set.
+      // ccData1 - P|0|0|1|C|0|1|S
       // ccData2 - P|0|1|X|X|X|X|X
-      if ((ccData1 == 0x12 || ccData1 == 0x1A) && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
-        captionStringBuilder.append(getExtendedEsFrChar(ccData2));
-        continue;
-      }
+      if ((ccData2 & 0x60) == 0x20) {
+        // Extended Spanish/Miscellaneous and French character set (S = 0).
+        if (ccData1 == 0x12 || ccData1 == 0x1A) {
+          // TODO: Make use of the channel bit
+          backspace(); // Remove standard equivalent of the special extended char.
+          captionStringBuilder.append(getExtendedEsFrChar(ccData2));
+          continue;
+        }
 
-      // Extended Portuguese and German/Danish character set.
-      // ccData2 - P|0|1|X|X|X|X|X
-      if ((ccData1 == 0x13 || ccData1 == 0x1B) && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
-        captionStringBuilder.append(getExtendedPtDeChar(ccData2));
-        continue;
+        // Extended Portuguese and German/Danish character set (S = 1).
+        if (ccData1 == 0x13 || ccData1 == 0x1B) {
+          // TODO: Make use of the channel bit
+          backspace(); // Remove standard equivalent of the special extended char.
+          captionStringBuilder.append(getExtendedPtDeChar(ccData2));
+          continue;
+        }
       }
 
       // Control character.
@@ -367,15 +389,17 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private boolean handleCtrl(byte cc1, byte cc2) {
     boolean isRepeatableControl = isRepeatable(cc1);
-    if (isRepeatableControl && repeatableControlSet
-        && repeatableControlCc1 == cc1
-        && repeatableControlCc2 == cc2) {
-      repeatableControlSet = false;
-      return true;
-    } else if (isRepeatableControl) {
-      repeatableControlSet = true;
-      repeatableControlCc1 = cc1;
-      repeatableControlCc2 = cc2;
+    if (isRepeatableControl) {
+      if (repeatableControlSet
+          && repeatableControlCc1 == cc1
+          && repeatableControlCc2 == cc2) {
+        repeatableControlSet = false;
+        return true;
+      } else {
+        repeatableControlSet = true;
+        repeatableControlCc1 = cc1;
+        repeatableControlCc2 = cc2;
+      }
     }
     if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
