@@ -18,21 +18,273 @@ package com.google.android.exoplayer2.trackselection;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Handler;
+import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A {@link MappingTrackSelector} that allows configuration of common parameters.
+ * A {@link MappingTrackSelector} that allows configuration of common parameters. It is safe to call
+ * the methods of this class from the application thread. See {@link Parameters#Parameters()} for
+ * default selection parameters.
  */
 public class DefaultTrackSelector extends MappingTrackSelector {
+
+  /**
+   * Holder for available configurations for the {@link DefaultTrackSelector}.
+   */
+  public static final class Parameters {
+
+    // Audio.
+    public final String preferredAudioLanguage;
+
+    // Text.
+    public final String preferredTextLanguage;
+
+    // Video.
+    public final boolean allowMixedMimeAdaptiveness;
+    public final boolean allowNonSeamlessAdaptiveness;
+    public final int maxVideoWidth;
+    public final int maxVideoHeight;
+    public final boolean exceedVideoConstraintsIfNecessary;
+    public final int viewportWidth;
+    public final int viewportHeight;
+    public final boolean orientationMayChange;
+
+    /**
+     * Constructor with default selection parameters:
+     * <ul>
+     *   <li>No preferred audio language is set.</li>
+     *   <li>No preferred text language is set.</li>
+     *   <li>Adaptation between different mime types is not allowed.</li>
+     *   <li>Non seamless adaptation is allowed.</li>
+     *   <li>No max limit for video width/height.</li>
+     *   <li>Video constrains are ignored if no supported selection can be made otherwise.</li>
+     *   <li>No viewport width/height constrains are set.</li>
+     * </ul>
+     */
+    public Parameters() {
+      this(null, null, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE, true, Integer.MAX_VALUE,
+          Integer.MAX_VALUE, true);
+    }
+
+    /**
+     * @param preferredAudioLanguage The preferred language for audio, as well as for forced text
+     *     tracks as defined by RFC 5646. {@code null} to select the default track, or first track
+     *     if there's no default.
+     * @param preferredTextLanguage The preferred language for text tracks as defined by RFC 5646.
+     *     {@code null} to select the default track, or first track if there's no default.
+     * @param allowMixedMimeAdaptiveness Whether to allow selections to contain mixed mime types.
+     * @param allowNonSeamlessAdaptiveness Whether non-seamless adaptation is allowed.
+     * @param maxVideoWidth Maximum allowed video width.
+     * @param maxVideoHeight Maximum allowed video height.
+     * @param exceedVideoConstraintsIfNecessary True to ignore video constraints when no selections
+     *     can be made otherwise. False to force constraints anyway.
+     * @param viewportWidth Viewport width in pixels.
+     * @param viewportHeight Viewport height in pixels.
+     * @param orientationMayChange Whether orientation may change during playback.
+     */
+    public Parameters(String preferredAudioLanguage, String preferredTextLanguage,
+        boolean allowMixedMimeAdaptiveness, boolean allowNonSeamlessAdaptiveness,
+        int maxVideoWidth, int maxVideoHeight, boolean exceedVideoConstraintsIfNecessary,
+        int viewportWidth, int viewportHeight, boolean orientationMayChange) {
+      this.preferredAudioLanguage = preferredAudioLanguage;
+      this.preferredTextLanguage = preferredTextLanguage;
+      this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
+      this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
+      this.maxVideoWidth = maxVideoWidth;
+      this.maxVideoHeight = maxVideoHeight;
+      this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
+      this.viewportWidth = viewportWidth;
+      this.viewportHeight = viewportHeight;
+      this.orientationMayChange = orientationMayChange;
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided preferred language for audio and
+     * forced text tracks.
+     *
+     * @param preferredAudioLanguage The preferred language as defined by RFC 5646. {@code null} to
+     *     select the default track, or first track if there's no default.
+     * @return A {@link Parameters} instance with the provided preferred language for audio and
+     *     forced text tracks.
+     */
+    public Parameters withPreferredAudioLanguage(String preferredAudioLanguage) {
+      preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
+      if (TextUtils.equals(preferredAudioLanguage, this.preferredAudioLanguage)) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
+          exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight, orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided preferred language for text tracks.
+     *
+     * @param preferredTextLanguage The preferred language as defined by RFC 5646. {@code null} to
+     *     select the default track, or no track if there's no default.
+     * @return A {@link Parameters} instance with the provided preferred language for text tracks.
+     */
+    public Parameters withPreferredTextLanguage(String preferredTextLanguage) {
+      preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
+      if (TextUtils.equals(preferredTextLanguage, this.preferredTextLanguage)) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth,
+          maxVideoHeight, exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight,
+          orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided mixed mime adaptiveness allowance.
+     *
+     * @param allowMixedMimeAdaptiveness Whether to allow selections to contain mixed mime types.
+     * @return A {@link Parameters} instance with the provided mixed mime adaptiveness allowance.
+     */
+    public Parameters withAllowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
+      if (allowMixedMimeAdaptiveness == this.allowMixedMimeAdaptiveness) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth,
+          maxVideoHeight, exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight,
+          orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided seamless adaptiveness allowance.
+     *
+     * @param allowNonSeamlessAdaptiveness Whether non-seamless adaptation is allowed.
+     * @return A {@link Parameters} instance with the provided seamless adaptiveness allowance.
+     */
+    public Parameters withAllowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
+      if (allowNonSeamlessAdaptiveness == this.allowNonSeamlessAdaptiveness) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth,
+          maxVideoHeight, exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight,
+          orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided max video size.
+     *
+     * @param maxVideoWidth The max video width.
+     * @param maxVideoHeight The max video width.
+     * @return A {@link Parameters} instance with the provided max video size.
+     */
+    public Parameters withMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
+      if (maxVideoWidth == this.maxVideoWidth && maxVideoHeight == this.maxVideoHeight) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth,
+          maxVideoHeight, exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight,
+          orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided
+     * {@code exceedVideoConstraintsIfNecessary} value.
+     *
+     * @param exceedVideoConstraintsIfNecessary True to ignore video constraints when no selections
+     *     can be made otherwise. False to force constraints anyway.
+     * @return A {@link Parameters} instance with the provided
+     *     {@code exceedVideoConstraintsIfNecessary} value.
+     */
+    public Parameters withExceedVideoConstraintsIfNecessary(
+        boolean exceedVideoConstraintsIfNecessary) {
+      if (exceedVideoConstraintsIfNecessary == this.exceedVideoConstraintsIfNecessary) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth,
+          maxVideoHeight, exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight,
+          orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance with the provided viewport size.
+     *
+     * @param viewportWidth Viewport width in pixels.
+     * @param viewportHeight Viewport height in pixels.
+     * @param orientationMayChange Whether orientation may change during playback.
+     * @return A {@link Parameters} instance with the provided viewport size.
+     */
+    public Parameters withViewportSize(int viewportWidth, int viewportHeight,
+        boolean orientationMayChange) {
+      if (viewportWidth == this.viewportWidth && viewportHeight == this.viewportHeight
+          && orientationMayChange == this.orientationMayChange) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth,
+          maxVideoHeight, exceedVideoConstraintsIfNecessary, viewportWidth, viewportHeight,
+          orientationMayChange);
+    }
+
+    /**
+     * Returns a {@link Parameters} instance where the viewport size is obtained from the provided
+     * {@link Context}.
+     *
+     * @param context The context to obtain the viewport size from.
+     * @param orientationMayChange Whether orientation may change during playback.
+     * @return A {@link Parameters} instance where the viewport size is obtained from the provided
+     *     {@link Context}.
+     */
+    public Parameters withViewportSizeFromContext(Context context, boolean orientationMayChange) {
+      // Assume the viewport is fullscreen.
+      Point viewportSize = Util.getPhysicalDisplaySize(context);
+      return withViewportSize(viewportSize.x, viewportSize.y, orientationMayChange);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      Parameters other = (Parameters) obj;
+      return allowMixedMimeAdaptiveness == other.allowMixedMimeAdaptiveness
+          && allowNonSeamlessAdaptiveness == other.allowNonSeamlessAdaptiveness
+          && maxVideoWidth == other.maxVideoWidth && maxVideoHeight == other.maxVideoHeight
+          && exceedVideoConstraintsIfNecessary == other.exceedVideoConstraintsIfNecessary
+          && orientationMayChange == other.orientationMayChange
+          && viewportWidth == other.viewportWidth && viewportHeight == other.viewportHeight
+          && TextUtils.equals(preferredAudioLanguage, other.preferredAudioLanguage)
+          && TextUtils.equals(preferredTextLanguage, other.preferredTextLanguage);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = preferredAudioLanguage.hashCode();
+      result = 31 * result + preferredTextLanguage.hashCode();
+      result = 31 * result + (allowMixedMimeAdaptiveness ? 1 : 0);
+      result = 31 * result + (allowNonSeamlessAdaptiveness ? 1 : 0);
+      result = 31 * result + maxVideoWidth;
+      result = 31 * result + maxVideoHeight;
+      result = 31 * result + (exceedVideoConstraintsIfNecessary ? 1 : 0);
+      result = 31 * result + (orientationMayChange ? 1 : 0);
+      result = 31 * result + viewportWidth;
+      result = 31 * result + viewportHeight;
+      return result;
+    }
+
+  }
 
   /**
    * If a dimension (i.e. width or height) of a video is greater or equal to this fraction of the
@@ -43,22 +295,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static final int[] NO_TRACKS = new int[0];
 
   private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
-
-  // Audio.
-  private String preferredAudioLanguage;
-
-  // Text.
-  private String preferredTextLanguage;
-
-  // Video.
-  private boolean allowMixedMimeAdaptiveness;
-  private boolean allowNonSeamlessAdaptiveness;
-  private int maxVideoWidth;
-  private int maxVideoHeight;
-  private boolean exceedVideoConstraintsIfNecessary;
-  private boolean orientationMayChange;
-  private int viewportWidth;
-  private int viewportHeight;
+  private final AtomicReference<Parameters> params;
 
   /**
    * Constructs an instance that does not support adaptive video.
@@ -82,13 +319,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
     super(eventHandler);
     this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
-    allowNonSeamlessAdaptiveness = true;
-    exceedVideoConstraintsIfNecessary = true;
-    maxVideoWidth = Integer.MAX_VALUE;
-    maxVideoHeight = Integer.MAX_VALUE;
-    viewportWidth = Integer.MAX_VALUE;
-    viewportHeight = Integer.MAX_VALUE;
-    orientationMayChange = true;
+    params = new AtomicReference<>(new Parameters());
+  }
+
+  /**
+   * Atomically sets the provided parameters for track selection.
+   *
+   * @param params The parameters for track selection.
+   */
+  public void setParameters(Parameters params) {
+    if (!this.params.get().equals(params)) {
+      this.params.set(Assertions.checkNotNull(params));
+      invalidate();
+    }
   }
 
   /**
@@ -97,12 +340,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param preferredAudioLanguage The preferred language as defined by RFC 5646. {@code null} to
    *     select the default track, or first track if there's no default.
    */
-  public void setPreferredLanguages(String preferredAudioLanguage) {
+  public void setPreferredLanguage(String preferredAudioLanguage) {
     preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
-    if (!Util.areEqual(this.preferredAudioLanguage, preferredAudioLanguage)) {
-      this.preferredAudioLanguage = preferredAudioLanguage;
-      invalidate();
-    }
+    setParameters(params.get().withPreferredAudioLanguage(preferredAudioLanguage));
   }
 
   /**
@@ -113,10 +353,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   public void setPreferredTextLanguage(String preferredTextLanguage) {
     preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
-    if (!Util.areEqual(this.preferredTextLanguage, preferredTextLanguage)) {
-      this.preferredTextLanguage = preferredTextLanguage;
-      invalidate();
-    }
+    setParameters(params.get().withPreferredTextLanguage(preferredTextLanguage));
   }
 
   /**
@@ -125,10 +362,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param allowMixedMimeAdaptiveness Whether to allow selections to contain mixed mime types.
    */
   public void allowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
-    if (this.allowMixedMimeAdaptiveness != allowMixedMimeAdaptiveness) {
-      this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
-      invalidate();
-    }
+    setParameters(params.get().withAllowMixedMimeAdaptiveness(allowMixedMimeAdaptiveness));
   }
 
   /**
@@ -137,10 +371,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param allowNonSeamlessAdaptiveness Whether non-seamless adaptation is allowed.
    */
   public void allowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
-    if (this.allowNonSeamlessAdaptiveness != allowNonSeamlessAdaptiveness) {
-      this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
-      invalidate();
-    }
+    setParameters(params.get().withAllowNonSeamlessAdaptiveness(allowNonSeamlessAdaptiveness));
   }
 
   /**
@@ -150,11 +381,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param maxVideoHeight Maximum allowed height.
    */
   public void setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
-    if (this.maxVideoWidth != maxVideoWidth || this.maxVideoHeight != maxVideoHeight) {
-      this.maxVideoWidth = maxVideoWidth;
-      this.maxVideoHeight = maxVideoHeight;
-      invalidate();
-    }
+    setParameters(params.get().withMaxVideoSize(maxVideoWidth, maxVideoHeight));
   }
 
   /**
@@ -178,10 +405,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     can be made otherwise. False to force constraints anyway.
    */
   public void setExceedVideoConstraintsIfNecessary(boolean exceedVideoConstraintsIfNecessary) {
-    if (this.exceedVideoConstraintsIfNecessary != exceedVideoConstraintsIfNecessary) {
-      this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
-      invalidate();
-    }
+    setParameters(
+        params.get().withExceedVideoConstraintsIfNecessary(exceedVideoConstraintsIfNecessary));
   }
 
   /**
@@ -192,13 +417,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param orientationMayChange Whether orientation may change during playback.
    */
   public void setViewportSize(int viewportWidth, int viewportHeight, boolean orientationMayChange) {
-    if (this.viewportWidth != viewportWidth || this.viewportHeight != viewportHeight
-        || this.orientationMayChange != orientationMayChange) {
-      this.viewportWidth = viewportWidth;
-      this.viewportHeight = viewportHeight;
-      this.orientationMayChange = orientationMayChange;
-      invalidate();
-    }
+    setParameters(
+        params.get().withViewportSize(viewportWidth, viewportHeight, orientationMayChange));
   }
 
   /**
@@ -209,8 +429,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param orientationMayChange Whether orientation may change during playback.
    */
   public void setViewportSizeFromContext(Context context, boolean orientationMayChange) {
-    Point viewportSize = Util.getPhysicalDisplaySize(context); // Assume the viewport is fullscreen.
-    setViewportSize(viewportSize.x, viewportSize.y, orientationMayChange);
+    setParameters(params.get().withViewportSizeFromContext(context, orientationMayChange));
   }
 
   /**
@@ -228,22 +447,25 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       throws ExoPlaybackException {
     // Make a track selection for each renderer.
     TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCapabilities.length];
+    Parameters params = this.params.get();
     for (int i = 0; i < rendererCapabilities.length; i++) {
       switch (rendererCapabilities[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
           rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
-              rendererTrackGroupArrays[i], rendererFormatSupports[i], maxVideoWidth, maxVideoHeight,
-              allowNonSeamlessAdaptiveness, allowMixedMimeAdaptiveness, viewportWidth,
-              viewportHeight, orientationMayChange, adaptiveVideoTrackSelectionFactory,
-              exceedVideoConstraintsIfNecessary);
+              rendererTrackGroupArrays[i], rendererFormatSupports[i], params.maxVideoWidth,
+              params.maxVideoHeight,
+              params.allowNonSeamlessAdaptiveness, params.allowMixedMimeAdaptiveness,
+              params.viewportWidth, params.viewportHeight, params.orientationMayChange,
+              adaptiveVideoTrackSelectionFactory, params.exceedVideoConstraintsIfNecessary);
           break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectAudioTrack(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i], preferredAudioLanguage);
+              rendererFormatSupports[i], params.preferredAudioLanguage);
           break;
         case C.TRACK_TYPE_TEXT:
           rendererTrackSelections[i] = selectTextTrack(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i], preferredTextLanguage, preferredAudioLanguage);
+              rendererFormatSupports[i], params.preferredTextLanguage,
+              params.preferredAudioLanguage);
           break;
         default:
           rendererTrackSelections[i] = selectOtherTrack(rendererCapabilities[i].getTrackType(),
