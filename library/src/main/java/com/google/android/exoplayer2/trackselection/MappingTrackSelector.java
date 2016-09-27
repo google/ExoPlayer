@@ -16,39 +16,23 @@
 package com.google.android.exoplayer2.trackselection;
 
 import android.os.Handler;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
  * and renderers, and then from that mapping create a {@link TrackSelection} for each renderer.
  */
-public abstract class MappingTrackSelector extends TrackSelector {
-
-  /**
-   * Listener of {@link MappingTrackSelector} events.
-   */
-  public interface EventListener {
-
-    /**
-     * Called when the track information has changed.
-     *
-     * @param trackInfo Contains the new track and track selection information.
-     */
-    void onTracksChanged(TrackInfo trackInfo);
-
-  }
+public abstract class MappingTrackSelector extends TrackSelector<MappedTrackInfo> {
 
   /**
    * A track selection override.
@@ -96,49 +80,17 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
-  private final Handler eventHandler;
-  private final CopyOnWriteArraySet<EventListener> listeners;
   private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
   private final SparseBooleanArray rendererDisabledFlags;
-
-  private TrackInfo activeTrackInfo;
 
   /**
    * @param eventHandler A handler to use when delivering events to listeners added via
    *     {@link #addListener(EventListener)}.
    */
   public MappingTrackSelector(Handler eventHandler) {
-    this.eventHandler = eventHandler;
-    this.listeners = new CopyOnWriteArraySet<>();
+    super(eventHandler);
     selectionOverrides = new SparseArray<>();
     rendererDisabledFlags = new SparseBooleanArray();
-  }
-
-  /**
-   * Register a listener to receive events from the selector. The listener's methods will be called
-   * using the {@link Handler} that was passed to the constructor.
-   *
-   * @param listener The listener to register.
-   */
-  public final void addListener(EventListener listener) {
-    Assertions.checkState(eventHandler != null);
-    listeners.add(listener);
-  }
-
-  /**
-   * Unregister a listener. The listener will no longer receive events from the selector.
-   *
-   * @param listener The listener to unregister.
-   */
-  public final void removeListener(EventListener listener) {
-    listeners.remove(listener);
-  }
-
-  /**
-   * Returns information about the current tracks and track selection for each renderer.
-   */
-  public final TrackInfo getTrackInfo() {
-    return activeTrackInfo;
   }
 
   /**
@@ -272,13 +224,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
   // TrackSelector implementation.
 
   @Override
-  public final void onSelectionActivated(Object selectionInfo) {
-    activeTrackInfo = (TrackInfo) selectionInfo;
-    notifyTrackInfoChanged(activeTrackInfo);
-  }
-
-  @Override
-  public final Pair<TrackSelectionArray, Object> selectTracks(
+  public final TrackSelections<MappedTrackInfo> selectTracks(
       RendererCapabilities[] rendererCapabilities, TrackGroupArray trackGroups)
       throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
@@ -345,11 +291,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     // Package up the track information and selections.
-    TrackSelectionArray trackSelectionArray = new TrackSelectionArray(trackSelections);
-    TrackInfo trackInfo = new TrackInfo(rendererTrackTypes, rendererTrackGroupArrays,
-        trackSelections, mixedMimeTypeAdaptationSupport, rendererFormatSupports,
+    MappedTrackInfo mappedTrackInfo = new MappedTrackInfo(rendererTrackTypes,
+        rendererTrackGroupArrays, mixedMimeTypeAdaptationSupport, rendererFormatSupports,
         unassociatedTrackGroupArray);
-    return Pair.<TrackSelectionArray, Object>create(trackSelectionArray, trackInfo);
+    return new TrackSelections<>(mappedTrackInfo, trackSelections);
   }
 
   /**
@@ -446,23 +391,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
     return mixedMimeTypeAdaptationSupport;
   }
 
-  private void notifyTrackInfoChanged(final TrackInfo trackInfo) {
-    if (eventHandler != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          for (EventListener listener : listeners) {
-            listener.onTracksChanged(trackInfo);
-          }
-        }
-      });
-    }
-  }
-
   /**
    * Provides track information for each renderer.
    */
-  public static final class TrackInfo {
+  public static final class MappedTrackInfo {
 
     /**
      * The renderer does not have any associated tracks.
@@ -477,34 +409,27 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     public static final int RENDERER_SUPPORT_PLAYABLE_TRACKS = 2;
 
-    /**
-     * The number of renderers.
-     */
-    public final int rendererCount;
-
     private final int[] rendererTrackTypes;
     private final TrackGroupArray[] trackGroups;
-    private final TrackSelection[] trackSelections;
     private final int[] mixedMimeTypeAdaptiveSupport;
     private final int[][][] formatSupport;
     private final TrackGroupArray unassociatedTrackGroups;
+    private final int rendererCount;
 
     /**
      * @param rendererTrackTypes The track type supported by each renderer.
      * @param trackGroups The {@link TrackGroupArray}s for each renderer.
-     * @param trackSelections The current {@link TrackSelection}s for each renderer.
      * @param mixedMimeTypeAdaptiveSupport The result of
      *     {@link RendererCapabilities#supportsMixedMimeTypeAdaptation()} for each renderer.
      * @param formatSupport The result of {@link RendererCapabilities#supportsFormat} for each
      *     track, indexed by renderer index, group index and track index (in that order).
      * @param unassociatedTrackGroups Contains {@link TrackGroup}s not associated with any renderer.
      */
-    /* package */ TrackInfo(int[] rendererTrackTypes, TrackGroupArray[] trackGroups,
-        TrackSelection[] trackSelections, int[] mixedMimeTypeAdaptiveSupport,
+    /* package */ MappedTrackInfo(int[] rendererTrackTypes,
+        TrackGroupArray[] trackGroups, int[] mixedMimeTypeAdaptiveSupport,
         int[][][] formatSupport, TrackGroupArray unassociatedTrackGroups) {
       this.rendererTrackTypes = rendererTrackTypes;
       this.trackGroups = trackGroups;
-      this.trackSelections = trackSelections;
       this.formatSupport = formatSupport;
       this.mixedMimeTypeAdaptiveSupport = mixedMimeTypeAdaptiveSupport;
       this.unassociatedTrackGroups = unassociatedTrackGroups;
@@ -519,16 +444,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     public TrackGroupArray getTrackGroups(int rendererIndex) {
       return trackGroups[rendererIndex];
-    }
-
-    /**
-     * Returns the current {@link TrackSelection} for the renderer at a specified index.
-     *
-     * @param rendererIndex The renderer index.
-     * @return The corresponding {@link TrackSelection}, or null if the renderer is disabled.
-     */
-    public TrackSelection getTrackSelection(int rendererIndex) {
-      return trackSelections[rendererIndex];
     }
 
     /**
@@ -657,7 +572,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     unplayable. False in all other cases.
      */
     public boolean hasOnlyUnplayableTracks(int trackType) {
-      int rendererSupport = TrackInfo.RENDERER_SUPPORT_NO_TRACKS;
+      int rendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       for (int i = 0; i < rendererCount; i++) {
         if (rendererTrackTypes[i] == trackType) {
           rendererSupport = Math.max(rendererSupport, getRendererSupport(i));

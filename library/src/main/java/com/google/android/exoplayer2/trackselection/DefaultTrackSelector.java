@@ -453,10 +453,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         case C.TRACK_TYPE_VIDEO:
           rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
               rendererTrackGroupArrays[i], rendererFormatSupports[i], params.maxVideoWidth,
-              params.maxVideoHeight,
-              params.allowNonSeamlessAdaptiveness, params.allowMixedMimeAdaptiveness,
-              params.viewportWidth, params.viewportHeight, params.orientationMayChange,
-              adaptiveVideoTrackSelectionFactory, params.exceedVideoConstraintsIfNecessary);
+              params.maxVideoHeight, params.allowNonSeamlessAdaptiveness,
+              params.allowMixedMimeAdaptiveness, params.viewportWidth, params.viewportHeight,
+              params.orientationMayChange, adaptiveVideoTrackSelectionFactory,
+              params.exceedVideoConstraintsIfNecessary);
           break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectAudioTrack(rendererTrackGroupArrays[i],

@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.trackselection.TrackSelections;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -80,18 +82,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     /**
      * Called when a frame is rendered for the first time since setting the surface, and when a
-     * frame is rendered for the first time since the renderer was reset.
-     *
-     * @param surface The {@link Surface} to which a first frame has been rendered.
+     * frame is rendered for the first time since a video track was selected.
      */
-    void onRenderedFirstFrame(Surface surface);
+    void onRenderedFirstFrame();
 
     /**
-     * Called when the renderer is disabled.
-     *
-     * @param counters {@link DecoderCounters} that were updated by the renderer.
+     * Called when a video track is no longer selected.
      */
-    void onVideoDisabled(DecoderCounters counters);
+    void onVideoTracksDisabled();
 
   }
 
@@ -105,9 +103,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private final int videoRendererCount;
   private final int audioRendererCount;
 
+  private boolean videoTracksEnabled;
   private Format videoFormat;
   private Format audioFormat;
 
+  private Surface surface;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
   private TextRenderer.Output textOutput;
@@ -121,11 +121,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private float volume;
   private PlaybackParamsHolder playbackParamsHolder;
 
-  /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager,
+  /* package */ SimpleExoPlayer(Context context, TrackSelector<?> trackSelector,
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
     mainHandler = new Handler();
     componentListener = new ComponentListener();
+    trackSelector.addListener(componentListener);
 
     // Build the renderers.
     ArrayList<Renderer> renderersList = new ArrayList<>();
@@ -509,8 +510,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   // Internal methods.
 
-  private void buildRenderers(Context context, DrmSessionManager drmSessionManager,
-      ArrayList<Renderer> renderersList, long allowedVideoJoiningTimeMs) {
+  private void buildRenderers(Context context,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, ArrayList<Renderer> renderersList,
+      long allowedVideoJoiningTimeMs) {
     MediaCodecVideoRenderer videoRenderer = new MediaCodecVideoRenderer(context,
         MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
         allowedVideoJoiningTimeMs, drmSessionManager, false, mainHandler, componentListener,
@@ -601,6 +603,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   private void setVideoSurfaceInternal(Surface surface) {
+    this.surface = surface;
     ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
     int count = 0;
     for (Renderer renderer : renderers) {
@@ -618,7 +621,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   private final class ComponentListener implements VideoRendererEventListener,
       AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output<List<Id3Frame>>,
-      SurfaceHolder.Callback, TextureView.SurfaceTextureListener {
+      SurfaceHolder.Callback, TextureView.SurfaceTextureListener,
+      TrackSelector.EventListener<Object> {
 
     // VideoRendererEventListener implementation
 
@@ -669,8 +673,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onRenderedFirstFrame(Surface surface) {
-      if (videoListener != null) {
-        videoListener.onRenderedFirstFrame(surface);
+      if (videoListener != null && SimpleExoPlayer.this.surface == surface) {
+        videoListener.onRenderedFirstFrame();
       }
       if (videoDebugListener != null) {
         videoDebugListener.onRenderedFirstFrame(surface);
@@ -679,9 +683,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
-      if (videoListener != null) {
-        videoListener.onVideoDisabled(counters);
-      }
       if (videoDebugListener != null) {
         videoDebugListener.onVideoDisabled(counters);
       }
@@ -798,6 +799,23 @@ public final class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
       // Do nothing.
+    }
+
+    // TrackSelector.EventListener implementation
+
+    @Override
+    public void onTrackSelectionsChanged(TrackSelections<?> trackSelections) {
+      boolean videoTracksEnabled = false;
+      for (int i = 0; i < renderers.length; i++) {
+        if (renderers[i].getTrackType() == C.TRACK_TYPE_VIDEO && trackSelections.get(i) != null) {
+          videoTracksEnabled = true;
+          break;
+        }
+      }
+      if (videoListener != null && SimpleExoPlayer.this.videoTracksEnabled && !videoTracksEnabled) {
+        videoListener.onVideoTracksDisabled();
+      }
+      SimpleExoPlayer.this.videoTracksEnabled = videoTracksEnabled;
     }
 
   }

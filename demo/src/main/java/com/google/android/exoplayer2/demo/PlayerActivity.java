@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -55,8 +56,10 @@ import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelections;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
@@ -77,7 +80,7 @@ import java.util.UUID;
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
 public class PlayerActivity extends Activity implements OnClickListener, ExoPlayer.EventListener,
-    MappingTrackSelector.EventListener, PlaybackControlView.VisibilityListener {
+    TrackSelector.EventListener<MappedTrackInfo>, PlaybackControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -203,7 +206,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       initializePlayer();
     } else if (view.getParent() == debugRootView) {
       trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
-          trackSelector.getTrackInfo(), (int) view.getTag());
+          trackSelector.getCurrentSelections().info, (int) view.getTag());
     }
   }
 
@@ -222,7 +225,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
-      DrmSessionManager drmSessionManager = null;
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (drmSchemeUuid != null) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
@@ -333,9 +336,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     }
   }
 
-  private DrmSessionManager buildDrmSessionManager(UUID uuid, String licenseUrl,
-      Map<String, String> keyRequestProperties)
-      throws UnsupportedDrmException {
+  private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(UUID uuid,
+      String licenseUrl, Map<String, String> keyRequestProperties) throws UnsupportedDrmException {
     if (Util.SDK_INT < 18) {
       return null;
     }
@@ -452,8 +454,9 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   // MappingTrackSelector.EventListener implementation
 
   @Override
-  public void onTracksChanged(TrackInfo trackInfo) {
+  public void onTrackSelectionsChanged(TrackSelections<? extends MappedTrackInfo> trackSelections) {
     updateButtonVisibilities();
+    MappedTrackInfo trackInfo = trackSelections.info;
     if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
       showToast(R.string.error_unsupported_video);
     }
@@ -474,14 +477,14 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       return;
     }
 
-    TrackInfo trackInfo = trackSelector.getTrackInfo();
-    if (trackInfo == null) {
+    TrackSelections<MappedTrackInfo> trackSelections = trackSelector.getCurrentSelections();
+    if (trackSelections == null) {
       return;
     }
 
-    int rendererCount = trackInfo.rendererCount;
+    int rendererCount = trackSelections.length;
     for (int i = 0; i < rendererCount; i++) {
-      TrackGroupArray trackGroups = trackInfo.getTrackGroups(i);
+      TrackGroupArray trackGroups = trackSelections.info.getTrackGroups(i);
       if (trackGroups.length != 0) {
         Button button = new Button(this);
         int label;
