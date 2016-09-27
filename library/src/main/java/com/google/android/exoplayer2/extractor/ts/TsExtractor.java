@@ -15,13 +15,10 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.support.annotation.IntDef;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -33,8 +30,7 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
@@ -53,37 +49,24 @@ public final class TsExtractor implements Extractor {
 
   };
 
-  /**
-   * Flags controlling what workarounds are enabled for the extractor.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {WORKAROUND_ALLOW_NON_IDR_KEYFRAMES, WORKAROUND_IGNORE_AAC_STREAM,
-      WORKAROUND_IGNORE_H264_STREAM, WORKAROUND_DETECT_ACCESS_UNITS, WORKAROUND_MAP_BY_TYPE})
-  public @interface WorkaroundFlags {}
-  public static final int WORKAROUND_ALLOW_NON_IDR_KEYFRAMES = 1;
-  public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;
-  public static final int WORKAROUND_IGNORE_H264_STREAM = 4;
-  public static final int WORKAROUND_DETECT_ACCESS_UNITS = 8;
-  public static final int WORKAROUND_MAP_BY_TYPE = 16;
-
   private static final String TAG = "TsExtractor";
 
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
 
-  private static final int TS_STREAM_TYPE_MPA = 0x03;
-  private static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
-  private static final int TS_STREAM_TYPE_AAC = 0x0F;
-  private static final int TS_STREAM_TYPE_AC3 = 0x81;
-  private static final int TS_STREAM_TYPE_DTS = 0x8A;
-  private static final int TS_STREAM_TYPE_HDMV_DTS = 0x82;
-  private static final int TS_STREAM_TYPE_E_AC3 = 0x87;
-  private static final int TS_STREAM_TYPE_H262 = 0x02;
-  private static final int TS_STREAM_TYPE_H264 = 0x1B;
-  private static final int TS_STREAM_TYPE_H265 = 0x24;
-  private static final int TS_STREAM_TYPE_ID3 = 0x15;
-  private static final int BASE_EMBEDDED_TRACK_ID = 0x2000; // 0xFF + 1
+  public static final int TS_STREAM_TYPE_MPA = 0x03;
+  public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
+  public static final int TS_STREAM_TYPE_AAC = 0x0F;
+  public static final int TS_STREAM_TYPE_AC3 = 0x81;
+  public static final int TS_STREAM_TYPE_DTS = 0x8A;
+  public static final int TS_STREAM_TYPE_HDMV_DTS = 0x82;
+  public static final int TS_STREAM_TYPE_E_AC3 = 0x87;
+  public static final int TS_STREAM_TYPE_H262 = 0x02;
+  public static final int TS_STREAM_TYPE_H264 = 0x1B;
+  public static final int TS_STREAM_TYPE_H265 = 0x24;
+  public static final int TS_STREAM_TYPE_ID3 = 0x15;
+
 
   private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
   private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
@@ -93,36 +76,38 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
   private final TimestampAdjuster timestampAdjuster;
-  @WorkaroundFlags
-  private final int workaroundFlags;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
   private final SparseIntArray continuityCounters;
+  private final ElementaryStreamReader.Factory streamReaderFactory;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  /* package */ final SparseBooleanArray trackIds;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
-  private int nextEmbeddedTrackId;
-  /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
     this(new TimestampAdjuster(0));
   }
 
+  /**
+   * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
+   */
   public TsExtractor(TimestampAdjuster timestampAdjuster) {
-    this(timestampAdjuster, 0);
+    this(timestampAdjuster, new DefaultStreamReaderFactory());
   }
 
-  public TsExtractor(TimestampAdjuster timestampAdjuster, @WorkaroundFlags int workaroundFlags) {
+  /**
+   * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
+   * @param customReaderFactory Factory for injecting a custom set of elementary stream readers.
+   */
+  public TsExtractor(TimestampAdjuster timestampAdjuster,
+      ElementaryStreamReader.Factory customReaderFactory) {
     this.timestampAdjuster = timestampAdjuster;
-    this.workaroundFlags = workaroundFlags;
+    this.streamReaderFactory = Assertions.checkNotNull(customReaderFactory);
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    trackIds = new SparseBooleanArray();
-    nextEmbeddedTrackId = BASE_EMBEDDED_TRACK_ID;
     continuityCounters = new SparseIntArray();
   }
 
@@ -427,12 +412,6 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 && id3Reader == null) {
-        // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
-        // appears intermittently during playback. See b/20261500.
-        id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
-      }
-
       int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
           - programInfoLength - 4 /* CRC length */;
       while (remainingEntriesLength > 0) {
@@ -442,63 +421,15 @@ public final class TsExtractor implements Extractor {
         int elementaryPid = pmtScratch.readBits(13);
         pmtScratch.skipBits(4); // reserved
         int esInfoLength = pmtScratch.readBits(12); // ES_info_length.
-        EsInfo esInfo = readEsInfo(sectionData, esInfoLength);
+        ElementaryStreamReader.EsInfo esInfo = readEsInfo(sectionData, esInfoLength);
         if (streamType == 0x06) {
           streamType = esInfo.streamType;
         }
         remainingEntriesLength -= esInfoLength + 5;
-        int trackId = (workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 ? streamType : elementaryPid;
-        if (trackIds.get(trackId)) {
-          continue;
-        }
-        ElementaryStreamReader pesPayloadReader;
-        switch (streamType) {
-          case TS_STREAM_TYPE_MPA:
-            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.language);
-            break;
-          case TS_STREAM_TYPE_MPA_LSF:
-            pesPayloadReader = new MpegAudioReader(output.track(trackId), esInfo.language);
-            break;
-          case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_AAC_STREAM) != 0 ? null
-                : new AdtsReader(output.track(trackId), new DummyTrackOutput(), esInfo.language);
-            break;
-          case TS_STREAM_TYPE_AC3:
-          case TS_STREAM_TYPE_E_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(trackId), esInfo.language);
-            break;
-          case TS_STREAM_TYPE_DTS:
-          case TS_STREAM_TYPE_HDMV_DTS:
-            pesPayloadReader = new DtsReader(output.track(trackId), esInfo.language);
-            break;
-          case TS_STREAM_TYPE_H262:
-            pesPayloadReader = new H262Reader(output.track(trackId));
-            break;
-          case TS_STREAM_TYPE_H264:
-            pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_H264_STREAM) != 0 ? null
-                : new H264Reader(output.track(trackId),
-                    new SeiReader(output.track(nextEmbeddedTrackId++)),
-                    (workaroundFlags & WORKAROUND_ALLOW_NON_IDR_KEYFRAMES) != 0,
-                    (workaroundFlags & WORKAROUND_DETECT_ACCESS_UNITS) != 0);
-            break;
-          case TS_STREAM_TYPE_H265:
-            pesPayloadReader = new H265Reader(output.track(trackId),
-                new SeiReader(output.track(nextEmbeddedTrackId++)));
-            break;
-          case TS_STREAM_TYPE_ID3:
-            if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0) {
-              pesPayloadReader = id3Reader;
-            } else {
-              pesPayloadReader = new Id3Reader(output.track(nextEmbeddedTrackId++));
-            }
-            break;
-          default:
-            pesPayloadReader = null;
-            break;
-        }
+        ElementaryStreamReader pesPayloadReader = streamReaderFactory.onPmtEntry(elementaryPid,
+            streamType, esInfo, output);
 
         if (pesPayloadReader != null) {
-          trackIds.put(trackId, true);
           tsPayloadReaders.put(elementaryPid,
               new PesReader(pesPayloadReader, timestampAdjuster));
         }
@@ -508,18 +439,17 @@ public final class TsExtractor implements Extractor {
     }
 
     /**
-     * Returns the stream info read from the available descriptors, or -1 if no
-     * descriptors are present. Sets {@code data}'s position to the end of the descriptors.
+     * Returns the stream info read from the available descriptors. Sets {@code data}'s position to
+     * the end of the descriptors.
      *
      * @param data A buffer with its position set to the start of the first descriptor.
      * @param length The length of descriptors to read from the current position in {@code data}.
-     * @return The stream info read from the available descriptors, or -1 if no
-     *     descriptors are present.
+     * @return The stream info read from the available descriptors.
      */
-    private EsInfo readEsInfo(ParsableByteArray data, int length) {
-      int descriptorsEndPosition = data.getPosition() + length;
+    private ElementaryStreamReader.EsInfo readEsInfo(ParsableByteArray data, int length) {
+      int descriptorsStartPosition = data.getPosition();
+      int descriptorsEndPosition = descriptorsStartPosition + length;
       int streamType = -1;
-      int audioType = -1;
       String language = null;
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
@@ -542,27 +472,14 @@ public final class TsExtractor implements Extractor {
           streamType = TS_STREAM_TYPE_DTS;
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
           language = new String(data.data, data.getPosition(), 3).trim();
-          audioType = data.data[data.getPosition() + 3];
+          // Audio type is ignored.
         }
         // Skip unused bytes of current descriptor.
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
       }
       data.setPosition(descriptorsEndPosition);
-      return new EsInfo(streamType, audioType, language);
-    }
-
-    private final class EsInfo {
-
-      final int streamType;
-      final int audioType;
-      final String language;
-
-      public EsInfo(int streamType, int audioType, String language) {
-        this.streamType = streamType;
-        this.audioType = audioType;
-        this.language = language;
-      }
-
+      return new ElementaryStreamReader.EsInfo(streamType, language,
+          Arrays.copyOfRange(sectionData.data, descriptorsStartPosition, descriptorsEndPosition));
     }
 
   }

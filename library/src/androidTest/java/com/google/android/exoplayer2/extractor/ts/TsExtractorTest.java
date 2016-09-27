@@ -16,8 +16,16 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.test.InstrumentationTestCase;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
+import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
@@ -61,6 +69,31 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     }, "ts/sample.ts", fileData, getInstrumentation());
   }
 
+  public void testCustomPesReader() throws Exception {
+    CustomEsReaderFactory factory = new CustomEsReaderFactory();
+    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory);
+    FakeExtractorInput input = new FakeExtractorInput.Builder()
+        .setData(TestUtil.getByteArray(getInstrumentation(), "ts/sample.ts"))
+        .setSimulateIOErrors(false)
+        .setSimulateUnknownLength(false)
+        .setSimulatePartialReads(false).build();
+    FakeExtractorOutput output = new FakeExtractorOutput();
+    tsExtractor.init(output);
+    tsExtractor.seek(input.getPosition());
+    PositionHolder seekPositionHolder = new PositionHolder();
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (readResult != Extractor.RESULT_END_OF_INPUT) {
+      readResult = tsExtractor.read(input, seekPositionHolder);
+    }
+    CustomEsReader reader = factory.reader;
+    assertEquals(2, reader.packetsRead);
+    TrackOutput trackOutput = reader.getTrackOutput();
+    assertTrue(trackOutput == output.trackOutputs.get(257 /* PID of audio track. */));
+    assertEquals(
+        Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0, "und", null, 0),
+        ((FakeTrackOutput) trackOutput).format);
+  }
+
   private static void writeJunkData(ByteArrayOutputStream out, int length) throws IOException {
     for (int i = 0; i < length; i++) {
       if (((byte) i) == TS_SYNC_BYTE) {
@@ -69,6 +102,64 @@ public final class TsExtractorTest extends InstrumentationTestCase {
         out.write(i);
       }
     }
+  }
+
+  private static final class CustomEsReader extends ElementaryStreamReader {
+
+    public int packetsRead = 0;
+
+    public CustomEsReader(TrackOutput output, String language) {
+      super(output);
+      output.format(Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0,
+          language, null, 0));
+    }
+
+    @Override
+    public void seek() {
+    }
+
+    @Override
+    public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    }
+
+    @Override
+    public void consume(ParsableByteArray data) {
+    }
+
+    @Override
+    public void packetFinished() {
+      packetsRead++;
+    }
+
+    public TrackOutput getTrackOutput() {
+      return output;
+    }
+
+  }
+
+  private static final class CustomEsReaderFactory implements ElementaryStreamReader.Factory {
+
+    private final ElementaryStreamReader.Factory defaultFactory;
+    private CustomEsReader reader;
+
+    public CustomEsReaderFactory() {
+      defaultFactory = new DefaultStreamReaderFactory();
+    }
+
+    @Override
+    public ElementaryStreamReader onPmtEntry(int pid, int streamType,
+        ElementaryStreamReader.EsInfo esInfo, ExtractorOutput output) {
+      if (streamType == 3) {
+        // We need to manually avoid a duplicate custom reader creation.
+        if (reader == null) {
+          reader = new CustomEsReader(output.track(pid), esInfo.language);
+        }
+        return reader;
+      } else {
+        return defaultFactory.onPmtEntry(pid, streamType, esInfo, output);
+      }
+    }
+
   }
 
 }
