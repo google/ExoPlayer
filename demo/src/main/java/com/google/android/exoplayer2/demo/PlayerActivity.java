@@ -65,8 +65,6 @@ import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
@@ -109,7 +107,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private TextView debugTextView;
   private Button retryButton;
 
-  private String userAgent;
   private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
   private MappingTrackSelector trackSelector;
@@ -128,7 +125,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     shouldAutoPlay = true;
-    userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
@@ -378,8 +374,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
    * @return A new DataSource factory.
    */
   private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-    return new DefaultDataSourceFactory(this, useBandwidthMeter ? BANDWIDTH_METER : null,
-        buildHttpDataSourceFactory(useBandwidthMeter));
+    return ((DemoApplication) getApplication())
+        .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   /**
@@ -390,7 +386,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
    * @return A new HttpDataSource factory.
    */
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
-    return new DefaultHttpDataSourceFactory(userAgent, useBandwidthMeter ? BANDWIDTH_METER : null);
+    return ((DemoApplication) getApplication())
+        .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   // ExoPlayer.EventListener implementation
