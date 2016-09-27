@@ -98,10 +98,8 @@ public final class SingleSampleMediaSource implements MediaSource {
   public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
       long positionUs) {
     Assertions.checkArgument(index == 0);
-    MediaPeriod mediaPeriod = new SingleSampleMediaPeriod(uri, dataSourceFactory, format,
-        minLoadableRetryCount, eventHandler, eventListener, eventSourceId);
-    callback.onPrepared(mediaPeriod);
-    return mediaPeriod;
+    return new SingleSampleMediaPeriod(uri, dataSourceFactory, format, minLoadableRetryCount,
+        eventHandler, eventListener, eventSourceId, callback);
   }
 
   @Override

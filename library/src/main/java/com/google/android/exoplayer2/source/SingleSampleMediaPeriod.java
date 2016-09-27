@@ -51,6 +51,7 @@ import java.util.Arrays;
   private final int eventSourceId;
   private final TrackGroupArray tracks;
   private final ArrayList<SampleStreamImpl> sampleStreams;
+  private final Handler handler;
   /* package */ final Loader loader;
   /* package */ final Format format;
 
@@ -60,7 +61,7 @@ import java.util.Arrays;
 
   public SingleSampleMediaPeriod(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
-      int eventSourceId) {
+      int eventSourceId, final Callback callback) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
@@ -70,12 +71,20 @@ import java.util.Arrays;
     this.eventSourceId = eventSourceId;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
+    handler = new Handler();
     loader = new Loader("Loader:SingleSampleMediaPeriod");
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        callback.onPrepared(SingleSampleMediaPeriod.this);
+      }
+    });
   }
 
   public void release() {
     loader.release();
+    handler.removeCallbacksAndMessages(null);
   }
 
   @Override

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
@@ -51,6 +52,7 @@ import java.util.List;
   private final Callback callback;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
+  private final Handler handler;
 
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
@@ -76,7 +78,13 @@ import java.util.List;
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     period = manifest.getPeriod(index);
     trackGroups = buildTrackGroups(period);
-    callback.onPrepared(this);
+    handler = new Handler();
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        DashMediaPeriod.this.callback.onPrepared(DashMediaPeriod.this);
+      }
+    });
   }
 
   public void updateManifest(DashManifest manifest, int index) {
@@ -95,6 +103,7 @@ import java.util.List;
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+    handler.removeCallbacksAndMessages(null);
   }
 
   @Override

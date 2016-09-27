@@ -55,9 +55,9 @@ public interface MediaSource {
   /**
    * Returns a {@link MediaPeriod} corresponding to the period at the specified index.
    * <p>
-   * {@link Callback#onPrepared(MediaPeriod)} is called when the new period is prepared. If
-   * preparation fails, {@link MediaPeriod#maybeThrowPrepareError()} will throw an
-   * {@link IOException} if called on the returned instance.
+   * {@link Callback#onPrepared(MediaPeriod)} is called after this method has returned, when the new
+   * period is prepared. If preparation fails, {@link MediaPeriod#maybeThrowPrepareError()} will
+   * throw an {@link IOException} if called on the returned instance.
    *
    * @param index The index of the period.
    * @param callback A callback to receive updates from the period.

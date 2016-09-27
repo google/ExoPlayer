@@ -19,7 +19,6 @@ import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -125,7 +124,6 @@ public final class MergingMediaSource implements MediaSource {
     MergingMediaPeriod mergingPeriod = new MergingMediaPeriod(callback, periods);
     for (int i = 0; i < periods.length; i++) {
       periods[i] = mediaSources[i].createPeriod(index, mergingPeriod, allocator, positionUs);
-      Assertions.checkState(periods[i] != null, "Child source must not return null period");
     }
     return mergingPeriod;
   }

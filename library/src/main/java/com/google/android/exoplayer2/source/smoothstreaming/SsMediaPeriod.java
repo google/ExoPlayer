@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
+import android.os.Handler;
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
   private final TrackEncryptionBox[] trackEncryptionBoxes;
+  private final Handler handler;
 
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
@@ -74,10 +76,16 @@ import java.util.ArrayList;
     } else {
       trackEncryptionBoxes = null;
     }
+    handler = new Handler();
     this.manifest = manifest;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    callback.onPrepared(this);
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        SsMediaPeriod.this.callback.onPrepared(SsMediaPeriod.this);
+      }
+    });
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -92,6 +100,7 @@ import java.util.ArrayList;
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+    handler.removeCallbacksAndMessages(null);
   }
 
   @Override
