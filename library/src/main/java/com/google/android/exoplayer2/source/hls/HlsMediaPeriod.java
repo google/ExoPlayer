@@ -62,6 +62,7 @@ import java.util.List;
   private final Handler continueLoadingHandler;
   private final Loader manifestFetcher;
   private final long preparePositionUs;
+  private final Runnable continueLoadingRunnable;
 
   private int pendingPrepareCount;
   private HlsPlaylist playlist;
@@ -72,7 +73,6 @@ import java.util.List;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
-  private Runnable continueLoadingRunnable;
 
   public HlsMediaPeriod(Uri manifestUri, DataSource.Factory dataSourceFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher,

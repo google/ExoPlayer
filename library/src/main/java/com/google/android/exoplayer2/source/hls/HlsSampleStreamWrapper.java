@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
@@ -81,13 +82,15 @@ import java.util.LinkedList;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final LinkedList<HlsMediaChunk> mediaChunks;
+  private final Runnable maybeFinishPrepareRunnable;
+  private final Handler handler;
 
-  private volatile boolean sampleQueuesBuilt;
-
+  private boolean sampleQueuesBuilt;
   private boolean prepared;
   private int enabledTrackCount;
   private Format downstreamTrackFormat;
   private int upstreamChunkUid;
+  private boolean released;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
@@ -130,6 +133,13 @@ import java.util.LinkedList;
     nextChunkHolder = new HlsChunkSource.HlsChunkHolder();
     sampleQueues = new SparseArray<>();
     mediaChunks = new LinkedList<>();
+    maybeFinishPrepareRunnable = new Runnable() {
+      @Override
+      public void run() {
+        maybeFinishPrepare();
+      }
+    };
+    handler = new Handler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
   }
@@ -255,6 +265,8 @@ import java.util.LinkedList;
       sampleQueues.valueAt(i).disable();
     }
     loader.release();
+    handler.removeCallbacksAndMessages(null);
+    released = true;
   }
 
   public long getLargestQueuedTimestampUs() {
@@ -464,7 +476,7 @@ import java.util.LinkedList;
   @Override
   public void endTracks() {
     sampleQueuesBuilt = true;
-    maybeFinishPrepare();
+    handler.post(maybeFinishPrepareRunnable);
   }
 
   @Override
@@ -472,17 +484,17 @@ import java.util.LinkedList;
     // Do nothing.
   }
 
-  // UpstreamFormatChangedListener implementation.
+  // UpstreamFormatChangedListener implementation. Called by the loading thread.
 
   @Override
   public void onUpstreamFormatChanged(Format format) {
-    maybeFinishPrepare();
+    handler.post(maybeFinishPrepareRunnable);
   }
 
   // Internal methods.
 
   private void maybeFinishPrepare() {
-    if (prepared || !sampleQueuesBuilt) {
+    if (released || prepared || !sampleQueuesBuilt) {
       return;
     }
     int sampleQueueCount = sampleQueues.size();

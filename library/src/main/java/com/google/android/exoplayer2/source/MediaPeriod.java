@@ -32,7 +32,7 @@ public interface MediaPeriod extends SequenceableLoader {
     /**
      * Called when preparation completes.
      * <p>
-     * May be called from any thread. After invoking this method, the {@link MediaPeriod} can expect
+     * Called on the playback thread. After invoking this method, the {@link MediaPeriod} can expect
      * for {@link #selectTracks(TrackSelection[], boolean[], SampleStream[], boolean[], long)} to be
      * called with the initial track selection.
      *
