@@ -68,8 +68,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *   <li>Adaptation between different mime types is not allowed.</li>
      *   <li>Non seamless adaptation is allowed.</li>
      *   <li>No max limit for video width/height.</li>
-     *   <li>Video constrains are ignored if no supported selection can be made otherwise.</li>
-     *   <li>No viewport width/height constrains are set.</li>
+     *   <li>Video constraints are ignored if no supported selection can be made otherwise.</li>
+     *   <li>No viewport width/height constraints are set.</li>
      * </ul>
      */
     public Parameters() {
@@ -196,6 +196,24 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
+     * Equivalent to {@code withMaxVideoSize(1279, 719)}.
+     *
+     * @return A {@link Parameters} instance with maximum standard definition as maximum video size.
+     */
+    public Parameters withMaxVideoSizeSd() {
+      return withMaxVideoSize(1279, 719);
+    }
+
+    /**
+     * Equivalent to {@code withMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)}.
+     *
+     * @return A {@link Parameters} instance without video size constraints.
+     */
+    public Parameters withoutVideoSizeConstraints() {
+      return withMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    /**
      * Returns a {@link Parameters} instance with the provided
      * {@code exceedVideoConstraintsIfNecessary} value.
      *
@@ -248,6 +266,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       // Assume the viewport is fullscreen.
       Point viewportSize = Util.getPhysicalDisplaySize(context);
       return withViewportSize(viewportSize.x, viewportSize.y, orientationMayChange);
+    }
+
+    /**
+     * Equivalent to {@code withViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true)}.
+     *
+     * @return A {@link Parameters} instance without viewport size constraints.
+     */
+    public Parameters withoutViewportSizeConstraints() {
+      return withViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true);
     }
 
     @Override
@@ -335,108 +362,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * Sets the preferred language for audio, as well as for forced text tracks.
+   * Gets the current selection parameters.
    *
-   * @param preferredAudioLanguage The preferred language as defined by RFC 5646. {@code null} to
-   *     select the default track, or first track if there's no default.
+   * @return The current selection parameters.
    */
-  public void setPreferredLanguage(String preferredAudioLanguage) {
-    preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
-    setParameters(params.get().withPreferredAudioLanguage(preferredAudioLanguage));
-  }
-
-  /**
-   * Sets the preferred language for text tracks.
-   *
-   * @param preferredTextLanguage The preferred language as defined by RFC 5646. {@code null} to
-   *     select the default track, or no track if there's no default.
-   */
-  public void setPreferredTextLanguage(String preferredTextLanguage) {
-    preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
-    setParameters(params.get().withPreferredTextLanguage(preferredTextLanguage));
-  }
-
-  /**
-   * Sets whether to allow selections to contain mixed mime types.
-   *
-   * @param allowMixedMimeAdaptiveness Whether to allow selections to contain mixed mime types.
-   */
-  public void allowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
-    setParameters(params.get().withAllowMixedMimeAdaptiveness(allowMixedMimeAdaptiveness));
-  }
-
-  /**
-   * Sets whether non-seamless adaptation is allowed.
-   *
-   * @param allowNonSeamlessAdaptiveness Whether non-seamless adaptation is allowed.
-   */
-  public void allowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
-    setParameters(params.get().withAllowNonSeamlessAdaptiveness(allowNonSeamlessAdaptiveness));
-  }
-
-  /**
-   * Sets the maximum allowed size for video tracks.
-   *
-   * @param maxVideoWidth Maximum allowed width.
-   * @param maxVideoHeight Maximum allowed height.
-   */
-  public void setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
-    setParameters(params.get().withMaxVideoSize(maxVideoWidth, maxVideoHeight));
-  }
-
-  /**
-   * Equivalent to {@code setMaxVideoSize(1279, 719)}.
-   */
-  public void setMaxVideoSizeSd() {
-    setMaxVideoSize(1279, 719);
-  }
-
-  /**
-   * Equivalent to {@code setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)}.
-   */
-  public void clearMaxVideoSize() {
-    setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
-  }
-
-  /**
-   * Sets whether video constraints should be ignored when no selection can be made otherwise.
-   *
-   * @param exceedVideoConstraintsIfNecessary True to ignore video constraints when no selections
-   *     can be made otherwise. False to force constraints anyway.
-   */
-  public void setExceedVideoConstraintsIfNecessary(boolean exceedVideoConstraintsIfNecessary) {
-    setParameters(
-        params.get().withExceedVideoConstraintsIfNecessary(exceedVideoConstraintsIfNecessary));
-  }
-
-  /**
-   * Sets the target viewport size for selecting video tracks.
-   *
-   * @param viewportWidth Viewport width in pixels.
-   * @param viewportHeight Viewport height in pixels.
-   * @param orientationMayChange Whether orientation may change during playback.
-   */
-  public void setViewportSize(int viewportWidth, int viewportHeight, boolean orientationMayChange) {
-    setParameters(
-        params.get().withViewportSize(viewportWidth, viewportHeight, orientationMayChange));
-  }
-
-  /**
-   * Retrieves the viewport size from the provided {@link Context} and calls
-   * {@link #setViewportSize(int, int, boolean)} with this information.
-   *
-   * @param context The context to obtain the viewport size from.
-   * @param orientationMayChange Whether orientation may change during playback.
-   */
-  public void setViewportSizeFromContext(Context context, boolean orientationMayChange) {
-    setParameters(params.get().withViewportSizeFromContext(context, orientationMayChange));
-  }
-
-  /**
-   * Equivalent to {@code setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true)}.
-   */
-  public void clearViewportConstraints() {
-    setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+  public Parameters getParameters() {
+    return params.get();
   }
 
   // MappingTrackSelector implementation.
