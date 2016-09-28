@@ -188,8 +188,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           width = Format.NO_VALUE;
           height = Format.NO_VALUE;
         }
+        String name = parseOptionalStringAttr(line, REGEX_NAME);
+        if (name == null) {
+          name = Integer.toString(variants.size());
+        }
         line = iterator.next();
-        String name = Integer.toString(variants.size());
         Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
             codecs, bitrate, width, height, Format.NO_VALUE, null);
         variants.add(new HlsMasterPlaylist.HlsUrl(name, line, format, null, null, null));
