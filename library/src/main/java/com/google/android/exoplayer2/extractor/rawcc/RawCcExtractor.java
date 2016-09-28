@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * Extracts EIA-608 data from a RawCC file
+ * Extracts CEA data from a RawCC file.
  */
 public final class RawCcExtractor implements Extractor {
 
@@ -68,7 +68,7 @@ public final class RawCcExtractor implements Extractor {
     trackOutput = extractorOutput.track(0);
     extractorOutput.endTracks();
 
-    trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_EIA608,
+    trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
         null, Format.NO_VALUE, 0, null, null));
   }
 
@@ -154,13 +154,8 @@ public final class RawCcExtractor implements Extractor {
       dataScratch.reset();
       input.readFully(dataScratch.data, 0, 3);
 
-      // only accept EIA-608 packets which have validity (6th bit) == 1 and
-      // type (7-8th bits) == 0; i.e. ccDataPkt[0] == 0bXXXXX100
-      int ccValidityAndType = dataScratch.readUnsignedByte() & 0x07;
-      if (ccValidityAndType == 0x04) {
-        trackOutput.sampleData(dataScratch, 2);
-        sampleBytesWritten += 2;
-      }
+      trackOutput.sampleData(dataScratch, 3);
+      sampleBytesWritten += 3;
     }
 
     if (sampleBytesWritten > 0) {

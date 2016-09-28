@@ -161,7 +161,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           case TYPE_CLOSED_CAPTIONS:
             if ("CC1".equals(parseOptionalStringAttr(line, REGEX_INSTREAM_ID))) {
               muxedCaptionFormat = Format.createTextContainerFormat(name,
-                  MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE,
+                  MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE,
                   selectionFlags, language);
             }
             break;

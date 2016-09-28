@@ -644,7 +644,7 @@ import java.util.List;
             0 /* subsample timing is absolute */);
       } else if (childAtomType == Atom.TYPE_c608) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE, 0, language, drmInitData);
+            MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, language, drmInitData);
         out.requiredSampleTransformation = Track.TRANSFORMATION_CEA608_CDAT;
       }
       stsd.setPosition(childStartPosition + childAtomSize);

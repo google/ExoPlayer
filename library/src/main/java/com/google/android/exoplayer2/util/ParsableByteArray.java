@@ -195,6 +195,13 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Peeks at the next byte as an unsigned value.
+   */
+  public int peekUnsignedByte() {
+    return (data[position] & 0xFF);
+  }
+
+  /**
    * Reads the next byte as an unsigned value.
    */
   public int readUnsignedByte() {

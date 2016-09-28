@@ -589,7 +589,7 @@ import java.util.LinkedList;
         if (primaryExtractorTrackType == PRIMARY_TYPE_VIDEO) {
           if (MimeTypes.isAudio(sampleFormat.sampleMimeType)) {
             trackFormat = muxedAudioFormat;
-          } else if (MimeTypes.APPLICATION_EIA608.equals(sampleFormat.sampleMimeType)) {
+          } else if (MimeTypes.APPLICATION_CEA608.equals(sampleFormat.sampleMimeType)) {
             trackFormat = muxedCaptionFormat;
           }
         }

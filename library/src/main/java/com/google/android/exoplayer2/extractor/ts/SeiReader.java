@@ -18,12 +18,12 @@ package com.google.android.exoplayer2.extractor.ts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.text.eia608.Eia608Decoder;
+import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
- * Consumes SEI buffers, outputting contained EIA608 messages to a {@link TrackOutput}.
+ * Consumes SEI buffers, outputting contained CEA-608 messages to a {@link TrackOutput}.
  */
 /* package */ final class SeiReader {
 
@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   public SeiReader(TrackOutput output) {
     this.output = output;
-    output.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_EIA608, null,
+    output.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, null,
         Format.NO_VALUE, 0, null, null));
   }
 
@@ -51,7 +51,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         payloadSize += b;
       } while (b == 0xFF);
       // Process the payload.
-      if (Eia608Decoder.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
+      if (Cea608Decoder.isSeiMessageCea608(payloadType, payloadSize, seiBuffer)) {
         // Ignore country_code (1) + provider_code (2) + user_identifier (4)
         // + user_data_type_code (1).
         seiBuffer.skipBytes(8);
@@ -60,13 +60,13 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         seiBuffer.skipBytes(1);
         int sampleBytes = 0;
         for (int i = 0; i < ccCount; i++) {
-          int ccValidityAndType = seiBuffer.readUnsignedByte() & 0x07;
-          // Check that validity == 1 and type == 0.
+          int ccValidityAndType = seiBuffer.peekUnsignedByte() & 0x07;
+          // Check that validity == 1 and type == 0 (i.e. NTSC_CC_FIELD_1).
           if (ccValidityAndType != 0x04) {
-            seiBuffer.skipBytes(2);
+            seiBuffer.skipBytes(3);
           } else {
-            sampleBytes += 2;
-            output.sampleData(seiBuffer, 2);
+            sampleBytes += 3;
+            output.sampleData(seiBuffer, 3);
           }
         }
         output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytes, 0, null);

@@ -64,7 +64,7 @@ public final class MimeTypes {
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
-  public static final String APPLICATION_EIA608 = BASE_TYPE_APPLICATION + "/eia-608";
+  public static final String APPLICATION_CEA608 = BASE_TYPE_APPLICATION + "/cea-608";
   public static final String APPLICATION_SUBRIP = BASE_TYPE_APPLICATION + "/x-subrip";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
@@ -209,7 +209,7 @@ public final class MimeTypes {
       return C.TRACK_TYPE_AUDIO;
     } else if (isVideo(mimeType)) {
       return C.TRACK_TYPE_VIDEO;
-    } else if (isText(mimeType) || APPLICATION_EIA608.equals(mimeType)
+    } else if (isText(mimeType) || APPLICATION_CEA608.equals(mimeType)
         || APPLICATION_SUBRIP.equals(mimeType) || APPLICATION_TTML.equals(mimeType)
         || APPLICATION_TX3G.equals(mimeType) || APPLICATION_MP4VTT.equals(mimeType)
         || APPLICATION_RAWCC.equals(mimeType) || APPLICATION_VOBSUB.equals(mimeType)

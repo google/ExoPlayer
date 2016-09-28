@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.text.eia608.Eia608Decoder;
+import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
 import com.google.android.exoplayer2.text.tx3g.Tx3gDecoder;
@@ -57,7 +57,7 @@ public interface SubtitleDecoderFactory {
    * <li>TTML ({@link TtmlDecoder})</li>
    * <li>SubRip ({@link SubripDecoder})</li>
    * <li>TX3G ({@link Tx3gDecoder})</li>
-   * <li>Eia608 ({@link Eia608Decoder})</li>
+   * <li>Cea608 ({@link Cea608Decoder})</li>
    * </ul>
    */
   SubtitleDecoderFactory DEFAULT = new SubtitleDecoderFactory() {
@@ -93,8 +93,8 @@ public interface SubtitleDecoderFactory {
             return Class.forName("com.google.android.exoplayer2.text.subrip.SubripDecoder");
           case MimeTypes.APPLICATION_TX3G:
             return Class.forName("com.google.android.exoplayer2.text.tx3g.Tx3gDecoder");
-          case MimeTypes.APPLICATION_EIA608:
-            return Class.forName("com.google.android.exoplayer2.text.eia608.Eia608Decoder");
+          case MimeTypes.APPLICATION_CEA608:
+            return Class.forName("com.google.android.exoplayer2.text.cea.Cea608Decoder");
           default:
             return null;
         }

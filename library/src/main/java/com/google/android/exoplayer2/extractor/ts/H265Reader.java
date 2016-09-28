@@ -64,7 +64,7 @@ import java.util.Collections;
 
   /**
    * @param output A {@link TrackOutput} to which H.265 samples should be written.
-   * @param seiReader A reader for EIA-608 samples in SEI NAL units.
+   * @param seiReader A reader for CEA-608 samples in SEI NAL units.
    */
   public H265Reader(TrackOutput output, SeiReader seiReader) {
     super(output);

@@ -654,9 +654,10 @@ public class DashManifestParser extends DefaultHandler
     } else if (MimeTypes.isVideo(containerMimeType)) {
       return MimeTypes.getVideoMediaMimeType(codecs);
     } else if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-      // We currently only support EIA-608 through RawCC
-      if (codecs != null && codecs.contains("eia608")) {
-        return MimeTypes.APPLICATION_EIA608;
+      // We currently only support CEA-608 through RawCC
+      if (codecs != null
+          && (codecs.contains("eia608") || codecs.contains("cea608"))) {
+        return MimeTypes.APPLICATION_CEA608;
       }
       return null;
     } else if (mimeTypeIsRawText(containerMimeType)) {

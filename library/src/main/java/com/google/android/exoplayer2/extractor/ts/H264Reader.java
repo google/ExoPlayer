@@ -57,7 +57,7 @@ import java.util.List;
 
   /**
    * @param output A {@link TrackOutput} to which H.264 samples should be written.
-   * @param seiReader A reader for EIA-608 samples in SEI NAL units.
+   * @param seiReader A reader for CEA-608 samples in SEI NAL units.
    * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
    *     synchronization samples (key-frames).
    * @param detectAccessUnits Whether to split the input stream into access units (samples) based on
