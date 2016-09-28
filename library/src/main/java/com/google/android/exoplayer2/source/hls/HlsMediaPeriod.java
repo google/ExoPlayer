@@ -50,11 +50,11 @@ import java.util.List;
 /* package */ final class HlsMediaPeriod implements MediaPeriod,
     Loader.Callback<ParsingLoadable<HlsPlaylist>>, HlsSampleStreamWrapper.Callback  {
 
+  private final Uri manifestUri;
   private final DataSource.Factory dataSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final MediaSource.Listener sourceListener;
-  private final Callback callback;
   private final Allocator allocator;
   private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
@@ -64,6 +64,7 @@ import java.util.List;
   private final long preparePositionUs;
   private final Runnable continueLoadingRunnable;
 
+  private Callback callback;
   private int pendingPrepareCount;
   private HlsPlaylist playlist;
   private boolean seenFirstTrackSelection;
@@ -76,13 +77,13 @@ import java.util.List;
 
   public HlsMediaPeriod(Uri manifestUri, DataSource.Factory dataSourceFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher,
-      MediaSource.Listener sourceListener, final Callback callback, Allocator allocator,
+      MediaSource.Listener sourceListener, Allocator allocator,
       long positionUs) {
+    this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.sourceListener = sourceListener;
-    this.callback = callback;
     this.allocator = allocator;
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new TimestampAdjusterProvider();
@@ -96,11 +97,6 @@ import java.util.List;
         callback.onContinueLoadingRequested(HlsMediaPeriod.this);
       }
     };
-
-    ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(
-        dataSourceFactory.createDataSource(), manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
-    long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
   public void release() {
@@ -109,6 +105,15 @@ import java.util.List;
     for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
       sampleStreamWrapper.release();
     }
+  }
+
+  @Override
+  public void prepare(Callback callback) {
+    this.callback = callback;
+    ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(
+        dataSourceFactory.createDataSource(), manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
+    long elapsedRealtimeMs = manifestFetcher.startLoading(loadable, this, minLoadableRetryCount);
+    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
   @Override

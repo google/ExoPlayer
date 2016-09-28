@@ -952,8 +952,9 @@ import java.io.IOException;
           periodStartPositionUs = defaultPosition.second;
         }
         Object newPeriodUid = timeline.getPeriod(newLoadingPeriodIndex, period, true).uid;
-        MediaPeriod newMediaPeriod = mediaSource.createPeriod(newLoadingPeriodIndex, this,
+        MediaPeriod newMediaPeriod = mediaSource.createPeriod(newLoadingPeriodIndex,
             loadControl.getAllocator(), periodStartPositionUs);
+        newMediaPeriod.prepare(this);
         MediaPeriodHolder<T> newPeriodHolder = new MediaPeriodHolder<>(renderers,
             rendererCapabilities, trackSelector, mediaSource, newMediaPeriod, newPeriodUid,
             periodStartPositionUs);

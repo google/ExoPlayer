@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
@@ -171,11 +170,10 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
-      long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + index, manifest, index,
         chunkSourceFactory, minLoadableRetryCount, eventDispatcher, elapsedRealtimeOffsetMs, loader,
-        callback, allocator);
+        allocator);
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }

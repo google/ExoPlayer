@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -117,15 +116,12 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
-      long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
-    // The periods are only referenced after they have all been prepared.
-    MergingMediaPeriod mergingPeriod = new MergingMediaPeriod(callback, periods);
     for (int i = 0; i < periods.length; i++) {
-      periods[i] = mediaSources[i].createPeriod(index, mergingPeriod, allocator, positionUs);
+      periods[i] = mediaSources[i].createPeriod(index, allocator, positionUs);
     }
-    return mergingPeriod;
+    return new MergingMediaPeriod(periods);
   }
 
   @Override

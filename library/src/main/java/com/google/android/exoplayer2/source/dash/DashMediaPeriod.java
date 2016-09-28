@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
@@ -49,11 +48,10 @@ import java.util.List;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
-  private final Callback callback;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
-  private final Handler handler;
 
+  private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
   private DashManifest manifest;
@@ -63,7 +61,7 @@ import java.util.List;
   public DashMediaPeriod(int id, DashManifest manifest, int index,
       DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
       EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
-      LoaderErrorThrower manifestLoaderErrorThrower, Callback callback, Allocator allocator) {
+      LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator) {
     this.id = id;
     this.manifest = manifest;
     this.index = index;
@@ -72,19 +70,11 @@ import java.util.List;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
-    this.callback = callback;
     this.allocator = allocator;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     period = manifest.getPeriod(index);
     trackGroups = buildTrackGroups(period);
-    handler = new Handler();
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        DashMediaPeriod.this.callback.onPrepared(DashMediaPeriod.this);
-      }
-    });
   }
 
   public void updateManifest(DashManifest manifest, int index) {
@@ -103,7 +93,12 @@ import java.util.List;
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
-    handler.removeCallbacksAndMessages(null);
+  }
+
+  @Override
+  public void prepare(Callback callback) {
+    this.callback = callback;
+    callback.onPrepared(this);
   }
 
   @Override

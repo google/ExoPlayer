@@ -43,6 +43,17 @@ public interface MediaPeriod extends SequenceableLoader {
   }
 
   /**
+   * Prepares this media period asynchronously.
+   * <p>
+   * {@code callback.onPrepared} is called when preparation completes. If preparation fails,
+   * {@link #maybeThrowPrepareError()} will throw an {@link IOException}.
+   *
+   * @param callback Callback to receive updates from this period, including being notified when
+   *     preparation completes.
+   */
+  void prepare(Callback callback);
+
+  /**
    * Throws an error that's preventing the period from becoming prepared. Does nothing if no such
    * error exists.
    * <p>

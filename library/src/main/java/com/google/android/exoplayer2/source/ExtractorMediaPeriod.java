@@ -61,7 +61,6 @@ import java.util.Arrays;
   private final Handler eventHandler;
   private final ExtractorMediaSource.EventListener eventListener;
   private final MediaSource.Listener sourceListener;
-  private final Callback callback;
   private final Allocator allocator;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
@@ -70,6 +69,7 @@ import java.util.Arrays;
   private final Runnable onContinueLoadingRequestedRunnable;
   private final Handler handler;
 
+  private Callback callback;
   private SeekMap seekMap;
   private boolean tracksBuilt;
   private boolean prepared;
@@ -98,20 +98,18 @@ import java.util.Arrays;
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param sourceListener A listener to notify when the timeline has been loaded.
-   * @param callback A callback to receive updates from the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    */
   public ExtractorMediaPeriod(Uri uri, DataSource dataSource, Extractor[] extractors,
       int minLoadableRetryCount, Handler eventHandler,
       ExtractorMediaSource.EventListener eventListener, MediaSource.Listener sourceListener,
-      final Callback callback, Allocator allocator) {
+      Allocator allocator) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.sourceListener = sourceListener;
-    this.callback = callback;
     this.allocator = allocator;
     loader = new Loader("Loader:ExtractorMediaPeriod");
     extractorHolder = new ExtractorHolder(extractors, this);
@@ -135,8 +133,6 @@ import java.util.Arrays;
     pendingResetPositionUs = C.TIME_UNSET;
     sampleQueues = new DefaultTrackOutput[0];
     length = C.LENGTH_UNSET;
-    loadCondition.open();
-    startLoading();
   }
 
   public void release() {
@@ -152,6 +148,13 @@ import java.util.Arrays;
     });
     handler.removeCallbacksAndMessages(null);
     released = true;
+  }
+
+  @Override
+  public void prepare(Callback callback) {
+    this.callback = callback;
+    loadCondition.open();
+    startLoading();
   }
 
   @Override

@@ -28,20 +28,27 @@ import java.util.IdentityHashMap;
 
   public final MediaPeriod[] periods;
 
-  private final Callback callback;
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
 
+  private Callback callback;
   private int pendingChildPrepareCount;
   private TrackGroupArray trackGroups;
 
   private MediaPeriod[] enabledPeriods;
   private SequenceableLoader sequenceableLoader;
 
-  public MergingMediaPeriod(Callback callback, MediaPeriod... periods) {
+  public MergingMediaPeriod(MediaPeriod... periods) {
     this.periods = periods;
-    this.callback = callback;
     streamPeriodIndices = new IdentityHashMap<>();
+  }
+
+  @Override
+  public void prepare(Callback callback) {
+    this.callback = callback;
     pendingChildPrepareCount = periods.length;
+    for (MediaPeriod period : periods) {
+      period.prepare(this);
+    }
   }
 
   @Override
