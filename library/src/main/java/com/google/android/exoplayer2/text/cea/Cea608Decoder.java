@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
-import android.text.Layout.Alignment;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
@@ -156,14 +155,6 @@ public final class Cea608Decoder extends CeaDecoder {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
-  private static final Alignment CUE_TEXT_ALIGNMENT = Alignment.ALIGN_NORMAL;
-  private static final float CUE_LINE = Cue.DIMEN_UNSET;
-  private static final int CUE_LINE_TYPE = Cue.TYPE_UNSET;
-  private static final int CUE_LINE_ANCHOR = Cue.TYPE_UNSET;
-  private static final float CUE_POSITION = 0.1f;
-  private static final int CUE_POSITION_ANCHOR = Cue.TYPE_UNSET;
-  private static final float CUE_SIZE = 0.8f;
-
   private final ParsableByteArray ccData;
 
   private final StringBuilder captionStringBuilder;
@@ -218,8 +209,7 @@ public final class Cea608Decoder extends CeaDecoder {
   @Override
   protected Subtitle createSubtitle() {
     lastCaptionString = captionString;
-    return new CeaSubtitle(new Cue(captionString, CUE_TEXT_ALIGNMENT, CUE_LINE, CUE_LINE_TYPE,
-        CUE_LINE_ANCHOR, CUE_POSITION, CUE_POSITION_ANCHOR, CUE_SIZE));
+    return new CeaSubtitle(new Cue(captionString));
   }
 
   @Override
