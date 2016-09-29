@@ -281,13 +281,16 @@ public final class Mp3Extractor implements Extractor {
 
     long position = input.getPosition();
     long length = input.getLength();
+    int headerData = 0;
 
     // Check if there is a Xing header.
     int xingBase = (synchronizedHeader.version & 1) != 0
         ? (synchronizedHeader.channels != 1 ? 36 : 21) // MPEG 1
         : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
-    frame.setPosition(xingBase);
-    int headerData = frame.readInt();
+    if (frame.limit() >= xingBase + 4) {
+      frame.setPosition(xingBase);
+      headerData = frame.readInt();
+    }
     if (headerData == XING_HEADER || headerData == INFO_HEADER) {
       seeker = XingSeeker.create(synchronizedHeader, frame, position, length);
       if (seeker != null && gaplessInfo == null) {
@@ -299,7 +302,7 @@ public final class Mp3Extractor implements Extractor {
         gaplessInfo = GaplessInfo.createFromXingHeaderValue(scratch.readUnsignedInt24());
       }
       input.skipFully(synchronizedHeader.frameSize);
-    } else {
+    } else if (frame.limit() >= 40) {
       // Check if there is a VBRI header.
       frame.setPosition(36); // MPEG audio header (4 bytes) + 32 bytes.
       headerData = frame.readInt();
