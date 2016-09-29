@@ -1,5 +1,14 @@
 # Release notes #
 
+### r2.0.1 ###
+
+* Fix playback of short duration content
+  ([#1837](https://github.com/google/ExoPlayer/issues/1837)).
+* Fix MergingMediaSource preparation issue
+  ([#1853](https://github.com/google/ExoPlayer/issues/1853)).
+* Fix live stream buffering (out of memory) issue
+  ([#1825](https://github.com/google/ExoPlayer/issues/1825)).
+
 ### r2.0.0 ###
 
 ExoPlayer 2.x is a major iteration of the library. It includes significant API
