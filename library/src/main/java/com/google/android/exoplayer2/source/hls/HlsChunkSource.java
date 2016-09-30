@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
+import com.google.android.exoplayer2.extractor.ts.DefaultStreamReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -355,20 +356,22 @@ import java.util.Locale;
       timestampAdjuster = timestampAdjusterProvider.getAdjuster(segment.discontinuitySequenceNumber,
           startTimeUs);
       // This flag ensures the change of pid between streams does not affect the sample queues.
-      int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
+      @DefaultStreamReaderFactory.WorkaroundFlags
+      int workaroundFlags = DefaultStreamReaderFactory.WORKAROUND_MAP_BY_TYPE;
       String codecs = variants[newVariantIndex].format.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
         // exist. If we know from the codec attribute that they don't exist, then we can explicitly
         // ignore them even if they're declared.
         if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
-          workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_AAC_STREAM;
+          workaroundFlags |= DefaultStreamReaderFactory.WORKAROUND_IGNORE_AAC_STREAM;
         }
         if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
-          workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_H264_STREAM;
+          workaroundFlags |= DefaultStreamReaderFactory.WORKAROUND_IGNORE_H264_STREAM;
         }
       }
-      extractor = new TsExtractor(timestampAdjuster, workaroundFlags);
+      extractor = new TsExtractor(timestampAdjuster,
+          new DefaultStreamReaderFactory(workaroundFlags));
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractor = previous.extractor;

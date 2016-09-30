@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"前のトラック"</string>
-  <string name="next_description">"次のトラック"</string>
-  <string name="pause_description">"一時停止"</string>
-  <string name="play_description">"再生"</string>
-  <string name="stop_description">"停止"</string>
-  <string name="rew_description">"巻き戻し"</string>
-  <string name="ffw_description">"早送り"</string>
+  <string name="exo_controls_previous_description">"前のトラック"</string>
+  <string name="exo_controls_next_description">"次のトラック"</string>
+  <string name="exo_controls_pause_description">"一時停止"</string>
+  <string name="exo_controls_play_description">"再生"</string>
+  <string name="exo_controls_stop_description">"停止"</string>
+  <string name="exo_controls_rewind_description">"巻き戻し"</string>
+  <string name="exo_controls_fastforward_description">"早送り"</string>
 </resources>

@@ -49,7 +49,8 @@ import com.google.android.exoplayer2.util.Util;
    */
   public final int[] flags;
 
-  TrackSampleTable(long[] offsets, int[] sizes, int maximumSize, long[] timestampsUs, int[] flags) {
+  public TrackSampleTable(long[] offsets, int[] sizes, int maximumSize, long[] timestampsUs,
+      int[] flags) {
     Assertions.checkArgument(sizes.length == timestampsUs.length);
     Assertions.checkArgument(offsets.length == timestampsUs.length);
     Assertions.checkArgument(flags.length == timestampsUs.length);

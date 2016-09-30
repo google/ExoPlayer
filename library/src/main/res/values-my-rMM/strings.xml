@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"ယခင် တစ်ပုဒ်"</string>
-  <string name="next_description">"နောက် တစ်ပုဒ်"</string>
-  <string name="pause_description">"ခဏရပ်ရန်"</string>
-  <string name="play_description">"ဖွင့်ရန်"</string>
-  <string name="stop_description">"ရပ်ရန်"</string>
-  <string name="rew_description">"ပြန်ရစ်ရန်"</string>
-  <string name="ffw_description">"ရှေ့သို့ သွားရန်"</string>
+  <string name="exo_controls_previous_description">"ယခင် တစ်ပုဒ်"</string>
+  <string name="exo_controls_next_description">"နောက် တစ်ပုဒ်"</string>
+  <string name="exo_controls_pause_description">"ခဏရပ်ရန်"</string>
+  <string name="exo_controls_play_description">"ဖွင့်ရန်"</string>
+  <string name="exo_controls_stop_description">"ရပ်ရန်"</string>
+  <string name="exo_controls_rewind_description">"ပြန်ရစ်ရန်"</string>
+  <string name="exo_controls_fastforward_description">"ရှေ့သို့ သွားရန်"</string>
 </resources>

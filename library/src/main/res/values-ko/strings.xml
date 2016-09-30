@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"이전 트랙"</string>
-  <string name="next_description">"다음 트랙"</string>
-  <string name="pause_description">"일시중지"</string>
-  <string name="play_description">"재생"</string>
-  <string name="stop_description">"중지"</string>
-  <string name="rew_description">"되감기"</string>
-  <string name="ffw_description">"빨리 감기"</string>
+  <string name="exo_controls_previous_description">"이전 트랙"</string>
+  <string name="exo_controls_next_description">"다음 트랙"</string>
+  <string name="exo_controls_pause_description">"일시중지"</string>
+  <string name="exo_controls_play_description">"재생"</string>
+  <string name="exo_controls_stop_description">"중지"</string>
+  <string name="exo_controls_rewind_description">"되감기"</string>
+  <string name="exo_controls_fastforward_description">"빨리 감기"</string>
 </resources>

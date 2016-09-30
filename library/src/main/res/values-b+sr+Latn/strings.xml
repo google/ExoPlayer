@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Prethodna pesma"</string>
-  <string name="next_description">"Sledeća pesma"</string>
-  <string name="pause_description">"Pauza"</string>
-  <string name="play_description">"Pusti"</string>
-  <string name="stop_description">"Zaustavi"</string>
-  <string name="rew_description">"Premotaj unazad"</string>
-  <string name="ffw_description">"Premotaj unapred"</string>
+  <string name="exo_controls_previous_description">"Prethodna pesma"</string>
+  <string name="exo_controls_next_description">"Sledeća pesma"</string>
+  <string name="exo_controls_pause_description">"Pauza"</string>
+  <string name="exo_controls_play_description">"Pusti"</string>
+  <string name="exo_controls_stop_description">"Zaustavi"</string>
+  <string name="exo_controls_rewind_description">"Premotaj unazad"</string>
+  <string name="exo_controls_fastforward_description">"Premotaj unapred"</string>
 </resources>

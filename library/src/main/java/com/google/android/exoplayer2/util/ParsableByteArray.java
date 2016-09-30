@@ -35,17 +35,17 @@ public final class ParsableByteArray {
   public ParsableByteArray() {}
 
   /**
-   * Creates a new instance with {@code length} bytes.
+   * Creates a new instance with {@code limit} bytes and sets the limit.
    *
-   * @param length The length of the array.
+   * @param limit The limit to set.
    */
-  public ParsableByteArray(int length) {
-    this.data = new byte[length];
-    limit = data.length;
+  public ParsableByteArray(int limit) {
+    this.data = new byte[limit];
+    this.limit = limit;
   }
 
   /**
-   * Creates a new instance wrapping {@code data}.
+   * Creates a new instance wrapping {@code data}, and sets the limit to {@code data.length}.
    *
    * @param data The array to wrap.
    */
@@ -58,7 +58,7 @@ public final class ParsableByteArray {
    * Creates a new instance that wraps an existing array.
    *
    * @param data The data to wrap.
-   * @param limit The limit.
+   * @param limit The limit to set.
    */
   public ParsableByteArray(byte[] data, int limit) {
     this.data = data;
@@ -79,7 +79,7 @@ public final class ParsableByteArray {
    * Updates the instance to wrap {@code data}, and resets the position to zero.
    *
    * @param data The array to wrap.
-   * @param limit The limit.
+   * @param limit The limit to set.
    */
   public void reset(byte[] data, int limit) {
     this.data = data;
@@ -192,6 +192,13 @@ public final class ParsableByteArray {
   public void readBytes(ByteBuffer buffer, int length) {
     buffer.put(data, position, length);
     position += length;
+  }
+
+  /**
+   * Peeks at the next byte as an unsigned value.
+   */
+  public int peekUnsignedByte() {
+    return (data[position] & 0xFF);
   }
 
   /**

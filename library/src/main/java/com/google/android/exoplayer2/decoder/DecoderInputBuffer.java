@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /**
@@ -24,15 +27,20 @@ import java.nio.ByteBuffer;
 public class DecoderInputBuffer extends Buffer {
 
   /**
+   * The buffer replacement mode, which may disable replacement.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({BUFFER_REPLACEMENT_MODE_DISABLED, BUFFER_REPLACEMENT_MODE_NORMAL,
+      BUFFER_REPLACEMENT_MODE_DIRECT})
+  public @interface BufferReplacementMode {}
+  /**
    * Disallows buffer replacement.
    */
   public static final int BUFFER_REPLACEMENT_MODE_DISABLED = 0;
-
   /**
    * Allows buffer replacement using {@link ByteBuffer#allocate(int)}.
    */
   public static final int BUFFER_REPLACEMENT_MODE_NORMAL = 1;
-
   /**
    * Allows buffer replacement using {@link ByteBuffer#allocateDirect(int)}.
    */
@@ -53,6 +61,7 @@ public class DecoderInputBuffer extends Buffer {
    */
   public long timeUs;
 
+  @BufferReplacementMode
   private final int bufferReplacementMode;
 
   /**
@@ -60,7 +69,7 @@ public class DecoderInputBuffer extends Buffer {
    *     of {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
    *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
-  public DecoderInputBuffer(int bufferReplacementMode) {
+  public DecoderInputBuffer(@BufferReplacementMode int bufferReplacementMode) {
     this.cryptoInfo = new CryptoInfo();
     this.bufferReplacementMode = bufferReplacementMode;
   }

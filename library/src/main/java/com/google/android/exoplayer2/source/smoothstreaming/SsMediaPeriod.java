@@ -46,23 +46,22 @@ import java.util.ArrayList;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
-  private final Callback callback;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
   private final TrackEncryptionBox[] trackEncryptionBoxes;
 
+  private Callback callback;
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
 
   public SsMediaPeriod(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher,
-      LoaderErrorThrower manifestLoaderErrorThrower, Callback callback, Allocator allocator) {
+      LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator) {
     this.chunkSourceFactory = chunkSourceFactory;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
-    this.callback = callback;
     this.allocator = allocator;
 
     trackGroups = buildTrackGroups(manifest);
@@ -77,7 +76,6 @@ import java.util.ArrayList;
     this.manifest = manifest;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    callback.onPrepared(this);
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -92,6 +90,12 @@ import java.util.ArrayList;
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+  }
+
+  @Override
+  public void prepare(Callback callback) {
+    this.callback = callback;
+    callback.onPrepared(this);
   }
 
   @Override

@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
  */
 public abstract class Buffer {
 
+  @C.BufferFlags
   private int flags;
 
   /**
@@ -58,7 +59,7 @@ public abstract class Buffer {
    * @param flags The flags to set, which should be a combination of the {@code C.BUFFER_FLAG_*}
    *     constants.
    */
-  public final void setFlags(int flags) {
+  public final void setFlags(@C.BufferFlags int flags) {
     this.flags = flags;
   }
 
@@ -68,7 +69,7 @@ public abstract class Buffer {
    * @param flag The flag to add to this buffer's flags, which should be one of the
    *     {@code C.BUFFER_FLAG_*} constants.
    */
-  public final void addFlag(int flag) {
+  public final void addFlag(@C.BufferFlags int flag) {
     flags |= flag;
   }
 
@@ -77,7 +78,7 @@ public abstract class Buffer {
    *
    * @param flag The flag to remove.
    */
-  public final void clearFlag(int flag) {
+  public final void clearFlag(@C.BufferFlags int flag) {
     flags &= ~flag;
   }
 
@@ -87,7 +88,7 @@ public abstract class Buffer {
    * @param flag The flag to check.
    * @return Whether the flag is set.
    */
-  protected final boolean getFlag(int flag) {
+  protected final boolean getFlag(@C.BufferFlags int flag) {
     return (flags & flag) == flag;
   }
 

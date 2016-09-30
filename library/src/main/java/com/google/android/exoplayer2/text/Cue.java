@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.text;
 
+import android.support.annotation.IntDef;
 import android.text.Layout.Alignment;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Contains information about a specific cue, including textual content and formatting data.
@@ -26,6 +29,13 @@ public class Cue {
    * An unset position or width.
    */
   public static final float DIMEN_UNSET = Float.MIN_VALUE;
+
+  /**
+   * The type of anchor, which may be unset.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TYPE_UNSET, ANCHOR_TYPE_START, ANCHOR_TYPE_MIDDLE, ANCHOR_TYPE_END})
+  public @interface AnchorType {}
   /**
    * An unset anchor or line type value.
    */
@@ -44,6 +54,13 @@ public class Cue {
    * box.
    */
   public static final int ANCHOR_TYPE_END = 2;
+
+  /**
+   * The type of line, which may be unset.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TYPE_UNSET, LINE_TYPE_FRACTION, LINE_TYPE_NUMBER})
+  public @interface LineType {}
   /**
    * Value for {@link #lineType} when {@link #line} is a fractional position.
    */
@@ -83,6 +100,7 @@ public class Cue {
    * -1). For horizontal text the size of the first line of the cue is its height, and the start
    * and end of the viewport are the top and bottom respectively.
    */
+  @LineType
   public final int lineType;
   /**
    * The cue box anchor positioned by {@link #line}. One of {@link #ANCHOR_TYPE_START},
@@ -92,6 +110,7 @@ public class Cue {
    * and {@link #ANCHOR_TYPE_END} correspond to the top, middle and bottom of the cue box
    * respectively.
    */
+  @AnchorType
   public final int lineAnchor;
   /**
    * The fractional position of the {@link #positionAnchor} of the cue box within the viewport in
@@ -110,6 +129,7 @@ public class Cue {
    * and {@link #ANCHOR_TYPE_END} correspond to the left, middle and right of the cue box
    * respectively.
    */
+  @AnchorType
   public final int positionAnchor;
   /**
    * The size of the cue box in the writing direction specified as a fraction of the viewport size
@@ -137,8 +157,8 @@ public class Cue {
    * @param positionAnchor See {@link #positionAnchor}.
    * @param size See {@link #size}.
    */
-  public Cue(CharSequence text, Alignment textAlignment, float line, int lineType, int lineAnchor,
-      float position, int positionAnchor, float size) {
+  public Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
+      @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size) {
     this.text = text;
     this.textAlignment = textAlignment;
     this.line = line;

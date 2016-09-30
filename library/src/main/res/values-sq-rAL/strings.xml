@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Kënga e mëparshme"</string>
-  <string name="next_description">"Kënga tjetër"</string>
-  <string name="pause_description">"Pauzë"</string>
-  <string name="play_description">"Luaj"</string>
-  <string name="stop_description">"Ndalo"</string>
-  <string name="rew_description">"Kthehu pas"</string>
-  <string name="ffw_description">"Përparo me shpejtësi"</string>
+  <string name="exo_controls_previous_description">"Kënga e mëparshme"</string>
+  <string name="exo_controls_next_description">"Kënga tjetër"</string>
+  <string name="exo_controls_pause_description">"Pauzë"</string>
+  <string name="exo_controls_play_description">"Luaj"</string>
+  <string name="exo_controls_stop_description">"Ndalo"</string>
+  <string name="exo_controls_rewind_description">"Kthehu pas"</string>
+  <string name="exo_controls_fastforward_description">"Përparo me shpejtësi"</string>
 </resources>

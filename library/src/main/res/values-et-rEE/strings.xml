@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Eelmine lugu"</string>
-  <string name="next_description">"Järgmine lugu"</string>
-  <string name="pause_description">"Peata"</string>
-  <string name="play_description">"Esita"</string>
-  <string name="stop_description">"Peata"</string>
-  <string name="rew_description">"Keri tagasi"</string>
-  <string name="ffw_description">"Keri edasi"</string>
+  <string name="exo_controls_previous_description">"Eelmine lugu"</string>
+  <string name="exo_controls_next_description">"Järgmine lugu"</string>
+  <string name="exo_controls_pause_description">"Peata"</string>
+  <string name="exo_controls_play_description">"Esita"</string>
+  <string name="exo_controls_stop_description">"Peata"</string>
+  <string name="exo_controls_rewind_description">"Keri tagasi"</string>
+  <string name="exo_controls_fastforward_description">"Keri edasi"</string>
 </resources>

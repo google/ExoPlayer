@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Vorheriger Titel"</string>
-  <string name="next_description">"Nächster Titel"</string>
-  <string name="pause_description">"Pausieren"</string>
-  <string name="play_description">"Wiedergabe"</string>
-  <string name="stop_description">"Beenden"</string>
-  <string name="rew_description">"Zurückspulen"</string>
-  <string name="ffw_description">"Vorspulen"</string>
+  <string name="exo_controls_previous_description">"Vorheriger Titel"</string>
+  <string name="exo_controls_next_description">"Nächster Titel"</string>
+  <string name="exo_controls_pause_description">"Pausieren"</string>
+  <string name="exo_controls_play_description">"Wiedergabe"</string>
+  <string name="exo_controls_stop_description">"Beenden"</string>
+  <string name="exo_controls_rewind_description">"Zurückspulen"</string>
+  <string name="exo_controls_fastforward_description">"Vorspulen"</string>
 </resources>

@@ -15,15 +15,24 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Thrown when a non-recoverable playback failure occurs.
  */
 public final class ExoPlaybackException extends Exception {
 
+  /**
+   * The type of source that produced the error.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED})
+  public @interface Type {}
   /**
    * The error occurred loading data from a {@link MediaSource}.
    * <p>
@@ -47,6 +56,7 @@ public final class ExoPlaybackException extends Exception {
    * The type of the playback failure. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER} and
    * {@link #TYPE_UNEXPECTED}.
    */
+  @Type
   public final int type;
 
   /**
@@ -85,7 +95,8 @@ public final class ExoPlaybackException extends Exception {
     return new ExoPlaybackException(TYPE_UNEXPECTED, null, cause, C.INDEX_UNSET);
   }
 
-  private ExoPlaybackException(int type, String message, Throwable cause, int rendererIndex) {
+  private ExoPlaybackException(@Type int type, String message, Throwable cause,
+      int rendererIndex) {
     super(message, cause);
     this.type = type;
     this.rendererIndex = rendererIndex;

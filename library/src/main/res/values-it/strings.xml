@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Traccia precedente"</string>
-  <string name="next_description">"Traccia successiva"</string>
-  <string name="pause_description">"Metti in pausa"</string>
-  <string name="play_description">"Riproduci"</string>
-  <string name="stop_description">"Interrompi"</string>
-  <string name="rew_description">"Riavvolgi"</string>
-  <string name="ffw_description">"Avanti veloce"</string>
+  <string name="exo_controls_previous_description">"Traccia precedente"</string>
+  <string name="exo_controls_next_description">"Traccia successiva"</string>
+  <string name="exo_controls_pause_description">"Metti in pausa"</string>
+  <string name="exo_controls_play_description">"Riproduci"</string>
+  <string name="exo_controls_stop_description">"Interrompi"</string>
+  <string name="exo_controls_rewind_description">"Riavvolgi"</string>
+  <string name="exo_controls_fastforward_description">"Avanti veloce"</string>
 </resources>

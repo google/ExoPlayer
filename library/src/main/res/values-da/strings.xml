@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Forrige nummer"</string>
-  <string name="next_description">"Næste nummer"</string>
-  <string name="pause_description">"Pause"</string>
-  <string name="play_description">"Afspil"</string>
-  <string name="stop_description">"Stop"</string>
-  <string name="rew_description">"Spol tilbage"</string>
-  <string name="ffw_description">"Spol frem"</string>
+  <string name="exo_controls_previous_description">"Forrige nummer"</string>
+  <string name="exo_controls_next_description">"Næste nummer"</string>
+  <string name="exo_controls_pause_description">"Pause"</string>
+  <string name="exo_controls_play_description">"Afspil"</string>
+  <string name="exo_controls_stop_description">"Stop"</string>
+  <string name="exo_controls_rewind_description">"Spol tilbage"</string>
+  <string name="exo_controls_fastforward_description">"Spol frem"</string>
 </resources>

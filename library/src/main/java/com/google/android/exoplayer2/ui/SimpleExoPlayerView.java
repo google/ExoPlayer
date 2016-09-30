@@ -22,22 +22,18 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
-
 import java.util.List;
 
 /**
@@ -71,8 +67,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
       try {
-        useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller,
-            useController);
+        useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
         useTextureView = a.getBoolean(R.styleable.SimpleExoPlayerView_use_texture_view,
             useTextureView);
       } finally {
@@ -80,7 +75,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       }
     }
 
-    LayoutInflater.from(context).inflate(R.layout.exoplayer_video_view, this);
+    LayoutInflater.from(context).inflate(R.layout.exo_simple_player_view, this);
     componentListener = new ComponentListener();
     layout = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
     controller = (PlaybackControlView) findViewById(R.id.control);
@@ -113,7 +108,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
       this.player.setVideoSurface(null);
     }
     this.player = player;
-
     if (player != null) {
       if (surfaceView instanceof TextureView) {
         player.setVideoTextureView((TextureView) surfaceView);
@@ -123,6 +117,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
       player.setVideoListener(componentListener);
       player.addListener(componentListener);
       player.setTextOutput(componentListener);
+    } else {
+      shutterView.setVisibility(VISIBLE);
     }
     setUseController(useController);
   }
@@ -234,12 +230,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     @Override
-    public void onRenderedFirstFrame(Surface surface) {
+    public void onRenderedFirstFrame() {
       shutterView.setVisibility(GONE);
     }
 
     @Override
-    public void onVideoDisabled(DecoderCounters counters) {
+    public void onVideoTracksDisabled() {
       shutterView.setVisibility(VISIBLE);
     }
 

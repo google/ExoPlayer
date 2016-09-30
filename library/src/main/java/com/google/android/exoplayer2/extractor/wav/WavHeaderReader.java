@@ -87,7 +87,7 @@ import java.io.IOException;
           + blockAlignment);
     }
 
-    int encoding = Util.getPcmEncoding(bitsPerSample);
+    @C.PcmEncoding int encoding = Util.getPcmEncoding(bitsPerSample);
     if (encoding == C.ENCODING_INVALID) {
       Log.e(TAG, "Unsupported WAV bit depth: " + bitsPerSample);
       return null;

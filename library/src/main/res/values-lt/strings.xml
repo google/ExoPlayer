@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Ankstesnis takelis"</string>
-  <string name="next_description">"Kitas takelis"</string>
-  <string name="pause_description">"Pristabdyti"</string>
-  <string name="play_description">"Leisti"</string>
-  <string name="stop_description">"Stabdyti"</string>
-  <string name="rew_description">"Sukti atgal"</string>
-  <string name="ffw_description">"Sukti pirmyn"</string>
+  <string name="exo_controls_previous_description">"Ankstesnis takelis"</string>
+  <string name="exo_controls_next_description">"Kitas takelis"</string>
+  <string name="exo_controls_pause_description">"Pristabdyti"</string>
+  <string name="exo_controls_play_description">"Leisti"</string>
+  <string name="exo_controls_stop_description">"Stabdyti"</string>
+  <string name="exo_controls_rewind_description">"Sukti atgal"</string>
+  <string name="exo_controls_fastforward_description">"Sukti pirmyn"</string>
 </resources>

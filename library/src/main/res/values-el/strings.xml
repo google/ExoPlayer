@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Προηγούμενο κομμάτι"</string>
-  <string name="next_description">"Επόμενο κομμάτι"</string>
-  <string name="pause_description">"Παύση"</string>
-  <string name="play_description">"Αναπαραγωγή"</string>
-  <string name="stop_description">"Διακοπή"</string>
-  <string name="rew_description">"Επαναφορά"</string>
-  <string name="ffw_description">"Γρήγορη προώθηση"</string>
+  <string name="exo_controls_previous_description">"Προηγούμενο κομμάτι"</string>
+  <string name="exo_controls_next_description">"Επόμενο κομμάτι"</string>
+  <string name="exo_controls_pause_description">"Παύση"</string>
+  <string name="exo_controls_play_description">"Αναπαραγωγή"</string>
+  <string name="exo_controls_stop_description">"Διακοπή"</string>
+  <string name="exo_controls_rewind_description">"Επαναφορά"</string>
+  <string name="exo_controls_fastforward_description">"Γρήγορη προώθηση"</string>
 </resources>

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"បទ​មុន"</string>
-  <string name="next_description">"បទ​បន្ទាប់"</string>
-  <string name="pause_description">"ផ្អាក"</string>
-  <string name="play_description">"ចាក់"</string>
-  <string name="stop_description">"បញ្ឈប់"</string>
-  <string name="rew_description">"ខា​ថយក្រោយ"</string>
-  <string name="ffw_description">"ទៅ​មុខ​​​រហ័ស"</string>
+  <string name="exo_controls_previous_description">"បទ​មុន"</string>
+  <string name="exo_controls_next_description">"បទ​បន្ទាប់"</string>
+  <string name="exo_controls_pause_description">"ផ្អាក"</string>
+  <string name="exo_controls_play_description">"ចាក់"</string>
+  <string name="exo_controls_stop_description">"បញ្ឈប់"</string>
+  <string name="exo_controls_rewind_description">"ខា​ថយក្រោយ"</string>
+  <string name="exo_controls_fastforward_description">"ទៅ​មុខ​​​រហ័ស"</string>
 </resources>

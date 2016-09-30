@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Předchozí skladba"</string>
-  <string name="next_description">"Další skladba"</string>
-  <string name="pause_description">"Pozastavit"</string>
-  <string name="play_description">"Přehrát"</string>
-  <string name="stop_description">"Zastavit"</string>
-  <string name="rew_description">"Přetočit zpět"</string>
-  <string name="ffw_description">"Přetočit vpřed"</string>
+  <string name="exo_controls_previous_description">"Předchozí skladba"</string>
+  <string name="exo_controls_next_description">"Další skladba"</string>
+  <string name="exo_controls_pause_description">"Pozastavit"</string>
+  <string name="exo_controls_play_description">"Přehrát"</string>
+  <string name="exo_controls_stop_description">"Zastavit"</string>
+  <string name="exo_controls_rewind_description">"Přetočit zpět"</string>
+  <string name="exo_controls_fastforward_description">"Přetočit vpřed"</string>
 </resources>

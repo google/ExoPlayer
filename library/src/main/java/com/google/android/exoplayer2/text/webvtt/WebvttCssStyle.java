@@ -16,8 +16,11 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
+import android.support.annotation.IntDef;
 import android.text.Layout;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,15 +35,25 @@ import java.util.List;
 
   public static final int UNSPECIFIED = -1;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC,
+      STYLE_BOLD_ITALIC})
+  public @interface StyleFlags {}
   public static final int STYLE_NORMAL = Typeface.NORMAL;
   public static final int STYLE_BOLD = Typeface.BOLD;
   public static final int STYLE_ITALIC = Typeface.ITALIC;
   public static final int STYLE_BOLD_ITALIC = Typeface.BOLD_ITALIC;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
+  public @interface FontSizeUnit {}
   public static final int FONT_SIZE_UNIT_PIXEL = 1;
   public static final int FONT_SIZE_UNIT_EM = 2;
   public static final int FONT_SIZE_UNIT_PERCENT = 3;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({UNSPECIFIED, OFF, ON})
+  private @interface OptionalBoolean {}
   private static final int OFF = 0;
   private static final int ON = 1;
 
@@ -56,10 +69,15 @@ import java.util.List;
   private boolean hasFontColor;
   private int backgroundColor;
   private boolean hasBackgroundColor;
+  @OptionalBoolean
   private int linethrough;
+  @OptionalBoolean
   private int underline;
+  @OptionalBoolean
   private int bold;
+  @OptionalBoolean
   private int italic;
+  @FontSizeUnit
   private int fontSizeUnit;
   private float fontSize;
   private Layout.Alignment textAlign;
@@ -144,12 +162,13 @@ import java.util.List;
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
+  @StyleFlags
   public int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
-    return (bold != UNSPECIFIED ? bold : STYLE_NORMAL)
-        | (italic != UNSPECIFIED ? italic : STYLE_NORMAL);
+    return (bold == ON ? STYLE_BOLD : STYLE_NORMAL)
+        | (italic == ON ? STYLE_ITALIC : STYLE_NORMAL);
   }
 
   public boolean isLinethrough() {
@@ -167,6 +186,15 @@ import java.util.List;
 
   public WebvttCssStyle setUnderline(boolean underline) {
     this.underline = underline ? ON : OFF;
+    return this;
+  }
+  public WebvttCssStyle setBold(boolean bold) {
+    this.bold = bold ? ON : OFF;
+    return this;
+  }
+
+  public WebvttCssStyle setItalic(boolean italic) {
+    this.italic = italic ? ON : OFF;
     return this;
   }
 
@@ -213,16 +241,6 @@ import java.util.List;
     return hasBackgroundColor;
   }
 
-  public WebvttCssStyle setBold(boolean isBold) {
-    bold = isBold ? STYLE_BOLD : STYLE_NORMAL;
-    return this;
-  }
-
-  public WebvttCssStyle setItalic(boolean isItalic) {
-    italic = isItalic ? STYLE_ITALIC : STYLE_NORMAL;
-    return this;
-  }
-
   public Layout.Alignment getTextAlign() {
     return textAlign;
   }
@@ -242,6 +260,7 @@ import java.util.List;
     return this;
   }
 
+  @FontSizeUnit
   public int getFontSizeUnit() {
     return fontSizeUnit;
   }

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"ቀዳሚ ትራክ"</string>
-  <string name="next_description">"ቀጣይ ትራክ"</string>
-  <string name="pause_description">"ለአፍታ አቁም"</string>
-  <string name="play_description">"አጫውት"</string>
-  <string name="stop_description">"አቁም"</string>
-  <string name="rew_description">"ወደኋላ አጠንጥን"</string>
-  <string name="ffw_description">"በፍጥነት አሳልፍ"</string>
+  <string name="exo_controls_previous_description">"ቀዳሚ ትራክ"</string>
+  <string name="exo_controls_next_description">"ቀጣይ ትራክ"</string>
+  <string name="exo_controls_pause_description">"ለአፍታ አቁም"</string>
+  <string name="exo_controls_play_description">"አጫውት"</string>
+  <string name="exo_controls_stop_description">"አቁም"</string>
+  <string name="exo_controls_rewind_description">"ወደኋላ አጠንጥን"</string>
+  <string name="exo_controls_fastforward_description">"በፍጥነት አሳልፍ"</string>
 </resources>

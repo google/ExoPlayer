@@ -32,7 +32,7 @@ public interface MediaPeriod extends SequenceableLoader {
     /**
      * Called when preparation completes.
      * <p>
-     * May be called from any thread. After invoking this method, the {@link MediaPeriod} can expect
+     * Called on the playback thread. After invoking this method, the {@link MediaPeriod} can expect
      * for {@link #selectTracks(TrackSelection[], boolean[], SampleStream[], boolean[], long)} to be
      * called with the initial track selection.
      *
@@ -41,6 +41,17 @@ public interface MediaPeriod extends SequenceableLoader {
     void onPrepared(MediaPeriod mediaPeriod);
 
   }
+
+  /**
+   * Prepares this media period asynchronously.
+   * <p>
+   * {@code callback.onPrepared} is called when preparation completes. If preparation fails,
+   * {@link #maybeThrowPrepareError()} will throw an {@link IOException}.
+   *
+   * @param callback Callback to receive updates from this period, including being notified when
+   *     preparation completes.
+   */
+  void prepare(Callback callback);
 
   /**
    * Throws an error that's preventing the period from becoming prepared. Does nothing if no such

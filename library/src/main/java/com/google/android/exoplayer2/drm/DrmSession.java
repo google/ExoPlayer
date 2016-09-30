@@ -16,6 +16,9 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
+import android.support.annotation.IntDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A DRM session.
@@ -23,6 +26,12 @@ import android.annotation.TargetApi;
 @TargetApi(16)
 public interface DrmSession<T extends ExoMediaCrypto> {
 
+  /**
+   * The state of the DRM session.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STATE_ERROR, STATE_CLOSED, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
+  @interface State {}
   /**
    * The session has encountered an error. {@link #getError()} can be used to retrieve the cause.
    */
@@ -50,6 +59,7 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    * @return One of {@link #STATE_ERROR}, {@link #STATE_CLOSED}, {@link #STATE_OPENING},
    *     {@link #STATE_OPENED} and {@link #STATE_OPENED_WITH_KEYS}.
    */
+  @State
   int getState();
 
   /**

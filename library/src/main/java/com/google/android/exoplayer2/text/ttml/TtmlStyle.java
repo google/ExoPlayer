@@ -16,8 +16,11 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import android.graphics.Typeface;
+import android.support.annotation.IntDef;
 import android.text.Layout;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Style object of a <code>TtmlNode</code>
@@ -26,15 +29,25 @@ import com.google.android.exoplayer2.util.Assertions;
 
   public static final int UNSPECIFIED = -1;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC,
+      STYLE_BOLD_ITALIC})
+  public @interface StyleFlags {}
   public static final int STYLE_NORMAL = Typeface.NORMAL;
   public static final int STYLE_BOLD = Typeface.BOLD;
   public static final int STYLE_ITALIC = Typeface.ITALIC;
   public static final int STYLE_BOLD_ITALIC = Typeface.BOLD_ITALIC;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
+  public @interface FontSizeUnit {}
   public static final int FONT_SIZE_UNIT_PIXEL = 1;
   public static final int FONT_SIZE_UNIT_EM = 2;
   public static final int FONT_SIZE_UNIT_PERCENT = 3;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({UNSPECIFIED, OFF, ON})
+  private @interface OptionalBoolean {}
   private static final int OFF = 0;
   private static final int ON = 1;
 
@@ -43,10 +56,15 @@ import com.google.android.exoplayer2.util.Assertions;
   private boolean hasFontColor;
   private int backgroundColor;
   private boolean hasBackgroundColor;
+  @OptionalBoolean
   private int linethrough;
+  @OptionalBoolean
   private int underline;
+  @OptionalBoolean
   private int bold;
+  @OptionalBoolean
   private int italic;
+  @FontSizeUnit
   private int fontSizeUnit;
   private float fontSize;
   private String id;
@@ -67,12 +85,13 @@ import com.google.android.exoplayer2.util.Assertions;
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
+  @StyleFlags
   public int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
-    return (bold != UNSPECIFIED ? bold : STYLE_NORMAL)
-        | (italic != UNSPECIFIED ? italic : STYLE_NORMAL);
+    return (bold == ON ? STYLE_BOLD : STYLE_NORMAL)
+        | (italic == ON ? STYLE_ITALIC : STYLE_NORMAL);
   }
 
   public boolean isLinethrough() {
@@ -92,6 +111,18 @@ import com.google.android.exoplayer2.util.Assertions;
   public TtmlStyle setUnderline(boolean underline) {
     Assertions.checkState(inheritableStyle == null);
     this.underline = underline ? ON : OFF;
+    return this;
+  }
+
+  public TtmlStyle setBold(boolean bold) {
+    Assertions.checkState(inheritableStyle == null);
+    this.bold = bold ? ON : OFF;
+    return this;
+  }
+
+  public TtmlStyle setItalic(boolean italic) {
+    Assertions.checkState(inheritableStyle == null);
+    this.italic = italic ? ON : OFF;
     return this;
   }
 
@@ -138,18 +169,6 @@ import com.google.android.exoplayer2.util.Assertions;
 
   public boolean hasBackgroundColor() {
     return hasBackgroundColor;
-  }
-
-  public TtmlStyle setBold(boolean isBold) {
-    Assertions.checkState(inheritableStyle == null);
-    bold = isBold ? STYLE_BOLD : STYLE_NORMAL;
-    return this;
-  }
-
-  public TtmlStyle setItalic(boolean isItalic) {
-    Assertions.checkState(inheritableStyle == null);
-    italic = isItalic ? STYLE_ITALIC : STYLE_NORMAL;
-    return this;
   }
 
   /**
@@ -236,6 +255,7 @@ import com.google.android.exoplayer2.util.Assertions;
     return this;
   }
 
+  @FontSizeUnit
   public int getFontSizeUnit() {
     return fontSizeUnit;
   }

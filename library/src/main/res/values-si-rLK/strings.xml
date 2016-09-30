@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"පෙර ගීතය"</string>
-  <string name="next_description">"ඊළඟ ගීතය"</string>
-  <string name="pause_description">"විරාමය"</string>
-  <string name="play_description">"ධාවනය කරන්න"</string>
-  <string name="stop_description">"නතර කරන්න"</string>
-  <string name="rew_description">"නැවත ඔතන්න"</string>
-  <string name="ffw_description">"වේගයෙන් ඉදිරියට යන"</string>
+  <string name="exo_controls_previous_description">"පෙර ගීතය"</string>
+  <string name="exo_controls_next_description">"ඊළඟ ගීතය"</string>
+  <string name="exo_controls_pause_description">"විරාමය"</string>
+  <string name="exo_controls_play_description">"ධාවනය කරන්න"</string>
+  <string name="exo_controls_stop_description">"නතර කරන්න"</string>
+  <string name="exo_controls_rewind_description">"නැවත ඔතන්න"</string>
+  <string name="exo_controls_fastforward_description">"වේගයෙන් ඉදිරියට යන"</string>
 </resources>

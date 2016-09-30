@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Önceki parça"</string>
-  <string name="next_description">"Sonraki parça"</string>
-  <string name="pause_description">"Duraklat"</string>
-  <string name="play_description">"Çal"</string>
-  <string name="stop_description">"Durdur"</string>
-  <string name="rew_description">"Geri sar"</string>
-  <string name="ffw_description">"İleri sar"</string>
+  <string name="exo_controls_previous_description">"Önceki parça"</string>
+  <string name="exo_controls_next_description">"Sonraki parça"</string>
+  <string name="exo_controls_pause_description">"Duraklat"</string>
+  <string name="exo_controls_play_description">"Çal"</string>
+  <string name="exo_controls_stop_description">"Durdur"</string>
+  <string name="exo_controls_rewind_description">"Geri sar"</string>
+  <string name="exo_controls_fastforward_description">"İleri sar"</string>
 </resources>

@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"آهنگ قبلی"</string>
-  <string name="next_description">"آهنگ بعدی"</string>
-  <string name="pause_description">"مکث"</string>
-  <string name="play_description">"پخش"</string>
-  <string name="stop_description">"توقف"</string>
-  <string name="rew_description">"عقب بردن"</string>
-  <string name="ffw_description">"جلو بردن سریع"</string>
+  <string name="exo_controls_previous_description">"آهنگ قبلی"</string>
+  <string name="exo_controls_next_description">"آهنگ بعدی"</string>
+  <string name="exo_controls_pause_description">"مکث"</string>
+  <string name="exo_controls_play_description">"پخش"</string>
+  <string name="exo_controls_stop_description">"توقف"</string>
+  <string name="exo_controls_rewind_description">"عقب بردن"</string>
+  <string name="exo_controls_fastforward_description">"جلو بردن سریع"</string>
 </resources>

@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
@@ -122,11 +121,10 @@ public final class SsMediaSource implements MediaSource,
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
-      long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     Assertions.checkArgument(index == 0);
     SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
-        eventDispatcher, manifestLoader, callback, allocator);
+        eventDispatcher, manifestLoader, allocator);
     mediaPeriods.add(period);
     return period;
   }

@@ -125,7 +125,6 @@ public final class DefaultExtractorInput implements ExtractorInput {
       throws IOException, InterruptedException {
     ensureSpaceForPeek(length);
     int bytesPeeked = Math.min(peekBufferLength - peekBufferPosition, length);
-    peekBufferLength += length - bytesPeeked;
     while (bytesPeeked < length) {
       bytesPeeked = readFromDataSource(peekBuffer, peekBufferPosition, length, bytesPeeked,
           allowEndOfInput);
@@ -134,6 +133,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
       }
     }
     peekBufferPosition += length;
+    peekBufferLength = Math.max(peekBufferLength, peekBufferPosition);
     return true;
   }
 

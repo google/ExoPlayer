@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Wimbo uliotangulia"</string>
-  <string name="next_description">"Wimbo unaofuata"</string>
-  <string name="pause_description">"Sitisha"</string>
-  <string name="play_description">"Cheza"</string>
-  <string name="stop_description">"Simamisha"</string>
-  <string name="rew_description">"Rudisha nyuma"</string>
-  <string name="ffw_description">"Peleka mbele kwa kasi"</string>
+  <string name="exo_controls_previous_description">"Wimbo uliotangulia"</string>
+  <string name="exo_controls_next_description">"Wimbo unaofuata"</string>
+  <string name="exo_controls_pause_description">"Sitisha"</string>
+  <string name="exo_controls_play_description">"Cheza"</string>
+  <string name="exo_controls_stop_description">"Simamisha"</string>
+  <string name="exo_controls_rewind_description">"Rudisha nyuma"</string>
+  <string name="exo_controls_fastforward_description">"Peleka mbele kwa kasi"</string>
 </resources>

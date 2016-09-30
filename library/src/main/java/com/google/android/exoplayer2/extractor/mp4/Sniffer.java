@@ -100,13 +100,14 @@ import java.io.IOException;
     while (bytesSearched < bytesToSearch) {
       // Read an atom header.
       int headerSize = Atom.HEADER_SIZE;
+      buffer.reset(headerSize);
       input.peekFully(buffer.data, 0, headerSize);
-      buffer.setPosition(0);
       long atomSize = buffer.readUnsignedInt();
       int atomType = buffer.readInt();
       if (atomSize == Atom.LONG_SIZE_PREFIX) {
         headerSize = Atom.LONG_HEADER_SIZE;
         input.peekFully(buffer.data, Atom.HEADER_SIZE, Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE);
+        buffer.setLimit(Atom.LONG_HEADER_SIZE);
         atomSize = buffer.readUnsignedLongToLong();
       }
 
@@ -139,9 +140,7 @@ import java.io.IOException;
         if (atomDataSize < 8) {
           return false;
         }
-        if (buffer.capacity() < atomDataSize) {
-          buffer.reset(new byte[atomDataSize], atomDataSize);
-        }
+        buffer.reset(atomDataSize);
         input.peekFully(buffer.data, 0, atomDataSize);
         int brandsCount = atomDataSize / 4;
         for (int i = 0; i < brandsCount; i++) {

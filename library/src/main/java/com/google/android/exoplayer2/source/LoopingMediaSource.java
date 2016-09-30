@@ -19,7 +19,6 @@ import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -76,9 +75,8 @@ public final class LoopingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
-      long positionUs) {
-    return childSource.createPeriod(index % childPeriodCount, callback, allocator, positionUs);
+  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+    return childSource.createPeriod(index % childPeriodCount, allocator, positionUs);
   }
 
   @Override

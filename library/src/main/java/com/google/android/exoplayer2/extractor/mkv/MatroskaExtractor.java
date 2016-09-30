@@ -163,6 +163,9 @@ public final class MatroskaExtractor implements Extractor {
   private static final int ID_CUE_TRACK_POSITIONS = 0xB7;
   private static final int ID_CUE_CLUSTER_POSITION = 0xF1;
   private static final int ID_LANGUAGE = 0x22B59C;
+  private static final int ID_PROJECTION = 0x7670;
+  private static final int ID_PROJECTION_PRIVATE = 0x7672;
+  private static final int ID_STEREO_MODE = 0x53B8;
 
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
@@ -264,6 +267,7 @@ public final class MatroskaExtractor implements Extractor {
   private int[] blockLacingSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
+  @C.BufferFlags
   private int blockFlags;
 
   // Sample reading state.
@@ -361,6 +365,7 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CUE_POINT:
       case ID_CUE_TRACK_POSITIONS:
       case ID_BLOCK_GROUP:
+      case ID_PROJECTION:
         return EbmlReader.TYPE_MASTER;
       case ID_EBML_READ_VERSION:
       case ID_DOC_TYPE_READ_VERSION:
@@ -390,6 +395,7 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CUE_TIME:
       case ID_CUE_CLUSTER_POSITION:
       case ID_REFERENCE_BLOCK:
+      case ID_STEREO_MODE:
         return EbmlReader.TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
@@ -401,6 +407,7 @@ public final class MatroskaExtractor implements Extractor {
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
       case ID_CODEC_PRIVATE:
+      case ID_PROJECTION_PRIVATE:
         return EbmlReader.TYPE_BINARY;
       case ID_DURATION:
       case ID_SAMPLING_FREQUENCY:
@@ -655,6 +662,22 @@ public final class MatroskaExtractor implements Extractor {
       case ID_BLOCK_DURATION:
         blockDurationUs = scaleTimecodeToUs(value);
         return;
+      case ID_STEREO_MODE:
+        int layout = (int) value;
+        switch (layout) {
+          case 0:
+            currentTrack.stereoMode = C.STEREO_MODE_MONO;
+            break;
+          case 1:
+            currentTrack.stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+            break;
+          case 3:
+            currentTrack.stereoMode = C.STEREO_MODE_TOP_BOTTOM;
+            break;
+          default:
+            break;
+        }
+        return;
       default:
         return;
     }
@@ -704,6 +727,10 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CODEC_PRIVATE:
         currentTrack.codecPrivate = new byte[contentSize];
         input.readFully(currentTrack.codecPrivate, 0, contentSize);
+        return;
+      case ID_PROJECTION_PRIVATE:
+        currentTrack.projectionData = new byte[contentSize];
+        input.readFully(currentTrack.projectionData, 0, contentSize);
         return;
       case ID_CONTENT_COMPRESSION_SETTINGS:
         // This extractor only supports header stripping, so the payload is the stripped bytes.
@@ -950,13 +977,9 @@ public final class MatroskaExtractor implements Extractor {
               samplePartitionCountRead = true;
             }
             int samplePartitionDataSize = samplePartitionCount * 4;
-            if (scratch.limit() < samplePartitionDataSize) {
-              scratch.reset(new byte[samplePartitionDataSize], samplePartitionDataSize);
-            }
+            scratch.reset(samplePartitionDataSize);
             input.readFully(scratch.data, 0, samplePartitionDataSize);
             sampleBytesRead += samplePartitionDataSize;
-            scratch.setPosition(0);
-            scratch.setLimit(samplePartitionDataSize);
             short subsampleCount = (short) (1 + (samplePartitionCount / 2));
             int subsampleDataSize = 2 + 6 * subsampleCount;
             if (encryptionSubsampleDataBuffer == null
@@ -1295,6 +1318,9 @@ public final class MatroskaExtractor implements Extractor {
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
+    public byte[] projectionData = null;
+    @C.StereoMode
+    public int stereoMode = Format.NO_VALUE;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -1318,7 +1344,7 @@ public final class MatroskaExtractor implements Extractor {
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
       String mimeType;
       int maxInputSize = Format.NO_VALUE;
-      int pcmEncoding = Format.NO_VALUE;
+      @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
       List<byte[]> initializationData = null;
       switch (codecId) {
         case CODEC_ID_VP8:
@@ -1433,9 +1459,9 @@ public final class MatroskaExtractor implements Extractor {
       }
 
       Format format;
-      int selectionFlags = 0;
-      selectionFlags |= flagDefault ? Format.SELECTION_FLAG_DEFAULT : 0;
-      selectionFlags |= flagForced ? Format.SELECTION_FLAG_FORCED : 0;
+      @C.SelectionFlags int selectionFlags = 0;
+      selectionFlags |= flagDefault ? C.SELECTION_FLAG_DEFAULT : 0;
+      selectionFlags |= flagForced ? C.SELECTION_FLAG_FORCED : 0;
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
@@ -1453,7 +1479,7 @@ public final class MatroskaExtractor implements Extractor {
         }
         format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData,
-            Format.NO_VALUE, pixelWidthHeightRatio, drmInitData);
+            Format.NO_VALUE, pixelWidthHeightRatio, projectionData, stereoMode, drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, selectionFlags, language, drmInitData);

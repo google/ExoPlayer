@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Предыдущий трек"</string>
-  <string name="next_description">"Следующий трек"</string>
-  <string name="pause_description">"Приостановить"</string>
-  <string name="play_description">"Воспроизвести"</string>
-  <string name="stop_description">"Остановить"</string>
-  <string name="rew_description">"Перемотать назад"</string>
-  <string name="ffw_description">"Перемотать вперед"</string>
+  <string name="exo_controls_previous_description">"Предыдущий трек"</string>
+  <string name="exo_controls_next_description">"Следующий трек"</string>
+  <string name="exo_controls_pause_description">"Приостановить"</string>
+  <string name="exo_controls_play_description">"Воспроизвести"</string>
+  <string name="exo_controls_stop_description">"Остановить"</string>
+  <string name="exo_controls_rewind_description">"Перемотать назад"</string>
+  <string name="exo_controls_fastforward_description">"Перемотать вперед"</string>
 </resources>

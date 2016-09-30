@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Avvalgi musiqa"</string>
-  <string name="next_description">"Keyingi musiqa"</string>
-  <string name="pause_description">"To‘xtatib turish"</string>
-  <string name="play_description">"Ijro qilish"</string>
-  <string name="stop_description">"To‘xtatish"</string>
-  <string name="rew_description">"Orqaga o‘tkazish"</string>
-  <string name="ffw_description">"Oldinga o‘tkazish"</string>
+  <string name="exo_controls_previous_description">"Avvalgi musiqa"</string>
+  <string name="exo_controls_next_description">"Keyingi musiqa"</string>
+  <string name="exo_controls_pause_description">"To‘xtatib turish"</string>
+  <string name="exo_controls_play_description">"Ijro qilish"</string>
+  <string name="exo_controls_stop_description">"To‘xtatish"</string>
+  <string name="exo_controls_rewind_description">"Orqaga o‘tkazish"</string>
+  <string name="exo_controls_fastforward_description">"Oldinga o‘tkazish"</string>
 </resources>

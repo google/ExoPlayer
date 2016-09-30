@@ -31,8 +31,8 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -51,7 +51,7 @@ import java.util.Locale;
   private final MappingTrackSelector selector;
   private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
 
-  private TrackInfo trackInfo;
+  private MappedTrackInfo trackInfo;
   private int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean[] trackGroupsAdaptive;
@@ -82,7 +82,7 @@ import java.util.Locale;
    * @param trackInfo The current track information.
    * @param rendererIndex The index of the renderer.
    */
-  public void showSelectionDialog(Activity activity, CharSequence title, TrackInfo trackInfo,
+  public void showSelectionDialog(Activity activity, CharSequence title, MappedTrackInfo trackInfo,
       int rendererIndex) {
     this.trackInfo = trackInfo;
     this.rendererIndex = rendererIndex;
@@ -203,11 +203,7 @@ import java.util.Locale;
 
   @Override
   public void onClick(DialogInterface dialog, int which) {
-    if (isDisabled) {
-      selector.setRendererDisabled(rendererIndex, true);
-      return;
-    }
-    selector.setRendererDisabled(rendererIndex, false);
+    selector.setRendererDisabled(rendererIndex, isDisabled);
     if (override != null) {
       selector.setSelectionOverride(rendererIndex, trackGroups, override);
     } else {

@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -148,12 +147,11 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
-      long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     Assertions.checkArgument(index == 0);
     return new ExtractorMediaPeriod(uri, dataSourceFactory.createDataSource(),
         extractorsFactory.createExtractors(), minLoadableRetryCount, eventHandler, eventListener,
-        this, callback, allocator);
+        this, allocator);
   }
 
   @Override

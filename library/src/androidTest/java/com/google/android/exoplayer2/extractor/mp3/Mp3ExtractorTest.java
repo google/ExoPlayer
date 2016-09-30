@@ -33,4 +33,13 @@ public final class Mp3ExtractorTest extends InstrumentationTestCase {
     }, "mp3/bear.mp3", getInstrumentation());
   }
 
+  public void testTrimmedMp3Sample() throws Exception {
+    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new Mp3Extractor();
+      }
+    }, "mp3/play-trimmed.mp3", getInstrumentation());
+  }
+
 }

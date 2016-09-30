@@ -18,9 +18,12 @@ package com.google.android.exoplayer2.text;
 import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.annotation.IntDef;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A compatibility wrapper for {@link CaptionStyle}.
@@ -28,25 +31,28 @@ import com.google.android.exoplayer2.util.Util;
 public final class CaptionStyleCompat {
 
   /**
+   * The type of edge, which may be none.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({EDGE_TYPE_NONE, EDGE_TYPE_OUTLINE, EDGE_TYPE_DROP_SHADOW, EDGE_TYPE_RAISED,
+      EDGE_TYPE_DEPRESSED})
+  public @interface EdgeType {}
+  /**
    * Edge type value specifying no character edges.
    */
   public static final int EDGE_TYPE_NONE = 0;
-
   /**
    * Edge type value specifying uniformly outlined character edges.
    */
   public static final int EDGE_TYPE_OUTLINE = 1;
-
   /**
    * Edge type value specifying drop-shadowed character edges.
    */
   public static final int EDGE_TYPE_DROP_SHADOW = 2;
-
   /**
    * Edge type value specifying raised bevel character edges.
    */
   public static final int EDGE_TYPE_RAISED = 3;
-
   /**
    * Edge type value specifying depressed bevel character edges.
    */
@@ -88,6 +94,7 @@ public final class CaptionStyleCompat {
    * <li>{@link #EDGE_TYPE_DEPRESSED}
    * </ul>
    */
+  @EdgeType
   public final int edgeType;
 
   /**
@@ -126,8 +133,8 @@ public final class CaptionStyleCompat {
    * @param edgeColor See {@link #edgeColor}.
    * @param typeface See {@link #typeface}.
    */
-  public CaptionStyleCompat(int foregroundColor, int backgroundColor, int windowColor, int edgeType,
-      int edgeColor, Typeface typeface) {
+  public CaptionStyleCompat(int foregroundColor, int backgroundColor, int windowColor,
+      @EdgeType int edgeType, int edgeColor, Typeface typeface) {
     this.foregroundColor = foregroundColor;
     this.backgroundColor = backgroundColor;
     this.windowColor = windowColor;
@@ -137,6 +144,7 @@ public final class CaptionStyleCompat {
   }
 
   @TargetApi(19)
+  @SuppressWarnings("ResourceType")
   private static CaptionStyleCompat createFromCaptionStyleV19(
       CaptioningManager.CaptionStyle captionStyle) {
     return new CaptionStyleCompat(
@@ -145,6 +153,7 @@ public final class CaptionStyleCompat {
   }
 
   @TargetApi(21)
+  @SuppressWarnings("ResourceType")
   private static CaptionStyleCompat createFromCaptionStyleV21(
       CaptioningManager.CaptionStyle captionStyle) {
     return new CaptionStyleCompat(

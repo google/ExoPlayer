@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Faixa anterior"</string>
-  <string name="next_description">"Faixa seguinte"</string>
-  <string name="pause_description">"Interromper"</string>
-  <string name="play_description">"Reproduzir"</string>
-  <string name="stop_description">"Parar"</string>
-  <string name="rew_description">"Rebobinar"</string>
-  <string name="ffw_description">"Avançar"</string>
+  <string name="exo_controls_previous_description">"Faixa anterior"</string>
+  <string name="exo_controls_next_description">"Faixa seguinte"</string>
+  <string name="exo_controls_pause_description">"Interromper"</string>
+  <string name="exo_controls_play_description">"Reproduzir"</string>
+  <string name="exo_controls_stop_description">"Parar"</string>
+  <string name="exo_controls_rewind_description">"Rebobinar"</string>
+  <string name="exo_controls_fastforward_description">"Avançar"</string>
 </resources>

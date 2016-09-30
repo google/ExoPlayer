@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
@@ -27,6 +28,8 @@ import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A {@link DataSource} that reads and writes a {@link Cache}. Requests are fulfilled from the cache
@@ -43,6 +46,13 @@ public final class CacheDataSource implements DataSource {
    */
   public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
 
+  /**
+   * Flags controlling the cache's behavior.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR,
+      FLAG_CACHE_UNBOUNDED_REQUESTS})
+  public @interface Flags {}
   /**
    * A flag indicating whether we will block reads if the cache key is locked. If this flag is
    * set, then we will read from upstream if the cache key is locked.
@@ -106,7 +116,7 @@ public final class CacheDataSource implements DataSource {
    * Constructs an instance with default {@link DataSource} and {@link DataSink} instances for
    * reading and writing the cache and with {@link #DEFAULT_MAX_CACHE_FILE_SIZE}.
    */
-  public CacheDataSource(Cache cache, DataSource upstream, int flags) {
+  public CacheDataSource(Cache cache, DataSource upstream, @Flags int flags) {
     this(cache, upstream, flags, DEFAULT_MAX_CACHE_FILE_SIZE);
   }
 
@@ -123,7 +133,8 @@ public final class CacheDataSource implements DataSource {
    *     exceeds this value, then the data will be fragmented into multiple cache files. The
    *     finer-grained this is the finer-grained the eviction policy can be.
    */
-  public CacheDataSource(Cache cache, DataSource upstream, int flags, long maxCacheFileSize) {
+  public CacheDataSource(Cache cache, DataSource upstream, @Flags int flags,
+      long maxCacheFileSize) {
     this(cache, upstream, new FileDataSource(), new CacheDataSink(cache, maxCacheFileSize),
         flags, null);
   }
@@ -142,7 +153,7 @@ public final class CacheDataSource implements DataSource {
    * @param eventListener An optional {@link EventListener} to receive events.
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink, int flags, EventListener eventListener) {
+      DataSink cacheWriteDataSink, @Flags int flags, EventListener eventListener) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;

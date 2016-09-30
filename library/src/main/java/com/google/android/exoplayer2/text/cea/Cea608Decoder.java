@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text.eia608;
+package com.google.android.exoplayer2.text.cea;
 
 import android.text.TextUtils;
-import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
-import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
-import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.util.LinkedList;
-import java.util.TreeSet;
 
 /**
- * A {@link SubtitleDecoder} for EIA-608 (also known as "line 21 captions" and "CEA-608").
+ * A {@link SubtitleDecoder} for CEA-608 (also known as "line 21 captions" and "EIA-608").
  */
-public final class Eia608Decoder implements SubtitleDecoder {
+public final class Cea608Decoder extends CeaDecoder {
 
-  private static final int NUM_INPUT_BUFFERS = 10;
-  private static final int NUM_OUTPUT_BUFFERS = 2;
+  private static final int NTSC_CC_FIELD_1 = 0x00;
+  private static final int CC_VALID_FLAG = 0x04;
 
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;
@@ -159,17 +155,9 @@ public final class Eia608Decoder implements SubtitleDecoder {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
-  private final LinkedList<SubtitleInputBuffer> availableInputBuffers;
-  private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
-  private final TreeSet<SubtitleInputBuffer> queuedInputBuffers;
-
   private final ParsableByteArray ccData;
 
   private final StringBuilder captionStringBuilder;
-
-  private long playbackPositionUs;
-
-  private SubtitleInputBuffer dequeuedInputBuffer;
 
   private int captionMode;
   private int captionRowCount;
@@ -181,17 +169,7 @@ public final class Eia608Decoder implements SubtitleDecoder {
   private byte repeatableControlCc1;
   private byte repeatableControlCc2;
 
-  public Eia608Decoder() {
-    availableInputBuffers = new LinkedList<>();
-    for (int i = 0; i < NUM_INPUT_BUFFERS; i++) {
-      availableInputBuffers.add(new SubtitleInputBuffer());
-    }
-    availableOutputBuffers = new LinkedList<>();
-    for (int i = 0; i < NUM_OUTPUT_BUFFERS; i++) {
-      availableOutputBuffers.add(new Eia608SubtitleOutputBuffer(this));
-    }
-    queuedInputBuffers = new TreeSet<>();
-
+  public Cea608Decoder() {
     ccData = new ParsableByteArray();
 
     captionStringBuilder = new StringBuilder();
@@ -202,101 +180,20 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   @Override
   public String getName() {
-    return "Eia608Decoder";
-  }
-
-  @Override
-  public void setPositionUs(long positionUs) {
-    playbackPositionUs = positionUs;
-  }
-
-  @Override
-  public SubtitleInputBuffer dequeueInputBuffer() throws SubtitleDecoderException {
-    Assertions.checkState(dequeuedInputBuffer == null);
-    if (availableInputBuffers.isEmpty()) {
-      return null;
-    }
-    dequeuedInputBuffer = availableInputBuffers.pollFirst();
-    return dequeuedInputBuffer;
-  }
-
-  @Override
-  public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws SubtitleDecoderException {
-    Assertions.checkArgument(inputBuffer != null);
-    Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
-    queuedInputBuffers.add(inputBuffer);
-    dequeuedInputBuffer = null;
-  }
-
-  @Override
-  public SubtitleOutputBuffer dequeueOutputBuffer() throws SubtitleDecoderException {
-    if (availableOutputBuffers.isEmpty()) {
-      return null;
-    }
-
-    // iterate through all available input buffers whose timestamps are less than or equal
-    // to the current playback position; processing input buffers for future content should
-    // be deferred until they would be applicable
-    while (!queuedInputBuffers.isEmpty()
-        && queuedInputBuffers.first().timeUs <= playbackPositionUs) {
-      SubtitleInputBuffer inputBuffer = queuedInputBuffers.pollFirst();
-
-      // If the input buffer indicates we've reached the end of the stream, we can
-      // return immediately with an output buffer propagating that
-      if (inputBuffer.isEndOfStream()) {
-        SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-        outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-        releaseInputBuffer(inputBuffer);
-        return outputBuffer;
-      }
-
-      decode(inputBuffer);
-
-      // check if we have any caption updates to report
-      if (!TextUtils.equals(captionString, lastCaptionString)) {
-        lastCaptionString = captionString;
-        if (!inputBuffer.isDecodeOnly()) {
-          SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-          outputBuffer.setContent(inputBuffer.timeUs, new Eia608Subtitle(captionString), 0);
-          releaseInputBuffer(inputBuffer);
-          return outputBuffer;
-        }
-      }
-
-      releaseInputBuffer(inputBuffer);
-    }
-
-    return null;
-  }
-
-  private void releaseInputBuffer(SubtitleInputBuffer inputBuffer) {
-    inputBuffer.clear();
-    availableInputBuffers.add(inputBuffer);
-  }
-
-  protected void releaseOutputBuffer(SubtitleOutputBuffer outputBuffer) {
-    outputBuffer.clear();
-    availableOutputBuffers.add(outputBuffer);
+    return "Cea608Decoder";
   }
 
   @Override
   public void flush() {
+    super.flush();
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
-    playbackPositionUs = 0;
     captionStringBuilder.setLength(0);
     captionString = null;
     lastCaptionString = null;
     repeatableControlSet = false;
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
-    while (!queuedInputBuffers.isEmpty()) {
-      releaseInputBuffer(queuedInputBuffers.pollFirst());
-    }
-    if (dequeuedInputBuffer != null) {
-      releaseInputBuffer(dequeuedInputBuffer);
-      dequeuedInputBuffer = null;
-    }
   }
 
   @Override
@@ -304,13 +201,32 @@ public final class Eia608Decoder implements SubtitleDecoder {
     // Do nothing
   }
 
-  private void decode(SubtitleInputBuffer inputBuffer) {
+  @Override
+  protected boolean isNewSubtitleDataAvailable() {
+    return !TextUtils.equals(captionString, lastCaptionString);
+  }
+
+  @Override
+  protected Subtitle createSubtitle() {
+    lastCaptionString = captionString;
+    return new CeaSubtitle(new Cue(captionString));
+  }
+
+  @Override
+  protected void decode(SubtitleInputBuffer inputBuffer) {
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
     boolean isRepeatableControl = false;
     while (ccData.bytesLeft() > 0) {
+      byte ccTypeAndValid = (byte) (ccData.readUnsignedByte() & 0x07);
       byte ccData1 = (byte) (ccData.readUnsignedByte() & 0x7F);
       byte ccData2 = (byte) (ccData.readUnsignedByte() & 0x7F);
+
+      // Only examine valid NTSC_CC_FIELD_1 packets
+      if (ccTypeAndValid != (CC_VALID_FLAG | NTSC_CC_FIELD_1)) {
+        // TODO: Add support for NTSC_CC_FIELD_2 packets
+        continue;
+      }
 
       // Ignore empty captions.
       if (ccData1 == 0 && ccData2 == 0) {
@@ -320,26 +236,33 @@ public final class Eia608Decoder implements SubtitleDecoder {
       captionDataProcessed = true;
 
       // Special North American character set.
+      // ccData1 - P|0|0|1|C|0|0|1
       // ccData2 - P|0|1|1|X|X|X|X
       if ((ccData1 == 0x11 || ccData1 == 0x19) && ((ccData2 & 0x70) == 0x30)) {
+        // TODO: Make use of the channel bit
         captionStringBuilder.append(getSpecialChar(ccData2));
         continue;
       }
 
-      // Extended Spanish/Miscellaneous and French character set.
+      // Extended Western European character set.
+      // ccData1 - P|0|0|1|C|0|1|S
       // ccData2 - P|0|1|X|X|X|X|X
-      if ((ccData1 == 0x12 || ccData1 == 0x1A) && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
-        captionStringBuilder.append(getExtendedEsFrChar(ccData2));
-        continue;
-      }
+      if ((ccData2 & 0x60) == 0x20) {
+        // Extended Spanish/Miscellaneous and French character set (S = 0).
+        if (ccData1 == 0x12 || ccData1 == 0x1A) {
+          // TODO: Make use of the channel bit
+          backspace(); // Remove standard equivalent of the special extended char.
+          captionStringBuilder.append(getExtendedEsFrChar(ccData2));
+          continue;
+        }
 
-      // Extended Portuguese and German/Danish character set.
-      // ccData2 - P|0|1|X|X|X|X|X
-      if ((ccData1 == 0x13 || ccData1 == 0x1B) && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
-        captionStringBuilder.append(getExtendedPtDeChar(ccData2));
-        continue;
+        // Extended Portuguese and German/Danish character set (S = 1).
+        if (ccData1 == 0x13 || ccData1 == 0x1B) {
+          // TODO: Make use of the channel bit
+          backspace(); // Remove standard equivalent of the special extended char.
+          captionStringBuilder.append(getExtendedPtDeChar(ccData2));
+          continue;
+        }
       }
 
       // Control character.
@@ -367,15 +290,17 @@ public final class Eia608Decoder implements SubtitleDecoder {
 
   private boolean handleCtrl(byte cc1, byte cc2) {
     boolean isRepeatableControl = isRepeatable(cc1);
-    if (isRepeatableControl && repeatableControlSet
-        && repeatableControlCc1 == cc1
-        && repeatableControlCc2 == cc2) {
-      repeatableControlSet = false;
-      return true;
-    } else if (isRepeatableControl) {
-      repeatableControlSet = true;
-      repeatableControlCc1 = cc1;
-      repeatableControlCc2 = cc2;
+    if (isRepeatableControl) {
+      if (repeatableControlSet
+          && repeatableControlCc1 == cc1
+          && repeatableControlCc2 == cc2) {
+        repeatableControlSet = false;
+        return true;
+      } else {
+        repeatableControlSet = true;
+        repeatableControlCc1 = cc1;
+        repeatableControlCc2 = cc2;
+      }
     }
     if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
@@ -526,16 +451,16 @@ public final class Eia608Decoder implements SubtitleDecoder {
   }
 
   /**
-   * Inspects an sei message to determine whether it contains EIA-608.
+   * Inspects an sei message to determine whether it contains CEA-608.
    * <p>
    * The position of {@code payload} is left unchanged.
    *
    * @param payloadType The payload type of the message.
    * @param payloadLength The length of the payload.
    * @param payload A {@link ParsableByteArray} containing the payload.
-   * @return Whether the sei message contains EIA-608.
+   * @return Whether the sei message contains CEA-608.
    */
-  public static boolean isSeiMessageEia608(int payloadType, int payloadLength,
+  public static boolean isSeiMessageCea608(int payloadType, int payloadLength,
       ParsableByteArray payload) {
     if (payloadType != PAYLOAD_TYPE_CC || payloadLength < 8) {
       return false;

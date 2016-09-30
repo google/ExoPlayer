@@ -39,14 +39,14 @@ android {
 
     productFlavors {
         demo
-        demo_ext
+        demoExt
     }
 }
 
 dependencies {
     compile project(':library')
-    demo_extCompile project(path: ':extension-ffmpeg')
-    demo_extCompile project(path: ':extension-flac')
-    demo_extCompile project(path: ':extension-opus')
-    demo_extCompile project(path: ':extension-vp9')
+    demoExtCompile project(path: ':extension-ffmpeg')
+    demoExtCompile project(path: ':extension-flac')
+    demoExtCompile project(path: ':extension-opus')
+    demoExtCompile project(path: ':extension-vp9')
 }

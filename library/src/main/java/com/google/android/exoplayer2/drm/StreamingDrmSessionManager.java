@@ -40,7 +40,7 @@ import java.util.UUID;
  * A {@link DrmSessionManager} that supports streaming playbacks using {@link MediaDrm}.
  */
 @TargetApi(18)
-public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager,
+public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T>,
     DrmSession<T> {
 
   /**
@@ -87,6 +87,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
 
   private int openCount;
   private boolean provisioningInProgress;
+  @DrmSession.State
   private int state;
   private T mediaCrypto;
   private Exception lastException;
@@ -267,7 +268,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
-  public void releaseSession(DrmSession session) {
+  public void releaseSession(DrmSession<T> session) {
     if (--openCount != 0) {
       return;
     }
@@ -291,6 +292,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
   // DrmSession implementation.
 
   @Override
+  @DrmSession.State
   public final int getState() {
     return state;
   }

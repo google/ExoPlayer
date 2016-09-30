@@ -29,7 +29,7 @@ public interface SequenceableLoader {
 
     /**
      * Called by the loader to indicate that it wishes for its {@link #continueLoading(long)} method
-     * to be called when it can continue to load data.
+     * to be called when it can continue to load data. Called on the playback thread.
      */
     void onContinueLoadingRequested(T source);
 

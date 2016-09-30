@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text.eia608;
+package com.google.android.exoplayer2.text.cea;
 
-import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 
 /**
- * A {@link Subtitle} output from an {@link Eia608Decoder}.
+ * A {@link SubtitleOutputBuffer} for {@link CeaDecoder}s.
  */
-/* package */ final class Eia608SubtitleOutputBuffer extends SubtitleOutputBuffer {
+public final class CeaOutputBuffer extends SubtitleOutputBuffer {
 
-  private Eia608Decoder owner;
+  private final CeaDecoder owner;
 
   /**
    * @param owner The decoder that owns this buffer.
    */
-  public Eia608SubtitleOutputBuffer(Eia608Decoder owner) {
+  public CeaOutputBuffer(CeaDecoder owner) {
     super();
     this.owner = owner;
   }

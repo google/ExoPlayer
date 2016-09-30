@@ -55,6 +55,7 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    compile 'com.android.support:support-annotations:24.2.0'
 }
 
 android.libraryVariants.all { variant ->
@@ -95,7 +96,7 @@ publish {
     userOrg = 'google'
     groupId = 'com.google.android.exoplayer'
     artifactId = 'exoplayer'
-    version = 'r2.0.0'
+    version = 'r2.0.1'
     description = 'The ExoPlayer library.'
     website = 'https://github.com/google/ExoPlayer'
 }

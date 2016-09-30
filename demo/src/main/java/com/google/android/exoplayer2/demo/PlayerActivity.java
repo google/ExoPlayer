@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -55,15 +56,15 @@ import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.TrackInfo;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelections;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
@@ -77,7 +78,7 @@ import java.util.UUID;
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
 public class PlayerActivity extends Activity implements OnClickListener, ExoPlayer.EventListener,
-    MappingTrackSelector.EventListener, PlaybackControlView.VisibilityListener {
+    TrackSelector.EventListener<MappedTrackInfo>, PlaybackControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -106,7 +107,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private TextView debugTextView;
   private Button retryButton;
 
-  private String userAgent;
   private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
   private MappingTrackSelector trackSelector;
@@ -125,7 +125,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     shouldAutoPlay = true;
-    userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
@@ -203,7 +202,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       initializePlayer();
     } else if (view.getParent() == debugRootView) {
       trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
-          trackSelector.getTrackInfo(), (int) view.getTag());
+          trackSelector.getCurrentSelections().info, (int) view.getTag());
     }
   }
 
@@ -222,7 +221,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
-      DrmSessionManager drmSessionManager = null;
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (drmSchemeUuid != null) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
@@ -316,15 +315,15 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
         : uri.getLastPathSegment());
     switch (type) {
-      case Util.TYPE_SS:
+      case C.TYPE_SS:
         return new SsMediaSource(uri, buildDataSourceFactory(false),
             new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
-      case Util.TYPE_DASH:
+      case C.TYPE_DASH:
         return new DashMediaSource(uri, buildDataSourceFactory(false),
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
-      case Util.TYPE_HLS:
+      case C.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
-      case Util.TYPE_OTHER:
+      case C.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
       default: {
@@ -333,9 +332,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     }
   }
 
-  private DrmSessionManager buildDrmSessionManager(UUID uuid, String licenseUrl,
-      Map<String, String> keyRequestProperties)
-      throws UnsupportedDrmException {
+  private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(UUID uuid,
+      String licenseUrl, Map<String, String> keyRequestProperties) throws UnsupportedDrmException {
     if (Util.SDK_INT < 18) {
       return null;
     }
@@ -376,8 +374,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
    * @return A new DataSource factory.
    */
   private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-    return new DefaultDataSourceFactory(this, useBandwidthMeter ? BANDWIDTH_METER : null,
-        buildHttpDataSourceFactory(useBandwidthMeter));
+    return ((DemoApplication) getApplication())
+        .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   /**
@@ -388,7 +386,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
    * @return A new HttpDataSource factory.
    */
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
-    return new DefaultHttpDataSourceFactory(userAgent, useBandwidthMeter ? BANDWIDTH_METER : null);
+    return ((DemoApplication) getApplication())
+        .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   // ExoPlayer.EventListener implementation
@@ -452,8 +451,9 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   // MappingTrackSelector.EventListener implementation
 
   @Override
-  public void onTracksChanged(TrackInfo trackInfo) {
+  public void onTrackSelectionsChanged(TrackSelections<? extends MappedTrackInfo> trackSelections) {
     updateButtonVisibilities();
+    MappedTrackInfo trackInfo = trackSelections.info;
     if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
       showToast(R.string.error_unsupported_video);
     }
@@ -474,14 +474,14 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       return;
     }
 
-    TrackInfo trackInfo = trackSelector.getTrackInfo();
-    if (trackInfo == null) {
+    TrackSelections<MappedTrackInfo> trackSelections = trackSelector.getCurrentSelections();
+    if (trackSelections == null) {
       return;
     }
 
-    int rendererCount = trackInfo.rendererCount;
+    int rendererCount = trackSelections.length;
     for (int i = 0; i < rendererCount; i++) {
-      TrackGroupArray trackGroups = trackInfo.getTrackGroups(i);
+      TrackGroupArray trackGroups = trackSelections.info.getTrackGroups(i);
       if (trackGroups.length != 0) {
         Button button = new Button(this);
         int label;

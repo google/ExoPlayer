@@ -15,18 +15,29 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import android.support.annotation.IntDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Represents an HLS playlist.
  */
 public abstract class HlsPlaylist {
 
+  /**
+   * The type of playlist.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TYPE_MASTER, TYPE_MEDIA})
+  public @interface Type {}
   public static final int TYPE_MASTER = 0;
   public static final int TYPE_MEDIA = 1;
 
   public final String baseUri;
+  @Type
   public final int type;
 
-  protected HlsPlaylist(String baseUri, int type) {
+  protected HlsPlaylist(String baseUri, @Type int type) {
     this.baseUri = baseUri;
     this.type = type;
   }

@@ -293,7 +293,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     MediaCrypto mediaCrypto = null;
     boolean drmSessionRequiresSecureDecoder = false;
     if (drmSession != null) {
-      int drmSessionState = drmSession.getState();
+      @DrmSession.State int drmSessionState = drmSession.getState();
       if (drmSessionState == DrmSession.STATE_ERROR) {
         throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
       } else if (drmSessionState == DrmSession.STATE_OPENED
@@ -682,7 +682,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (drmSession == null) {
       return false;
     }
-    int drmSessionState = drmSession.getState();
+    @DrmSession.State int drmSessionState = drmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
       throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
     }

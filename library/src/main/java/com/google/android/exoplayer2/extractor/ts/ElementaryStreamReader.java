@@ -15,13 +15,60 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Extracts individual samples from an elementary media stream, preserving original order.
  */
-/* package */ abstract class ElementaryStreamReader {
+public abstract class ElementaryStreamReader {
+
+  /**
+   * Factory of {@link ElementaryStreamReader} instances.
+   */
+  public interface Factory {
+
+    /**
+     * Returns an {@link ElementaryStreamReader} for a given PMT entry. May return null if the
+     * stream type is not supported or if the stream already has a reader assigned to it.
+     *
+     * @param pid The pid for the PMT entry.
+     * @param streamType One of the {@link TsExtractor}{@code .TS_STREAM_TYPE_*} constants defining
+     *     the type of the stream.
+     * @param esInfo The descriptor information linked to the elementary stream.
+     * @param output The {@link ExtractorOutput} that provides the {@link TrackOutput}s for the
+     *     created readers.
+     * @return An {@link ElementaryStreamReader} for the elementary streams carried by the provided
+     *     pid. {@code null} if the stream is not supported or if it should be ignored.
+     */
+    ElementaryStreamReader onPmtEntry(int pid, int streamType, EsInfo esInfo,
+        ExtractorOutput output);
+
+  }
+
+  /**
+   * Holds descriptor information associated with an elementary stream.
+   */
+  public static final class EsInfo {
+
+    public final int streamType;
+    public String language;
+    public byte[] descriptorBytes;
+
+    /**
+     * @param streamType The type of the stream as defined by the
+     *     {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
+     * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
+     * @param descriptorBytes The descriptor bytes associated to the stream.
+     */
+    public EsInfo(int streamType, String language, byte[] descriptorBytes) {
+      this.streamType = streamType;
+      this.language = language;
+      this.descriptorBytes = descriptorBytes;
+    }
+
+  }
 
   protected final TrackOutput output;
 

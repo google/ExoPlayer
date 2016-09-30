@@ -66,9 +66,12 @@ import com.google.android.exoplayer2.util.Util;
   private CharSequence cueText;
   private Alignment cueTextAlignment;
   private float cueLine;
+  @Cue.LineType
   private int cueLineType;
+  @Cue.AnchorType
   private int cueLineAnchor;
   private float cuePosition;
+  @Cue.AnchorType
   private int cuePositionAnchor;
   private float cueSize;
   private boolean applyEmbeddedStyles;
@@ -76,6 +79,7 @@ import com.google.android.exoplayer2.util.Util;
   private int backgroundColor;
   private int windowColor;
   private int edgeColor;
+  @CaptionStyleCompat.EdgeType
   private int edgeType;
   private float textSizePx;
   private float bottomPaddingFraction;

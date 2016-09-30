@@ -13,26 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text.eia608;
+package com.google.android.exoplayer2.text.cea;
 
-import android.text.TextUtils;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * A representation of an EIA-608 subtitle.
+ * A representation of a CEA subtitle.
  */
-/* package */ final class Eia608Subtitle implements Subtitle {
+/* package */ final class CeaSubtitle implements Subtitle {
 
-  private final String text;
+  private final List<Cue> cues;
 
   /**
-   * @param text The subtitle text.
+   * @param cue The subtitle cue.
    */
-  public Eia608Subtitle(String text) {
-    this.text = text;
+  public CeaSubtitle(Cue cue) {
+    if (cue == null) {
+      cues = Collections.emptyList();
+    } else {
+      cues = Collections.singletonList(cue);
+    }
   }
 
   @Override
@@ -52,11 +55,8 @@ import java.util.List;
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    if (TextUtils.isEmpty(text)) {
-      return Collections.emptyList();
-    } else {
-      return Collections.singletonList(new Cue(text));
-    }
+    return cues;
+
   }
 
 }

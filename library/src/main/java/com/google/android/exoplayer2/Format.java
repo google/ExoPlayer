@@ -40,20 +40,6 @@ public final class Format implements Parcelable {
   public static final int NO_VALUE = -1;
 
   /**
-   * Indicates that the track should be selected if user preferences do not state otherwise.
-   */
-  public static final int SELECTION_FLAG_DEFAULT = 1;
-  /**
-   * Indicates that the track must be displayed. Only applies to text tracks.
-   */
-  public static final int SELECTION_FLAG_FORCED = 2;
-  /**
-   * Indicates that the player may choose to play the track in absence of an explicit user
-   * preference.
-   */
-  public static final int SELECTION_FLAG_AUTOSELECT = 4;
-
-  /**
    * A value for {@link #subsampleOffsetUs} to indicate that subsample timestamps are relative to
    * the timestamps of their parent samples.
    */
@@ -131,6 +117,7 @@ public final class Format implements Parcelable {
    * modes are {@link C#STEREO_MODE_MONO}, {@link C#STEREO_MODE_TOP_BOTTOM}, {@link
    * C#STEREO_MODE_LEFT_RIGHT}.
    */
+  @C.StereoMode
   public final int stereoMode;
   /**
    * The projection data for 360/VR video, or null if not applicable.
@@ -153,6 +140,7 @@ public final class Format implements Parcelable {
    * {@link C#ENCODING_PCM_24BIT} and {@link C#ENCODING_PCM_32BIT}. Set to {@link #NO_VALUE} for
    * other media types.
    */
+  @C.PcmEncoding
   public final int pcmEncoding;
   /**
    * The number of samples to trim from the start of the decoded audio stream.
@@ -177,6 +165,7 @@ public final class Format implements Parcelable {
   /**
    * Track selection flags.
    */
+  @C.SelectionFlags
   public final int selectionFlags;
 
   /**
@@ -218,7 +207,7 @@ public final class Format implements Parcelable {
   public static Format createVideoSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, int maxInputSize, int width, int height, float frameRate,
       List<byte[]> initializationData, int rotationDegrees, float pixelWidthHeightRatio,
-      byte[] projectionData, int stereoMode, DrmInitData drmInitData) {
+      byte[] projectionData, @C.StereoMode int stereoMode, DrmInitData drmInitData) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, width, height,
         frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, 0, null, OFFSET_SAMPLE_RELATIVE, initializationData,
@@ -229,7 +218,7 @@ public final class Format implements Parcelable {
 
   public static Format createAudioContainerFormat(String id, String containerMimeType,
       String sampleMimeType, String codecs, int bitrate, int channelCount, int sampleRate,
-      List<byte[]> initializationData, int selectionFlags, String language) {
+      List<byte[]> initializationData, @C.SelectionFlags int selectionFlags, String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, channelCount, sampleRate, NO_VALUE,
         NO_VALUE, NO_VALUE, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, initializationData,
@@ -238,25 +227,26 @@ public final class Format implements Parcelable {
 
   public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, int maxInputSize, int channelCount, int sampleRate,
-      List<byte[]> initializationData, DrmInitData drmInitData, int selectionFlags,
-      String language) {
+      List<byte[]> initializationData, DrmInitData drmInitData,
+      @C.SelectionFlags int selectionFlags, String language) {
     return createAudioSampleFormat(id, sampleMimeType, codecs, bitrate, maxInputSize, channelCount,
         sampleRate, NO_VALUE, initializationData, drmInitData, selectionFlags, language);
   }
 
   public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
-      int bitrate, int maxInputSize, int channelCount, int sampleRate, int pcmEncoding,
-      List<byte[]> initializationData, DrmInitData drmInitData, int selectionFlags,
-      String language) {
+      int bitrate, int maxInputSize, int channelCount, int sampleRate,
+      @C.PcmEncoding int pcmEncoding, List<byte[]> initializationData, DrmInitData drmInitData,
+      @C.SelectionFlags int selectionFlags, String language) {
     return createAudioSampleFormat(id, sampleMimeType, codecs, bitrate, maxInputSize, channelCount,
         sampleRate, pcmEncoding, NO_VALUE, NO_VALUE, initializationData, drmInitData,
         selectionFlags, language);
   }
 
   public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
-      int bitrate, int maxInputSize, int channelCount, int sampleRate, int pcmEncoding,
-      int encoderDelay, int encoderPadding, List<byte[]> initializationData,
-      DrmInitData drmInitData, int selectionFlags, String language) {
+      int bitrate, int maxInputSize, int channelCount, int sampleRate,
+      @C.PcmEncoding int pcmEncoding, int encoderDelay, int encoderPadding,
+      List<byte[]> initializationData, DrmInitData drmInitData,
+      @C.SelectionFlags int selectionFlags, String language) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, channelCount, sampleRate, pcmEncoding,
         encoderDelay, encoderPadding, selectionFlags, language, OFFSET_SAMPLE_RELATIVE,
@@ -266,20 +256,21 @@ public final class Format implements Parcelable {
   // Text.
 
   public static Format createTextContainerFormat(String id, String containerMimeType,
-      String sampleMimeType, String codecs, int bitrate, int selectionFlags, String language) {
+      String sampleMimeType, String codecs, int bitrate, @C.SelectionFlags int selectionFlags,
+      String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, selectionFlags, language, OFFSET_SAMPLE_RELATIVE, null, null);
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
-      int bitrate, int selectionFlags, String language, DrmInitData drmInitData) {
+      int bitrate, @C.SelectionFlags int selectionFlags, String language, DrmInitData drmInitData) {
     return createTextSampleFormat(id, sampleMimeType, codecs, bitrate, selectionFlags, language,
         drmInitData, OFFSET_SAMPLE_RELATIVE);
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
-      int bitrate, int selectionFlags, String language, DrmInitData drmInitData,
+      int bitrate, @C.SelectionFlags int selectionFlags, String language, DrmInitData drmInitData,
       long subsampleOffsetUs) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
@@ -313,10 +304,10 @@ public final class Format implements Parcelable {
 
   /* package */ Format(String id, String containerMimeType, String sampleMimeType, String codecs,
       int bitrate, int maxInputSize, int width, int height, float frameRate, int rotationDegrees,
-      float pixelWidthHeightRatio, byte[] projectionData, int stereoMode, int channelCount,
-      int sampleRate, int pcmEncoding, int encoderDelay, int encoderPadding, int selectionFlags,
-      String language, long subsampleOffsetUs, List<byte[]> initializationData,
-      DrmInitData drmInitData) {
+      float pixelWidthHeightRatio, byte[] projectionData, @C.StereoMode int stereoMode,
+      int channelCount, int sampleRate, @C.PcmEncoding int pcmEncoding, int encoderDelay,
+      int encoderPadding, @C.SelectionFlags int selectionFlags, String language,
+      long subsampleOffsetUs, List<byte[]> initializationData, DrmInitData drmInitData) {
     this.id = id;
     this.containerMimeType = containerMimeType;
     this.sampleMimeType = sampleMimeType;
@@ -343,6 +334,7 @@ public final class Format implements Parcelable {
     this.drmInitData = drmInitData;
   }
 
+  @SuppressWarnings("ResourceType")
   /* package */ Format(Parcel in) {
     id = in.readString();
     containerMimeType = in.readString();
@@ -388,8 +380,8 @@ public final class Format implements Parcelable {
         selectionFlags, language, subsampleOffsetUs, initializationData, drmInitData);
   }
 
-  public Format copyWithContainerInfo(String id, int bitrate, int width, int height,
-      int selectionFlags, String language) {
+  public Format copyWithContainerInfo(String id, String codecs, int bitrate, int width, int height,
+      @C.SelectionFlags int selectionFlags, String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
         width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData,
         stereoMode, channelCount, sampleRate, pcmEncoding, encoderDelay, encoderPadding,
@@ -402,7 +394,7 @@ public final class Format implements Parcelable {
     String codecs = this.codecs == null ? manifestFormat.codecs : this.codecs;
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
     float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
-    int selectionFlags = this.selectionFlags |  manifestFormat.selectionFlags;
+    @C.SelectionFlags int selectionFlags = this.selectionFlags |  manifestFormat.selectionFlags;
     String language = this.language == null ? manifestFormat.language : this.language;
     DrmInitData drmInitData = (preferManifestDrmInitData && manifestFormat.drmInitData != null)
         || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;

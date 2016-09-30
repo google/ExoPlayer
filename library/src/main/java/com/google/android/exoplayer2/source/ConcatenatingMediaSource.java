@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -79,12 +78,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Callback callback, Allocator allocator,
-      long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     int sourceIndex = timeline.getSourceIndexForPeriod(index);
     int periodIndexInSource = index - timeline.getFirstPeriodIndexInSource(sourceIndex);
-    MediaPeriod mediaPeriod = mediaSources[sourceIndex].createPeriod(periodIndexInSource, callback,
-        allocator, positionUs);
+    MediaPeriod mediaPeriod = mediaSources[sourceIndex].createPeriod(periodIndexInSource, allocator,
+        positionUs);
     sourceIndexByMediaPeriod.put(mediaPeriod, sourceIndex);
     return mediaPeriod;
   }

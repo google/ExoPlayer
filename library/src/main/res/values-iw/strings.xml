@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"הרצועה הקודמת"</string>
-  <string name="next_description">"הרצועה הבאה"</string>
-  <string name="pause_description">"השהה"</string>
-  <string name="play_description">"הפעל"</string>
-  <string name="stop_description">"הפסק"</string>
-  <string name="rew_description">"הרץ אחורה"</string>
-  <string name="ffw_description">"הרץ קדימה"</string>
+  <string name="exo_controls_previous_description">"הרצועה הקודמת"</string>
+  <string name="exo_controls_next_description">"הרצועה הבאה"</string>
+  <string name="exo_controls_pause_description">"השהה"</string>
+  <string name="exo_controls_play_description">"הפעל"</string>
+  <string name="exo_controls_stop_description">"הפסק"</string>
+  <string name="exo_controls_rewind_description">"הרץ אחורה"</string>
+  <string name="exo_controls_fastforward_description">"הרץ קדימה"</string>
 </resources>

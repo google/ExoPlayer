@@ -153,8 +153,7 @@ public final class PsExtractor implements Extractor {
       input.peekFully(psPacketBuffer.data, 0, 10);
 
       // We only care about the pack_stuffing_length in here, skip the first 77 bits.
-      psPacketBuffer.setPosition(0);
-      psPacketBuffer.skipBytes(9);
+      psPacketBuffer.setPosition(9);
 
       // Last 3 bits is the length.
       int packStuffingLength = psPacketBuffer.readUnsignedByte() & 0x07;
@@ -209,7 +208,7 @@ public final class PsExtractor implements Extractor {
       }
     }
 
-    // The next 2 bytes are the length, once we have that we can consume the complete packet.
+    // The next 2 bytes are the length. Once we have that we can consume the complete packet.
     input.peekFully(psPacketBuffer.data, 0, 2);
     psPacketBuffer.setPosition(0);
     int payloadLength = psPacketBuffer.readUnsignedShort();
@@ -219,14 +218,10 @@ public final class PsExtractor implements Extractor {
       // Just skip this data.
       input.skipFully(pesLength);
     } else {
-      if (psPacketBuffer.capacity() < pesLength) {
-        // Reallocate for this and future packets.
-        psPacketBuffer.reset(new byte[pesLength], pesLength);
-      }
+      psPacketBuffer.reset(pesLength);
       // Read the whole packet and the header for consumption.
       input.readFully(psPacketBuffer.data, 0, pesLength);
       psPacketBuffer.setPosition(6);
-      psPacketBuffer.setLimit(pesLength);
       payloadReader.consume(psPacketBuffer);
       psPacketBuffer.setLimit(psPacketBuffer.capacity());
     }

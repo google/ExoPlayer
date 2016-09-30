@@ -15,11 +15,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="prev_description">"Pista anterior"</string>
-  <string name="next_description">"Seguinte pista"</string>
-  <string name="pause_description">"Pausar"</string>
-  <string name="play_description">"Reproducir"</string>
-  <string name="stop_description">"Deter"</string>
-  <string name="rew_description">"Rebobinar"</string>
-  <string name="ffw_description">"Avance rápido"</string>
+  <string name="exo_controls_previous_description">"Pista anterior"</string>
+  <string name="exo_controls_next_description">"Seguinte pista"</string>
+  <string name="exo_controls_pause_description">"Pausar"</string>
+  <string name="exo_controls_play_description">"Reproducir"</string>
+  <string name="exo_controls_stop_description">"Deter"</string>
+  <string name="exo_controls_rewind_description">"Rebobinar"</string>
+  <string name="exo_controls_fastforward_description">"Avance rápido"</string>
 </resources>

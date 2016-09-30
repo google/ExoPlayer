@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.text.Cue;
 
   public final float position;
   public final float line;
+  @Cue.LineType
   public final int lineType;
   public final float width;
 
@@ -31,7 +32,7 @@ import com.google.android.exoplayer2.text.Cue;
     this(Cue.DIMEN_UNSET, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
   }
 
-  public TtmlRegion(float position, float line, int lineType, float width) {
+  public TtmlRegion(float position, float line, @Cue.LineType int lineType, float width) {
     this.position = position;
     this.line = line;
     this.lineType = lineType;

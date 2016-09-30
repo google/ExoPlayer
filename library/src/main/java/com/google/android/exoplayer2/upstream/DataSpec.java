@@ -16,8 +16,11 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
 /**
@@ -25,6 +28,12 @@ import java.util.Arrays;
  */
 public final class DataSpec {
 
+  /**
+   * The flags that apply to any request for data.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_ALLOW_GZIP})
+  public @interface Flags {}
   /**
    * Permits an underlying network stack to request that the server use gzip compression.
    * <p>
@@ -69,6 +78,7 @@ public final class DataSpec {
   /**
    * Request flags. Currently {@link #FLAG_ALLOW_GZIP} is the only supported flag.
    */
+  @Flags
   public final int flags;
 
   /**
@@ -86,7 +96,7 @@ public final class DataSpec {
    * @param uri {@link #uri}.
    * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, int flags) {
+  public DataSpec(Uri uri, @Flags int flags) {
     this(uri, 0, C.LENGTH_UNSET, null, flags);
   }
 
@@ -111,7 +121,7 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key, int flags) {
+  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key, @Flags int flags) {
     this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, flags);
   }
 
@@ -127,7 +137,7 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    */
   public DataSpec(Uri uri, long absoluteStreamPosition, long position, long length, String key,
-      int flags) {
+      @Flags int flags) {
     this(uri, null, absoluteStreamPosition, position, length, key, flags);
   }
 
@@ -144,7 +154,7 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    */
   public DataSpec(Uri uri, byte[] postBody, long absoluteStreamPosition, long position, long length,
-      String key, int flags) {
+      String key, @Flags int flags) {
     Assertions.checkArgument(absoluteStreamPosition >= 0);
     Assertions.checkArgument(position >= 0);
     Assertions.checkArgument(length > 0 || length == C.LENGTH_UNSET);

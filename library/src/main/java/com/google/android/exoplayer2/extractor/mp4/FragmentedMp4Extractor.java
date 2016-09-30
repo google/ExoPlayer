@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -38,6 +39,8 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +68,13 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
 
   /**
+   * Flags controlling the behavior of the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
+      FLAG_WORKAROUND_IGNORE_TFDT_BOX, FLAG_SIDELOADED})
+  public @interface Flags {}
+  /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
    * The workaround overrides the sync frame flags in the stream, forcing them to false except for
    * the first sample in each segment.
@@ -72,12 +82,10 @@ public final class FragmentedMp4Extractor implements Extractor {
    * This flag does nothing if the stream is not a video stream.
    */
   public static final int FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
-
   /**
    * Flag to ignore any tfdt boxes in the stream.
    */
   public static final int FLAG_WORKAROUND_IGNORE_TFDT_BOX = 2;
-
   /**
    * Flag to indicate that the {@link Track} was sideloaded, instead of being declared by the MP4
    * container.
@@ -95,6 +103,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
   // Workarounds.
+  @Flags
   private final int flags;
   private final Track sideloadedTrack;
 
@@ -135,18 +144,18 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   /**
-   * @param flags Flags to allow parsing of faulty streams.
+   * @param flags Flags that control the extractor's behavior.
    */
-  public FragmentedMp4Extractor(int flags) {
+  public FragmentedMp4Extractor(@Flags int flags) {
     this(flags, null);
   }
 
   /**
-   * @param flags Flags to allow parsing of faulty streams.
+   * @param flags Flags that control the extractor's behavior.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor
    *     will not receive a moov box in the input data.
    */
-  public FragmentedMp4Extractor(int flags, Track sideloadedTrack) {
+  public FragmentedMp4Extractor(@Flags int flags, Track sideloadedTrack) {
     this.sideloadedTrack = sideloadedTrack;
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
@@ -422,7 +431,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private static void parseMoof(ContainerAtom moof, SparseArray<TrackBundle> trackBundleArray,
-      int flags, byte[] extendedTypeScratch) throws ParserException {
+      @Flags int flags, byte[] extendedTypeScratch) throws ParserException {
     int moofContainerChildrenSize = moof.containerChildren.size();
     for (int i = 0; i < moofContainerChildrenSize; i++) {
       Atom.ContainerAtom child = moof.containerChildren.get(i);
@@ -437,7 +446,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    * Parses a traf atom (defined in 14496-12).
    */
   private static void parseTraf(ContainerAtom traf, SparseArray<TrackBundle> trackBundleArray,
-      int flags, byte[] extendedTypeScratch) throws ParserException {
+      @Flags int flags, byte[] extendedTypeScratch) throws ParserException {
     LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
     TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray, flags);
     if (trackBundle == null) {
@@ -488,7 +497,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private static void parseTruns(ContainerAtom traf, TrackBundle trackBundle, long decodeTime,
-      int flags) {
+      @Flags int flags) {
     int trunCount = 0;
     int totalSampleCount = 0;
     List<LeafAtom> leafChildren = traf.leafChildren;
@@ -643,8 +652,8 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @param trun The trun atom to decode.
    * @return The starting position of samples for the next run.
    */
-  private static int parseTrun(TrackBundle trackBundle, int index, long decodeTime, int flags,
-      ParsableByteArray trun, int trackRunStart) {
+  private static int parseTrun(TrackBundle trackBundle, int index, long decodeTime,
+      @Flags int flags, ParsableByteArray trun, int trackRunStart) {
     trun.setPosition(Atom.HEADER_SIZE);
     int fullAtom = trun.readInt();
     int atomFlags = Atom.parseFullAtomFlags(fullAtom);
@@ -994,7 +1003,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
-    int sampleFlags = (fragment.definesEncryptionData ? C.BUFFER_FLAG_ENCRYPTED : 0)
+    @C.BufferFlags int sampleFlags = (fragment.definesEncryptionData ? C.BUFFER_FLAG_ENCRYPTED : 0)
         | (fragment.sampleIsSyncFrameTable[sampleIndex] ? C.BUFFER_FLAG_KEY_FRAME : 0);
     int sampleDescriptionIndex = fragment.header.sampleDescriptionIndex;
     byte[] encryptionKey = null;

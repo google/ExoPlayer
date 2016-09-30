@@ -79,6 +79,11 @@ import java.util.Arrays;
   }
 
   @Override
+  public void prepare(Callback callback) {
+    callback.onPrepared(this);
+  }
+
+  @Override
   public void maybeThrowPrepareError() throws IOException {
     loader.maybeThrowError();
   }

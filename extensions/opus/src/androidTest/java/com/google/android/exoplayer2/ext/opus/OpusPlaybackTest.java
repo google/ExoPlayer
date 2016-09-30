@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.opus;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.Looper;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -71,7 +72,7 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     public void run() {
       Looper.prepare();
       LibopusAudioRenderer audioRenderer = new LibopusAudioRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(null);
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector(new Handler());
       player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(

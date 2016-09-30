@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -37,6 +38,8 @@ import java.util.List;
  * Utility methods for parsing MP4 format atom payloads according to ISO 14496-12.
  */
 /* package */ final class AtomParsers {
+
+  private static final String TAG = "AtomParsers";
 
   private static final int TYPE_vide = Util.getIntegerCodeForString("vide");
   private static final int TYPE_soun = Util.getIntegerCodeForString("soun");
@@ -248,11 +251,16 @@ import java.util.List;
         remainingTimestampOffsetChanges--;
       }
 
-      // Check all the expected samples have been seen.
-      Assertions.checkArgument(remainingSynchronizationSamples == 0);
-      Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
-      Assertions.checkArgument(remainingSamplesInChunk == 0);
-      Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
+      // If the stbl's child boxes are not consistent the container is malformed, but the stream may
+      // still be playable.
+      if (remainingSynchronizationSamples != 0 || remainingSamplesAtTimestampDelta != 0
+          || remainingSamplesInChunk != 0 || remainingTimestampDeltaChanges != 0) {
+        Log.w(TAG, "Inconsistent stbl box for track " + track.id
+            + ": remainingSynchronizationSamples " + remainingSynchronizationSamples
+            + ", remainingSamplesAtTimestampDelta " + remainingSamplesAtTimestampDelta
+            + ", remainingSamplesInChunk " + remainingSamplesInChunk
+            + ", remainingTimestampDeltaChanges " + remainingTimestampDeltaChanges);
+      }
     } else {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
       int[] chunkSampleCounts = new int[chunkIterator.length];
@@ -636,7 +644,7 @@ import java.util.List;
             0 /* subsample timing is absolute */);
       } else if (childAtomType == Atom.TYPE_c608) {
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_EIA608, null, Format.NO_VALUE, 0, language, drmInitData);
+            MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, language, drmInitData);
         out.requiredSampleTransformation = Track.TRANSFORMATION_CEA608_CDAT;
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -665,6 +673,7 @@ import java.util.List;
     List<byte[]> initializationData = null;
     String mimeType = null;
     byte[] projectionData = null;
+    @C.StereoMode
     int stereoMode = Format.NO_VALUE;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -889,7 +898,7 @@ import java.util.List;
 
     if (out.format == null && mimeType != null) {
       // TODO: Determine the correct PCM encoding.
-      int pcmEncoding =
+      @C.PcmEncoding int pcmEncoding =
           MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT : Format.NO_VALUE;
       out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
           Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
@@ -1169,6 +1178,7 @@ import java.util.List;
 
     public Format format;
     public int nalUnitLengthFieldLength;
+    @Track.Transformation
     public int requiredSampleTransformation;
 
     public StsdData(int numberOfEntries) {

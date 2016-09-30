@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -150,7 +151,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   }
 
   @Override
-  public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+  public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
+      byte[] encryptionKey) {
     trackOutput.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
   }
 
