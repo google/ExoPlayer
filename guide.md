@@ -109,6 +109,7 @@ or through a different network stack.
 For simple use cases, getting started with `ExoPlayer` consists of implementing
 the following steps:
 
+1. Add ExoPlayer as a dependency to your project.
 1. Create a `SimpleExoPlayer` instance.
 1. Attach the player to a view (for video output and user input).
 1. Prepare the player with a `MediaSource` to play.
@@ -117,17 +118,37 @@ the following steps:
 These steps are outlined in more detail below. For a complete example, refer to
 `PlayerActivity` in the ExoPlayer demo app.
 
+### Add ExoPlayer as a dependency ###
+
+The first step to getting started is to make sure you have the jcenter
+repository included in the `build.gradle` file in the root of your project.
+
+```gradle
+repositories {
+    jcenter()
+}
+```
+
+Next add a gradle compile dependency for the ExoPlayer library to the
+`build.gradle` file of your app module.
+
+```gradle
+compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
+```
+
+where `r2.X.X` is the your preferred version. For the latest version, see the
+project's [Releases][]. For more details, see the project on [Bintray][].
+
 ### Creating the player ###
 
-The first step to getting started is to create an `ExoPlayer` instance using
-`ExoPlayerFactory`. The factory provides a range of methods for creating
-`ExoPlayer` instances with varying levels of customization. For the vast
-majority of use cases the default `Renderer` implementations provided by the
-library are sufficient. For such cases one of the
-`ExoPlayerFactory.newSimpleInstance` methods should be used. These methods
-return `SimpleExoPlayer`, which extends `ExoPlayer` to add additional high level
-player functionality. The code below is an example of creating a
-`SimpleExoPlayer`.
+Now you can create an `ExoPlayer` instance using `ExoPlayerFactory`. The factory
+provides a range of methods for creating `ExoPlayer` instances with varying
+levels of customization. For the vast majority of use cases the default
+`Renderer` implementations provided by the library are sufficient. For such
+cases one of the `ExoPlayerFactory.newSimpleInstance` methods should be used.
+These methods return `SimpleExoPlayer`, which extends `ExoPlayer` to add
+additional high level player functionality. The code below is an example of
+creating a `SimpleExoPlayer`.
 
 {% highlight java %}
 // 1. Create a default TrackSelector
@@ -179,8 +200,16 @@ later in this guide. The following code shows how to prepare the player with a
 `MediaSource` suitable for playback of an MP4 file.
 
 {% highlight java %}
-// Create a MediaSource representing the media to be played.
-MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri, ...);
+// Measures bandwidth during playback. Can be null if not required.
+DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+// Produces DataSource instances through which media data is loaded.
+DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
+    Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter);
+// Produces Extractor instances for parsing the media data.
+ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+// This is the MediaSource representing the media to be played.
+MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri,
+    dataSourceFactory, extractorsFactory, null, null);
 // Prepare the player with the source.
 player.prepare(videoSource);
 {% endhighlight %}
