@@ -136,7 +136,7 @@ import java.util.Collections;
         if (startCodeValue == START_GROUP) {
           foundFirstFrameInGroup = false;
           isKeyframe = true;
-        } else /* startCode == START_PICTURE */ {
+        } else /* startCodeValue == START_PICTURE */ {
           frameTimeUs = pesPtsUsAvailable ? pesTimeUs : (frameTimeUs + frameDurationUs);
           framePosition = totalBytesWritten - bytesWrittenPastStartCode;
           pesPtsUsAvailable = false;
