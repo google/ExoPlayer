@@ -529,9 +529,9 @@ import java.io.IOException;
     rebuffering = false;
     setState(ExoPlayer.STATE_BUFFERING);
 
-    if (periodPositionUs == C.TIME_UNSET
-        || (readingPeriodHolder != playingPeriodHolder && (periodIndex == playingPeriodHolder.index
-        || (readingPeriodHolder != null && periodIndex == readingPeriodHolder.index)))) {
+    if (periodPositionUs == C.TIME_UNSET || (readingPeriodHolder != playingPeriodHolder
+        && (periodIndex == playingPeriodHolder.index
+        || periodIndex == readingPeriodHolder.index))) {
       // Clear the timeline because either the seek position is not known, or a renderer is reading
       // ahead to the next period and the seek is to either the playing or reading period.
       periodIndex = C.INDEX_UNSET;
@@ -690,16 +690,14 @@ import java.io.IOException;
     }
 
     if (selectionsChangedForReadPeriod) {
-      // Release everything after the playing period because a renderer may have read data from a
-      // track whose selection has now changed.
+      // Update streams and rebuffer for the new selection, recreating all streams if reading ahead.
+      boolean recreateStreams = readingPeriodHolder != playingPeriodHolder;
       releasePeriodHoldersFrom(playingPeriodHolder.next);
       playingPeriodHolder.next = null;
       readingPeriodHolder = playingPeriodHolder;
       loadingPeriodHolder = playingPeriodHolder;
       bufferAheadPeriodCount = 0;
 
-      // Update streams for the new selection, recreating all streams if reading ahead.
-      boolean recreateStreams = readingPeriodHolder != playingPeriodHolder;
       boolean[] streamResetFlags = new boolean[renderers.length];
       long periodPositionUs = playingPeriodHolder.updatePeriodTrackSelection(
           playbackInfo.positionUs, loadControl, recreateStreams, streamResetFlags);
@@ -810,11 +808,11 @@ import java.io.IOException;
       playingPeriodHolder.setIndex(timeline, timeline.getWindow(period.windowIndex, window),
           index);
 
-      MediaPeriodHolder<T> previousPeriod = playingPeriodHolder;
+      MediaPeriodHolder<T> previousPeriodHolder = playingPeriodHolder;
       boolean seenReadingPeriod = false;
       bufferAheadPeriodCount = 0;
-      while (previousPeriod.next != null) {
-        MediaPeriodHolder<T> periodHolder = previousPeriod.next;
+      while (previousPeriodHolder.next != null) {
+        MediaPeriodHolder<T> periodHolder = previousPeriodHolder.next;
         index++;
         timeline.getPeriod(index, period, true);
         if (!periodHolder.uid.equals(period.uid)) {
@@ -835,7 +833,7 @@ import java.io.IOException;
           }
 
           // Update the loading period to be the latest period that is still valid.
-          loadingPeriodHolder = previousPeriod;
+          loadingPeriodHolder = previousPeriodHolder;
           loadingPeriodHolder.next = null;
 
           // Release the rest of the timeline.
@@ -849,7 +847,7 @@ import java.io.IOException;
         if (periodHolder == readingPeriodHolder) {
           seenReadingPeriod = true;
         }
-        previousPeriod = periodHolder;
+        previousPeriodHolder = periodHolder;
       }
     } else if (loadingPeriodHolder != null) {
       Object uid = loadingPeriodHolder.uid;
@@ -997,14 +995,11 @@ import java.io.IOException;
     }
     updateTimelineState();
 
-    if (readingPeriodHolder != null && readingPeriodHolder.isLast) {
-      readingPeriodHolder = null;
+    if (readingPeriodHolder.isLast) {
+      // The renderers have their final SampleStreams.
       for (Renderer renderer : enabledRenderers) {
         renderer.setCurrentStreamIsFinal();
       }
-    }
-    if (readingPeriodHolder == null) {
-      // The renderers have their final SampleStreams.
       return;
     }
 
