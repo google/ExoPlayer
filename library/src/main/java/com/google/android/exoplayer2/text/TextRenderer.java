@@ -160,21 +160,27 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       }
     }
 
-    if (nextSubtitle != null && nextSubtitle.timeUs <= positionUs) {
-      // Advance to the next subtitle. Sync the next event index and trigger an update.
-      if (subtitle != null) {
-        subtitle.release();
+    if (nextSubtitle != null) {
+      if (nextSubtitle.isEndOfStream()) {
+        if (!textRendererNeedsUpdate && getNextEventTime() == Long.MAX_VALUE) {
+          if (subtitle != null) {
+            subtitle.release();
+            subtitle = null;
+          }
+          nextSubtitle.release();
+          nextSubtitle = null;
+          outputStreamEnded = true;
+        }
+      } else if (nextSubtitle.timeUs <= positionUs) {
+        // Advance to the next subtitle. Sync the next event index and trigger an update.
+        if (subtitle != null) {
+          subtitle.release();
+        }
+        subtitle = nextSubtitle;
+        nextSubtitle = null;
+        nextSubtitleEventIndex = subtitle.getNextEventTimeIndex(positionUs);
+        textRendererNeedsUpdate = true;
       }
-      subtitle = nextSubtitle;
-      nextSubtitle = null;
-      if (subtitle.isEndOfStream()) {
-        outputStreamEnded = true;
-        subtitle.release();
-        subtitle = null;
-        return;
-      }
-      nextSubtitleEventIndex = subtitle.getNextEventTimeIndex(positionUs);
-      textRendererNeedsUpdate = true;
     }
 
     if (textRendererNeedsUpdate) {
