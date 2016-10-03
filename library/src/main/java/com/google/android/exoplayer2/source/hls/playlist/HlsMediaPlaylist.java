@@ -38,6 +38,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final long byterangeOffset;
     public final long byterangeLength;
 
+    public Segment(String uri, long byterangeOffset, long byterangeLength) {
+      this(uri, 0, -1, C.TIME_UNSET, false, null, null, byterangeOffset, byterangeLength);
+    }
+
     public Segment(String uri, double durationSecs, int discontinuitySequenceNumber,
         long startTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
         long byterangeOffset, long byterangeLength) {
@@ -64,17 +68,19 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final int mediaSequence;
   public final int targetDurationSecs;
   public final int version;
+  public final Segment initializationSegment;
   public final List<Segment> segments;
   public final boolean live;
   public final long durationUs;
 
   public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
-      boolean live, List<Segment> segments) {
+      boolean live, Segment initializationSegment, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;
     this.targetDurationSecs = targetDurationSecs;
     this.version = version;
     this.live = live;
+    this.initializationSegment = initializationSegment;
     this.segments = segments;
 
     if (!segments.isEmpty()) {

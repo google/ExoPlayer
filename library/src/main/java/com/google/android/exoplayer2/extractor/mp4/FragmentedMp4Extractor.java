@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.extractor.mp4.Atom.LeafAtom;
@@ -115,6 +116,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray nalLength;
   private final ParsableByteArray encryptionSignalByte;
 
+  // Adjusts sample timestamps.
+  private final TimestampAdjuster timestampAdjuster;
+
   // Parser state.
   private final ParsableByteArray atomHeader;
   private final byte[] extendedTypeScratch;
@@ -140,24 +144,28 @@ public final class FragmentedMp4Extractor implements Extractor {
   private boolean haveOutputSeekMap;
 
   public FragmentedMp4Extractor() {
-    this(0);
+    this(0, null);
   }
 
   /**
    * @param flags Flags that control the extractor's behavior.
+   * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
-  public FragmentedMp4Extractor(@Flags int flags) {
-    this(flags, null);
+  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster) {
+    this(flags, null, timestampAdjuster);
   }
 
   /**
    * @param flags Flags that control the extractor's behavior.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor
    *     will not receive a moov box in the input data.
+   * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
-  public FragmentedMp4Extractor(@Flags int flags, Track sideloadedTrack) {
+  public FragmentedMp4Extractor(@Flags int flags, Track sideloadedTrack,
+      TimestampAdjuster timestampAdjuster) {
     this.sideloadedTrack = sideloadedTrack;
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
+    this.timestampAdjuster = timestampAdjuster;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
@@ -1011,6 +1019,9 @@ public final class FragmentedMp4Extractor implements Extractor {
       encryptionKey = fragment.trackEncryptionBox != null
           ? fragment.trackEncryptionBox.keyId
           : track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex].keyId;
+    }
+    if (timestampAdjuster != null) {
+      sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
     }
     output.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, encryptionKey);
 
