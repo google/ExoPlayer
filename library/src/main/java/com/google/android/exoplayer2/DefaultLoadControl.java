@@ -68,7 +68,7 @@ public final class DefaultLoadControl implements LoadControl {
    * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
    */
   public DefaultLoadControl() {
-    this(new DefaultAllocator(C.DEFAULT_BUFFER_SEGMENT_SIZE));
+    this(new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE));
   }
 
   /**
@@ -105,6 +105,11 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
+  public void onPrepared() {
+    reset(false);
+  }
+
+  @Override
   public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelections<?> trackSelections) {
     targetBufferSize = 0;
@@ -117,9 +122,13 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public void onTracksDisabled() {
-    targetBufferSize = 0;
-    isBuffering = false;
+  public void onStopped() {
+    reset(true);
+  }
+
+  @Override
+  public void onReleased() {
+    reset(true);
   }
 
   @Override
@@ -145,6 +154,14 @@ public final class DefaultLoadControl implements LoadControl {
   private int getBufferTimeState(long bufferedDurationUs) {
     return bufferedDurationUs > maxBufferUs ? ABOVE_HIGH_WATERMARK
         : (bufferedDurationUs < minBufferUs ? BELOW_LOW_WATERMARK : BETWEEN_WATERMARKS);
+  }
+
+  private void reset(boolean resetAllocator) {
+    targetBufferSize = 0;
+    isBuffering = false;
+    if (resetAllocator) {
+      allocator.reset();
+    }
   }
 
 }

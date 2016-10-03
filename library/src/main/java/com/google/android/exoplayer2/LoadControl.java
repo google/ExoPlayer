@@ -26,6 +26,11 @@ import com.google.android.exoplayer2.upstream.Allocator;
 public interface LoadControl {
 
   /**
+   * Called by the player when prepared with a new source.
+   */
+  void onPrepared();
+
+  /**
    * Called by the player when a track selection occurs.
    *
    * @param renderers The renderers.
@@ -36,9 +41,14 @@ public interface LoadControl {
       TrackSelections<?> trackSelections);
 
   /**
-   * Called by the player when all tracks are disabled.
+   * Called by the player when stopped.
    */
-  void onTracksDisabled();
+  void onStopped();
+
+  /**
+   * Called by the player when released.
+   */
+  void onReleased();
 
   /**
    * Returns the {@link Allocator} that should be used to obtain media buffer allocations.
