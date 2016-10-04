@@ -194,12 +194,15 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int max) throws IOException {
+  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+    if (readLength == 0) {
+      return 0;
+    }
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
     try {
-      int bytesRead = currentDataSource.read(buffer, offset, max);
+      int bytesRead = currentDataSource.read(buffer, offset, readLength);
       if (bytesRead >= 0) {
         if (currentDataSource == cacheReadDataSource) {
           totalCachedBytesRead += bytesRead;
@@ -218,7 +221,7 @@ public final class CacheDataSource implements DataSource {
         closeCurrentSource();
         if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
           if (openNextSource(false)) {
-            return read(buffer, offset, max);
+            return read(buffer, offset, readLength);
           }
         }
       }
