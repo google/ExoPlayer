@@ -79,6 +79,7 @@ public final class TsExtractor implements Extractor {
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
+  private boolean tracksEnded;
   private int nextEmbeddedTrackId;
   /* package */ Id3Reader id3Reader;
 
@@ -96,10 +97,9 @@ public final class TsExtractor implements Extractor {
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
-    tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     trackIds = new SparseBooleanArray();
-    nextEmbeddedTrackId = BASE_EMBEDDED_TRACK_ID;
     continuityCounters = new SparseIntArray();
+    resetPayloadReaders();
   }
 
   // Extractor implementation.
@@ -131,11 +131,10 @@ public final class TsExtractor implements Extractor {
   @Override
   public void seek() {
     ptsTimestampAdjuster.reset();
-    for (int i = 0; i < tsPayloadReaders.size(); i++) {
-      tsPayloadReaders.valueAt(i).seek();
-    }
     tsPacketBuffer.reset();
     continuityCounters.clear();
+    // Elementary stream readers' state should be cleared to get consistent behaviours when seeking.
+    resetPayloadReaders();
   }
 
   @Override
@@ -230,6 +229,14 @@ public final class TsExtractor implements Extractor {
 
   // Internals.
 
+  private void resetPayloadReaders() {
+    trackIds.clear();
+    tsPayloadReaders.clear();
+    tsPayloadReaders.put(TS_PAT_PID, new PatReader());
+    id3Reader = null;
+    nextEmbeddedTrackId = BASE_EMBEDDED_TRACK_ID;
+  }
+
   /**
    * Parses TS packet payload data.
    */
@@ -323,7 +330,7 @@ public final class TsExtractor implements Extractor {
           patScratch.skipBits(13); // network_PID (13)
         } else {
           int pid = patScratch.readBits(13);
-          tsPayloadReaders.put(pid, new PmtReader());
+          tsPayloadReaders.put(pid, new PmtReader(pid));
         }
       }
 
@@ -339,14 +346,16 @@ public final class TsExtractor implements Extractor {
 
     private final ParsableBitArray pmtScratch;
     private final ParsableByteArray sectionData;
+    private final int pid;
 
     private int sectionLength;
     private int sectionBytesRead;
     private int crc;
 
-    public PmtReader() {
+    public PmtReader(int pid) {
       pmtScratch = new ParsableBitArray(new byte[5]);
       sectionData = new ParsableByteArray();
+      this.pid = pid;
     }
 
     @Override
@@ -479,8 +488,16 @@ public final class TsExtractor implements Extractor {
               new PesReader(pesPayloadReader, ptsTimestampAdjuster));
         }
       }
-
-      output.endTracks();
+      if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0) {
+       if (!tracksEnded) {
+         output.endTracks();
+       }
+      } else {
+        tsPayloadReaders.remove(TS_PAT_PID);
+        tsPayloadReaders.remove(pid);
+        output.endTracks();
+      }
+      tracksEnded = true;
     }
 
     /**
