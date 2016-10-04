@@ -550,11 +550,18 @@ public class DefaultHttpDataSource implements HttpDataSource {
     if (readLength == 0) {
       return 0;
     }
+    if (bytesToRead != C.LENGTH_UNSET) {
+      long bytesRemaining = bytesToRead - bytesRead;
+      if (bytesRemaining == 0) {
+        return C.RESULT_END_OF_INPUT;
+      }
+      readLength = (int) Math.min(readLength, bytesRemaining);
+    }
 
     int read = inputStream.read(buffer, offset, readLength);
     if (read == -1) {
-      if (bytesToRead != C.LENGTH_UNSET && bytesToRead != bytesRead) {
-        // The server closed the connection having not sent sufficient data.
+      if (bytesToRead != C.LENGTH_UNSET) {
+        // End of stream reached having not read sufficient data.
         throw new EOFException();
       }
       return C.RESULT_END_OF_INPUT;

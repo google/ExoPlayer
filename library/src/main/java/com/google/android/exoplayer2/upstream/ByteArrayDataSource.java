@@ -54,15 +54,18 @@ public final class ByteArrayDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int length) throws IOException {
-    if (bytesRemaining == 0) {
+  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+    if (readLength == 0) {
+      return 0;
+    } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    length = Math.min(length, bytesRemaining);
-    System.arraycopy(data, readPosition, buffer, offset, length);
-    readPosition += length;
-    bytesRemaining -= length;
-    return length;
+
+    readLength = Math.min(readLength, bytesRemaining);
+    System.arraycopy(data, readPosition, buffer, offset, readLength);
+    readPosition += readLength;
+    bytesRemaining -= readLength;
+    return readLength;
   }
 
   @Override

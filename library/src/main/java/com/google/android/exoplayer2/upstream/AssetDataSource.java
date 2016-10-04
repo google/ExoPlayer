@@ -104,29 +104,35 @@ public final class AssetDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws AssetDataSourceException {
-    if (bytesRemaining == 0) {
+    if (readLength == 0) {
+      return 0;
+    } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
-    } else {
-      int bytesRead;
-      try {
-        int bytesToRead = bytesRemaining == C.LENGTH_UNSET ? readLength
-            : (int) Math.min(bytesRemaining, readLength);
-        bytesRead = inputStream.read(buffer, offset, bytesToRead);
-      } catch (IOException e) {
-        throw new AssetDataSourceException(e);
-      }
-
-      if (bytesRead > 0) {
-        if (bytesRemaining != C.LENGTH_UNSET) {
-          bytesRemaining -= bytesRead;
-        }
-        if (listener != null) {
-          listener.onBytesTransferred(this, bytesRead);
-        }
-      }
-
-      return bytesRead;
     }
+
+    int bytesRead;
+    try {
+      int bytesToRead = bytesRemaining == C.LENGTH_UNSET ? readLength
+          : (int) Math.min(bytesRemaining, readLength);
+      bytesRead = inputStream.read(buffer, offset, bytesToRead);
+    } catch (IOException e) {
+      throw new AssetDataSourceException(e);
+    }
+
+    if (bytesRead == -1) {
+      if (bytesRemaining != C.LENGTH_UNSET) {
+        // End of stream reached having not read sufficient data.
+        throw new AssetDataSourceException(new EOFException());
+      }
+      return C.RESULT_END_OF_INPUT;
+    }
+    if (bytesRemaining != C.LENGTH_UNSET) {
+      bytesRemaining -= bytesRead;
+    }
+    if (listener != null) {
+      listener.onBytesTransferred(this, bytesRead);
+    }
+    return bytesRead;
   }
 
   @Override

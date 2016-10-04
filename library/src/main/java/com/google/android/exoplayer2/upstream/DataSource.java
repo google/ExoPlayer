@@ -55,14 +55,18 @@ public interface DataSource {
 
   /**
    * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
-   * index {@code offset}. Blocks until at least one byte of data can be read, the end of the opened
-   * range is detected, or an exception is thrown.
+   * index {@code offset}.
+   * <p>
+   * If {@code length} is zero then 0 is returned. Otherwise, if no data is available because the
+   * end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is returned.
+   * Otherwise, the call will block until at least one byte of data has been read and the number of
+   * bytes read is returned.
    *
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
    * @param readLength The maximum number of bytes to read.
-   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the end of the opened
-   *     range is reached.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if no data is avaliable
+   *     because the end of the opened range has been reached.
    * @throws IOException If an error occurs reading from the source.
    */
   int read(byte[] buffer, int offset, int readLength) throws IOException;
