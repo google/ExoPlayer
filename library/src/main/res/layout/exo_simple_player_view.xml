@@ -22,16 +22,16 @@
       android:layout_height="match_parent"
       android:layout_gravity="center">
 
+    <View android:id="@+id/shutter"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@android:color/black"/>
+
     <com.google.android.exoplayer2.ui.SubtitleView android:id="@+id/subtitles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
   </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
-
-  <View android:id="@+id/shutter"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:background="@android:color/black"/>
 
   <com.google.android.exoplayer2.ui.PlaybackControlView android:id="@+id/control"
       android:layout_width="match_parent"

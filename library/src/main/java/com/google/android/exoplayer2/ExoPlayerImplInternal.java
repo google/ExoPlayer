@@ -1264,11 +1264,14 @@ import java.io.IOException;
           sampleStreams, streamResetFlags, positionUs);
       periodTrackSelections = trackSelections;
 
+      // Update whether we have enabled tracks and sanity check the expected streams are non-null.
       hasEnabledTracks = false;
       for (int i = 0; i < sampleStreams.length; i++) {
         if (sampleStreams[i] != null) {
+          Assertions.checkState(trackSelections.get(i) != null);
           hasEnabledTracks = true;
-          break;
+        } else {
+          Assertions.checkState(trackSelections.get(i) == null);
         }
       }
 
