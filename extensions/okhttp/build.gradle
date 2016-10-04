@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -39,4 +40,14 @@ dependencies {
     compile('com.squareup.okhttp3:okhttp:+') {
         exclude group: 'org.json'
     }
+}
+
+publish {
+    repoName = 'exoplayer'
+    userOrg = 'google'
+    groupId = 'com.google.android.exoplayer'
+    artifactId = 'extension-okhttp'
+    version = 'r2.0.1'
+    description = 'An OkHttp extension for ExoPlayer.'
+    website = 'https://github.com/google/ExoPlayer'
 }
