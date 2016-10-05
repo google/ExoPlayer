@@ -14,8 +14,21 @@
      limitations under the License.
 -->
 <resources>
+
+  <attr name="resize_mode" format="enum">
+    <enum name="fit" value="0"/>
+    <enum name="fixed_width" value="1"/>
+    <enum name="fixed_height" value="2"/>
+  </attr>
+
   <declare-styleable name="SimpleExoPlayerView">
     <attr name="use_controller" format="boolean"/>
     <attr name="use_texture_view" format="boolean"/>
+    <attr name="resize_mode"/>
   </declare-styleable>
+
+  <declare-styleable name="AspectRatioFrameLayout">
+    <attr name="resize_mode"/>
+  </declare-styleable>
+
 </resources>

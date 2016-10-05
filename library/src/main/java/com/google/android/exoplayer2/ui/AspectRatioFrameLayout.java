@@ -16,13 +16,29 @@
 package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+
+import com.google.android.exoplayer2.R;
 
 /**
  * A {@link FrameLayout} that resizes itself to match a specified aspect ratio.
  */
 public final class AspectRatioFrameLayout extends FrameLayout {
+
+  /**
+   * Either the width or height is decreased to obtain the desired aspect ratio.
+   */
+  public static final int RESIZE_MODE_FIT = 0;
+  /**
+   * The width is fixed and the height is increased or decreased to obtain the desired aspect ratio.
+   */
+  public static final int RESIZE_MODE_FIXED_WIDTH = 1;
+  /**
+   * The height is fixed and the width is increased or decreased to obtain the desired aspect ratio.
+   */
+  public static final int RESIZE_MODE_FIXED_HEIGHT = 2;
 
   /**
    * The {@link FrameLayout} will not resize itself if the fractional difference between its natural
@@ -36,13 +52,24 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   private static final float MAX_ASPECT_RATIO_DEFORMATION_FRACTION = 0.01f;
 
   private float videoAspectRatio;
+  private int resizeMode;
 
   public AspectRatioFrameLayout(Context context) {
-    super(context);
+    this(context, null);
   }
 
   public AspectRatioFrameLayout(Context context, AttributeSet attrs) {
     super(context, attrs);
+    resizeMode = RESIZE_MODE_FIT;
+    if (attrs != null) {
+      TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+          R.styleable.AspectRatioFrameLayout, 0, 0);
+      try {
+        resizeMode = a.getInt(R.styleable.AspectRatioFrameLayout_resize_mode, RESIZE_MODE_FIT);
+      } finally {
+        a.recycle();
+      }
+    }
   }
 
   /**
@@ -53,6 +80,19 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   public void setAspectRatio(float widthHeightRatio) {
     if (this.videoAspectRatio != widthHeightRatio) {
       this.videoAspectRatio = widthHeightRatio;
+      requestLayout();
+    }
+  }
+
+  /**
+   * Sets the resize mode which can be of value {@link #RESIZE_MODE_FIT},
+   * {@link #RESIZE_MODE_FIXED_HEIGHT} or {@link #RESIZE_MODE_FIXED_WIDTH}.
+   *
+   * @param resizeMode The resize mode.
+   */
+  public void setResizeMode(int resizeMode) {
+    if (this.resizeMode != resizeMode) {
+      this.resizeMode = resizeMode;
       requestLayout();
     }
   }
@@ -74,10 +114,20 @@ public final class AspectRatioFrameLayout extends FrameLayout {
       return;
     }
 
-    if (aspectDeformation > 0) {
-      height = (int) (width / videoAspectRatio);
-    } else {
-      width = (int) (height * videoAspectRatio);
+    switch (resizeMode) {
+      case RESIZE_MODE_FIXED_WIDTH:
+        height = (int) (width / videoAspectRatio);
+        break;
+      case RESIZE_MODE_FIXED_HEIGHT:
+        width = (int) (height * videoAspectRatio);
+        break;
+      default:
+        if (aspectDeformation > 0) {
+          height = (int) (width / videoAspectRatio);
+        } else {
+          width = (int) (height * videoAspectRatio);
+        }
+        break;
     }
     super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
         MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
