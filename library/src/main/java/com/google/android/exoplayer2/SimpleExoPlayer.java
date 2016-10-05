@@ -456,6 +456,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   @Override
   public void release() {
     player.release();
+    removeSurfaceCallbacks();
   }
 
   @Override
