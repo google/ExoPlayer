@@ -128,6 +128,13 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
+   * Returns the player currently being controlled by this view, or null if no player is set.
+   */
+  public ExoPlayer getPlayer() {
+    return player;
+  }
+
+  /**
    * Sets the {@link ExoPlayer} to control.
    *
    * @param player the {@code ExoPlayer} to control.

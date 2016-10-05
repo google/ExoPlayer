@@ -94,6 +94,13 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Returns the player currently set on this view, or null if no player is set.
+   */
+  public SimpleExoPlayer getPlayer() {
+    return player;
+  }
+
+  /**
    * Set the {@link SimpleExoPlayer} to use. The {@link SimpleExoPlayer#setTextOutput} and
    * {@link SimpleExoPlayer#setVideoListener} method of the player will be called and previous
    * assignments are overridden.
