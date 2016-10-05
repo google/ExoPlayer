@@ -43,11 +43,11 @@ dependencies {
 }
 
 publish {
-    repoName = 'exoplayer'
-    userOrg = 'google'
-    groupId = 'com.google.android.exoplayer'
     artifactId = 'extension-okhttp'
-    version = 'r2.0.1'
     description = 'An OkHttp extension for ExoPlayer.'
-    website = 'https://github.com/google/ExoPlayer'
+    repoName = releaseRepoName
+    userOrg = releaseUserOrg
+    groupId = releaseGroupId
+    version = releaseVersion
+    website = releaseWebsite
 }
