@@ -4,7 +4,8 @@
 
 * Fixes for MergingMediaSource and sideloaded subtitles.
   ([#1882](https://github.com/google/ExoPlayer/issues/1882),
-  [#1854](https://github.com/google/ExoPlayer/issues/1854)).
+  [#1854](https://github.com/google/ExoPlayer/issues/1854),
+  [#1900](https://github.com/google/ExoPlayer/issues/1900)).
 * Reduced effect of application code leaking player references
   ([#1855](https://github.com/google/ExoPlayer/issues/1855)).
 * Initial support for fragmented MP4 in HLS.

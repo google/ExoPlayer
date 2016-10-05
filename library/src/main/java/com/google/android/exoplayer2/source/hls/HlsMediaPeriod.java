@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -154,7 +155,8 @@ import java.util.List;
     }
     boolean selectedNewTracks = false;
     streamWrapperIndices.clear();
-    // Select tracks for each child, copying the resulting streams back into the streams array.
+    // Select tracks for each child, copying the resulting streams back into a new streams array.
+    SampleStream[] newStreams = new SampleStream[selections.length];
     SampleStream[] childStreams = new SampleStream[selections.length];
     TrackSelection[] childSelections = new TrackSelection[selections.length];
     ArrayList<HlsSampleStreamWrapper> enabledSampleStreamWrapperList = new ArrayList<>(
@@ -168,19 +170,23 @@ import java.util.List;
           mayRetainStreamFlags, childStreams, streamResetFlags, !seenFirstTrackSelection);
       boolean wrapperEnabled = false;
       for (int j = 0; j < selections.length; j++) {
-        if (selectionChildIndices[j] == i
-            || (selectionChildIndices[j] == C.INDEX_UNSET && streamChildIndices[j] == i)) {
-          streams[j] = childStreams[j];
-          if (childStreams[j] != null) {
-            wrapperEnabled = true;
-            streamWrapperIndices.put(childStreams[j], i);
-          }
+        if (selectionChildIndices[j] == i) {
+          // Assert that the child provided a stream for the selection.
+          Assertions.checkState(childStreams[j] != null);
+          newStreams[j] = childStreams[j];
+          wrapperEnabled = true;
+          streamWrapperIndices.put(childStreams[j], i);
+        } else if (streamChildIndices[j] == i) {
+          // Assert that the child cleared any previous stream.
+          Assertions.checkState(childStreams[j] == null);
         }
       }
       if (wrapperEnabled) {
         enabledSampleStreamWrapperList.add(sampleStreamWrappers[i]);
       }
     }
+    // Copy the new streams back into the streams array.
+    System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[enabledSampleStreamWrapperList.size()];
     enabledSampleStreamWrapperList.toArray(enabledSampleStreamWrappers);

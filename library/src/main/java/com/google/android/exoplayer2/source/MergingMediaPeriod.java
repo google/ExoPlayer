@@ -85,7 +85,8 @@ import java.util.IdentityHashMap;
       }
     }
     streamPeriodIndices.clear();
-    // Select tracks for each child, copying the resulting streams back into the streams array.
+    // Select tracks for each child, copying the resulting streams back into a new streams array.
+    SampleStream[] newStreams = new SampleStream[selections.length];
     SampleStream[] childStreams = new SampleStream[selections.length];
     TrackSelection[] childSelections = new TrackSelection[selections.length];
     ArrayList<MediaPeriod> enabledPeriodsList = new ArrayList<>(periods.length);
@@ -106,22 +107,20 @@ import java.util.IdentityHashMap;
         if (selectionChildIndices[j] == i) {
           // Assert that the child provided a stream for the selection.
           Assertions.checkState(childStreams[j] != null);
-          streams[j] = childStreams[j];
+          newStreams[j] = childStreams[j];
           periodEnabled = true;
           streamPeriodIndices.put(childStreams[j], i);
         } else if (streamChildIndices[j] == i) {
           // Assert that the child cleared any previous stream.
           Assertions.checkState(childStreams[j] == null);
-          if (selectionChildIndices[j] == C.INDEX_UNSET) {
-            // No other child will be setting the stream at index j, so clear it.
-            streams[j] = null;
-          }
         }
       }
       if (periodEnabled) {
         enabledPeriodsList.add(periods[i]);
       }
     }
+    // Copy the new streams back into the streams array.
+    System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
     enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
     enabledPeriodsList.toArray(enabledPeriods);
