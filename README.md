@@ -20,8 +20,6 @@ and extend, and can be updated through Play Store application updates.
 
 ## Using ExoPlayer ##
 
-#### Via jCenter ####
-
 The easiest way to get started using ExoPlayer is to add it as a gradle
 dependency. You need to make sure you have the jcenter repository included in
 the `build.gradle` file in the root of your project:
@@ -43,31 +41,6 @@ project's [Releases][]. For more details, see the project on [Bintray][].
 
 [Releases]: https://github.com/google/ExoPlayer/releases
 [Bintray]: https://bintray.com/google/exoplayer/exoplayer/view
-
-#### As source ####
-
-ExoPlayer can also be built from source using Gradle. You can include it as a
-dependent project like so:
-
-```gradle
-// settings.gradle
-include ':app', ':..:ExoPlayer:library'
-
-// app/build.gradle
-dependencies {
-    compile project(':..:ExoPlayer:library')
-}
-```
-
-#### As a jar ####
-
-If you want to use ExoPlayer as a jar, run:
-
-```sh
-./gradlew jarRelease
-```
-
-and copy `library.jar` to the libs folder of your new project.
 
 ## Developing ExoPlayer ##
 
