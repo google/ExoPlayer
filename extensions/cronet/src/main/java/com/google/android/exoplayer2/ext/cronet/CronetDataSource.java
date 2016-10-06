@@ -212,13 +212,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
     operation.close();
     resetConnectTimeout();
-
     currentDataSpec = dataSpec;
-    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(dataSpec.uri.toString(), this,
-        executor, cronetEngine);
-    fillCurrentRequestHeader(urlRequestBuilder);
-    fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
-    currentUrlRequest = urlRequestBuilder.build();
+    currentUrlRequest = buildRequest(dataSpec);
     currentUrlRequest.start();
     boolean requestStarted = blockUntilConnectTimeout();
 
@@ -423,36 +418,35 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   // Internal methods.
 
-  private void fillCurrentRequestHeader(UrlRequest.Builder urlRequestBuilder) {
+  private UrlRequest buildRequest(DataSpec dataSpec) throws OpenException {
+    UrlRequest.Builder requestBuilder = new UrlRequest.Builder(dataSpec.uri.toString(), this,
+        executor, cronetEngine);
+    // Set the headers.
     synchronized (requestProperties) {
+      if (dataSpec.postBody != null && !requestProperties.containsKey(CONTENT_TYPE)) {
+        throw new OpenException("POST request must set Content-Type", dataSpec, Status.IDLE);
+      }
       for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
-        urlRequestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
+        requestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
       }
     }
-    if (currentDataSpec.position == 0 && currentDataSpec.length == C.LENGTH_UNSET) {
-      // Not required.
-      return;
+    // Set the Range header.
+    if (currentDataSpec.position != 0 || currentDataSpec.length != C.LENGTH_UNSET) {
+      StringBuilder rangeValue = new StringBuilder();
+      rangeValue.append("bytes=");
+      rangeValue.append(currentDataSpec.position);
+      rangeValue.append("-");
+      if (currentDataSpec.length != C.LENGTH_UNSET) {
+        rangeValue.append(currentDataSpec.position + currentDataSpec.length - 1);
+      }
+      requestBuilder.addHeader("Range", rangeValue.toString());
     }
-    StringBuilder rangeValue = new StringBuilder();
-    rangeValue.append("bytes=");
-    rangeValue.append(currentDataSpec.position);
-    rangeValue.append("-");
-    if (currentDataSpec.length != C.LENGTH_UNSET) {
-      rangeValue.append(currentDataSpec.position + currentDataSpec.length - 1);
+    // Set the body.
+    if (dataSpec.postBody != null) {
+      requestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
+          executor);
     }
-    urlRequestBuilder.addHeader("Range", rangeValue.toString());
-  }
-
-  private void fillCurrentRequestPostBody(UrlRequest.Builder urlRequestBuilder, DataSpec dataSpec)
-      throws HttpDataSourceException {
-    if (dataSpec.postBody == null) {
-      return;
-    }
-    if (!requestProperties.containsKey(CONTENT_TYPE)) {
-      throw new OpenException("POST request must set Content-Type", dataSpec, Status.IDLE);
-    }
-    urlRequestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
-        executor);
+    return requestBuilder.build();
   }
 
   private boolean blockUntilConnectTimeout() {
