@@ -37,12 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.chromium.net.CronetEngine;
 import org.chromium.net.UrlRequest;
+import org.chromium.net.UrlRequest.Status;
 import org.chromium.net.UrlRequestException;
 import org.chromium.net.UrlResponseInfo;
 
@@ -112,7 +112,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private UrlResponseInfo responseInfo;
 
   /* package */ volatile int connectionState;
-  private volatile String currentUrl;
   private volatile long currentConnectTimeoutMs;
   private volatile HttpDataSourceException exception;
   private volatile long contentLength;
@@ -199,7 +198,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   @Override
   public Uri getUri() {
-    return Uri.parse(currentUrl);
+    return responseInfo == null ? null : Uri.parse(responseInfo.getUrl());
   }
 
   @Override
@@ -212,7 +211,14 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
     operation.close();
     resetConnectTimeout();
-    startRequest(dataSpec);
+
+    currentDataSpec = dataSpec;
+    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(dataSpec.uri.toString(), this,
+        executor, cronetEngine);
+    fillCurrentRequestHeader(urlRequestBuilder);
+    fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
+    currentUrlRequest = urlRequestBuilder.build();
+    currentUrlRequest.start();
     boolean requestStarted = blockUntilConnectTimeout();
 
     if (exception != null) {
@@ -220,7 +226,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       throw exception;
     } else if (!requestStarted) {
       // The timeout was reached before the connection was opened.
-      throw new OpenException(new SocketTimeoutException(), dataSpec, getCurrentRequestStatus());
+      throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
     }
 
     // Connection was opened.
@@ -285,7 +291,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       currentUrlRequest = null;
     }
     currentDataSpec = null;
-    currentUrl = null;
     exception = null;
     contentLength = 0;
     hasData = false;
@@ -315,7 +320,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       // redirect is followed.
       if (responseCode == 307 || responseCode == 308) {
         exception = new OpenException("POST request redirected with 307 or 308 response code",
-            currentDataSpec, getCurrentRequestStatus());
+            currentDataSpec, getStatus(request));
         operation.open();
         return;
       }
@@ -333,9 +338,9 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     }
     try {
       validateResponse(info);
-      responseInfo = info;
 
-      if (isCompressed(info)) {
+      responseInfo = info;
+      if (getIsCompressed(info)) {
         contentLength = currentDataSpec.length;
       } else {
         // Check content length.
@@ -346,16 +351,13 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
             && contentLength != C.LENGTH_UNSET
             && currentDataSpec.length != contentLength) {
           throw new OpenException("Content length did not match requested length", currentDataSpec,
-              getCurrentRequestStatus());
+              getStatus(request));
         }
       }
-
       if (contentLength > 0) {
         expectedBytesRemainingToRead = new AtomicLong(contentLength);
       }
 
-      // Keep track of redirects.
-      currentUrl = responseInfo.getUrl();
       connectionState = CONNECTED_CONNECTION;
     } catch (HttpDataSourceException e) {
       exception = e;
@@ -393,7 +395,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (connectionState == OPENING_CONNECTION) {
       IOException cause = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
           ? new UnknownHostException() : error;
-      exception = new OpenException(cause, currentDataSpec, getCurrentRequestStatus());
+      exception = new OpenException(cause, currentDataSpec, getStatus(request));
     } else if (connectionState == OPEN_CONNECTION) {
       exception = new HttpDataSourceException(error, currentDataSpec,
           HttpDataSourceException.TYPE_READ);
@@ -428,22 +430,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (dataSpec.postBody != null) {
       if (!requestProperties.containsKey("Content-Type")) {
         throw new OpenException("POST requests must set a Content-Type header", dataSpec,
-            getCurrentRequestStatus());
+            Status.IDLE);
       }
       urlRequestBuilder.setUploadDataProvider(
           new ByteArrayUploadDataProvider(dataSpec.postBody), executor);
     }
-  }
-
-  private void startRequest(DataSpec dataSpec) throws HttpDataSourceException {
-    currentUrl = dataSpec.uri.toString();
-    currentDataSpec = dataSpec;
-    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(currentUrl, this, executor,
-        cronetEngine);
-    fillCurrentRequestHeader(urlRequestBuilder);
-    fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
-    currentUrlRequest = urlRequestBuilder.build();
-    currentUrlRequest.start();
   }
 
   private void validateResponse(UrlResponseInfo info) throws HttpDataSourceException {
@@ -482,17 +473,16 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
   }
 
-  private boolean isCompressed(UrlResponseInfo info) {
+  private static boolean getIsCompressed(UrlResponseInfo info) {
     for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
       if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
         return !entry.getValue().equalsIgnoreCase("identity");
       }
     }
-
     return false;
   }
 
-  private long getContentLength(Map<String, List<String>> headers) {
+  private static long getContentLength(Map<String, List<String>> headers) {
     // Logic copied from {@code DefaultHttpDataSource}
     long contentLength = C.LENGTH_UNSET;
     List<String> contentLengthHeader = headers.get("Content-Length");
@@ -502,7 +492,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       try {
         contentLength = Long.parseLong(contentLengthHeader.get(0));
       } catch (NumberFormatException e) {
-        log(Log.ERROR, "Unexpected Content-Length [" + contentLengthHeader + "]");
+        Log.e(TAG, "Unexpected Content-Length [" + contentLengthHeader + "]");
       }
     }
     List<String> contentRangeHeader = headers.get("Content-Range");
@@ -523,38 +513,30 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
             // assume the one with the larger value is correct. We have seen cases where carrier
             // change one of them to reduce the size of a request, but it is unlikely anybody
             // would increase it.
-            log(Log.WARN, "Inconsistent headers [" + contentLengthHeader + "] ["
-                + contentRangeHeader + "]");
+            Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
+                + "]");
             contentLength = Math.max(contentLength, contentLengthFromRange);
           }
         } catch (NumberFormatException e) {
-          log(Log.ERROR, "Unexpected Content-Range [" + contentRangeHeader + "]");
+          Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
         }
       }
     }
     return contentLength;
   }
 
-  private int getCurrentRequestStatus() {
-    if (currentUrlRequest == null) {
-      return UrlRequest.Status.IDLE;
-    }
+  private static int getStatus(UrlRequest request) {
     final ConditionVariable conditionVariable = new ConditionVariable();
-    final AtomicInteger result = new AtomicInteger();
-    currentUrlRequest.getStatus(new UrlRequest.StatusListener() {
+    final int[] statusHolder = new int[1];
+    request.getStatus(new UrlRequest.StatusListener() {
       @Override
       public void onStatus(int status) {
-        result.set(status);
+        statusHolder[0] = status;
         conditionVariable.open();
       }
     });
-    return result.get();
-  }
-
-  private void log(int priority, String message) {
-    if (Log.isLoggable(TAG, priority)) {
-      Log.println(priority, TAG, message);
-    }
+    conditionVariable.block();
+    return statusHolder[0];
   }
 
 }
