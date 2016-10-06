@@ -358,7 +358,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         contentLength = currentDataSpec.length;
       } else {
         // Check content length.
-        contentLength = getContentLength(info.getAllHeaders());
+        contentLength = getContentLength(info);
         // If a specific length is requested and a specific length is returned but the 2 don't match
         // it's an error.
         if (currentDataSpec.length != C.LENGTH_UNSET && contentLength != C.LENGTH_UNSET
@@ -472,23 +472,25 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     return false;
   }
 
-  private static long getContentLength(Map<String, List<String>> headers) {
+  private static long getContentLength(UrlResponseInfo info) {
     long contentLength = C.LENGTH_UNSET;
-    List<String> contentLengthHeader = headers.get("Content-Length");
-    if (contentLengthHeader != null
-        && !contentLengthHeader.isEmpty()
-        && !TextUtils.isEmpty(contentLengthHeader.get(0))) {
-      try {
-        contentLength = Long.parseLong(contentLengthHeader.get(0));
-      } catch (NumberFormatException e) {
-        Log.e(TAG, "Unexpected Content-Length [" + contentLengthHeader + "]");
+    Map<String, List<String>> headers = info.getAllHeaders();
+    List<String> contentLengthHeaders = headers.get("Content-Length");
+    String contentLengthHeader = null;
+    if (contentLengthHeaders != null && !contentLengthHeaders.isEmpty()) {
+      contentLengthHeader = contentLengthHeaders.get(0);
+      if (!TextUtils.isEmpty(contentLengthHeader)) {
+        try {
+          contentLength = Long.parseLong(contentLengthHeader);
+        } catch (NumberFormatException e) {
+          Log.e(TAG, "Unexpected Content-Length [" + contentLengthHeader + "]");
+        }
       }
     }
-    List<String> contentRangeHeader = headers.get("Content-Range");
-    if (contentRangeHeader != null
-        && !contentRangeHeader.isEmpty()
-        && !TextUtils.isEmpty(contentRangeHeader.get(0))) {
-      Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader.get(0));
+    List<String> contentRangeHeaders = headers.get("Content-Range");
+    if (contentRangeHeaders != null && !contentRangeHeaders.isEmpty()) {
+      String contentRangeHeader = contentRangeHeaders.get(0);
+      Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader);
       if (matcher.find()) {
         try {
           long contentLengthFromRange =
