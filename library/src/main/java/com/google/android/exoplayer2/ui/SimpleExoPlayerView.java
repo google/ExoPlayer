@@ -112,6 +112,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param player The {@link SimpleExoPlayer} to use.
    */
   public void setPlayer(SimpleExoPlayer player) {
+    if (this.player == player) {
+      return;
+    }
     if (this.player != null) {
       this.player.setTextOutput(null);
       this.player.setVideoListener(null);
@@ -131,7 +134,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     } else {
       shutterView.setVisibility(VISIBLE);
     }
-    setUseController(useController);
+    if (useController) {
+      controller.setPlayer(player);
+    }
   }
 
   /**
@@ -142,6 +147,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param useController If {@code false} the playback control is never used.
    */
   public void setUseController(boolean useController) {
+    if (this.useController == useController) {
+      return;
+    }
     this.useController = useController;
     if (useController) {
       controller.setPlayer(player);

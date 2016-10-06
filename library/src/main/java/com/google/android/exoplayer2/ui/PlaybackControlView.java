@@ -140,6 +140,9 @@ public class PlaybackControlView extends FrameLayout {
    * @param player the {@code ExoPlayer} to control.
    */
   public void setPlayer(ExoPlayer player) {
+    if (this.player == player) {
+      return;
+    }
     if (this.player != null) {
       this.player.removeListener(componentListener);
     }
