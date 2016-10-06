@@ -85,6 +85,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
   private static final String TAG = "CronetDataSource";
+  private static final String CONTENT_TYPE = "Content-Type";
   private static final Pattern CONTENT_RANGE_HEADER_PATTERN =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
   // The size of read buffer passed to cronet UrlRequest.read().
@@ -337,7 +338,25 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       return;
     }
     try {
-      validateResponse(info);
+      // Check for a valid response code.
+      int responseCode = info.getHttpStatusCode();
+      if (responseCode < 200 || responseCode > 299) {
+        InvalidResponseCodeException exception = new InvalidResponseCodeException(
+            responseCode, info.getAllHeaders(), currentDataSpec);
+        if (responseCode == 416) {
+          exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+        }
+        throw exception;
+      }
+      // Check for a valid content type.
+      if (contentTypePredicate != null) {
+        List<String> contentTypeHeaders = info.getAllHeaders().get(CONTENT_TYPE);
+        String contentType = contentTypeHeaders == null || contentTypeHeaders.isEmpty() ? null
+            : contentTypeHeaders.get(0);
+        if (!contentTypePredicate.evaluate(contentType)) {
+          throw new InvalidContentTypeException(contentType, currentDataSpec);
+        }
+      }
 
       responseInfo = info;
       if (getIsCompressed(info)) {
@@ -347,8 +366,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         contentLength = getContentLength(info.getAllHeaders());
         // If a specific length is requested and a specific length is returned but the 2 don't match
         // it's an error.
-        if (currentDataSpec.length != C.LENGTH_UNSET
-            && contentLength != C.LENGTH_UNSET
+        if (currentDataSpec.length != C.LENGTH_UNSET && contentLength != C.LENGTH_UNSET
             && currentDataSpec.length != contentLength) {
           throw new OpenException("Content length did not match requested length", currentDataSpec,
               getStatus(request));
@@ -427,36 +445,14 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   private void fillCurrentRequestPostBody(UrlRequest.Builder urlRequestBuilder, DataSpec dataSpec)
       throws HttpDataSourceException {
-    if (dataSpec.postBody != null) {
-      if (!requestProperties.containsKey("Content-Type")) {
-        throw new OpenException("POST requests must set a Content-Type header", dataSpec,
-            Status.IDLE);
-      }
-      urlRequestBuilder.setUploadDataProvider(
-          new ByteArrayUploadDataProvider(dataSpec.postBody), executor);
+    if (dataSpec.postBody == null) {
+      return;
     }
-  }
-
-  private void validateResponse(UrlResponseInfo info) throws HttpDataSourceException {
-    // Check for a valid response code.
-    int responseCode = info.getHttpStatusCode();
-    if (responseCode < 200 || responseCode > 299) {
-      InvalidResponseCodeException exception = new InvalidResponseCodeException(
-          responseCode, info.getAllHeaders(), currentDataSpec);
-      if (responseCode == 416) {
-        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
-      }
-      throw exception;
+    if (!requestProperties.containsKey(CONTENT_TYPE)) {
+      throw new OpenException("POST request must set Content-Type", dataSpec, Status.IDLE);
     }
-    // Check for a valid content type.
-    try {
-      String contentType = info.getAllHeaders().get("Content-Type").get(0);
-      if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
-        throw new InvalidContentTypeException(contentType, currentDataSpec);
-      }
-    } catch (IndexOutOfBoundsException e) {
-      throw new InvalidContentTypeException(null, currentDataSpec);
-    }
+    urlRequestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
+        executor);
   }
 
   private boolean blockUntilConnectTimeout() {
@@ -483,7 +479,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   private static long getContentLength(Map<String, List<String>> headers) {
-    // Logic copied from {@code DefaultHttpDataSource}
     long contentLength = C.LENGTH_UNSET;
     List<String> contentLengthHeader = headers.get("Content-Length");
     if (contentLengthHeader != null
