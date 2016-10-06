@@ -169,6 +169,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     connectionState = IDLE_CONNECTION;
   }
 
+  // HttpDataSource implementation.
+
   @Override
   public void setRequestProperty(String name, String value) {
     synchronized (requestProperties) {
@@ -193,6 +195,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   @Override
   public Map<String, List<String>> getResponseHeaders() {
     return responseInfo == null ? null : responseInfo.getAllHeaders();
+  }
+
+  @Override
+  public Uri getUri() {
+    return Uri.parse(currentUrl);
   }
 
   @Override
@@ -221,186 +228,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       listener.onTransferStart(this, dataSpec);
     }
     connectionState = OPEN_CONNECTION;
-    return contentLength;
-  }
-
-  private void startRequest(DataSpec dataSpec) throws HttpDataSourceException {
-    currentUrl = dataSpec.uri.toString();
-    currentDataSpec = dataSpec;
-    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(currentUrl, this, executor,
-        cronetEngine);
-    fillCurrentRequestHeader(urlRequestBuilder);
-    fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
-    currentUrlRequest = urlRequestBuilder.build();
-    currentUrlRequest.start();
-  }
-
-  private void fillCurrentRequestHeader(UrlRequest.Builder urlRequestBuilder) {
-    synchronized (requestProperties) {
-      for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
-        urlRequestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
-      }
-    }
-    if (currentDataSpec.position == 0 && currentDataSpec.length == C.LENGTH_UNSET) {
-      // Not required.
-      return;
-    }
-    StringBuilder rangeValue = new StringBuilder();
-    rangeValue.append("bytes=");
-    rangeValue.append(currentDataSpec.position);
-    rangeValue.append("-");
-    if (currentDataSpec.length != C.LENGTH_UNSET) {
-      rangeValue.append(currentDataSpec.position + currentDataSpec.length - 1);
-    }
-    urlRequestBuilder.addHeader("Range", rangeValue.toString());
-  }
-
-  private void fillCurrentRequestPostBody(UrlRequest.Builder urlRequestBuilder, DataSpec dataSpec)
-      throws HttpDataSourceException {
-    if (dataSpec.postBody != null) {
-      if (!requestProperties.containsKey("Content-Type")) {
-        throw new OpenException("POST requests must set a Content-Type header", dataSpec,
-            getCurrentRequestStatus());
-      }
-      urlRequestBuilder.setUploadDataProvider(
-          new ByteArrayUploadDataProvider(dataSpec.postBody), executor);
-    }
-  }
-
-  @Override
-  public synchronized void onFailed(UrlRequest request, UrlResponseInfo info,
-      UrlRequestException error) {
-    if (request != currentUrlRequest) {
-      return;
-    }
-    if (connectionState == OPENING_CONNECTION) {
-      IOException cause = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
-          ? new UnknownHostException() : error;
-      exception = new OpenException(cause, currentDataSpec, getCurrentRequestStatus());
-    } else if (connectionState == OPEN_CONNECTION) {
-      exception = new HttpDataSourceException(error, currentDataSpec,
-          HttpDataSourceException.TYPE_READ);
-    }
-    operation.open();
-  }
-
-  @Override
-  public synchronized void onResponseStarted(UrlRequest request, UrlResponseInfo info) {
-    if (request != currentUrlRequest) {
-      return;
-    }
-    try {
-      validateResponse(info);
-      responseInfo = info;
-
-      if (isCompressed(info)) {
-        contentLength = currentDataSpec.length;
-      } else {
-        // Check content length.
-        contentLength = getContentLength(info.getAllHeaders());
-        // If a specific length is requested and a specific length is returned but the 2 don't match
-        // it's an error.
-        if (currentDataSpec.length != C.LENGTH_UNSET
-            && contentLength != C.LENGTH_UNSET
-            && currentDataSpec.length != contentLength) {
-          throw new OpenException("Content length did not match requested length", currentDataSpec,
-              getCurrentRequestStatus());
-        }
-      }
-
-      if (contentLength > 0) {
-        expectedBytesRemainingToRead = new AtomicLong(contentLength);
-      }
-
-      // Keep track of redirects.
-      currentUrl = responseInfo.getUrl();
-      connectionState = CONNECTED_CONNECTION;
-    } catch (HttpDataSourceException e) {
-      exception = e;
-    } finally {
-      operation.open();
-    }
-  }
-
-  /**
-   * Returns {@code true} iff the content is compressed.
-   *
-   * <p>If {@code true}, clients cannot use the value of content length from the request headers to
-   * read the data, since Cronet returns the uncompressed data and this content length reflects the
-   * compressed content length.
-   */
-  private boolean isCompressed(UrlResponseInfo info) {
-    for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
-      if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
-        return !entry.getValue().equalsIgnoreCase("identity");
-      }
-    }
-
-    return false;
-  }
-
-  private void validateResponse(UrlResponseInfo info) throws HttpDataSourceException {
-    // Check for a valid response code.
-    int responseCode = info.getHttpStatusCode();
-    if (responseCode < 200 || responseCode > 299) {
-      InvalidResponseCodeException exception = new InvalidResponseCodeException(
-          responseCode, info.getAllHeaders(), currentDataSpec);
-      if (responseCode == 416) {
-        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
-      }
-      throw exception;
-    }
-    // Check for a valid content type.
-    try {
-      String contentType = info.getAllHeaders().get("Content-Type").get(0);
-      if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
-        throw new InvalidContentTypeException(contentType, currentDataSpec);
-      }
-    } catch (IndexOutOfBoundsException e) {
-      throw new InvalidContentTypeException(null, currentDataSpec);
-    }
-  }
-
-  private long getContentLength(Map<String, List<String>> headers) {
-    // Logic copied from {@code DefaultHttpDataSource}
-    long contentLength = C.LENGTH_UNSET;
-    List<String> contentLengthHeader = headers.get("Content-Length");
-    if (contentLengthHeader != null
-        && !contentLengthHeader.isEmpty()
-        && !TextUtils.isEmpty(contentLengthHeader.get(0))) {
-      try {
-        contentLength = Long.parseLong(contentLengthHeader.get(0));
-      } catch (NumberFormatException e) {
-        log(Log.ERROR, "Unexpected Content-Length [" + contentLengthHeader + "]");
-      }
-    }
-    List<String> contentRangeHeader = headers.get("Content-Range");
-    if (contentRangeHeader != null
-        && !contentRangeHeader.isEmpty()
-        && !TextUtils.isEmpty(contentRangeHeader.get(0))) {
-      Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader.get(0));
-      if (matcher.find()) {
-        try {
-          long contentLengthFromRange =
-              Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
-          if (contentLength < 0) {
-            // Some proxy servers strip the Content-Length header. Fall back to the length
-            // calculated here in this case.
-            contentLength = contentLengthFromRange;
-          } else if (contentLength != contentLengthFromRange) {
-            // If there is a discrepancy between the Content-Length and Content-Range headers,
-            // assume the one with the larger value is correct. We have seen cases where carrier
-            // change one of them to reduce the size of a request, but it is unlikely anybody
-            // would increase it.
-            log(Log.WARN, "Inconsistent headers [" + contentLengthHeader + "] ["
-                + contentRangeHeader + "]");
-            contentLength = Math.max(contentLength, contentLengthFromRange);
-          }
-        } catch (NumberFormatException e) {
-          log(Log.ERROR, "Unexpected Content-Range [" + contentRangeHeader + "]");
-        }
-      }
-    }
     return contentLength;
   }
 
@@ -452,6 +279,31 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   @Override
+  public synchronized void close() {
+    if (currentUrlRequest != null) {
+      currentUrlRequest.cancel();
+      currentUrlRequest = null;
+    }
+    currentDataSpec = null;
+    currentUrl = null;
+    exception = null;
+    contentLength = 0;
+    hasData = false;
+    responseInfo = null;
+    expectedBytesRemainingToRead = null;
+    responseFinished = false;
+    try {
+      if (listener != null && connectionState == OPEN_CONNECTION) {
+        listener.onTransferEnd(this);
+      }
+    } finally {
+      connectionState = IDLE_CONNECTION;
+    }
+  }
+
+  // UrlRequest.Callback implementation
+
+  @Override
   public void onRedirectReceived(UrlRequest request, UrlResponseInfo info, String newLocationUrl) {
     if (request != currentUrlRequest) {
       return;
@@ -475,6 +327,44 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   @Override
+  public synchronized void onResponseStarted(UrlRequest request, UrlResponseInfo info) {
+    if (request != currentUrlRequest) {
+      return;
+    }
+    try {
+      validateResponse(info);
+      responseInfo = info;
+
+      if (isCompressed(info)) {
+        contentLength = currentDataSpec.length;
+      } else {
+        // Check content length.
+        contentLength = getContentLength(info.getAllHeaders());
+        // If a specific length is requested and a specific length is returned but the 2 don't match
+        // it's an error.
+        if (currentDataSpec.length != C.LENGTH_UNSET
+            && contentLength != C.LENGTH_UNSET
+            && currentDataSpec.length != contentLength) {
+          throw new OpenException("Content length did not match requested length", currentDataSpec,
+              getCurrentRequestStatus());
+        }
+      }
+
+      if (contentLength > 0) {
+        expectedBytesRemainingToRead = new AtomicLong(contentLength);
+      }
+
+      // Keep track of redirects.
+      currentUrl = responseInfo.getUrl();
+      connectionState = CONNECTED_CONNECTION;
+    } catch (HttpDataSourceException e) {
+      exception = e;
+    } finally {
+      operation.open();
+    }
+  }
+
+  @Override
   public synchronized void onReadCompleted(UrlRequest request, UrlResponseInfo info,
       ByteBuffer buffer) {
     if (request != currentUrlRequest) {
@@ -495,37 +385,154 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   }
 
   @Override
-  public synchronized void close() {
-    if (currentUrlRequest != null) {
-      currentUrlRequest.cancel();
-      currentUrlRequest = null;
+  public synchronized void onFailed(UrlRequest request, UrlResponseInfo info,
+      UrlRequestException error) {
+    if (request != currentUrlRequest) {
+      return;
     }
-    currentDataSpec = null;
-    currentUrl = null;
-    exception = null;
-    contentLength = 0;
-    hasData = false;
-    responseInfo = null;
-    expectedBytesRemainingToRead = null;
-    responseFinished = false;
-    try {
-      if (listener != null && connectionState == OPEN_CONNECTION) {
-        listener.onTransferEnd(this);
+    if (connectionState == OPENING_CONNECTION) {
+      IOException cause = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
+          ? new UnknownHostException() : error;
+      exception = new OpenException(cause, currentDataSpec, getCurrentRequestStatus());
+    } else if (connectionState == OPEN_CONNECTION) {
+      exception = new HttpDataSourceException(error, currentDataSpec,
+          HttpDataSourceException.TYPE_READ);
+    }
+    operation.open();
+  }
+
+  // Internal methods.
+
+  private void fillCurrentRequestHeader(UrlRequest.Builder urlRequestBuilder) {
+    synchronized (requestProperties) {
+      for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
+        urlRequestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
       }
-    } finally {
-      connectionState = IDLE_CONNECTION;
+    }
+    if (currentDataSpec.position == 0 && currentDataSpec.length == C.LENGTH_UNSET) {
+      // Not required.
+      return;
+    }
+    StringBuilder rangeValue = new StringBuilder();
+    rangeValue.append("bytes=");
+    rangeValue.append(currentDataSpec.position);
+    rangeValue.append("-");
+    if (currentDataSpec.length != C.LENGTH_UNSET) {
+      rangeValue.append(currentDataSpec.position + currentDataSpec.length - 1);
+    }
+    urlRequestBuilder.addHeader("Range", rangeValue.toString());
+  }
+
+  private void fillCurrentRequestPostBody(UrlRequest.Builder urlRequestBuilder, DataSpec dataSpec)
+      throws HttpDataSourceException {
+    if (dataSpec.postBody != null) {
+      if (!requestProperties.containsKey("Content-Type")) {
+        throw new OpenException("POST requests must set a Content-Type header", dataSpec,
+            getCurrentRequestStatus());
+      }
+      urlRequestBuilder.setUploadDataProvider(
+          new ByteArrayUploadDataProvider(dataSpec.postBody), executor);
     }
   }
 
-  @Override
-  public Uri getUri() {
-    return Uri.parse(currentUrl);
+  private void startRequest(DataSpec dataSpec) throws HttpDataSourceException {
+    currentUrl = dataSpec.uri.toString();
+    currentDataSpec = dataSpec;
+    UrlRequest.Builder urlRequestBuilder = new UrlRequest.Builder(currentUrl, this, executor,
+        cronetEngine);
+    fillCurrentRequestHeader(urlRequestBuilder);
+    fillCurrentRequestPostBody(urlRequestBuilder, dataSpec);
+    currentUrlRequest = urlRequestBuilder.build();
+    currentUrlRequest.start();
   }
 
-  private void log(int priority, String message) {
-    if (Log.isLoggable(TAG, priority)) {
-      Log.println(priority, TAG, message);
+  private void validateResponse(UrlResponseInfo info) throws HttpDataSourceException {
+    // Check for a valid response code.
+    int responseCode = info.getHttpStatusCode();
+    if (responseCode < 200 || responseCode > 299) {
+      InvalidResponseCodeException exception = new InvalidResponseCodeException(
+          responseCode, info.getAllHeaders(), currentDataSpec);
+      if (responseCode == 416) {
+        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+      }
+      throw exception;
     }
+    // Check for a valid content type.
+    try {
+      String contentType = info.getAllHeaders().get("Content-Type").get(0);
+      if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
+        throw new InvalidContentTypeException(contentType, currentDataSpec);
+      }
+    } catch (IndexOutOfBoundsException e) {
+      throw new InvalidContentTypeException(null, currentDataSpec);
+    }
+  }
+
+  private boolean blockUntilConnectTimeout() {
+    long now = clock.elapsedRealtime();
+    boolean opened = false;
+    while (!opened && now < currentConnectTimeoutMs) {
+      opened = operation.block(currentConnectTimeoutMs - now + 5 /* fudge factor */);
+      now = clock.elapsedRealtime();
+    }
+    return opened;
+  }
+
+  private void resetConnectTimeout() {
+    currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
+  }
+
+  private boolean isCompressed(UrlResponseInfo info) {
+    for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
+      if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
+        return !entry.getValue().equalsIgnoreCase("identity");
+      }
+    }
+
+    return false;
+  }
+
+  private long getContentLength(Map<String, List<String>> headers) {
+    // Logic copied from {@code DefaultHttpDataSource}
+    long contentLength = C.LENGTH_UNSET;
+    List<String> contentLengthHeader = headers.get("Content-Length");
+    if (contentLengthHeader != null
+        && !contentLengthHeader.isEmpty()
+        && !TextUtils.isEmpty(contentLengthHeader.get(0))) {
+      try {
+        contentLength = Long.parseLong(contentLengthHeader.get(0));
+      } catch (NumberFormatException e) {
+        log(Log.ERROR, "Unexpected Content-Length [" + contentLengthHeader + "]");
+      }
+    }
+    List<String> contentRangeHeader = headers.get("Content-Range");
+    if (contentRangeHeader != null
+        && !contentRangeHeader.isEmpty()
+        && !TextUtils.isEmpty(contentRangeHeader.get(0))) {
+      Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader.get(0));
+      if (matcher.find()) {
+        try {
+          long contentLengthFromRange =
+              Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
+          if (contentLength < 0) {
+            // Some proxy servers strip the Content-Length header. Fall back to the length
+            // calculated here in this case.
+            contentLength = contentLengthFromRange;
+          } else if (contentLength != contentLengthFromRange) {
+            // If there is a discrepancy between the Content-Length and Content-Range headers,
+            // assume the one with the larger value is correct. We have seen cases where carrier
+            // change one of them to reduce the size of a request, but it is unlikely anybody
+            // would increase it.
+            log(Log.WARN, "Inconsistent headers [" + contentLengthHeader + "] ["
+                + contentRangeHeader + "]");
+            contentLength = Math.max(contentLength, contentLengthFromRange);
+          }
+        } catch (NumberFormatException e) {
+          log(Log.ERROR, "Unexpected Content-Range [" + contentRangeHeader + "]");
+        }
+      }
+    }
+    return contentLength;
   }
 
   private int getCurrentRequestStatus() {
@@ -544,18 +551,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     return result.get();
   }
 
-  private boolean blockUntilConnectTimeout() {
-    long now = clock.elapsedRealtime();
-    boolean opened = false;
-    while (!opened && now < currentConnectTimeoutMs) {
-      opened = operation.block(currentConnectTimeoutMs - now + 5 /* fudge factor */);
-      now = clock.elapsedRealtime();
+  private void log(int priority, String message) {
+    if (Log.isLoggable(TAG, priority)) {
+      Log.println(priority, TAG, message);
     }
-    return opened;
-  }
-
-  private void resetConnectTimeout() {
-    currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
   }
 
 }
