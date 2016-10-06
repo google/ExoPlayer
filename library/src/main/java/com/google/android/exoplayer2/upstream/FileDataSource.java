@@ -80,7 +80,9 @@ public final class FileDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws FileDataSourceException {
-    if (bytesRemaining == 0) {
+    if (readLength == 0) {
+      return 0;
+    } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     } else {
       int bytesRead;

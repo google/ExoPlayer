@@ -129,6 +129,10 @@ public final class UdpDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws UdpDataSourceException {
+    if (readLength == 0) {
+      return 0;
+    }
+
     if (packetRemaining == 0) {
       // We've read all of the data from the current packet. Get another.
       try {
@@ -136,7 +140,6 @@ public final class UdpDataSource implements DataSource {
       } catch (IOException e) {
         throw new UdpDataSourceException(e);
       }
-
       packetRemaining = packet.getLength();
       if (listener != null) {
         listener.onBytesTransferred(this, packetRemaining);

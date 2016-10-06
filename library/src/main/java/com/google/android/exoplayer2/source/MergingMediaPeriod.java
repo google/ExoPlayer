@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -84,7 +85,8 @@ import java.util.IdentityHashMap;
       }
     }
     streamPeriodIndices.clear();
-    // Select tracks for each child, copying the resulting streams back into the streams array.
+    // Select tracks for each child, copying the resulting streams back into a new streams array.
+    SampleStream[] newStreams = new SampleStream[selections.length];
     SampleStream[] childStreams = new SampleStream[selections.length];
     TrackSelection[] childSelections = new TrackSelection[selections.length];
     ArrayList<MediaPeriod> enabledPeriodsList = new ArrayList<>(periods.length);
@@ -103,17 +105,22 @@ import java.util.IdentityHashMap;
       boolean periodEnabled = false;
       for (int j = 0; j < selections.length; j++) {
         if (selectionChildIndices[j] == i) {
-          streams[j] = childStreams[j];
-          if (childStreams[j] != null) {
-            periodEnabled = true;
-            streamPeriodIndices.put(childStreams[j], i);
-          }
+          // Assert that the child provided a stream for the selection.
+          Assertions.checkState(childStreams[j] != null);
+          newStreams[j] = childStreams[j];
+          periodEnabled = true;
+          streamPeriodIndices.put(childStreams[j], i);
+        } else if (streamChildIndices[j] == i) {
+          // Assert that the child cleared any previous stream.
+          Assertions.checkState(childStreams[j] == null);
         }
       }
       if (periodEnabled) {
         enabledPeriodsList.add(periods[i]);
       }
     }
+    // Copy the new streams back into the streams array.
+    System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
     enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
     enabledPeriodsList.toArray(enabledPeriods);
@@ -133,19 +140,20 @@ import java.util.IdentityHashMap;
 
   @Override
   public long readDiscontinuity() {
-    long positionUs = enabledPeriods[0].readDiscontinuity();
-    if (positionUs != C.TIME_UNSET) {
-      // It must be possible to seek additional periods to the new position.
-      for (int i = 1; i < enabledPeriods.length; i++) {
-        if (enabledPeriods[i].seekToUs(positionUs) != positionUs) {
-          throw new IllegalStateException("Children seeked to different positions");
-        }
+    long positionUs = periods[0].readDiscontinuity();
+    // Periods other than the first one are not allowed to report discontinuities.
+    for (int i = 1; i < periods.length; i++) {
+      if (periods[i].readDiscontinuity() != C.TIME_UNSET) {
+        throw new IllegalStateException("Child reported discontinuity");
       }
     }
-    // Additional periods are not allowed to report discontinuities.
-    for (int i = 1; i < enabledPeriods.length; i++) {
-      if (enabledPeriods[i].readDiscontinuity() != C.TIME_UNSET) {
-        throw new IllegalStateException("Child reported discontinuity");
+    // It must be possible to seek enabled periods to the new position, if there is one.
+    if (positionUs != C.TIME_UNSET) {
+      for (int i = 0; i < enabledPeriods.length; i++) {
+        if (enabledPeriods[i] != periods[0]
+            && enabledPeriods[i].seekToUs(positionUs) != positionUs) {
+          throw new IllegalStateException("Children seeked to different positions");
+        }
       }
     }
     return positionUs;

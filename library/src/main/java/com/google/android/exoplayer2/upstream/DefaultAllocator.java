@@ -26,6 +26,7 @@ public final class DefaultAllocator implements Allocator {
 
   private static final int AVAILABLE_EXTRA_CAPACITY = 100;
 
+  private final boolean trimOnReset;
   private final int individualAllocationSize;
   private final byte[] initialAllocationBlock;
   private final Allocation[] singleAllocationReleaseHolder;
@@ -38,10 +39,12 @@ public final class DefaultAllocator implements Allocator {
   /**
    * Constructs an instance without creating any {@link Allocation}s up front.
    *
+   * @param trimOnReset Whether memory is freed when the allocator is reset. Should be true unless
+   *     the allocator will be re-used by multiple player instances.
    * @param individualAllocationSize The length of each individual {@link Allocation}.
    */
-  public DefaultAllocator(int individualAllocationSize) {
-    this(individualAllocationSize, 0);
+  public DefaultAllocator(boolean trimOnReset, int individualAllocationSize) {
+    this(trimOnReset, individualAllocationSize, 0);
   }
 
   /**
@@ -49,12 +52,16 @@ public final class DefaultAllocator implements Allocator {
    * <p>
    * Note: {@link Allocation}s created up front will never be discarded by {@link #trim()}.
    *
+   * @param trimOnReset Whether memory is freed when the allocator is reset. Should be true unless
+   *     the allocator will be re-used by multiple player instances.
    * @param individualAllocationSize The length of each individual {@link Allocation}.
    * @param initialAllocationCount The number of allocations to create up front.
    */
-  public DefaultAllocator(int individualAllocationSize, int initialAllocationCount) {
+  public DefaultAllocator(boolean trimOnReset, int individualAllocationSize,
+      int initialAllocationCount) {
     Assertions.checkArgument(individualAllocationSize > 0);
     Assertions.checkArgument(initialAllocationCount >= 0);
+    this.trimOnReset = trimOnReset;
     this.individualAllocationSize = individualAllocationSize;
     this.availableCount = initialAllocationCount;
     this.availableAllocations = new Allocation[initialAllocationCount + AVAILABLE_EXTRA_CAPACITY];
@@ -68,6 +75,12 @@ public final class DefaultAllocator implements Allocator {
       initialAllocationBlock = null;
     }
     singleAllocationReleaseHolder = new Allocation[1];
+  }
+
+  public synchronized void reset() {
+    if (trimOnReset) {
+      setTargetBufferSize(0);
+    }
   }
 
   public synchronized void setTargetBufferSize(int targetBufferSize) {

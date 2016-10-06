@@ -41,7 +41,7 @@ import java.util.Arrays;
   /**
    * The initial size of the allocation used to hold the sample data.
    */
-  private static final int INITIAL_SAMPLE_SIZE = 1;
+  private static final int INITIAL_SAMPLE_SIZE = 1024;
 
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
@@ -71,7 +71,6 @@ import java.util.Arrays;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
     loader = new Loader("Loader:SingleSampleMediaPeriod");
-    sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
 
   public void release() {
@@ -269,7 +268,9 @@ import java.util.Arrays;
         int result = 0;
         while (result != C.RESULT_END_OF_INPUT) {
           sampleSize += result;
-          if (sampleSize == sampleData.length) {
+          if (sampleData == null) {
+            sampleData = new byte[INITIAL_SAMPLE_SIZE];
+          } else if (sampleSize == sampleData.length) {
             sampleData = Arrays.copyOf(sampleData, sampleData.length * 2);
           }
           result = dataSource.read(sampleData, sampleSize, sampleData.length - sampleSize);

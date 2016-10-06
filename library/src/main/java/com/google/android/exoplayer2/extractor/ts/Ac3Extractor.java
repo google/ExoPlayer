@@ -107,6 +107,9 @@ public final class Ac3Extractor implements Extractor {
           return true;
         }
         int frameSize = Ac3Util.parseAc3SyncframeSize(scratch.data);
+        if (frameSize == C.LENGTH_UNSET) {
+          return false;
+        }
         input.advancePeekPosition(frameSize - 5);
       }
     }

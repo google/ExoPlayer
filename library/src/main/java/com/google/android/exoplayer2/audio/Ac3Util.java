@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -175,9 +176,12 @@ public final class Ac3Util {
    * Returns the size in bytes of the given AC-3 syncframe.
    *
    * @param data The syncframe to parse.
-   * @return The syncframe size in bytes.
+   * @return The syncframe size in bytes. {@link C#LENGTH_UNSET} if the input is invalid.
    */
   public static int parseAc3SyncframeSize(byte[] data) {
+    if (data.length < 5) {
+      return C.LENGTH_UNSET;
+    }
     int fscod = (data[4] & 0xC0) >> 6;
     int frmsizecod = data[4] & 0x3F;
     return getAc3SyncframeSize(fscod, frmsizecod);
@@ -227,11 +231,17 @@ public final class Ac3Util {
   }
 
   private static int getAc3SyncframeSize(int fscod, int frmsizecod) {
+    int halfFrmsizecod = frmsizecod / 2;
+    if (fscod < 0 || fscod >= SAMPLE_RATE_BY_FSCOD.length || frmsizecod < 0
+        || halfFrmsizecod >= SYNCFRAME_SIZE_WORDS_BY_HALF_FRMSIZECOD_44_1.length) {
+      // Invalid values provided.
+      return C.LENGTH_UNSET;
+    }
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
     if (sampleRate == 44100) {
-      return 2 * (SYNCFRAME_SIZE_WORDS_BY_HALF_FRMSIZECOD_44_1[frmsizecod / 2] + (frmsizecod % 2));
+      return 2 * (SYNCFRAME_SIZE_WORDS_BY_HALF_FRMSIZECOD_44_1[halfFrmsizecod] + (frmsizecod % 2));
     }
-    int bitrate = BITRATE_BY_HALF_FRMSIZECOD[frmsizecod / 2];
+    int bitrate = BITRATE_BY_HALF_FRMSIZECOD[halfFrmsizecod];
     if (sampleRate == 32000) {
       return 6 * bitrate;
     } else { // sampleRate == 48000

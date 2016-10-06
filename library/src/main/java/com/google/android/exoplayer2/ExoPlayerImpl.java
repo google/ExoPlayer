@@ -106,7 +106,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition) {
     timeline = null;
-    internalPlayer.setMediaSource(mediaSource, resetPosition);
+    internalPlayer.prepare(mediaSource, resetPosition);
   }
 
   @Override

@@ -75,7 +75,7 @@ import java.io.IOException;
   public static final int MSG_ERROR = 6;
 
   // Internal messages
-  private static final int MSG_SET_MEDIA_SOURCE = 0;
+  private static final int MSG_PREPARE = 0;
   private static final int MSG_SET_PLAY_WHEN_READY = 1;
   private static final int MSG_DO_SOME_WORK = 2;
   private static final int MSG_SEEK_TO = 3;
@@ -164,8 +164,8 @@ import java.io.IOException;
     handler = new Handler(internalPlaybackThread.getLooper(), this);
   }
 
-  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
-    handler.obtainMessage(MSG_SET_MEDIA_SOURCE, resetPosition ? 1 : 0, 0, mediaSource)
+  public void prepare(MediaSource mediaSource, boolean resetPosition) {
+    handler.obtainMessage(MSG_PREPARE, resetPosition ? 1 : 0, 0, mediaSource)
         .sendToTarget();
   }
 
@@ -253,8 +253,8 @@ import java.io.IOException;
   public boolean handleMessage(Message msg) {
     try {
       switch (msg.what) {
-        case MSG_SET_MEDIA_SOURCE: {
-          setMediaSourceInternal((MediaSource) msg.obj, msg.arg1 != 0);
+        case MSG_PREPARE: {
+          prepareInternal((MediaSource) msg.obj, msg.arg1 != 0);
           return true;
         }
         case MSG_SET_PLAY_WHEN_READY: {
@@ -335,9 +335,10 @@ import java.io.IOException;
     }
   }
 
-  private void setMediaSourceInternal(MediaSource mediaSource, boolean resetPosition)
+  private void prepareInternal(MediaSource mediaSource, boolean resetPosition)
       throws ExoPlaybackException {
     resetInternal();
+    loadControl.onPrepared();
     if (resetPosition) {
       playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
     }
@@ -597,11 +598,13 @@ import java.io.IOException;
 
   private void stopInternal() {
     resetInternal();
+    loadControl.onStopped();
     setState(ExoPlayer.STATE_IDLE);
   }
 
   private void releaseInternal() {
     resetInternal();
+    loadControl.onReleased();
     setState(ExoPlayer.STATE_IDLE);
     synchronized (this) {
       released = true;
@@ -638,7 +641,6 @@ import java.io.IOException;
     loadingPeriodHolder = null;
     timeline = null;
     bufferAheadPeriodCount = 0;
-    loadControl.onTracksDisabled();
     setIsLoading(false);
   }
 
@@ -1262,11 +1264,14 @@ import java.io.IOException;
           sampleStreams, streamResetFlags, positionUs);
       periodTrackSelections = trackSelections;
 
+      // Update whether we have enabled tracks and sanity check the expected streams are non-null.
       hasEnabledTracks = false;
       for (int i = 0; i < sampleStreams.length; i++) {
         if (sampleStreams[i] != null) {
+          Assertions.checkState(trackSelections.get(i) != null);
           hasEnabledTracks = true;
-          break;
+        } else {
+          Assertions.checkState(trackSelections.get(i) == null);
         }
       }
 

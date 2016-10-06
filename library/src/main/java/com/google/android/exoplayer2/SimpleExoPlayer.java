@@ -184,6 +184,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
+   * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
+   * currently set on the player.
+   */
+  public void clearVideoSurface() {
+    setVideoSurface(null);
+  }
+
+  /**
    * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
    * tracking the lifecycle of the surface, and must clear the surface by calling
    * {@code setVideoSurface(null)} if the surface is destroyed.
@@ -240,6 +248,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     if (textureView == null) {
       setVideoSurfaceInternal(null);
     } else {
+      if (textureView.getSurfaceTextureListener() != null) {
+        Log.w(TAG, "Replacing existing SurfaceTextureListener.");
+      }
       SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
       setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture));
       textureView.setSurfaceTextureListener(componentListener);
@@ -456,6 +467,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   @Override
   public void release() {
     player.release();
+    removeSurfaceCallbacks();
   }
 
   @Override
@@ -592,13 +604,17 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   private void removeSurfaceCallbacks() {
-    if (this.textureView != null) {
-      this.textureView.setSurfaceTextureListener(null);
-      this.textureView = null;
+    if (textureView != null) {
+      if (textureView.getSurfaceTextureListener() != componentListener) {
+        Log.w(TAG, "SurfaceTextureListener already unset or replaced.");
+      } else {
+        textureView.setSurfaceTextureListener(null);
+      }
+      textureView = null;
     }
-    if (this.surfaceHolder != null) {
-      this.surfaceHolder.removeCallback(componentListener);
-      this.surfaceHolder = null;
+    if (surfaceHolder != null) {
+      surfaceHolder.removeCallback(componentListener);
+      surfaceHolder = null;
     }
   }
 

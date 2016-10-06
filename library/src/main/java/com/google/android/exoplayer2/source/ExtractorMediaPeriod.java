@@ -456,7 +456,7 @@ import java.util.Arrays;
       lastSeekPositionUs = 0;
       notifyReset = prepared;
       for (int i = 0; i < sampleQueues.length; i++) {
-        sampleQueues[i].reset(trackEnabledStates[i]);
+        sampleQueues[i].reset(!prepared || trackEnabledStates[i]);
       }
       loadable.setLoadPosition(0);
     }

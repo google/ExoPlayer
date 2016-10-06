@@ -16,7 +16,6 @@
 
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -27,11 +26,16 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     project.ext {
         compileSdkVersion=24
         targetSdkVersion=24
         buildToolsVersion='23.0.3'
+        releaseRepoName = 'exoplayer'
+        releaseUserOrg = 'google'
+        releaseGroupId = 'com.google.android.exoplayer'
+        releaseVersion = 'r2.0.2'
+        releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
 }
