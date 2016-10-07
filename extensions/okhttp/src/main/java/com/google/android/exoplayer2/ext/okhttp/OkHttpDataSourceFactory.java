@@ -19,26 +19,26 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import okhttp3.CacheControl;
-import okhttp3.OkHttpClient;
+import okhttp3.Call;
 
 /**
  * A {@link Factory} that produces {@link OkHttpDataSource}.
  */
 public final class OkHttpDataSourceFactory implements Factory {
 
-  private final OkHttpClient client;
+  private final Call.Factory callFactory;
   private final String userAgent;
   private final TransferListener<? super DataSource> transferListener;
   private final CacheControl cacheControl;
 
-  public OkHttpDataSourceFactory(OkHttpClient client, String userAgent,
+  public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
       TransferListener<? super DataSource> transferListener) {
-    this(client, userAgent, transferListener, null);
+    this(callFactory, userAgent, transferListener, null);
   }
 
-  public OkHttpDataSourceFactory(OkHttpClient client, String userAgent,
+  public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
       TransferListener<? super DataSource> transferListener, CacheControl cacheControl) {
-    this.client = client;
+    this.callFactory = callFactory;
     this.userAgent = userAgent;
     this.transferListener = transferListener;
     this.cacheControl = cacheControl;
@@ -46,7 +46,7 @@ public final class OkHttpDataSourceFactory implements Factory {
 
   @Override
   public OkHttpDataSource createDataSource() {
-    return new OkHttpDataSource(client, userAgent, null, transferListener, cacheControl);
+    return new OkHttpDataSource(callFactory, userAgent, null, transferListener, cacheControl);
   }
 
 }
