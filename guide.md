@@ -439,3 +439,4 @@ additional schemes such as PlayReady. All Android TV devices support PlayReady.
 [`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
 [`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
 [Bintray]: https://bintray.com/google/exoplayer/exoplayer
+[Releases]: https://github.com/google/ExoPlayer/releases
