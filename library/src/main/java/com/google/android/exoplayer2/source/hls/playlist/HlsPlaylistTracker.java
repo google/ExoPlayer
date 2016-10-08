@@ -292,46 +292,39 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   private HlsMediaPlaylist adjustPlaylistTimestamps(HlsMediaPlaylist oldPlaylist,
       HlsMediaPlaylist newPlaylist) {
+    if (newPlaylist.hasProgramDateTime) {
+      if (newPlaylist.isNewerThan(oldPlaylist)) {
+        return newPlaylist;
+      } else {
+        return oldPlaylist;
+      }
+    }
     HlsMediaPlaylist primaryPlaylistSnapshot =
         playlistBundles.get(primaryHlsUrl).latestPlaylistSnapshot;
     if (oldPlaylist == null) {
-      if (primaryPlaylistSnapshot == null) {
-        // Playback has just started so no adjustment is needed.
+      if (primaryPlaylistSnapshot == null
+          || primaryPlaylistSnapshot.startTimeUs == newPlaylist.startTimeUs) {
+        // Playback has just started or is VOD so no adjustment is needed.
         return newPlaylist;
       } else {
-        return newPlaylist.copyWithStartTimeUs(primaryPlaylistSnapshot.getStartTimeUs());
+        return newPlaylist.copyWithStartTimeUs(primaryPlaylistSnapshot.startTimeUs);
       }
     }
-    List<HlsMediaPlaylist.Segment> oldSegments = oldPlaylist.segments;
+    List<Segment> oldSegments = oldPlaylist.segments;
     int oldPlaylistSize = oldSegments.size();
-    int newPlaylistSize = newPlaylist.segments.size();
-    int mediaSequenceOffset = newPlaylist.mediaSequence - oldPlaylist.mediaSequence;
-    if (newPlaylistSize == oldPlaylistSize && mediaSequenceOffset == 0
-        && oldPlaylist.hasEndTag == newPlaylist.hasEndTag) {
+    if (!newPlaylist.isNewerThan(oldPlaylist)) {
       // Playlist has not changed.
       return oldPlaylist;
     }
-    if (mediaSequenceOffset < 0) {
-      // Playlist has changed but media sequence has regressed.
-      return oldPlaylist;
-    }
+    int mediaSequenceOffset = newPlaylist.mediaSequence - oldPlaylist.mediaSequence;
     if (mediaSequenceOffset <= oldPlaylistSize) {
-      // We can extrapolate the start time of new segments from the segments of the old snapshot.
-      ArrayList<HlsMediaPlaylist.Segment> newSegments = new ArrayList<>(newPlaylistSize);
-      for (int i = mediaSequenceOffset; i < oldPlaylistSize; i++) {
-        newSegments.add(oldSegments.get(i));
-      }
-      HlsMediaPlaylist.Segment lastSegment = oldSegments.get(oldPlaylistSize - 1);
-      for (int i = newSegments.size(); i < newPlaylistSize; i++) {
-        lastSegment = newPlaylist.segments.get(i).copyWithStartTimeUs(
-            lastSegment.startTimeUs + lastSegment.durationUs);
-        newSegments.add(lastSegment);
-      }
-      return newPlaylist.copyWithSegments(newSegments);
-    } else {
-      // No segments overlap, we assume the new playlist start coincides with the primary playlist.
-      return newPlaylist.copyWithStartTimeUs(primaryPlaylistSnapshot.getStartTimeUs());
+      long adjustedNewPlaylistStartTimeUs = mediaSequenceOffset == oldPlaylistSize
+          ? oldPlaylist.getEndTimeUs()
+          : oldPlaylist.startTimeUs + oldSegments.get(mediaSequenceOffset).relativeStartTimeUs;
+      return newPlaylist.copyWithStartTimeUs(adjustedNewPlaylistStartTimeUs);
     }
+    // No segments overlap, we assume the new playlist start coincides with the primary playlist.
+    return newPlaylist.copyWithStartTimeUs(primaryPlaylistSnapshot.startTimeUs);
   }
 
   /**
@@ -375,31 +368,19 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
 
     public void adjustTimestampsOfPlaylist(int chunkMediaSequence, long adjustedStartTimeUs) {
-      ArrayList<Segment> segments = new ArrayList<>(latestPlaylistSnapshot.segments);
       int indexOfChunk = chunkMediaSequence - latestPlaylistSnapshot.mediaSequence;
-      if (indexOfChunk < 0) {
+      if (latestPlaylistSnapshot.hasProgramDateTime || indexOfChunk < 0) {
         return;
       }
-      Segment actualSegment = segments.get(indexOfChunk);
-      long timestampDriftUs = Math.abs(actualSegment.startTimeUs - adjustedStartTimeUs);
+      Segment actualSegment = latestPlaylistSnapshot.segments.get(indexOfChunk);
+      long segmentAbsoluteStartTimeUs =
+          actualSegment.relativeStartTimeUs + latestPlaylistSnapshot.startTimeUs;
+      long timestampDriftUs = Math.abs(segmentAbsoluteStartTimeUs - adjustedStartTimeUs);
       if (timestampDriftUs < TIMESTAMP_ADJUSTMENT_THRESHOLD_US) {
         return;
       }
-      segments.set(indexOfChunk, actualSegment.copyWithStartTimeUs(adjustedStartTimeUs));
-      // Propagate the adjustment backwards.
-      for (int i = indexOfChunk - 1; i >= 0; i--) {
-        Segment segment = segments.get(i);
-        segments.set(i,
-            segment.copyWithStartTimeUs(segments.get(i + 1).startTimeUs - segment.durationUs));
-      }
-      // Propagate the adjustment forward.
-      int segmentsSize = segments.size();
-      for (int i = indexOfChunk + 1; i < segmentsSize; i++) {
-        Segment segment = segments.get(i);
-        segments.set(i,
-            segment.copyWithStartTimeUs(segments.get(i - 1).startTimeUs + segment.durationUs));
-      }
-      latestPlaylistSnapshot = latestPlaylistSnapshot.copyWithSegments(segments);
+      latestPlaylistSnapshot = latestPlaylistSnapshot.copyWithStartTimeUs(
+          adjustedStartTimeUs - actualSegment.relativeStartTimeUs);
     }
 
     // Loader.Callback implementation.

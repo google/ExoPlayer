@@ -212,7 +212,8 @@ import java.util.Locale;
         // If the playlist is too old to contain the chunk, we need to refresh it.
         chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
       } else {
-        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, targetPositionUs, true,
+        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments,
+            targetPositionUs - mediaPlaylist.startTimeUs, true,
             !playlistTracker.isLive() || previous == null) + mediaPlaylist.mediaSequence;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence && previous != null) {
           // We try getting the next chunk without adapting in case that's the reason for falling
@@ -259,16 +260,6 @@ import java.util.Locale;
       clearEncryptionData();
     }
 
-    // Compute start time and sequence number of the next chunk.
-    long startTimeUs = segment.startTimeUs;
-    if (previous != null && !switchingVariant) {
-      startTimeUs = previous.getAdjustedEndTimeUs();
-    }
-    Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
-
-    TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-        segment.discontinuitySequenceNumber, startTimeUs);
-
     DataSpec initDataSpec = null;
     Segment initSegment = mediaPlaylist.initializationSegment;
     if (initSegment != null) {
@@ -277,13 +268,20 @@ import java.util.Locale;
           initSegment.byterangeLength, null);
     }
 
+    // Compute start time of the next chunk.
+    long startTimeUs = mediaPlaylist.startTimeUs + segment.relativeStartTimeUs;
+    TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
+        segment.discontinuitySequenceNumber, startTimeUs);
+
     // Configure the data source and spec for the chunk.
+    Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), segment,
-        chunkMediaSequence, isTimestampMaster, timestampAdjuster, previous, encryptionKey,
-        encryptionIv);
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
+        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence,
+        segment.discontinuitySequenceNumber, isTimestampMaster, timestampAdjuster, previous,
+        encryptionKey, encryptionIv);
   }
 
   /**

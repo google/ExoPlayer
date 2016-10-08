@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -89,8 +88,10 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param hlsUrl The url of the playlist from which this chunk was obtained.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
-   * @param segment The {@link Segment} for which this media chunk is created.
+   * @param startTimeUs The start time of the chunk in microseconds.
+   * @param endTimeUs The end time of the chunk in microseconds.
    * @param chunkIndex The media sequence number of the chunk.
+   * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
@@ -98,21 +99,21 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
   public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, DataSpec initDataSpec,
-      HlsUrl hlsUrl, int trackSelectionReason, Object trackSelectionData, Segment segment,
-      int chunkIndex, boolean isMasterTimestampSource, TimestampAdjuster timestampAdjuster,
+      HlsUrl hlsUrl, int trackSelectionReason, Object trackSelectionData, long startTimeUs,
+      long endTimeUs, int chunkIndex, int discontinuitySequenceNumber,
+      boolean isMasterTimestampSource, TimestampAdjuster timestampAdjuster,
       HlsMediaChunk previousChunk, byte[] encryptionKey, byte[] encryptionIv) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, hlsUrl.format,
-        trackSelectionReason, trackSelectionData, segment.startTimeUs,
-        segment.startTimeUs + segment.durationUs, chunkIndex);
+        trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
     this.initDataSpec = initDataSpec;
     this.hlsUrl = hlsUrl;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
+    this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.previousChunk = previousChunk;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
     initDataSource = dataSource;
-    discontinuitySequenceNumber = segment.discontinuitySequenceNumber;
     adjustedEndTimeUs = endTimeUs;
     uid = UID_SOURCE.getAndIncrement();
   }
@@ -136,7 +137,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Returns the presentation time in microseconds of the last sample in the chunk
+   * Returns the presentation time in microseconds of the last sample in the chunk.
    */
   public long getAdjustedEndTimeUs() {
     return adjustedEndTimeUs;
@@ -231,8 +232,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   private void maybeLoadInitData() throws IOException, InterruptedException {
-    if (previousChunk == null || previousChunk.extractor != extractor || initLoadCompleted
-        || initDataSpec == null) {
+    if ((previousChunk != null && previousChunk.extractor == extractor)
+        || initLoadCompleted || initDataSpec == null) {
       return;
     }
     DataSpec initSegmentDataSpec = Util.getRemainderDataSpec(initDataSpec, initSegmentBytesLoaded);

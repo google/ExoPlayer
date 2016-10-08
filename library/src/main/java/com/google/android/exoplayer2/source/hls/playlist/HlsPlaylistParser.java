@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +44,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
   private static final String TAG_DISCONTINUITY = "#EXT-X-DISCONTINUITY";
   private static final String TAG_DISCONTINUITY_SEQUENCE = "#EXT-X-DISCONTINUITY-SEQUENCE";
+  private static final String TAG_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME";
   private static final String TAG_INIT_SEGMENT = "#EXT-X-MAP";
   private static final String TAG_MEDIA_DURATION = "#EXTINF";
   private static final String TAG_MEDIA_SEQUENCE = "#EXT-X-MEDIA-SEQUENCE";
@@ -62,17 +64,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String BOOLEAN_TRUE = "YES";
   private static final String BOOLEAN_FALSE = "NO";
 
-  private static final Pattern REGEX_GROUP_ID = Pattern.compile("GROUP-ID=\"(.+?)\"");
-  private static final Pattern REGEX_VIDEO = Pattern.compile("VIDEO=\"(.+?)\"");
-  private static final Pattern REGEX_AUDIO = Pattern.compile("AUDIO=\"(.+?)\"");
-  private static final Pattern REGEX_CLOSED_CAPTIONS = Pattern.compile("CLOSED-CAPTIONS=\"(.+?)\"");
-  private static final Pattern REGEX_SUBTITLES = Pattern.compile("SUBTITLES=\"(.+?)\"");
   private static final Pattern REGEX_BANDWIDTH = Pattern.compile("BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
-  private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
-      + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
       + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
@@ -211,7 +206,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
     int mediaSequence = 0;
-    int targetDurationSecs = 0;
     int version = 1; // Default version == 1.
     boolean hasEndTag = false;
     Segment initializationSegment = null;
@@ -219,6 +213,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
     long segmentDurationUs = 0;
     int discontinuitySequenceNumber = 0;
+    long playlistStartTimeUs = 0;
     long segmentStartTimeUs = 0;
     long segmentByteRangeOffset = 0;
     long segmentByteRangeLength = C.LENGTH_UNSET;
@@ -244,8 +239,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         initializationSegment = new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength);
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
-      } else if (line.startsWith(TAG_TARGET_DURATION)) {
-        targetDurationSecs = parseIntAttr(line, REGEX_TARGET_DURATION);
       } else if (line.startsWith(TAG_MEDIA_SEQUENCE)) {
         mediaSequence = parseIntAttr(line, REGEX_MEDIA_SEQUENCE);
         segmentMediaSequence = mediaSequence;
@@ -275,6 +268,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         discontinuitySequenceNumber = Integer.parseInt(line.substring(line.indexOf(':') + 1));
       } else if (line.equals(TAG_DISCONTINUITY)) {
         discontinuitySequenceNumber++;
+      } else if (line.startsWith(TAG_PROGRAM_DATE_TIME)) {
+        if (playlistStartTimeUs == 0) {
+          long programDatetimeUs =
+              C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
+          playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
+        }
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
         if (!isEncrypted) {
@@ -301,8 +300,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasEndTag = true;
       }
     }
-    return new HlsMediaPlaylist(baseUri, mediaSequence, version, hasEndTag,
-        initializationSegment, segments);
+    return new HlsMediaPlaylist(baseUri, playlistStartTimeUs, mediaSequence, version, hasEndTag,
+        playlistStartTimeUs != 0, initializationSegment, segments);
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {

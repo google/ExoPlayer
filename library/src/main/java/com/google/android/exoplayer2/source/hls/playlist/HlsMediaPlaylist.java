@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.C;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final String url;
     public final long durationUs;
     public final int discontinuitySequenceNumber;
-    public final long startTimeUs;
+    public final long relativeStartTimeUs;
     public final boolean isEncrypted;
     public final String encryptionKeyUri;
     public final String encryptionIV;
@@ -45,12 +44,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
 
     public Segment(String uri, long durationUs, int discontinuitySequenceNumber,
-        long startTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
+        long relativeStartTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
         long byterangeOffset, long byterangeLength) {
       this.url = uri;
       this.durationUs = durationUs;
       this.discontinuitySequenceNumber = discontinuitySequenceNumber;
-      this.startTimeUs = startTimeUs;
+      this.relativeStartTimeUs = relativeStartTimeUs;
       this.isEncrypted = isEncrypted;
       this.encryptionKeyUri = encryptionKeyUri;
       this.encryptionIV = encryptionIV;
@@ -59,64 +58,55 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
 
     @Override
-    public int compareTo(Long startTimeUs) {
-      return this.startTimeUs > startTimeUs ? 1 : (this.startTimeUs < startTimeUs ? -1 : 0);
-    }
-
-    public Segment copyWithStartTimeUs(long startTimeUs) {
-      return new Segment(url, durationUs, discontinuitySequenceNumber, startTimeUs, isEncrypted,
-          encryptionKeyUri, encryptionIV, byterangeOffset, byterangeLength);
+    public int compareTo(Long relativeStartTimeUs) {
+      return this.relativeStartTimeUs > relativeStartTimeUs
+          ? 1 : (this.relativeStartTimeUs < relativeStartTimeUs ? -1 : 0);
     }
 
   }
 
+  public final long startTimeUs;
   public final int mediaSequence;
   public final int version;
   public final Segment initializationSegment;
   public final List<Segment> segments;
   public final boolean hasEndTag;
+  public final boolean hasProgramDateTime;
   public final long durationUs;
 
-  public HlsMediaPlaylist(String baseUri, int mediaSequence, int version,
-      boolean hasEndTag, Segment initializationSegment, List<Segment> segments) {
+  public HlsMediaPlaylist(String baseUri, long startTimeUs, int mediaSequence, int version,
+      boolean hasEndTag, boolean hasProgramDateTime, Segment initializationSegment,
+      List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
+    this.startTimeUs = startTimeUs;
     this.mediaSequence = mediaSequence;
     this.version = version;
     this.hasEndTag = hasEndTag;
+    this.hasProgramDateTime = hasProgramDateTime;
     this.initializationSegment = initializationSegment;
     this.segments = Collections.unmodifiableList(segments);
 
     if (!segments.isEmpty()) {
-      Segment first = segments.get(0);
       Segment last = segments.get(segments.size() - 1);
-      durationUs = last.startTimeUs + last.durationUs - first.startTimeUs;
+      durationUs = last.relativeStartTimeUs + last.durationUs;
     } else {
       durationUs = 0;
     }
   }
 
-  public long getStartTimeUs() {
-    return segments.isEmpty() ? 0 : segments.get(0).startTimeUs;
+  public boolean isNewerThan(HlsMediaPlaylist other) {
+    return other == null || mediaSequence > other.mediaSequence
+        || (mediaSequence == other.mediaSequence && segments.size() > other.segments.size())
+        || (hasEndTag && !other.hasEndTag);
   }
 
   public long getEndTimeUs() {
-    return getStartTimeUs() + durationUs;
+    return startTimeUs + durationUs;
   }
 
-  public HlsMediaPlaylist copyWithStartTimeUs(long newStartTimeUs) {
-    long startTimeOffsetUs = newStartTimeUs - getStartTimeUs();
-    int segmentsSize = segments.size();
-    List<Segment> newSegments = new ArrayList<>(segmentsSize);
-    for (int i = 0; i < segmentsSize; i++) {
-      Segment segment = segments.get(i);
-      newSegments.add(segment.copyWithStartTimeUs(segment.startTimeUs + startTimeOffsetUs));
-    }
-    return copyWithSegments(newSegments);
-  }
-
-  public HlsMediaPlaylist copyWithSegments(List<Segment> segments) {
-    return new HlsMediaPlaylist(baseUri, mediaSequence, version, hasEndTag,
-        initializationSegment, segments);
+  public HlsMediaPlaylist copyWithStartTimeUs(long startTimeUs) {
+    return new HlsMediaPlaylist(baseUri, startTimeUs, mediaSequence, version, hasEndTag,
+        hasProgramDateTime, initializationSegment, segments);
   }
 
 }
