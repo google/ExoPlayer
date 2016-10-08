@@ -40,6 +40,11 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     index = new CachedContentIndex(cacheDir);
   }
 
+  @Override
+  protected void tearDown() throws Exception {
+    TestUtil.recursiveDelete(cacheDir);
+  }
+
   public void testAddGetRemove() throws Exception {
     final String key1 = "key1";
     final String key2 = "key2";
