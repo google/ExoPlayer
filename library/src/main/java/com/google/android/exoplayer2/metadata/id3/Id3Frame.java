@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
-import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * Base class for ID3 frames.
@@ -29,11 +29,7 @@ public abstract class Id3Frame implements Parcelable {
   public final String id;
 
   public Id3Frame(String id) {
-    this.id = id;
-  }
-
-  protected Id3Frame(Parcel in) {
-    id = in.readString();
+    this.id = Assertions.checkNotNull(id);
   }
 
   @Override

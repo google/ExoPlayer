@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * TXXX (User defined text information) ID3 frame.
@@ -34,28 +35,27 @@ public final class TxxxFrame extends Id3Frame {
     this.value = value;
   }
 
-  public TxxxFrame(Parcel in) {
-    super(in);
+  /* package */ TxxxFrame(Parcel in) {
+    super(ID);
     description = in.readString();
     value = in.readString();
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    TxxxFrame that = (TxxxFrame) o;
-
-    if (id != null ? !id.equals(that.id) : that.id != null) return false;
-    if (description != null ? !description.equals(that.description) : that.description != null)
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
-    return value != null ? value.equals(that.value) : that.value == null;
+    }
+    TxxxFrame other = (TxxxFrame) obj;
+    return Util.areEqual(description, other.description) && Util.areEqual(value, other.value);
   }
 
   @Override
   public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
+    int result = 17;
     result = 31 * result + (description != null ? description.hashCode() : 0);
     result = 31 * result + (value != null ? value.hashCode() : 0);
     return result;
@@ -63,24 +63,22 @@ public final class TxxxFrame extends Id3Frame {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(id);
     dest.writeString(description);
     dest.writeString(value);
   }
 
-  public static final Parcelable.Creator<TxxxFrame> CREATOR =
-      new Parcelable.Creator<TxxxFrame>() {
+  public static final Parcelable.Creator<TxxxFrame> CREATOR = new Parcelable.Creator<TxxxFrame>() {
 
-        @Override
-        public TxxxFrame createFromParcel(Parcel in) {
-          return new TxxxFrame(in);
-        }
+    @Override
+    public TxxxFrame createFromParcel(Parcel in) {
+      return new TxxxFrame(in);
+    }
 
-        @Override
-        public TxxxFrame[] newArray(int size) {
-          return new TxxxFrame[size];
-        }
+    @Override
+    public TxxxFrame[] newArray(int size) {
+      return new TxxxFrame[size];
+    }
 
-      };
+  };
 
 }

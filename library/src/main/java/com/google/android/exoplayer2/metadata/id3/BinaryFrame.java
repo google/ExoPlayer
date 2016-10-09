@@ -26,31 +26,32 @@ public final class BinaryFrame extends Id3Frame {
 
   public final byte[] data;
 
-  public BinaryFrame(String type, byte[] data) {
-    super(type);
+  public BinaryFrame(String id, byte[] data) {
+    super(id);
     this.data = data;
   }
 
-  public BinaryFrame(Parcel in) {
-    super(in);
+  /* package */ BinaryFrame(Parcel in) {
+    super(in.readString());
     data = in.createByteArray();
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    BinaryFrame that = (BinaryFrame) o;
-
-    if (id != null ? !id.equals(that.id) : that.id != null)
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
-    return Arrays.equals(data, that.data);
+    }
+    BinaryFrame other = (BinaryFrame) obj;
+    return id.equals(other.id) && Arrays.equals(data, other.data);
   }
 
   @Override
   public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
+    int result = 17;
+    result = 31 * result + id.hashCode();
     result = 31 * result + Arrays.hashCode(data);
     return result;
   }

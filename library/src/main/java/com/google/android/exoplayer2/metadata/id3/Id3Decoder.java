@@ -345,8 +345,8 @@ public final class Id3Decoder implements MetadataDecoder<Metadata> {
     return new TextInformationFrame(id, description);
   }
 
-  private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data,
-      int frameSize) throws UnsupportedEncodingException {
+  private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
     int encoding = id3Data.readUnsignedByte();
     String charset = getCharsetName(encoding);
 
@@ -360,11 +360,11 @@ public final class Id3Decoder implements MetadataDecoder<Metadata> {
     int descriptionEndIndex = indexOfEos(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
-    int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
-    String value = new String(data, valueStartIndex, valueEndIndex - valueStartIndex, charset);
+    int textStartIndex = descriptionEndIndex + delimiterLength(encoding);
+    int textEndIndex = indexOfEos(data, textStartIndex, encoding);
+    String text = new String(data, textStartIndex, textEndIndex - textStartIndex, charset);
 
-    return new CommentFrame(language, description, value);
+    return new CommentFrame(language, description, text);
   }
 
   private static BinaryFrame decodeBinaryFrame(ParsableByteArray id3Data, int frameSize,

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /**
@@ -39,8 +40,8 @@ public final class ApicFrame extends Id3Frame {
     this.pictureData = pictureData;
   }
 
-  public ApicFrame(Parcel in) {
-    super(in);
+  /* package */ ApicFrame(Parcel in) {
+    super(ID);
     mimeType = in.readString();
     description = in.readString();
     pictureType = in.readInt();
@@ -48,53 +49,49 @@ public final class ApicFrame extends Id3Frame {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    ApicFrame that = (ApicFrame) o;
-
-    if (id != null ? !id.equals(that.id) : that.id != null) return false;
-    if (pictureType != that.pictureType) return false;
-    if (mimeType != null ? !mimeType.equals(that.mimeType) : that.mimeType != null)
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
-    if (description != null ? !description.equals(that.description) : that.description != null)
-      return false;
-    return Arrays.equals(pictureData, that.pictureData);
+    }
+    ApicFrame other = (ApicFrame) obj;
+    return pictureType == other.pictureType && Util.areEqual(mimeType, other.mimeType)
+        && Util.areEqual(description, other.description)
+        && Arrays.equals(pictureData, other.pictureData);
   }
 
   @Override
   public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
+    int result = 17;
+    result = 31 * result + pictureType;
     result = 31 * result + (mimeType != null ? mimeType.hashCode() : 0);
     result = 31 * result + (description != null ? description.hashCode() : 0);
-    result = 31 * result + pictureType;
     result = 31 * result + Arrays.hashCode(pictureData);
     return result;
   }
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(id);
     dest.writeString(mimeType);
     dest.writeString(description);
     dest.writeInt(pictureType);
     dest.writeByteArray(pictureData);
   }
 
-  public static final Parcelable.Creator<ApicFrame> CREATOR =
-      new Parcelable.Creator<ApicFrame>() {
+  public static final Parcelable.Creator<ApicFrame> CREATOR = new Parcelable.Creator<ApicFrame>() {
 
-        @Override
-        public ApicFrame createFromParcel(Parcel in) {
-          return new ApicFrame(in);
-        }
+    @Override
+    public ApicFrame createFromParcel(Parcel in) {
+      return new ApicFrame(in);
+    }
 
-        @Override
-        public ApicFrame[] newArray(int size) {
-          return new ApicFrame[size];
-        }
+    @Override
+    public ApicFrame[] newArray(int size) {
+      return new ApicFrame[size];
+    }
 
-      };
+  };
 
 }

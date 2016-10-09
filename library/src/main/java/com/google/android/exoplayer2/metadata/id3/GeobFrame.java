@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /**
@@ -39,8 +40,8 @@ public final class GeobFrame extends Id3Frame {
     this.data = data;
   }
 
-  public GeobFrame(Parcel in) {
-    super(in);
+  /* package */ GeobFrame(Parcel in) {
+    super(ID);
     mimeType = in.readString();
     filename = in.readString();
     description = in.readString();
@@ -48,25 +49,21 @@ public final class GeobFrame extends Id3Frame {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    GeobFrame that = (GeobFrame) o;
-
-    if (id != null ? !id.equals(that.id) : that.id != null) return false;
-    if (mimeType != null ? !mimeType.equals(that.mimeType) : that.mimeType != null)
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
-    if (filename != null ? !filename.equals(that.filename) : that.filename != null)
-      return false;
-    if (description != null ? !description.equals(that.description) : that.description != null)
-      return false;
-    return Arrays.equals(data, that.data);
+    }
+    GeobFrame other = (GeobFrame) obj;
+    return Util.areEqual(mimeType, other.mimeType) && Util.areEqual(filename, other.filename)
+        && Util.areEqual(description, other.description) && Arrays.equals(data, other.data);
   }
 
   @Override
   public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
+    int result = 17;
     result = 31 * result + (mimeType != null ? mimeType.hashCode() : 0);
     result = 31 * result + (filename != null ? filename.hashCode() : 0);
     result = 31 * result + (description != null ? description.hashCode() : 0);
@@ -76,26 +73,24 @@ public final class GeobFrame extends Id3Frame {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(id);
     dest.writeString(mimeType);
     dest.writeString(filename);
     dest.writeString(description);
     dest.writeByteArray(data);
   }
 
-  public static final Parcelable.Creator<GeobFrame> CREATOR =
-      new Parcelable.Creator<GeobFrame>() {
+  public static final Parcelable.Creator<GeobFrame> CREATOR = new Parcelable.Creator<GeobFrame>() {
 
-        @Override
-        public GeobFrame createFromParcel(Parcel in) {
-          return new GeobFrame(in);
-        }
+    @Override
+    public GeobFrame createFromParcel(Parcel in) {
+      return new GeobFrame(in);
+    }
 
-        @Override
-        public GeobFrame[] newArray(int size) {
-          return new GeobFrame[size];
-        }
+    @Override
+    public GeobFrame[] newArray(int size) {
+      return new GeobFrame[size];
+    }
 
-      };
+  };
 
 }

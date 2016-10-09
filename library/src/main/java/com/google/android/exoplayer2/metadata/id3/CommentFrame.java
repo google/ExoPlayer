@@ -17,43 +17,51 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Comment ID3 frame.
  */
 public final class CommentFrame extends Id3Frame {
 
+  public static final String ID = "COMM";
+
   public final String language;
+  public final String description;
   public final String text;
 
   public CommentFrame(String language, String description, String text) {
-    super(description);
+    super(ID);
     this.language = language;
+    this.description = description;
     this.text = text;
   }
 
-  public CommentFrame(Parcel in) {
-    super(in);
+  /* package */ CommentFrame(Parcel in) {
+    super(ID);
     language = in.readString();
+    description = in.readString();
     text = in.readString();
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    CommentFrame that = (CommentFrame) o;
-
-    if (id != null ? !id.equals(that.id) : that.id != null) return false;
-    if (language != null ? !language.equals(that.language) : that.language != null) return false;
-    return text != null ? text.equals(that.text) : that.text == null;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    CommentFrame other = (CommentFrame) obj;
+    return Util.areEqual(description, other.description) && Util.areEqual(language, other.language)
+        && Util.areEqual(text, other.text);
   }
 
   @Override
   public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
+    int result = 17;
     result = 31 * result + (language != null ? language.hashCode() : 0);
+    result = 31 * result + (description != null ? description.hashCode() : 0);
     result = 31 * result + (text != null ? text.hashCode() : 0);
     return result;
   }

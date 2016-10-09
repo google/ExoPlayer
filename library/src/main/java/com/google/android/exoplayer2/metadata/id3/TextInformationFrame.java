@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Text information ("T000" - "TZZZ", excluding "TXXX") ID3 frame.
@@ -30,25 +31,27 @@ public final class TextInformationFrame extends Id3Frame {
     this.description = description;
   }
 
-  public TextInformationFrame(Parcel in) {
-    super(in);
+  /* package */ TextInformationFrame(Parcel in) {
+    super(in.readString());
     description = in.readString();
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    TextInformationFrame that = (TextInformationFrame) o;
-
-    if (id != null ? !id.equals(that.id) : that.id != null) return false;
-    return description != null ? description.equals(that.description) : that.description == null;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    TextInformationFrame other = (TextInformationFrame) obj;
+    return id.equals(other.id) && Util.areEqual(description, other.description);
   }
 
   @Override
   public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
+    int result = 17;
+    result = 31 * result + id.hashCode();
     result = 31 * result + (description != null ? description.hashCode() : 0);
     return result;
   }
