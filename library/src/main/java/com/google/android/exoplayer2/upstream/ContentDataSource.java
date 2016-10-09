@@ -142,13 +142,22 @@ public final class ContentDataSource implements DataSource {
   @Override
   public void close() throws ContentDataSourceException {
     uri = null;
-    if (inputStream != null) {
-      try {
+    try {
+      if (inputStream != null) {
         inputStream.close();
+      }
+    } catch (IOException e) {
+      throw new ContentDataSourceException(e);
+    } finally {
+      inputStream = null;
+      try {
+        if (assetFileDescriptor != null) {
+          assetFileDescriptor.close();
+        }
       } catch (IOException e) {
         throw new ContentDataSourceException(e);
       } finally {
-        inputStream = null;
+        assetFileDescriptor = null;
         if (opened) {
           opened = false;
           if (listener != null) {
@@ -157,13 +166,6 @@ public final class ContentDataSource implements DataSource {
         }
       }
     }
-
-    if (assetFileDescriptor != null) {
-      try {
-        assetFileDescriptor.close();
-      } catch (Exception e) {
-      }
-      assetFileDescriptor = null;
-    }
   }
+
 }
