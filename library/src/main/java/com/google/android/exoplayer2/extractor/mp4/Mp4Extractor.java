@@ -342,12 +342,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
       Format format = track.format.copyWithMaxInputSize(maxInputSize);
-      if (track.type == C.TRACK_TYPE_AUDIO && gaplessInfoHolder.hasGaplessInfo()) {
-        format = format.copyWithGaplessInfo(gaplessInfoHolder.encoderDelay,
-            gaplessInfoHolder.encoderPadding);
-      }
-      if (metadata != null) {
-        format = format.copyWithMetadata(metadata);
+      if (track.type == C.TRACK_TYPE_AUDIO) {
+        if (gaplessInfoHolder.hasGaplessInfo()) {
+          format = format.copyWithGaplessInfo(gaplessInfoHolder.encoderDelay,
+              gaplessInfoHolder.encoderPadding);
+        }
+        if (metadata != null) {
+          format = format.copyWithMetadata(metadata);
+        }
       }
       mp4Track.trackOutput.format(format);
 

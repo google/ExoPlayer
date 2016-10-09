@@ -180,36 +180,38 @@ import java.util.Locale;
 
   @Override
   public void onMetadata(Metadata metadata) {
+    Log.i(TAG, "metadata [");
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
       if (entry instanceof TxxxFrame) {
         TxxxFrame txxxFrame = (TxxxFrame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s", txxxFrame.id,
+        Log.i(TAG, String.format("  %s: description=%s, value=%s", txxxFrame.id,
             txxxFrame.description, txxxFrame.value));
       } else if (entry instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s", privFrame.id, privFrame.owner));
+        Log.i(TAG, String.format("  %s: owner=%s", privFrame.id, privFrame.owner));
       } else if (entry instanceof GeobFrame) {
         GeobFrame geobFrame = (GeobFrame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
+        Log.i(TAG, String.format("  %s: mimeType=%s, filename=%s, description=%s",
             geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
       } else if (entry instanceof ApicFrame) {
         ApicFrame apicFrame = (ApicFrame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, description=%s",
+        Log.i(TAG, String.format("  %s: mimeType=%s, description=%s",
             apicFrame.id, apicFrame.mimeType, apicFrame.description));
       } else if (entry instanceof TextInformationFrame) {
         TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s", textInformationFrame.id,
+        Log.i(TAG, String.format("  %s: description=%s", textInformationFrame.id,
             textInformationFrame.description));
       } else if (entry instanceof CommentFrame) {
         CommentFrame commentFrame = (CommentFrame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: language=%s text=%s", commentFrame.id,
-            commentFrame.language, commentFrame.text));
+        Log.i(TAG, String.format("  %s: language=%s description=%s", commentFrame.id,
+            commentFrame.language, commentFrame.description));
       } else if (entry instanceof Id3Frame) {
         Id3Frame id3Frame = (Id3Frame) entry;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
+        Log.i(TAG, String.format("  %s", id3Frame.id));
       }
     }
+    Log.i(TAG, "]");
   }
 
   // AudioRendererEventListener
