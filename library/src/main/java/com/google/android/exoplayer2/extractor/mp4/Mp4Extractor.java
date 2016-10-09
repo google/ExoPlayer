@@ -22,11 +22,13 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.GaplessInfo;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -309,11 +311,16 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long durationUs = C.TIME_UNSET;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
+    GaplessInfo gaplessInfo = null;
+    Metadata metadata = null;
 
-    GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      AtomParsers.parseUdta(udta, isQuickTime, gaplessInfoHolder);
+      Metadata info = AtomParsers.parseUdta(udta, isQuickTime);
+      if (info != null) {
+        gaplessInfo = info.getGaplessInfo();
+        metadata = info;
+      }
     }
 
     for (int i = 0; i < moov.containerChildren.size(); i++) {
@@ -330,7 +337,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
       Atom.ContainerAtom stblAtom = atom.getContainerAtomOfType(Atom.TYPE_mdia)
           .getContainerAtomOfType(Atom.TYPE_minf).getContainerAtomOfType(Atom.TYPE_stbl);
+      GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
+      gaplessInfoHolder.gaplessInfo = gaplessInfo;
       TrackSampleTable trackSampleTable = AtomParsers.parseStbl(track, stblAtom, gaplessInfoHolder);
+      gaplessInfo = gaplessInfoHolder.gaplessInfo;
       if (trackSampleTable.sampleCount == 0) {
         continue;
       }
@@ -340,9 +350,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
       Format format = track.format.copyWithMaxInputSize(maxInputSize);
-      if (track.type == C.TRACK_TYPE_AUDIO && gaplessInfoHolder.hasGaplessInfo()) {
-        format = format.copyWithGaplessInfo(gaplessInfoHolder.encoderDelay,
-            gaplessInfoHolder.encoderPadding);
+      if (track.type == C.TRACK_TYPE_AUDIO && gaplessInfo != null) {
+        format = format.copyWithGaplessInfo(gaplessInfo.encoderDelay, gaplessInfo.encoderPadding);
+      }
+      if (metadata != null) {
+        format = format.copyWithMetadata(metadata);
       }
       mp4Track.trackOutput.format(format);
 
