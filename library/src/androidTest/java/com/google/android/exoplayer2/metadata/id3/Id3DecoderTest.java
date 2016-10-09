@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.metadata.MetadataDecoderException;
+import com.google.android.exoplayer2.metadata.Metadata;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -30,7 +31,8 @@ public class Id3DecoderTest extends TestCase {
         3, 0, 109, 100, 105, 97, 108, 111, 103, 95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50, 55, 54,
         54, 52, 95, 115, 116, 97, 114, 116, 0};
     Id3Decoder decoder = new Id3Decoder();
-    List<Id3Frame> id3Frames = decoder.decode(rawId3, rawId3.length);
+    Metadata metadata = decoder.decode(rawId3, rawId3.length);
+    List<Id3Frame> id3Frames = metadata.getFrames();
     assertEquals(1, id3Frames.size());
     TxxxFrame txxxFrame = (TxxxFrame) id3Frames.get(0);
     assertEquals("", txxxFrame.description);
@@ -42,7 +44,8 @@ public class Id3DecoderTest extends TestCase {
         3, 105, 109, 97, 103, 101, 47, 106, 112, 101, 103, 0, 16, 72, 101, 108, 108, 111, 32, 87,
         111, 114, 108, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     Id3Decoder decoder = new Id3Decoder();
-    List<Id3Frame> id3Frames = decoder.decode(rawId3, rawId3.length);
+    Metadata metadata = decoder.decode(rawId3, rawId3.length);
+    List<Id3Frame> id3Frames = metadata.getFrames();
     assertEquals(1, id3Frames.size());
     ApicFrame apicFrame = (ApicFrame) id3Frames.get(0);
     assertEquals("image/jpeg", apicFrame.mimeType);
@@ -56,7 +59,8 @@ public class Id3DecoderTest extends TestCase {
     byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 23, 84, 73, 84, 50, 0, 0, 0, 13, 0, 0,
         3, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0};
     Id3Decoder decoder = new Id3Decoder();
-    List<Id3Frame> id3Frames = decoder.decode(rawId3, rawId3.length);
+    Metadata metadata = decoder.decode(rawId3, rawId3.length);
+    List<Id3Frame> id3Frames = metadata.getFrames();
     assertEquals(1, id3Frames.size());
     TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frames.get(0);
     assertEquals("TIT2", textInformationFrame.id);

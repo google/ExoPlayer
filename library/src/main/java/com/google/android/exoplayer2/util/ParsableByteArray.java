@@ -424,6 +424,24 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Reads the next {@code length} bytes as UTF-8 characters. A terminating NUL byte is ignored,
+   * if present.
+   *
+   * @param length The number of bytes to read.
+   * @return The string encoded by the bytes.
+   */
+  public String readNullTerminatedString(int length) {
+    int stringLength = length;
+    int lastIndex = position + length - 1;
+    if (lastIndex < limit && data[lastIndex] == 0) {
+      stringLength--;
+    }
+    String result = new String(data, position, stringLength, Charset.defaultCharset());
+    position += length;
+    return result;
+  }
+
+  /**
    * Reads the next {@code length} bytes as characters in the specified {@link Charset}.
    *
    * @param length The number of bytes to read.

@@ -22,7 +22,15 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.extractor.GaplessInfo;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataBuilder;
+import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
+import com.google.android.exoplayer2.metadata.id3.CommentFrame;
+import com.google.android.exoplayer2.metadata.id3.Id3Frame;
+import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -278,7 +286,7 @@ import java.util.List;
       flags = rechunkedResults.flags;
     }
 
-    if (track.editListDurations == null || gaplessInfoHolder.hasGaplessInfo()) {
+    if (track.editListDurations == null || gaplessInfoHolder.gaplessInfo != null) {
       // There is no edit list, or we are ignoring it as we already have gapless metadata to apply.
       // This implementation does not support applying both gapless metadata and an edit list.
       Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
@@ -307,10 +315,9 @@ import java.util.List;
             track.format.sampleRate, track.timescale);
         long encoderPadding = Util.scaleLargeTimestamp(paddingTimeUnits,
             track.format.sampleRate, track.timescale);
-        if ((encoderDelay != 0 || encoderPadding != 0) && encoderDelay <= Integer.MAX_VALUE
+        if ((encoderDelay > 0 || encoderPadding > 0) && encoderDelay <= Integer.MAX_VALUE
             && encoderPadding <= Integer.MAX_VALUE) {
-          gaplessInfoHolder.encoderDelay = (int) encoderDelay;
-          gaplessInfoHolder.encoderPadding = (int) encoderPadding;
+          gaplessInfoHolder.gaplessInfo = new GaplessInfo((int) encoderDelay, (int) encoderPadding);
           Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
           return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
         }
@@ -395,17 +402,17 @@ import java.util.List;
   }
 
   /**
-   * Parses a udta atom.
+   * Parses a udta atom for metadata, including gapless playback information.
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @param out {@link GaplessInfoHolder} to populate with gapless playback information.
+   * @return metadata stored in the user data, or {@code null} if not present.
    */
-  public static void parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime, GaplessInfoHolder out) {
+  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
       // decode one.
-      return;
+      return null;
     }
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
@@ -415,14 +422,14 @@ import java.util.List;
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
         udtaData.setLimit(udtaData.getPosition() + atomSize);
-        parseMetaAtom(udtaData, out);
-        break;
+        return parseMetaAtom(udtaData);
       }
       udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
+    return null;
   }
 
-  private static void parseMetaAtom(ParsableByteArray data, GaplessInfoHolder out) {
+  private static Metadata parseMetaAtom(ParsableByteArray data) {
     data.skipBytes(Atom.FULL_HEADER_SIZE);
     ParsableByteArray ilst = new ParsableByteArray();
     while (data.bytesLeft() >= Atom.HEADER_SIZE) {
@@ -431,47 +438,333 @@ import java.util.List;
       if (atomType == Atom.TYPE_ilst) {
         ilst.reset(data.data, data.getPosition() + payloadSize);
         ilst.setPosition(data.getPosition());
-        parseIlst(ilst, out);
-        if (out.hasGaplessInfo()) {
-          return;
+        Metadata result = parseIlst(ilst);
+        if (result != null) {
+          return result;
         }
       }
       data.skipBytes(payloadSize);
     }
+    return null;
   }
 
-  private static void parseIlst(ParsableByteArray ilst, GaplessInfoHolder out) {
+  private static Metadata parseIlst(ParsableByteArray ilst) {
+
+    MetadataBuilder builder = new MetadataBuilder();
+
     while (ilst.bytesLeft() > 0) {
       int position = ilst.getPosition();
       int endPosition = position + ilst.readInt();
       int type = ilst.readInt();
-      if (type == Atom.TYPE_DASHES) {
-        String lastCommentMean = null;
-        String lastCommentName = null;
-        String lastCommentData = null;
-        while (ilst.getPosition() < endPosition) {
-          int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
-          int key = ilst.readInt();
-          ilst.skipBytes(4);
-          if (key == Atom.TYPE_mean) {
-            lastCommentMean = ilst.readString(length);
-          } else if (key == Atom.TYPE_name) {
-            lastCommentName = ilst.readString(length);
-          } else if (key == Atom.TYPE_data) {
-            ilst.skipBytes(4);
-            lastCommentData = ilst.readString(length - 4);
-          } else {
-            ilst.skipBytes(length);
+      parseIlstElement(ilst, type, endPosition, builder);
+      ilst.setPosition(endPosition);
+    }
+
+    return builder.build();
+  }
+
+  private static final String P1 = "\u00a9";
+  private static final String P2 = "\ufffd";
+  private static final int TYPE_NAME_1 = Util.getIntegerCodeForString(P1 + "nam");
+  private static final int TYPE_NAME_2 = Util.getIntegerCodeForString(P2 + "nam");
+  private static final int TYPE_NAME_3 = Util.getIntegerCodeForString(P1 + "trk");
+  private static final int TYPE_NAME_4 = Util.getIntegerCodeForString(P2 + "trk");
+  private static final int TYPE_COMMENT_1 = Util.getIntegerCodeForString(P1 + "cmt");
+  private static final int TYPE_COMMENT_2 = Util.getIntegerCodeForString(P2 + "cmt");
+  private static final int TYPE_YEAR_1 = Util.getIntegerCodeForString(P1 + "day");
+  private static final int TYPE_YEAR_2 = Util.getIntegerCodeForString(P2 + "day");
+  private static final int TYPE_ARTIST_1 = Util.getIntegerCodeForString(P1 + "ART");
+  private static final int TYPE_ARTIST_2 = Util.getIntegerCodeForString(P2 + "ART");
+  private static final int TYPE_ENCODER_1 = Util.getIntegerCodeForString(P1 + "too");
+  private static final int TYPE_ENCODER_2 = Util.getIntegerCodeForString(P2 + "too");
+  private static final int TYPE_ALBUM_1 = Util.getIntegerCodeForString(P1 + "alb");
+  private static final int TYPE_ALBUM_2 = Util.getIntegerCodeForString(P2 + "alb");
+  private static final int TYPE_COMPOSER_1 = Util.getIntegerCodeForString(P1 + "com");
+  private static final int TYPE_COMPOSER_2 = Util.getIntegerCodeForString(P2 + "com");
+  private static final int TYPE_COMPOSER_3 = Util.getIntegerCodeForString(P1 + "wrt");
+  private static final int TYPE_COMPOSER_4 = Util.getIntegerCodeForString(P2 + "wrt");
+  private static final int TYPE_LYRICS_1 = Util.getIntegerCodeForString(P1 + "lyr");
+  private static final int TYPE_LYRICS_2 = Util.getIntegerCodeForString(P2 + "lyr");
+  private static final int TYPE_GENRE_1 = Util.getIntegerCodeForString(P1 + "gen");
+  private static final int TYPE_GENRE_2 = Util.getIntegerCodeForString(P2 + "gen");
+  private static final int TYPE_STANDARD_GENRE = Util.getIntegerCodeForString("gnre");
+  private static final int TYPE_GROUPING_1 = Util.getIntegerCodeForString(P1 + "grp");
+  private static final int TYPE_GROUPING_2 = Util.getIntegerCodeForString(P2 + "grp");
+  private static final int TYPE_DISK_NUMBER = Util.getIntegerCodeForString("disk");
+  private static final int TYPE_TRACK_NUMBER = Util.getIntegerCodeForString("trkn");
+  private static final int TYPE_TEMPO = Util.getIntegerCodeForString("tmpo");
+  private static final int TYPE_COMPILATION = Util.getIntegerCodeForString("cpil");
+  private static final int TYPE_ALBUM_ARTIST = Util.getIntegerCodeForString("aART");
+  private static final int TYPE_SORT_TRACK_NAME = Util.getIntegerCodeForString("sonm");
+  private static final int TYPE_SORT_ALBUM = Util.getIntegerCodeForString("soal");
+  private static final int TYPE_SORT_ARTIST = Util.getIntegerCodeForString("soar");
+  private static final int TYPE_SORT_ALBUM_ARTIST = Util.getIntegerCodeForString("soaa");
+  private static final int TYPE_SORT_COMPOSER = Util.getIntegerCodeForString("soco");
+  private static final int TYPE_SORT_SHOW = Util.getIntegerCodeForString("sosn");
+  private static final int TYPE_GAPLESS_ALBUM = Util.getIntegerCodeForString("pgap");
+  private static final int TYPE_SHOW = Util.getIntegerCodeForString("tvsh");
+
+  // TBD: covr = cover art, various account and iTunes specific attributes, more TV attributes
+
+  private static void parseIlstElement(
+          ParsableByteArray ilst, int type, int endPosition, MetadataBuilder builder) {
+    if (type == TYPE_NAME_1 || type == TYPE_NAME_2 || type == TYPE_NAME_3 || type == TYPE_NAME_4) {
+      parseTextAttribute(builder, "TIT2", ilst, endPosition);
+    } else if (type == TYPE_COMMENT_1 || type == TYPE_COMMENT_2) {
+      parseCommentAttribute(builder, "COMM", ilst, endPosition);
+    } else if (type == TYPE_YEAR_1 || type == TYPE_YEAR_2) {
+      parseTextAttribute(builder, "TDRC", ilst, endPosition);
+    } else if (type == TYPE_ARTIST_1 || type == TYPE_ARTIST_2) {
+      parseTextAttribute(builder, "TPE1", ilst, endPosition);
+    } else if (type == TYPE_ENCODER_1 || type == TYPE_ENCODER_2) {
+      parseTextAttribute(builder, "TSSE", ilst, endPosition);
+    } else if (type == TYPE_ALBUM_1 || type == TYPE_ALBUM_2) {
+      parseTextAttribute(builder, "TALB", ilst, endPosition);
+    } else if (type == TYPE_COMPOSER_1 || type == TYPE_COMPOSER_2 ||
+            type == TYPE_COMPOSER_3 || type == TYPE_COMPOSER_4) {
+      parseTextAttribute(builder, "TCOM", ilst, endPosition);
+    } else if (type == TYPE_LYRICS_1 || type == TYPE_LYRICS_2) {
+      parseTextAttribute(builder, "lyrics", ilst, endPosition);
+    } else if (type == TYPE_STANDARD_GENRE) {
+      parseStandardGenreAttribute(builder, "TCON", ilst, endPosition);
+    } else if (type == TYPE_GENRE_1 || type == TYPE_GENRE_2) {
+      parseTextAttribute(builder, "TCON", ilst, endPosition);
+    } else if (type == TYPE_GROUPING_1 || type == TYPE_GROUPING_2) {
+      parseTextAttribute(builder, "TIT1", ilst, endPosition);
+    } else if (type == TYPE_DISK_NUMBER) {
+      parseIndexAndCountAttribute(builder, "TPOS", ilst, endPosition);
+    } else if (type == TYPE_TRACK_NUMBER) {
+      parseIndexAndCountAttribute(builder, "TRCK", ilst, endPosition);
+    } else if (type == TYPE_TEMPO) {
+      parseIntegerAttribute(builder, "TBPM", ilst, endPosition);
+    } else if (type == TYPE_COMPILATION) {
+      parseBooleanAttribute(builder, "TCMP", ilst, endPosition);
+    } else if (type == TYPE_ALBUM_ARTIST) {
+      parseTextAttribute(builder, "TPE2", ilst, endPosition);
+    } else if (type == TYPE_SORT_TRACK_NAME) {
+      parseTextAttribute(builder, "TSOT", ilst, endPosition);
+    } else if (type == TYPE_SORT_ALBUM) {
+      parseTextAttribute(builder, "TSO2", ilst, endPosition);
+    } else if (type == TYPE_SORT_ARTIST) {
+      parseTextAttribute(builder, "TSOA", ilst, endPosition);
+    } else if (type == TYPE_SORT_ALBUM_ARTIST) {
+      parseTextAttribute(builder, "TSOP", ilst, endPosition);
+    } else if (type == TYPE_SORT_COMPOSER) {
+      parseTextAttribute(builder, "TSOC", ilst, endPosition);
+    } else if (type == TYPE_SORT_SHOW) {
+      parseTextAttribute(builder, "sortShow", ilst, endPosition);
+    } else if (type == TYPE_GAPLESS_ALBUM) {
+      parseBooleanAttribute(builder, "gaplessAlbum", ilst, endPosition);
+    } else if (type == TYPE_SHOW) {
+      parseTextAttribute(builder, "show", ilst, endPosition);
+    } else if (type == Atom.TYPE_DASHES) {
+      parseExtendedAttribute(builder, ilst, endPosition);
+    }
+  }
+
+  private static void parseTextAttribute(MetadataBuilder builder,
+                                         String attributeName,
+                                         ParsableByteArray ilst,
+                                         int endPosition) {
+    int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+    int key = ilst.readInt();
+    ilst.skipBytes(4);
+    if (key == Atom.TYPE_data) {
+      ilst.skipBytes(4);
+      String value = ilst.readNullTerminatedString(length - 4);
+      Id3Frame frame = new TextInformationFrame(attributeName, value);
+      builder.add(frame);
+    } else {
+      ilst.skipBytes(length);
+    }
+  }
+
+  private static void parseCommentAttribute(MetadataBuilder builder,
+                                            String attributeName,
+                                            ParsableByteArray ilst,
+                                            int endPosition) {
+    int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+    int key = ilst.readInt();
+    ilst.skipBytes(4);
+    if (key == Atom.TYPE_data) {
+      ilst.skipBytes(4);
+      String value = ilst.readNullTerminatedString(length - 4);
+      Id3Frame frame = new CommentFrame("eng", attributeName, value);
+      builder.add(frame);
+    } else {
+      ilst.skipBytes(length);
+    }
+  }
+
+  private static void parseBooleanAttribute(MetadataBuilder builder,
+                                            String attributeName,
+                                            ParsableByteArray ilst,
+                                            int endPosition) {
+    int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+    int key = ilst.readInt();
+    ilst.skipBytes(4);
+    if (key == Atom.TYPE_data) {
+      Object value = parseDataBox(ilst, length);
+      if (value instanceof Integer) {
+        int n = (Integer) value;
+        String s = n == 0 ? "0" : "1";
+        Id3Frame frame = new TextInformationFrame(attributeName, s);
+        builder.add(frame);
+      }
+    } else {
+      ilst.skipBytes(length);
+    }
+  }
+
+  private static void parseIntegerAttribute(MetadataBuilder builder,
+                                            String attributeName,
+                                            ParsableByteArray ilst,
+                                            int endPosition) {
+    int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+    int key = ilst.readInt();
+    ilst.skipBytes(4);
+    if (key == Atom.TYPE_data) {
+      Object value = parseDataBox(ilst, length);
+      if (value instanceof Integer) {
+        int n = (Integer) value;
+        String s = "" + n;
+        Id3Frame frame = new TextInformationFrame(attributeName, s);
+        builder.add(frame);
+      }
+    } else {
+      ilst.skipBytes(length);
+    }
+  }
+
+  private static void parseIndexAndCountAttribute(MetadataBuilder builder,
+                                                  String attributeName,
+                                                  ParsableByteArray ilst,
+                                                  int endPosition) {
+    int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+    int key = ilst.readInt();
+    ilst.skipBytes(4);
+    if (key == Atom.TYPE_data) {
+      Object value = parseDataBox(ilst, length);
+      if (value instanceof byte[]) {
+        byte[] bytes = (byte[]) value;
+        if (bytes.length == 8) {
+          int index = (bytes[2] << 8) + (bytes[3] & 0xFF);
+          int count = (bytes[4] << 8) + (bytes[5] & 0xFF);
+          if (index > 0) {
+            String s = "" + index;
+            if (count > 0) {
+              s = s + "/" + count;
+             }
+            Id3Frame frame = new TextInformationFrame(attributeName, s);
+            builder.add(frame);
           }
         }
-        if (lastCommentName != null && lastCommentData != null
-            && "com.apple.iTunes".equals(lastCommentMean)) {
-          out.setFromComment(lastCommentName, lastCommentData);
-          break;
-        }
-      } else {
-        ilst.setPosition(endPosition);
       }
+    } else {
+      ilst.skipBytes(length);
+    }
+  }
+
+  private static void parseStandardGenreAttribute(MetadataBuilder builder,
+                                                  String attributeName,
+                                                  ParsableByteArray ilst,
+                                                  int endPosition) {
+    int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+    int key = ilst.readInt();
+    ilst.skipBytes(4);
+    if (key == Atom.TYPE_data) {
+      Object value = parseDataBox(ilst, length);
+      if (value instanceof byte[]) {
+        byte[] bytes = (byte[]) value;
+        if (bytes.length == 2) {
+          int code = (bytes[0] << 8) + (bytes[1] & 0xFF);
+          String s = Id3Decoder.decodeGenre(code);
+          if (s != null) {
+            Id3Frame frame = new TextInformationFrame(attributeName, s);
+            builder.add(frame);
+          }
+        }
+      }
+    } else {
+      ilst.skipBytes(length);
+    }
+  }
+
+  private static void parseExtendedAttribute(MetadataBuilder builder,
+                                             ParsableByteArray ilst,
+                                             int endPosition) {
+    String domain = null;
+    String name = null;
+    Object value = null;
+
+    while (ilst.getPosition() < endPosition) {
+      int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+      int key = ilst.readInt();
+      ilst.skipBytes(4);
+      if (key == Atom.TYPE_mean) {
+        domain = ilst.readNullTerminatedString(length);
+      } else if (key == Atom.TYPE_name) {
+        name = ilst.readNullTerminatedString(length);
+      } else if (key == Atom.TYPE_data) {
+        value = parseDataBox(ilst, length);
+      } else {
+        ilst.skipBytes(length);
+      }
+    }
+
+    if (value != null) {
+      if (Util.areEqual(domain, "com.apple.iTunes") && Util.areEqual(name, "iTunSMPB")) {
+        String s = value instanceof byte[] ? new String((byte[]) value) : value.toString();
+        builder.setGaplessInfo(GaplessInfo.createFromComment("iTunSMPB", s));
+      }
+
+      if (Util.areEqual(domain, "com.apple.iTunes") && Util.areEqual(name, "iTunNORM") && (value instanceof byte[])) {
+        String s = new String((byte[]) value);
+        Id3Frame frame = new CommentFrame("eng", "iTunNORM", s);
+        builder.add(frame);
+      } else if (domain != null && name != null) {
+        String extendedName = domain + "." + name;
+        if (value instanceof String) {
+          Id3Frame frame = new TextInformationFrame(extendedName, (String) value);
+          builder.add(frame);
+        } else if (value instanceof Integer) {
+          Id3Frame frame = new TextInformationFrame(extendedName, value.toString());
+          builder.add(frame);
+        } else if (value instanceof byte[]) {
+          byte[] bb = (byte[]) value;
+          Id3Frame frame = new BinaryFrame(extendedName, bb);
+          builder.add(frame);
+        }
+      }
+    }
+  }
+
+  private static Object parseDataBox(ParsableByteArray ilst, int length) {
+    int versionAndFlags = ilst.readInt();
+    int flags = versionAndFlags & 0xFFFFFF;
+    boolean isText = (flags == 1);
+    boolean isData = (flags == 0);
+    boolean isImageData = (flags == 0xD);
+    boolean isInteger = (flags == 21);
+    int dataLength = length - 4;
+    if (isText) {
+      return ilst.readNullTerminatedString(dataLength);
+    } else if (isInteger) {
+      if (dataLength == 1) {
+        return ilst.readUnsignedByte();
+      } else if (dataLength == 2) {
+        return ilst.readUnsignedShort();
+      } else {
+        ilst.skipBytes(dataLength);
+        return null;
+      }
+    } else if (isData) {
+      byte[] bytes = new byte[dataLength];
+      ilst.readBytes(bytes, 0, dataLength);
+      return bytes;
+    } else {
+      ilst.skipBytes(dataLength);
+      return null;
     }
   }
 

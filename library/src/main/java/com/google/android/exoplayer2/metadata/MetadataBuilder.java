@@ -13,32 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.metadata.id3;
+package com.google.android.exoplayer2.metadata;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import com.google.android.exoplayer2.extractor.GaplessInfo;
+import com.google.android.exoplayer2.metadata.id3.Id3Frame;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Base class for ID3 frames.
+ * Builder for ID3 style metadata.
  */
-public abstract class Id3Frame implements Parcelable {
+public class MetadataBuilder {
+  private List<Id3Frame> frames = new ArrayList<>();
+  private GaplessInfo gaplessInfo;
 
-  /**
-   * The frame ID.
-   */
-  public final String id;
-
-  public Id3Frame(String id) {
-    this.id = id;
+  public void add(Id3Frame frame) {
+    frames.add(frame);
   }
 
-  protected Id3Frame(Parcel in) {
-    id = in.readString();
+  public void setGaplessInfo(GaplessInfo info) {
+    this.gaplessInfo = info;
   }
 
-  @Override
-  public int describeContents() {
-    return 0;
+  public Metadata build() {
+    return !frames.isEmpty() || gaplessInfo != null ? new Metadata(frames, gaplessInfo): null;
   }
-
 }
