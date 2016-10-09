@@ -17,65 +17,79 @@ package com.google.android.exoplayer2.metadata;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.google.android.exoplayer2.extractor.GaplessInfo;
-import com.google.android.exoplayer2.metadata.id3.Id3Frame;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * ID3 style metadata, with convenient access to gapless playback information.
+ * A collection of metadata entries.
  */
-public class Metadata implements Parcelable {
+public final class Metadata implements Parcelable {
 
-  private final List<Id3Frame> frames;
-  private final GaplessInfo gaplessInfo;
+  /**
+   * A metadata entry.
+   */
+  public interface Entry extends Parcelable {}
 
-  public Metadata(List<Id3Frame> frames, GaplessInfo gaplessInfo) {
-    List<Id3Frame> theFrames = frames != null ? new ArrayList<>(frames) : new ArrayList<Id3Frame>();
-    this.frames = Collections.unmodifiableList(theFrames);
-    this.gaplessInfo = gaplessInfo;
+  private final Entry[] entries;
+
+  /**
+   * @param entries The metadata entries.
+   */
+  public Metadata(Entry... entries) {
+    this.entries = entries == null ? new Entry[0] : entries;
   }
 
-  public Metadata(Parcel in) {
-    int encoderDelay = in.readInt();
-    int encoderPadding = in.readInt();
-    gaplessInfo = encoderDelay > 0 || encoderPadding > 0 ?
-        new GaplessInfo(encoderDelay, encoderPadding) : null;
-    frames = Arrays.asList((Id3Frame[]) in.readArray(Id3Frame.class.getClassLoader()));
+  /**
+   * @param entries The metadata entries.
+   */
+  public Metadata(List<? extends Entry> entries) {
+    if (entries != null) {
+      this.entries = new Entry[entries.size()];
+      entries.toArray(this.entries);
+    } else {
+      this.entries = new Entry[0];
+    }
   }
 
-  public Metadata withGaplessInfo(GaplessInfo info) {
-    return new Metadata(frames, info);
+  /* package */ Metadata(Parcel in) {
+    entries = new Metadata.Entry[in.readInt()];
+    for (int i = 0; i < entries.length; i++) {
+      entries[i] = in.readParcelable(Entry.class.getClassLoader());
+    }
   }
 
-  public List<Id3Frame> getFrames() {
-    return frames;
+  /**
+   * Returns the number of metadata entries.
+   */
+  public int length() {
+    return entries.length;
   }
 
-  public GaplessInfo getGaplessInfo() {
-    return gaplessInfo;
+  /**
+   * Returns the entry at the specified index.
+   *
+   * @param index The index of the entry.
+   * @return The entry at the specified index.
+   */
+  public Metadata.Entry get(int index) {
+    return entries[index];
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    Metadata that = (Metadata) o;
-
-    if (!frames.equals(that.frames)) return false;
-    return gaplessInfo != null ? gaplessInfo.equals(that.gaplessInfo) : that.gaplessInfo == null;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    Metadata other = (Metadata) obj;
+    return Arrays.equals(entries, other.entries);
   }
 
   @Override
   public int hashCode() {
-    int result = frames.hashCode();
-    result = 31 * result + (gaplessInfo != null ? gaplessInfo.hashCode() : 0);
-    return result;
+    return Arrays.hashCode(entries);
   }
 
   @Override
@@ -85,21 +99,22 @@ public class Metadata implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(gaplessInfo != null ? gaplessInfo.encoderDelay : -1);
-    dest.writeInt(gaplessInfo != null ? gaplessInfo.encoderPadding : -1);
-    dest.writeArray(frames.toArray(new Id3Frame[frames.size()]));
+    dest.writeInt(entries.length);
+    for (Entry entry : entries) {
+      dest.writeParcelable(entry, 0);
+    }
   }
 
-  public static final Parcelable.Creator<Metadata> CREATOR =
-      new Parcelable.Creator<Metadata>() {
-        @Override
-        public Metadata createFromParcel(Parcel in) {
-          return new Metadata(in);
-        }
+  public static final Parcelable.Creator<Metadata> CREATOR = new Parcelable.Creator<Metadata>() {
+    @Override
+    public Metadata createFromParcel(Parcel in) {
+      return new Metadata(in);
+    }
 
-        @Override
-        public Metadata[] newArray(int size) {
-          return new Metadata[0];
-        }
-      };
+    @Override
+    public Metadata[] newArray(int size) {
+      return new Metadata[0];
+    }
+  };
+
 }

@@ -22,10 +22,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.extractor.GaplessInfo;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataBuilder;
 import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
@@ -38,6 +36,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -95,8 +95,8 @@ import java.util.List;
     Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
     return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
-            stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
-            stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
+        stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
+        stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
   }
 
   /**
@@ -286,7 +286,7 @@ import java.util.List;
       flags = rechunkedResults.flags;
     }
 
-    if (track.editListDurations == null || gaplessInfoHolder.gaplessInfo != null) {
+    if (track.editListDurations == null || gaplessInfoHolder.hasGaplessInfo()) {
       // There is no edit list, or we are ignoring it as we already have gapless metadata to apply.
       // This implementation does not support applying both gapless metadata and an edit list.
       Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
@@ -315,9 +315,10 @@ import java.util.List;
             track.format.sampleRate, track.timescale);
         long encoderPadding = Util.scaleLargeTimestamp(paddingTimeUnits,
             track.format.sampleRate, track.timescale);
-        if ((encoderDelay > 0 || encoderPadding > 0) && encoderDelay <= Integer.MAX_VALUE
+        if ((encoderDelay != 0 || encoderPadding != 0) && encoderDelay <= Integer.MAX_VALUE
             && encoderPadding <= Integer.MAX_VALUE) {
-          gaplessInfoHolder.gaplessInfo = new GaplessInfo((int) encoderDelay, (int) encoderPadding);
+          gaplessInfoHolder.encoderDelay = (int) encoderDelay;
+          gaplessInfoHolder.encoderPadding = (int) encoderPadding;
           Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
           return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
         }
@@ -402,13 +403,14 @@ import java.util.List;
   }
 
   /**
-   * Parses a udta atom for metadata, including gapless playback information.
+   * Parses a udta atom.
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @return metadata stored in the user data, or {@code null} if not present.
+   * @param out {@link GaplessInfoHolder} to populate with gapless playback information.
    */
-  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
+  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime,
+      GaplessInfoHolder out) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
       // decode one.
@@ -422,14 +424,14 @@ import java.util.List;
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
         udtaData.setLimit(udtaData.getPosition() + atomSize);
-        return parseMetaAtom(udtaData);
+        return parseMetaAtom(udtaData, out);
       }
       udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
     return null;
   }
 
-  private static Metadata parseMetaAtom(ParsableByteArray data) {
+  private static Metadata parseMetaAtom(ParsableByteArray data, GaplessInfoHolder out) {
     data.skipBytes(Atom.FULL_HEADER_SIZE);
     ParsableByteArray ilst = new ParsableByteArray();
     while (data.bytesLeft() >= Atom.HEADER_SIZE) {
@@ -438,9 +440,9 @@ import java.util.List;
       if (atomType == Atom.TYPE_ilst) {
         ilst.reset(data.data, data.getPosition() + payloadSize);
         ilst.setPosition(data.getPosition());
-        Metadata result = parseIlst(ilst);
-        if (result != null) {
-          return result;
+        Metadata metadata = parseIlst(ilst, out);
+        if (metadata != null) {
+          return metadata;
         }
       }
       data.skipBytes(payloadSize);
@@ -448,19 +450,16 @@ import java.util.List;
     return null;
   }
 
-  private static Metadata parseIlst(ParsableByteArray ilst) {
-
-    MetadataBuilder builder = new MetadataBuilder();
-
+  private static Metadata parseIlst(ParsableByteArray ilst, GaplessInfoHolder out) {
+    ArrayList<Metadata.Entry> entries = new ArrayList<>();
     while (ilst.bytesLeft() > 0) {
       int position = ilst.getPosition();
       int endPosition = position + ilst.readInt();
       int type = ilst.readInt();
-      parseIlstElement(ilst, type, endPosition, builder);
+      parseIlstElement(ilst, type, endPosition, entries, out);
       ilst.setPosition(endPosition);
     }
-
-    return builder.build();
+    return entries.isEmpty() ? null : new Metadata(entries);
   }
 
   private static final String P1 = "\u00a9";
@@ -506,66 +505,64 @@ import java.util.List;
 
   // TBD: covr = cover art, various account and iTunes specific attributes, more TV attributes
 
-  private static void parseIlstElement(
-          ParsableByteArray ilst, int type, int endPosition, MetadataBuilder builder) {
+  private static void parseIlstElement(ParsableByteArray ilst, int type, int endPosition,
+      List<Metadata.Entry> builder, GaplessInfoHolder out) {
     if (type == TYPE_NAME_1 || type == TYPE_NAME_2 || type == TYPE_NAME_3 || type == TYPE_NAME_4) {
-      parseTextAttribute(builder, "TIT2", ilst, endPosition);
+      parseTextAttribute(builder, "TIT2", ilst);
     } else if (type == TYPE_COMMENT_1 || type == TYPE_COMMENT_2) {
-      parseCommentAttribute(builder, "COMM", ilst, endPosition);
+      parseCommentAttribute(builder, "COMM", ilst);
     } else if (type == TYPE_YEAR_1 || type == TYPE_YEAR_2) {
-      parseTextAttribute(builder, "TDRC", ilst, endPosition);
+      parseTextAttribute(builder, "TDRC", ilst);
     } else if (type == TYPE_ARTIST_1 || type == TYPE_ARTIST_2) {
-      parseTextAttribute(builder, "TPE1", ilst, endPosition);
+      parseTextAttribute(builder, "TPE1", ilst);
     } else if (type == TYPE_ENCODER_1 || type == TYPE_ENCODER_2) {
-      parseTextAttribute(builder, "TSSE", ilst, endPosition);
+      parseTextAttribute(builder, "TSSE", ilst);
     } else if (type == TYPE_ALBUM_1 || type == TYPE_ALBUM_2) {
-      parseTextAttribute(builder, "TALB", ilst, endPosition);
+      parseTextAttribute(builder, "TALB", ilst);
     } else if (type == TYPE_COMPOSER_1 || type == TYPE_COMPOSER_2 ||
-            type == TYPE_COMPOSER_3 || type == TYPE_COMPOSER_4) {
-      parseTextAttribute(builder, "TCOM", ilst, endPosition);
+        type == TYPE_COMPOSER_3 || type == TYPE_COMPOSER_4) {
+      parseTextAttribute(builder, "TCOM", ilst);
     } else if (type == TYPE_LYRICS_1 || type == TYPE_LYRICS_2) {
-      parseTextAttribute(builder, "lyrics", ilst, endPosition);
+      parseTextAttribute(builder, "lyrics", ilst);
     } else if (type == TYPE_STANDARD_GENRE) {
-      parseStandardGenreAttribute(builder, "TCON", ilst, endPosition);
+      parseStandardGenreAttribute(builder, "TCON", ilst);
     } else if (type == TYPE_GENRE_1 || type == TYPE_GENRE_2) {
-      parseTextAttribute(builder, "TCON", ilst, endPosition);
+      parseTextAttribute(builder, "TCON", ilst);
     } else if (type == TYPE_GROUPING_1 || type == TYPE_GROUPING_2) {
-      parseTextAttribute(builder, "TIT1", ilst, endPosition);
+      parseTextAttribute(builder, "TIT1", ilst);
     } else if (type == TYPE_DISK_NUMBER) {
       parseIndexAndCountAttribute(builder, "TPOS", ilst, endPosition);
     } else if (type == TYPE_TRACK_NUMBER) {
       parseIndexAndCountAttribute(builder, "TRCK", ilst, endPosition);
     } else if (type == TYPE_TEMPO) {
-      parseIntegerAttribute(builder, "TBPM", ilst, endPosition);
+      parseIntegerAttribute(builder, "TBPM", ilst);
     } else if (type == TYPE_COMPILATION) {
-      parseBooleanAttribute(builder, "TCMP", ilst, endPosition);
+      parseBooleanAttribute(builder, "TCMP", ilst);
     } else if (type == TYPE_ALBUM_ARTIST) {
-      parseTextAttribute(builder, "TPE2", ilst, endPosition);
+      parseTextAttribute(builder, "TPE2", ilst);
     } else if (type == TYPE_SORT_TRACK_NAME) {
-      parseTextAttribute(builder, "TSOT", ilst, endPosition);
+      parseTextAttribute(builder, "TSOT", ilst);
     } else if (type == TYPE_SORT_ALBUM) {
-      parseTextAttribute(builder, "TSO2", ilst, endPosition);
+      parseTextAttribute(builder, "TSO2", ilst);
     } else if (type == TYPE_SORT_ARTIST) {
-      parseTextAttribute(builder, "TSOA", ilst, endPosition);
+      parseTextAttribute(builder, "TSOA", ilst);
     } else if (type == TYPE_SORT_ALBUM_ARTIST) {
-      parseTextAttribute(builder, "TSOP", ilst, endPosition);
+      parseTextAttribute(builder, "TSOP", ilst);
     } else if (type == TYPE_SORT_COMPOSER) {
-      parseTextAttribute(builder, "TSOC", ilst, endPosition);
+      parseTextAttribute(builder, "TSOC", ilst);
     } else if (type == TYPE_SORT_SHOW) {
-      parseTextAttribute(builder, "sortShow", ilst, endPosition);
+      parseTextAttribute(builder, "sortShow", ilst);
     } else if (type == TYPE_GAPLESS_ALBUM) {
-      parseBooleanAttribute(builder, "gaplessAlbum", ilst, endPosition);
+      parseBooleanAttribute(builder, "gaplessAlbum", ilst);
     } else if (type == TYPE_SHOW) {
-      parseTextAttribute(builder, "show", ilst, endPosition);
+      parseTextAttribute(builder, "show", ilst);
     } else if (type == Atom.TYPE_DASHES) {
-      parseExtendedAttribute(builder, ilst, endPosition);
+      parseExtendedAttribute(builder, ilst, endPosition, out);
     }
   }
 
-  private static void parseTextAttribute(MetadataBuilder builder,
-                                         String attributeName,
-                                         ParsableByteArray ilst,
-                                         int endPosition) {
+  private static void parseTextAttribute(List<Metadata.Entry> builder, String attributeName,
+      ParsableByteArray ilst) {
     int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
     int key = ilst.readInt();
     ilst.skipBytes(4);
@@ -579,10 +576,8 @@ import java.util.List;
     }
   }
 
-  private static void parseCommentAttribute(MetadataBuilder builder,
-                                            String attributeName,
-                                            ParsableByteArray ilst,
-                                            int endPosition) {
+  private static void parseCommentAttribute(List<Metadata.Entry> builder, String attributeName,
+      ParsableByteArray ilst) {
     int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
     int key = ilst.readInt();
     ilst.skipBytes(4);
@@ -596,10 +591,8 @@ import java.util.List;
     }
   }
 
-  private static void parseBooleanAttribute(MetadataBuilder builder,
-                                            String attributeName,
-                                            ParsableByteArray ilst,
-                                            int endPosition) {
+  private static void parseBooleanAttribute(List<Metadata.Entry> builder, String attributeName,
+      ParsableByteArray ilst) {
     int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
     int key = ilst.readInt();
     ilst.skipBytes(4);
@@ -616,10 +609,8 @@ import java.util.List;
     }
   }
 
-  private static void parseIntegerAttribute(MetadataBuilder builder,
-                                            String attributeName,
-                                            ParsableByteArray ilst,
-                                            int endPosition) {
+  private static void parseIntegerAttribute(List<Metadata.Entry> builder, String attributeName,
+      ParsableByteArray ilst) {
     int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
     int key = ilst.readInt();
     ilst.skipBytes(4);
@@ -636,10 +627,8 @@ import java.util.List;
     }
   }
 
-  private static void parseIndexAndCountAttribute(MetadataBuilder builder,
-                                                  String attributeName,
-                                                  ParsableByteArray ilst,
-                                                  int endPosition) {
+  private static void parseIndexAndCountAttribute(List<Metadata.Entry> builder,
+      String attributeName, ParsableByteArray ilst, int endPosition) {
     int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
     int key = ilst.readInt();
     ilst.skipBytes(4);
@@ -654,7 +643,7 @@ import java.util.List;
             String s = "" + index;
             if (count > 0) {
               s = s + "/" + count;
-             }
+            }
             Id3Frame frame = new TextInformationFrame(attributeName, s);
             builder.add(frame);
           }
@@ -665,10 +654,8 @@ import java.util.List;
     }
   }
 
-  private static void parseStandardGenreAttribute(MetadataBuilder builder,
-                                                  String attributeName,
-                                                  ParsableByteArray ilst,
-                                                  int endPosition) {
+  private static void parseStandardGenreAttribute(List<Metadata.Entry> builder,
+      String attributeName, ParsableByteArray ilst) {
     int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
     int key = ilst.readInt();
     ilst.skipBytes(4);
@@ -690,9 +677,8 @@ import java.util.List;
     }
   }
 
-  private static void parseExtendedAttribute(MetadataBuilder builder,
-                                             ParsableByteArray ilst,
-                                             int endPosition) {
+  private static void parseExtendedAttribute(List<Metadata.Entry> builder, ParsableByteArray ilst,
+      int endPosition, GaplessInfoHolder out) {
     String domain = null;
     String name = null;
     Object value = null;
@@ -713,9 +699,9 @@ import java.util.List;
     }
 
     if (value != null) {
-      if (Util.areEqual(domain, "com.apple.iTunes") && Util.areEqual(name, "iTunSMPB")) {
+      if (!out.hasGaplessInfo() && Util.areEqual(domain, "com.apple.iTunes")) {
         String s = value instanceof byte[] ? new String((byte[]) value) : value.toString();
-        builder.setGaplessInfo(GaplessInfo.createFromComment("iTunSMPB", s));
+        out.setFromComment(name, s);
       }
 
       if (Util.areEqual(domain, "com.apple.iTunes") && Util.areEqual(name, "iTunNORM") && (value instanceof byte[])) {
@@ -889,12 +875,12 @@ import java.util.List;
   /**
    * Parses a stsd atom (defined in 14496-12).
    *
-   * @param stsd The stsd atom to decode.
-   * @param trackId The track's identifier in its container.
+   * @param stsd            The stsd atom to decode.
+   * @param trackId         The track's identifier in its container.
    * @param rotationDegrees The rotation of the track in degrees.
-   * @param language The language of the track.
-   * @param drmInitData {@link DrmInitData} to be included in the format.
-   * @param isQuickTime True for QuickTime media. False otherwise.
+   * @param language        The language of the track.
+   * @param drmInitData     {@link DrmInitData} to be included in the format.
+   * @param isQuickTime     True for QuickTime media. False otherwise.
    * @return An object containing the parsed data.
    */
   private static StsdData parseStsd(ParsableByteArray stsd, int trackId, int rotationDegrees,

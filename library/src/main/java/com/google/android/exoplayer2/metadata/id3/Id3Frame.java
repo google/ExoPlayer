@@ -16,12 +16,14 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcelable;
+
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * Base class for ID3 frames.
  */
-public abstract class Id3Frame implements Parcelable {
+public abstract class Id3Frame implements Metadata.Entry {
 
   /**
    * The frame ID.

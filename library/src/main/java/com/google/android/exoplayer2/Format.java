@@ -21,7 +21,6 @@ import android.media.MediaFormat;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.extractor.GaplessInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -411,7 +410,7 @@ public final class Format implements Parcelable {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode,
         channelCount, sampleRate, pcmEncoding, encoderDelay, encoderPadding, selectionFlags,
-        language, subsampleOffsetUs, initializationData, drmInitData, null);
+        language, subsampleOffsetUs, initializationData, drmInitData, metadata);
   }
 
   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
@@ -429,14 +428,10 @@ public final class Format implements Parcelable {
   }
 
   public Format copyWithMetadata(Metadata metadata) {
-    GaplessInfo gaplessInfo = metadata.getGaplessInfo();
-    int ed = gaplessInfo != null ? gaplessInfo.encoderDelay : encoderDelay;
-    int ep = gaplessInfo != null ? gaplessInfo.encoderPadding : encoderPadding;
-
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize,
-            width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData,
-            stereoMode, channelCount, sampleRate, pcmEncoding, ed, ep,
-            selectionFlags, language, subsampleOffsetUs, initializationData, drmInitData, metadata);
+        width, height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData,
+        stereoMode, channelCount, sampleRate, pcmEncoding, encoderDelay, encoderPadding,
+        selectionFlags, language, subsampleOffsetUs, initializationData, drmInitData, metadata);
   }
 
   /**

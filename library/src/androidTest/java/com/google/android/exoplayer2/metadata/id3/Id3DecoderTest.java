@@ -32,9 +32,8 @@ public class Id3DecoderTest extends TestCase {
         54, 52, 95, 115, 116, 97, 114, 116, 0};
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
-    List<Id3Frame> id3Frames = metadata.getFrames();
-    assertEquals(1, id3Frames.size());
-    TxxxFrame txxxFrame = (TxxxFrame) id3Frames.get(0);
+    assertEquals(1, metadata.length());
+    TxxxFrame txxxFrame = (TxxxFrame) metadata.get(0);
     assertEquals("", txxxFrame.description);
     assertEquals("mdialog_VINDICO1527664_start", txxxFrame.value);
   }
@@ -45,9 +44,8 @@ public class Id3DecoderTest extends TestCase {
         111, 114, 108, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
-    List<Id3Frame> id3Frames = metadata.getFrames();
-    assertEquals(1, id3Frames.size());
-    ApicFrame apicFrame = (ApicFrame) id3Frames.get(0);
+    assertEquals(1, metadata.length());
+    ApicFrame apicFrame = (ApicFrame) metadata.get(0);
     assertEquals("image/jpeg", apicFrame.mimeType);
     assertEquals(16, apicFrame.pictureType);
     assertEquals("Hello World", apicFrame.description);
@@ -60,9 +58,8 @@ public class Id3DecoderTest extends TestCase {
         3, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0};
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
-    List<Id3Frame> id3Frames = metadata.getFrames();
-    assertEquals(1, id3Frames.size());
-    TextInformationFrame textInformationFrame = (TextInformationFrame) id3Frames.get(0);
+    assertEquals(1, metadata.length());
+    TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertEquals("TIT2", textInformationFrame.id);
     assertEquals("Hello World", textInformationFrame.description);
   }

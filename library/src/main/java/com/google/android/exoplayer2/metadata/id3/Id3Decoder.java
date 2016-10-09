@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
-import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.extractor.GaplessInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataDecoderException;
@@ -31,7 +29,7 @@ import java.util.Locale;
 /**
  * Decodes individual TXXX text frames from raw ID3 data.
  */
-public final class Id3Decoder implements MetadataDecoder<Metadata> {
+public final class Id3Decoder implements MetadataDecoder {
 
   private static final int ID3_TEXT_ENCODING_ISO_8859_1 = 0;
   private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
@@ -41,7 +39,6 @@ public final class Id3Decoder implements MetadataDecoder<Metadata> {
   private int majorVersion;
   private int minorVersion;
   private boolean isUnsynchronized;
-  private GaplessInfo gaplessInfo;
 
   @Override
   public boolean canDecode(String mimeType) {
@@ -141,11 +138,7 @@ public final class Id3Decoder implements MetadataDecoder<Metadata> {
             frame = decodeTextInformationFrame(frameData, frameSize, id);
           } else if (frameId0 == 'C' && frameId1 == 'O' && frameId2 == 'M' &&
               (frameId3 == 'M' || frameId3 == 0)) {
-            CommentFrame commentFrame = decodeCommentFrame(frameData, frameSize);
-            frame = commentFrame;
-            if (gaplessInfo == null) {
-              gaplessInfo = GaplessInfo.createFromComment(commentFrame.id, commentFrame.text);
-            }
+            frame = decodeCommentFrame(frameData, frameSize);
           } else {
             String id = frameId3 != 0 ?
                 String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3) :
@@ -159,7 +152,7 @@ public final class Id3Decoder implements MetadataDecoder<Metadata> {
       }
     }
 
-    return new Metadata(id3Frames, null);
+    return new Metadata(id3Frames);
   }
 
   private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
@@ -198,7 +191,7 @@ public final class Id3Decoder implements MetadataDecoder<Metadata> {
   /**
    * @param id3Buffer A {@link ParsableByteArray} from which data should be read.
    * @return The size of ID3 frames in bytes, excluding the header and footer.
-   * @throws ParserException If ID3 file identifier != "ID3".
+   * @throws MetadataDecoderException If ID3 file identifier != "ID3".
    */
   private int decodeId3Header(ParsableByteArray id3Buffer) throws MetadataDecoderException {
     int id1 = id3Buffer.readUnsignedByte();
