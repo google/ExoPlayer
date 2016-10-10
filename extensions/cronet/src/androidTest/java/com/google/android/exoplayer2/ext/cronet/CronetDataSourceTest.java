@@ -174,10 +174,7 @@ public final class CronetDataSourceTest {
   @Test(expected = IllegalStateException.class)
   public void testOpeningTwiceThrows() throws HttpDataSourceException {
     mockResponseStartSuccess();
-
-    assertConnectionState(CronetDataSource.IDLE_CONNECTION);
     dataSourceUnderTest.open(testDataSpec);
-    assertConnectionState(CronetDataSource.OPEN_CONNECTION);
     dataSourceUnderTest.open(testDataSpec);
   }
 
@@ -205,7 +202,7 @@ public final class CronetDataSourceTest {
         dataSourceUnderTest.onFailed(
             mockUrlRequest,
             testUrlResponseInfo,
-            null);
+            mockUrlRequestException);
         dataSourceUnderTest.onResponseStarted(
             mockUrlRequest2,
             testUrlResponseInfo);
@@ -253,12 +250,9 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestOpen() throws HttpDataSourceException {
     mockResponseStartSuccess();
-
     assertEquals(TEST_CONTENT_LENGTH, dataSourceUnderTest.open(testDataSpec));
-    assertConnectionState(CronetDataSource.OPEN_CONNECTION);
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
   }
-
 
   @Test
   public void testRequestOpenGzippedCompressedReturnsDataSpecLength()
@@ -271,7 +265,6 @@ public final class CronetDataSourceTest {
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
 
     assertEquals(5000 /* contentLength */, dataSourceUnderTest.open(testDataSpec));
-    assertConnectionState(CronetDataSource.OPEN_CONNECTION);
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
   }
 
@@ -286,7 +279,6 @@ public final class CronetDataSourceTest {
       // Check for connection not automatically closed.
       assertFalse(e.getCause() instanceof UnknownHostException);
       verify(mockUrlRequest, never()).cancel();
-      assertConnectionState(CronetDataSource.OPENING_CONNECTION);
       verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
     }
   }
@@ -304,7 +296,6 @@ public final class CronetDataSourceTest {
       // Check for connection not automatically closed.
       assertTrue(e.getCause() instanceof UnknownHostException);
       verify(mockUrlRequest, never()).cancel();
-      assertConnectionState(CronetDataSource.OPENING_CONNECTION);
       verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
     }
   }
@@ -321,7 +312,6 @@ public final class CronetDataSourceTest {
       assertTrue(e instanceof HttpDataSource.InvalidResponseCodeException);
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
-      assertConnectionState(CronetDataSource.OPENING_CONNECTION);
       verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
     }
   }
@@ -338,27 +328,7 @@ public final class CronetDataSourceTest {
       assertTrue(e instanceof HttpDataSource.InvalidContentTypeException);
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
-      assertConnectionState(CronetDataSource.OPENING_CONNECTION);
       verify(mockContentTypePredicate).evaluate(TEST_CONTENT_TYPE);
-    }
-  }
-
-  @Test
-  public void testRequestOpenValidatesContentLength() {
-    mockResponseStartSuccess();
-
-    // Data spec's requested length, 5000. Test response's length, 16,000.
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
-
-    try {
-      dataSourceUnderTest.open(testDataSpec);
-      fail("HttpDataSource.HttpDataSourceException expected");
-    } catch (HttpDataSourceException e) {
-      verify(mockUrlRequest).addHeader("Range", "bytes=1000-5999");
-      // Check for connection not automatically closed.
-      verify(mockUrlRequest, never()).cancel();
-      assertConnectionState(CronetDataSource.OPENING_CONNECTION);
-      verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testPostDataSpec);
     }
   }
 
@@ -368,7 +338,6 @@ public final class CronetDataSourceTest {
 
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
     assertEquals(TEST_CONTENT_LENGTH, dataSourceUnderTest.open(testPostDataSpec));
-    assertConnectionState(CronetDataSource.OPEN_CONNECTION);
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testPostDataSpec);
   }
 
@@ -510,7 +479,6 @@ public final class CronetDataSourceTest {
 
     dataSourceUnderTest.close();
     verify(mockTransferListener).onTransferEnd(dataSourceUnderTest);
-    assertConnectionState(CronetDataSource.IDLE_CONNECTION);
 
     try {
       bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 8);
@@ -572,7 +540,6 @@ public final class CronetDataSourceTest {
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
     // Check for connection not automatically closed.
     verify(mockUrlRequest, never()).cancel();
-    assertConnectionState(CronetDataSource.OPEN_CONNECTION);
     assertEquals(16, bytesRead);
   }
 
@@ -603,15 +570,12 @@ public final class CronetDataSourceTest {
 
     // We should still be trying to open.
     assertFalse(timedOutCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
     assertFalse(timedOutCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // Now we timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS);
     timedOutCondition.block();
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
 
     verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
   }
@@ -637,15 +601,12 @@ public final class CronetDataSourceTest {
 
     // We should still be trying to open.
     assertFalse(openCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
     assertFalse(openCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // The response arrives just in time.
     dataSourceUnderTest.onResponseStarted(mockUrlRequest, testUrlResponseInfo);
     openCondition.block();
-    assertEquals(CronetDataSource.OPEN_CONNECTION, dataSourceUnderTest.connectionState);
   }
 
   @Test
@@ -674,11 +635,9 @@ public final class CronetDataSourceTest {
 
     // We should still be trying to open.
     assertFalse(timedOutCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
     assertFalse(timedOutCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // A redirect arrives just in time.
     dataSourceUnderTest.onRedirectReceived(mockUrlRequest, testUrlResponseInfo,
         "RandomRedirectedUrl1");
@@ -689,7 +648,6 @@ public final class CronetDataSourceTest {
     assertFalse(timedOutCondition.block(newTimeoutMs));
     // We should still be trying to open as we approach the new timeout.
     assertFalse(timedOutCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // A redirect arrives just in time.
     dataSourceUnderTest.onRedirectReceived(mockUrlRequest, testUrlResponseInfo,
         "RandomRedirectedUrl2");
@@ -700,11 +658,9 @@ public final class CronetDataSourceTest {
     assertFalse(timedOutCondition.block(newTimeoutMs));
     // We should still be trying to open as we approach the new timeout.
     assertFalse(timedOutCondition.block(50));
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
     // Now we timeout.
     when(mockClock.elapsedRealtime()).thenReturn(newTimeoutMs);
     timedOutCondition.block();
-    assertEquals(CronetDataSource.OPENING_CONNECTION, dataSourceUnderTest.connectionState);
 
     verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
     assertEquals(1, openExceptions.get());
@@ -818,7 +774,7 @@ public final class CronetDataSourceTest {
         dataSourceUnderTest.onFailed(
             mockUrlRequest,
             createUrlResponseInfo(500), // statusCode
-            null);
+            mockUrlRequestException);
         return null;
       }
     }).when(mockUrlRequest).read(any(ByteBuffer.class));
@@ -867,10 +823,6 @@ public final class CronetDataSourceTest {
     }
     testBuffer.flip();
     return testBuffer;
-  }
-
-  private void assertConnectionState(int state) {
-    assertEquals(state, dataSourceUnderTest.connectionState);
   }
 
 }

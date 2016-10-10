@@ -185,9 +185,12 @@ public class OkHttpDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    long contentLength = response.body().contentLength();
-    bytesToRead = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length
-        : (contentLength != -1 ? (contentLength - bytesToSkip) : C.LENGTH_UNSET);
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesToRead = dataSpec.length;
+    } else {
+      long contentLength = response.body().contentLength();
+      bytesToRead = contentLength != -1 ? (contentLength - bytesToSkip) : C.LENGTH_UNSET;
+    }
 
     opened = true;
     if (listener != null) {

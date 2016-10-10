@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.chromium.net.CronetEngine;
@@ -91,11 +90,6 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   // The size of read buffer passed to cronet UrlRequest.read().
   private static final int READ_BUFFER_SIZE_BYTES = 32 * 1024;
 
-  /* package */ static final int IDLE_CONNECTION = 5;
-  /* package */ static final int OPENING_CONNECTION = 2;
-  /* package */ static final int CONNECTED_CONNECTION = 3;
-  /* package */ static final int OPEN_CONNECTION = 4;
-
   private final CronetEngine cronetEngine;
   private final Executor executor;
   private final Predicate<String> contentTypePredicate;
@@ -105,20 +99,29 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private final boolean resetTimeoutOnRedirects;
   private final Map<String, String> requestProperties;
   private final ConditionVariable operation;
-  private final ByteBuffer readBuffer;
   private final Clock clock;
 
+  // Accessed by the calling thread only.
+  private boolean opened;
+  private long bytesRemaining;
+
+  // Written from the calling thread only. currentUrlRequest.start() calls ensure writes are visible
+  // to reads made by the Cronet thread.
   private UrlRequest currentUrlRequest;
   private DataSpec currentDataSpec;
-  private UrlResponseInfo responseInfo;
 
-  /* package */ volatile int connectionState;
+  // Reference written and read by calling thread only. Passed to Cronet thread as a local variable.
+  // operation.open() calls ensure writes into the buffer are visible to reads made by the calling
+  // thread.
+  private ByteBuffer readBuffer;
+
+  // Written from the Cronet thread only. operation.open() calls ensure writes are visible to reads
+  // made by the calling thread.
+  private UrlResponseInfo responseInfo;
+  private IOException exception;
+  private boolean finished;
+
   private volatile long currentConnectTimeoutMs;
-  private volatile HttpDataSourceException exception;
-  private volatile long contentLength;
-  private volatile AtomicLong expectedBytesRemainingToRead;
-  private volatile boolean hasData;
-  private volatile boolean responseFinished;
 
   /**
    * @param cronetEngine A CronetEngine.
@@ -163,10 +166,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
     this.clock = Assertions.checkNotNull(clock);
-    readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
     requestProperties = new HashMap<>();
     operation = new ConditionVariable();
-    connectionState = IDLE_CONNECTION;
   }
 
   // HttpDataSource implementation.
@@ -205,10 +206,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     Assertions.checkNotNull(dataSpec);
-    synchronized (this) {
-      Assertions.checkState(connectionState == IDLE_CONNECTION, "Connection already open");
-      connectionState = OPENING_CONNECTION;
-    }
+    Assertions.checkState(!opened);
 
     operation.close();
     resetConnectTimeout();
@@ -218,61 +216,99 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     boolean requestStarted = blockUntilConnectTimeout();
 
     if (exception != null) {
-      // An error occurred opening the connection.
-      throw exception;
+      throw new OpenException(exception, currentDataSpec, getStatus(currentUrlRequest));
     } else if (!requestStarted) {
       // The timeout was reached before the connection was opened.
       throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
     }
 
-    // Connection was opened.
+    // Check for a valid response code.
+    int responseCode = responseInfo.getHttpStatusCode();
+    if (responseCode < 200 || responseCode > 299) {
+      InvalidResponseCodeException exception = new InvalidResponseCodeException(responseCode,
+          responseInfo.getAllHeaders(), currentDataSpec);
+      if (responseCode == 416) {
+        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+      }
+      throw exception;
+    }
+
+    // Check for a valid content type.
+    if (contentTypePredicate != null) {
+      List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
+      String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);
+      if (!contentTypePredicate.evaluate(contentType)) {
+        throw new InvalidContentTypeException(contentType, currentDataSpec);
+      }
+    }
+
+    // TODO: Handle the case where we requested a range starting from a non-zero position and
+    // received a 200 rather than a 206. This occurs if the server does not support partial
+    // requests, and requires that the source skips to the requested position.
+
+    // Calculate the content length.
+    if (!getIsCompressed(responseInfo)) {
+      if (dataSpec.length != C.LENGTH_UNSET) {
+        bytesRemaining = dataSpec.length;
+      } else {
+        bytesRemaining = getContentLength(responseInfo);
+      }
+    } else {
+      // If the response is compressed then the content length will be that of the compressed data
+      // which isn't what we want. Always use the dataSpec length in this case.
+      bytesRemaining = currentDataSpec.length;
+    }
+
+    opened = true;
     if (listener != null) {
       listener.onTransferStart(this, dataSpec);
     }
-    connectionState = OPEN_CONNECTION;
-    return contentLength;
+
+    return bytesRemaining;
   }
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
-    synchronized (this) {
-      Assertions.checkState(connectionState == OPEN_CONNECTION);
-    }
+    Assertions.checkState(opened);
 
     if (readLength == 0) {
       return 0;
-    }
-    if (expectedBytesRemainingToRead != null && expectedBytesRemainingToRead.get() == 0) {
+    } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
 
-    if (!hasData) {
-      // Read more data from cronet.
+    if (readBuffer == null) {
+      readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
+      readBuffer.limit(0);
+    }
+    if (!readBuffer.hasRemaining()) {
+      // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
       currentUrlRequest.read(readBuffer);
       if (!operation.block(readTimeoutMs)) {
+        // We're timing out, but since the operation is still ongoing we'll need to replace
+        // readBuffer to avoid the possibility of it being written to by this operation during a
+        // subsequent request.
+        readBuffer = null;
         throw new HttpDataSourceException(
             new SocketTimeoutException(), currentDataSpec, HttpDataSourceException.TYPE_READ);
-      }
-      if (exception != null) {
-        throw exception;
-      }
-      // The expected response length is unknown, but cronet has indicated that the request
-      // already finished successfully.
-      if (responseFinished) {
+      } else if (exception != null) {
+        throw new HttpDataSourceException(exception, currentDataSpec,
+            HttpDataSourceException.TYPE_READ);
+      } else if (finished) {
         return C.RESULT_END_OF_INPUT;
+      } else {
+        // The operation didn't time out, fail or finish, and therefore data must have been read.
+        readBuffer.flip();
       }
     }
 
     int bytesRead = Math.min(readBuffer.remaining(), readLength);
     readBuffer.get(buffer, offset, bytesRead);
-    if (!readBuffer.hasRemaining()) {
-      hasData = false;
-    }
 
-    if (expectedBytesRemainingToRead != null) {
-      expectedBytesRemainingToRead.addAndGet(-bytesRead);
+    if (bytesRemaining != C.LENGTH_UNSET) {
+      bytesRemaining -= bytesRead;
     }
     if (listener != null) {
       listener.onBytesTransferred(this, bytesRead);
@@ -286,26 +322,26 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       currentUrlRequest.cancel();
       currentUrlRequest = null;
     }
+    if (readBuffer != null) {
+      readBuffer.limit(0);
+    }
     currentDataSpec = null;
-    exception = null;
-    contentLength = 0;
-    hasData = false;
     responseInfo = null;
-    expectedBytesRemainingToRead = null;
-    responseFinished = false;
-    try {
-      if (listener != null && connectionState == OPEN_CONNECTION) {
+    exception = null;
+    finished = false;
+    if (opened) {
+      opened = false;
+      if (listener != null) {
         listener.onTransferEnd(this);
       }
-    } finally {
-      connectionState = IDLE_CONNECTION;
     }
   }
 
   // UrlRequest.Callback implementation
 
   @Override
-  public void onRedirectReceived(UrlRequest request, UrlResponseInfo info, String newLocationUrl) {
+  public synchronized void onRedirectReceived(UrlRequest request, UrlResponseInfo info,
+      String newLocationUrl) {
     if (request != currentUrlRequest) {
       return;
     }
@@ -315,8 +351,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       // For other redirect response codes the POST request is converted to a GET request and the
       // redirect is followed.
       if (responseCode == 307 || responseCode == 308) {
-        exception = new OpenException("POST request redirected with 307 or 308 response code",
-            currentDataSpec, getStatus(request));
+        exception = new InvalidResponseCodeException(responseCode, info.getAllHeaders(),
+            currentDataSpec);
         operation.open();
         return;
       }
@@ -332,51 +368,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (request != currentUrlRequest) {
       return;
     }
-    try {
-      // Check for a valid response code.
-      int responseCode = info.getHttpStatusCode();
-      if (responseCode < 200 || responseCode > 299) {
-        InvalidResponseCodeException exception = new InvalidResponseCodeException(
-            responseCode, info.getAllHeaders(), currentDataSpec);
-        if (responseCode == 416) {
-          exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
-        }
-        throw exception;
-      }
-      // Check for a valid content type.
-      if (contentTypePredicate != null) {
-        List<String> contentTypeHeaders = info.getAllHeaders().get(CONTENT_TYPE);
-        String contentType = contentTypeHeaders == null || contentTypeHeaders.isEmpty() ? null
-            : contentTypeHeaders.get(0);
-        if (!contentTypePredicate.evaluate(contentType)) {
-          throw new InvalidContentTypeException(contentType, currentDataSpec);
-        }
-      }
-
-      responseInfo = info;
-      if (getIsCompressed(info)) {
-        contentLength = currentDataSpec.length;
-      } else {
-        // Check content length.
-        contentLength = getContentLength(info);
-        // If a specific length is requested and a specific length is returned but the 2 don't match
-        // it's an error.
-        if (currentDataSpec.length != C.LENGTH_UNSET && contentLength != C.LENGTH_UNSET
-            && currentDataSpec.length != contentLength) {
-          throw new OpenException("Content length did not match requested length", currentDataSpec,
-              getStatus(request));
-        }
-      }
-      if (contentLength > 0) {
-        expectedBytesRemainingToRead = new AtomicLong(contentLength);
-      }
-
-      connectionState = CONNECTED_CONNECTION;
-    } catch (HttpDataSourceException e) {
-      exception = e;
-    } finally {
-      operation.open();
-    }
+    responseInfo = info;
+    operation.open();
   }
 
   @Override
@@ -385,17 +378,15 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (request != currentUrlRequest) {
       return;
     }
-    readBuffer.flip();
-    hasData = true;
     operation.open();
   }
 
   @Override
-  public void onSucceeded(UrlRequest request, UrlResponseInfo info) {
+  public synchronized void onSucceeded(UrlRequest request, UrlResponseInfo info) {
     if (request != currentUrlRequest) {
       return;
     }
-    responseFinished = true;
+    finished = true;
     operation.open();
   }
 
@@ -405,14 +396,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (request != currentUrlRequest) {
       return;
     }
-    if (connectionState == OPENING_CONNECTION) {
-      IOException cause = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
-          ? new UnknownHostException() : error;
-      exception = new OpenException(cause, currentDataSpec, getStatus(request));
-    } else if (connectionState == OPEN_CONNECTION) {
-      exception = new HttpDataSourceException(error, currentDataSpec,
-          HttpDataSourceException.TYPE_READ);
-    }
+    exception = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
+        ? new UnknownHostException() : error;
     operation.open();
   }
 
@@ -477,7 +462,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     Map<String, List<String>> headers = info.getAllHeaders();
     List<String> contentLengthHeaders = headers.get("Content-Length");
     String contentLengthHeader = null;
-    if (contentLengthHeaders != null && !contentLengthHeaders.isEmpty()) {
+    if (!isEmpty(contentLengthHeaders)) {
       contentLengthHeader = contentLengthHeaders.get(0);
       if (!TextUtils.isEmpty(contentLengthHeader)) {
         try {
@@ -488,7 +473,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       }
     }
     List<String> contentRangeHeaders = headers.get("Content-Range");
-    if (contentRangeHeaders != null && !contentRangeHeaders.isEmpty()) {
+    if (!isEmpty(contentRangeHeaders)) {
       String contentRangeHeader = contentRangeHeaders.get(0);
       Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader);
       if (matcher.find()) {
@@ -528,6 +513,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     });
     conditionVariable.block();
     return statusHolder[0];
+  }
+
+  private static boolean isEmpty(List<?> list) {
+    return list == null || list.isEmpty();
   }
 
 }
