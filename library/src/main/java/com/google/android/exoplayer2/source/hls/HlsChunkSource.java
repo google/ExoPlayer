@@ -518,8 +518,7 @@ import java.util.Locale;
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex, int trackSelectionReason,
       Object trackSelectionData) {
     Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants[variantIndex].url);
-    DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNSET, null,
-        DataSpec.FLAG_ALLOW_GZIP);
+    DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNSET, null, 0);
     return new MediaPlaylistChunk(dataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, playlistParser, variantIndex,
         mediaPlaylistUri);
