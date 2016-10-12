@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
-import android.os.Parcelable;
-
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 

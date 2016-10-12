@@ -58,6 +58,10 @@ public final class Format implements Parcelable {
    * Codecs of the format as described in RFC 6381, or null if unknown or not applicable.
    */
   public final String codecs;
+  /**
+   * Metadata, or null if unknown or not applicable.
+   */
+  public final Metadata metadata;
 
   // Container specific.
 
@@ -87,11 +91,6 @@ public final class Format implements Parcelable {
    * DRM initialization data if the stream is protected, or null otherwise.
    */
   public final DrmInitData drmInitData;
-  /**
-   * Static metadata
-   */
-  public final Metadata metadata;
-
 
   // Video specific.
 
@@ -245,18 +244,18 @@ public final class Format implements Parcelable {
       @C.SelectionFlags int selectionFlags, String language) {
     return createAudioSampleFormat(id, sampleMimeType, codecs, bitrate, maxInputSize, channelCount,
         sampleRate, pcmEncoding, NO_VALUE, NO_VALUE, initializationData, drmInitData,
-        selectionFlags, language);
+        selectionFlags, language, null);
   }
 
   public static Format createAudioSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, int maxInputSize, int channelCount, int sampleRate,
       @C.PcmEncoding int pcmEncoding, int encoderDelay, int encoderPadding,
       List<byte[]> initializationData, DrmInitData drmInitData,
-      @C.SelectionFlags int selectionFlags, String language) {
+      @C.SelectionFlags int selectionFlags, String language, Metadata metadata) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, maxInputSize, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, channelCount, sampleRate, pcmEncoding,
         encoderDelay, encoderPadding, selectionFlags, language, OFFSET_SAMPLE_RELATIVE,
-        initializationData, drmInitData, null);
+        initializationData, drmInitData, metadata);
   }
 
   // Text.

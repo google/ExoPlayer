@@ -31,9 +31,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-
-import org.w3c.dom.Comment;
-
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -147,14 +144,10 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       seeker = setupSeeker(input);
       extractorOutput.seekMap(seeker);
-      Format format = Format.createAudioSampleFormat(null, synchronizedHeader.mimeType, null,
+      trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType, null,
           Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
           synchronizedHeader.sampleRate, Format.NO_VALUE, gaplessInfoHolder.encoderDelay,
-          gaplessInfoHolder.encoderPadding, null, null, 0, null);
-      if (metadata != null) {
-        format = format.copyWithMetadata(metadata);
-      }
-      trackOutput.format(format);
+          gaplessInfoHolder.encoderPadding, null, null, 0, null, metadata));
     }
     return readSample(input);
   }
