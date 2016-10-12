@@ -103,8 +103,10 @@ import java.util.List;
   public void release() {
     continueLoadingHandler.removeCallbacksAndMessages(null);
     manifestFetcher.release();
-    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      sampleStreamWrapper.release();
+    if (sampleStreamWrappers != null) {
+      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+        sampleStreamWrapper.release();
+      }
     }
   }
 

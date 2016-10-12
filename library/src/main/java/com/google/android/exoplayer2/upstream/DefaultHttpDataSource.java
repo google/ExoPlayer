@@ -231,10 +231,13 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     // Determine the length of the data to be read, after skipping.
     if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
-      long contentLength = getContentLength(connection);
-      bytesToRead = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length
-          : contentLength != C.LENGTH_UNSET ? contentLength - bytesToSkip
-          : C.LENGTH_UNSET;
+      if (dataSpec.length != C.LENGTH_UNSET) {
+        bytesToRead = dataSpec.length;
+      } else {
+        long contentLength = getContentLength(connection);
+        bytesToRead = contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip)
+            : C.LENGTH_UNSET;
+      }
     } else {
       // Gzip is enabled. If the server opts to use gzip then the content length in the response
       // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a

@@ -48,8 +48,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private final AspectRatioFrameLayout layout;
   private final PlaybackControlView controller;
   private final ComponentListener componentListener;
+
   private SimpleExoPlayer player;
   private boolean useController = true;
+  private int controllerShowTimeoutMs;
 
   public SimpleExoPlayerView(Context context) {
     this(context, null);
@@ -64,6 +66,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     boolean useTextureView = false;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
+    int rewindMs = PlaybackControlView.DEFAULT_REWIND_MS;
+    int fastForwardMs = PlaybackControlView.DEFAULT_FAST_FORWARD_MS;
+    int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
@@ -73,6 +78,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
             useTextureView);
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode,
             AspectRatioFrameLayout.RESIZE_MODE_FIT);
+        rewindMs = a.getInt(R.styleable.SimpleExoPlayerView_rewind_increment, rewindMs);
+        fastForwardMs = a.getInt(R.styleable.SimpleExoPlayerView_fastforward_increment,
+            fastForwardMs);
+        controllerShowTimeoutMs = a.getInt(R.styleable.SimpleExoPlayerView_show_timeout,
+            controllerShowTimeoutMs);
       } finally {
         a.recycle();
       }
@@ -82,11 +92,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
     componentListener = new ComponentListener();
     layout = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
     layout.setResizeMode(resizeMode);
-    controller = (PlaybackControlView) findViewById(R.id.control);
     shutterView = findViewById(R.id.shutter);
     subtitleLayout = (SubtitleView) findViewById(R.id.subtitles);
     subtitleLayout.setUserDefaultStyle();
     subtitleLayout.setUserDefaultTextSize();
+
+    controller = (PlaybackControlView) findViewById(R.id.control);
+    controller.hide();
+    controller.setRewindIncrementMs(rewindMs);
+    controller.setFastForwardIncrementMs(fastForwardMs);
+    this.controllerShowTimeoutMs = controllerShowTimeoutMs;
 
     View view = useTextureView ? new TextureView(context) : new SurfaceView(context);
     ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
@@ -122,6 +137,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
       this.player.setVideoSurface(null);
     }
     this.player = player;
+    if (useController) {
+      controller.setPlayer(player);
+    }
     if (player != null) {
       if (surfaceView instanceof TextureView) {
         player.setVideoTextureView((TextureView) surfaceView);
@@ -131,20 +149,36 @@ public final class SimpleExoPlayerView extends FrameLayout {
       player.setVideoListener(componentListener);
       player.addListener(componentListener);
       player.setTextOutput(componentListener);
+      maybeShowController(false);
     } else {
       shutterView.setVisibility(VISIBLE);
-    }
-    if (useController) {
-      controller.setPlayer(player);
+      controller.hide();
     }
   }
 
   /**
-   * Set the {@code useController} flag which indicates whether the playback control view should
-   * be used or not. If set to {@code false} the controller is never visible and is disconnected
-   * from the player.
+   * Sets the resize mode which can be of value {@link AspectRatioFrameLayout#RESIZE_MODE_FIT},
+   * {@link AspectRatioFrameLayout#RESIZE_MODE_FIXED_HEIGHT} or
+   * {@link AspectRatioFrameLayout#RESIZE_MODE_FIXED_WIDTH}.
    *
-   * @param useController If {@code false} the playback control is never used.
+   * @param resizeMode The resize mode.
+   */
+  public void setResizeMode(int resizeMode) {
+    layout.setResizeMode(resizeMode);
+  }
+
+  /**
+   * Returns whether the playback controls are enabled.
+   */
+  public boolean getUseController() {
+    return useController;
+  }
+
+  /**
+   * Sets whether playback controls are enabled. If set to {@code false} the playback controls are
+   * never visible and are disconnected from the player.
+   *
+   * @param useController Whether playback controls should be enabled.
    */
   public void setUseController(boolean useController) {
     if (this.useController == useController) {
@@ -160,14 +194,26 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Sets the resize mode which can be of value {@link AspectRatioFrameLayout#RESIZE_MODE_FIT},
-   * {@link AspectRatioFrameLayout#RESIZE_MODE_FIXED_HEIGHT} or
-   * {@link AspectRatioFrameLayout#RESIZE_MODE_FIXED_WIDTH}.
+   * Returns the playback controls timeout. The playback controls are automatically hidden after
+   * this duration of time has elapsed without user input and with playback or buffering in
+   * progress.
    *
-   * @param resizeMode The resize mode.
+   * @return The timeout in milliseconds. A non-positive value will cause the controller to remain
+   *     visible indefinitely.
    */
-  public void setResizeMode(int resizeMode) {
-    layout.setResizeMode(resizeMode);
+  public int getControllerShowTimeoutMs() {
+    return controllerShowTimeoutMs;
+  }
+
+  /**
+   * Sets the playback controls timeout. The playback controls are automatically hidden after this
+   * duration of time has elapsed without user input and with playback or buffering in progress.
+   *
+   * @param controllerShowTimeoutMs The timeout in milliseconds. A non-positive value will cause
+   *     the controller to remain visible indefinitely.
+   */
+  public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
+    this.controllerShowTimeoutMs = controllerShowTimeoutMs;
   }
 
   /**
@@ -198,15 +244,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Sets the duration to show the playback control in milliseconds.
-   *
-   * @param showDurationMs The duration in milliseconds.
-   */
-  public void setControlShowDurationMs(int showDurationMs) {
-    controller.setShowDurationMs(showDurationMs);
-  }
-
-  /**
    * Get the view onto which video is rendered. This is either a {@link SurfaceView} (default)
    * or a {@link TextureView} if the {@code use_texture_view} view attribute has been set to true.
    *
@@ -218,27 +255,43 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
-    if (useController && ev.getActionMasked() == MotionEvent.ACTION_DOWN) {
-      if (controller.isVisible()) {
-        controller.hide();
-      } else {
-        controller.show();
-      }
+    if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
+      return false;
+    }
+    if (controller.isVisible()) {
+      controller.hide();
+    } else {
+      maybeShowController(true);
     }
     return true;
   }
+
   @Override
   public boolean onTrackballEvent(MotionEvent ev) {
-    if (!useController) {
+    if (!useController || player == null) {
       return false;
     }
-    controller.show();
+    maybeShowController(true);
     return true;
   }
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     return useController ? controller.dispatchKeyEvent(event) : super.dispatchKeyEvent(event);
+  }
+
+  private void maybeShowController(boolean isForced) {
+    if (!useController || player == null) {
+      return;
+    }
+    int playbackState = player.getPlaybackState();
+    boolean showIndefinitely = playbackState == ExoPlayer.STATE_IDLE
+        || playbackState == ExoPlayer.STATE_ENDED || !player.getPlayWhenReady();
+    boolean wasShowingIndefinitely = controller.isVisible() && controller.getShowTimeoutMs() <= 0;
+    controller.setShowTimeoutMs(showIndefinitely ? 0 : controllerShowTimeoutMs);
+    if (isForced || showIndefinitely || wasShowingIndefinitely) {
+      controller.show();
+    }
   }
 
   private final class ComponentListener implements SimpleExoPlayer.VideoListener,
@@ -278,9 +331,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      if (useController && playbackState == ExoPlayer.STATE_ENDED) {
-        controller.show(0);
-      }
+      maybeShowController(false);
     }
 
     @Override

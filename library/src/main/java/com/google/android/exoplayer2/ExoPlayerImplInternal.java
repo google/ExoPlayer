@@ -538,16 +538,23 @@ import java.io.IOException;
       periodIndex = C.INDEX_UNSET;
     }
 
-    // Clear the timeline, but keep the requested period if it is already prepared.
-    MediaPeriodHolder<T> periodHolder = playingPeriodHolder;
     MediaPeriodHolder<T> newPlayingPeriodHolder = null;
-    while (periodHolder != null) {
-      if (periodHolder.index == periodIndex && periodHolder.prepared) {
-        newPlayingPeriodHolder = periodHolder;
-      } else {
-        periodHolder.release();
+    if (playingPeriodHolder == null) {
+      // We're still waiting for the first period to be prepared.
+      if (loadingPeriodHolder != null) {
+        loadingPeriodHolder.release();
       }
-      periodHolder = periodHolder.next;
+    } else {
+      // Clear the timeline, but keep the requested period if it is already prepared.
+      MediaPeriodHolder<T> periodHolder = playingPeriodHolder;
+      while (periodHolder != null) {
+        if (periodHolder.index == periodIndex && periodHolder.prepared) {
+          newPlayingPeriodHolder = periodHolder;
+        } else {
+          periodHolder.release();
+        }
+        periodHolder = periodHolder.next;
+      }
     }
 
     // Disable all the renderers if the period is changing.
@@ -892,7 +899,8 @@ import java.io.IOException;
     }
 
     // Release all loaded periods.
-    releasePeriodHoldersFrom(playingPeriodHolder);
+    releasePeriodHoldersFrom(playingPeriodHolder != null ? playingPeriodHolder
+        : loadingPeriodHolder);
     bufferAheadPeriodCount = 0;
     playingPeriodHolder = null;
     readingPeriodHolder = null;
