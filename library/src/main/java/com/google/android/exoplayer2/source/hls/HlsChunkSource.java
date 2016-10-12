@@ -369,29 +369,29 @@ import java.util.Locale;
       }
     } else if (needNewExtractor) {
       // MPEG-2 TS segments, but we need a new extractor.
-      // This flag ensures the change of pid between streams does not affect the sample queues.
-      @DefaultStreamReaderFactory.WorkaroundFlags
-      int workaroundFlags = DefaultStreamReaderFactory.WORKAROUND_MAP_BY_TYPE;
-      String codecs = variants[newVariantIndex].format.codecs;
-      if (!TextUtils.isEmpty(codecs)) {
-        // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
-        // exist. If we know from the codec attribute that they don't exist, then we can explicitly
-        // ignore them even if they're declared.
-        if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
-          workaroundFlags |= DefaultStreamReaderFactory.WORKAROUND_IGNORE_AAC_STREAM;
-        }
-        if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
-          workaroundFlags |= DefaultStreamReaderFactory.WORKAROUND_IGNORE_H264_STREAM;
-        }
-      }
       isTimestampMaster = true;
       if (useInitializedExtractor) {
         extractor = lastLoadedInitializationChunk.extractor;
       } else {
         timestampAdjuster = timestampAdjusterProvider.getAdjuster(
             segment.discontinuitySequenceNumber, startTimeUs);
+        // This flag ensures the change of pid between streams does not affect the sample queues.
+        @DefaultStreamReaderFactory.Flags
+        int esReaderFactoryFlags = 0;
+        String codecs = variants[newVariantIndex].format.codecs;
+        if (!TextUtils.isEmpty(codecs)) {
+          // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
+          // exist. If we know from the codec attribute that they don't exist, then we can
+          // explicitly ignore them even if they're declared.
+          if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
+            esReaderFactoryFlags |= DefaultStreamReaderFactory.FLAG_IGNORE_AAC_STREAM;
+          }
+          if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
+            esReaderFactoryFlags |= DefaultStreamReaderFactory.FLAG_IGNORE_H264_STREAM;
+          }
+        }
         extractor = new TsExtractor(timestampAdjuster,
-            new DefaultStreamReaderFactory(workaroundFlags));
+            new DefaultStreamReaderFactory(esReaderFactoryFlags), true);
       }
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.

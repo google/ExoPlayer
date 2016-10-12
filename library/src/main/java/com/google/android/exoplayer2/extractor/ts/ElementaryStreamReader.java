@@ -33,17 +33,12 @@ public abstract class ElementaryStreamReader {
      * Returns an {@link ElementaryStreamReader} for a given PMT entry. May return null if the
      * stream type is not supported or if the stream already has a reader assigned to it.
      *
-     * @param pid The pid for the PMT entry.
-     * @param streamType One of the {@link TsExtractor}{@code .TS_STREAM_TYPE_*} constants defining
-     *     the type of the stream.
-     * @param esInfo The descriptor information linked to the elementary stream.
-     * @param output The {@link ExtractorOutput} that provides the {@link TrackOutput}s for the
-     *     created readers.
+     * @param streamType Stream type value as defined in the PMT entry or associated descriptors.
+     * @param esInfo Information associated to the elementary stream provided in the PMT.
      * @return An {@link ElementaryStreamReader} for the elementary streams carried by the provided
      *     pid. {@code null} if the stream is not supported or if it should be ignored.
      */
-    ElementaryStreamReader onPmtEntry(int pid, int streamType, EsInfo esInfo,
-        ExtractorOutput output);
+    ElementaryStreamReader createStreamReader(int streamType, EsInfo esInfo);
 
   }
 
@@ -70,19 +65,39 @@ public abstract class ElementaryStreamReader {
 
   }
 
-  protected final TrackOutput output;
-
   /**
-   * @param output A {@link TrackOutput} to which samples should be written.
+   * Generates track ids for initializing {@link ElementaryStreamReader}s' {@link TrackOutput}s.
    */
-  protected ElementaryStreamReader(TrackOutput output) {
-    this.output = output;
+  public static final class TrackIdGenerator {
+
+    private final int firstId;
+    private final int idIncrement;
+    private int generatedIdCount;
+
+    public TrackIdGenerator(int firstId, int idIncrement) {
+      this.firstId = firstId;
+      this.idIncrement = idIncrement;
+    }
+
+    public int getNextId() {
+      return firstId + idIncrement * generatedIdCount++;
+    }
+
   }
 
   /**
    * Notifies the reader that a seek has occurred.
    */
   public abstract void seek();
+
+  /**
+   * Initializes the reader by providing outputs and ids for the tracks.
+   *
+   * @param extractorOutput The {@link ExtractorOutput} that receives the extracted data.
+   * @param idGenerator A {@link TrackIdGenerator} that generates unique track ids for the
+   *     {@link TrackOutput}s.
+   */
+  public abstract void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator);
 
   /**
    * Called when a packet starts.

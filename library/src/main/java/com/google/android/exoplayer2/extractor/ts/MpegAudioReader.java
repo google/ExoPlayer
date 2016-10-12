@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -36,6 +37,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private final MpegAudioHeader header;
   private final String language;
 
+  private TrackOutput output;
+
   private int state;
   private int frameBytesRead;
   private boolean hasOutputFormat;
@@ -50,12 +53,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   // The timestamp to attach to the next sample in the current packet.
   private long timeUs;
 
-  public MpegAudioReader(TrackOutput output) {
-    this(output, null);
+  public MpegAudioReader() {
+    this(null);
   }
 
-  public MpegAudioReader(TrackOutput output, String language) {
-    super(output);
+  public MpegAudioReader(String language) {
     state = STATE_FINDING_HEADER;
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
@@ -69,6 +71,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
     state = STATE_FINDING_HEADER;
     frameBytesRead = 0;
     lastByteWasFF = false;
+  }
+
+  @Override
+  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    output = extractorOutput.track(idGenerator.getNextId());
   }
 
   @Override
