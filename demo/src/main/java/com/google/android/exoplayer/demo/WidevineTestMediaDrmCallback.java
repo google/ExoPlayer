@@ -47,7 +47,7 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
   @Override
   public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
     String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
-    return Util.executePost(url, null, REQUEST_PROPERTIES);
+    return Util.executePost(url, null, null);
   }
 
   @Override
