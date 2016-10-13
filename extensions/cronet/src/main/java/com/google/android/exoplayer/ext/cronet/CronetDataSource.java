@@ -410,8 +410,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         executor, cronetEngine);
     // Set the headers.
     synchronized (requestProperties) {
-      if (dataSpec.postBody != null && !requestProperties.containsKey(CONTENT_TYPE)) {
-        throw new OpenException("POST request must set Content-Type", dataSpec, Status.IDLE);
+      if (dataSpec.postBody != null && dataSpec.postBody.length != 0
+          && !requestProperties.containsKey(CONTENT_TYPE)) {
+        throw new OpenException("POST request with non-empty body must set Content-Type", dataSpec,
+            Status.IDLE);
       }
       for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
         requestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
@@ -428,10 +430,13 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       }
       requestBuilder.addHeader("Range", rangeValue.toString());
     }
-    // Set the body.
+    // Set the method and (if non-empty) the body.
     if (dataSpec.postBody != null) {
-      requestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
-          executor);
+      requestBuilder.setHttpMethod("POST");
+      if (dataSpec.postBody.length != 0) {
+        requestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
+            executor);
+      }
     }
     return requestBuilder.build();
   }

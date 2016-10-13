@@ -403,11 +403,16 @@ public class DefaultHttpDataSource implements HttpDataSource {
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(postBody != null);
     if (postBody != null) {
-      connection.setFixedLengthStreamingMode(postBody.length);
-      connection.connect();
-      OutputStream os = connection.getOutputStream();
-      os.write(postBody);
-      os.close();
+      connection.setRequestMethod("POST");
+      if (postBody.length == 0) {
+        connection.connect();
+      } else  {
+        connection.setFixedLengthStreamingMode(postBody.length);
+        connection.connect();
+        OutputStream os = connection.getOutputStream();
+        os.write(postBody);
+        os.close();
+      }
     } else {
       connection.connect();
     }
