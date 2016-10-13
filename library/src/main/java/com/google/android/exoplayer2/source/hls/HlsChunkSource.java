@@ -257,8 +257,16 @@ import java.util.Locale;
         chunkMediaSequence = getLiveNextChunkSequenceNumber(previous.chunkIndex, oldVariantIndex,
             newVariantIndex);
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-          fatalError = new BehindLiveWindowException();
-          return;
+          // We try getting the next chunk without adapting in case that's the reason for falling
+          // behind the live window.
+          newVariantIndex = oldVariantIndex;
+          mediaPlaylist = variantPlaylists[newVariantIndex];
+          chunkMediaSequence = getLiveNextChunkSequenceNumber(previous.chunkIndex, oldVariantIndex,
+              newVariantIndex);
+          if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
+            fatalError = new BehindLiveWindowException();
+            return;
+          }
         }
       }
     } else {
