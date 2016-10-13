@@ -56,7 +56,7 @@ public interface Extractor {
   boolean sniff(ExtractorInput input) throws IOException, InterruptedException;
 
   /**
-   * Initializes the extractor with an {@link ExtractorOutput}.
+   * Initializes the extractor with an {@link ExtractorOutput}. Called at most once.
    *
    * @param output An {@link ExtractorOutput} to receive extracted data.
    */

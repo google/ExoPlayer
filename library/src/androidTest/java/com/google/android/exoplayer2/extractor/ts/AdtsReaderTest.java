@@ -68,7 +68,7 @@ public class AdtsReaderTest extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput(true);
+    FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
     adtsOutput = fakeExtractorOutput.track(0);
     id3Output = fakeExtractorOutput.track(1);
     adtsReader = new AdtsReader(true);
