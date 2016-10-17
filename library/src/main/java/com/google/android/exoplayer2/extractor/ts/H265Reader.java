@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -42,11 +43,13 @@ import java.util.Collections;
   private static final int PREFIX_SEI_NUT = 39;
   private static final int SUFFIX_SEI_NUT = 40;
 
+  private TrackOutput output;
+  private SeiReader seiReader;
+
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
 
   // State that should be reset on seek.
-  private final SeiReader seiReader;
   private final boolean[] prefixFlags;
   private final NalUnitTargetBuffer vps;
   private final NalUnitTargetBuffer sps;
@@ -62,13 +65,7 @@ import java.util.Collections;
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
-  /**
-   * @param output A {@link TrackOutput} to which H.265 samples should be written.
-   * @param seiReader A reader for CEA-608 samples in SEI NAL units.
-   */
-  public H265Reader(TrackOutput output, SeiReader seiReader) {
-    super(output);
-    this.seiReader = seiReader;
+  public H265Reader() {
     prefixFlags = new boolean[3];
     vps = new NalUnitTargetBuffer(VPS_NUT, 128);
     sps = new NalUnitTargetBuffer(SPS_NUT, 128);
@@ -89,6 +86,12 @@ import java.util.Collections;
     suffixSei.reset();
     sampleReader.reset();
     totalBytesWritten = 0;
+  }
+
+  @Override
+  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    output = extractorOutput.track(idGenerator.getNextId());
+    seiReader = new SeiReader(extractorOutput.track(idGenerator.getNextId()));
   }
 
   @Override

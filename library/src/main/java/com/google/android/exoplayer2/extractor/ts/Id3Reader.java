@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -30,6 +31,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private final ParsableByteArray id3Header;
 
+  private TrackOutput output;
+
   // State that should be reset on seek.
   private boolean writingSample;
 
@@ -38,16 +41,20 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private int sampleSize;
   private int sampleBytesRead;
 
-  public Id3Reader(TrackOutput output) {
-    super(output);
-    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE,
-        null));
+  public Id3Reader() {
     id3Header = new ParsableByteArray(ID3_HEADER_SIZE);
   }
 
   @Override
   public void seek() {
     writingSample = false;
+  }
+
+  @Override
+  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    output = extractorOutput.track(idGenerator.getNextId());
+    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE,
+        null));
   }
 
   @Override

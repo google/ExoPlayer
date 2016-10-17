@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.EsInfo;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -72,7 +73,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
 
   public void testCustomPesReader() throws Exception {
     CustomEsReaderFactory factory = new CustomEsReaderFactory();
-    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory);
+    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory, false);
     FakeExtractorInput input = new FakeExtractorInput.Builder()
         .setData(TestUtil.getByteArray(getInstrumentation(), "ts/sample.ts"))
         .setSimulateIOErrors(false)
@@ -107,16 +108,23 @@ public final class TsExtractorTest extends InstrumentationTestCase {
 
   private static final class CustomEsReader extends ElementaryStreamReader {
 
+    private final String language;
+    private TrackOutput output;
     public int packetsRead = 0;
 
-    public CustomEsReader(TrackOutput output, String language) {
-      super(output);
-      output.format(Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0,
-          language, null, 0));
+    public CustomEsReader(String language) {
+      this.language = language;
     }
 
     @Override
     public void seek() {
+    }
+
+    @Override
+    public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+      output = extractorOutput.track(idGenerator.getNextId());
+      output.format(Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0,
+          language, null, 0));
     }
 
     @Override
@@ -148,16 +156,12 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     }
 
     @Override
-    public ElementaryStreamReader onPmtEntry(int pid, int streamType,
-        ElementaryStreamReader.EsInfo esInfo, ExtractorOutput output) {
+    public ElementaryStreamReader createStreamReader(int streamType, EsInfo esInfo) {
       if (streamType == 3) {
-        // We need to manually avoid a duplicate custom reader creation.
-        if (reader == null) {
-          reader = new CustomEsReader(output.track(pid), esInfo.language);
-        }
+        reader = new CustomEsReader(esInfo.language);
         return reader;
       } else {
-        return defaultFactory.onPmtEntry(pid, streamType, esInfo, output);
+        return defaultFactory.createStreamReader(streamType, esInfo);
       }
     }
 

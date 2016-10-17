@@ -103,6 +103,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   // Accessed by the calling thread only.
   private boolean opened;
+  private long bytesToSkip;
   private long bytesRemaining;
 
   // Written from the calling thread only. currentUrlRequest.start() calls ensure writes are visible
@@ -242,9 +243,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       }
     }
 
-    // TODO: Handle the case where we requested a range starting from a non-zero position and
-    // received a 200 rather than a 206. This occurs if the server does not support partial
-    // requests, and requires that the source skips to the requested position.
+    // If we requested a range starting from a non-zero position and received a 200 rather than a
+    // 206, then the server does not support partial requests. We'll need to manually skip to the
+    // requested position.
+    bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Calculate the content length.
     if (!getIsCompressed(responseInfo)) {
@@ -281,7 +283,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
       readBuffer.limit(0);
     }
-    if (!readBuffer.hasRemaining()) {
+    while (!readBuffer.hasRemaining()) {
       // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
@@ -301,6 +303,12 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       } else {
         // The operation didn't time out, fail or finish, and therefore data must have been read.
         readBuffer.flip();
+        Assertions.checkState(readBuffer.hasRemaining());
+        if (bytesToSkip > 0) {
+          int bytesSkipped = (int) Math.min(readBuffer.remaining(), bytesToSkip);
+          readBuffer.position(readBuffer.position() + bytesSkipped);
+          bytesToSkip -= bytesSkipped;
+        }
       }
     }
 
@@ -408,8 +416,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         executor, cronetEngine);
     // Set the headers.
     synchronized (requestProperties) {
-      if (dataSpec.postBody != null && !requestProperties.containsKey(CONTENT_TYPE)) {
-        throw new OpenException("POST request must set Content-Type", dataSpec, Status.IDLE);
+      if (dataSpec.postBody != null && dataSpec.postBody.length != 0
+          && !requestProperties.containsKey(CONTENT_TYPE)) {
+        throw new OpenException("POST request with non-empty body must set Content-Type", dataSpec,
+            Status.IDLE);
       }
       for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
         requestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
@@ -426,10 +436,13 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       }
       requestBuilder.addHeader("Range", rangeValue.toString());
     }
-    // Set the body.
+    // Set the method and (if non-empty) the body.
     if (dataSpec.postBody != null) {
-      requestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
-          executor);
+      requestBuilder.setHttpMethod("POST");
+      if (dataSpec.postBody.length != 0) {
+        requestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
+            executor);
+      }
     }
     return requestBuilder.build();
   }

@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceExcep
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Predicate;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -82,7 +81,6 @@ public final class CronetDataSourceTest {
   private static final String TEST_CONTENT_TYPE = "test/test";
   private static final byte[] TEST_POST_BODY = "test post body".getBytes();
   private static final long TEST_CONTENT_LENGTH = 16000L;
-  private static final int TEST_BUFFER_SIZE = 16;
   private static final int TEST_CONNECTION_STATUS = 5;
 
   private DataSpec testDataSpec;
@@ -231,10 +229,8 @@ public final class CronetDataSourceTest {
 
   @Test
   public void testRequestHeadersSet() throws HttpDataSourceException {
-    mockResponseStartSuccess();
-
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
-    testResponseHeader.put("Content-Length", Long.toString(5000L));
+    mockResponseStartSuccess();
 
     dataSourceUnderTest.setRequestProperty("firstHeader", "firstValue");
     dataSourceUnderTest.setRequestProperty("secondHeader", "secondValue");
@@ -257,12 +253,10 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestOpenGzippedCompressedReturnsDataSpecLength()
       throws HttpDataSourceException {
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 5000, null);
     testResponseHeader.put("Content-Encoding", "gzip");
-    testUrlResponseInfo = createUrlResponseInfo(200); // statusCode
+    testResponseHeader.put("Content-Length", Long.toString(50L));
     mockResponseStartSuccess();
-
-    // Data spec's requested length, 5000. Test response's length, 16,000.
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
 
     assertEquals(5000 /* contentLength */, dataSourceUnderTest.open(testDataSpec));
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
@@ -370,7 +364,7 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestReadTwice() throws HttpDataSourceException {
     mockResponseStartSuccess();
-    mockReadSuccess();
+    mockReadSuccess(0, 16);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -392,28 +386,23 @@ public final class CronetDataSourceTest {
   @Test
   public void testSecondRequestNoContentLength() throws HttpDataSourceException {
     mockResponseStartSuccess();
-    mockReadSuccess();
-
-    byte[] returnedBuffer = new byte[8];
+    testResponseHeader.put("Content-Length", Long.toString(1L));
+    mockReadSuccess(0, 16);
 
     // First request.
-    testResponseHeader.put("Content-Length", Long.toString(1L));
-    testUrlResponseInfo = createUrlResponseInfo(200); // statusCode
     dataSourceUnderTest.open(testDataSpec);
+    byte[] returnedBuffer = new byte[8];
     dataSourceUnderTest.read(returnedBuffer, 0, 1);
     dataSourceUnderTest.close();
 
-    // Second request. There's no Content-Length response header.
     testResponseHeader.remove("Content-Length");
-    testUrlResponseInfo = createUrlResponseInfo(200); // statusCode
+    mockReadSuccess(0, 16);
+
+    // Second request.
     dataSourceUnderTest.open(testDataSpec);
     returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 10);
     assertEquals(10, bytesRead);
-
-    mockResponseFinished();
-
-    // Should read whats left in the buffer first.
     bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 10);
     assertEquals(6, bytesRead);
     bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 10);
@@ -423,23 +412,54 @@ public final class CronetDataSourceTest {
   @Test
   public void testReadWithOffset() throws HttpDataSourceException {
     mockResponseStartSuccess();
-    mockReadSuccess();
+    mockReadSuccess(0, 16);
 
     dataSourceUnderTest.open(testDataSpec);
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 8, 8);
-    assertArrayEquals(prefixZeros(buildTestDataArray(0, 8), 16), returnedBuffer);
     assertEquals(8, bytesRead);
+    assertArrayEquals(prefixZeros(buildTestDataArray(0, 8), 16), returnedBuffer);
     verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 8);
+  }
+
+  @Test
+  public void testRangeRequestWith206Response() throws HttpDataSourceException {
+    mockResponseStartSuccess();
+    mockReadSuccess(1000, 5000);
+    testUrlResponseInfo = createUrlResponseInfo(206); // Server supports range requests.
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+
+    dataSourceUnderTest.open(testDataSpec);
+
+    byte[] returnedBuffer = new byte[16];
+    int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
+    assertEquals(16, bytesRead);
+    assertArrayEquals(buildTestDataArray(1000, 16), returnedBuffer);
+    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
+  }
+
+  @Test
+  public void testRangeRequestWith200Response() throws HttpDataSourceException {
+    mockResponseStartSuccess();
+    mockReadSuccess(0, 7000);
+    testUrlResponseInfo = createUrlResponseInfo(200); // Server does not support range requests.
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+
+    dataSourceUnderTest.open(testDataSpec);
+
+    byte[] returnedBuffer = new byte[16];
+    int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
+    assertEquals(16, bytesRead);
+    assertArrayEquals(buildTestDataArray(1000, 16), returnedBuffer);
+    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
   }
 
   @Test
   public void testReadWithUnsetLength() throws HttpDataSourceException {
     testResponseHeader.remove("Content-Length");
-    testUrlResponseInfo = createUrlResponseInfo(200); // statusCode
     mockResponseStartSuccess();
-    mockReadSuccess();
+    mockReadSuccess(0, 16);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -453,7 +473,7 @@ public final class CronetDataSourceTest {
   @Test
   public void testReadReturnsWhatItCan() throws HttpDataSourceException {
     mockResponseStartSuccess();
-    mockReadSuccess();
+    mockReadSuccess(0, 16);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -467,7 +487,7 @@ public final class CronetDataSourceTest {
   @Test
   public void testClosedMeansClosed() throws HttpDataSourceException {
     mockResponseStartSuccess();
-    mockReadSuccess();
+    mockReadSuccess(0, 16);
 
     int bytesRead = 0;
     dataSourceUnderTest.open(testDataSpec);
@@ -493,32 +513,29 @@ public final class CronetDataSourceTest {
 
   @Test
   public void testOverread() throws HttpDataSourceException {
-    mockResponseStartSuccess();
-    mockReadSuccess();
-
-    // Ask for 16 bytes
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 10000, 16, null);
-    // Let the response promise to give 16 bytes back.
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 16, null);
     testResponseHeader.put("Content-Length", Long.toString(16L));
+    mockResponseStartSuccess();
+    mockReadSuccess(0, 16);
 
     dataSourceUnderTest.open(testDataSpec);
 
     byte[] returnedBuffer = new byte[8];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertArrayEquals(buildTestDataArray(0, 8), returnedBuffer);
     assertEquals(8, bytesRead);
+    assertArrayEquals(buildTestDataArray(0, 8), returnedBuffer);
 
     // The current buffer is kept if not completely consumed by DataSource reader.
     returnedBuffer = new byte[8];
     bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 6);
-    assertArrayEquals(suffixZeros(buildTestDataArray(8, 6), 8), returnedBuffer);
     assertEquals(14, bytesRead);
+    assertArrayEquals(suffixZeros(buildTestDataArray(8, 6), 8), returnedBuffer);
 
     // 2 bytes left at this point.
     returnedBuffer = new byte[8];
     bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertArrayEquals(suffixZeros(buildTestDataArray(14, 2), 8), returnedBuffer);
     assertEquals(16, bytesRead);
+    assertArrayEquals(suffixZeros(buildTestDataArray(14, 2), 8), returnedBuffer);
 
     // Should have only called read on cronet once.
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
@@ -752,16 +769,24 @@ public final class CronetDataSourceTest {
     }).when(mockUrlRequest).start();
   }
 
-  private void mockReadSuccess() {
+  private void mockReadSuccess(int position, int length) {
+    final int[] positionAndRemaining = new int[] {position, length};
     doAnswer(new Answer<Void>() {
       @Override
       public Void answer(InvocationOnMock invocation) throws Throwable {
-        ByteBuffer inputBuffer = (ByteBuffer) invocation.getArguments()[0];
-        inputBuffer.put(buildTestDataBuffer());
-        dataSourceUnderTest.onReadCompleted(
-            mockUrlRequest,
-            testUrlResponseInfo,
-            inputBuffer);
+        if (positionAndRemaining[1] == 0) {
+          dataSourceUnderTest.onSucceeded(mockUrlRequest, testUrlResponseInfo);
+        } else {
+          ByteBuffer inputBuffer = (ByteBuffer) invocation.getArguments()[0];
+          int readLength = Math.min(positionAndRemaining[1], inputBuffer.remaining());
+          inputBuffer.put(buildTestDataBuffer(positionAndRemaining[0], readLength));
+          positionAndRemaining[0] += readLength;
+          positionAndRemaining[1] -= readLength;
+          dataSourceUnderTest.onReadCompleted(
+              mockUrlRequest,
+              testUrlResponseInfo,
+              inputBuffer);
+        }
         return null;
       }
     }).when(mockUrlRequest).read(any(ByteBuffer.class));
@@ -780,16 +805,6 @@ public final class CronetDataSourceTest {
     }).when(mockUrlRequest).read(any(ByteBuffer.class));
   }
 
-  private void mockResponseFinished() {
-    doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        dataSourceUnderTest.onSucceeded(mockUrlRequest, testUrlResponseInfo);
-        return null;
-      }
-    }).when(mockUrlRequest).read(any(ByteBuffer.class));
-  }
-
   private ConditionVariable buildUrlRequestStartedCondition() {
     final ConditionVariable startedCondition = new ConditionVariable();
     doAnswer(new Answer<Object>() {
@@ -802,8 +817,8 @@ public final class CronetDataSourceTest {
     return startedCondition;
   }
 
-  private static byte[] buildTestDataArray(int start, int length) {
-    return Arrays.copyOfRange(buildTestDataBuffer().array(), start, start + length);
+  private static byte[] buildTestDataArray(int position, int length) {
+    return buildTestDataBuffer(position, length).array();
   }
 
   public static byte[] prefixZeros(byte[] data, int requiredLength) {
@@ -816,10 +831,10 @@ public final class CronetDataSourceTest {
     return Arrays.copyOf(data, requiredLength);
   }
 
-  private static ByteBuffer buildTestDataBuffer() {
-    ByteBuffer testBuffer = ByteBuffer.allocate(TEST_BUFFER_SIZE);
-    for (byte i = 1; i <= TEST_BUFFER_SIZE; i++) {
-      testBuffer.put(i);
+  private static ByteBuffer buildTestDataBuffer(int position, int length) {
+    ByteBuffer testBuffer = ByteBuffer.allocate(length);
+    for (int i = 0; i < length; i++) {
+      testBuffer.put((byte) (position + i));
     }
     testBuffer.flip();
     return testBuffer;
