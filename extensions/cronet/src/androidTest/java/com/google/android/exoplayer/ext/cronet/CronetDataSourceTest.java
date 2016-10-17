@@ -22,7 +22,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -52,7 +51,6 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,20 +86,7 @@ public final class CronetDataSourceTest {
   private Map<String, String> testResponseHeader;
   private UrlResponseInfo testUrlResponseInfo;
 
-  /**
-   * MockableCronetEngine is an abstract class for helping creating new Requests.
-   */
-  public abstract static class MockableCronetEngine extends CronetEngine {
-
-    @Override
-    public abstract UrlRequest createRequest(String url, UrlRequest.Callback callback,
-        Executor executor, int priority,
-        Collection<Object> connectionAnnotations,
-        boolean disableCache,
-        boolean disableConnectionMigration,
-        boolean allowDirectExecutor);
-  }
-
+  @Mock private UrlRequest.Builder mockUrlRequestBuilder;
   @Mock
   private UrlRequest mockUrlRequest;
   @Mock
@@ -114,8 +99,7 @@ public final class CronetDataSourceTest {
   private Executor mockExecutor;
   @Mock
   private UrlRequestException mockUrlRequestException;
-  @Mock
-  private MockableCronetEngine mockCronetEngine;
+  @Mock private CronetEngine mockCronetEngine;
 
   private CronetDataSource dataSourceUnderTest;
 
@@ -135,15 +119,10 @@ public final class CronetDataSourceTest {
             true, // resetTimeoutOnRedirects
             mockClock));
     when(mockContentTypePredicate.evaluate(anyString())).thenReturn(true);
-    when(mockCronetEngine.createRequest(
-        anyString(),
-        any(UrlRequest.Callback.class),
-        any(Executor.class),
-        anyInt(),
-        eq(Collections.emptyList()),
-        any(Boolean.class),
-        any(Boolean.class),
-        any(Boolean.class))).thenReturn(mockUrlRequest);
+    when(mockCronetEngine.newUrlRequestBuilder(
+            anyString(), any(UrlRequest.Callback.class), any(Executor.class)))
+        .thenReturn(mockUrlRequestBuilder);
+    when(mockUrlRequestBuilder.build()).thenReturn(mockUrlRequest);
     mockStatusResponse();
 
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, C.LENGTH_UNBOUNDED, null);
@@ -184,15 +163,7 @@ public final class CronetDataSourceTest {
     dataSourceUnderTest.close();
     // Prepare a mock UrlRequest to be used in the second open() call.
     final UrlRequest mockUrlRequest2 = mock(UrlRequest.class);
-    when(mockCronetEngine.createRequest(
-        anyString(),
-        any(UrlRequest.Callback.class),
-        any(Executor.class),
-        anyInt(),
-        eq(Collections.emptyList()),
-        any(Boolean.class),
-        any(Boolean.class),
-        any(Boolean.class))).thenReturn(mockUrlRequest2);
+    when(mockUrlRequestBuilder.build()).thenReturn(mockUrlRequest2);
     doAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -215,15 +186,8 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
 
     dataSourceUnderTest.open(testDataSpec);
-    verify(mockCronetEngine).createRequest(
-        eq(TEST_URL),
-        any(UrlRequest.Callback.class),
-        any(Executor.class),
-        anyInt(),
-        eq(Collections.emptyList()),
-        any(Boolean.class),
-        any(Boolean.class),
-        any(Boolean.class));
+    verify(mockCronetEngine)
+        .newUrlRequestBuilder(eq(TEST_URL), any(UrlRequest.Callback.class), any(Executor.class));
     verify(mockUrlRequest).start();
   }
 
@@ -237,9 +201,9 @@ public final class CronetDataSourceTest {
 
     dataSourceUnderTest.open(testDataSpec);
     // The header value to add is current position to current position + length - 1.
-    verify(mockUrlRequest).addHeader("Range", "bytes=1000-5999");
-    verify(mockUrlRequest).addHeader("firstHeader", "firstValue");
-    verify(mockUrlRequest).addHeader("secondHeader", "secondValue");
+    verify(mockUrlRequestBuilder).addHeader("Range", "bytes=1000-5999");
+    verify(mockUrlRequestBuilder).addHeader("firstHeader", "firstValue");
+    verify(mockUrlRequestBuilder).addHeader("secondHeader", "secondValue");
     verify(mockUrlRequest).start();
   }
 
