@@ -1,5 +1,12 @@
 # Release notes #
 
+### r1.5.12 ###
+
+* Improvements to Cronet network stack extension.
+* Fix bug in demo app introduced in r1.5.11 that caused L3 Widevine
+  provisioning requests to fail.
+* Misc bugfixes.
+
 ### r1.5.11 ###
 
 * Cronet network stack extension.
