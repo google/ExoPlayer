@@ -36,10 +36,6 @@ public final class Id3Decoder implements MetadataDecoder {
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
 
-  private int majorVersion;
-  private int minorVersion;
-  private boolean isUnsynchronized;
-
   @Override
   public boolean canDecode(String mimeType) {
     return mimeType.equals(MimeTypes.APPLICATION_ID3);
@@ -49,20 +45,21 @@ public final class Id3Decoder implements MetadataDecoder {
   public Metadata decode(byte[] data, int size) throws MetadataDecoderException {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
-    int id3Size = decodeId3Header(id3Data);
+    Id3Header id3Header = decodeId3Header(id3Data);
 
-    if (isUnsynchronized) {
-      id3Data = removeUnsynchronization(id3Data, id3Size);
-      id3Size = id3Data.bytesLeft();
+    int framesBytesLeft = id3Header.framesSize;
+    if (id3Header.isUnsynchronized) {
+      id3Data = removeUnsynchronization(id3Data, id3Header.framesSize);
+      framesBytesLeft = id3Data.bytesLeft();
     }
 
-    while (id3Size > 0) {
+    while (framesBytesLeft > 0) {
       int frameId0 = id3Data.readUnsignedByte();
       int frameId1 = id3Data.readUnsignedByte();
       int frameId2 = id3Data.readUnsignedByte();
-      int frameId3 = majorVersion > 2 ? id3Data.readUnsignedByte() : 0;
-      int frameSize = majorVersion == 2 ? id3Data.readUnsignedInt24() :
-          majorVersion == 3 ? id3Data.readInt() : id3Data.readSynchSafeInt();
+      int frameId3 = id3Header.majorVersion > 2 ? id3Data.readUnsignedByte() : 0;
+      int frameSize = id3Header.majorVersion == 2 ? id3Data.readUnsignedInt24() :
+          id3Header.majorVersion == 3 ? id3Data.readInt() : id3Data.readSynchSafeInt();
 
       if (frameSize <= 1) {
         break;
@@ -75,9 +72,9 @@ public final class Id3Decoder implements MetadataDecoder {
       boolean hasGroupIdentifier = false;
       boolean hasDataLength = false;
 
-      if (majorVersion > 2) {
+      if (id3Header.majorVersion > 2) {
         int flags = id3Data.readShort();
-        if (majorVersion == 3) {
+        if (id3Header.majorVersion == 3) {
           isCompressed = (flags & 0x0080) != 0;
           isEncrypted = (flags & 0x0040) != 0;
           hasDataLength = isCompressed;
@@ -90,7 +87,7 @@ public final class Id3Decoder implements MetadataDecoder {
         }
       }
 
-      int headerSize = majorVersion == 2 ? 6 : 10;
+      int headerSize = id3Header.majorVersion == 2 ? 6 : 10;
 
       if (hasGroupIdentifier) {
         ++headerSize;
@@ -110,7 +107,7 @@ public final class Id3Decoder implements MetadataDecoder {
         id3Data.skipBytes(4);
       }
 
-      id3Size -= frameSize + headerSize;
+      framesBytesLeft -= frameSize + headerSize;
 
       if (isCompressed || isEncrypted) {
         id3Data.skipBytes(frameSize);
@@ -190,10 +187,11 @@ public final class Id3Decoder implements MetadataDecoder {
 
   /**
    * @param id3Buffer A {@link ParsableByteArray} from which data should be read.
-   * @return The size of ID3 frames in bytes, excluding the header and footer.
+   * @return The parsed header.
    * @throws MetadataDecoderException If ID3 file identifier != "ID3".
    */
-  private int decodeId3Header(ParsableByteArray id3Buffer) throws MetadataDecoderException {
+  private static Id3Header decodeId3Header(ParsableByteArray id3Buffer)
+      throws MetadataDecoderException {
     int id1 = id3Buffer.readUnsignedByte();
     int id2 = id3Buffer.readUnsignedByte();
     int id3 = id3Buffer.readUnsignedByte();
@@ -202,11 +200,12 @@ public final class Id3Decoder implements MetadataDecoder {
           "Unexpected ID3 file identifier, expected \"ID3\", actual \"%c%c%c\".", id1, id2, id3));
     }
 
-    majorVersion = id3Buffer.readUnsignedByte();
-    minorVersion = id3Buffer.readUnsignedByte();
+    int majorVersion = id3Buffer.readUnsignedByte();
+    id3Buffer.skipBytes(1); // Skip minor version.
+    boolean isUnsynchronized = false;
 
     int flags = id3Buffer.readUnsignedByte();
-    int id3Size = id3Buffer.readSynchSafeInt();
+    int framesSize = id3Buffer.readSynchSafeInt();
 
     if (majorVersion < 4) {
       // this flag is advisory in version 4, use the frame flags instead
@@ -219,7 +218,7 @@ public final class Id3Decoder implements MetadataDecoder {
         int extendedHeaderSize = id3Buffer.readInt(); // size excluding size field
         if (extendedHeaderSize == 6 || extendedHeaderSize == 10) {
           id3Buffer.skipBytes(extendedHeaderSize);
-          id3Size -= (extendedHeaderSize + 4);
+          framesSize -= (extendedHeaderSize + 4);
         }
       }
     } else if (majorVersion >= 4) {
@@ -229,16 +228,16 @@ public final class Id3Decoder implements MetadataDecoder {
         if (extendedHeaderSize > 4) {
           id3Buffer.skipBytes(extendedHeaderSize - 4);
         }
-        id3Size -= extendedHeaderSize;
+        framesSize -= extendedHeaderSize;
       }
 
       // Check if footer presents.
       if ((flags & 0x10) != 0) {
-        id3Size -= 10;
+        framesSize -= 10;
       }
     }
 
-    return id3Size;
+    return new Id3Header(majorVersion, isUnsynchronized, framesSize);
   }
 
   private static TxxxFrame decodeTxxxFrame(ParsableByteArray id3Data, int frameSize)
@@ -419,8 +418,25 @@ public final class Id3Decoder implements MetadataDecoder {
     }
   }
 
-  private final static String[] standardGenres = new String[] {
+  public static String decodeGenre(int code) {
+    return (0 < code && code <= standardGenres.length) ? standardGenres[code - 1] : null;
+  }
 
+  private static final class Id3Header {
+
+    private final int majorVersion;
+    private final boolean isUnsynchronized;
+    private final int framesSize;
+
+    public Id3Header(int majorVersion, boolean isUnsynchronized, int framesSize) {
+      this.majorVersion = majorVersion;
+      this.isUnsynchronized = isUnsynchronized;
+      this.framesSize = framesSize;
+    }
+
+  }
+
+  private static final String[] standardGenres = new String[] {
       // These are the official ID3v1 genres.
       "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk", "Grunge",
       "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies", "Other", "Pop", "R&B", "Rap",
@@ -436,7 +452,6 @@ public final class Id3Decoder implements MetadataDecoder {
       "Psychadelic", "Rave", "Showtunes", "Trailer", "Lo-Fi", "Tribal",
       "Acid Punk", "Acid Jazz", "Polka", "Retro", "Musical", "Rock & Roll",
       "Hard Rock",
-
       // These were made up by the authors of Winamp but backported into the ID3 spec.
       "Folk", "Folk-Rock", "National Folk", "Swing", "Fast Fusion",
       "Bebob", "Latin", "Revival", "Celtic", "Bluegrass", "Avantgarde",
@@ -447,7 +462,6 @@ public final class Id3Decoder implements MetadataDecoder {
       "Tango", "Samba", "Folklore", "Ballad", "Power Ballad", "Rhythmic Soul",
       "Freestyle", "Duet", "Punk Rock", "Drum Solo", "A capella", "Euro-House",
       "Dance Hall",
-
       // These were also invented by the Winamp folks but ignored by the ID3 authors.
       "Goa", "Drum & Bass", "Club-House", "Hardcore", "Terror", "Indie",
       "BritPop", "Negerpunk", "Polsk Punk", "Beat", "Christian Gangsta Rap",
@@ -455,16 +469,5 @@ public final class Id3Decoder implements MetadataDecoder {
       "Christian Rock", "Merengue", "Salsa", "Thrash Metal", "Anime", "Jpop",
       "Synthpop"
   };
-
-  public static String decodeGenre(int n)
-  {
-    n--;
-
-    if (n < 0 || n >= standardGenres.length) {
-      return null;
-    }
-
-    return standardGenres[n];
-  }
 
 }
