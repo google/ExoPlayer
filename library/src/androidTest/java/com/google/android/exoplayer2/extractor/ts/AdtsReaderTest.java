@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.TrackIdGenerator;
+import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -66,9 +68,12 @@ public class AdtsReaderTest extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    adtsOutput = new FakeTrackOutput();
-    id3Output = new FakeTrackOutput();
-    adtsReader = new AdtsReader(adtsOutput, id3Output);
+    FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    adtsOutput = fakeExtractorOutput.track(0);
+    id3Output = fakeExtractorOutput.track(1);
+    adtsReader = new AdtsReader(true);
+    TrackIdGenerator idGenerator = new TrackIdGenerator(0, 1);
+    adtsReader.init(fakeExtractorOutput, idGenerator);
     data = new ParsableByteArray(TEST_DATA);
     firstFeed = true;
   }

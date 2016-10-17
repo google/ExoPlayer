@@ -101,6 +101,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   private Handler mainHandler;
+  private Timeline.Window window;
   private EventLogger eventLogger;
   private SimpleExoPlayerView simpleExoPlayerView;
   private LinearLayout debugRootView;
@@ -115,7 +116,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private boolean playerNeedsSource;
 
   private boolean shouldAutoPlay;
-  private boolean shouldRestorePosition;
+  private boolean isTimelineStatic;
   private int playerWindow;
   private long playerPosition;
 
@@ -127,6 +128,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     shouldAutoPlay = true;
     mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
+    window = new Timeline.Window();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -147,7 +149,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   @Override
   public void onNewIntent(Intent intent) {
     releasePlayer();
-    shouldRestorePosition = false;
+    isTimelineStatic = false;
     setIntent(intent);
   }
 
@@ -262,7 +264,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       player.setVideoDebugListener(eventLogger);
       player.setId3Output(eventLogger);
       simpleExoPlayerView.setPlayer(player);
-      if (shouldRestorePosition) {
+      if (isTimelineStatic) {
         if (playerPosition == C.TIME_UNSET) {
           player.seekToDefaultPosition(playerWindow);
         } else {
@@ -305,7 +307,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
-      player.prepare(mediaSource, !shouldRestorePosition);
+      player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -348,15 +350,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       debugViewHelper.stop();
       debugViewHelper = null;
       shouldAutoPlay = player.getPlayWhenReady();
-      shouldRestorePosition = false;
+      playerWindow = player.getCurrentWindowIndex();
+      playerPosition = C.TIME_UNSET;
       Timeline timeline = player.getCurrentTimeline();
-      if (timeline != null) {
-        playerWindow = player.getCurrentWindowIndex();
-        Timeline.Window window = timeline.getWindow(playerWindow, new Timeline.Window());
-        if (!window.isDynamic) {
-          shouldRestorePosition = true;
-          playerPosition = window.isSeekable ? player.getCurrentPosition() : C.TIME_UNSET;
-        }
+      if (timeline != null && timeline.getWindow(playerWindow, window).isSeekable) {
+        playerPosition = player.getCurrentPosition();
       }
       player.release();
       player = null;
@@ -412,7 +410,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
+    isTimelineStatic = timeline != null && timeline.getWindowCount() > 0
+        && !timeline.getWindow(timeline.getWindowCount() - 1, window).isDynamic;
   }
 
   @Override
@@ -501,7 +500,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         button.setText(label);
         button.setTag(i);
         button.setOnClickListener(this);
-        debugRootView.addView(button);
+        debugRootView.addView(button, debugRootView.getChildCount() - 1);
       }
     }
   }

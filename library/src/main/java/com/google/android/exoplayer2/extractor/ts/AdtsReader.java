@@ -19,6 +19,8 @@ import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.DummyTrackOutput;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -53,10 +55,13 @@ import java.util.Collections;
   private static final int ID3_SIZE_OFFSET = 6;
   private static final byte[] ID3_IDENTIFIER = {'I', 'D', '3'};
 
+  private final boolean exposeId3;
   private final ParsableBitArray adtsScratch;
   private final ParsableByteArray id3HeaderBuffer;
-  private final TrackOutput id3Output;
   private final String language;
+
+  private TrackOutput output;
+  private TrackOutput id3Output;
 
   private int state;
   private int bytesRead;
@@ -77,32 +82,39 @@ import java.util.Collections;
   private long currentSampleDuration;
 
   /**
-   * @param output A {@link TrackOutput} to which AAC samples should be written.
-   * @param id3Output A {@link TrackOutput} to which ID3 samples should be written.
+   * @param exposeId3 True if the reader should expose ID3 information.
    */
-  public AdtsReader(TrackOutput output, TrackOutput id3Output) {
-    this(output, id3Output, null);
+  public AdtsReader(boolean exposeId3) {
+    this(exposeId3, null);
   }
 
   /**
-   * @param output A {@link TrackOutput} to which AAC samples should be written.
-   * @param id3Output A {@link TrackOutput} to which ID3 samples should be written.
+   * @param exposeId3 True if the reader should expose ID3 information.
    * @param language Track language.
    */
-  public AdtsReader(TrackOutput output, TrackOutput id3Output, String language) {
-    super(output);
-    this.id3Output = id3Output;
-    id3Output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null,
-        Format.NO_VALUE, null));
+  public AdtsReader(boolean exposeId3, String language) {
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
+    this.exposeId3 = exposeId3;
     this.language = language;
   }
 
   @Override
   public void seek() {
     setFindingSampleState();
+  }
+
+  @Override
+  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    output = extractorOutput.track(idGenerator.getNextId());
+    if (exposeId3) {
+      id3Output = extractorOutput.track(idGenerator.getNextId());
+      id3Output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null,
+          Format.NO_VALUE, null));
+    } else {
+      id3Output = new DummyTrackOutput();
+    }
   }
 
   @Override

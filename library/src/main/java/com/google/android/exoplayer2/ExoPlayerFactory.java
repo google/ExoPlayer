@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 
 /**
@@ -41,7 +42,7 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
       LoadControl loadControl) {
     return newSimpleInstance(context, trackSelector, loadControl, null);
   }
@@ -56,8 +57,8 @@ public final class ExoPlayerFactory {
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager) {
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     return newSimpleInstance(context, trackSelector, loadControl, drmSessionManager, false);
   }
 
@@ -74,8 +75,8 @@ public final class ExoPlayerFactory {
    *     available extensions over those defined in the core library. Note that extensions must be
    *     included in the application build for setting this flag to have any effect.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean preferExtensionDecoders) {
     return newSimpleInstance(context, trackSelector, loadControl, drmSessionManager,
         preferExtensionDecoders, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
@@ -96,8 +97,8 @@ public final class ExoPlayerFactory {
    * @param allowedVideoJoiningTimeMs The maximum duration for which a video renderer can attempt to
    *     seamlessly join an ongoing playback.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
     return new SimpleExoPlayer(context, trackSelector, loadControl, drmSessionManager,
         preferExtensionDecoders, allowedVideoJoiningTimeMs);
@@ -110,7 +111,7 @@ public final class ExoPlayerFactory {
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector) {
+  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector<?> trackSelector) {
     return newInstance(renderers, trackSelector, new DefaultLoadControl());
   }
 
@@ -122,7 +123,7 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector,
+  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector<?> trackSelector,
       LoadControl loadControl) {
     return new ExoPlayerImpl(renderers, trackSelector, loadControl);
   }

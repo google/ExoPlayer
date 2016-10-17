@@ -1,5 +1,25 @@
 # Release notes #
 
+### r2.0.3 ###
+
+This release contains important bug fixes. Users of r2.0.0, r2.0.1 and r2.0.2
+should proactively update to this version.
+
+* Fixed NullPointerException in ExtractorMediaSource
+  ([#1914](https://github.com/google/ExoPlayer/issues/1914).
+* Fixed NullPointerException in HlsMediaPeriod
+  ([#1907](https://github.com/google/ExoPlayer/issues/1907).
+* Fixed memory leak in PlaybackControlView
+  ([#1908](https://github.com/google/ExoPlayer/issues/1908).
+* Fixed strict mode violation when using
+  SimpleExoPlayer.setVideoPlayerTextureView().
+* Fixed L3 Widevine provisioning
+  ([#1925](https://github.com/google/ExoPlayer/issues/1925).
+* Fixed hiding of controls with use_controller="false"
+  ([#1919](https://github.com/google/ExoPlayer/issues/1919).
+* Improvements to Cronet network stack extension.
+* Misc bug fixes.
+
 ### r2.0.2 ###
 
 * Fixes for MergingMediaSource and sideloaded subtitles.
@@ -87,6 +107,13 @@ some of the motivations behind ExoPlayer 2.x
    ([#583](https://github.com/google/ExoPlayer/issues/583)).
  * Suppressed "Sending message to a Handler on a dead thread" warnings
    ([#426](https://github.com/google/ExoPlayer/issues/426)).
+
+### r1.5.12 ###
+
+* Improvements to Cronet network stack extension.
+* Fix bug in demo app introduced in r1.5.11 that caused L3 Widevine
+  provisioning requests to fail.
+* Misc bugfixes.
 
 ### r1.5.11 ###
 

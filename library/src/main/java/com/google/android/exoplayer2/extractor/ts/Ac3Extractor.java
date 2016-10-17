@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
@@ -117,7 +118,8 @@ public final class Ac3Extractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    reader = new Ac3Reader(output.track(0)); // TODO: Add support for embedded ID3.
+    reader = new Ac3Reader(); // TODO: Add support for embedded ID3.
+    reader.init(output, new TrackIdGenerator(0, 1));
     output.endTracks();
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }

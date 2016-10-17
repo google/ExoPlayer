@@ -97,6 +97,9 @@ import java.util.Locale;
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
+    if (timeline == null) {
+      return;
+    }
     int periodCount = timeline.getPeriodCount();
     int windowCount = timeline.getWindowCount();
     Log.d(TAG, "sourceInfo [periodCount=" + periodCount + ", windowCount=" + windowCount);

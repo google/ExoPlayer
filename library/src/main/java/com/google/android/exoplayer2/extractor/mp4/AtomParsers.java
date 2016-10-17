@@ -47,6 +47,7 @@ import java.util.List;
   private static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
   private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
   private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
+  private static final int TYPE_cenc = Util.getIntegerCodeForString("cenc");
 
   /**
    * Parses a trak atom (defined in 14496-12).
@@ -1004,7 +1005,7 @@ import java.util.List;
 
   /**
    * Parses encryption data from an audio/video sample entry, populating {@code out} and returning
-   * the unencrypted atom type, or 0 if no sinf atom was present.
+   * the unencrypted atom type, or 0 if no common encryption sinf atom was present.
    */
   private static int parseSampleEntryEncryptionData(ParsableByteArray parent, int position,
       int size, StsdData out, int entryIndex) {
@@ -1017,10 +1018,10 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_sinf) {
         Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
             childAtomSize);
-        Integer dataFormat = result.first;
-        Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
-        out.trackEncryptionBoxes[entryIndex] = result.second;
-        return dataFormat;
+        if (result != null) {
+          out.trackEncryptionBoxes[entryIndex] = result.second;
+          return result.first;
+        }
       }
       childPosition += childAtomSize;
     }
@@ -1032,6 +1033,7 @@ import java.util.List;
       int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;
 
+    boolean isCencScheme = false;
     TrackEncryptionBox trackEncryptionBox = null;
     Integer dataFormat = null;
     while (childPosition - position < size) {
@@ -1042,15 +1044,20 @@ import java.util.List;
         dataFormat = parent.readInt();
       } else if (childAtomType == Atom.TYPE_schm) {
         parent.skipBytes(4);
-        parent.readInt(); // schemeType. Expect cenc
-        parent.readInt(); // schemeVersion. Expect 0x00010000
+        isCencScheme = parent.readInt() == TYPE_cenc;
       } else if (childAtomType == Atom.TYPE_schi) {
         trackEncryptionBox = parseSchiFromParent(parent, childPosition, childAtomSize);
       }
       childPosition += childAtomSize;
     }
 
-    return Pair.create(dataFormat, trackEncryptionBox);
+    if (isCencScheme) {
+      Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
+      Assertions.checkArgument(trackEncryptionBox != null, "schi->tenc atom is mandatory");
+      return Pair.create(dataFormat, trackEncryptionBox);
+    } else {
+      return null;
+    }
   }
 
   private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,

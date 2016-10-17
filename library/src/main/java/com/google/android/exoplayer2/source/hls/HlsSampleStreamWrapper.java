@@ -144,8 +144,10 @@ import java.util.LinkedList;
     pendingResetPositionUs = positionUs;
   }
 
-  public void prepare() {
-    continueLoading(lastSeekPositionUs);
+  public void continuePreparing() {
+    if (!prepared) {
+      continueLoading(lastSeekPositionUs);
+    }
   }
 
   /**
@@ -154,7 +156,8 @@ import java.util.LinkedList;
    */
   public void prepareSingleTrack(Format format) {
     track(0).format(format);
-    endTracks();
+    sampleQueuesBuilt = true;
+    maybeFinishPrepare();
   }
 
   public void maybeThrowPrepareError() throws IOException {

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -37,17 +38,20 @@ import java.util.List;
   private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
   private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
 
-  // State that should not be reset on seek.
-  private boolean hasOutputFormat;
-
-  // State that should be reset on seek.
-  private final SeiReader seiReader;
-  private final boolean[] prefixFlags;
-  private final SampleReader sampleReader;
+  private final boolean allowNonIdrKeyframes;
+  private final boolean detectAccessUnits;
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer sei;
   private long totalBytesWritten;
+  private final boolean[] prefixFlags;
+
+  private TrackOutput output;
+  private SeiReader seiReader;
+  private SampleReader sampleReader;
+
+  // State that should not be reset on seek.
+  private boolean hasOutputFormat;
 
   // Per packet state that gets reset at the start of each packet.
   private long pesTimeUs;
@@ -56,19 +60,15 @@ import java.util.List;
   private final ParsableByteArray seiWrapper;
 
   /**
-   * @param output A {@link TrackOutput} to which H.264 samples should be written.
-   * @param seiReader A reader for CEA-608 samples in SEI NAL units.
    * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
    *     synchronization samples (key-frames).
    * @param detectAccessUnits Whether to split the input stream into access units (samples) based on
    *     slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
    */
-  public H264Reader(TrackOutput output, SeiReader seiReader, boolean allowNonIdrKeyframes,
-      boolean detectAccessUnits) {
-    super(output);
-    this.seiReader = seiReader;
+  public H264Reader(boolean allowNonIdrKeyframes, boolean detectAccessUnits) {
     prefixFlags = new boolean[3];
-    sampleReader = new SampleReader(output, allowNonIdrKeyframes, detectAccessUnits);
+    this.allowNonIdrKeyframes = allowNonIdrKeyframes;
+    this.detectAccessUnits = detectAccessUnits;
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
@@ -83,6 +83,13 @@ import java.util.List;
     sei.reset();
     sampleReader.reset();
     totalBytesWritten = 0;
+  }
+
+  @Override
+  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    output = extractorOutput.track(idGenerator.getNextId());
+    sampleReader = new SampleReader(output, allowNonIdrKeyframes, detectAccessUnits);
+    seiReader = new SeiReader(extractorOutput.track(idGenerator.getNextId()));
   }
 
   @Override

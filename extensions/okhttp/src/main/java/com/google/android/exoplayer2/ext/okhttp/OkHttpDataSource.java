@@ -32,21 +32,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import okhttp3.CacheControl;
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * An {@link HttpDataSource} that delegates to Square's {@link OkHttpClient}.
+ * An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}.
  */
 public class OkHttpDataSource implements HttpDataSource {
 
   private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
 
-  private final OkHttpClient okHttpClient;
+  private final Call.Factory callFactory;
   private final String userAgent;
   private final Predicate<String> contentTypePredicate;
   private final TransferListener<? super OkHttpDataSource> listener;
@@ -65,31 +65,31 @@ public class OkHttpDataSource implements HttpDataSource {
   private long bytesRead;
 
   /**
-   * @param client An {@link OkHttpClient} for use by the source.
+   * @param callFactory An {@link Call.Factory} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
    */
-  public OkHttpDataSource(OkHttpClient client, String userAgent,
+  public OkHttpDataSource(Call.Factory callFactory, String userAgent,
       Predicate<String> contentTypePredicate) {
-    this(client, userAgent, contentTypePredicate, null);
+    this(callFactory, userAgent, contentTypePredicate, null);
   }
 
   /**
-   * @param client An {@link OkHttpClient} for use by the source.
+   * @param callFactory An {@link Call.Factory} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from
    *     {@link #open(DataSpec)}.
    * @param listener An optional listener.
    */
-  public OkHttpDataSource(OkHttpClient client, String userAgent,
+  public OkHttpDataSource(Call.Factory callFactory, String userAgent,
       Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener) {
-    this(client, userAgent, contentTypePredicate, listener, null);
+    this(callFactory, userAgent, contentTypePredicate, listener, null);
   }
 
   /**
-   * @param client An {@link OkHttpClient} for use by the source.
+   * @param callFactory An {@link Call.Factory} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from
@@ -98,10 +98,10 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param cacheControl An optional {@link CacheControl} which sets all requests' Cache-Control
    *     header. For example, you could force the network response for all requests.
    */
-  public OkHttpDataSource(OkHttpClient client, String userAgent,
+  public OkHttpDataSource(Call.Factory callFactory, String userAgent,
       Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener,
       CacheControl cacheControl) {
-    this.okHttpClient = Assertions.checkNotNull(client);
+    this.callFactory = Assertions.checkNotNull(callFactory);
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.listener = listener;
@@ -150,7 +150,7 @@ public class OkHttpDataSource implements HttpDataSource {
     this.bytesSkipped = 0;
     Request request = makeRequest(dataSpec);
     try {
-      response = okHttpClient.newCall(request).execute();
+      response = callFactory.newCall(request).execute();
       responseByteStream = response.body().byteStream();
     } catch (IOException e) {
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
@@ -185,9 +185,12 @@ public class OkHttpDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    long contentLength = response.body().contentLength();
-    bytesToRead = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length
-        : (contentLength != -1 ? (contentLength - bytesToSkip) : C.LENGTH_UNSET);
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesToRead = dataSpec.length;
+    } else {
+      long contentLength = response.body().contentLength();
+      bytesToRead = contentLength != -1 ? (contentLength - bytesToSkip) : C.LENGTH_UNSET;
+    }
 
     opened = true;
     if (listener != null) {

@@ -21,18 +21,19 @@ package com.google.android.exoplayer2.extractor;
 public interface ExtractorOutput {
 
   /**
-   * Called when the {@link Extractor} identifies the existence of a track in the stream.
+   * Called by the {@link Extractor} to get the {@link TrackOutput} for a specific track.
    * <p>
-   * Returns a {@link TrackOutput} that will receive track level data belonging to the track.
+   * The same {@link TrackOutput} is returned if multiple calls are made with the same
+   * {@code trackId}.
    *
-   * @param trackId A unique track identifier.
-   * @return The {@link TrackOutput} that should receive track level data belonging to the track.
+   * @param trackId A track identifier.
+   * @return The {@link TrackOutput} for the given track identifier.
    */
   TrackOutput track(int trackId);
 
   /**
-   * Called when all tracks have been identified, meaning that {@link #track(int)} will not be
-   * called again.
+   * Called when all tracks have been identified, meaning no new {@code trackId} values will be
+   * passed to {@link #track(int)}.
    */
   void endTracks();
 
