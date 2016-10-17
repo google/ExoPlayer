@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
+import com.google.android.exoplayer2.metadata.id3.Id3Util;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -666,7 +665,7 @@ import java.util.List;
         byte[] bytes = (byte[]) value;
         if (bytes.length == 2) {
           int code = (bytes[0] << 8) + (bytes[1] & 0xFF);
-          String s = Id3Decoder.decodeGenre(code);
+          String s = Id3Util.decodeGenre(code);
           if (s != null) {
             Id3Frame frame = new TextInformationFrame(attributeName, s);
             builder.add(frame);
