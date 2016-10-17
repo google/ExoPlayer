@@ -253,9 +253,13 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
 
   @Override
   public TrackOutput track(int id) {
-    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(allocator);
-    sampleQueues.put(id, sampleQueue);
-    return sampleQueue;
+    DefaultTrackOutput trackOutput = sampleQueues.get(id);
+    if (trackOutput != null) {
+      return trackOutput;
+    }
+    trackOutput = new DefaultTrackOutput(allocator);
+    sampleQueues.put(id, trackOutput);
+    return trackOutput;
   }
 
   @Override

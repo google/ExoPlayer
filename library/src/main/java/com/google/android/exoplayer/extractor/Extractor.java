@@ -42,7 +42,7 @@ public interface Extractor {
   public static final int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
 
   /**
-   * Initializes the extractor with an {@link ExtractorOutput}.
+   * Initializes the extractor with an {@link ExtractorOutput}. Called at most once.
    *
    * @param output An {@link ExtractorOutput} to receive extracted data.
    */

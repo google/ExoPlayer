@@ -403,11 +403,16 @@ public class DefaultHttpDataSource implements HttpDataSource {
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(postBody != null);
     if (postBody != null) {
-      connection.setFixedLengthStreamingMode(postBody.length);
-      connection.connect();
-      OutputStream os = connection.getOutputStream();
-      os.write(postBody);
-      os.close();
+      connection.setRequestMethod("POST");
+      if (postBody.length == 0) {
+        connection.connect();
+      } else  {
+        connection.setFixedLengthStreamingMode(postBody.length);
+        connection.connect();
+        OutputStream os = connection.getOutputStream();
+        os.write(postBody);
+        os.close();
+      }
     } else {
       connection.connect();
     }
@@ -540,11 +545,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * @throws IOException If an error occurs reading from the source.
    */
   private int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
-    readLength = bytesToRead == C.LENGTH_UNBOUNDED ? readLength
-        : (int) Math.min(readLength, bytesToRead - bytesRead);
     if (readLength == 0) {
-      // We've read all of the requested data.
-      return C.RESULT_END_OF_INPUT;
+      return 0;
     }
 
     int read = inputStream.read(buffer, offset, readLength);
