@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.metadata.id3;
 /**
  * ID3 utility methods.
  */
-public class Id3Util {
+public final class Id3Util {
 
   private static final String[] STANDARD_GENRES = new String[] {
       // These are the official ID3v1 genres.
