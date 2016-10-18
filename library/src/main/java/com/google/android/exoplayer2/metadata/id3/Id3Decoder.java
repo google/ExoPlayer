@@ -63,13 +63,47 @@ public final class Id3Decoder implements MetadataDecoder {
 
     int frameHeaderSize = id3Header.majorVersion == 2 ? 6 : 10;
     while (id3Data.bytesLeft() >= frameHeaderSize) {
-      Id3Frame frame = decodeFrame(id3Header, id3Data);
+      Id3Frame frame = decodeFrame(id3Header.majorVersion, id3Data);
       if (frame != null) {
         id3Frames.add(frame);
       }
     }
 
     return new Metadata(id3Frames);
+  }
+
+  // TODO: Move the following three methods nearer to the bottom of the file.
+  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
+    int terminationPos = indexOfZeroByte(data, fromIndex);
+
+    // For single byte encoding charsets, we're done.
+    if (encoding == ID3_TEXT_ENCODING_ISO_8859_1 || encoding == ID3_TEXT_ENCODING_UTF_8) {
+      return terminationPos;
+    }
+
+    // Otherwise ensure an even index and look for a second zero byte.
+    while (terminationPos < data.length - 1) {
+      if (terminationPos % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
+        return terminationPos;
+      }
+      terminationPos = indexOfZeroByte(data, terminationPos + 1);
+    }
+
+    return data.length;
+  }
+
+  private static int indexOfZeroByte(byte[] data, int fromIndex) {
+    for (int i = fromIndex; i < data.length; i++) {
+      if (data[i] == (byte) 0) {
+        return i;
+      }
+    }
+    return data.length;
+  }
+
+  private static int delimiterLength(int encodingByte) {
+    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8)
+        ? 1 : 2;
   }
 
   /**
@@ -126,15 +160,15 @@ public final class Id3Decoder implements MetadataDecoder {
     return new Id3Header(majorVersion, isUnsynchronized, framesSize);
   }
 
-  private Id3Frame decodeFrame(Id3Header id3Header, ParsableByteArray id3Data)
+  private Id3Frame decodeFrame(int majorVersion, ParsableByteArray id3Data)
       throws MetadataDecoderException {
     int frameId0 = id3Data.readUnsignedByte();
     int frameId1 = id3Data.readUnsignedByte();
     int frameId2 = id3Data.readUnsignedByte();
-    int frameId3 = id3Header.majorVersion >= 3 ? id3Data.readUnsignedByte() : 0;
+    int frameId3 = majorVersion >= 3 ? id3Data.readUnsignedByte() : 0;
 
     int frameSize;
-    if (id3Header.majorVersion == 4) {
+    if (majorVersion == 4) {
       frameSize = id3Data.readUnsignedIntToInt();
       if ((frameSize & 0x808080L) == 0) {
         // Parse the frame size as a syncsafe integer, as per the spec.
@@ -144,13 +178,13 @@ public final class Id3Decoder implements MetadataDecoder {
         // Proceed using the frame size read as an unsigned integer.
         Log.w(TAG, "Frame size not specified as syncsafe integer");
       }
-    } else if (id3Header.majorVersion == 3) {
+    } else if (majorVersion == 3) {
       frameSize = id3Data.readUnsignedIntToInt();
     } else /* id3Header.majorVersion == 2 */ {
       frameSize = id3Data.readUnsignedInt24();
     }
 
-    int flags = id3Header.majorVersion >= 2 ? id3Data.readShort() : 0;
+    int flags = majorVersion >= 3 ? id3Data.readShort() : 0;
     if (frameId0 == 0 && frameId1 == 0 && frameId2 == 0 && frameId3 == 0 && frameSize == 0
         && flags == 0) {
       // We must be reading zero padding at the end of the tag.
@@ -159,6 +193,9 @@ public final class Id3Decoder implements MetadataDecoder {
     }
 
     int nextFramePosition = id3Data.getPosition() + frameSize;
+    if (nextFramePosition > id3Data.limit()) {
+      return null;
+    }
 
     // Frame flags.
     boolean isCompressed = false;
@@ -166,12 +203,12 @@ public final class Id3Decoder implements MetadataDecoder {
     boolean isUnsynchronized = false;
     boolean hasDataLength = false;
     boolean hasGroupIdentifier = false;
-    if (id3Header.majorVersion == 3) {
+    if (majorVersion == 3) {
       isCompressed = (flags & 0x0080) != 0;
       isEncrypted = (flags & 0x0040) != 0;
       hasGroupIdentifier = (flags & 0x0020) != 0;
       hasDataLength = isCompressed;
-    } else if (id3Header.majorVersion == 4) {
+    } else if (majorVersion == 4) {
       hasGroupIdentifier = (flags & 0x0040) != 0;
       isCompressed = (flags & 0x0008) != 0;
       isEncrypted = (flags & 0x0004) != 0;
@@ -199,26 +236,29 @@ public final class Id3Decoder implements MetadataDecoder {
 
     try {
       Id3Frame frame;
-      if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
+      if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X'
+          && (majorVersion == 2 || frameId3 == 'X')) {
         frame = decodeTxxxFrame(id3Data, frameSize);
       } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
         frame = decodePrivFrame(id3Data, frameSize);
-      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
+      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O'
+          && (frameId3 == 'B' || majorVersion == 2)) {
         frame = decodeGeobFrame(id3Data, frameSize);
-      } else if (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C') {
-        frame = decodeApicFrame(id3Data, frameSize);
+      } else if (majorVersion == 2 ? (frameId0 == 'P' && frameId1 == 'I' && frameId2 == 'C')
+          : (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C')) {
+        frame = decodeApicFrame(id3Data, frameSize, majorVersion);
       } else if (frameId0 == 'T') {
-        String id = frameId3 != 0 ?
-            String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3) :
-            String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2);
+        String id = majorVersion == 2
+            ? String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2)
+            : String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         frame = decodeTextInformationFrame(id3Data, frameSize, id);
-      } else if (frameId0 == 'C' && frameId1 == 'O' && frameId2 == 'M' &&
-          (frameId3 == 'M' || frameId3 == 0)) {
+      } else if (frameId0 == 'C' && frameId1 == 'O' && frameId2 == 'M'
+          && (frameId3 == 'M' || majorVersion == 2)) {
         frame = decodeCommentFrame(id3Data, frameSize);
       } else {
-        String id = frameId3 != 0 ?
-            String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3) :
-            String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2);
+        String id = majorVersion == 2
+            ? String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2)
+            : String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         frame = decodeBinaryFrame(id3Data, frameSize, id);
       }
       return frame;
@@ -288,16 +328,29 @@ public final class Id3Decoder implements MetadataDecoder {
     return new GeobFrame(mimeType, filename, description, objectData);
   }
 
-  private static ApicFrame decodeApicFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static ApicFrame decodeApicFrame(ParsableByteArray id3Data, int frameSize,
+      int majorVersion) throws UnsupportedEncodingException {
     int encoding = id3Data.readUnsignedByte();
     String charset = getCharsetName(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int mimeTypeEndIndex = indexOfZeroByte(data, 0);
-    String mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1");
+    String mimeType;
+    int mimeTypeEndIndex;
+    if (majorVersion == 2) {
+      mimeTypeEndIndex = 2;
+      mimeType = "image/" + new String(data, 0, 3, "ISO-8859-1").toLowerCase();
+      if (mimeType.equals("image/jpg")) {
+        mimeType = "image/jpeg";
+      }
+    } else {
+      mimeTypeEndIndex = indexOfZeroByte(data, 0);
+      mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1").toLowerCase();
+      if (mimeType.indexOf('/') == -1) {
+        mimeType = "image/" + mimeType;
+      }
+    }
 
     int pictureType = data[mimeTypeEndIndex + 1] & 0xFF;
 
@@ -310,20 +363,6 @@ public final class Id3Decoder implements MetadataDecoder {
     byte[] pictureData = Arrays.copyOfRange(data, pictureDataStartIndex, data.length);
 
     return new ApicFrame(mimeType, description, pictureType, pictureData);
-  }
-
-  private static TextInformationFrame decodeTextInformationFrame(ParsableByteArray id3Data,
-      int frameSize, String id) throws UnsupportedEncodingException {
-    int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
-
-    byte[] data = new byte[frameSize - 1];
-    id3Data.readBytes(data, 0, frameSize - 1);
-
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
-    String description = new String(data, 0, descriptionEndIndex, charset);
-
-    return new TextInformationFrame(id, description);
   }
 
   private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
@@ -346,6 +385,20 @@ public final class Id3Decoder implements MetadataDecoder {
     String text = new String(data, textStartIndex, textEndIndex - textStartIndex, charset);
 
     return new CommentFrame(language, description, text);
+  }
+
+  private static TextInformationFrame decodeTextInformationFrame(ParsableByteArray id3Data,
+      int frameSize, String id) throws UnsupportedEncodingException {
+    int encoding = id3Data.readUnsignedByte();
+    String charset = getCharsetName(encoding);
+
+    byte[] data = new byte[frameSize - 1];
+    id3Data.readBytes(data, 0, frameSize - 1);
+
+    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    String description = new String(data, 0, descriptionEndIndex, charset);
+
+    return new TextInformationFrame(id, description);
   }
 
   private static BinaryFrame decodeBinaryFrame(ParsableByteArray id3Data, int frameSize,
@@ -393,39 +446,6 @@ public final class Id3Decoder implements MetadataDecoder {
       default:
         return "ISO-8859-1";
     }
-  }
-
-  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
-    int terminationPos = indexOfZeroByte(data, fromIndex);
-
-    // For single byte encoding charsets, we're done.
-    if (encoding == ID3_TEXT_ENCODING_ISO_8859_1 || encoding == ID3_TEXT_ENCODING_UTF_8) {
-      return terminationPos;
-    }
-
-    // Otherwise ensure an even index and look for a second zero byte.
-    while (terminationPos < data.length - 1) {
-      if (terminationPos % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
-        return terminationPos;
-      }
-      terminationPos = indexOfZeroByte(data, terminationPos + 1);
-    }
-
-    return data.length;
-  }
-
-  private static int indexOfZeroByte(byte[] data, int fromIndex) {
-    for (int i = fromIndex; i < data.length; i++) {
-      if (data[i] == (byte) 0) {
-        return i;
-      }
-    }
-    return data.length;
-  }
-
-  private static int delimiterLength(int encodingByte) {
-    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8)
-        ? 1 : 2;
   }
 
   private static final class Id3Header {

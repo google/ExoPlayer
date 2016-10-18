@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +63,25 @@ public final class GaplessInfoHolder {
       this.encoderDelay = encoderDelay;
       this.encoderPadding = encoderPadding;
       return true;
+    }
+    return false;
+  }
+
+  /**
+   * Populates the holder with data parsed from ID3 {@link Metadata}.
+   *
+   * @param metadata The metadata from which to parse the gapless information.
+   * @return Whether the holder was populated.
+   */
+  public boolean setFromMetadata(Metadata metadata) {
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry entry = metadata.get(i);
+      if (entry instanceof CommentFrame) {
+        CommentFrame commentFrame = (CommentFrame) entry;
+        if (setFromComment(commentFrame.description, commentFrame.text)) {
+          return true;
+        }
+      }
     }
     return false;
   }
