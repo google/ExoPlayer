@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.okhttp;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerFlags;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -145,6 +146,8 @@ public class OkHttpDataSource implements HttpDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
+    Assertions.checkState(!ExoPlayerFlags.REQUIRE_HTTPS || dataSpec.isHttps());
+
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     this.bytesSkipped = 0;

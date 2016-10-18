@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
@@ -186,6 +187,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
+    Assertions.checkState(!ExoPlayerFlags.REQUIRE_HTTPS || dataSpec.isHttps());
+
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     this.bytesSkipped = 0;
