@@ -20,7 +20,6 @@ import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayerFlags;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -207,7 +206,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
-    Assertions.checkState(!ExoPlayerFlags.REQUIRE_HTTPS || dataSpec.isHttps());
+    Assertions.checkNotNull(dataSpec);
     Assertions.checkState(!opened);
 
     operation.close();

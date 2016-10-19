@@ -167,13 +167,6 @@ public final class DataSpec {
     this.flags = flags;
   }
 
-  /**
-   * Returns whether the instance defines a HTTPS request.
-   */
-  public boolean isHttps() {
-    return uri != null && "https".equalsIgnoreCase(uri.getScheme());
-  }
-
   @Override
   public String toString() {
     return "DataSpec[" + uri + ", " + Arrays.toString(postBody) + ", " + absoluteStreamPosition
