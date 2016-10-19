@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.SystemClock;
@@ -351,11 +352,16 @@ public class PlaybackControlView extends FrameLayout {
   private void setButtonEnabled(boolean enabled, View view) {
     view.setEnabled(enabled);
     if (Util.SDK_INT >= 11) {
-      view.setAlpha(enabled ? 1f : 0.3f);
+      setViewAlphaV11(view, enabled ? 1f : 0.3f);
       view.setVisibility(VISIBLE);
     } else {
       view.setVisibility(enabled ? VISIBLE : INVISIBLE);
     }
+  }
+
+  @TargetApi(11)
+  private void setViewAlphaV11(View view, float alpha) {
+    view.setAlpha(alpha);
   }
 
   private String stringForTime(long timeMs) {
