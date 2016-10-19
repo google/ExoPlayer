@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -29,7 +28,6 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -53,8 +51,6 @@ public final class Mp3Extractor implements Extractor {
 
   };
 
-  private static final String TAG = "Mp3Extractor";
-
   /**
    * The maximum number of bytes to search when synchronizing, before giving up.
    */
@@ -63,14 +59,6 @@ public final class Mp3Extractor implements Extractor {
    * The maximum number of bytes to peek when sniffing, excluding the ID3 header, before giving up.
    */
   private static final int MAX_SNIFF_BYTES = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
-  /**
-   * First three bytes of a well formed ID3 tag header.
-   */
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
-  /**
-   * Length of an ID3 tag header.
-   */
-  private static final int ID3_HEADER_LENGTH = 10;
   /**
    * Maximum length of data read into {@link #scratch}.
    */
@@ -282,30 +270,26 @@ public final class Mp3Extractor implements Extractor {
   private void peekId3Data(ExtractorInput input) throws IOException, InterruptedException {
     int peekedId3Bytes = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, ID3_HEADER_LENGTH);
+      input.peekFully(scratch.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
       scratch.setPosition(0);
-      if (scratch.readUnsignedInt24() != ID3_TAG) {
+      if (scratch.readUnsignedInt24() != Id3Decoder.ID3_TAG) {
         // Not an ID3 tag.
         break;
       }
       scratch.skipBytes(3); // Skip major version, minor version and flags.
       int framesLength = scratch.readSynchSafeInt();
-      int tagLength = ID3_HEADER_LENGTH + framesLength;
+      int tagLength = Id3Decoder.ID3_HEADER_LENGTH + framesLength;
 
-      try {
-        if (metadata == null) {
-          byte[] id3Data = new byte[tagLength];
-          System.arraycopy(scratch.data, 0, id3Data, 0, ID3_HEADER_LENGTH);
-          input.peekFully(id3Data, ID3_HEADER_LENGTH, framesLength);
-          metadata = new Id3Decoder().decode(id3Data, tagLength);
-          if (metadata != null) {
-            gaplessInfoHolder.setFromMetadata(metadata);
-          }
-        } else {
-          input.advancePeekPosition(framesLength);
+      if (metadata == null) {
+        byte[] id3Data = new byte[tagLength];
+        System.arraycopy(scratch.data, 0, id3Data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+        input.peekFully(id3Data, Id3Decoder.ID3_HEADER_LENGTH, framesLength);
+        metadata = new Id3Decoder().decode(id3Data, tagLength);
+        if (metadata != null) {
+          gaplessInfoHolder.setFromMetadata(metadata);
         }
-      } catch (MetadataDecoderException e) {
-        Log.e(TAG, "Failed to decode ID3 tag", e);
+      } else {
+        input.advancePeekPosition(framesLength);
       }
 
       peekedId3Bytes += tagLength;

@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.metadata.id3;
 import android.util.Log;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
-import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +28,20 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Decodes individual TXXX text frames from raw ID3 data.
+ * Decodes ID3 tags.
  */
 public final class Id3Decoder implements MetadataDecoder {
 
   private static final String TAG = "Id3Decoder";
+
+  /**
+   * The first three bytes of a well formed ID3 tag header.
+   */
+  public static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
+  /**
+   * Length of an ID3 tag header.
+   */
+  public static final int ID3_HEADER_LENGTH = 10;
 
   private static final int ID3_TEXT_ENCODING_ISO_8859_1 = 0;
   private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
@@ -45,7 +54,7 @@ public final class Id3Decoder implements MetadataDecoder {
   }
 
   @Override
-  public Metadata decode(byte[] data, int size) throws MetadataDecoderException {
+  public Metadata decode(byte[] data, int size) {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
 
@@ -61,9 +70,21 @@ public final class Id3Decoder implements MetadataDecoder {
     }
     id3Data.setLimit(startPosition + framesSize);
 
+    boolean unsignedIntFrameSizeHack = false;
+    if (id3Header.majorVersion == 4) {
+      if (!validateV4Frames(id3Data, false)) {
+        if (validateV4Frames(id3Data, true)) {
+          unsignedIntFrameSizeHack = true;
+        } else {
+          Log.w(TAG, "Failed to validate V4 ID3 tag");
+          return null;
+        }
+      }
+    }
+
     int frameHeaderSize = id3Header.majorVersion == 2 ? 6 : 10;
     while (id3Data.bytesLeft() >= frameHeaderSize) {
-      Id3Frame frame = decodeFrame(id3Header.majorVersion, id3Data);
+      Id3Frame frame = decodeFrame(id3Header.majorVersion, id3Data, unsignedIntFrameSizeHack);
       if (frame != null) {
         id3Frames.add(frame);
       }
@@ -109,16 +130,17 @@ public final class Id3Decoder implements MetadataDecoder {
   /**
    * @param data A {@link ParsableByteArray} from which the header should be read.
    * @return The parsed header, or null if the ID3 tag is unsupported.
-   * @throws MetadataDecoderException If the first three bytes differ from "ID3".
    */
-  private static Id3Header decodeHeader(ParsableByteArray data)
-      throws MetadataDecoderException {
-    int id1 = data.readUnsignedByte();
-    int id2 = data.readUnsignedByte();
-    int id3 = data.readUnsignedByte();
-    if (id1 != 'I' || id2 != 'D' || id3 != '3') {
-      throw new MetadataDecoderException(String.format(Locale.US,
-          "Unexpected ID3 tag identifier, expected \"ID3\", actual \"%c%c%c\".", id1, id2, id3));
+  private static Id3Header decodeHeader(ParsableByteArray data) {
+    if (data.bytesLeft() < ID3_HEADER_LENGTH) {
+      Log.w(TAG, "Data too short to be an ID3 tag");
+      return null;
+    }
+
+    int id = data.readUnsignedInt24();
+    if (id != ID3_TAG) {
+      Log.w(TAG, "Unexpected first three bytes of ID3 tag header: " + id);
+      return null;
     }
 
     int majorVersion = data.readUnsignedByte();
@@ -129,7 +151,7 @@ public final class Id3Decoder implements MetadataDecoder {
     if (majorVersion == 2) {
       boolean isCompressed = (flags & 0x40) != 0;
       if (isCompressed) {
-        Log.w(TAG, "Skipped ID3 tag with majorVersion=1 and undefined compression scheme");
+        Log.w(TAG, "Skipped ID3 tag with majorVersion=2 and undefined compression scheme");
         return null;
       }
     } else if (majorVersion == 3) {
@@ -160,8 +182,49 @@ public final class Id3Decoder implements MetadataDecoder {
     return new Id3Header(majorVersion, isUnsynchronized, framesSize);
   }
 
-  private Id3Frame decodeFrame(int majorVersion, ParsableByteArray id3Data)
-      throws MetadataDecoderException {
+  private static boolean validateV4Frames(ParsableByteArray id3Data,
+      boolean unsignedIntFrameSizeHack) {
+    int startPosition = id3Data.getPosition();
+    try {
+      while (id3Data.bytesLeft() >= 10) {
+        int id = id3Data.readInt();
+        int frameSize = id3Data.readUnsignedIntToInt();
+        int flags = id3Data.readUnsignedShort();
+        if (id == 0 && frameSize == 0 && flags == 0) {
+          return true;
+        } else {
+          if (!unsignedIntFrameSizeHack) {
+            // Parse the data size as a synchsafe integer, as per the spec.
+            if ((frameSize & 0x808080L) != 0) {
+              return false;
+            }
+            frameSize = (frameSize & 0xFF) | (((frameSize >> 8) & 0xFF) << 7)
+                | (((frameSize >> 16) & 0xFF) << 14) | (((frameSize >> 24) & 0xFF) << 21);
+          }
+          int minimumFrameSize = 0;
+          if ((flags & 0x0040) != 0 /* hasGroupIdentifier */) {
+            minimumFrameSize++;
+          }
+          if ((flags & 0x0001) != 0 /* hasDataLength */) {
+            minimumFrameSize += 4;
+          }
+          if (frameSize < minimumFrameSize) {
+            return false;
+          }
+          if (id3Data.bytesLeft() < frameSize) {
+            return false;
+          }
+          id3Data.skipBytes(frameSize); // flags
+        }
+      }
+      return true;
+    } finally {
+      id3Data.setPosition(startPosition);
+    }
+  }
+
+  private static Id3Frame decodeFrame(int majorVersion, ParsableByteArray id3Data,
+      boolean unsignedIntFrameSizeHack)  {
     int frameId0 = id3Data.readUnsignedByte();
     int frameId1 = id3Data.readUnsignedByte();
     int frameId2 = id3Data.readUnsignedByte();
@@ -170,13 +233,9 @@ public final class Id3Decoder implements MetadataDecoder {
     int frameSize;
     if (majorVersion == 4) {
       frameSize = id3Data.readUnsignedIntToInt();
-      if ((frameSize & 0x808080L) == 0) {
-        // Parse the frame size as a syncsafe integer, as per the spec.
+      if (!unsignedIntFrameSizeHack) {
         frameSize = (frameSize & 0xFF) | (((frameSize >> 8) & 0xFF) << 7)
             | (((frameSize >> 16) & 0xFF) << 14) | (((frameSize >> 24) & 0xFF) << 21);
-      } else {
-        // Proceed using the frame size read as an unsigned integer.
-        Log.w(TAG, "Frame size not specified as syncsafe integer");
       }
     } else if (majorVersion == 3) {
       frameSize = id3Data.readUnsignedIntToInt();
@@ -184,7 +243,7 @@ public final class Id3Decoder implements MetadataDecoder {
       frameSize = id3Data.readUnsignedInt24();
     }
 
-    int flags = majorVersion >= 3 ? id3Data.readShort() : 0;
+    int flags = majorVersion >= 3 ? id3Data.readUnsignedShort() : 0;
     if (frameId0 == 0 && frameId1 == 0 && frameId2 == 0 && frameId3 == 0 && frameSize == 0
         && flags == 0) {
       // We must be reading zero padding at the end of the tag.
@@ -194,6 +253,8 @@ public final class Id3Decoder implements MetadataDecoder {
 
     int nextFramePosition = id3Data.getPosition() + frameSize;
     if (nextFramePosition > id3Data.limit()) {
+      Log.w(TAG, "Frame size exceeds remaining tag data");
+      id3Data.setPosition(id3Data.limit());
       return null;
     }
 
@@ -263,7 +324,8 @@ public final class Id3Decoder implements MetadataDecoder {
       }
       return frame;
     } catch (UnsupportedEncodingException e) {
-      throw new MetadataDecoderException("Unsupported character encoding");
+      Log.w(TAG, "Unsupported character encoding");
+      return null;
     } finally {
       id3Data.setPosition(nextFramePosition);
     }
