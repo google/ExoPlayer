@@ -249,6 +249,7 @@ import java.io.IOException;
 
   // Handler.Callback implementation.
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean handleMessage(Message msg) {
     try {
@@ -335,8 +336,7 @@ import java.io.IOException;
     }
   }
 
-  private void prepareInternal(MediaSource mediaSource, boolean resetPosition)
-      throws ExoPlaybackException {
+  private void prepareInternal(MediaSource mediaSource, boolean resetPosition) {
     resetInternal();
     loadControl.onPrepared();
     if (resetPosition) {
@@ -884,8 +884,7 @@ import java.io.IOException;
     }
   }
 
-  private void attemptRestart(Timeline newTimeline, Timeline oldTimeline,
-      int oldPeriodIndex) throws ExoPlaybackException {
+  private void attemptRestart(Timeline newTimeline, Timeline oldTimeline, int oldPeriodIndex) {
     int newPeriodIndex = C.INDEX_UNSET;
     while (newPeriodIndex == C.INDEX_UNSET
         && oldPeriodIndex < oldTimeline.getPeriodCount() - 1) {
@@ -1260,7 +1259,7 @@ import java.io.IOException;
     }
 
     public long updatePeriodTrackSelection(long positionUs, LoadControl loadControl,
-        boolean forceRecreateStreams, boolean[] streamResetFlags) throws ExoPlaybackException {
+        boolean forceRecreateStreams, boolean[] streamResetFlags) {
       for (int i = 0; i < trackSelections.length; i++) {
         mayRetainStreamFlags[i] = !forceRecreateStreams
             && Util.areEqual(periodTrackSelections == null ? null : periodTrackSelections.get(i),

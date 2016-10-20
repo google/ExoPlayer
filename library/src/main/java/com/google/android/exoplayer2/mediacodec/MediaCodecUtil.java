@@ -23,6 +23,7 @@ import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseIntArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -63,8 +64,8 @@ public final class MediaCodecUtil {
 
   // Codecs to constant mappings.
   // AVC.
-  private static final Map<Integer, Integer> AVC_PROFILE_NUMBER_TO_CONST;
-  private static final Map<Integer, Integer> AVC_LEVEL_NUMBER_TO_CONST;
+  private static final SparseIntArray AVC_PROFILE_NUMBER_TO_CONST;
+  private static final SparseIntArray AVC_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AVC1 = "avc1";
   private static final String CODEC_ID_AVC2 = "avc2";
   // HEVC.
@@ -364,8 +365,8 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Ignoring malformed AVC codec string: " + codec);
       return null;
     }
-    Integer profileInteger = null;
-    Integer levelInteger = null;
+    Integer profileInteger;
+    Integer levelInteger;
     try {
       if (codecsParts[1].length() == 6) {
         // Format: avc1.xxccyy, where xx is profile and yy level, both hexadecimal.
@@ -555,13 +556,13 @@ public final class MediaCodecUtil {
   }
 
   static {
-    AVC_PROFILE_NUMBER_TO_CONST = new HashMap<>();
+    AVC_PROFILE_NUMBER_TO_CONST = new SparseIntArray();
     AVC_PROFILE_NUMBER_TO_CONST.put(66, CodecProfileLevel.AVCProfileBaseline);
     AVC_PROFILE_NUMBER_TO_CONST.put(77, CodecProfileLevel.AVCProfileMain);
     AVC_PROFILE_NUMBER_TO_CONST.put(88, CodecProfileLevel.AVCProfileExtended);
     AVC_PROFILE_NUMBER_TO_CONST.put(100, CodecProfileLevel.AVCProfileHigh);
 
-    AVC_LEVEL_NUMBER_TO_CONST = new HashMap<>();
+    AVC_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
     AVC_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.AVCLevel1);
     // TODO: Find int for CodecProfileLevel.AVCLevel1b.
     AVC_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.AVCLevel11);

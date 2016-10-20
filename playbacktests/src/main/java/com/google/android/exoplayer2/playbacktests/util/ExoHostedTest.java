@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
@@ -130,7 +131,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
     trackSelector = buildTrackSelector(host, bandwidthMeter);
     String userAgent = "ExoPlayerPlaybackTests";
-    DrmSessionManager drmSessionManager = buildDrmSessionManager(userAgent);
+    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
     player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
     player.addListener(this);
@@ -296,7 +297,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   // Internal logic
 
-  protected DrmSessionManager buildDrmSessionManager(String userAgent) {
+  protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(String userAgent) {
     // Do nothing. Interested subclasses may override.
     return null;
   }
@@ -309,7 +310,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @SuppressWarnings("unused")
   protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
-      MappingTrackSelector trackSelector, DrmSessionManager drmSessionManager) {
+      MappingTrackSelector trackSelector,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector,
         new DefaultLoadControl(), drmSessionManager, false, 0);
     player.setVideoSurface(surface);

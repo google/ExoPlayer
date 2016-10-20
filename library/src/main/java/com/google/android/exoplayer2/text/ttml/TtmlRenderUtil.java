@@ -92,21 +92,22 @@ import java.util.Map;
       builder.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    if (style.getFontSizeUnit() != TtmlStyle.UNSPECIFIED) {
-      switch (style.getFontSizeUnit()) {
-        case TtmlStyle.FONT_SIZE_UNIT_PIXEL:
-          builder.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
-              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          break;
-        case TtmlStyle.FONT_SIZE_UNIT_EM:
-          builder.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
-              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          break;
-        case TtmlStyle.FONT_SIZE_UNIT_PERCENT:
-          builder.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
-              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          break;
-      }
+    switch (style.getFontSizeUnit()) {
+      case TtmlStyle.FONT_SIZE_UNIT_PIXEL:
+        builder.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case TtmlStyle.FONT_SIZE_UNIT_EM:
+        builder.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case TtmlStyle.FONT_SIZE_UNIT_PERCENT:
+        builder.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case TtmlStyle.UNSPECIFIED:
+        // Do nothing.
+        break;
     }
   }
 

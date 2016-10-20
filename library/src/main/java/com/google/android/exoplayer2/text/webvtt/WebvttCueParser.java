@@ -413,21 +413,22 @@ import java.util.regex.Pattern;
       spannedText.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    if (style.getFontSizeUnit() != WebvttCssStyle.UNSPECIFIED) {
-      switch (style.getFontSizeUnit()) {
-        case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
-          spannedText.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
-              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          break;
-        case WebvttCssStyle.FONT_SIZE_UNIT_EM:
-          spannedText.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
-              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          break;
-        case WebvttCssStyle.FONT_SIZE_UNIT_PERCENT:
-          spannedText.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
-              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          break;
-      }
+    switch (style.getFontSizeUnit()) {
+      case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
+        spannedText.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case WebvttCssStyle.FONT_SIZE_UNIT_EM:
+        spannedText.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case WebvttCssStyle.FONT_SIZE_UNIT_PERCENT:
+        spannedText.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case WebvttCssStyle.UNSPECIFIED:
+        // Do nothing.
+        break;
     }
   }
 

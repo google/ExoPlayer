@@ -70,8 +70,8 @@ public abstract class MappingTrackSelector extends TrackSelector<MappedTrackInfo
      * Returns whether this override contains the specified track index.
      */
     public boolean containsTrack(int track) {
-      for (int i = 0; i < tracks.length; i++) {
-        if (tracks[i] == track) {
+      for (int overrideTrack : tracks) {
+        if (overrideTrack == track) {
           return true;
         }
       }

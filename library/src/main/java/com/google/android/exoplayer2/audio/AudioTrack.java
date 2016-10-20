@@ -23,6 +23,7 @@ import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -981,6 +982,9 @@ public final class AudioTrack {
       case C.ENCODING_PCM_32BIT:
         resampledSize = size / 2;
         break;
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
       default:
         // Never happens.
         throw new IllegalStateException();
@@ -1016,6 +1020,9 @@ public final class AudioTrack {
           resampledBuffer.put(buffer.get(i + 3));
         }
         break;
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
       default:
         // Never happens.
         throw new IllegalStateException();

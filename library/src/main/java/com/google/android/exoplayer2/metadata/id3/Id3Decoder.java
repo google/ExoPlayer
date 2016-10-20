@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -124,7 +123,7 @@ public final class Id3Decoder implements MetadataDecoder<List<Id3Frame>> {
   /**
    * @param id3Buffer A {@link ParsableByteArray} from which data should be read.
    * @return The size of ID3 frames in bytes, excluding the header and footer.
-   * @throws ParserException If ID3 file identifier != "ID3".
+   * @throws MetadataDecoderException If ID3 file identifier != "ID3".
    */
   private static int decodeId3Header(ParsableByteArray id3Buffer) throws MetadataDecoderException {
     int id1 = id3Buffer.readUnsignedByte();
