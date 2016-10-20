@@ -65,7 +65,7 @@ public class OkHttpDataSource implements HttpDataSource {
   private long bytesRead;
 
   /**
-   * @param callFactory An {@link Call.Factory} for use by the source.
+   * @param callFactory A {@link Call.Factory} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
@@ -76,7 +76,7 @@ public class OkHttpDataSource implements HttpDataSource {
   }
 
   /**
-   * @param callFactory An {@link Call.Factory} for use by the source.
+   * @param callFactory A {@link Call.Factory} for use by the source.
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from
