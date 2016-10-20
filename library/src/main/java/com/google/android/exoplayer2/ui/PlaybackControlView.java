@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.SystemClock;
@@ -75,6 +76,7 @@ public class PlaybackControlView extends FrameLayout {
   private ExoPlayer player;
   private VisibilityListener visibilityListener;
 
+  private boolean isAttachedToWindow;
   private boolean dragging;
   private int rewindMs;
   private int fastForwardMs;
@@ -264,7 +266,7 @@ public class PlaybackControlView extends FrameLayout {
     removeCallbacks(hideAction);
     if (showTimeoutMs > 0) {
       hideAtMs = SystemClock.uptimeMillis() + showTimeoutMs;
-      if (isAttachedToWindow()) {
+      if (isAttachedToWindow) {
         postDelayed(hideAction, showTimeoutMs);
       }
     } else {
@@ -279,7 +281,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void updatePlayPauseButton() {
-    if (!isVisible() || !isAttachedToWindow()) {
+    if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     boolean playing = player != null && player.getPlayWhenReady();
@@ -291,7 +293,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void updateNavigation() {
-    if (!isVisible() || !isAttachedToWindow()) {
+    if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     Timeline currentTimeline = player != null ? player.getCurrentTimeline() : null;
@@ -315,7 +317,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void updateProgress() {
-    if (!isVisible() || !isAttachedToWindow()) {
+    if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     long duration = player == null ? 0 : player.getDuration();
@@ -350,11 +352,16 @@ public class PlaybackControlView extends FrameLayout {
   private void setButtonEnabled(boolean enabled, View view) {
     view.setEnabled(enabled);
     if (Util.SDK_INT >= 11) {
-      view.setAlpha(enabled ? 1f : 0.3f);
+      setViewAlphaV11(view, enabled ? 1f : 0.3f);
       view.setVisibility(VISIBLE);
     } else {
       view.setVisibility(enabled ? VISIBLE : INVISIBLE);
     }
+  }
+
+  @TargetApi(11)
+  private void setViewAlphaV11(View view, float alpha) {
+    view.setAlpha(alpha);
   }
 
   private String stringForTime(long timeMs) {
@@ -426,6 +433,7 @@ public class PlaybackControlView extends FrameLayout {
   @Override
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
+    isAttachedToWindow = true;
     if (hideAtMs != C.TIME_UNSET) {
       long delayMs = hideAtMs - SystemClock.uptimeMillis();
       if (delayMs <= 0) {
@@ -440,6 +448,7 @@ public class PlaybackControlView extends FrameLayout {
   @Override
   public void onDetachedFromWindow() {
     super.onDetachedFromWindow();
+    isAttachedToWindow = false;
     removeCallbacks(updateProgressAction);
     removeCallbacks(hideAction);
   }

@@ -1,22 +1,27 @@
 # Release notes #
 
-### r2.0.3 ###
+### r2.0.4 ###
 
-This release contains important bug fixes. Users of r2.0.0, r2.0.1 and r2.0.2
+This release contains important bug fixes. Users of earlier r2.0.x versions
 should proactively update to this version.
 
+* Fix crash on Jellybean devices when using playback controls
+  ([#1965](https://github.com/google/ExoPlayer/issues/1965)).
+
+### r2.0.3 ###
+
 * Fixed NullPointerException in ExtractorMediaSource
-  ([#1914](https://github.com/google/ExoPlayer/issues/1914).
+  ([#1914](https://github.com/google/ExoPlayer/issues/1914)).
 * Fixed NullPointerException in HlsMediaPeriod
-  ([#1907](https://github.com/google/ExoPlayer/issues/1907).
+  ([#1907](https://github.com/google/ExoPlayer/issues/1907)).
 * Fixed memory leak in PlaybackControlView
-  ([#1908](https://github.com/google/ExoPlayer/issues/1908).
+  ([#1908](https://github.com/google/ExoPlayer/issues/1908)).
 * Fixed strict mode violation when using
   SimpleExoPlayer.setVideoPlayerTextureView().
 * Fixed L3 Widevine provisioning
-  ([#1925](https://github.com/google/ExoPlayer/issues/1925).
+  ([#1925](https://github.com/google/ExoPlayer/issues/1925)).
 * Fixed hiding of controls with use_controller="false"
-  ([#1919](https://github.com/google/ExoPlayer/issues/1919).
+  ([#1919](https://github.com/google/ExoPlayer/issues/1919)).
 * Improvements to Cronet network stack extension.
 * Misc bug fixes.
 
