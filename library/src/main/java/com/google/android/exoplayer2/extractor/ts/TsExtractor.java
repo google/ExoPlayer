@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -28,8 +27,6 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.EsInfo;
-import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -85,14 +82,14 @@ public final class TsExtractor implements Extractor {
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
   private final SparseIntArray continuityCounters;
-  private final ElementaryStreamReader.Factory streamReaderFactory;
+  private final TsPayloadReader.Factory payloadReaderFactory;
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SparseBooleanArray trackIds;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
   private boolean tracksEnded;
-  private ElementaryStreamReader id3Reader;
+  private TsPayloadReader id3Reader;
 
   public TsExtractor() {
     this(new TimestampAdjuster(0));
@@ -102,19 +99,19 @@ public final class TsExtractor implements Extractor {
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    */
   public TsExtractor(TimestampAdjuster timestampAdjuster) {
-    this(timestampAdjuster, new DefaultStreamReaderFactory(), false);
+    this(timestampAdjuster, new DefaultTsPayloadReaderFactory(), false);
   }
 
   /**
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
-   * @param customReaderFactory Factory for injecting a custom set of elementary stream readers.
+   * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
    * @param mapByType True if {@link TrackOutput}s should be mapped by their type, false to map them
    *     by their PID.
    */
   public TsExtractor(TimestampAdjuster timestampAdjuster,
-      ElementaryStreamReader.Factory customReaderFactory, boolean mapByType) {
+      TsPayloadReader.Factory payloadReaderFactory, boolean mapByType) {
     this.timestampAdjuster = timestampAdjuster;
-    this.streamReaderFactory = Assertions.checkNotNull(customReaderFactory);
+    this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
     this.mapByType = mapByType;
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
@@ -259,35 +256,9 @@ public final class TsExtractor implements Extractor {
   }
 
   /**
-   * Parses TS packet payload data.
-   */
-  private abstract static class TsPayloadReader {
-
-    /**
-     * Notifies the reader that a seek has occurred.
-     * <p>
-     * Following a call to this method, the data passed to the next invocation of
-     * {@link #consume(ParsableByteArray, boolean, ExtractorOutput)} will not be a continuation of
-     * the data that was previously passed. Hence the reader should reset any internal state.
-     */
-    public abstract void seek();
-
-    /**
-     * Consumes the payload of a TS packet.
-     *
-     * @param data The TS packet. The position will be set to the start of the payload.
-     * @param payloadUnitStartIndicator Whether payloadUnitStartIndicator was set on the TS packet.
-     * @param output The output to which parsed data should be written.
-     */
-    public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output);
-
-  }
-
-  /**
    * Parses Program Association Table data.
    */
-  private class PatReader extends TsPayloadReader {
+  private class PatReader implements TsPayloadReader {
 
     private final ParsableByteArray sectionData;
     private final ParsableBitArray patScratch;
@@ -299,6 +270,12 @@ public final class TsExtractor implements Extractor {
     public PatReader() {
       sectionData = new ParsableByteArray();
       patScratch = new ParsableBitArray(new byte[4]);
+    }
+
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
     }
 
     @Override
@@ -361,7 +338,7 @@ public final class TsExtractor implements Extractor {
   /**
    * Parses Program Map Table.
    */
-  private class PmtReader extends TsPayloadReader {
+  private class PmtReader implements TsPayloadReader {
 
     private static final int TS_PMT_DESC_REGISTRATION = 0x05;
     private static final int TS_PMT_DESC_ISO639_LANG = 0x0A;
@@ -381,6 +358,12 @@ public final class TsExtractor implements Extractor {
       pmtScratch = new ParsableBitArray(new byte[5]);
       sectionData = new ParsableByteArray();
       this.pid = pid;
+    }
+
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
     }
 
     @Override
@@ -437,8 +420,9 @@ public final class TsExtractor implements Extractor {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
         EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, new byte[0]);
-        id3Reader = streamReaderFactory.createStreamReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
-        id3Reader.init(output, new TrackIdGenerator(TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
+        id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
+        id3Reader.init(timestampAdjuster, output,
+            new TrackIdGenerator(TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
       int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
@@ -462,18 +446,18 @@ public final class TsExtractor implements Extractor {
         }
         trackIds.put(trackId, true);
 
-        ElementaryStreamReader pesPayloadReader;
+        TsPayloadReader reader;
         if (mapByType && streamType == TS_STREAM_TYPE_ID3) {
-          pesPayloadReader = id3Reader;
+          reader = id3Reader;
         } else {
-          pesPayloadReader = streamReaderFactory.createStreamReader(streamType, esInfo);
-          if (pesPayloadReader != null) {
-            pesPayloadReader.init(output, new TrackIdGenerator(trackId, MAX_PID_PLUS_ONE));
+          reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
+          if (reader != null) {
+            reader.init(timestampAdjuster, output, new TrackIdGenerator(trackId, MAX_PID_PLUS_ONE));
           }
         }
 
-        if (pesPayloadReader != null) {
-          tsPayloadReaders.put(elementaryPid, new PesReader(pesPayloadReader, timestampAdjuster));
+        if (reader != null) {
+          tsPayloadReaders.put(elementaryPid, reader);
         }
       }
       if (mapByType) {
@@ -534,208 +518,5 @@ public final class TsExtractor implements Extractor {
 
   }
 
-  /**
-   * Parses PES packet data and extracts samples.
-   */
-  private static final class PesReader extends TsPayloadReader {
-
-    private static final int STATE_FINDING_HEADER = 0;
-    private static final int STATE_READING_HEADER = 1;
-    private static final int STATE_READING_HEADER_EXTENSION = 2;
-    private static final int STATE_READING_BODY = 3;
-
-    private static final int HEADER_SIZE = 9;
-    private static final int MAX_HEADER_EXTENSION_SIZE = 10;
-    private static final int PES_SCRATCH_SIZE = 10; // max(HEADER_SIZE, MAX_HEADER_EXTENSION_SIZE)
-
-    private final ElementaryStreamReader pesPayloadReader;
-    private final TimestampAdjuster timestampAdjuster;
-    private final ParsableBitArray pesScratch;
-
-    private int state;
-    private int bytesRead;
-
-    private boolean ptsFlag;
-    private boolean dtsFlag;
-    private boolean seenFirstDts;
-    private int extendedHeaderLength;
-    private int payloadSize;
-    private boolean dataAlignmentIndicator;
-    private long timeUs;
-
-    public PesReader(ElementaryStreamReader pesPayloadReader,
-        TimestampAdjuster timestampAdjuster) {
-      this.pesPayloadReader = pesPayloadReader;
-      this.timestampAdjuster = timestampAdjuster;
-      pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);
-      state = STATE_FINDING_HEADER;
-    }
-
-    @Override
-    public void seek() {
-      state = STATE_FINDING_HEADER;
-      bytesRead = 0;
-      seenFirstDts = false;
-      pesPayloadReader.seek();
-    }
-
-    @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
-      if (payloadUnitStartIndicator) {
-        switch (state) {
-          case STATE_FINDING_HEADER:
-          case STATE_READING_HEADER:
-            // Expected.
-            break;
-          case STATE_READING_HEADER_EXTENSION:
-            Log.w(TAG, "Unexpected start indicator reading extended header");
-            break;
-          case STATE_READING_BODY:
-            // If payloadSize == -1 then the length of the previous packet was unspecified, and so
-            // we only know that it's finished now that we've seen the start of the next one. This
-            // is expected. If payloadSize != -1, then the length of the previous packet was known,
-            // but we didn't receive that amount of data. This is not expected.
-            if (payloadSize != -1) {
-              Log.w(TAG, "Unexpected start indicator: expected " + payloadSize + " more bytes");
-            }
-            // Either way, notify the reader that it has now finished.
-            pesPayloadReader.packetFinished();
-            break;
-        }
-        setState(STATE_READING_HEADER);
-      }
-
-      while (data.bytesLeft() > 0) {
-        switch (state) {
-          case STATE_FINDING_HEADER:
-            data.skipBytes(data.bytesLeft());
-            break;
-          case STATE_READING_HEADER:
-            if (continueRead(data, pesScratch.data, HEADER_SIZE)) {
-              setState(parseHeader() ? STATE_READING_HEADER_EXTENSION : STATE_FINDING_HEADER);
-            }
-            break;
-          case STATE_READING_HEADER_EXTENSION:
-            int readLength = Math.min(MAX_HEADER_EXTENSION_SIZE, extendedHeaderLength);
-            // Read as much of the extended header as we're interested in, and skip the rest.
-            if (continueRead(data, pesScratch.data, readLength)
-                && continueRead(data, null, extendedHeaderLength)) {
-              parseHeaderExtension();
-              pesPayloadReader.packetStarted(timeUs, dataAlignmentIndicator);
-              setState(STATE_READING_BODY);
-            }
-            break;
-          case STATE_READING_BODY:
-            readLength = data.bytesLeft();
-            int padding = payloadSize == -1 ? 0 : readLength - payloadSize;
-            if (padding > 0) {
-              readLength -= padding;
-              data.setLimit(data.getPosition() + readLength);
-            }
-            pesPayloadReader.consume(data);
-            if (payloadSize != -1) {
-              payloadSize -= readLength;
-              if (payloadSize == 0) {
-                pesPayloadReader.packetFinished();
-                setState(STATE_READING_HEADER);
-              }
-            }
-            break;
-        }
-      }
-    }
-
-    private void setState(int state) {
-      this.state = state;
-      bytesRead = 0;
-    }
-
-    /**
-     * Continues a read from the provided {@code source} into a given {@code target}. It's assumed
-     * that the data should be written into {@code target} starting from an offset of zero.
-     *
-     * @param source The source from which to read.
-     * @param target The target into which data is to be read, or {@code null} to skip.
-     * @param targetLength The target length of the read.
-     * @return Whether the target length has been reached.
-     */
-    private boolean continueRead(ParsableByteArray source, byte[] target, int targetLength) {
-      int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
-      if (bytesToRead <= 0) {
-        return true;
-      } else if (target == null) {
-        source.skipBytes(bytesToRead);
-      } else {
-        source.readBytes(target, bytesRead, bytesToRead);
-      }
-      bytesRead += bytesToRead;
-      return bytesRead == targetLength;
-    }
-
-    private boolean parseHeader() {
-      // Note: see ISO/IEC 13818-1, section 2.4.3.6 for detailed information on the format of
-      // the header.
-      pesScratch.setPosition(0);
-      int startCodePrefix = pesScratch.readBits(24);
-      if (startCodePrefix != 0x000001) {
-        Log.w(TAG, "Unexpected start code prefix: " + startCodePrefix);
-        payloadSize = -1;
-        return false;
-      }
-
-      pesScratch.skipBits(8); // stream_id.
-      int packetLength = pesScratch.readBits(16);
-      pesScratch.skipBits(5); // '10' (2), PES_scrambling_control (2), PES_priority (1)
-      dataAlignmentIndicator = pesScratch.readBit();
-      pesScratch.skipBits(2); // copyright (1), original_or_copy (1)
-      ptsFlag = pesScratch.readBit();
-      dtsFlag = pesScratch.readBit();
-      // ESCR_flag (1), ES_rate_flag (1), DSM_trick_mode_flag (1),
-      // additional_copy_info_flag (1), PES_CRC_flag (1), PES_extension_flag (1)
-      pesScratch.skipBits(6);
-      extendedHeaderLength = pesScratch.readBits(8);
-
-      if (packetLength == 0) {
-        payloadSize = -1;
-      } else {
-        payloadSize = packetLength + 6 /* packetLength does not include the first 6 bytes */
-            - HEADER_SIZE - extendedHeaderLength;
-      }
-      return true;
-    }
-
-    private void parseHeaderExtension() {
-      pesScratch.setPosition(0);
-      timeUs = C.TIME_UNSET;
-      if (ptsFlag) {
-        pesScratch.skipBits(4); // '0010' or '0011'
-        long pts = (long) pesScratch.readBits(3) << 30;
-        pesScratch.skipBits(1); // marker_bit
-        pts |= pesScratch.readBits(15) << 15;
-        pesScratch.skipBits(1); // marker_bit
-        pts |= pesScratch.readBits(15);
-        pesScratch.skipBits(1); // marker_bit
-        if (!seenFirstDts && dtsFlag) {
-          pesScratch.skipBits(4); // '0011'
-          long dts = (long) pesScratch.readBits(3) << 30;
-          pesScratch.skipBits(1); // marker_bit
-          dts |= pesScratch.readBits(15) << 15;
-          pesScratch.skipBits(1); // marker_bit
-          dts |= pesScratch.readBits(15);
-          pesScratch.skipBits(1); // marker_bit
-          // Subsequent PES packets may have earlier presentation timestamps than this one, but they
-          // should all be greater than or equal to this packet's decode timestamp. We feed the
-          // decode timestamp to the adjuster here so that in the case that this is the first to be
-          // fed, the adjuster will be able to compute an offset to apply such that the adjusted
-          // presentation timestamps of all future packets are non-negative.
-          timestampAdjuster.adjustTsTimestamp(dts);
-          seenFirstDts = true;
-        }
-        timeUs = timestampAdjuster.adjustTsTimestamp(pts);
-      }
-    }
-
-  }
 
 }

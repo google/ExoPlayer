@@ -19,13 +19,14 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Parses ID3 data and extracts individual text information frames.
  */
-/* package */ final class Id3Reader extends ElementaryStreamReader {
+/* package */ final class Id3Reader implements ElementaryStreamReader {
 
   private static final int ID3_HEADER_SIZE = 10;
 
@@ -51,7 +52,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     output = extractorOutput.track(idGenerator.getNextId());
     output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE,
         null));
