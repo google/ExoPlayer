@@ -177,8 +177,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     builder.setSimulateUnknownLength(simulateUnknownLength);
     builder.appendReadData(TEST_DATA);
     FakeDataSource upstream = builder.build();
-    return new CacheDataSource(simpleCache, upstream,
-        CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_CACHE_UNBOUNDED_REQUESTS,
+    return new CacheDataSource(simpleCache, upstream, CacheDataSource.FLAG_BLOCK_ON_CACHE,
         MAX_CACHE_FILE_SIZE);
   }
 
