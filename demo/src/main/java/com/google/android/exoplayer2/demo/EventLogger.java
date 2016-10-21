@@ -40,10 +40,10 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelections;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
@@ -56,7 +56,7 @@ import java.util.Locale;
 /* package */ final class EventLogger implements ExoPlayer.EventListener,
     AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
     ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
-    MappingTrackSelector.EventListener<MappedTrackInfo>, MetadataRenderer.Output {
+    TrackSelector.EventListener<MappedTrackInfo>, MetadataRenderer.Output {
 
   private static final String TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
@@ -98,6 +98,9 @@ import java.util.Locale;
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
+    if (timeline == null) {
+      return;
+    }
     int periodCount = timeline.getPeriodCount();
     int windowCount = timeline.getWindowCount();
     Log.d(TAG, "sourceInfo [periodCount=" + periodCount + ", windowCount=" + windowCount);
@@ -180,38 +183,9 @@ import java.util.Locale;
 
   @Override
   public void onMetadata(Metadata metadata) {
-    Log.i(TAG, "metadata [");
-    for (int i = 0; i < metadata.length(); i++) {
-      Metadata.Entry entry = metadata.get(i);
-      if (entry instanceof TxxxFrame) {
-        TxxxFrame txxxFrame = (TxxxFrame) entry;
-        Log.i(TAG, String.format("  %s: description=%s, value=%s", txxxFrame.id,
-            txxxFrame.description, txxxFrame.value));
-      } else if (entry instanceof PrivFrame) {
-        PrivFrame privFrame = (PrivFrame) entry;
-        Log.i(TAG, String.format("  %s: owner=%s", privFrame.id, privFrame.owner));
-      } else if (entry instanceof GeobFrame) {
-        GeobFrame geobFrame = (GeobFrame) entry;
-        Log.i(TAG, String.format("  %s: mimeType=%s, filename=%s, description=%s",
-            geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
-      } else if (entry instanceof ApicFrame) {
-        ApicFrame apicFrame = (ApicFrame) entry;
-        Log.i(TAG, String.format("  %s: mimeType=%s, description=%s",
-            apicFrame.id, apicFrame.mimeType, apicFrame.description));
-      } else if (entry instanceof TextInformationFrame) {
-        TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
-        Log.i(TAG, String.format("  %s: description=%s", textInformationFrame.id,
-            textInformationFrame.description));
-      } else if (entry instanceof CommentFrame) {
-        CommentFrame commentFrame = (CommentFrame) entry;
-        Log.i(TAG, String.format("  %s: language=%s description=%s", commentFrame.id,
-            commentFrame.language, commentFrame.description));
-      } else if (entry instanceof Id3Frame) {
-        Id3Frame id3Frame = (Id3Frame) entry;
-        Log.i(TAG, String.format("  %s", id3Frame.id));
-      }
-    }
-    Log.i(TAG, "]");
+    Log.d(TAG, "onMetadata [");
+    printMetadata(metadata);
+    Log.d(TAG, "]");
   }
 
   // AudioRendererEventListener
@@ -234,8 +208,13 @@ import java.util.Locale;
 
   @Override
   public void onAudioInputFormatChanged(Format format) {
+    boolean hasMetadata = format.metadata != null;
     Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
-        + "]");
+        + (hasMetadata ? "" : "]"));
+    if (hasMetadata) {
+      printMetadata(format.metadata);
+      Log.d(TAG, "]");
+    }
   }
 
   @Override
@@ -354,6 +333,39 @@ import java.util.Locale;
 
   private void printInternalError(String type, Exception e) {
     Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);
+  }
+
+  private void printMetadata(Metadata metadata) {
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry entry = metadata.get(i);
+      if (entry instanceof TxxxFrame) {
+        TxxxFrame txxxFrame = (TxxxFrame) entry;
+        Log.d(TAG, String.format("  %s: description=%s, value=%s", txxxFrame.id,
+            txxxFrame.description, txxxFrame.value));
+      } else if (entry instanceof PrivFrame) {
+        PrivFrame privFrame = (PrivFrame) entry;
+        Log.d(TAG, String.format("  %s: owner=%s", privFrame.id, privFrame.owner));
+      } else if (entry instanceof GeobFrame) {
+        GeobFrame geobFrame = (GeobFrame) entry;
+        Log.d(TAG, String.format("  %s: mimeType=%s, filename=%s, description=%s",
+            geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
+      } else if (entry instanceof ApicFrame) {
+        ApicFrame apicFrame = (ApicFrame) entry;
+        Log.d(TAG, String.format("  %s: mimeType=%s, description=%s",
+            apicFrame.id, apicFrame.mimeType, apicFrame.description));
+      } else if (entry instanceof TextInformationFrame) {
+        TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
+        Log.d(TAG, String.format("  %s: description=%s", textInformationFrame.id,
+            textInformationFrame.description));
+      } else if (entry instanceof CommentFrame) {
+        CommentFrame commentFrame = (CommentFrame) entry;
+        Log.d(TAG, String.format("  %s: language=%s description=%s", commentFrame.id,
+            commentFrame.language, commentFrame.description));
+      } else if (entry instanceof Id3Frame) {
+        Id3Frame id3Frame = (Id3Frame) entry;
+        Log.d(TAG, String.format("  %s", id3Frame.id));
+      }
+    }
   }
 
   private String getSessionTimeString() {

@@ -65,6 +65,7 @@ public final class MimeTypes {
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_CEA608 = BASE_TYPE_APPLICATION + "/cea-608";
+  public static final String APPLICATION_CEA708 = BASE_TYPE_APPLICATION + "/cea-708";
   public static final String APPLICATION_SUBRIP = BASE_TYPE_APPLICATION + "/x-subrip";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";

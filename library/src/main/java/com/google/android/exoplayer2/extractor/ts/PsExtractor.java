@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
+import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -49,6 +50,7 @@ public final class PsExtractor implements Extractor {
   private static final int SYSTEM_HEADER_START_CODE = 0x000001BB;
   private static final int PACKET_START_CODE_PREFIX = 0x000001;
   private static final int MPEG_PROGRAM_END_CODE = 0x000001B9;
+  private static final int MAX_STREAM_ID_PLUS_ONE = 0x100;
   private static final long MAX_SEARCH_LENGTH = 1024 * 1024;
 
   public static final int PRIVATE_STREAM_1 = 0xBD;
@@ -189,16 +191,18 @@ public final class PsExtractor implements Extractor {
           // Private stream, used for AC3 audio.
           // NOTE: This may need further parsing to determine if its DTS, but that's likely only
           // valid for DVDs.
-          elementaryStreamReader = new Ac3Reader(output.track(streamId));
+          elementaryStreamReader = new Ac3Reader();
           foundAudioTrack = true;
         } else if (!foundAudioTrack && (streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
-          elementaryStreamReader = new MpegAudioReader(output.track(streamId));
+          elementaryStreamReader = new MpegAudioReader();
           foundAudioTrack = true;
         } else if (!foundVideoTrack && (streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM) {
-          elementaryStreamReader = new H262Reader(output.track(streamId));
+          elementaryStreamReader = new H262Reader();
           foundVideoTrack = true;
         }
         if (elementaryStreamReader != null) {
+          TrackIdGenerator idGenerator = new TrackIdGenerator(streamId, MAX_STREAM_ID_PLUS_ONE);
+          elementaryStreamReader.init(output, idGenerator);
           payloadReader = new PesReader(elementaryStreamReader, timestampAdjuster);
           psPayloadReaders.put(streamId, payloadReader);
         }

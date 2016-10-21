@@ -108,6 +108,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private Format audioFormat;
 
   private Surface surface;
+  private boolean ownsSurface;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
   private TextRenderer.Output textOutput;
@@ -206,7 +207,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
    */
   public void setVideoSurface(Surface surface) {
     removeSurfaceCallbacks();
-    setVideoSurfaceInternal(surface);
+    setVideoSurfaceInternal(surface, false);
   }
 
   /**
@@ -219,9 +220,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     removeSurfaceCallbacks();
     this.surfaceHolder = surfaceHolder;
     if (surfaceHolder == null) {
-      setVideoSurfaceInternal(null);
+      setVideoSurfaceInternal(null, false);
     } else {
-      setVideoSurfaceInternal(surfaceHolder.getSurface());
+      setVideoSurfaceInternal(surfaceHolder.getSurface(), false);
       surfaceHolder.addCallback(componentListener);
     }
   }
@@ -246,13 +247,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
     removeSurfaceCallbacks();
     this.textureView = textureView;
     if (textureView == null) {
-      setVideoSurfaceInternal(null);
+      setVideoSurfaceInternal(null, true);
     } else {
       if (textureView.getSurfaceTextureListener() != null) {
         Log.w(TAG, "Replacing existing SurfaceTextureListener.");
       }
       SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
-      setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture));
+      setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture), true);
       textureView.setSurfaceTextureListener(componentListener);
     }
   }
@@ -429,8 +430,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void prepare(MediaSource mediaSource, boolean resetPosition) {
-    player.prepare(mediaSource, resetPosition);
+  public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetTimeline) {
+    player.prepare(mediaSource, resetPosition, resetTimeline);
   }
 
   @Override
@@ -477,6 +478,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
   public void release() {
     player.release();
     removeSurfaceCallbacks();
+    if (surface != null) {
+      if (ownsSurface) {
+        surface.release();
+      }
+      surface = null;
+    }
   }
 
   @Override
@@ -627,8 +634,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     }
   }
 
-  private void setVideoSurfaceInternal(Surface surface) {
-    this.surface = surface;
+  private void setVideoSurfaceInternal(Surface surface, boolean ownsSurface) {
+    // Note: We don't turn this method into a no-op if the surface is being replaced with itself
+    // so as to ensure onRenderedFirstFrame callbacks are still called in this case.
     ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
     int count = 0;
     for (Renderer renderer : renderers) {
@@ -636,12 +644,18 @@ public final class SimpleExoPlayer implements ExoPlayer {
         messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SURFACE, surface);
       }
     }
-    if (surface == null) {
-      // Block to ensure that the surface is not accessed after the method returns.
+    if (this.surface != null && this.surface != surface) {
+      // If we created this surface, we are responsible for releasing it.
+      if (this.ownsSurface) {
+        this.surface.release();
+      }
+      // We're replacing a surface. Block to ensure that it's not accessed after the method returns.
       player.blockingSendMessages(messages);
     } else {
       player.sendMessages(messages);
     }
+    this.surface = surface;
+    this.ownsSurface = ownsSurface;
   }
 
   private final class ComponentListener implements VideoRendererEventListener,
@@ -790,7 +804,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-      setVideoSurfaceInternal(holder.getSurface());
+      setVideoSurfaceInternal(holder.getSurface(), false);
     }
 
     @Override
@@ -800,14 +814,14 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-      setVideoSurfaceInternal(null);
+      setVideoSurfaceInternal(null, false);
     }
 
     // TextureView.SurfaceTextureListener implementation
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-      setVideoSurfaceInternal(new Surface(surfaceTexture));
+      setVideoSurfaceInternal(new Surface(surfaceTexture), true);
     }
 
     @Override
@@ -817,7 +831,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-      setVideoSurface(null);
+      setVideoSurfaceInternal(null, true);
       return true;
     }
 

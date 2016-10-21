@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Retention;
@@ -50,8 +51,7 @@ public final class CacheDataSource implements DataSource {
    * Flags controlling the cache's behavior.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR,
-      FLAG_CACHE_UNBOUNDED_REQUESTS})
+  @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR})
   public @interface Flags {}
   /**
    * A flag indicating whether we will block reads if the cache key is locked. If this flag is
@@ -65,13 +65,6 @@ public final class CacheDataSource implements DataSource {
    * Subsequent cycles of these calls will then bypass the cache.
    */
   public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1;
-
-  /**
-   * A flag indicating whether the response is cached if the range of the request is unbounded.
-   * Disabled by default because, as a side effect, this may allow streams with every chunk from a
-   * separate URL cached which is broken currently.
-   */
-  public static final int FLAG_CACHE_UNBOUNDED_REQUESTS = 1 << 2;
 
   /**
    * Listener of {@link CacheDataSource} events.
@@ -98,7 +91,6 @@ public final class CacheDataSource implements DataSource {
 
   private final boolean blockOnCache;
   private final boolean ignoreCacheOnError;
-  private final boolean bypassUnboundedRequests;
 
   private DataSource currentDataSource;
   private boolean currentRequestUnbounded;
@@ -127,8 +119,8 @@ public final class CacheDataSource implements DataSource {
    *
    * @param cache The cache.
    * @param upstream A {@link DataSource} for reading data not in the cache.
-   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR}
-   *     and {@link #FLAG_CACHE_UNBOUNDED_REQUESTS} or 0.
+   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE} and {@link
+   *     #FLAG_IGNORE_CACHE_ON_ERROR} or 0.
    * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the cached data size
    *     exceeds this value, then the data will be fragmented into multiple cache files. The
    *     finer-grained this is the finer-grained the eviction policy can be.
@@ -148,8 +140,8 @@ public final class CacheDataSource implements DataSource {
    * @param upstream A {@link DataSource} for reading data not in the cache.
    * @param cacheReadDataSource A {@link DataSource} for reading data from the cache.
    * @param cacheWriteDataSink A {@link DataSink} for writing data to the cache.
-   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR}
-   *     and {@link #FLAG_CACHE_UNBOUNDED_REQUESTS} or 0.
+   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE} and {@link
+   *     #FLAG_IGNORE_CACHE_ON_ERROR} or 0.
    * @param eventListener An optional {@link EventListener} to receive events.
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
@@ -158,7 +150,6 @@ public final class CacheDataSource implements DataSource {
     this.cacheReadDataSource = cacheReadDataSource;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
-    this.bypassUnboundedRequests = (flags & FLAG_CACHE_UNBOUNDED_REQUESTS) == 0;
     this.upstreamDataSource = upstream;
     if (cacheWriteDataSink != null) {
       this.cacheWriteDataSource = new TeeDataSource(upstream, cacheWriteDataSink);
@@ -173,10 +164,9 @@ public final class CacheDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       flags = dataSpec.flags;
-      key = dataSpec.key;
+      key = dataSpec.key != null ? dataSpec.key : Util.sha1(uri.toString());
       readPosition = dataSpec.position;
-      currentRequestIgnoresCache = (ignoreCacheOnError && seenCacheError)
-          || (bypassUnboundedRequests && dataSpec.length == C.LENGTH_UNSET);
+      currentRequestIgnoresCache = ignoreCacheOnError && seenCacheError;
       if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
         bytesRemaining = dataSpec.length;
       } else {

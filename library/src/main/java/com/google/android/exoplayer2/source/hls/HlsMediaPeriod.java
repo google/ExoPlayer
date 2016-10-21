@@ -103,8 +103,10 @@ import java.util.List;
   public void release() {
     continueLoadingHandler.removeCallbacksAndMessages(null);
     manifestFetcher.release();
-    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      sampleStreamWrapper.release();
+    if (sampleStreamWrappers != null) {
+      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+        sampleStreamWrapper.release();
+      }
     }
   }
 
@@ -326,7 +328,7 @@ import java.util.List;
       sampleStreamWrappers = new HlsSampleStreamWrapper[] {
           buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT, baseUri, variants, null, null)};
       pendingPrepareCount = 1;
-      sampleStreamWrappers[0].prepare();
+      sampleStreamWrappers[0].continuePreparing();
       return;
     }
 
@@ -367,16 +369,16 @@ import java.util.List;
       selectedVariants.toArray(variants);
       HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT,
           baseUri, variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat);
-      sampleStreamWrapper.prepare();
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
+      sampleStreamWrapper.continuePreparing();
     }
 
     // Build audio stream wrappers.
     for (int i = 0; i < audioVariants.size(); i++) {
       HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO,
           baseUri, new HlsMasterPlaylist.HlsUrl[] {audioVariants.get(i)}, null, null);
-      sampleStreamWrapper.prepare();
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
+      sampleStreamWrapper.continuePreparing();
     }
 
     // Build subtitle stream wrappers.

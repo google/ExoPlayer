@@ -39,17 +39,17 @@ android {
     }
 
     productFlavors {
-        demo
-        demoExt
+        noExtensions
+        withExtensions
     }
 }
 
 dependencies {
     compile project(':library')
-    demoExtCompile project(path: ':extension-ffmpeg')
-    demoExtCompile project(path: ':extension-flac')
-    demoExtCompile project(path: ':extension-opus')
-    demoExtCompile project(path: ':extension-vp9')
+    withExtensionsCompile project(path: ':extension-ffmpeg')
+    withExtensionsCompile project(path: ':extension-flac')
+    withExtensionsCompile project(path: ':extension-opus')
+    withExtensionsCompile project(path: ':extension-vp9')
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'

@@ -71,7 +71,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   @Override
   public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
     String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
-    return executePost(url, null, null);
+    return executePost(url, new byte[0], null);
   }
 
   @Override
@@ -81,6 +81,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
       url = defaultUrl;
     }
     Map<String, String> requestProperties = new HashMap<>();
+    requestProperties.put("Content-Type", "application/octet-stream");
     if (C.PLAYREADY_UUID.equals(uuid)) {
       requestProperties.putAll(PLAYREADY_KEY_REQUEST_PROPERTIES);
     }
@@ -93,8 +94,6 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   private byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
       throws IOException {
     HttpDataSource dataSource = dataSourceFactory.createDataSource();
-    // Note: This will be overridden by a Content-Type in requestProperties, if one is set.
-    dataSource.setRequestProperty("Content-Type", "application/octet-stream");
     if (requestProperties != null) {
       for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
         dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());

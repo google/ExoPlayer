@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.DtsUtil;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
@@ -37,6 +38,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private final ParsableByteArray headerScratchBytes;
   private final String language;
 
+  private TrackOutput output;
+
   private int state;
   private int bytesRead;
 
@@ -54,20 +57,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   /**
    * Constructs a new reader for DTS elementary streams.
    *
-   * @param output Track output for extracted samples.
-   */
-  public DtsReader(TrackOutput output) {
-    this(output, null);
-  }
-
-  /**
-   * Constructs a new reader for DTS elementary streams.
-   *
-   * @param output Track output for extracted samples.
    * @param language Track language.
    */
-  public DtsReader(TrackOutput output, String language) {
-    super(output);
+  public DtsReader(String language) {
     headerScratchBytes = new ParsableByteArray(new byte[HEADER_SIZE]);
     headerScratchBytes.data[0] = (byte) ((SYNC_VALUE >> 24) & 0xFF);
     headerScratchBytes.data[1] = (byte) ((SYNC_VALUE >> 16) & 0xFF);
@@ -82,6 +74,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
     state = STATE_FINDING_SYNC;
     bytesRead = 0;
     syncBytes = 0;
+  }
+
+  @Override
+  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    output = extractorOutput.track(idGenerator.getNextId());
   }
 
   @Override

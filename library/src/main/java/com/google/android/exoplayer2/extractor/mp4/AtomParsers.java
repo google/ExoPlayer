@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
+import com.google.android.exoplayer2.metadata.id3.Id3Util;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +54,7 @@ import java.util.List;
   private static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
   private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
   private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
+  private static final int TYPE_cenc = Util.getIntegerCodeForString("cenc");
 
   /**
    * Parses a trak atom (defined in 14496-12).
@@ -665,7 +665,7 @@ import java.util.List;
         byte[] bytes = (byte[]) value;
         if (bytes.length == 2) {
           int code = (bytes[0] << 8) + (bytes[1] & 0xFF);
-          String s = Id3Decoder.decodeGenre(code);
+          String s = Id3Util.decodeGenre(code);
           if (s != null) {
             Id3Frame frame = new TextInformationFrame(attributeName, s);
             builder.add(frame);
@@ -1283,7 +1283,7 @@ import java.util.List;
 
   /**
    * Parses encryption data from an audio/video sample entry, populating {@code out} and returning
-   * the unencrypted atom type, or 0 if no sinf atom was present.
+   * the unencrypted atom type, or 0 if no common encryption sinf atom was present.
    */
   private static int parseSampleEntryEncryptionData(ParsableByteArray parent, int position,
       int size, StsdData out, int entryIndex) {
@@ -1296,10 +1296,10 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_sinf) {
         Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
             childAtomSize);
-        Integer dataFormat = result.first;
-        Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
-        out.trackEncryptionBoxes[entryIndex] = result.second;
-        return dataFormat;
+        if (result != null) {
+          out.trackEncryptionBoxes[entryIndex] = result.second;
+          return result.first;
+        }
       }
       childPosition += childAtomSize;
     }
@@ -1311,6 +1311,7 @@ import java.util.List;
       int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;
 
+    boolean isCencScheme = false;
     TrackEncryptionBox trackEncryptionBox = null;
     Integer dataFormat = null;
     while (childPosition - position < size) {
@@ -1321,15 +1322,20 @@ import java.util.List;
         dataFormat = parent.readInt();
       } else if (childAtomType == Atom.TYPE_schm) {
         parent.skipBytes(4);
-        parent.readInt(); // schemeType. Expect cenc
-        parent.readInt(); // schemeVersion. Expect 0x00010000
+        isCencScheme = parent.readInt() == TYPE_cenc;
       } else if (childAtomType == Atom.TYPE_schi) {
         trackEncryptionBox = parseSchiFromParent(parent, childPosition, childAtomSize);
       }
       childPosition += childAtomSize;
     }
 
-    return Pair.create(dataFormat, trackEncryptionBox);
+    if (isCencScheme) {
+      Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
+      Assertions.checkArgument(trackEncryptionBox != null, "schi->tenc atom is mandatory");
+      return Pair.create(dataFormat, trackEncryptionBox);
+    } else {
+      return null;
+    }
   }
 
   private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,

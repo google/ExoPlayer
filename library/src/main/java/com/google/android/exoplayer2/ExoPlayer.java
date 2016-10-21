@@ -130,8 +130,8 @@ public interface ExoPlayer {
     /**
      * Called when timeline and/or manifest has been refreshed.
      *
-     * @param timeline The latest timeline.
-     * @param manifest The latest manifest.
+     * @param timeline The latest timeline, or null if the timeline is being cleared.
+     * @param manifest The latest manifest, or null if the manifest is being cleared.
      */
     void onTimelineChanged(Timeline timeline, Object manifest);
 
@@ -247,7 +247,7 @@ public interface ExoPlayer {
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
-   * {@code prepare(mediaSource, true)}.
+   * {@code prepare(mediaSource, true, true)}.
    */
   void prepare(MediaSource mediaSource);
 
@@ -259,8 +259,11 @@ public interface ExoPlayer {
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
    *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   * @param resetTimeline Whether the timeline and manifest should be reset. Should be true unless
+   *     the player is being prepared to play the same media as it was playing previously (e.g. if
+   *     playback failed and is being retried).
    */
-  void prepare(MediaSource mediaSource, boolean resetPosition);
+  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetTimeline);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.

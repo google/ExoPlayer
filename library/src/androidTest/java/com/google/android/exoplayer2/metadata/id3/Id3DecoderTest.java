@@ -16,9 +16,8 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.test.MoreAsserts;
-import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.metadata.Metadata;
-import java.util.List;
+import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import junit.framework.TestCase;
 
 /**
