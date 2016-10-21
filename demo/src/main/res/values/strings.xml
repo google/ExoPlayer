@@ -19,6 +19,8 @@
   <!-- The user visible name of the application. [CHAR LIMIT=20] -->
   <string name="application_name">ExoPlayer2 Demo</string>
 
+  <string name="recycler_view_demo">ExoPlayer2 Demo</string>
+
   <string name="video">Video</string>
 
   <string name="audio">Audio</string>

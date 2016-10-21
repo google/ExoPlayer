@@ -325,6 +325,15 @@
     ]
   },
   {
+    "name": "RecyclerView",
+    "samples": [
+      {
+        "name": "Play in RecyclerView",
+        "uri": "http://devimages.apple.com/samplecode/adDemo/ad.m3u8"
+      }
+    ]
+  },
+  {
     "name": "Misc",
     "samples": [
       {
