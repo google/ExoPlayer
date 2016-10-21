@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -236,7 +238,7 @@ public final class TsExtractor implements Extractor {
           payloadReader.seek();
         }
         tsPacketBuffer.setLimit(endOfPacket);
-        payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
+        payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
         Assertions.checkState(tsPacketBuffer.getPosition() <= endOfPacket);
         tsPacketBuffer.setLimit(limit);
       }
@@ -251,75 +253,29 @@ public final class TsExtractor implements Extractor {
   private void resetPayloadReaders() {
     trackIds.clear();
     tsPayloadReaders.clear();
-    tsPayloadReaders.put(TS_PAT_PID, new PatReader());
+    tsPayloadReaders.put(TS_PAT_PID, new SectionReader(new PatReader()));
     id3Reader = null;
   }
 
   /**
    * Parses Program Association Table data.
    */
-  private class PatReader implements TsPayloadReader {
+  private class PatReader implements SectionPayloadReader {
 
-    private final ParsableByteArray sectionData;
     private final ParsableBitArray patScratch;
 
-    private int sectionLength;
-    private int sectionBytesRead;
-    private int crc;
-
     public PatReader() {
-      sectionData = new ParsableByteArray();
       patScratch = new ParsableBitArray(new byte[4]);
     }
 
     @Override
-    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-        TrackIdGenerator idGenerator) {
-      // Do nothing.
-    }
-
-    @Override
-    public void seek() {
-      // Do nothing.
-    }
-
-    @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
-      // Skip pointer.
-      if (payloadUnitStartIndicator) {
-        int pointerField = data.readUnsignedByte();
-        data.skipBytes(pointerField);
-
-        // Note: see ISO/IEC 13818-1, section 2.4.4.3 for detailed information on the format of
-        // the header.
-        data.readBytes(patScratch, 3);
-        patScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
-        sectionLength = patScratch.readBits(12);
-        sectionBytesRead = 0;
-        crc = Util.crc(patScratch.data, 0, 3, 0xFFFFFFFF);
-
-        sectionData.reset(sectionLength);
-      }
-
-      int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
-      data.readBytes(sectionData.data, sectionBytesRead, bytesToRead);
-      sectionBytesRead += bytesToRead;
-      if (sectionBytesRead < sectionLength) {
-        // Not yet fully read.
-        return;
-      }
-
-      if (Util.crc(sectionData.data, 0, sectionLength, crc) != 0) {
-        // CRC Invalid. The section gets discarded.
-        return;
-      }
-
+    public void consume(ParsableByteArray sectionData) {
+      // table_id(8), section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8)
-      sectionData.skipBytes(5);
+      sectionData.skipBytes(8);
 
-      int programCount = (sectionLength - 9) / 4;
+      int programCount = sectionData.bytesLeft() / 4;
       for (int i = 0; i < programCount; i++) {
         sectionData.readBytes(patScratch, 4);
         int programNumber = patScratch.readBits(16);
@@ -328,7 +284,7 @@ public final class TsExtractor implements Extractor {
           patScratch.skipBits(13); // network_PID (13)
         } else {
           int pid = patScratch.readBits(13);
-          tsPayloadReaders.put(pid, new PmtReader(pid));
+          tsPayloadReaders.put(pid, new SectionReader(new PmtReader(pid)));
         }
       }
     }
@@ -338,7 +294,7 @@ public final class TsExtractor implements Extractor {
   /**
    * Parses Program Map Table.
    */
-  private class PmtReader implements TsPayloadReader {
+  private class PmtReader implements SectionPayloadReader {
 
     private static final int TS_PMT_DESC_REGISTRATION = 0x05;
     private static final int TS_PMT_DESC_ISO639_LANG = 0x0A;
@@ -347,66 +303,20 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_DTS = 0x7B;
 
     private final ParsableBitArray pmtScratch;
-    private final ParsableByteArray sectionData;
     private final int pid;
-
-    private int sectionLength;
-    private int sectionBytesRead;
-    private int crc;
 
     public PmtReader(int pid) {
       pmtScratch = new ParsableBitArray(new byte[5]);
-      sectionData = new ParsableByteArray();
       this.pid = pid;
     }
 
     @Override
-    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-        TrackIdGenerator idGenerator) {
-      // Do nothing.
-    }
-
-    @Override
-    public void seek() {
-      // Do nothing.
-    }
-
-    @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
-      if (payloadUnitStartIndicator) {
-        // Skip pointer.
-        int pointerField = data.readUnsignedByte();
-        data.skipBytes(pointerField);
-
-        // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
-        // the header.
-        data.readBytes(pmtScratch, 3);
-        pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
-        sectionLength = pmtScratch.readBits(12);
-        sectionBytesRead = 0;
-        crc = Util.crc(pmtScratch.data, 0, 3, 0xFFFFFFFF);
-
-        sectionData.reset(sectionLength);
-      }
-
-      int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
-      data.readBytes(sectionData.data, sectionBytesRead, bytesToRead);
-      sectionBytesRead += bytesToRead;
-      if (sectionBytesRead < sectionLength) {
-        // Not yet fully read.
-        return;
-      }
-
-      if (Util.crc(sectionData.data, 0, sectionLength, crc) != 0) {
-        // CRC Invalid. The section gets discarded.
-        return;
-      }
-
+    public void consume(ParsableByteArray sectionData) {
+      // table_id(8), section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
       // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
       // Skip the rest of the PMT header.
-      sectionData.skipBytes(7);
+      sectionData.skipBytes(10);
 
       // Read program_info_length.
       sectionData.readBytes(pmtScratch, 2);
@@ -425,8 +335,7 @@ public final class TsExtractor implements Extractor {
             new TrackIdGenerator(TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
-      int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
-          - programInfoLength - 4 /* CRC length */;
+      int remainingEntriesLength = sectionData.bytesLeft();
       while (remainingEntriesLength > 0) {
         sectionData.readBytes(pmtScratch, 5);
         int streamType = pmtScratch.readBits(8);
@@ -513,7 +422,7 @@ public final class TsExtractor implements Extractor {
       }
       data.setPosition(descriptorsEndPosition);
       return new EsInfo(streamType, language,
-          Arrays.copyOfRange(sectionData.data, descriptorsStartPosition, descriptorsEndPosition));
+          Arrays.copyOfRange(data.data, descriptorsStartPosition, descriptorsEndPosition));
     }
 
   }

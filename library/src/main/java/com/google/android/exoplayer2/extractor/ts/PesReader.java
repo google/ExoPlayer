@@ -78,8 +78,7 @@ public final class PesReader implements TsPayloadReader {
   }
 
   @Override
-  public final void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-      ExtractorOutput output) {
+  public final void consume(ParsableByteArray data, boolean payloadUnitStartIndicator) {
     if (payloadUnitStartIndicator) {
       switch (state) {
         case STATE_FINDING_HEADER:

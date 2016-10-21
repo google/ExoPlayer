@@ -100,8 +100,8 @@ public interface TsPayloadReader {
    * Notifies the reader that a seek has occurred.
    * <p>
    * Following a call to this method, the data passed to the next invocation of
-   * {@link #consume(ParsableByteArray, boolean, ExtractorOutput)} will not be a continuation of
-   * the data that was previously passed. Hence the reader should reset any internal state.
+   * {@link #consume(ParsableByteArray, boolean)} will not be a continuation of the data that was
+   * previously passed. Hence the reader should reset any internal state.
    */
   void seek();
 
@@ -110,8 +110,7 @@ public interface TsPayloadReader {
    *
    * @param data The TS packet. The position will be set to the start of the payload.
    * @param payloadUnitStartIndicator Whether payloadUnitStartIndicator was set on the TS packet.
-   * @param output The output to which parsed data should be written.
    */
-  void consume(ParsableByteArray data, boolean payloadUnitStartIndicator, ExtractorOutput output);
+  void consume(ParsableByteArray data, boolean payloadUnitStartIndicator);
 
 }
