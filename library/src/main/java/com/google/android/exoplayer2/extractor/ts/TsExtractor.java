@@ -467,7 +467,9 @@ public final class TsExtractor implements Extractor {
           pesPayloadReader = id3Reader;
         } else {
           pesPayloadReader = streamReaderFactory.createStreamReader(streamType, esInfo);
-          pesPayloadReader.init(output, new TrackIdGenerator(trackId, MAX_PID_PLUS_ONE));
+          if (pesPayloadReader != null) {
+            pesPayloadReader.init(output, new TrackIdGenerator(trackId, MAX_PID_PLUS_ONE));
+          }
         }
 
         if (pesPayloadReader != null) {
