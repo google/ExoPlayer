@@ -391,10 +391,12 @@ import java.util.Locale;
           // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
           // exist. If we know from the codec attribute that they don't exist, then we can
           // explicitly ignore them even if they're declared.
-          if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
+          String audioMimeType = MimeTypes.getAudioMediaMimeType(codecs);
+          if (!TextUtils.isEmpty(audioMimeType)&&!MimeTypes.AUDIO_AAC.equals(audioMimeType)) {
             esReaderFactoryFlags |= DefaultStreamReaderFactory.FLAG_IGNORE_AAC_STREAM;
           }
-          if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
+          String videoMimeType = MimeTypes.getVideoMediaMimeType(codecs);
+          if (!TextUtils.isEmpty(videoMimeType)&&!MimeTypes.VIDEO_H264.equals(videoMimeType)) {
             esReaderFactoryFlags |= DefaultStreamReaderFactory.FLAG_IGNORE_H264_STREAM;
           }
         }
