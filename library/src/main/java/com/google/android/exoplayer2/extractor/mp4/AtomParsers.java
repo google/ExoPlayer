@@ -95,8 +95,8 @@ import java.util.List;
     Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
     return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
-        stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
-        stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
+            stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
+            stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
   }
 
   /**
@@ -407,6 +407,7 @@ import java.util.List;
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
+   * @return Parsed metadata, or null.
    */
   public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     if (isQuickTime) {
@@ -868,12 +869,12 @@ import java.util.List;
   /**
    * Parses a stsd atom (defined in 14496-12).
    *
-   * @param stsd            The stsd atom to decode.
-   * @param trackId         The track's identifier in its container.
+   * @param stsd The stsd atom to decode.
+   * @param trackId The track's identifier in its container.
    * @param rotationDegrees The rotation of the track in degrees.
-   * @param language        The language of the track.
-   * @param drmInitData     {@link DrmInitData} to be included in the format.
-   * @param isQuickTime     True for QuickTime media. False otherwise.
+   * @param language The language of the track.
+   * @param drmInitData {@link DrmInitData} to be included in the format.
+   * @param isQuickTime True for QuickTime media. False otherwise.
    * @return An object containing the parsed data.
    */
   private static StsdData parseStsd(ParsableByteArray stsd, int trackId, int rotationDegrees,
