@@ -407,10 +407,8 @@ import java.util.List;
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @param out {@link GaplessInfoHolder} to populate with gapless playback information.
    */
-  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime,
-      GaplessInfoHolder out) {
+  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
       // decode one.
@@ -424,14 +422,14 @@ import java.util.List;
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
         udtaData.setLimit(udtaData.getPosition() + atomSize);
-        return parseMetaAtom(udtaData, out);
+        return parseMetaAtom(udtaData);
       }
       udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
     return null;
   }
 
-  private static Metadata parseMetaAtom(ParsableByteArray data, GaplessInfoHolder out) {
+  private static Metadata parseMetaAtom(ParsableByteArray data) {
     data.skipBytes(Atom.FULL_HEADER_SIZE);
     ParsableByteArray ilst = new ParsableByteArray();
     while (data.bytesLeft() >= Atom.HEADER_SIZE) {
@@ -440,7 +438,7 @@ import java.util.List;
       if (atomType == Atom.TYPE_ilst) {
         ilst.reset(data.data, data.getPosition() + payloadSize);
         ilst.setPosition(data.getPosition());
-        Metadata metadata = parseIlst(ilst, out);
+        Metadata metadata = parseIlst(ilst);
         if (metadata != null) {
           return metadata;
         }
@@ -450,13 +448,13 @@ import java.util.List;
     return null;
   }
 
-  private static Metadata parseIlst(ParsableByteArray ilst, GaplessInfoHolder out) {
+  private static Metadata parseIlst(ParsableByteArray ilst) {
     ArrayList<Metadata.Entry> entries = new ArrayList<>();
     while (ilst.bytesLeft() > 0) {
       int position = ilst.getPosition();
       int endPosition = position + ilst.readInt();
       int type = ilst.readInt();
-      parseIlstElement(ilst, type, endPosition, entries, out);
+      parseIlstElement(ilst, type, endPosition, entries);
       ilst.setPosition(endPosition);
     }
     return entries.isEmpty() ? null : new Metadata(entries);
@@ -506,7 +504,7 @@ import java.util.List;
   // TBD: covr = cover art, various account and iTunes specific attributes, more TV attributes
 
   private static void parseIlstElement(ParsableByteArray ilst, int type, int endPosition,
-      List<Metadata.Entry> builder, GaplessInfoHolder out) {
+      List<Metadata.Entry> builder) {
     if (type == TYPE_NAME_1 || type == TYPE_NAME_2 || type == TYPE_NAME_3 || type == TYPE_NAME_4) {
       parseTextAttribute(builder, "TIT2", ilst);
     } else if (type == TYPE_COMMENT_1 || type == TYPE_COMMENT_2) {
@@ -557,7 +555,7 @@ import java.util.List;
     } else if (type == TYPE_SHOW) {
       parseTextAttribute(builder, "show", ilst);
     } else if (type == Atom.TYPE_DASHES) {
-      parseExtendedAttribute(builder, ilst, endPosition, out);
+      parseExtendedAttribute(builder, ilst, endPosition);
     }
   }
 
@@ -678,7 +676,7 @@ import java.util.List;
   }
 
   private static void parseExtendedAttribute(List<Metadata.Entry> builder, ParsableByteArray ilst,
-      int endPosition, GaplessInfoHolder out) {
+      int endPosition) {
     String domain = null;
     String name = null;
     Object value = null;
@@ -699,14 +697,9 @@ import java.util.List;
     }
 
     if (value != null) {
-      if (!out.hasGaplessInfo() && Util.areEqual(domain, "com.apple.iTunes")) {
-        String s = value instanceof byte[] ? new String((byte[]) value) : value.toString();
-        out.setFromComment(name, s);
-      }
-
-      if (Util.areEqual(domain, "com.apple.iTunes") && Util.areEqual(name, "iTunNORM") && (value instanceof byte[])) {
+      if (Util.areEqual(domain, "com.apple.iTunes")) {
         String s = new String((byte[]) value);
-        Id3Frame frame = new CommentFrame("eng", "iTunNORM", s);
+        Id3Frame frame = new CommentFrame("eng", name, s);
         builder.add(frame);
       } else if (domain != null && name != null) {
         String extendedName = domain + "." + name;

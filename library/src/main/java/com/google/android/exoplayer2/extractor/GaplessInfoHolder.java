@@ -94,7 +94,7 @@ public final class GaplessInfoHolder {
    * @param data The comment's payload data.
    * @return Whether the holder was populated.
    */
-  public boolean setFromComment(String name, String data) {
+  private boolean setFromComment(String name, String data) {
     if (!GAPLESS_COMMENT_ID.equals(name)) {
       return false;
     }

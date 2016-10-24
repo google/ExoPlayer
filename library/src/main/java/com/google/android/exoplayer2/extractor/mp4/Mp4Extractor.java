@@ -315,7 +315,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      metadata = AtomParsers.parseUdta(udta, isQuickTime, gaplessInfoHolder);
+      metadata = AtomParsers.parseUdta(udta, isQuickTime);
+      if (metadata != null) {
+        gaplessInfoHolder.setFromMetadata(metadata);
+      }
     }
 
     for (int i = 0; i < moov.containerChildren.size(); i++) {
