@@ -144,7 +144,10 @@ import java.io.IOException;
     } else if (input.getLength() == C.LENGTH_UNSET) {
       oggSeeker = new UnseekableOggSeeker();
     } else {
-      oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this);
+      OggPageHeader firstPayloadPageHeader = oggPacket.getPageHeader();
+      oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this,
+          firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
+          firstPayloadPageHeader.granulePosition);
     }
 
     setupData = null;

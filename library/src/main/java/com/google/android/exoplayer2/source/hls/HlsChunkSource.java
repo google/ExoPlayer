@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
-import com.google.android.exoplayer2.extractor.ts.DefaultStreamReaderFactory;
+import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -384,7 +384,7 @@ import java.util.Locale;
         timestampAdjuster = timestampAdjusterProvider.getAdjuster(
             segment.discontinuitySequenceNumber, startTimeUs);
         // This flag ensures the change of pid between streams does not affect the sample queues.
-        @DefaultStreamReaderFactory.Flags
+        @DefaultTsPayloadReaderFactory.Flags
         int esReaderFactoryFlags = 0;
         String codecs = variants[newVariantIndex].format.codecs;
         if (!TextUtils.isEmpty(codecs)) {
@@ -392,14 +392,14 @@ import java.util.Locale;
           // exist. If we know from the codec attribute that they don't exist, then we can
           // explicitly ignore them even if they're declared.
           if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
-            esReaderFactoryFlags |= DefaultStreamReaderFactory.FLAG_IGNORE_AAC_STREAM;
+            esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_AAC_STREAM;
           }
           if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
-            esReaderFactoryFlags |= DefaultStreamReaderFactory.FLAG_IGNORE_H264_STREAM;
+            esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
           }
         }
         extractor = new TsExtractor(timestampAdjuster,
-            new DefaultStreamReaderFactory(esReaderFactoryFlags), true);
+            new DefaultTsPayloadReaderFactory(esReaderFactoryFlags), true);
       }
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.

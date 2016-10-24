@@ -40,7 +40,7 @@ import java.io.IOException;
   }
 
   /**
-   * @see Extractor#sniff
+   * @see com.google.android.exoplayer2.extractor.Extractor#sniff(ExtractorInput)
    */
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     long inputLength = input.getLength();

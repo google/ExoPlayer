@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -29,7 +30,7 @@ import java.util.Collections;
 /**
  * Parses a continuous H262 byte stream and extracts individual frames.
  */
-/* package */ final class H262Reader extends ElementaryStreamReader {
+/* package */ final class H262Reader implements ElementaryStreamReader {
 
   private static final int START_PICTURE = 0x00;
   private static final int START_SEQUENCE_HEADER = 0xB3;
@@ -76,7 +77,7 @@ import java.util.Collections;
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     output = extractorOutput.track(idGenerator.getNextId());
   }
 
