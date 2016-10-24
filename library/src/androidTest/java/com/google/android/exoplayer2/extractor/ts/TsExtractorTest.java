@@ -22,7 +22,8 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.EsInfo;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -106,7 +107,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  private static final class CustomEsReader extends ElementaryStreamReader {
+  private static final class CustomEsReader implements ElementaryStreamReader {
 
     private final String language;
     private TrackOutput output;
@@ -121,7 +122,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
       output = extractorOutput.track(idGenerator.getNextId());
       output.format(Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0,
           language, null, 0));
@@ -146,22 +147,22 @@ public final class TsExtractorTest extends InstrumentationTestCase {
 
   }
 
-  private static final class CustomEsReaderFactory implements ElementaryStreamReader.Factory {
+  private static final class CustomEsReaderFactory implements TsPayloadReader.Factory {
 
-    private final ElementaryStreamReader.Factory defaultFactory;
+    private final TsPayloadReader.Factory defaultFactory;
     private CustomEsReader reader;
 
     public CustomEsReaderFactory() {
-      defaultFactory = new DefaultStreamReaderFactory();
+      defaultFactory = new DefaultTsPayloadReaderFactory();
     }
 
     @Override
-    public ElementaryStreamReader createStreamReader(int streamType, EsInfo esInfo) {
+    public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
       if (streamType == 3) {
         reader = new CustomEsReader(esInfo.language);
-        return reader;
+        return new PesReader(reader);
       } else {
-        return defaultFactory.createStreamReader(streamType, esInfo);
+        return defaultFactory.createPayloadReader(streamType, esInfo);
       }
     }
 

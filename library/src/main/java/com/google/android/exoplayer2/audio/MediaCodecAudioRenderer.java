@@ -76,7 +76,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
 

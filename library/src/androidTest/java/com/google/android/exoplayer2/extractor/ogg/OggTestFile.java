@@ -33,12 +33,17 @@ import junit.framework.Assert;
   long lastGranule;
   int packetCount;
   int pageCount;
+  int firstPayloadPageSize;
+  long firstPayloadPageGranulePosition;
 
-  private OggTestFile(byte[] data, long lastGranule, int packetCount, int pageCount) {
+  private OggTestFile(byte[] data, long lastGranule, int packetCount, int pageCount,
+      int firstPayloadPageSize, long firstPayloadPageGranulePosition) {
     this.data = data;
     this.lastGranule = lastGranule;
     this.packetCount = packetCount;
     this.pageCount = pageCount;
+    this.firstPayloadPageSize = firstPayloadPageSize;
+    this.firstPayloadPageGranulePosition = firstPayloadPageGranulePosition;
   }
 
   public static OggTestFile generate(Random random, int pageCount) {
@@ -47,6 +52,8 @@ import junit.framework.Assert;
     long granule = 0;
     int packetLength = -1;
     int packetCount = 0;
+    int firstPayloadPageSize = 0;
+    long firstPayloadPageGranulePosition = 0;
 
     for (int i = 0; i < pageCount; i++) {
       int headerType = 0x00;
@@ -89,6 +96,10 @@ import junit.framework.Assert;
       byte[] payload = TestUtil.buildTestData(bodySize, random);
       fileData.add(payload);
       fileSize += payload.length;
+      if (i == 0) {
+        firstPayloadPageSize = header.length + bodySize;
+        firstPayloadPageGranulePosition = granule;
+      }
     }
 
     byte[] file = new byte[fileSize];
@@ -97,7 +108,8 @@ import junit.framework.Assert;
       System.arraycopy(data, 0, file, position, data.length);
       position += data.length;
     }
-    return new OggTestFile(file, granule, packetCount, pageCount);
+    return new OggTestFile(file, granule, packetCount, pageCount, firstPayloadPageSize,
+        firstPayloadPageGranulePosition);
   }
 
   public int findPreviousPageStart(long position) {

@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
@@ -696,8 +697,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     @TargetApi(18)
     @SuppressWarnings("ResourceType")
-    protected final StreamingDrmSessionManager buildDrmSessionManager(final String userAgent) {
-      StreamingDrmSessionManager drmSessionManager = null;
+    protected final StreamingDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+        final String userAgent) {
+      StreamingDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (isWidevineEncrypted) {
         try {
           // Force L3 if secure decoder is not available.

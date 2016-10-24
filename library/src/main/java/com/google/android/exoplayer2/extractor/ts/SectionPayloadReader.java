@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text;
+package com.google.android.exoplayer2.extractor.ts;
+
+import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
- * A {@link SubtitleOutputBuffer} for decoders that extend {@link SimpleSubtitleDecoder}.
+ * Reads section data.
  */
-/* package */ final class SimpleSubtitleOutputBuffer extends SubtitleOutputBuffer {
-
-  private final SimpleSubtitleDecoder owner;
+public interface SectionPayloadReader {
 
   /**
-   * @param owner The decoder that owns this buffer.
+   * Called by a {@link SectionReader} when a full section is received.
+   *
+   * @param sectionData The data belonging to a section, including the section header but excluding
+   *     the CRC_32 field.
    */
-  public SimpleSubtitleOutputBuffer(SimpleSubtitleDecoder owner) {
-    super();
-    this.owner = owner;
-  }
-
-  @Override
-  public final void release() {
-    owner.releaseOutputBuffer(this);
-  }
+  void consume(ParsableByteArray sectionData);
 
 }

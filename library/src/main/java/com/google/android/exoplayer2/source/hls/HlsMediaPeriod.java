@@ -69,7 +69,6 @@ import java.util.List;
   private int pendingPrepareCount;
   private HlsPlaylist playlist;
   private boolean seenFirstTrackSelection;
-  private long durationUs;
   private boolean isLive;
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
@@ -280,7 +279,7 @@ import java.util.List;
     }
 
     // The wrapper at index 0 is the one of type TRACK_TYPE_DEFAULT.
-    durationUs = sampleStreamWrappers[0].getDurationUs();
+    long durationUs = sampleStreamWrappers[0].getDurationUs();
     isLive = sampleStreamWrappers[0].isLive();
 
     int totalTrackGroupCount = 0;

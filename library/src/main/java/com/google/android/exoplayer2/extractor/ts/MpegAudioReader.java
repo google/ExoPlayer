@@ -20,12 +20,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Parses a continuous MPEG Audio byte stream and extracts individual frames.
  */
-/* package */ final class MpegAudioReader extends ElementaryStreamReader {
+/* package */ final class MpegAudioReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_HEADER = 0;
   private static final int STATE_READING_HEADER = 1;
@@ -74,7 +75,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     output = extractorOutput.track(idGenerator.getNextId());
   }
 

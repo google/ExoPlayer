@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:layout_gravity="bottom"
@@ -37,6 +38,7 @@
       style="@style/ExoMediaButton.Rewind"/>
 
     <ImageButton android:id="@+id/play"
+      tools:ignore="ContentDescription"
       style="@style/ExoMediaButton"/>
 
     <ImageButton android:id="@+id/ffwd"

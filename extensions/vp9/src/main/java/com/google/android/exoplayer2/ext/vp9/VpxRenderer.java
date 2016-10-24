@@ -73,10 +73,13 @@ import javax.microedition.khronos.opengles.GL10;
   private final int[] yuvTextures = new int[3];
   private final AtomicReference<VpxOutputBuffer> pendingOutputBufferReference;
 
+  // Kept in a field rather than a local variable so that it doesn't get garbage collected before
+  // glDrawArrays uses it.
+  @SuppressWarnings("FieldCanBeLocal")
+  private FloatBuffer textureCoords;
   private int program;
   private int texLocation;
   private int colorMatrixLocation;
-  private FloatBuffer textureCoords;
   private int previousWidth;
   private int previousStride;
 
