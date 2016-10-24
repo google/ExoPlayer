@@ -59,13 +59,21 @@ import java.io.IOException;
    * @param startPosition Start position of the payload (inclusive).
    * @param endPosition End position of the payload (exclusive).
    * @param streamReader StreamReader instance which owns this OggSeeker
+   * @param firstPayloadPageSize The total size of the first payload page, in bytes.
+   * @param firstPayloadPageGranulePosition The granule position of the first payload page.
    */
-  public DefaultOggSeeker(long startPosition, long endPosition, StreamReader streamReader) {
+  public DefaultOggSeeker(long startPosition, long endPosition, StreamReader streamReader,
+      int firstPayloadPageSize, long firstPayloadPageGranulePosition) {
     Assertions.checkArgument(startPosition >= 0 && endPosition > startPosition);
     this.streamReader = streamReader;
     this.startPosition = startPosition;
     this.endPosition = endPosition;
-    this.state = STATE_SEEK_TO_END;
+    if (firstPayloadPageSize == endPosition - startPosition) {
+      totalGranules = firstPayloadPageGranulePosition;
+      state = STATE_IDLE;
+    } else {
+      state = STATE_SEEK_TO_END;
+    }
   }
 
   @Override
@@ -77,9 +85,9 @@ import java.io.IOException;
         positionBeforeSeekToEnd = input.getPosition();
         state = STATE_READ_LAST_PAGE;
         // Seek to the end just before the last page of stream to get the duration.
-        long lastPagePosition = endPosition - OggPageHeader.MAX_PAGE_SIZE;
-        if (lastPagePosition > positionBeforeSeekToEnd) {
-          return lastPagePosition;
+        long lastPageSearchPosition = endPosition - OggPageHeader.MAX_PAGE_SIZE;
+        if (lastPageSearchPosition > positionBeforeSeekToEnd) {
+          return lastPageSearchPosition;
         }
         // Fall through.
       case STATE_READ_LAST_PAGE:
