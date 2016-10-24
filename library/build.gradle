@@ -14,7 +14,7 @@ import com.android.builder.core.BuilderConstants
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
-apply plugin: 'bintray-release'
+//apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -55,7 +55,7 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
-    compile 'com.android.support:support-annotations:24.2.0'
+    compile "com.android.support:support-annotations:$project.ext.androidSupportLibVersion"
 }
 
 android.libraryVariants.all { variant ->
@@ -91,12 +91,12 @@ android.libraryVariants.all { variant ->
     }
 }
 
-publish {
-    artifactId = 'exoplayer'
-    description = 'The ExoPlayer library.'
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
-}
+//publish {
+//    artifactId = 'exoplayer'
+//    description = 'The ExoPlayer library.'
+//    repoName = releaseRepoName
+//    userOrg = releaseUserOrg
+//    groupId = releaseGroupId
+//    version = releaseVersion
+//    website = releaseWebsite
+//}

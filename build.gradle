@@ -32,6 +32,7 @@ allprojects {
         compileSdkVersion=24
         targetSdkVersion=24
         buildToolsVersion='25.0.0'
+        androidSupportLibVersion='25.0.0'
         releaseRepoName = 'exoplayer'
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
