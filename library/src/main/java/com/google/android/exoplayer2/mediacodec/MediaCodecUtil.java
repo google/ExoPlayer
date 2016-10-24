@@ -223,6 +223,7 @@ public final class MediaCodecUtil {
         && ("CIPAACDecoder".equals(name)
             || "CIPMP3Decoder".equals(name)
             || "CIPVorbisDecoder".equals(name)
+            || "CIPAMRNBDecoder".equals(name)
             || "AACDecoder".equals(name)
             || "MP3Decoder".equals(name))) {
       return false;
