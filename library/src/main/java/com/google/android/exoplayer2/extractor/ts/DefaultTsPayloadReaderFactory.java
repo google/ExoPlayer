@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.support.annotation.IntDef;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -47,6 +48,11 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
 
   public DefaultTsPayloadReaderFactory(@Flags int flags) {
     this.flags = flags;
+  }
+
+  @Override
+  public SparseArray<TsPayloadReader> createInitialPayloadReaders() {
+    return new SparseArray<>();
   }
 
   @Override

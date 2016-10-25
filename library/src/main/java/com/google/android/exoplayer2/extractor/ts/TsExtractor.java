@@ -253,6 +253,12 @@ public final class TsExtractor implements Extractor {
   private void resetPayloadReaders() {
     trackIds.clear();
     tsPayloadReaders.clear();
+    SparseArray<TsPayloadReader> initialPayloadReaders =
+        payloadReaderFactory.createInitialPayloadReaders();
+    int initialPayloadReadersSize = initialPayloadReaders.size();
+    for (int i = 0; i < initialPayloadReadersSize; i++) {
+      tsPayloadReaders.put(initialPayloadReaders.keyAt(i), initialPayloadReaders.valueAt(i));
+    }
     tsPayloadReaders.put(TS_PAT_PID, new SectionReader(new PatReader()));
     id3Reader = null;
   }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.util.SparseArray;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -29,6 +30,15 @@ public interface TsPayloadReader {
    * Factory of {@link TsPayloadReader} instances.
    */
   interface Factory {
+
+    /**
+     * Returns the initial mapping from PIDs to payload readers.
+     * <p>
+     * This method allows the injection of payload readers for reserved PIDs, excluding PID 0.
+     *
+     * @return A {@link SparseArray} that maps PIDs to payload readers.
+     */
+    SparseArray<TsPayloadReader> createInitialPayloadReaders();
 
     /**
      * Returns a {@link TsPayloadReader} for a given stream type and elementary stream information.
