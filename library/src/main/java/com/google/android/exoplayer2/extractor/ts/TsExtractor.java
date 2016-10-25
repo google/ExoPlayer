@@ -65,8 +65,6 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
 
-  private static final String TAG = "TsExtractor";
-
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
@@ -275,6 +273,12 @@ public final class TsExtractor implements Extractor {
     }
 
     @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
+    }
+
+    @Override
     public void consume(ParsableByteArray sectionData) {
       // table_id(8), section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
@@ -314,6 +318,12 @@ public final class TsExtractor implements Extractor {
     public PmtReader(int pid) {
       pmtScratch = new ParsableBitArray(new byte[5]);
       this.pid = pid;
+    }
+
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
     }
 
     @Override

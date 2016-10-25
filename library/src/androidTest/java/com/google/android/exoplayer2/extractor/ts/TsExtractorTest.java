@@ -208,6 +208,12 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     private int consumedSdts;
 
     @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
+    }
+
+    @Override
     public void consume(ParsableByteArray sectionData) {
       // table_id(8), section_syntax_indicator(1), reserved_future_use(1), reserved(2),
       // section_length(12), transport_stream_id(16), reserved(2), version_number(5),
