@@ -90,23 +90,30 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     LayoutInflater.from(context).inflate(R.layout.exo_simple_player_view, this);
     componentListener = new ComponentListener();
-    layout = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
+    layout = (AspectRatioFrameLayout) findViewById(R.id.exo_video_frame);
     layout.setResizeMode(resizeMode);
-    shutterView = findViewById(R.id.shutter);
-    subtitleLayout = (SubtitleView) findViewById(R.id.subtitles);
+    shutterView = findViewById(R.id.exo_shutter);
+    subtitleLayout = (SubtitleView) findViewById(R.id.exo_subtitles);
     subtitleLayout.setUserDefaultStyle();
     subtitleLayout.setUserDefaultTextSize();
 
-    controller = (PlaybackControlView) findViewById(R.id.control);
-    controller.hide();
+    View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+
+    controller = new PlaybackControlView(context, attrs);
     controller.setRewindIncrementMs(rewindMs);
     controller.setFastForwardIncrementMs(fastForwardMs);
+    controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
+    controller.hide();
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
+
+    ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
+    int controllerIndex = parent.indexOfChild(controllerPlaceholder);
+    parent.removeView(controllerPlaceholder);
+    parent.addView(controller, controllerIndex);
 
     View view = useTextureView ? new TextureView(context) : new SurfaceView(context);
     ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT);
+        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     view.setLayoutParams(params);
     surfaceView = view;
     layout.addView(surfaceView, 0);
