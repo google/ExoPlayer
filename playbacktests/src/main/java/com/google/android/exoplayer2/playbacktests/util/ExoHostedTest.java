@@ -33,9 +33,11 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -187,6 +189,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
+  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    // Do nothing.
+  }
+
+  @Override
   public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     Log.d(tag, "state [" + playWhenReady + ", " + playbackState + "]");
     playerWasPrepared |= playbackState != ExoPlayer.STATE_IDLE;
@@ -305,7 +312,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @SuppressWarnings("unused")
   protected MappingTrackSelector buildTrackSelector(HostActivity host,
       BandwidthMeter bandwidthMeter) {
-    return new DefaultTrackSelector(null, new AdaptiveVideoTrackSelection.Factory(bandwidthMeter));
+    return new DefaultTrackSelector(new AdaptiveVideoTrackSelection.Factory(bandwidthMeter));
   }
 
   @SuppressWarnings("unused")

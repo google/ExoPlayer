@@ -58,8 +58,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelections;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
@@ -78,7 +77,7 @@ import java.util.UUID;
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
 public class PlayerActivity extends Activity implements OnClickListener, ExoPlayer.EventListener,
-    TrackSelector.EventListener<MappedTrackInfo>, PlaybackControlView.VisibilityListener {
+    PlaybackControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -203,8 +202,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     if (view == retryButton) {
       initializePlayer();
     } else if (view.getParent() == debugRootView) {
-      trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
-          trackSelector.getCurrentSelections().info, (int) view.getTag());
+      MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+      if (mappedTrackInfo != null) {
+        trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
+            trackSelector.getCurrentMappedTrackInfo(), (int) view.getTag());
+      }
     }
   }
 
@@ -249,20 +251,20 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         }
       }
 
-      eventLogger = new EventLogger();
       TrackSelection.Factory videoTrackSelectionFactory =
           new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
-      trackSelector = new DefaultTrackSelector(mainHandler, videoTrackSelectionFactory);
-      trackSelector.addListener(this);
-      trackSelector.addListener(eventLogger);
+      trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
       player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
           drmSessionManager, preferExtensionDecoders);
       player.addListener(this);
+
+      eventLogger = new EventLogger(trackSelector);
       player.addListener(eventLogger);
       player.setAudioDebugListener(eventLogger);
       player.setVideoDebugListener(eventLogger);
       player.setId3Output(eventLogger);
+
       simpleExoPlayerView.setPlayer(player);
       if (isTimelineStatic) {
         if (playerPosition == C.TIME_UNSET) {
@@ -447,17 +449,17 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     showControls();
   }
 
-  // MappingTrackSelector.EventListener implementation
-
   @Override
-  public void onTrackSelectionsChanged(TrackSelections<? extends MappedTrackInfo> trackSelections) {
+  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
     updateButtonVisibilities();
-    MappedTrackInfo trackInfo = trackSelections.info;
-    if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
-      showToast(R.string.error_unsupported_video);
-    }
-    if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
-      showToast(R.string.error_unsupported_audio);
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    if (mappedTrackInfo != null) {
+      if (mappedTrackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
+        showToast(R.string.error_unsupported_video);
+      }
+      if (mappedTrackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
+        showToast(R.string.error_unsupported_audio);
+      }
     }
   }
 
@@ -473,14 +475,13 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       return;
     }
 
-    TrackSelections<MappedTrackInfo> trackSelections = trackSelector.getCurrentSelections();
-    if (trackSelections == null) {
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    if (mappedTrackInfo == null) {
       return;
     }
 
-    int rendererCount = trackSelections.length;
-    for (int i = 0; i < rendererCount; i++) {
-      TrackGroupArray trackGroups = trackSelections.info.getTrackGroups(i);
+    for (int i = 0; i < mappedTrackInfo.length; i++) {
+      TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(i);
       if (trackGroups.length != 0) {
         Button button = new Button(this);
         int label;

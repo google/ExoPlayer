@@ -22,6 +22,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
@@ -95,6 +97,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
 
   @Override
   public void onPlayerError(ExoPlaybackException error) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
     // Do nothing.
   }
 

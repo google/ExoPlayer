@@ -39,9 +39,10 @@ import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
-import com.google.android.exoplayer2.trackselection.TrackSelections;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -86,11 +87,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
      */
     void onRenderedFirstFrame();
 
-    /**
-     * Called when a video track is no longer selected.
-     */
-    void onVideoTracksDisabled();
-
   }
 
   private static final String TAG = "SimpleExoPlayer";
@@ -103,7 +99,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private final int videoRendererCount;
   private final int audioRendererCount;
 
-  private boolean videoTracksEnabled;
   private Format videoFormat;
   private Format audioFormat;
 
@@ -122,12 +117,11 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private float volume;
   private PlaybackParamsHolder playbackParamsHolder;
 
-  /* package */ SimpleExoPlayer(Context context, TrackSelector<?> trackSelector,
+  /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
       LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
     mainHandler = new Handler();
     componentListener = new ComponentListener();
-    trackSelector.addListener(componentListener);
 
     // Build the renderers.
     ArrayList<Renderer> renderersList = new ArrayList<>();
@@ -162,26 +156,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     // Build the player and associated objects.
     player = new ExoPlayerImpl(renderers, trackSelector, loadControl);
-  }
-
-  /**
-   * Returns the number of renderers.
-   *
-   * @return The number of renderers.
-   */
-  public int getRendererCount() {
-    return renderers.length;
-  }
-
-  /**
-   * Returns the track type that the renderer at a given index handles.
-   *
-   * @see Renderer#getTrackType()
-   * @param index The index of the renderer.
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
-   */
-  public int getRendererType(int index) {
-    return renderers[index].getTrackType();
   }
 
   /**
@@ -518,6 +492,26 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public int getRendererCount() {
+    return player.getRendererCount();
+  }
+
+  @Override
+  public int getRendererType(int index) {
+    return player.getRendererType(index);
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    return player.getCurrentTrackGroups();
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
+    return player.getCurrentTrackSelections();
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     return player.getCurrentTimeline();
   }
@@ -651,8 +645,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   private final class ComponentListener implements VideoRendererEventListener,
       AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output<List<Id3Frame>>,
-      SurfaceHolder.Callback, TextureView.SurfaceTextureListener,
-      TrackSelector.EventListener<Object> {
+      SurfaceHolder.Callback, TextureView.SurfaceTextureListener {
 
     // VideoRendererEventListener implementation
 
@@ -829,23 +822,6 @@ public final class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
       // Do nothing.
-    }
-
-    // TrackSelector.EventListener implementation
-
-    @Override
-    public void onTrackSelectionsChanged(TrackSelections<?> trackSelections) {
-      boolean videoTracksEnabled = false;
-      for (int i = 0; i < renderers.length; i++) {
-        if (renderers[i].getTrackType() == C.TRACK_TYPE_VIDEO && trackSelections.get(i) != null) {
-          videoTracksEnabled = true;
-          break;
-        }
-      }
-      if (videoListener != null && SimpleExoPlayer.this.videoTracksEnabled && !videoTracksEnabled) {
-        videoListener.onVideoTracksDisabled();
-      }
-      SimpleExoPlayer.this.videoTracksEnabled = videoTracksEnabled;
     }
 
   }

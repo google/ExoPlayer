@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelections;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Util;
@@ -111,7 +111,7 @@ public final class DefaultLoadControl implements LoadControl {
 
   @Override
   public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
-      TrackSelections<?> trackSelections) {
+      TrackSelectionArray trackSelections) {
     targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
       if (trackSelections.get(i) != null) {

@@ -38,10 +38,10 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelections;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
@@ -55,7 +55,7 @@ import java.util.Locale;
 /* package */ final class EventLogger implements ExoPlayer.EventListener,
     AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
     ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
-    TrackSelector.EventListener<MappedTrackInfo>, MetadataRenderer.Output<List<Id3Frame>> {
+    MetadataRenderer.Output<List<Id3Frame>> {
 
   private static final String TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
@@ -67,11 +67,13 @@ import java.util.Locale;
     TIME_FORMAT.setGroupingUsed(false);
   }
 
+  private final MappingTrackSelector trackSelector;
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final long startTimeMs;
 
-  public EventLogger() {
+  public EventLogger(MappingTrackSelector trackSelector) {
+    this.trackSelector = trackSelector;
     window = new Timeline.Window();
     period = new Timeline.Period();
     startTimeMs = SystemClock.elapsedRealtime();
@@ -126,27 +128,29 @@ import java.util.Locale;
     Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
   }
 
-  // MappingTrackSelector.EventListener
-
   @Override
-  public void onTrackSelectionsChanged(TrackSelections<? extends MappedTrackInfo> trackSelections) {
+  public void onTracksChanged(TrackGroupArray ignored, TrackSelectionArray trackSelections) {
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    if (mappedTrackInfo == null) {
+      Log.d(TAG, "Tracks []");
+      return;
+    }
     Log.d(TAG, "Tracks [");
     // Log tracks associated to renderers.
-    MappedTrackInfo info = trackSelections.info;
-    for (int rendererIndex = 0; rendererIndex < trackSelections.length; rendererIndex++) {
-      TrackGroupArray trackGroups = info.getTrackGroups(rendererIndex);
+    for (int rendererIndex = 0; rendererIndex < mappedTrackInfo.length; rendererIndex++) {
+      TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
       TrackSelection trackSelection = trackSelections.get(rendererIndex);
-      if (trackGroups.length > 0) {
+      if (rendererTrackGroups.length > 0) {
         Log.d(TAG, "  Renderer:" + rendererIndex + " [");
-        for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-          TrackGroup trackGroup = trackGroups.get(groupIndex);
-          String adaptiveSupport = getAdaptiveSupportString(
-              trackGroup.length, info.getAdaptiveSupport(rendererIndex, groupIndex, false));
+        for (int groupIndex = 0; groupIndex < rendererTrackGroups.length; groupIndex++) {
+          TrackGroup trackGroup = rendererTrackGroups.get(groupIndex);
+          String adaptiveSupport = getAdaptiveSupportString(trackGroup.length,
+              mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false));
           Log.d(TAG, "    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport = getFormatSupportString(
-                info.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
+                mappedTrackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
             Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
                 + getFormatString(trackGroup.getFormat(trackIndex))
                 + ", supported=" + formatSupport);
@@ -157,12 +161,12 @@ import java.util.Locale;
       }
     }
     // Log tracks not associated with a renderer.
-    TrackGroupArray trackGroups = info.getUnassociatedTrackGroups();
-    if (trackGroups.length > 0) {
+    TrackGroupArray unassociatedTrackGroups = mappedTrackInfo.getUnassociatedTrackGroups();
+    if (unassociatedTrackGroups.length > 0) {
       Log.d(TAG, "  Renderer:None [");
-      for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+      for (int groupIndex = 0; groupIndex < unassociatedTrackGroups.length; groupIndex++) {
         Log.d(TAG, "    Group:" + groupIndex + " [");
-        TrackGroup trackGroup = trackGroups.get(groupIndex);
+        TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           String status = getTrackStatusString(false);
           String formatSupport = getFormatSupportString(

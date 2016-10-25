@@ -27,13 +27,16 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import java.util.List;
 
 /**
@@ -325,7 +328,13 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     @Override
-    public void onVideoTracksDisabled() {
+    public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+      for (int i = 0; i < selections.length; i++) {
+        if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
+          return;
+        }
+      }
+      // No enabled video renderers. Close the shutter.
       shutterView.setVisibility(VISIBLE);
     }
 
