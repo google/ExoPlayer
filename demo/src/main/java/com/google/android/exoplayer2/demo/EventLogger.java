@@ -154,6 +154,18 @@ import java.util.Locale;
           }
           Log.d(TAG, "    ]");
         }
+        // Log metadata for at most one of the tracks selected for the renderer.
+        if (trackSelection != null) {
+          for (int selectionIndex = 0; selectionIndex < trackSelection.length(); selectionIndex++) {
+            Metadata metadata = trackSelection.getFormat(selectionIndex).metadata;
+            if (metadata != null) {
+              Log.d(TAG, "    Metadata [");
+              printMetadata(metadata, "      ");
+              Log.d(TAG, "    ]");
+              break;
+            }
+          }
+        }
         Log.d(TAG, "  ]");
       }
     }
@@ -184,7 +196,7 @@ import java.util.Locale;
   @Override
   public void onMetadata(Metadata metadata) {
     Log.d(TAG, "onMetadata [");
-    printMetadata(metadata);
+    printMetadata(metadata, "  ");
     Log.d(TAG, "]");
   }
 
@@ -208,13 +220,8 @@ import java.util.Locale;
 
   @Override
   public void onAudioInputFormatChanged(Format format) {
-    boolean hasMetadata = format.metadata != null;
     Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
-        + (hasMetadata ? "" : "]"));
-    if (hasMetadata) {
-      printMetadata(format.metadata);
-      Log.d(TAG, "]");
-    }
+        + "]");
   }
 
   @Override
@@ -335,35 +342,35 @@ import java.util.Locale;
     Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);
   }
 
-  private void printMetadata(Metadata metadata) {
+  private void printMetadata(Metadata metadata, String prefix) {
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
       if (entry instanceof TxxxFrame) {
         TxxxFrame txxxFrame = (TxxxFrame) entry;
-        Log.d(TAG, String.format("  %s: description=%s, value=%s", txxxFrame.id,
+        Log.d(TAG, prefix + String.format("%s: description=%s, value=%s", txxxFrame.id,
             txxxFrame.description, txxxFrame.value));
       } else if (entry instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) entry;
-        Log.d(TAG, String.format("  %s: owner=%s", privFrame.id, privFrame.owner));
+        Log.d(TAG, prefix + String.format("%s: owner=%s", privFrame.id, privFrame.owner));
       } else if (entry instanceof GeobFrame) {
         GeobFrame geobFrame = (GeobFrame) entry;
-        Log.d(TAG, String.format("  %s: mimeType=%s, filename=%s, description=%s",
+        Log.d(TAG, prefix + String.format("%s: mimeType=%s, filename=%s, description=%s",
             geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
       } else if (entry instanceof ApicFrame) {
         ApicFrame apicFrame = (ApicFrame) entry;
-        Log.d(TAG, String.format("  %s: mimeType=%s, description=%s",
+        Log.d(TAG, prefix + String.format("%s: mimeType=%s, description=%s",
             apicFrame.id, apicFrame.mimeType, apicFrame.description));
       } else if (entry instanceof TextInformationFrame) {
         TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
-        Log.d(TAG, String.format("  %s: description=%s", textInformationFrame.id,
+        Log.d(TAG, prefix + String.format("%s: description=%s", textInformationFrame.id,
             textInformationFrame.description));
       } else if (entry instanceof CommentFrame) {
         CommentFrame commentFrame = (CommentFrame) entry;
-        Log.d(TAG, String.format("  %s: language=%s description=%s", commentFrame.id,
-            commentFrame.language, commentFrame.description));
+        Log.d(TAG, prefix + String.format("%s: language=%s description=%s", commentFrame.id,
+            commentFrame.language, commentFrame.description, commentFrame.text));
       } else if (entry instanceof Id3Frame) {
         Id3Frame id3Frame = (Id3Frame) entry;
-        Log.d(TAG, String.format("  %s", id3Frame.id));
+        Log.d(TAG, prefix + String.format("%s", id3Frame.id));
       }
     }
   }

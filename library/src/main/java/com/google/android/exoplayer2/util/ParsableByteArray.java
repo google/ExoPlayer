@@ -300,9 +300,9 @@ public final class ParsableByteArray {
    */
   public int readLittleEndianInt() {
     return (data[position++] & 0xFF)
-        | (data[position++]  & 0xFF) << 8
-        | (data[position++]  & 0xFF) << 16
-        | (data[position++]  & 0xFF) << 24;
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 24;
   }
 
   /**
