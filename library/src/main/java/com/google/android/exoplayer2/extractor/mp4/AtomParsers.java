@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -400,80 +402,54 @@ import java.util.List;
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @param out {@link GaplessInfoHolder} to populate with gapless playback information.
+   * @return Parsed metadata, or null.
    */
-  public static void parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime, GaplessInfoHolder out) {
+  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
       // decode one.
-      return;
+      return null;
     }
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
     while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
+      int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
       int atomType = udtaData.readInt();
       if (atomType == Atom.TYPE_meta) {
-        udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
-        udtaData.setLimit(udtaData.getPosition() + atomSize);
-        parseMetaAtom(udtaData, out);
-        break;
+        udtaData.setPosition(atomPosition);
+        return parseMetaAtom(udtaData, atomPosition + atomSize);
       }
       udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
+    return null;
   }
 
-  private static void parseMetaAtom(ParsableByteArray data, GaplessInfoHolder out) {
-    data.skipBytes(Atom.FULL_HEADER_SIZE);
-    ParsableByteArray ilst = new ParsableByteArray();
-    while (data.bytesLeft() >= Atom.HEADER_SIZE) {
-      int payloadSize = data.readInt() - Atom.HEADER_SIZE;
-      int atomType = data.readInt();
+  private static Metadata parseMetaAtom(ParsableByteArray meta, int limit) {
+    meta.skipBytes(Atom.FULL_HEADER_SIZE);
+    while (meta.getPosition() < limit) {
+      int atomPosition = meta.getPosition();
+      int atomSize = meta.readInt();
+      int atomType = meta.readInt();
       if (atomType == Atom.TYPE_ilst) {
-        ilst.reset(data.data, data.getPosition() + payloadSize);
-        ilst.setPosition(data.getPosition());
-        parseIlst(ilst, out);
-        if (out.hasGaplessInfo()) {
-          return;
-        }
+        meta.setPosition(atomPosition);
+        return parseIlst(meta, atomPosition + atomSize);
       }
-      data.skipBytes(payloadSize);
+      meta.skipBytes(atomSize - Atom.HEADER_SIZE);
     }
+    return null;
   }
 
-  private static void parseIlst(ParsableByteArray ilst, GaplessInfoHolder out) {
-    while (ilst.bytesLeft() > 0) {
-      int position = ilst.getPosition();
-      int endPosition = position + ilst.readInt();
-      int type = ilst.readInt();
-      if (type == Atom.TYPE_DASHES) {
-        String lastCommentMean = null;
-        String lastCommentName = null;
-        String lastCommentData = null;
-        while (ilst.getPosition() < endPosition) {
-          int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
-          int key = ilst.readInt();
-          ilst.skipBytes(4);
-          if (key == Atom.TYPE_mean) {
-            lastCommentMean = ilst.readString(length);
-          } else if (key == Atom.TYPE_name) {
-            lastCommentName = ilst.readString(length);
-          } else if (key == Atom.TYPE_data) {
-            ilst.skipBytes(4);
-            lastCommentData = ilst.readString(length - 4);
-          } else {
-            ilst.skipBytes(length);
-          }
-        }
-        if (lastCommentName != null && lastCommentData != null
-            && "com.apple.iTunes".equals(lastCommentMean)) {
-          out.setFromComment(lastCommentName, lastCommentData);
-          break;
-        }
-      } else {
-        ilst.setPosition(endPosition);
+  private static Metadata parseIlst(ParsableByteArray ilst, int limit) {
+    ilst.skipBytes(Atom.HEADER_SIZE);
+    ArrayList<Metadata.Entry> entries = new ArrayList<>();
+    while (ilst.getPosition() < limit) {
+      Metadata.Entry entry = MetadataUtil.parseIlstElement(ilst);
+      if (entry != null) {
+        entries.add(entry);
       }
     }
+    return entries.isEmpty() ? null : new Metadata(entries);
   }
 
   /**
@@ -484,12 +460,9 @@ import java.util.List;
    */
   private static long parseMvhd(ParsableByteArray mvhd) {
     mvhd.setPosition(Atom.HEADER_SIZE);
-
     int fullAtom = mvhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
-
     mvhd.skipBytes(version == 0 ? 8 : 16);
-
     return mvhd.readUnsignedInt();
   }
 

@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -310,10 +311,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
 
+    Metadata metadata = null;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      AtomParsers.parseUdta(udta, isQuickTime, gaplessInfoHolder);
+      metadata = AtomParsers.parseUdta(udta, isQuickTime);
+      if (metadata != null) {
+        gaplessInfoHolder.setFromMetadata(metadata);
+      }
     }
 
     for (int i = 0; i < moov.containerChildren.size(); i++) {
@@ -340,9 +345,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
       Format format = track.format.copyWithMaxInputSize(maxInputSize);
-      if (track.type == C.TRACK_TYPE_AUDIO && gaplessInfoHolder.hasGaplessInfo()) {
-        format = format.copyWithGaplessInfo(gaplessInfoHolder.encoderDelay,
-            gaplessInfoHolder.encoderPadding);
+      if (track.type == C.TRACK_TYPE_AUDIO) {
+        if (gaplessInfoHolder.hasGaplessInfo()) {
+          format = format.copyWithGaplessInfo(gaplessInfoHolder.encoderDelay,
+              gaplessInfoHolder.encoderPadding);
+        }
+        if (metadata != null) {
+          format = format.copyWithMetadata(metadata);
+        }
       }
       mp4Track.trackOutput.format(format);
 
