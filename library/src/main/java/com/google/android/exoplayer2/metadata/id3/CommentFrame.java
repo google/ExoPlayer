@@ -20,25 +20,28 @@ import android.os.Parcelable;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * TXXX (User defined text information) ID3 frame.
+ * Comment ID3 frame.
  */
-public final class TxxxFrame extends Id3Frame {
+public final class CommentFrame extends Id3Frame {
 
-  public static final String ID = "TXXX";
+  public static final String ID = "COMM";
 
+  public final String language;
   public final String description;
-  public final String value;
+  public final String text;
 
-  public TxxxFrame(String description, String value) {
+  public CommentFrame(String language, String description, String text) {
     super(ID);
+    this.language = language;
     this.description = description;
-    this.value = value;
+    this.text = text;
   }
 
-  /* package */ TxxxFrame(Parcel in) {
+  /* package */ CommentFrame(Parcel in) {
     super(ID);
+    language = in.readString();
     description = in.readString();
-    value = in.readString();
+    text = in.readString();
   }
 
   @Override
@@ -49,36 +52,40 @@ public final class TxxxFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    TxxxFrame other = (TxxxFrame) obj;
-    return Util.areEqual(description, other.description) && Util.areEqual(value, other.value);
+    CommentFrame other = (CommentFrame) obj;
+    return Util.areEqual(description, other.description) && Util.areEqual(language, other.language)
+        && Util.areEqual(text, other.text);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
+    result = 31 * result + (language != null ? language.hashCode() : 0);
     result = 31 * result + (description != null ? description.hashCode() : 0);
-    result = 31 * result + (value != null ? value.hashCode() : 0);
+    result = 31 * result + (text != null ? text.hashCode() : 0);
     return result;
   }
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(description);
-    dest.writeString(value);
+    dest.writeString(id);
+    dest.writeString(language);
+    dest.writeString(text);
   }
 
-  public static final Parcelable.Creator<TxxxFrame> CREATOR = new Parcelable.Creator<TxxxFrame>() {
+  public static final Parcelable.Creator<CommentFrame> CREATOR =
+      new Parcelable.Creator<CommentFrame>() {
 
-    @Override
-    public TxxxFrame createFromParcel(Parcel in) {
-      return new TxxxFrame(in);
-    }
+        @Override
+        public CommentFrame createFromParcel(Parcel in) {
+          return new CommentFrame(in);
+        }
 
-    @Override
-    public TxxxFrame[] newArray(int size) {
-      return new TxxxFrame[size];
-    }
+        @Override
+        public CommentFrame[] newArray(int size) {
+          return new CommentFrame[size];
+        }
 
-  };
+      };
 
 }

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ui;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -27,16 +28,22 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
 
 /**
@@ -45,15 +52,22 @@ import java.util.List;
 @TargetApi(16)
 public final class SimpleExoPlayerView extends FrameLayout {
 
-  private final View surfaceView;
+  private static final int SURFACE_TYPE_NONE = 0;
+  private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
+  private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
+
+  private final ViewGroup videoFrame;
+  private final AspectRatioFrameLayout aspectRatioVideoFrame;
   private final View shutterView;
-  private final SubtitleView subtitleLayout;
-  private final AspectRatioFrameLayout layout;
+  private final View surfaceView;
+  private final ImageView artworkView;
+  private final SubtitleView subtitleView;
   private final PlaybackControlView controller;
   private final ComponentListener componentListener;
 
   private SimpleExoPlayer player;
-  private boolean useController = true;
+  private boolean useController;
+  private boolean useArtwork;
   private int controllerShowTimeoutMs;
 
   public SimpleExoPlayerView(Context context) {
@@ -67,7 +81,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public SimpleExoPlayerView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
-    boolean useTextureView = false;
+    int playerLayoutId = R.layout.exo_simple_player_view;
+    boolean useArtwork = true;
+    boolean useController = true;
+    int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
     int rewindMs = PlaybackControlView.DEFAULT_REWIND_MS;
     int fastForwardMs = PlaybackControlView.DEFAULT_FAST_FORWARD_MS;
@@ -76,11 +93,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
       try {
+        playerLayoutId = a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id,
+            playerLayoutId);
+        useArtwork = a.getBoolean(R.styleable.SimpleExoPlayerView_use_artwork, useArtwork);
         useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
-        useTextureView = a.getBoolean(R.styleable.SimpleExoPlayerView_use_texture_view,
-            useTextureView);
-        resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode,
-            AspectRatioFrameLayout.RESIZE_MODE_FIT);
+        surfaceType = a.getInt(R.styleable.SimpleExoPlayerView_surface_type, surfaceType);
+        resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
         rewindMs = a.getInt(R.styleable.SimpleExoPlayerView_rewind_increment, rewindMs);
         fastForwardMs = a.getInt(R.styleable.SimpleExoPlayerView_fastforward_increment,
             fastForwardMs);
@@ -91,35 +109,64 @@ public final class SimpleExoPlayerView extends FrameLayout {
       }
     }
 
-    LayoutInflater.from(context).inflate(R.layout.exo_simple_player_view, this);
+    LayoutInflater.from(context).inflate(playerLayoutId, this);
     componentListener = new ComponentListener();
-    layout = (AspectRatioFrameLayout) findViewById(R.id.exo_video_frame);
-    layout.setResizeMode(resizeMode);
-    shutterView = findViewById(R.id.exo_shutter);
-    subtitleLayout = (SubtitleView) findViewById(R.id.exo_subtitles);
-    subtitleLayout.setUserDefaultStyle();
-    subtitleLayout.setUserDefaultTextSize();
 
-    View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+    videoFrame = (ViewGroup) findViewById(R.id.exo_video_frame);
+    if (videoFrame != null) {
+      if (videoFrame instanceof AspectRatioFrameLayout) {
+        aspectRatioVideoFrame = (AspectRatioFrameLayout) videoFrame;
+        setResizeModeRaw(aspectRatioVideoFrame, resizeMode);
+      } else {
+        aspectRatioVideoFrame = null;
+      }
+      shutterView = Assertions.checkNotNull(videoFrame.findViewById(R.id.exo_shutter));
+      if (surfaceType != SURFACE_TYPE_NONE) {
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        surfaceView = surfaceType == SURFACE_TYPE_TEXTURE_VIEW ? new TextureView(context)
+            : new SurfaceView(context);
+        surfaceView.setLayoutParams(params);
+        videoFrame.addView(surfaceView, 0);
+      } else {
+        surfaceView = null;
+      }
+    } else {
+      aspectRatioVideoFrame = null;
+      shutterView = null;
+      surfaceView = null;
+    }
 
-    controller = new PlaybackControlView(context, attrs);
-    controller.setRewindIncrementMs(rewindMs);
-    controller.setFastForwardIncrementMs(fastForwardMs);
-    controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
-    controller.hide();
-    this.controllerShowTimeoutMs = controllerShowTimeoutMs;
+    artworkView = (ImageView) findViewById(R.id.exo_artwork);
+    this.useArtwork = useArtwork && artworkView != null;
 
-    ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
-    int controllerIndex = parent.indexOfChild(controllerPlaceholder);
-    parent.removeView(controllerPlaceholder);
-    parent.addView(controller, controllerIndex);
+    subtitleView = (SubtitleView) findViewById(R.id.exo_subtitles);
+    if (subtitleView != null) {
+      subtitleView.setUserDefaultStyle();
+      subtitleView.setUserDefaultTextSize();
+    }
 
-    View view = useTextureView ? new TextureView(context) : new SurfaceView(context);
-    ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    view.setLayoutParams(params);
-    surfaceView = view;
-    layout.addView(surfaceView, 0);
+    PlaybackControlView controller = (PlaybackControlView) findViewById(R.id.exo_controller);
+    if (controller != null) {
+      controller.setRewindIncrementMs(rewindMs);
+      controller.setFastForwardIncrementMs(fastForwardMs);
+    } else {
+      View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+      if (controllerPlaceholder != null) {
+        // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
+        // calls to set them.
+        controller = new PlaybackControlView(context, attrs);
+        controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
+        ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
+        int controllerIndex = parent.indexOfChild(controllerPlaceholder);
+        parent.removeView(controllerPlaceholder);
+        parent.addView(controller, controllerIndex);
+      }
+    }
+    this.controller = controller;
+    this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
+    this.useController = useController && controller != null;
+    hideController();
   }
 
   /**
@@ -150,6 +197,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     if (useController) {
       controller.setPlayer(player);
     }
+    if (shutterView != null) {
+      shutterView.setVisibility(VISIBLE);
+    }
     if (player != null) {
       if (surfaceView instanceof TextureView) {
         player.setVideoTextureView((TextureView) surfaceView);
@@ -160,21 +210,41 @@ public final class SimpleExoPlayerView extends FrameLayout {
       player.addListener(componentListener);
       player.setTextOutput(componentListener);
       maybeShowController(false);
+      updateForCurrentTrackSelections();
     } else {
-      shutterView.setVisibility(VISIBLE);
-      controller.hide();
+      hideController();
+      hideArtwork();
     }
   }
 
   /**
-   * Sets the resize mode which can be of value {@link AspectRatioFrameLayout#RESIZE_MODE_FIT},
-   * {@link AspectRatioFrameLayout#RESIZE_MODE_FIXED_HEIGHT} or
-   * {@link AspectRatioFrameLayout#RESIZE_MODE_FIXED_WIDTH}.
+   * Sets the resize mode.
    *
    * @param resizeMode The resize mode.
    */
-  public void setResizeMode(int resizeMode) {
-    layout.setResizeMode(resizeMode);
+  public void setResizeMode(@ResizeMode int resizeMode) {
+    Assertions.checkState(aspectRatioVideoFrame != null);
+    aspectRatioVideoFrame.setResizeMode(resizeMode);
+  }
+
+  /**
+   * Returns whether artwork is displayed if present in the media.
+   */
+  public boolean getUseArtwork() {
+    return useArtwork;
+  }
+
+  /**
+   * Sets whether artwork is displayed if present in the media.
+   *
+   * @param useArtwork Whether artwork is displayed.
+   */
+  public void setUseArtwork(boolean useArtwork) {
+    Assertions.checkState(!useArtwork || artworkView != null);
+    if (this.useArtwork != useArtwork) {
+      this.useArtwork = useArtwork;
+      updateForCurrentTrackSelections();
+    }
   }
 
   /**
@@ -191,13 +261,14 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param useController Whether playback controls should be enabled.
    */
   public void setUseController(boolean useController) {
+    Assertions.checkState(!useController || controller != null);
     if (this.useController == useController) {
       return;
     }
     this.useController = useController;
     if (useController) {
       controller.setPlayer(player);
-    } else {
+    } else if (controller != null) {
       controller.hide();
       controller.setPlayer(null);
     }
@@ -223,6 +294,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
    *     the controller to remain visible indefinitely.
    */
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
+    Assertions.checkState(controller != null);
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
   }
 
@@ -232,6 +304,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param listener The listener to be notified about visibility changes.
    */
   public void setControllerVisibilityListener(PlaybackControlView.VisibilityListener listener) {
+    Assertions.checkState(controller != null);
     controller.setVisibilityListener(listener);
   }
 
@@ -241,6 +314,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param rewindMs The rewind increment in milliseconds.
    */
   public void setRewindIncrementMs(int rewindMs) {
+    Assertions.checkState(controller != null);
     controller.setRewindIncrementMs(rewindMs);
   }
 
@@ -250,6 +324,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param fastForwardMs The fast forward increment in milliseconds.
    */
   public void setFastForwardIncrementMs(int fastForwardMs) {
+    Assertions.checkState(controller != null);
     controller.setFastForwardIncrementMs(fastForwardMs);
   }
 
@@ -304,6 +379,67 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
   }
 
+  private void updateForCurrentTrackSelections() {
+    if (player == null) {
+      return;
+    }
+    TrackSelectionArray selections = player.getCurrentTrackSelections();
+    for (int i = 0; i < selections.length; i++) {
+      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
+        // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
+        // onRenderedFirstFrame().
+        hideArtwork();
+        return;
+      }
+    }
+    // Video disabled so the shutter must be closed.
+    if (shutterView != null) {
+      shutterView.setVisibility(VISIBLE);
+    }
+    // Display artwork if enabled and available, else hide it.
+    if (useArtwork) {
+      for (int i = 0; i < selections.length; i++) {
+        TrackSelection selection = selections.get(i);
+        if (selection != null) {
+          for (int j = 0; j < selection.length(); j++) {
+            Metadata metadata = selection.getFormat(j).metadata;
+            if (metadata != null) {
+              for (int k = 0; k < metadata.length(); k++) {
+                Metadata.Entry metadataEntry = metadata.get(k);
+                if (metadataEntry instanceof ApicFrame) {
+                  byte[] data = ((ApicFrame) metadataEntry).pictureData;;
+                  artworkView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+                  artworkView.setVisibility(VISIBLE);
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    // Artwork disabled or unavailable.
+    hideArtwork();
+  }
+
+  private void hideArtwork() {
+    if (artworkView != null) {
+      artworkView.setImageResource(android.R.color.transparent); // Clears any bitmap reference.
+      artworkView.setVisibility(INVISIBLE);
+    }
+  }
+
+  private void hideController() {
+    if (controller != null) {
+      controller.hide();
+    }
+  }
+
+  @SuppressWarnings("ResourceType")
+  private static void setResizeModeRaw(AspectRatioFrameLayout aspectRatioFrame, int resizeMode) {
+    aspectRatioFrame.setResizeMode(resizeMode);
+  }
+
   private final class ComponentListener implements SimpleExoPlayer.VideoListener,
       TextRenderer.Output, ExoPlayer.EventListener {
 
@@ -311,7 +447,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onCues(List<Cue> cues) {
-      subtitleLayout.onCues(cues);
+      if (subtitleView != null) {
+        subtitleView.onCues(cues);
+      }
     }
 
     // SimpleExoPlayer.VideoListener implementation
@@ -319,23 +457,22 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
-      layout.setAspectRatio(height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
+      if (aspectRatioVideoFrame != null) {
+        float aspectRatio = height == 0 ? 1 : (width * pixelWidthHeightRatio) / height;
+        aspectRatioVideoFrame.setAspectRatio(aspectRatio);
+      }
     }
 
     @Override
     public void onRenderedFirstFrame() {
-      shutterView.setVisibility(GONE);
+      if (shutterView != null) {
+        shutterView.setVisibility(INVISIBLE);
+      }
     }
 
     @Override
     public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
-      for (int i = 0; i < selections.length; i++) {
-        if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
-          return;
-        }
-      }
-      // No enabled video renderers. Close the shutter.
-      shutterView.setVisibility(VISIBLE);
+      updateForCurrentTrackSelections();
     }
 
     // ExoPlayer.EventListener implementation

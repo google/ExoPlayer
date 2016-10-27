@@ -35,9 +35,9 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
-import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -107,7 +107,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
   private TextRenderer.Output textOutput;
-  private MetadataRenderer.Output<List<Id3Frame>> id3Output;
+  private MetadataRenderer.Output metadataOutput;
   private VideoListener videoListener;
   private AudioRendererEventListener audioDebugListener;
   private VideoRendererEventListener videoDebugListener;
@@ -364,12 +364,21 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Sets a listener to receive ID3 metadata events.
+   * @deprecated Use {@link #setMetadataOutput(MetadataRenderer.Output)} instead.
+   * @param output The output.
+   */
+  @Deprecated
+  public void setId3Output(MetadataRenderer.Output output) {
+    setMetadataOutput(output);
+  }
+
+  /**
+   * Sets a listener to receive metadata events.
    *
    * @param output The output.
    */
-  public void setId3Output(MetadataRenderer.Output<List<Id3Frame>> output) {
-    id3Output = output;
+  public void setMetadataOutput(MetadataRenderer.Output output) {
+    metadataOutput = output;
   }
 
   // ExoPlayer implementation
@@ -540,9 +549,9 @@ public final class SimpleExoPlayer implements ExoPlayer {
     Renderer textRenderer = new TextRenderer(componentListener, mainHandler.getLooper());
     renderersList.add(textRenderer);
 
-    MetadataRenderer<List<Id3Frame>> id3Renderer = new MetadataRenderer<>(componentListener,
+    MetadataRenderer metadataRenderer = new MetadataRenderer(componentListener,
         mainHandler.getLooper(), new Id3Decoder());
-    renderersList.add(id3Renderer);
+    renderersList.add(metadataRenderer);
   }
 
   private void buildExtensionRenderers(ArrayList<Renderer> renderersList,
@@ -644,7 +653,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   }
 
   private final class ComponentListener implements VideoRendererEventListener,
-      AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output<List<Id3Frame>>,
+      AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output,
       SurfaceHolder.Callback, TextureView.SurfaceTextureListener {
 
     // VideoRendererEventListener implementation
@@ -775,12 +784,12 @@ public final class SimpleExoPlayer implements ExoPlayer {
       }
     }
 
-    // MetadataRenderer.Output<List<Id3Frame>> implementation
+    // MetadataRenderer.Output implementation
 
     @Override
-    public void onMetadata(List<Id3Frame> id3Frames) {
-      if (id3Output != null) {
-        id3Output.onMetadata(id3Frames);
+    public void onMetadata(Metadata metadata) {
+      if (metadataOutput != null) {
+        metadataOutput.onMetadata(metadata);
       }
     }
 
