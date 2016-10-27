@@ -65,8 +65,6 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
 
-  private static final String TAG = "TsExtractor";
-
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
@@ -253,6 +251,12 @@ public final class TsExtractor implements Extractor {
   private void resetPayloadReaders() {
     trackIds.clear();
     tsPayloadReaders.clear();
+    SparseArray<TsPayloadReader> initialPayloadReaders =
+        payloadReaderFactory.createInitialPayloadReaders();
+    int initialPayloadReadersSize = initialPayloadReaders.size();
+    for (int i = 0; i < initialPayloadReadersSize; i++) {
+      tsPayloadReaders.put(initialPayloadReaders.keyAt(i), initialPayloadReaders.valueAt(i));
+    }
     tsPayloadReaders.put(TS_PAT_PID, new SectionReader(new PatReader()));
     id3Reader = null;
   }
@@ -266,6 +270,12 @@ public final class TsExtractor implements Extractor {
 
     public PatReader() {
       patScratch = new ParsableBitArray(new byte[4]);
+    }
+
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
     }
 
     @Override
@@ -308,6 +318,12 @@ public final class TsExtractor implements Extractor {
     public PmtReader(int pid) {
       pmtScratch = new ParsableBitArray(new byte[5]);
       this.pid = pid;
+    }
+
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
     }
 
     @Override

@@ -27,13 +27,16 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import java.util.List;
 
 /**
@@ -90,23 +93,30 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     LayoutInflater.from(context).inflate(R.layout.exo_simple_player_view, this);
     componentListener = new ComponentListener();
-    layout = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
+    layout = (AspectRatioFrameLayout) findViewById(R.id.exo_video_frame);
     layout.setResizeMode(resizeMode);
-    shutterView = findViewById(R.id.shutter);
-    subtitleLayout = (SubtitleView) findViewById(R.id.subtitles);
+    shutterView = findViewById(R.id.exo_shutter);
+    subtitleLayout = (SubtitleView) findViewById(R.id.exo_subtitles);
     subtitleLayout.setUserDefaultStyle();
     subtitleLayout.setUserDefaultTextSize();
 
-    controller = (PlaybackControlView) findViewById(R.id.control);
-    controller.hide();
+    View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+
+    controller = new PlaybackControlView(context, attrs);
     controller.setRewindIncrementMs(rewindMs);
     controller.setFastForwardIncrementMs(fastForwardMs);
+    controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
+    controller.hide();
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
+
+    ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
+    int controllerIndex = parent.indexOfChild(controllerPlaceholder);
+    parent.removeView(controllerPlaceholder);
+    parent.addView(controller, controllerIndex);
 
     View view = useTextureView ? new TextureView(context) : new SurfaceView(context);
     ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT);
+        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     view.setLayoutParams(params);
     surfaceView = view;
     layout.addView(surfaceView, 0);
@@ -318,7 +328,13 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     @Override
-    public void onVideoTracksDisabled() {
+    public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+      for (int i = 0; i < selections.length; i++) {
+        if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
+          return;
+        }
+      }
+      // No enabled video renderers. Close the shutter.
       shutterView.setVisibility(VISIBLE);
     }
 

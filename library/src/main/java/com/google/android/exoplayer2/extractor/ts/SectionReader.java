@@ -43,8 +43,7 @@ public final class SectionReader implements TsPayloadReader {
   @Override
   public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
       TrackIdGenerator idGenerator) {
-    // TODO: Injectable section readers might want to generate metadata tracks.
-    // Do nothing.
+    reader.init(timestampAdjuster, extractorOutput, idGenerator);
   }
 
   @Override

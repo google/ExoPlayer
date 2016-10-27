@@ -19,8 +19,6 @@ import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
@@ -805,7 +803,6 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     private DashTestTrackSelector(String audioFormatId, String[] videoFormatIds,
         boolean canIncludeAdditionalVideoFormats) {
-      super(new Handler(Looper.getMainLooper()));
       this.audioFormatId = audioFormatId;
       this.videoFormatIds = videoFormatIds;
       this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;

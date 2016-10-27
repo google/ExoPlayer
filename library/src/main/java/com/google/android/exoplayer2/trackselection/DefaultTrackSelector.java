@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Handler;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -326,25 +325,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
    * Constructs an instance that does not support adaptive video.
-   *
-   * @param eventHandler A handler to use when delivering events to listeners. May be null if
-   *     listeners will not be added.
    */
-  public DefaultTrackSelector(Handler eventHandler) {
-    this(eventHandler, null);
+  public DefaultTrackSelector() {
+    this(null);
   }
 
   /**
    * Constructs an instance that uses a factory to create adaptive video track selections.
    *
-   * @param eventHandler A handler to use when delivering events to listeners. May be null if
-   *     listeners will not be added.
    * @param adaptiveVideoTrackSelectionFactory A factory for adaptive video {@link TrackSelection}s,
    *     or null if the selector should not support adaptive video.
    */
-  public DefaultTrackSelector(Handler eventHandler,
-      TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
-    super(eventHandler);
+  public DefaultTrackSelector(TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
     this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
     params = new AtomicReference<>(new Parameters());
   }

@@ -22,7 +22,11 @@ import android.os.Message;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
+import com.google.android.exoplayer2.ExoPlayerImplInternal.TrackInfo;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -34,12 +38,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private static final String TAG = "ExoPlayerImpl";
 
+  private final Renderer[] renderers;
+  private final TrackSelector trackSelector;
+  private final TrackSelectionArray emptyTrackSelections;
   private final Handler eventHandler;
-  private final ExoPlayerImplInternal<?> internalPlayer;
+  private final ExoPlayerImplInternal internalPlayer;
   private final CopyOnWriteArraySet<EventListener> listeners;
   private final Timeline.Window window;
   private final Timeline.Period period;
 
+  private boolean tracksSelected;
   private boolean pendingInitialSeek;
   private boolean playWhenReady;
   private int playbackState;
@@ -47,6 +55,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean isLoading;
   private Timeline timeline;
   private Object manifest;
+  private TrackGroupArray trackGroups;
+  private TrackSelectionArray trackSelections;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -63,16 +73,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(Renderer[] renderers, TrackSelector<?> trackSelector,
-      LoadControl loadControl) {
+  public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
-    Assertions.checkNotNull(renderers);
     Assertions.checkState(renderers.length > 0);
+    this.renderers = Assertions.checkNotNull(renderers);
+    this.trackSelector = Assertions.checkNotNull(trackSelector);
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
+    emptyTrackSelections = new TrackSelectionArray(new TrackSelection[renderers.length]);
     window = new Timeline.Window();
     period = new Timeline.Period();
+    trackGroups = TrackGroupArray.EMPTY;
+    trackSelections = emptyTrackSelections;
     eventHandler = new Handler() {
       @Override
       public void handleMessage(Message msg) {
@@ -80,8 +93,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
     };
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
-    internalPlayer = new ExoPlayerImplInternal<>(renderers, trackSelector, loadControl,
-        playWhenReady, eventHandler, playbackInfo);
+    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
+        eventHandler, playbackInfo);
   }
 
   @Override
@@ -105,12 +118,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetTimeline) {
-    if (resetTimeline && (timeline != null || manifest != null)) {
-      timeline = null;
-      manifest = null;
-      for (EventListener listener : listeners) {
-        listener.onTimelineChanged(null, null);
+  public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    if (resetState) {
+      if (timeline != null || manifest != null) {
+        timeline = null;
+        manifest = null;
+        for (EventListener listener : listeners) {
+          listener.onTimelineChanged(null, null);
+        }
+      }
+      if (tracksSelected) {
+        tracksSelected = false;
+        trackGroups = TrackGroupArray.EMPTY;
+        trackSelections = emptyTrackSelections;
+        trackSelector.onSelectionActivated(null);
+        for (EventListener listener : listeners) {
+          listener.onTracksChanged(trackGroups, trackSelections);
+        }
       }
     }
     internalPlayer.prepare(mediaSource, resetPosition);
@@ -267,6 +291,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public int getRendererCount() {
+    return renderers.length;
+  }
+
+  @Override
+  public int getRendererType(int index) {
+    return renderers[index].getTrackType();
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    return trackGroups;
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
+    return trackSelections;
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     return timeline;
   }
@@ -290,6 +334,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
         isLoading = msg.arg1 != 0;
         for (EventListener listener : listeners) {
           listener.onLoadingChanged(isLoading);
+        }
+        break;
+      }
+      case ExoPlayerImplInternal.MSG_TRACKS_CHANGED: {
+        TrackInfo trackInfo = (TrackInfo) msg.obj;
+        tracksSelected = true;
+        trackGroups = trackInfo.groups;
+        trackSelections = trackInfo.selections;
+        trackSelector.onSelectionActivated(trackInfo.info);
+        for (EventListener listener : listeners) {
+          listener.onTracksChanged(trackGroups, trackSelections);
         }
         break;
       }
