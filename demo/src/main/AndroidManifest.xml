@@ -71,6 +71,10 @@
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
+    <activity android:name=".recyclerview.RecyclerViewPlayerActivity"
+        android:label="@string/recycler_view_demo"
+        android:launchMode="singleTop"
+        android:theme="@style/VideoPlayerTheme" />
 
   </application>
 
