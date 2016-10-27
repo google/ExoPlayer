@@ -120,7 +120,7 @@ public class PlaybackControlView extends FrameLayout {
   public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
-    int layoutResourceId = R.layout.exo_playback_control_view;
+    int controllerLayoutId = R.layout.exo_playback_control_view;
     rewindMs = DEFAULT_REWIND_MS;
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
@@ -132,8 +132,8 @@ public class PlaybackControlView extends FrameLayout {
         fastForwardMs = a.getInt(R.styleable.PlaybackControlView_fastforward_increment,
             fastForwardMs);
         showTimeoutMs = a.getInt(R.styleable.PlaybackControlView_show_timeout, showTimeoutMs);
-        layoutResourceId = a.getResourceId(R.styleable.PlaybackControlView_controller_layout_id,
-            layoutResourceId);
+        controllerLayoutId = a.getResourceId(R.styleable.PlaybackControlView_controller_layout_id,
+            controllerLayoutId);
       } finally {
         a.recycle();
       }
@@ -143,7 +143,7 @@ public class PlaybackControlView extends FrameLayout {
     formatter = new Formatter(formatBuilder, Locale.getDefault());
     componentListener = new ComponentListener();
 
-    LayoutInflater.from(context).inflate(layoutResourceId, this);
+    LayoutInflater.from(context).inflate(controllerLayoutId, this);
     time = (TextView) findViewById(R.id.exo_time);
     timeCurrent = (TextView) findViewById(R.id.exo_time_current);
     progressBar = (SeekBar) findViewById(R.id.exo_progress);
