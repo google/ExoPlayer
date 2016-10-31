@@ -95,7 +95,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.extractorNeedsInit = extractorNeedsInit;
     this.shouldSpliceIn = shouldSpliceIn;
     // Note: this.dataSource and dataSource may be different.
-    adjustedEndTimeUs = startTimeUs;
+    adjustedEndTimeUs = endTimeUs;
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
     uid = UID_SOURCE.getAndIncrement();
   }
