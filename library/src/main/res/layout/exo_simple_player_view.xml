@@ -17,26 +17,28 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-  <com.google.android.exoplayer2.ui.AspectRatioFrameLayout android:id="@id/exo_video_frame"
+  <com.google.android.exoplayer2.ui.AspectRatioFrameLayout android:id="@id/exo_content_frame"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center">
+
+    <!-- Video surface will be inserted as the first child of the content frame. -->
 
     <View android:id="@id/exo_shutter"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/black"/>
 
+    <ImageView android:id="@id/exo_artwork"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"/>
+
     <com.google.android.exoplayer2.ui.SubtitleView android:id="@id/exo_subtitles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
   </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
-
-  <ImageView android:id="@id/exo_artwork"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:scaleType="fitCenter"/>
 
   <View android:id="@id/exo_controller_placeholder"
       android:layout_width="match_parent"

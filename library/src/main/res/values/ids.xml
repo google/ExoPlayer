@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-  <item name="exo_video_frame" type="id"/>
+  <item name="exo_content_frame" type="id"/>
   <item name="exo_shutter" type="id"/>
   <item name="exo_subtitles" type="id"/>
   <item name="exo_artwork" type="id"/>

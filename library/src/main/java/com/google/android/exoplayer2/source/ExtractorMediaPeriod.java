@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -80,6 +81,8 @@ import java.io.IOException;
   private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] trackEnabledStates;
+  private boolean[] trackIsAudioVideoFlags;
+  private boolean haveAudioVideoTracks;
   private long length;
 
   private long lastSeekPositionUs;
@@ -259,11 +262,23 @@ import java.io.IOException;
       return C.TIME_END_OF_SOURCE;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
-    } else {
-      long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
-      return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
-          : largestQueuedTimestampUs;
     }
+    long largestQueuedTimestampUs;
+    if (haveAudioVideoTracks) {
+      // Ignore non-AV tracks, which may be sparse or poorly interleaved.
+      largestQueuedTimestampUs = Long.MAX_VALUE;
+      int trackCount = sampleQueues.size();
+      for (int i = 0; i < trackCount; i++) {
+        if (trackIsAudioVideoFlags[i]) {
+          largestQueuedTimestampUs = Math.min(largestQueuedTimestampUs,
+              sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
+        }
+      }
+    } else {
+      largestQueuedTimestampUs = getLargestQueuedTimestampUs();
+    }
+    return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
+        : largestQueuedTimestampUs;
   }
 
   @Override
@@ -404,10 +419,16 @@ import java.io.IOException;
     }
     loadCondition.close();
     TrackGroup[] trackArray = new TrackGroup[trackCount];
+    trackIsAudioVideoFlags = new boolean[trackCount];
     trackEnabledStates = new boolean[trackCount];
     durationUs = seekMap.getDurationUs();
     for (int i = 0; i < trackCount; i++) {
-      trackArray[i] = new TrackGroup(sampleQueues.valueAt(i).getUpstreamFormat());
+      Format trackFormat = sampleQueues.valueAt(i).getUpstreamFormat();
+      trackArray[i] = new TrackGroup(trackFormat);
+      String mimeType = trackFormat.sampleMimeType;
+      boolean isAudioVideo = MimeTypes.isVideo(mimeType) || MimeTypes.isAudio(mimeType);
+      trackIsAudioVideoFlags[i] = isAudioVideo;
+      haveAudioVideoTracks |= isAudioVideo;
     }
     tracks = new TrackGroupArray(trackArray);
     prepared = true;

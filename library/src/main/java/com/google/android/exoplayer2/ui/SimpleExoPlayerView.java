@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ui;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -56,8 +57,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
 
-  private final ViewGroup videoFrame;
-  private final AspectRatioFrameLayout aspectRatioVideoFrame;
+  private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
   private final View surfaceView;
   private final ImageView artworkView;
@@ -112,40 +112,39 @@ public final class SimpleExoPlayerView extends FrameLayout {
     LayoutInflater.from(context).inflate(playerLayoutId, this);
     componentListener = new ComponentListener();
 
-    videoFrame = (ViewGroup) findViewById(R.id.exo_video_frame);
-    if (videoFrame != null) {
-      if (videoFrame instanceof AspectRatioFrameLayout) {
-        aspectRatioVideoFrame = (AspectRatioFrameLayout) videoFrame;
-        setResizeModeRaw(aspectRatioVideoFrame, resizeMode);
-      } else {
-        aspectRatioVideoFrame = null;
-      }
-      shutterView = Assertions.checkNotNull(videoFrame.findViewById(R.id.exo_shutter));
-      if (surfaceType != SURFACE_TYPE_NONE) {
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        surfaceView = surfaceType == SURFACE_TYPE_TEXTURE_VIEW ? new TextureView(context)
-            : new SurfaceView(context);
-        surfaceView.setLayoutParams(params);
-        videoFrame.addView(surfaceView, 0);
-      } else {
-        surfaceView = null;
-      }
+    // Content frame.
+    contentFrame = (AspectRatioFrameLayout) findViewById(R.id.exo_content_frame);
+    if (contentFrame != null) {
+      setResizeModeRaw(contentFrame, resizeMode);
+    }
+
+    // Shutter view.
+    shutterView = findViewById(R.id.exo_shutter);
+
+    // Create a surface view and insert it into the content frame, if there is one.
+    if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
+      ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+      surfaceView = surfaceType == SURFACE_TYPE_TEXTURE_VIEW ? new TextureView(context)
+          : new SurfaceView(context);
+      surfaceView.setLayoutParams(params);
+      contentFrame.addView(surfaceView, 0);
     } else {
-      aspectRatioVideoFrame = null;
-      shutterView = null;
       surfaceView = null;
     }
 
+    // Artwork view.
     artworkView = (ImageView) findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
 
+    // Subtitle view.
     subtitleView = (SubtitleView) findViewById(R.id.exo_subtitles);
     if (subtitleView != null) {
       subtitleView.setUserDefaultStyle();
       subtitleView.setUserDefaultTextSize();
     }
 
+    // Playback control view.
     PlaybackControlView controller = (PlaybackControlView) findViewById(R.id.exo_controller);
     if (controller != null) {
       controller.setRewindIncrementMs(rewindMs);
@@ -223,8 +222,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param resizeMode The resize mode.
    */
   public void setResizeMode(@ResizeMode int resizeMode) {
-    Assertions.checkState(aspectRatioVideoFrame != null);
-    aspectRatioVideoFrame.setResizeMode(resizeMode);
+    Assertions.checkState(contentFrame != null);
+    contentFrame.setResizeMode(resizeMode);
   }
 
   /**
@@ -403,16 +402,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
         if (selection != null) {
           for (int j = 0; j < selection.length(); j++) {
             Metadata metadata = selection.getFormat(j).metadata;
-            if (metadata != null) {
-              for (int k = 0; k < metadata.length(); k++) {
-                Metadata.Entry metadataEntry = metadata.get(k);
-                if (metadataEntry instanceof ApicFrame) {
-                  byte[] data = ((ApicFrame) metadataEntry).pictureData;;
-                  artworkView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
-                  artworkView.setVisibility(VISIBLE);
-                  return;
-                }
-              }
+            if (metadata != null && setArtworkFromMetadata(metadata)) {
+              return;
             }
           }
         }
@@ -420,6 +411,29 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
     // Artwork disabled or unavailable.
     hideArtwork();
+  }
+
+  private boolean setArtworkFromMetadata(Metadata metadata) {
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry metadataEntry = metadata.get(i);
+      if (metadataEntry instanceof ApicFrame) {
+        byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
+        if (bitmap != null) {
+          int bitmapWidth = bitmap.getWidth();
+          int bitmapHeight = bitmap.getHeight();
+          if (bitmapWidth > 0 && bitmapHeight > 0) {
+            if (contentFrame != null) {
+              contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
+            }
+            artworkView.setImageBitmap(bitmap);
+            artworkView.setVisibility(VISIBLE);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private void hideArtwork() {
@@ -457,9 +471,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
-      if (aspectRatioVideoFrame != null) {
+      if (contentFrame != null) {
         float aspectRatio = height == 0 ? 1 : (width * pixelWidthHeightRatio) / height;
-        aspectRatioVideoFrame.setAspectRatio(aspectRatio);
+        contentFrame.setAspectRatio(aspectRatio);
       }
     }
 
