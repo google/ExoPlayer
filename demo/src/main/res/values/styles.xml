@@ -21,4 +21,6 @@
     <item name="android:windowBackground">@android:color/black</item>
   </style>
 
+  <style name="VideoPlayerTheme" parent="Theme.AppCompat.Light.DarkActionBar"/>
+
 </resources>

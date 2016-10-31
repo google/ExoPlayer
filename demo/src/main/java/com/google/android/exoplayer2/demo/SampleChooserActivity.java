@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.demo.recyclerview.RecyclerViewPlayerActivity;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -379,7 +380,6 @@ public class SampleChooserActivity extends Activity {
       }
       return intent;
     }
-
   }
 
   private static final class UriSample extends Sample {
@@ -397,12 +397,17 @@ public class SampleChooserActivity extends Activity {
 
     @Override
     public Intent buildIntent(Context context) {
-      return super.buildIntent(context)
-          .setData(Uri.parse(uri))
-          .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
-          .setAction(PlayerActivity.ACTION_VIEW);
+      if ("Play in RecyclerView".equals(name)) {
+        Intent intent = new Intent(context, RecyclerViewPlayerActivity.class);
+        intent.setData(Uri.parse(uri));
+        return intent;
+      } else {
+        return super.buildIntent(context)
+                .setData(Uri.parse(uri))
+                .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
+                .setAction(PlayerActivity.ACTION_VIEW);
+      }
     }
-
   }
 
   private static final class PlaylistSample extends Sample {
@@ -429,7 +434,5 @@ public class SampleChooserActivity extends Activity {
           .putExtra(PlayerActivity.EXTENSION_LIST_EXTRA, extensions)
           .setAction(PlayerActivity.ACTION_VIEW_LIST);
     }
-
   }
-
 }
