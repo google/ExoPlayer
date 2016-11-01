@@ -2,7 +2,6 @@ package com.google.android.exoplayer2.demo.recyclerview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +18,7 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.facebook.rebound.SpringUtil;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.demo.R;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.util.Util;
@@ -96,17 +96,17 @@ import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityO
 
         private final Spring spring;
         private final CoverPhotoSpringListener coverPhotoSpringListener;
-        private final Rect rect;
         private boolean shouldRestorePosition;
         private long playerPosition;
         private String urlSource;
+        private boolean manuallyPaused;
+        private int urlHash;
+
+        private int position;
 
         /* PACKAGE */ VideoViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            rect = new Rect();
-            // to prevent yanking when laying out view
-            setVideoViewLayoutListener();
             // setup Springs for hiding cover photo
             final SpringSystem springSystem = SpringSystem.create();
             spring = springSystem.createSpring();
@@ -117,14 +117,20 @@ import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityO
         /* PACKAGE */
         @SuppressLint("SetTextI18n")
         void onBind(String urlSource, int position) {
+            this.urlHash = (urlSource + position).hashCode();
+            this.position = position;
             headerTitle.setText("Position " + position);
             this.urlSource = urlSource;
             this.spring.removeAllListeners();
             this.spring.addListener(coverPhotoSpringListener);
+            // clear manually paused
+            this.manuallyPaused = false;
             // clear play position
             clearPlayingPosition();
             // reset playing state UI
             setupViewState(false, false);
+            // to prevent yanking when laying out view
+            setVideoViewLayoutListener();
         }
 
         /* PACKAGE */ void onViewRecycled() {
@@ -139,7 +145,9 @@ import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityO
         }
 
         /* PACKAGE */ void playVideo() {
-            videoPlayer.play(this);
+            if (!manuallyPaused) {
+                videoPlayer.play(this);
+            }
         }
 
         /* PACKAGE */ void setupViewState(boolean withSpinner, boolean isReadyToPlay) {
@@ -175,6 +183,11 @@ import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityO
             return this.urlSource;
         }
 
+        @NonNull
+        /* PACKAGE */ int getUrlHash() {
+            return this.urlHash;
+        }
+
         private void setVideoViewLayoutListener() {
             videoView.getViewTreeObserver()
                     .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -184,7 +197,7 @@ import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityO
                             ViewTreeObserver obs = videoView.getViewTreeObserver();
                             obs.removeOnGlobalLayoutListener(this);
                             coverPhoto.getLayoutParams().height = videoView.getHeight();
-                            if (isCompletelyShowing(itemView, rect)) {
+                            if (isCompletelyShowing(itemView)) {
                                 playVideo();
                             }
                         }
@@ -202,6 +215,10 @@ import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityO
         /* PACKAGE */ void setPlayerPosition(long playerPosition) {
             this.shouldRestorePosition = true;
             this.playerPosition = playerPosition;
+        }
+
+        /* PACKAGE */ void setPlayer(SimpleExoPlayer player) {
+            this.videoView.setPlayer(player);
         }
 
         // ----- Spring ----------------------------------------------------------------------------

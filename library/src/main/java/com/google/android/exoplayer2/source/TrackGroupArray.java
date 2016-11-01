@@ -24,6 +24,11 @@ import java.util.Arrays;
 public final class TrackGroupArray {
 
   /**
+   * The empty array.
+   */
+  public static final TrackGroupArray EMPTY = new TrackGroupArray();
+
+  /**
    * The number of groups in the array. Greater than or equal to zero.
    */
   public final int length;

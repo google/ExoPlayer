@@ -41,7 +41,7 @@ public final class CronetDataSourceFactory implements Factory {
   private final CronetEngine cronetEngine;
   private final Executor executor;
   private final Predicate<String> contentTypePredicate;
-  private final TransferListener transferListener;
+  private final TransferListener<? super DataSource> transferListener;
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;

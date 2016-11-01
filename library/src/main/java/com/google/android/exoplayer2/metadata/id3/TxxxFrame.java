@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.google.android.exoplayer2.util.Util;
+
 /**
  * TXXX (User defined text information) ID3 frame.
  */
@@ -30,5 +34,51 @@ public final class TxxxFrame extends Id3Frame {
     this.description = description;
     this.value = value;
   }
+
+  /* package */ TxxxFrame(Parcel in) {
+    super(ID);
+    description = in.readString();
+    value = in.readString();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    TxxxFrame other = (TxxxFrame) obj;
+    return Util.areEqual(description, other.description) && Util.areEqual(value, other.value);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 17;
+    result = 31 * result + (description != null ? description.hashCode() : 0);
+    result = 31 * result + (value != null ? value.hashCode() : 0);
+    return result;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(description);
+    dest.writeString(value);
+  }
+
+  public static final Parcelable.Creator<TxxxFrame> CREATOR = new Parcelable.Creator<TxxxFrame>() {
+
+    @Override
+    public TxxxFrame createFromParcel(Parcel in) {
+      return new TxxxFrame(in);
+    }
+
+    @Override
+    public TxxxFrame[] newArray(int size) {
+      return new TxxxFrame[size];
+    }
+
+  };
 
 }

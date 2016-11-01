@@ -15,19 +15,20 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.demo.R;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelections;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import static com.google.android.exoplayer2.ExoPlayer.STATE_READY;
+import static com.google.android.exoplayer2.demo.recyclerview.PercentVisibilityOnScrollListener.getPercentShowing;
 
 /* PACKAGE */ class VideoPlayer {
 
@@ -53,11 +54,21 @@ import static com.google.android.exoplayer2.ExoPlayer.STATE_READY;
     }
 
     public void play(@NonNull VideoAdapter.VideoViewHolder videoView) {
-
-        if (currentlyPlayingView == videoView && player != null) {
+        if (currentlyPlayingView != null
+                && currentlyPlayingView.getUrlHash() == videoView.getUrlHash()
+                && player != null) {
             // just make sure we are playing
             player.setPlayWhenReady(true);
             return;
+        }
+
+        final VideoAdapter.VideoViewHolder viewHolderToUse;
+        if (currentlyPlayingView != null
+                && getPercentShowing(currentlyPlayingView.getVideoView()) > getPercentShowing(videoView.getVideoView())
+                && currentlyPlayingView.getUrlHash() != videoView.getUrlHash()) {
+            viewHolderToUse = currentlyPlayingView;
+        } else {
+            viewHolderToUse = videoView;
         }
         // I found that playing on scrolling did not work well without releasing
         // and initing a new player for each ViewHolder. My guess is that this is
@@ -69,9 +80,8 @@ import static com.google.android.exoplayer2.ExoPlayer.STATE_READY;
         if (loopingSource != null) {
             loopingSource.releaseSource();
         }
-        currentlyPlayingView = videoView;
-        currentlyPlayingView.getVideoView()
-                .setPlayer(player);
+        currentlyPlayingView = viewHolderToUse;
+        currentlyPlayingView.setPlayer(player);
         if (currentlyPlayingView.shouldRestorePosition()) {
             if (currentlyPlayingView.getPlayerPosition() == C.TIME_UNSET) {
                 player.seekToDefaultPosition(playerWindow);
@@ -100,8 +110,7 @@ import static com.google.android.exoplayer2.ExoPlayer.STATE_READY;
             // this needs to be done for each video
             TrackSelection.Factory videoTrackSelectionFactory =
                     new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
-            trackSelector = new DefaultTrackSelector(mainHandler, videoTrackSelectionFactory);
-            trackSelector.addListener(new TrackSelectorEventListener());
+            trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
             final DefaultLoadControl loadControl = new DefaultLoadControl();
             player = ExoPlayerFactory.newSimpleInstance(context,
                     trackSelector,
@@ -138,12 +147,11 @@ import static com.google.android.exoplayer2.ExoPlayer.STATE_READY;
         }
     }
 
-    private class TrackSelectorEventListener
-            implements TrackSelector.EventListener<MappingTrackSelector.MappedTrackInfo> {
+    private class ExoPlayerEventListener implements ExoPlayer.EventListener {
 
         @Override
-        public void onTrackSelectionsChanged(TrackSelections<? extends MappingTrackSelector.MappedTrackInfo> trackSelections) {
-            MappingTrackSelector.MappedTrackInfo trackInfo = trackSelections.info;
+        public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+            MappingTrackSelector.MappedTrackInfo trackInfo = trackSelector.getCurrentMappedTrackInfo();
             if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO) ||
                     trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
                 if (currentlyPlayingView != null) {
@@ -151,9 +159,6 @@ import static com.google.android.exoplayer2.ExoPlayer.STATE_READY;
                 }
             }
         }
-    }
-
-    private class ExoPlayerEventListener implements ExoPlayer.EventListener {
 
         @Override
         public void onLoadingChanged(boolean isLoading) {

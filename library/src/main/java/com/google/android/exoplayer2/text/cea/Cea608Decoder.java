@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 public final class Cea608Decoder extends CeaDecoder {
 
   private static final int NTSC_CC_FIELD_1 = 0x00;
+  private static final int CC_TYPE_MASK = 0x03;
   private static final int CC_VALID_FLAG = 0x04;
 
   private static final int PAYLOAD_TYPE_CC = 4;
@@ -223,7 +224,8 @@ public final class Cea608Decoder extends CeaDecoder {
       byte ccData2 = (byte) (ccData.readUnsignedByte() & 0x7F);
 
       // Only examine valid NTSC_CC_FIELD_1 packets
-      if (ccTypeAndValid != (CC_VALID_FLAG | NTSC_CC_FIELD_1)) {
+      if ((ccTypeAndValid & CC_VALID_FLAG) == 0
+          || (ccTypeAndValid & CC_TYPE_MASK) != NTSC_CC_FIELD_1) {
         // TODO: Add support for NTSC_CC_FIELD_2 packets
         continue;
       }

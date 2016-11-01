@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -15,15 +16,14 @@ import java.util.List;
     private static final int PERCENTAGE_MULTIPLIER = 100;
     private static final int SHOWING_TRIGGER_PERCENTAGE = 50;
     private static final long PLAY_DELAY = 250L;
+    private static final Rect visibilityRect = new Rect();
 
     private final VideoAdapter adapter;
-    private final Rect visibilityRect;
     private final Handler handler;
     private Runnable runnable;
 
     /* PACKAGE */ PercentVisibilityOnScrollListener(VideoAdapter adapter) {
         this.adapter = adapter;
-        this.visibilityRect = new Rect();
         this.handler = new Handler();
     }
 
@@ -79,7 +79,7 @@ import java.util.List;
         for (int i = 0; i < viewHolders.size(); i++) {
             final VideoAdapter.VideoViewHolder viewHolder = viewHolders.get(i);
 
-            currentViewPercent = getPercentShowing(viewHolder.getVideoView(), visibilityRect);
+            currentViewPercent = getPercentShowing(viewHolder.getVideoView());
             if (currentViewPercent > currentHighestPercent && currentViewPercent >= SHOWING_TRIGGER_PERCENTAGE) {
                 currentlyPlaying = i;
                 currentHighestPercent = currentViewPercent;
@@ -101,7 +101,7 @@ import java.util.List;
         }
     }
 
-    private static int getPercentShowing(@NonNull View view, @NonNull Rect visibilityRect) {
+    /* PACKAGE */ static int getPercentShowing(@NonNull View view) {
         if (view.getHeight() <= 0 || view.getWidth() <= 0) {
             return 0;
         }
@@ -109,7 +109,7 @@ import java.util.List;
         return (int) (PERCENTAGE_MULTIPLIER * visibilityRect.height() / (float) view.getHeight());
     }
 
-    /* PACKAGE */ static boolean isCompletelyShowing(@NonNull View view, @NonNull Rect visibilityRect) {
-        return getPercentShowing(view, visibilityRect) >= SHOWING_TRIGGER_PERCENTAGE;
+    /* PACKAGE */ static boolean isCompletelyShowing(@NonNull View view) {
+        return getPercentShowing(view) >= SHOWING_TRIGGER_PERCENTAGE;
     }
 }

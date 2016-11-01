@@ -267,8 +267,8 @@ public class TestUtil {
    */
   public static FakeExtractorOutput assertOutput(Extractor extractor, String sampleFile,
       byte[] fileData, Instrumentation instrumentation, boolean simulateIOErrors,
-      boolean simulateUnknownLength,
-      boolean simulatePartialReads) throws IOException, InterruptedException {
+      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
+      InterruptedException {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
         .setSimulateIOErrors(simulateIOErrors)
         .setSimulateUnknownLength(simulateUnknownLength)

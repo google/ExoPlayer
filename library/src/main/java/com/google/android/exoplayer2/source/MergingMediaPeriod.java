@@ -149,9 +149,9 @@ import java.util.IdentityHashMap;
     }
     // It must be possible to seek enabled periods to the new position, if there is one.
     if (positionUs != C.TIME_UNSET) {
-      for (int i = 0; i < enabledPeriods.length; i++) {
-        if (enabledPeriods[i] != periods[0]
-            && enabledPeriods[i].seekToUs(positionUs) != positionUs) {
+      for (MediaPeriod enabledPeriod : enabledPeriods) {
+        if (enabledPeriod != periods[0]
+            && enabledPeriod.seekToUs(positionUs) != positionUs) {
           throw new IllegalStateException("Children seeked to different positions");
         }
       }

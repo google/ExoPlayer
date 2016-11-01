@@ -16,12 +16,15 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.test.InstrumentationTestCase;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -71,8 +74,8 @@ public final class TsExtractorTest extends InstrumentationTestCase {
   }
 
   public void testCustomPesReader() throws Exception {
-    CustomEsReaderFactory factory = new CustomEsReaderFactory();
-    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory);
+    CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(true, false);
+    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory, false);
     FakeExtractorInput input = new FakeExtractorInput.Builder()
         .setData(TestUtil.getByteArray(getInstrumentation(), "ts/sample.ts"))
         .setSimulateIOErrors(false)
@@ -80,19 +83,35 @@ public final class TsExtractorTest extends InstrumentationTestCase {
         .setSimulatePartialReads(false).build();
     FakeExtractorOutput output = new FakeExtractorOutput();
     tsExtractor.init(output);
-    tsExtractor.seek(input.getPosition());
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = tsExtractor.read(input, seekPositionHolder);
     }
-    CustomEsReader reader = factory.reader;
+    CustomEsReader reader = factory.esReader;
     assertEquals(2, reader.packetsRead);
     TrackOutput trackOutput = reader.getTrackOutput();
     assertTrue(trackOutput == output.trackOutputs.get(257 /* PID of audio track. */));
     assertEquals(
         Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0, "und", null, 0),
         ((FakeTrackOutput) trackOutput).format);
+  }
+
+  public void testCustomInitialSectionReader() throws Exception {
+    CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(false, true);
+    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory, false);
+    FakeExtractorInput input = new FakeExtractorInput.Builder()
+        .setData(TestUtil.getByteArray(getInstrumentation(), "ts/sample_with_sdt.ts"))
+        .setSimulateIOErrors(false)
+        .setSimulateUnknownLength(false)
+        .setSimulatePartialReads(false).build();
+    tsExtractor.init(new FakeExtractorOutput());
+    PositionHolder seekPositionHolder = new PositionHolder();
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (readResult != Extractor.RESULT_END_OF_INPUT) {
+      readResult = tsExtractor.read(input, seekPositionHolder);
+    }
+    assertEquals(1, factory.sdtReader.consumedSdts);
   }
 
   private static void writeJunkData(ByteArrayOutputStream out, int length) throws IOException {
@@ -105,18 +124,64 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  private static final class CustomEsReader extends ElementaryStreamReader {
+  private static final class CustomTsPayloadReaderFactory implements TsPayloadReader.Factory {
 
+    private final boolean provideSdtReader;
+    private final boolean provideCustomEsReader;
+    private final TsPayloadReader.Factory defaultFactory;
+    private CustomEsReader esReader;
+    private SdtSectionReader sdtReader;
+
+    public CustomTsPayloadReaderFactory(boolean provideCustomEsReader, boolean provideSdtReader) {
+      this.provideCustomEsReader = provideCustomEsReader;
+      this.provideSdtReader = provideSdtReader;
+      defaultFactory = new DefaultTsPayloadReaderFactory();
+    }
+
+    @Override
+    public SparseArray<TsPayloadReader> createInitialPayloadReaders() {
+      if (provideSdtReader) {
+        assertNull(sdtReader);
+        SparseArray<TsPayloadReader> mapping = new SparseArray<>();
+        sdtReader = new SdtSectionReader();
+        mapping.put(17, new SectionReader(sdtReader));
+        return mapping;
+      } else {
+        return defaultFactory.createInitialPayloadReaders();
+      }
+    }
+
+    @Override
+    public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
+      if (provideCustomEsReader && streamType == 3) {
+        esReader = new CustomEsReader(esInfo.language);
+        return new PesReader(esReader);
+      } else {
+        return defaultFactory.createPayloadReader(streamType, esInfo);
+      }
+    }
+
+  }
+
+  private static final class CustomEsReader implements ElementaryStreamReader {
+
+    private final String language;
+    private TrackOutput output;
     public int packetsRead = 0;
 
-    public CustomEsReader(TrackOutput output, String language) {
-      super(output);
-      output.format(Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0,
-          language, null, 0));
+    public CustomEsReader(String language) {
+      this.language = language;
     }
 
     @Override
     public void seek() {
+    }
+
+    @Override
+    public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+      output = extractorOutput.track(idGenerator.getNextId());
+      output.format(Format.createTextSampleFormat("Overriding format", "mime", null, 0, 0,
+          language, null, 0));
     }
 
     @Override
@@ -138,27 +203,44 @@ public final class TsExtractorTest extends InstrumentationTestCase {
 
   }
 
-  private static final class CustomEsReaderFactory implements ElementaryStreamReader.Factory {
+  private static final class SdtSectionReader implements SectionPayloadReader {
 
-    private final ElementaryStreamReader.Factory defaultFactory;
-    private CustomEsReader reader;
+    private int consumedSdts;
 
-    public CustomEsReaderFactory() {
-      defaultFactory = new DefaultStreamReaderFactory();
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+        TrackIdGenerator idGenerator) {
+      // Do nothing.
     }
 
     @Override
-    public ElementaryStreamReader onPmtEntry(int pid, int streamType,
-        ElementaryStreamReader.EsInfo esInfo, ExtractorOutput output) {
-      if (streamType == 3) {
-        // We need to manually avoid a duplicate custom reader creation.
-        if (reader == null) {
-          reader = new CustomEsReader(output.track(pid), esInfo.language);
+    public void consume(ParsableByteArray sectionData) {
+      // table_id(8), section_syntax_indicator(1), reserved_future_use(1), reserved(2),
+      // section_length(12), transport_stream_id(16), reserved(2), version_number(5),
+      // current_next_indicator(1), section_number(8), last_section_number(8),
+      // original_network_id(16), reserved_future_use(8)
+      sectionData.skipBytes(11);
+      // Start of the service loop.
+      assertEquals(0x5566 /* arbitrary service id */, sectionData.readUnsignedShort());
+      // reserved_future_use(6), EIT_schedule_flag(1), EIT_present_following_flag(1)
+      sectionData.skipBytes(1);
+      // Assert there is only one service.
+      // Remove running_status(3), free_CA_mode(1) from the descriptors_loop_length with the mask.
+      assertEquals(sectionData.readUnsignedShort() & 0xFFF, sectionData.bytesLeft());
+      while (sectionData.bytesLeft() > 0) {
+        int descriptorTag = sectionData.readUnsignedByte();
+        int descriptorLength = sectionData.readUnsignedByte();
+        if (descriptorTag == 72 /* service descriptor */) {
+          assertEquals(1, sectionData.readUnsignedByte()); // Service type: Digital TV.
+          int serviceProviderNameLength = sectionData.readUnsignedByte();
+          assertEquals("Some provider", sectionData.readString(serviceProviderNameLength));
+          int serviceNameLength = sectionData.readUnsignedByte();
+          assertEquals("Some Channel", sectionData.readString(serviceNameLength));
+        } else {
+          sectionData.skipBytes(descriptorLength);
         }
-        return reader;
-      } else {
-        return defaultFactory.onPmtEntry(pid, streamType, esInfo, output);
       }
+      consumedSdts++;
     }
 
   }

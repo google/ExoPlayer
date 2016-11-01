@@ -58,8 +58,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelections;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
@@ -78,7 +77,7 @@ import java.util.UUID;
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
 public class PlayerActivity extends Activity implements OnClickListener, ExoPlayer.EventListener,
-    TrackSelector.EventListener<MappedTrackInfo>, PlaybackControlView.VisibilityListener {
+    PlaybackControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -101,6 +100,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   private Handler mainHandler;
+  private Timeline.Window window;
   private EventLogger eventLogger;
   private SimpleExoPlayerView simpleExoPlayerView;
   private LinearLayout debugRootView;
@@ -115,7 +115,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private boolean playerNeedsSource;
 
   private boolean shouldAutoPlay;
-  private boolean shouldRestorePosition;
+  private boolean isTimelineStatic;
   private int playerWindow;
   private long playerPosition;
 
@@ -127,6 +127,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     shouldAutoPlay = true;
     mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
+    window = new Timeline.Window();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -147,7 +148,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   @Override
   public void onNewIntent(Intent intent) {
     releasePlayer();
-    shouldRestorePosition = false;
+    isTimelineStatic = false;
     setIntent(intent);
   }
 
@@ -201,8 +202,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     if (view == retryButton) {
       initializePlayer();
     } else if (view.getParent() == debugRootView) {
-      trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
-          trackSelector.getCurrentSelections().info, (int) view.getTag());
+      MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+      if (mappedTrackInfo != null) {
+        trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
+            trackSelector.getCurrentMappedTrackInfo(), (int) view.getTag());
+      }
     }
   }
 
@@ -247,22 +251,22 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         }
       }
 
-      eventLogger = new EventLogger();
       TrackSelection.Factory videoTrackSelectionFactory =
           new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
-      trackSelector = new DefaultTrackSelector(mainHandler, videoTrackSelectionFactory);
-      trackSelector.addListener(this);
-      trackSelector.addListener(eventLogger);
+      trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
       player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
           drmSessionManager, preferExtensionDecoders);
       player.addListener(this);
+
+      eventLogger = new EventLogger(trackSelector);
       player.addListener(eventLogger);
       player.setAudioDebugListener(eventLogger);
       player.setVideoDebugListener(eventLogger);
       player.setId3Output(eventLogger);
+
       simpleExoPlayerView.setPlayer(player);
-      if (shouldRestorePosition) {
+      if (isTimelineStatic) {
         if (playerPosition == C.TIME_UNSET) {
           player.seekToDefaultPosition(playerWindow);
         } else {
@@ -305,7 +309,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
-      player.prepare(mediaSource, !shouldRestorePosition);
+      player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -348,15 +352,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       debugViewHelper.stop();
       debugViewHelper = null;
       shouldAutoPlay = player.getPlayWhenReady();
-      shouldRestorePosition = false;
+      playerWindow = player.getCurrentWindowIndex();
+      playerPosition = C.TIME_UNSET;
       Timeline timeline = player.getCurrentTimeline();
-      if (timeline != null) {
-        playerWindow = player.getCurrentWindowIndex();
-        Timeline.Window window = timeline.getWindow(playerWindow, new Timeline.Window());
-        if (!window.isDynamic) {
-          shouldRestorePosition = true;
-          playerPosition = window.isSeekable ? player.getCurrentPosition() : C.TIME_UNSET;
-        }
+      if (timeline != null && timeline.getWindow(playerWindow, window).isSeekable) {
+        playerPosition = player.getCurrentPosition();
       }
       player.release();
       player = null;
@@ -412,7 +412,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
+    isTimelineStatic = timeline != null && timeline.getWindowCount() > 0
+        && !timeline.getWindow(timeline.getWindowCount() - 1, window).isDynamic;
   }
 
   @Override
@@ -448,17 +449,17 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     showControls();
   }
 
-  // MappingTrackSelector.EventListener implementation
-
   @Override
-  public void onTrackSelectionsChanged(TrackSelections<? extends MappedTrackInfo> trackSelections) {
+  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
     updateButtonVisibilities();
-    MappedTrackInfo trackInfo = trackSelections.info;
-    if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
-      showToast(R.string.error_unsupported_video);
-    }
-    if (trackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
-      showToast(R.string.error_unsupported_audio);
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    if (mappedTrackInfo != null) {
+      if (mappedTrackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
+        showToast(R.string.error_unsupported_video);
+      }
+      if (mappedTrackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
+        showToast(R.string.error_unsupported_audio);
+      }
     }
   }
 
@@ -474,14 +475,13 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       return;
     }
 
-    TrackSelections<MappedTrackInfo> trackSelections = trackSelector.getCurrentSelections();
-    if (trackSelections == null) {
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    if (mappedTrackInfo == null) {
       return;
     }
 
-    int rendererCount = trackSelections.length;
-    for (int i = 0; i < rendererCount; i++) {
-      TrackGroupArray trackGroups = trackSelections.info.getTrackGroups(i);
+    for (int i = 0; i < mappedTrackInfo.length; i++) {
+      TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(i);
       if (trackGroups.length != 0) {
         Button button = new Button(this);
         int label;
@@ -501,7 +501,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         button.setText(label);
         button.setTag(i);
         button.setOnClickListener(this);
-        debugRootView.addView(button);
+        debugRootView.addView(button, debugRootView.getChildCount() - 1);
       }
     }
   }

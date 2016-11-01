@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 
 /**
@@ -57,7 +58,7 @@ public final class ExoPlayerFactory {
    *     will not be used for DRM protected playbacks.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager) {
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     return newSimpleInstance(context, trackSelector, loadControl, drmSessionManager, false);
   }
 
@@ -75,7 +76,7 @@ public final class ExoPlayerFactory {
    *     included in the application build for setting this flag to have any effect.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager,
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean preferExtensionDecoders) {
     return newSimpleInstance(context, trackSelector, loadControl, drmSessionManager,
         preferExtensionDecoders, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
@@ -97,7 +98,7 @@ public final class ExoPlayerFactory {
    *     seamlessly join an ongoing playback.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager drmSessionManager,
+      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
     return new SimpleExoPlayer(context, trackSelector, loadControl, drmSessionManager,
         preferExtensionDecoders, allowedVideoJoiningTimeMs);

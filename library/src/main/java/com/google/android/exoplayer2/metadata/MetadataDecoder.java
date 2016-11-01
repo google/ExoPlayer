@@ -17,10 +17,8 @@ package com.google.android.exoplayer2.metadata;
 
 /**
  * Decodes metadata from binary data.
- *
- * @param <T> The type of the metadata.
  */
-public interface MetadataDecoder<T> {
+public interface MetadataDecoder {
 
   /**
    * Checks whether the decoder supports a given mime type.
@@ -38,6 +36,6 @@ public interface MetadataDecoder<T> {
    * @return The decoded metadata object.
    * @throws MetadataDecoderException If a problem occurred decoding the data.
    */
-  T decode(byte[] data, int size) throws MetadataDecoderException;
+  Metadata decode(byte[] data, int size) throws MetadataDecoderException;
 
 }

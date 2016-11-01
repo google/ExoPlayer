@@ -122,10 +122,10 @@ public final class SubtitleView extends View implements TextRenderer.Output {
 
   /**
    * Sets the text size to one derived from {@link CaptioningManager#getFontScale()}, or to a
-   * default size on API level 19 and earlier.
+   * default size before API level 19.
    */
   public void setUserDefaultTextSize() {
-    float fontScale = Util.SDK_INT >= 19 ? getUserCaptionFontScaleV19() : 1f;
+    float fontScale = Util.SDK_INT >= 19 && !isInEditMode() ? getUserCaptionFontScaleV19() : 1f;
     setFractionalTextSize(DEFAULT_TEXT_SIZE_FRACTION * fontScale);
   }
 
@@ -180,10 +180,11 @@ public final class SubtitleView extends View implements TextRenderer.Output {
 
   /**
    * Sets the caption style to be equivalent to the one returned by
-   * {@link CaptioningManager#getUserStyle()}, or to a default style on API level 19 and earlier.
+   * {@link CaptioningManager#getUserStyle()}, or to a default style before API level 19.
    */
   public void setUserDefaultStyle() {
-    setStyle(Util.SDK_INT >= 19 ? getUserCaptionStyleV19() : CaptionStyleCompat.DEFAULT);
+    setStyle(Util.SDK_INT >= 19 && !isInEditMode()
+        ? getUserCaptionStyleV19() : CaptionStyleCompat.DEFAULT);
   }
 
   /**

@@ -7,4 +7,4 @@
     android:layout_height="300dp"
     android:focusable="true"
     app:resize_mode="fixed_width"
-    app:use_texture_view="true"/>
+    app:surface_type="texture_view"/>

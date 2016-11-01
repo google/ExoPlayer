@@ -15,13 +15,15 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.google.android.exoplayer2.C;
@@ -29,12 +31,24 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Formatter;
 import java.util.Locale;
 
 /**
  * A view to control video playback of an {@link ExoPlayer}.
+ *
+ * By setting the view attribute {@code controller_layout_id} a layout resource to use can
+ * be customized. All views are optional but if the buttons should have an appropriate logic
+ * assigned, the id of the views in the layout have to match the expected ids as follows:
+ *
+ * <ul>
+ *    <li>Playback: {@code exo_play}, {@code exo_pause}, {@code exo_ffwd}, {@code exo_rew}.</li>
+ *    <li>Progress: {@code exo_progress}, {@code exo_time_current}, {@code exo_time}.</li>
+ *    <li>Playlist navigation: {@code exo_previous}, {@code exo_next}.</li>
+ * </ul>
  */
 public class PlaybackControlView extends FrameLayout {
 
@@ -52,7 +66,7 @@ public class PlaybackControlView extends FrameLayout {
 
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
   public static final int DEFAULT_REWIND_MS = 5000;
-  public static final int DEFAULT_SHOW_DURATION_MS = 5000;
+  public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
 
   private static final int PROGRESS_BAR_MAX = 1000;
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
@@ -60,12 +74,13 @@ public class PlaybackControlView extends FrameLayout {
   private final ComponentListener componentListener;
   private final View previousButton;
   private final View nextButton;
-  private final ImageButton playButton;
+  private final View playButton;
+  private final View pauseButton;
+  private final View fastForwardButton;
+  private final View rewindButton;
   private final TextView time;
   private final TextView timeCurrent;
   private final SeekBar progressBar;
-  private final View fastForwardButton;
-  private final View rewindButton;
   private final StringBuilder formatBuilder;
   private final Formatter formatter;
   private final Timeline.Window currentWindow;
@@ -73,10 +88,12 @@ public class PlaybackControlView extends FrameLayout {
   private ExoPlayer player;
   private VisibilityListener visibilityListener;
 
+  private boolean isAttachedToWindow;
   private boolean dragging;
-  private int rewindMs = DEFAULT_REWIND_MS;
-  private int fastForwardMs = DEFAULT_FAST_FORWARD_MS;
-  private int showDurationMs = DEFAULT_SHOW_DURATION_MS;
+  private int rewindMs;
+  private int fastForwardMs;
+  private int showTimeoutMs;
+  private long hideAtMs;
 
   private final Runnable updateProgressAction = new Runnable() {
     @Override
@@ -103,28 +120,61 @@ public class PlaybackControlView extends FrameLayout {
   public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
+    int controllerLayoutId = R.layout.exo_playback_control_view;
+    rewindMs = DEFAULT_REWIND_MS;
+    fastForwardMs = DEFAULT_FAST_FORWARD_MS;
+    showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
+    if (attrs != null) {
+      TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+          R.styleable.PlaybackControlView, 0, 0);
+      try {
+        rewindMs = a.getInt(R.styleable.PlaybackControlView_rewind_increment, rewindMs);
+        fastForwardMs = a.getInt(R.styleable.PlaybackControlView_fastforward_increment,
+            fastForwardMs);
+        showTimeoutMs = a.getInt(R.styleable.PlaybackControlView_show_timeout, showTimeoutMs);
+        controllerLayoutId = a.getResourceId(R.styleable.PlaybackControlView_controller_layout_id,
+            controllerLayoutId);
+      } finally {
+        a.recycle();
+      }
+    }
     currentWindow = new Timeline.Window();
     formatBuilder = new StringBuilder();
     formatter = new Formatter(formatBuilder, Locale.getDefault());
     componentListener = new ComponentListener();
 
-    LayoutInflater.from(context).inflate(R.layout.exo_playback_control_view, this);
-    time = (TextView) findViewById(R.id.time);
-    timeCurrent = (TextView) findViewById(R.id.time_current);
-    progressBar = (SeekBar) findViewById(R.id.mediacontroller_progress);
-    progressBar.setOnSeekBarChangeListener(componentListener);
-    progressBar.setMax(PROGRESS_BAR_MAX);
-    playButton = (ImageButton) findViewById(R.id.play);
-    playButton.setOnClickListener(componentListener);
-    previousButton = findViewById(R.id.prev);
-    previousButton.setOnClickListener(componentListener);
-    nextButton = findViewById(R.id.next);
-    nextButton.setOnClickListener(componentListener);
-    rewindButton = findViewById(R.id.rew);
-    rewindButton.setOnClickListener(componentListener);
-    fastForwardButton = findViewById(R.id.ffwd);
-    fastForwardButton.setOnClickListener(componentListener);
-    updateAll();
+    LayoutInflater.from(context).inflate(controllerLayoutId, this);
+    time = (TextView) findViewById(R.id.exo_time);
+    timeCurrent = (TextView) findViewById(R.id.exo_time_current);
+    progressBar = (SeekBar) findViewById(R.id.exo_progress);
+    if (progressBar != null) {
+      progressBar.setOnSeekBarChangeListener(componentListener);
+      progressBar.setMax(PROGRESS_BAR_MAX);
+    }
+    playButton = findViewById(R.id.exo_play);
+    if (playButton != null) {
+      playButton.setOnClickListener(componentListener);
+    }
+    pauseButton = findViewById(R.id.exo_pause);
+    if (pauseButton != null) {
+      pauseButton.setOnClickListener(componentListener);
+    }
+    previousButton = findViewById(R.id.exo_prev);
+    if (previousButton != null) {
+      previousButton.setOnClickListener(componentListener);
+    }
+    nextButton = findViewById(R.id.exo_next);
+    if (nextButton != null) {
+      nextButton.setOnClickListener(componentListener);
+    }
+    rewindButton = findViewById(R.id.exo_rew);
+    if (rewindButton != null) {
+      rewindButton.setOnClickListener(componentListener);
+    }
+    fastForwardButton = findViewById(R.id.exo_ffwd);
+    if (fastForwardButton != null) {
+      fastForwardButton.setOnClickListener(componentListener);
+    }
   }
 
   /**
@@ -169,6 +219,7 @@ public class PlaybackControlView extends FrameLayout {
    */
   public void setRewindIncrementMs(int rewindMs) {
     this.rewindMs = rewindMs;
+    updateNavigation();
   }
 
   /**
@@ -178,51 +229,60 @@ public class PlaybackControlView extends FrameLayout {
    */
   public void setFastForwardIncrementMs(int fastForwardMs) {
     this.fastForwardMs = fastForwardMs;
+    updateNavigation();
   }
 
   /**
-   * Sets the duration to show the playback control in milliseconds.
+   * Returns the playback controls timeout. The playback controls are automatically hidden after
+   * this duration of time has elapsed without user input.
    *
-   * @param showDurationMs The duration in milliseconds.
+   * @return The duration in milliseconds. A non-positive value indicates that the controls will
+   *     remain visible indefinitely.
    */
-  public void setShowDurationMs(int showDurationMs) {
-    this.showDurationMs = showDurationMs;
+  public int getShowTimeoutMs() {
+    return showTimeoutMs;
   }
 
   /**
-   * Shows the controller for the duration last passed to {@link #setShowDurationMs(int)}, or for
-   * {@link #DEFAULT_SHOW_DURATION_MS} if {@link #setShowDurationMs(int)} has not been called.
+   * Sets the playback controls timeout. The playback controls are automatically hidden after this
+   * duration of time has elapsed without user input.
+   *
+   * @param showTimeoutMs The duration in milliseconds. A non-positive value will cause the controls
+   *     to remain visible indefinitely.
+   */
+  public void setShowTimeoutMs(int showTimeoutMs) {
+    this.showTimeoutMs = showTimeoutMs;
+  }
+
+  /**
+   * Shows the playback controls. If {@link #getShowTimeoutMs()} is positive then the controls will
+   * be automatically hidden after this duration of time has elapsed without user input.
    */
   public void show() {
-    show(showDurationMs);
-  }
-
-  /**
-   * Shows the controller for the {@code durationMs}. If {@code durationMs} is 0 the controller is
-   * shown until {@link #hide()} is called.
-   *
-   * @param durationMs The duration in milliseconds.
-   */
-  public void show(int durationMs) {
-    setVisibility(VISIBLE);
-    if (visibilityListener != null) {
-      visibilityListener.onVisibilityChange(getVisibility());
+    if (!isVisible()) {
+      setVisibility(VISIBLE);
+      if (visibilityListener != null) {
+        visibilityListener.onVisibilityChange(getVisibility());
+      }
+      updateAll();
     }
-    updateAll();
-    showDurationMs = durationMs;
-    hideDeferred();
+    // Call hideAfterTimeout even if already visible to reset the timeout.
+    hideAfterTimeout();
   }
 
   /**
    * Hides the controller.
    */
   public void hide() {
-    setVisibility(GONE);
-    if (visibilityListener != null) {
-      visibilityListener.onVisibilityChange(getVisibility());
+    if (isVisible()) {
+      setVisibility(GONE);
+      if (visibilityListener != null) {
+        visibilityListener.onVisibilityChange(getVisibility());
+      }
+      removeCallbacks(updateProgressAction);
+      removeCallbacks(hideAction);
+      hideAtMs = C.TIME_UNSET;
     }
-    removeCallbacks(updateProgressAction);
-    removeCallbacks(hideAction);
   }
 
   /**
@@ -232,10 +292,15 @@ public class PlaybackControlView extends FrameLayout {
     return getVisibility() == VISIBLE;
   }
 
-  private void hideDeferred() {
+  private void hideAfterTimeout() {
     removeCallbacks(hideAction);
-    if (showDurationMs > 0) {
-      postDelayed(hideAction, showDurationMs);
+    if (showTimeoutMs > 0) {
+      hideAtMs = SystemClock.uptimeMillis() + showTimeoutMs;
+      if (isAttachedToWindow) {
+        postDelayed(hideAction, showTimeoutMs);
+      }
+    } else {
+      hideAtMs = C.TIME_UNSET;
     }
   }
 
@@ -246,19 +311,20 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void updatePlayPauseButton() {
-    if (!isVisible()) {
+    if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     boolean playing = player != null && player.getPlayWhenReady();
-    String contentDescription = getResources().getString(
-        playing ? R.string.exo_controls_pause_description : R.string.exo_controls_play_description);
-    playButton.setContentDescription(contentDescription);
-    playButton.setImageResource(
-        playing ? R.drawable.exo_controls_pause : R.drawable.exo_controls_play);
+    if (playButton != null) {
+      playButton.setVisibility(playing ? GONE : VISIBLE);
+    }
+    if (pauseButton != null) {
+      pauseButton.setVisibility(playing ? VISIBLE : GONE);
+    }
   }
 
   private void updateNavigation() {
-    if (!isVisible()) {
+    if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     Timeline currentTimeline = player != null ? player.getCurrentTimeline() : null;
@@ -276,27 +342,34 @@ public class PlaybackControlView extends FrameLayout {
     }
     setButtonEnabled(enablePrevious , previousButton);
     setButtonEnabled(enableNext, nextButton);
-    setButtonEnabled(isSeekable, fastForwardButton);
-    setButtonEnabled(isSeekable, rewindButton);
-    progressBar.setEnabled(isSeekable);
+    setButtonEnabled(fastForwardMs > 0 && isSeekable, fastForwardButton);
+    setButtonEnabled(rewindMs > 0 && isSeekable, rewindButton);
+    if (progressBar != null) {
+      progressBar.setEnabled(isSeekable);
+    }
   }
 
   private void updateProgress() {
-    if (!isVisible()) {
+    if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     long duration = player == null ? 0 : player.getDuration();
     long position = player == null ? 0 : player.getCurrentPosition();
-    time.setText(stringForTime(duration));
-    if (!dragging) {
+    if (time != null) {
+      time.setText(stringForTime(duration));
+    }
+    if (timeCurrent != null && !dragging) {
       timeCurrent.setText(stringForTime(position));
     }
-    if (!dragging) {
-      progressBar.setProgress(progressBarValue(position));
+
+    if (progressBar != null) {
+      if (!dragging) {
+        progressBar.setProgress(progressBarValue(position));
+      }
+      long bufferedPosition = player == null ? 0 : player.getBufferedPosition();
+      progressBar.setSecondaryProgress(progressBarValue(bufferedPosition));
+      // Remove scheduled updates.
     }
-    long bufferedPosition = player == null ? 0 : player.getBufferedPosition();
-    progressBar.setSecondaryProgress(progressBarValue(bufferedPosition));
-    // Remove scheduled updates.
     removeCallbacks(updateProgressAction);
     // Schedule an update if necessary.
     int playbackState = player == null ? ExoPlayer.STATE_IDLE : player.getPlaybackState();
@@ -315,13 +388,21 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void setButtonEnabled(boolean enabled, View view) {
+    if (view == null) {
+      return;
+    }
     view.setEnabled(enabled);
     if (Util.SDK_INT >= 11) {
-      view.setAlpha(enabled ? 1f : 0.3f);
+      setViewAlphaV11(view, enabled ? 1f : 0.3f);
       view.setVisibility(VISIBLE);
     } else {
       view.setVisibility(enabled ? VISIBLE : INVISIBLE);
     }
+  }
+
+  @TargetApi(11)
+  private void setViewAlphaV11(View view, float alpha) {
+    view.setAlpha(alpha);
   }
 
   private String stringForTime(long timeMs) {
@@ -377,11 +458,40 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void rewind() {
+    if (rewindMs <= 0) {
+      return;
+    }
     player.seekTo(Math.max(player.getCurrentPosition() - rewindMs, 0));
   }
 
   private void fastForward() {
+    if (fastForwardMs <= 0) {
+      return;
+    }
     player.seekTo(Math.min(player.getCurrentPosition() + fastForwardMs, player.getDuration()));
+  }
+
+  @Override
+  public void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    isAttachedToWindow = true;
+    if (hideAtMs != C.TIME_UNSET) {
+      long delayMs = hideAtMs - SystemClock.uptimeMillis();
+      if (delayMs <= 0) {
+        hide();
+      } else {
+        postDelayed(hideAction, delayMs);
+      }
+    }
+    updateAll();
+  }
+
+  @Override
+  public void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    isAttachedToWindow = false;
+    removeCallbacks(updateProgressAction);
+    removeCallbacks(hideAction);
   }
 
   @Override
@@ -431,7 +541,7 @@ public class PlaybackControlView extends FrameLayout {
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-      if (fromUser) {
+      if (fromUser && timeCurrent != null) {
         timeCurrent.setText(stringForTime(positionValue(progress)));
       }
     }
@@ -439,8 +549,10 @@ public class PlaybackControlView extends FrameLayout {
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
       dragging = false;
-      player.seekTo(positionValue(seekBar.getProgress()));
-      hideDeferred();
+      if (player != null) {
+        player.seekTo(positionValue(seekBar.getProgress()));
+      }
+      hideAfterTimeout();
     }
 
     @Override
@@ -467,25 +579,33 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
+    public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+      // Do nothing.
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException error) {
       // Do nothing.
     }
 
     @Override
     public void onClick(View view) {
-      Timeline currentTimeline = player.getCurrentTimeline();
-      if (nextButton == view) {
-        next();
-      } else if (previousButton == view) {
-        previous();
-      } else if (fastForwardButton == view) {
-        fastForward();
-      } else if (rewindButton == view && currentTimeline != null) {
-        rewind();
-      } else if (playButton == view) {
-        player.setPlayWhenReady(!player.getPlayWhenReady());
+      if (player != null) {
+        if (nextButton == view) {
+          next();
+        } else if (previousButton == view) {
+          previous();
+        } else if (fastForwardButton == view) {
+          fastForward();
+        } else if (rewindButton == view) {
+          rewind();
+        } else if (playButton == view) {
+          player.setPlayWhenReady(true);
+        } else if (pauseButton == view) {
+          player.setPlayWhenReady(false);
+        }
       }
-      hideDeferred();
+      hideAfterTimeout();
     }
 
   }

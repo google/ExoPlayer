@@ -47,7 +47,6 @@ public final class RawCcExtractor implements Extractor {
 
   private final ParsableByteArray dataScratch;
 
-  private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
 
   private int parserState;
@@ -63,10 +62,9 @@ public final class RawCcExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    this.extractorOutput = output;
-    extractorOutput.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
-    trackOutput = extractorOutput.track(0);
-    extractorOutput.endTracks();
+    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
+    trackOutput = output.track(0);
+    output.endTracks();
 
     trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
         null, Format.NO_VALUE, 0, null, null));

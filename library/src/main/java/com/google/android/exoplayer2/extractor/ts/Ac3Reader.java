@@ -18,14 +18,16 @@ package com.google.android.exoplayer2.extractor.ts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
  */
-/* package */ final class Ac3Reader extends ElementaryStreamReader {
+/* package */ final class Ac3Reader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;
@@ -36,6 +38,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
   private final String language;
+
+  private TrackOutput output;
 
   private int state;
   private int bytesRead;
@@ -54,21 +58,17 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
-   *
-   * @param output Track output for extracted samples.
    */
-  public Ac3Reader(TrackOutput output) {
-    this(output, null);
+  public Ac3Reader() {
+    this(null);
   }
 
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
    *
-   * @param output Track output for extracted samples.
    * @param language Track language.
    */
-  public Ac3Reader(TrackOutput output, String language) {
-    super(output);
+  public Ac3Reader(String language) {
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -80,6 +80,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
     state = STATE_FINDING_SYNC;
     bytesRead = 0;
     lastByteWas0B = false;
+  }
+
+  @Override
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
+    output = extractorOutput.track(generator.getNextId());
   }
 
   @Override
