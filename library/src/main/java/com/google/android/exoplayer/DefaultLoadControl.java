@@ -185,8 +185,7 @@ public final class DefaultLoadControl implements LoadControl {
       updateControlState();
     }
 
-    return currentBufferSize < targetBufferSize && nextLoadPositionUs != -1
-        && nextLoadPositionUs <= maxLoadStartPositionUs;
+    return nextLoadPositionUs != -1 && nextLoadPositionUs <= maxLoadStartPositionUs;
   }
 
   private int getLoaderBufferState(long playbackPositionUs, long nextLoadPositionUs) {
