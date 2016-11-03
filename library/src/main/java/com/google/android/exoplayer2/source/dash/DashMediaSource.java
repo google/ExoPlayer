@@ -424,9 +424,13 @@ public final class DashMediaSource implements MediaSource {
         // not correspond to the start of a segment in both, but this is an edge case.
         DashSegmentIndex index =
             period.adaptationSets.get(videoAdaptationSetIndex).representations.get(0).getIndex();
-        int segmentNum = index.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
-        windowDefaultStartPositionUs =
-            defaultStartPositionUs - defaultStartPositionInPeriodUs + index.getTimeUs(segmentNum);
+        if (index != null) {
+          int segmentNum = index.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
+          windowDefaultStartPositionUs =
+              defaultStartPositionUs - defaultStartPositionInPeriodUs + index.getTimeUs(segmentNum);
+        } else {
+          windowDefaultStartPositionUs = defaultStartPositionUs;
+        }
       } else {
         windowDefaultStartPositionUs = defaultStartPositionUs;
       }

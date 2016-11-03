@@ -84,7 +84,7 @@ public final class MimeTypes {
    * @return Whether the top level type is audio.
    */
   public static boolean isAudio(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_AUDIO);
+    return BASE_TYPE_AUDIO.equals(getTopLevelType(mimeType));
   }
 
   /**
@@ -94,7 +94,7 @@ public final class MimeTypes {
    * @return Whether the top level type is video.
    */
   public static boolean isVideo(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_VIDEO);
+    return BASE_TYPE_VIDEO.equals(getTopLevelType(mimeType));
   }
 
   /**
@@ -104,7 +104,7 @@ public final class MimeTypes {
    * @return Whether the top level type is text.
    */
   public static boolean isText(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_TEXT);
+    return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType));
   }
 
   /**
@@ -114,7 +114,7 @@ public final class MimeTypes {
    * @return Whether the top level type is application.
    */
   public static boolean isApplication(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_APPLICATION);
+    return BASE_TYPE_APPLICATION.equals(getTopLevelType(mimeType));
   }
 
 
@@ -237,9 +237,12 @@ public final class MimeTypes {
    * Returns the top-level type of {@code mimeType}.
    *
    * @param mimeType The mimeType whose top-level type is required.
-   * @return The top-level type.
+   * @return The top-level type, or null if the mimeType is null.
    */
   private static String getTopLevelType(String mimeType) {
+    if (mimeType == null) {
+      return null;
+    }
     int indexOfSlash = mimeType.indexOf('/');
     if (indexOfSlash == -1) {
       throw new IllegalArgumentException("Invalid mime type: " + mimeType);

@@ -81,6 +81,9 @@ public interface SubtitleDecoderFactory {
     }
 
     private Class<?> getDecoderClass(String mimeType) {
+      if (mimeType == null) {
+        return null;
+      }
       try {
         switch (mimeType) {
           case MimeTypes.TEXT_VTT:
