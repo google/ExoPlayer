@@ -48,7 +48,110 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
 
 /**
- * Displays a video stream.
+ * A high level view for {@link SimpleExoPlayer} media playbacks. It displays video, subtitles and
+ * album art during playback, and displays playback controls using a {@link PlaybackControlView}.
+ * <p>
+ * A SimpleExoPlayerView can be customized by setting attributes (or calling corresponding methods),
+ * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
+ *
+ * <h3>Attributes</h3>
+ * The following attributes can be set on a SimpleExoPlayerView when used in a layout XML file:
+ * <p>
+ * <ul>
+ *   <li><b>{@code use_artwork}</b> - Whether artwork is used if available in audio streams.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setUseArtwork(boolean)}</li>
+ *         <li>Default: {@code true}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code use_controller}</b> - Whether playback controls are displayed.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setUseController(boolean)}</li>
+ *         <li>Default: {@code true}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
+ *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setResizeMode(int)}</li>
+ *         <li>Default: {@code fit}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code surface_type}</b> - The type of surface view used for video playbacks. Valid
+ *       values are {@code surface_view}, {@code texture_view} and {@code none}. Using {@code none}
+ *       is recommended for audio only applications, since creating the surface can be expensive.
+ *       Using {@code surface_view} is recommended for video applications.
+ *       <ul>
+ *         <li>Corresponding method: None</li>
+ *         <li>Default: {@code surface_view}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code player_layout_id}</b> - Specifies the id of the layout to be inflated. See below
+ *       for more details.
+ *       <ul>
+ *         <li>Corresponding method: None</li>
+ *         <li>Default: {@code R.id.exo_simple_player_view}</li>
+ *       </ul>
+ *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout resource to be
+ *       inflated by the child {@link PlaybackControlView}. See below for more details.
+ *       <ul>
+ *         <li>Corresponding method: None</li>
+ *         <li>Default: {@code R.id.exo_playback_control_view}</li>
+ *       </ul>
+ *   <li>All attributes that can be set on a {@link PlaybackControlView} can also be set on a
+ *       SimpleExoPlayerView, and will be propagated to the inflated {@link PlaybackControlView}.
+ *   </li>
+ * </ul>
+ *
+ * <h3>Overriding the layout file</h3>
+ * To customize the layout of SimpleExoPlayerView throughout your app, or just for certain
+ * configurations, you can define {@code exo_simple_player_view.xml} layout files in your
+ * application {@code res/layout*} directories. These layouts will override the one provided by the
+ * ExoPlayer library, and will be inflated for use by SimpleExoPlayerView. The view identifies and
+ * binds its children by looking for the following ids:
+ * <p>
+ * <ul>
+ *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
+ *       or album art of the media being played, and the configured {@code resize_mode}. The video
+ *       surface view is inflated into this frame as its first child.
+ *       <ul>
+ *         <li>Type: {@link AspectRatioFrameLayout}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_shutter}</b> - A view that's made visible when video should be hidden. This
+ *       view is typically an opaque view that covers the video surface view, thereby obscuring it
+ *       when visible.
+ *       <ul>
+ *        <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_subtitles}</b> - Displays subtitles.
+ *       <ul>
+ *        <li>Type: {@link SubtitleView}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_artwork}</b> - Displays album art.
+ *       <ul>
+ *        <li>Type: {@link ImageView}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
+ *       {@link PlaybackControlView}.
+ *       <ul>
+ *        <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ * </ul>
+ * <p>
+ * All child views are optional and so can be omitted if not required, however where defined they
+ * must be of the expected type.
+ *
+ * <h3>Specifying a custom layout file</h3>
+ * Defining your own {@code exo_simple_player_view.xml} is useful to customize the layout of
+ * SimpleExoPlayerView throughout your application. It's also possible to customize the layout for a
+ * single instance in a layout file. This is achieved by setting the {@code player_layout_id}
+ * attribute on a SimpleExoPlayerView. This will cause the specified layout to be inflated instead
+ * of {@code exo_simple_player_view.xml} for only the instance on which the attribute is set.
  */
 @TargetApi(16)
 public final class SimpleExoPlayerView extends FrameLayout {
@@ -145,24 +248,19 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     // Playback control view.
-    PlaybackControlView controller = (PlaybackControlView) findViewById(R.id.exo_controller);
-    if (controller != null) {
-      controller.setRewindIncrementMs(rewindMs);
-      controller.setFastForwardIncrementMs(fastForwardMs);
+    View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+    if (controllerPlaceholder != null) {
+      // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
+      // calls to set them.
+      this.controller = new PlaybackControlView(context, attrs);
+      controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
+      ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
+      int controllerIndex = parent.indexOfChild(controllerPlaceholder);
+      parent.removeView(controllerPlaceholder);
+      parent.addView(controller, controllerIndex);
     } else {
-      View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
-      if (controllerPlaceholder != null) {
-        // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
-        // calls to set them.
-        controller = new PlaybackControlView(context, attrs);
-        controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
-        ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
-        int controllerIndex = parent.indexOfChild(controllerPlaceholder);
-        parent.removeView(controllerPlaceholder);
-        parent.addView(controller, controllerIndex);
-      }
+      this.controller = null;
     }
-    this.controller = controller;
     this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
     this.useController = useController && controller != null;
     hideController();

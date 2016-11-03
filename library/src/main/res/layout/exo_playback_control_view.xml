@@ -53,7 +53,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView android:id="@id/exo_time_current"
+    <TextView android:id="@id/exo_position"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center_horizontal"
@@ -70,7 +70,7 @@
       android:layout_height="32dp"
       style="?android:attr/progressBarStyleHorizontal"/>
 
-    <TextView android:id="@id/exo_time"
+    <TextView android:id="@id/exo_duration"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center_horizontal"

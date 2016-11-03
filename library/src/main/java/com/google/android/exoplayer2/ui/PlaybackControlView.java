@@ -38,17 +38,109 @@ import java.util.Formatter;
 import java.util.Locale;
 
 /**
- * A view to control video playback of an {@link ExoPlayer}.
+ * A view for controlling {@link ExoPlayer} instances.
+ * <p>
+ * A PlaybackControlView can be customized by setting attributes (or calling corresponding methods),
+ * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
  *
- * By setting the view attribute {@code controller_layout_id} a layout resource to use can
- * be customized. All views are optional but if the buttons should have an appropriate logic
- * assigned, the id of the views in the layout have to match the expected ids as follows:
- *
+ * <h3>Attributes</h3>
+ * The following attributes can be set on a PlaybackControlView when used in a layout XML file:
+ * <p>
  * <ul>
- *    <li>Playback: {@code exo_play}, {@code exo_pause}, {@code exo_ffwd}, {@code exo_rew}.</li>
- *    <li>Progress: {@code exo_progress}, {@code exo_time_current}, {@code exo_time}.</li>
- *    <li>Playlist navigation: {@code exo_previous}, {@code exo_next}.</li>
+ *   <li><b>{@code show_timeout}</b> - The time between the last user interaction and the controls
+ *       being automatically hidden, in milliseconds. Use zero if the controls should not
+ *       automatically timeout.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setShowTimeoutMs(int)}</li>
+ *         <li>Default: {@link #DEFAULT_SHOW_TIMEOUT_MS}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code rewind_increment}</b> - The duration of the rewind applied when the user taps the
+ *       rewind button, in milliseconds. Use zero to disable the rewind button.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setRewindIncrementMs(int)}</li>
+ *         <li>Default: {@link #DEFAULT_REWIND_MS}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code fastforward_increment}</b> - Like {@code rewind_increment}, but for fast forward.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setFastForwardIncrementMs(int)}</li>
+ *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
+ *       below for more details.
+ *       <ul>
+ *         <li>Corresponding method: None</li>
+ *         <li>Default: {@code R.id.exo_playback_control_view}</li>
+ *       </ul>
+ *   </li>
  * </ul>
+ *
+ * <h3>Overriding the layout file</h3>
+ * To customize the layout of PlaybackControlView throughout your app, or just for certain
+ * configurations, you can define {@code exo_playback_control_view.xml} layout files in your
+ * application {@code res/layout*} directories. These layouts will override the one provided by the
+ * ExoPlayer library, and will be inflated for use by PlaybackControlView. The view identifies and
+ * binds its children by looking for the following ids:
+ * <p>
+ * <ul>
+ *   <li><b>{@code exo_play}</b> - The play button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_pause}</b> - The pause button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_ffwd}</b> - The fast forward button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_rew}</b> - The rewind button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_prev}</b> - The previous track button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_next}</b> - The next track button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
+ *       <ul>
+ *         <li>Type: {@link TextView}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_duration}</b> - Text view displaying the current media duration.
+ *       <ul>
+ *         <li>Type: {@link TextView}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_progress}</b> - Seek bar that's updated during playback and allows seeking.
+ *       <ul>
+ *         <li>Type: {@link SeekBar}</li>
+ *       </ul>
+ *   </li>
+ * </ul>
+ * <p>
+ * All child views are optional and so can be omitted if not required, however where defined they
+ * must be of the expected type.
+ *
+ * <h3>Specifying a custom layout file</h3>
+ * Defining your own {@code exo_playback_control_view.xml} is useful to customize the layout of
+ * PlaybackControlView throughout your application. It's also possible to customize the layout for a
+ * single instance in a layout file. This is achieved by setting the {@code controller_layout_id}
+ * attribute on a PlaybackControlView. This will cause the specified layout to be inflated instead
+ * of {@code exo_playback_control_view.xml} for only the instance on which the attribute is set.
  */
 public class PlaybackControlView extends FrameLayout {
 
@@ -78,8 +170,8 @@ public class PlaybackControlView extends FrameLayout {
   private final View pauseButton;
   private final View fastForwardButton;
   private final View rewindButton;
-  private final TextView time;
-  private final TextView timeCurrent;
+  private final TextView durationView;
+  private final TextView positionView;
   private final SeekBar progressBar;
   private final StringBuilder formatBuilder;
   private final Formatter formatter;
@@ -144,8 +236,8 @@ public class PlaybackControlView extends FrameLayout {
     componentListener = new ComponentListener();
 
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
-    time = (TextView) findViewById(R.id.exo_time);
-    timeCurrent = (TextView) findViewById(R.id.exo_time_current);
+    durationView = (TextView) findViewById(R.id.exo_duration);
+    positionView = (TextView) findViewById(R.id.exo_position);
     progressBar = (SeekBar) findViewById(R.id.exo_progress);
     if (progressBar != null) {
       progressBar.setOnSeekBarChangeListener(componentListener);
@@ -215,7 +307,8 @@ public class PlaybackControlView extends FrameLayout {
   /**
    * Sets the rewind increment in milliseconds.
    *
-   * @param rewindMs The rewind increment in milliseconds.
+   * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
+   *     rewind button to be disabled.
    */
   public void setRewindIncrementMs(int rewindMs) {
     this.rewindMs = rewindMs;
@@ -225,7 +318,8 @@ public class PlaybackControlView extends FrameLayout {
   /**
    * Sets the fast forward increment in milliseconds.
    *
-   * @param fastForwardMs The fast forward increment in milliseconds.
+   * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
+   *     cause the fast forward button to be disabled.
    */
   public void setFastForwardIncrementMs(int fastForwardMs) {
     this.fastForwardMs = fastForwardMs;
@@ -355,11 +449,11 @@ public class PlaybackControlView extends FrameLayout {
     }
     long duration = player == null ? 0 : player.getDuration();
     long position = player == null ? 0 : player.getCurrentPosition();
-    if (time != null) {
-      time.setText(stringForTime(duration));
+    if (durationView != null) {
+      durationView.setText(stringForTime(duration));
     }
-    if (timeCurrent != null && !dragging) {
-      timeCurrent.setText(stringForTime(position));
+    if (positionView != null && !dragging) {
+      positionView.setText(stringForTime(position));
     }
 
     if (progressBar != null) {
@@ -541,8 +635,8 @@ public class PlaybackControlView extends FrameLayout {
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-      if (fromUser && timeCurrent != null) {
-        timeCurrent.setText(stringForTime(positionValue(progress)));
+      if (fromUser && positionView != null) {
+        positionView.setText(stringForTime(positionValue(progress)));
       }
     }
 
