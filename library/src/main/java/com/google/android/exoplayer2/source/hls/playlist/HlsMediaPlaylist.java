@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.C;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,6 +62,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public int compareTo(Long startTimeUs) {
       return this.startTimeUs > startTimeUs ? 1 : (this.startTimeUs < startTimeUs ? -1 : 0);
     }
+
+    public Segment copyWithStartTimeUs(long startTimeUs) {
+      return new Segment(url, durationSecs, discontinuitySequenceNumber, startTimeUs, isEncrypted,
+          encryptionKeyUri, encryptionIV, byterangeOffset, byterangeLength);
+    }
+
   }
 
   public static final String ENCRYPTION_METHOD_NONE = "NONE";
@@ -70,25 +78,51 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final int version;
   public final Segment initializationSegment;
   public final List<Segment> segments;
-  public final boolean live;
+  public final boolean hasEndTag;
   public final long durationUs;
 
   public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
-      boolean live, Segment initializationSegment, List<Segment> segments) {
+      boolean hasEndTag, Segment initializationSegment, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;
     this.targetDurationSecs = targetDurationSecs;
     this.version = version;
-    this.live = live;
+    this.hasEndTag = hasEndTag;
     this.initializationSegment = initializationSegment;
-    this.segments = segments;
+    this.segments = Collections.unmodifiableList(segments);
 
     if (!segments.isEmpty()) {
+      Segment first = segments.get(0);
       Segment last = segments.get(segments.size() - 1);
-      durationUs = last.startTimeUs + (long) (last.durationSecs * C.MICROS_PER_SECOND);
+      durationUs = last.startTimeUs + (long) (last.durationSecs * C.MICROS_PER_SECOND)
+          - first.startTimeUs;
     } else {
       durationUs = 0;
     }
+  }
+
+  public long getStartTimeUs() {
+    return segments.isEmpty() ? 0 : segments.get(0).startTimeUs;
+  }
+
+  public long getEndTimeUs() {
+    return getStartTimeUs() + durationUs;
+  }
+
+  public HlsMediaPlaylist copyWithStartTimeUs(long newStartTimeUs) {
+    long startTimeOffsetUs = newStartTimeUs - getStartTimeUs();
+    int segmentsSize = segments.size();
+    List<Segment> newSegments = new ArrayList<>(segmentsSize);
+    for (int i = 0; i < segmentsSize; i++) {
+      Segment segment = segments.get(i);
+      newSegments.add(segment.copyWithStartTimeUs(segment.startTimeUs + startTimeOffsetUs));
+    }
+    return copyWithSegments(newSegments);
+  }
+
+  public HlsMediaPlaylist copyWithSegments(List<Segment> segments) {
+    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, hasEndTag,
+        initializationSegment, segments);
   }
 
 }

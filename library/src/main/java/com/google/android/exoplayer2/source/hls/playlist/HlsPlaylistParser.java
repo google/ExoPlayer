@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -214,7 +213,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int mediaSequence = 0;
     int targetDurationSecs = 0;
     int version = 1; // Default version == 1.
-    boolean live = true;
+    boolean hasEndTag = false;
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
 
@@ -298,11 +297,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.equals(TAG_ENDLIST)) {
-        live = false;
+        hasEndTag = true;
       }
     }
-    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live,
-        initializationSegment, Collections.unmodifiableList(segments));
+    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, hasEndTag,
+        initializationSegment, segments);
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {

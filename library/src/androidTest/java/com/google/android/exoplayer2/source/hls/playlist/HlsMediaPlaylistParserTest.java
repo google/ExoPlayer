@@ -74,7 +74,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals(2679, mediaPlaylist.mediaSequence);
       assertEquals(8, mediaPlaylist.targetDurationSecs);
       assertEquals(3, mediaPlaylist.version);
-      assertEquals(false, mediaPlaylist.live);
+      assertEquals(true, mediaPlaylist.hasEndTag);
       List<HlsMediaPlaylist.Segment> segments = mediaPlaylist.segments;
       assertNotNull(segments);
       assertEquals(5, segments.size());
