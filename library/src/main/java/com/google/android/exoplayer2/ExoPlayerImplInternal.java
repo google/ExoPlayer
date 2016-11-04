@@ -139,6 +139,9 @@ import java.io.IOException;
   private int customMessagesProcessed;
   private long elapsedRealtimeUs;
 
+  private int pendingInitialSeekCount;
+  private int pendingSeekWindowIndex;
+  private long pendingSeekWindowPositionUs;
   private long rendererPositionUs;
 
   private boolean isTimelineReady;
@@ -189,8 +192,8 @@ import java.io.IOException;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void seekTo(int periodIndex, long positionUs) {
-    handler.obtainMessage(MSG_SEEK_TO, periodIndex, 0, positionUs).sendToTarget();
+  public void seekTo(int windowIndex, long positionUs) {
+    handler.obtainMessage(MSG_SEEK_TO, windowIndex, 0, positionUs).sendToTarget();
   }
 
   public void stop() {
@@ -510,16 +513,19 @@ import java.io.IOException;
     }
   }
 
-  private void seekToInternal(int periodIndex, long periodPositionUs) throws ExoPlaybackException {
-    try {
-      if (periodPositionUs == C.TIME_UNSET && timeline != null
-          && periodIndex < timeline.getPeriodCount()) {
-        // We know about the window, so seek to its default initial position now.
-        Pair<Integer, Long> defaultPosition = getDefaultPosition(periodIndex);
-        periodIndex = defaultPosition.first;
-        periodPositionUs = defaultPosition.second;
-      }
+  private void seekToInternal(int windowIndex, long positionUs) throws ExoPlaybackException {
+    if (timeline == null) {
+      pendingInitialSeekCount++;
+      pendingSeekWindowIndex = windowIndex;
+      pendingSeekWindowPositionUs = positionUs;
+      return;
+    }
 
+    Pair<Integer, Long> periodPosition = getPeriodPosition(windowIndex, positionUs);
+    int periodIndex = periodPosition.first;
+    long periodPositionUs = periodPosition.second;
+
+    try {
       if (periodIndex == playbackInfo.periodIndex
           && ((periodPositionUs == C.TIME_UNSET && playbackInfo.positionUs == C.TIME_UNSET)
           || ((periodPositionUs / 1000) == (playbackInfo.positionUs / 1000)))) {
@@ -529,7 +535,7 @@ import java.io.IOException;
       periodPositionUs = seekToPeriodPosition(periodIndex, periodPositionUs);
     } finally {
       playbackInfo = new PlaybackInfo(periodIndex, periodPositionUs);
-      eventHandler.obtainMessage(MSG_SEEK_ACK, playbackInfo).sendToTarget();
+      eventHandler.obtainMessage(MSG_SEEK_ACK, 1, 0, playbackInfo).sendToTarget();
     }
   }
 
@@ -819,6 +825,15 @@ import java.io.IOException;
     Timeline oldTimeline = this.timeline;
     this.timeline = timelineAndManifest.first;
 
+    if (pendingInitialSeekCount > 0) {
+      Pair<Integer, Long> periodPosition = getPeriodPosition(pendingSeekWindowIndex,
+          pendingSeekWindowPositionUs);
+      playbackInfo = new PlaybackInfo(periodPosition.first, periodPosition.second);
+      eventHandler.obtainMessage(MSG_SEEK_ACK, pendingInitialSeekCount, 0, playbackInfo)
+          .sendToTarget();
+      pendingInitialSeekCount = 0;
+    }
+
     // Update the loaded periods to take into account the new timeline.
     if (playingPeriodHolder != null) {
       int index = timeline.getIndexOfPeriod(playingPeriodHolder.uid);
@@ -922,7 +937,8 @@ import java.io.IOException;
     loadingPeriodHolder = null;
 
     // Find the default initial position in the window and seek to it.
-    Pair<Integer, Long> defaultPosition = getDefaultPosition(newPeriodIndex);
+    Pair<Integer, Long> defaultPosition = getPeriodPosition(
+        timeline.getPeriod(newPeriodIndex, period).windowIndex, C.TIME_UNSET);
     newPeriodIndex = defaultPosition.first;
     long newPlayingPositionUs = defaultPosition.second;
 
@@ -930,17 +946,24 @@ import java.io.IOException;
     eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
   }
 
-  private Pair<Integer, Long> getDefaultPosition(int periodIndex) {
-    timeline.getPeriod(periodIndex, period);
-    timeline.getWindow(period.windowIndex, window);
-    periodIndex = window.firstPeriodIndex;
+  /**
+   * Converts (windowIndex, windowPositionUs) to the corresponding (periodIndex, periodPositionUs).
+   *
+   * @param windowIndex The window index.
+   * @param windowPositionUs The window time, or {@link C#TIME_UNSET} to use the window's default
+   *     start position.
+   * @return The corresponding (periodIndex, periodPositionUs).
+   */
+  private Pair<Integer, Long> getPeriodPosition(int windowIndex, long windowPositionUs) {
+    timeline.getWindow(windowIndex, window);
+    int periodIndex = window.firstPeriodIndex;
     long periodPositionUs = window.getPositionInFirstPeriodUs()
-        + window.getDefaultPositionUs();
-    timeline.getPeriod(periodIndex, period);
-    while (periodIndex < window.lastPeriodIndex
-        && periodPositionUs > period.getDurationMs()) {
-      periodPositionUs -= period.getDurationUs();
-      timeline.getPeriod(periodIndex++, period);
+        + (windowPositionUs == C.TIME_UNSET ? window.getDefaultPositionUs() : windowPositionUs);
+    long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
+    while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
+        && periodIndex < window.lastPeriodIndex) {
+      periodPositionUs -= periodDurationUs;
+      periodDurationUs = timeline.getPeriod(++periodIndex, period).getDurationUs();
     }
     return Pair.create(periodIndex, periodPositionUs);
   }
@@ -970,7 +993,7 @@ import java.io.IOException;
         if (periodStartPositionUs == C.TIME_UNSET) {
           // This is the first period of a new window or we don't have a start position, so seek to
           // the default position for the window.
-          Pair<Integer, Long> defaultPosition = getDefaultPosition(newLoadingPeriodIndex);
+          Pair<Integer, Long> defaultPosition = getPeriodPosition(windowIndex, C.TIME_UNSET);
           newLoadingPeriodIndex = defaultPosition.first;
           periodStartPositionUs = defaultPosition.second;
         }
