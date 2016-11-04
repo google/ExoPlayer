@@ -1069,12 +1069,12 @@ import java.io.IOException;
     if (playingPeriodHolder == null) {
       // This is the first prepared period, so start playing it.
       readingPeriodHolder = loadingPeriodHolder;
+      resetRendererPosition(readingPeriodHolder.startPositionUs);
       setPlayingPeriodHolder(readingPeriodHolder);
       if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         // Update the playback info when seeking to a default position.
         playbackInfo = new PlaybackInfo(playingPeriodHolder.index,
             playingPeriodHolder.startPositionUs);
-        resetRendererPosition(playbackInfo.startPositionUs);
         updatePlaybackPositions();
         eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
       }
@@ -1116,8 +1116,7 @@ import java.io.IOException;
     }
   }
 
-  private void setPlayingPeriodHolder(MediaPeriodHolder periodHolder)
-      throws ExoPlaybackException {
+  private void setPlayingPeriodHolder(MediaPeriodHolder periodHolder) throws ExoPlaybackException {
     int enabledRendererCount = 0;
     boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
