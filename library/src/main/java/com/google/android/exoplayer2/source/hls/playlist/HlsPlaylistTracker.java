@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -61,6 +62,12 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     void onPlaylistChanged();
 
   }
+
+  /**
+   * Determines the minimum amount of time by which a media playlist segment's start time has to
+   * drift from the actual start time of the chunk it refers to for it to be adjusted.
+   */
+  private static final long TIMESTAMP_ADJUSTMENT_THRESHOLD_US = 500000;
 
   /**
    * Period for refreshing playlists.
@@ -182,6 +189,17 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     return isLive;
   }
 
+  /**
+   * Called when a chunk from a media playlist is loaded.
+   *
+   * @param hlsUrl The url of the playlist from which the chunk was obtained.
+   * @param chunkMediaSequence The media sequence number of the loaded chunk.
+   * @param adjustedStartTimeUs The adjusted start time of the loaded chunk.
+   */
+  public void onChunkLoaded(HlsUrl hlsUrl, int chunkMediaSequence, long adjustedStartTimeUs) {
+    playlistBundles.get(hlsUrl).adjustTimestampsOfPlaylist(chunkMediaSequence, adjustedStartTimeUs);
+  }
+
   // Loader.Callback implementation.
 
   @Override
@@ -262,7 +280,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   /**
-   * TODO: Allow chunks to feed adjusted timestamps back to the playlist tracker.
    * TODO: Track discontinuities for media playlists that don't include the discontinuity number.
    */
   private HlsMediaPlaylist adjustPlaylistTimestamps(HlsMediaPlaylist oldPlaylist,
@@ -293,7 +310,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       HlsMediaPlaylist.Segment lastSegment = oldSegments.get(oldPlaylistSize - 1);
       for (int i = newPlaylistSize - newSegmentsCount; i < newPlaylistSize; i++) {
         lastSegment = newPlaylist.segments.get(i).copyWithStartTimeUs(
-            lastSegment.startTimeUs + (long) lastSegment.durationSecs * C.MICROS_PER_SECOND);
+            lastSegment.startTimeUs + lastSegment.durationUs);
         newSegments.add(lastSegment);
       }
       return newPlaylist.copyWithSegments(newSegments);
@@ -341,6 +358,34 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     public void setCallback(PlaylistRefreshCallback callback) {
       this.callback = callback;
+    }
+
+    public void adjustTimestampsOfPlaylist(int chunkMediaSequence, long adjustedStartTimeUs) {
+      ArrayList<Segment> segments = new ArrayList<>(latestPlaylistSnapshot.segments);
+      int indexOfChunk = chunkMediaSequence - latestPlaylistSnapshot.mediaSequence;
+      if (indexOfChunk < 0) {
+        return;
+      }
+      Segment actualSegment = segments.get(indexOfChunk);
+      long timestampDriftUs = Math.abs(actualSegment.startTimeUs - adjustedStartTimeUs);
+      if (timestampDriftUs < TIMESTAMP_ADJUSTMENT_THRESHOLD_US) {
+        return;
+      }
+      segments.set(indexOfChunk, actualSegment.copyWithStartTimeUs(adjustedStartTimeUs));
+      // Propagate the adjustment backwards.
+      for (int i = indexOfChunk - 1; i >= 0; i--) {
+        Segment segment = segments.get(i);
+        segments.set(i,
+            segment.copyWithStartTimeUs(segments.get(i + 1).startTimeUs - segment.durationUs));
+      }
+      // Propagate the adjustment forward.
+      int segmentsSize = segments.size();
+      for (int i = indexOfChunk + 1; i < segmentsSize; i++) {
+        Segment segment = segments.get(i);
+        segments.set(i,
+            segment.copyWithStartTimeUs(segments.get(i - 1).startTimeUs + segment.durationUs));
+      }
+      latestPlaylistSnapshot = latestPlaylistSnapshot.copyWithSegments(segments);
     }
 
     // Loader.Callback implementation.

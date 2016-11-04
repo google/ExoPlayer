@@ -31,7 +31,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final class Segment implements Comparable<Long> {
 
     public final String url;
-    public final double durationSecs;
+    public final long durationUs;
     public final int discontinuitySequenceNumber;
     public final long startTimeUs;
     public final boolean isEncrypted;
@@ -44,11 +44,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this(uri, 0, -1, C.TIME_UNSET, false, null, null, byterangeOffset, byterangeLength);
     }
 
-    public Segment(String uri, double durationSecs, int discontinuitySequenceNumber,
+    public Segment(String uri, long durationUs, int discontinuitySequenceNumber,
         long startTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
         long byterangeOffset, long byterangeLength) {
       this.url = uri;
-      this.durationSecs = durationSecs;
+      this.durationUs = durationUs;
       this.discontinuitySequenceNumber = discontinuitySequenceNumber;
       this.startTimeUs = startTimeUs;
       this.isEncrypted = isEncrypted;
@@ -64,28 +64,23 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
 
     public Segment copyWithStartTimeUs(long startTimeUs) {
-      return new Segment(url, durationSecs, discontinuitySequenceNumber, startTimeUs, isEncrypted,
+      return new Segment(url, durationUs, discontinuitySequenceNumber, startTimeUs, isEncrypted,
           encryptionKeyUri, encryptionIV, byterangeOffset, byterangeLength);
     }
 
   }
 
-  public static final String ENCRYPTION_METHOD_NONE = "NONE";
-  public static final String ENCRYPTION_METHOD_AES_128 = "AES-128";
-
   public final int mediaSequence;
-  public final int targetDurationSecs;
   public final int version;
   public final Segment initializationSegment;
   public final List<Segment> segments;
   public final boolean hasEndTag;
   public final long durationUs;
 
-  public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
+  public HlsMediaPlaylist(String baseUri, int mediaSequence, int version,
       boolean hasEndTag, Segment initializationSegment, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;
-    this.targetDurationSecs = targetDurationSecs;
     this.version = version;
     this.hasEndTag = hasEndTag;
     this.initializationSegment = initializationSegment;
@@ -94,8 +89,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     if (!segments.isEmpty()) {
       Segment first = segments.get(0);
       Segment last = segments.get(segments.size() - 1);
-      durationUs = last.startTimeUs + (long) (last.durationSecs * C.MICROS_PER_SECOND)
-          - first.startTimeUs;
+      durationUs = last.startTimeUs + last.durationUs - first.startTimeUs;
     } else {
       durationUs = 0;
     }
@@ -121,7 +115,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   public HlsMediaPlaylist copyWithSegments(List<Segment> segments) {
-    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, hasEndTag,
+    return new HlsMediaPlaylist(baseUri, mediaSequence, version, hasEndTag,
         initializationSegment, segments);
   }
 

@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
@@ -49,6 +49,11 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public final Extractor extractor;
 
+  /**
+   * The url of the playlist from which this chunk was obtained.
+   */
+  public final HlsUrl hlsUrl;
+
   private final boolean isEncrypted;
   private final boolean extractorNeedsInit;
   private final boolean shouldSpliceIn;
@@ -64,7 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
-   * @param trackFormat See {@link #trackFormat}.
+   * @param hlsUrl The url of the playlist from which this chunk was obtained.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
@@ -81,13 +86,14 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
-  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
+  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, HlsUrl hlsUrl,
       int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
       int chunkIndex, int discontinuitySequenceNumber, boolean isMasterTimestampSource,
       TimestampAdjuster timestampAdjuster, Extractor extractor, boolean extractorNeedsInit,
       boolean shouldSpliceIn, byte[] encryptionKey, byte[] encryptionIv) {
-    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, trackFormat,
+    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, hlsUrl.format,
         trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
+    this.hlsUrl = hlsUrl;
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;

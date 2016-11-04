@@ -267,7 +267,7 @@ import java.util.Locale;
     if (previous != null && !switchingVariant) {
       startTimeUs = previous.getAdjustedEndTimeUs();
     }
-    long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
+    long endTimeUs = startTimeUs + segment.durationUs;
     Format format = variants[newVariantIndex].format;
 
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
@@ -322,7 +322,7 @@ import java.util.Locale;
         // This flag ensures the change of pid between streams does not affect the sample queues.
         @DefaultTsPayloadReaderFactory.Flags
         int esReaderFactoryFlags = 0;
-        String codecs = variants[newVariantIndex].format.codecs;
+        String codecs = format.codecs;
         if (!TextUtils.isEmpty(codecs)) {
           // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
           // exist. If we know from the codec attribute that they don't exist, then we can
@@ -353,7 +353,7 @@ import java.util.Locale;
     // Configure the data source and spec for the chunk.
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(dataSource, dataSpec, format,
+    out.chunk = new HlsMediaChunk(dataSource, dataSpec, variants[newVariantIndex],
         trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, endTimeUs, chunkMediaSequence, segment.discontinuitySequenceNumber,
         isTimestampMaster, timestampAdjuster, extractor, extractorNeedsInit, switchingVariant,
@@ -367,6 +367,11 @@ import java.util.Locale;
    * @param chunk The chunk whose load has been completed.
    */
   public void onChunkLoadCompleted(Chunk chunk) {
+    if (chunk instanceof HlsMediaChunk) {
+      HlsMediaChunk mediaChunk = (HlsMediaChunk) chunk;
+      playlistTracker.onChunkLoaded(mediaChunk.hlsUrl, mediaChunk.chunkIndex,
+          mediaChunk.getAdjustedStartTimeUs());
+    }
     if (chunk instanceof HlsInitializationChunk) {
       lastLoadedInitializationChunk = (HlsInitializationChunk) chunk;
     } else if (chunk instanceof EncryptionKeyChunk) {

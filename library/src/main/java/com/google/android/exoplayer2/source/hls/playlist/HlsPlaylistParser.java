@@ -217,7 +217,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
 
-    double segmentDurationSecs = 0.0;
+    long segmentDurationUs = 0;
     int discontinuitySequenceNumber = 0;
     long segmentStartTimeUs = 0;
     long segmentByteRangeOffset = 0;
@@ -252,7 +252,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_VERSION)) {
         version = parseIntAttr(line, REGEX_VERSION);
       } else if (line.startsWith(TAG_MEDIA_DURATION)) {
-        segmentDurationSecs = parseDoubleAttr(line, REGEX_MEDIA_DURATION);
+        segmentDurationUs =
+            (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_KEY)) {
         String method = parseStringAttr(line, REGEX_METHOD);
         isEncrypted = METHOD_AES128.equals(method);
@@ -287,11 +288,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
           segmentByteRangeOffset = 0;
         }
-        segments.add(new Segment(line, segmentDurationSecs, discontinuitySequenceNumber,
+        segments.add(new Segment(line, segmentDurationUs, discontinuitySequenceNumber,
             segmentStartTimeUs, isEncrypted, encryptionKeyUri, segmentEncryptionIV,
             segmentByteRangeOffset, segmentByteRangeLength));
-        segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
-        segmentDurationSecs = 0.0;
+        segmentStartTimeUs += segmentDurationUs;
+        segmentDurationUs = 0;
         if (segmentByteRangeLength != C.LENGTH_UNSET) {
           segmentByteRangeOffset += segmentByteRangeLength;
         }
@@ -300,7 +301,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasEndTag = true;
       }
     }
-    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, hasEndTag,
+    return new HlsMediaPlaylist(baseUri, mediaSequence, version, hasEndTag,
         initializationSegment, segments);
   }
 
