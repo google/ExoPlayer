@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -311,6 +312,14 @@ public class TestUtil {
       }
     }
     fileOrDirectory.delete();
+  }
+
+  /** Creates an empty folder in the application specific cache directory. */
+  public static File createTempFolder(Context context) throws IOException {
+    File tempFolder = File.createTempFile("ExoPlayerTest", null, context.getCacheDir());
+    Assert.assertTrue(tempFolder.delete());
+    Assert.assertTrue(tempFolder.mkdir());
+    return tempFolder;
   }
 
 }

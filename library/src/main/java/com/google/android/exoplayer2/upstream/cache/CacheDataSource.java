@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
 import android.support.annotation.IntDef;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -26,7 +25,6 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Retention;
@@ -80,8 +78,6 @@ public final class CacheDataSource implements DataSource {
     void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead);
 
   }
-
-  private static final String TAG = "CacheDataSource";
 
   private final Cache cache;
   private final DataSource cacheReadDataSource;
@@ -164,7 +160,7 @@ public final class CacheDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       flags = dataSpec.flags;
-      key = dataSpec.key != null ? dataSpec.key : Util.sha1(uri.toString());
+      key = dataSpec.key != null ? dataSpec.key : uri.toString();
       readPosition = dataSpec.position;
       currentRequestIgnoresCache = ignoreCacheOnError && seenCacheError;
       if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
@@ -333,10 +329,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   private void setContentLength(long length) {
-    if (!cache.setContentLength(key, length)) {
-      Log.e(TAG, "cache.setContentLength(" + length + ") failed. cache.getContentLength() = "
-          + cache.getContentLength(key));
-    }
+    cache.setContentLength(key, length);
   }
 
   private void closeCurrentSource() throws IOException {

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -144,20 +143,6 @@ public class UtilTest extends TestCase {
   public void testParseXsDateTime() throws ParseException {
     assertEquals(1403219262000L, Util.parseXsDateTime("2014-06-19T23:07:42"));
     assertEquals(1407322800000L, Util.parseXsDateTime("2014-08-06T11:00:00Z"));
-  }
-
-  public void testGetHexStringByteArray() throws Exception {
-    assertHexStringByteArray("", new byte[] {});
-    assertHexStringByteArray("01", new byte[] {1});
-    assertHexStringByteArray("FF", new byte[] {(byte) 255});
-    assertHexStringByteArray("01020304", new byte[] {1, 2, 3, 4});
-    assertHexStringByteArray("0123456789ABCDEF",
-        new byte[] {1, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF});
-  }
-
-  private void assertHexStringByteArray(String hex, byte[] array) {
-    assertEquals(hex, Util.getHexString(array));
-    MoreAsserts.assertEquals(array, Util.getBytesFromHexString(hex));
   }
 
   public void testUnescapeInvalidFileName() {

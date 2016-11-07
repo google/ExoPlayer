@@ -187,10 +187,8 @@ public interface Cache {
    *
    * @param key The cache key for the data.
    * @param length The length of the data.
-   * @return Whether the length was set successfully. Returns false if the length conflicts with the
-   *     existing contents of the cache.
    */
-  boolean setContentLength(String key, long length);
+  void setContentLength(String key, long length);
 
   /**
    * Returns the content length for the given key if one set, or {@link

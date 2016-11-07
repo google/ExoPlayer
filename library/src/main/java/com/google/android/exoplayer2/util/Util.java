@@ -34,15 +34,12 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -97,7 +94,6 @@ public final class Util {
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
-  private static final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 
   private Util() {}
 
@@ -215,13 +211,14 @@ public final class Util {
   }
 
   /**
-   * Closes an {@link OutputStream}, suppressing any {@link IOException} that may occur.
+   * Closes a {@link Closeable}, suppressing any {@link IOException} that may occur. Both {@link
+   * java.io.OutputStream} and {@link InputStream} are {@code Closeable}.
    *
-   * @param outputStream The {@link OutputStream} to close.
+   * @param closeable The {@link Closeable} to close.
    */
-  public static void closeQuietly(OutputStream outputStream) {
+  public static void closeQuietly(Closeable closeable) {
     try {
-      outputStream.close();
+      closeable.close();
     } catch (IOException e) {
       // Ignore.
     }
@@ -631,21 +628,6 @@ public final class Util {
   }
 
   /**
-   * Returns a hex string representation of the given byte array.
-   *
-   * @param bytes The byte array.
-   */
-  public static String getHexString(byte[] bytes) {
-    char[] hexChars = new char[bytes.length * 2];
-    int i = 0;
-    for (byte v : bytes) {
-      hexChars[i++] = HEX_DIGITS[(v >> 4) & 0xf];
-      hexChars[i++] = HEX_DIGITS[v & 0xf];
-    }
-    return new String(hexChars);
-  }
-
-  /**
    * Returns a string with comma delimited simple names of each object's class.
    *
    * @param objects The objects whose simple class names should be comma delimited and returned.
@@ -867,22 +849,6 @@ public final class Util {
           ^ CRC32_BYTES_MSBF[((initialValue >>> 24) ^ (bytes[i] & 0xFF)) & 0xFF];
     }
     return initialValue;
-  }
-
-  /**
-   * Returns the SHA-1 digest of {@code input} as a hex string.
-   *
-   * @param input The string whose SHA-1 digest is required.
-   */
-  public static String sha1(String input) {
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-1");
-      byte[] bytes = input.getBytes("UTF-8");
-      digest.update(bytes, 0, bytes.length);
-      return getHexString(digest.digest());
-    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   /**
