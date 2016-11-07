@@ -177,14 +177,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int windowIndex, long positionMs) {
+    if (windowIndex < 0 || (timeline != null && windowIndex >= timeline.getWindowCount())) {
+      throw new IndexOutOfBoundsException();
+    }
     pendingSeekAcks++;
     maskingWindowIndex = windowIndex;
     if (positionMs == C.TIME_UNSET) {
       maskingWindowPositionMs = 0;
-      internalPlayer.seekTo(windowIndex, C.TIME_UNSET);
+      internalPlayer.seekTo(timeline, windowIndex, C.TIME_UNSET);
     } else {
       maskingWindowPositionMs = positionMs;
-      internalPlayer.seekTo(windowIndex, C.msToUs(positionMs));
+      internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
       for (EventListener listener : listeners) {
         listener.onPositionDiscontinuity();
       }

@@ -140,8 +140,7 @@ import java.io.IOException;
   private long elapsedRealtimeUs;
 
   private int pendingInitialSeekCount;
-  private int pendingSeekWindowIndex;
-  private long pendingSeekWindowPositionUs;
+  private SeekPosition pendingSeekPosition;
   private long rendererPositionUs;
 
   private boolean isTimelineReady;
@@ -192,8 +191,9 @@ import java.io.IOException;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void seekTo(int windowIndex, long positionUs) {
-    handler.obtainMessage(MSG_SEEK_TO, windowIndex, 0, positionUs).sendToTarget();
+  public void seekTo(Timeline timeline, int windowIndex, long positionUs) {
+    handler.obtainMessage(MSG_SEEK_TO, new SeekPosition(timeline, windowIndex, positionUs))
+        .sendToTarget();
   }
 
   public void stop() {
@@ -286,7 +286,7 @@ import java.io.IOException;
           return true;
         }
         case MSG_SEEK_TO: {
-          seekToInternal(msg.arg1, (Long) msg.obj);
+          seekToInternal((SeekPosition) msg.obj);
           return true;
         }
         case MSG_STOP: {
@@ -513,15 +513,21 @@ import java.io.IOException;
     }
   }
 
-  private void seekToInternal(int windowIndex, long positionUs) throws ExoPlaybackException {
+  private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
     if (timeline == null) {
       pendingInitialSeekCount++;
-      pendingSeekWindowIndex = windowIndex;
-      pendingSeekWindowPositionUs = positionUs;
+      pendingSeekPosition = seekPosition;
       return;
     }
 
-    Pair<Integer, Long> periodPosition = getPeriodPosition(windowIndex, positionUs);
+    Pair<Integer, Long> periodPosition = resolveSeekPosition(seekPosition);
+    if (periodPosition == null) {
+      // TODO: We should probably propagate an error here.
+      // We failed to resolve the seek position. Stop the player.
+      stopInternal();
+      return;
+    }
+
     int periodIndex = periodPosition.first;
     long periodPositionUs = periodPosition.second;
 
@@ -826,19 +832,25 @@ import java.io.IOException;
     this.timeline = timelineAndManifest.first;
 
     if (pendingInitialSeekCount > 0) {
-      Pair<Integer, Long> periodPosition = getPeriodPosition(pendingSeekWindowIndex,
-          pendingSeekWindowPositionUs);
+      Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingSeekPosition);
+      if (periodPosition == null) {
+        // TODO: We should probably propagate an error here.
+        // We failed to resolve the seek position. Stop the player.
+        stopInternal();
+        return;
+      }
       playbackInfo = new PlaybackInfo(periodPosition.first, periodPosition.second);
       eventHandler.obtainMessage(MSG_SEEK_ACK, pendingInitialSeekCount, 0, playbackInfo)
           .sendToTarget();
       pendingInitialSeekCount = 0;
+      pendingSeekPosition = null;
     }
 
     // Update the loaded periods to take into account the new timeline.
     if (playingPeriodHolder != null) {
       int index = timeline.getIndexOfPeriod(playingPeriodHolder.uid);
       if (index == C.INDEX_UNSET) {
-        attemptRestart(timeline, oldTimeline, playingPeriodHolder.index);
+        attemptRestart(playingPeriodHolder.index, oldTimeline, timeline);
         return;
       }
 
@@ -893,7 +905,7 @@ import java.io.IOException;
       Object uid = loadingPeriodHolder.uid;
       int index = timeline.getIndexOfPeriod(uid);
       if (index == C.INDEX_UNSET) {
-        attemptRestart(timeline, oldTimeline, loadingPeriodHolder.index);
+        attemptRestart(loadingPeriodHolder.index, oldTimeline, timeline);
         return;
       } else {
         int windowIndex = timeline.getPeriod(index, this.period).windowIndex;
@@ -915,14 +927,10 @@ import java.io.IOException;
     }
   }
 
-  private void attemptRestart(Timeline newTimeline, Timeline oldTimeline, int oldPeriodIndex) {
-    int newPeriodIndex = C.INDEX_UNSET;
-    while (newPeriodIndex == C.INDEX_UNSET
-        && oldPeriodIndex < oldTimeline.getPeriodCount() - 1) {
-      newPeriodIndex =
-          newTimeline.getIndexOfPeriod(oldTimeline.getPeriod(++oldPeriodIndex, period, true).uid);
-    }
+  private void attemptRestart(int oldPeriodIndex, Timeline oldTimeline, Timeline newTimeline) {
+    int newPeriodIndex = resolveSubsequentPeriod(oldPeriodIndex, oldTimeline, newTimeline);
     if (newPeriodIndex == C.INDEX_UNSET) {
+      // TODO: We should probably propagate an error here.
       // We failed to find a replacement period. Stop the player.
       stopInternal();
       return;
@@ -947,14 +955,82 @@ import java.io.IOException;
   }
 
   /**
+   * Given a period index into an old timeline, finds the first subsequent period that also exists
+   * in a new timeline. The index of this period in the new timeline is returned.
+   *
+   * @param oldPeriodIndex The index of the period in the old timeline.
+   * @param oldTimeline The old timeline.
+   * @param newTimeline The new timeline.
+   * @return The index in the new timeline of the first subsequent period, or {@link C#INDEX_UNSET}
+   *     if no such period was found.
+   */
+  private int resolveSubsequentPeriod(int oldPeriodIndex, Timeline oldTimeline,
+      Timeline newTimeline) {
+    int newPeriodIndex = C.INDEX_UNSET;
+    while (newPeriodIndex == C.INDEX_UNSET && oldPeriodIndex < oldTimeline.getPeriodCount() - 1) {
+      newPeriodIndex = newTimeline.getIndexOfPeriod(
+          oldTimeline.getPeriod(++oldPeriodIndex, period, true).uid);
+    }
+    return newPeriodIndex;
+  }
+
+  /**
+   * Converts a {@link SeekPosition} into the corresponding (periodIndex, periodPositionUs) for the
+   * internal timeline.
+   *
+   * @param seekPosition The position to resolve.
+   * @return The resolved position, or null if resolution was not successful.
+   */
+  private Pair<Integer, Long> resolveSeekPosition(SeekPosition seekPosition) {
+    Timeline seekTimeline = seekPosition.timeline;
+    if (seekTimeline == null) {
+      // The application performed a blind seek without a timeline (most likely based on knowledge
+      // of what the timeline will be). Use the internal timeline.
+      seekTimeline = timeline;
+      Assertions.checkIndex(seekPosition.windowIndex, 0, timeline.getWindowCount());
+    }
+    // Map the SeekPosition to a position in the corresponding timeline.
+    Pair<Integer, Long> periodPosition = getPeriodPosition(seekTimeline, seekPosition.windowIndex,
+        seekPosition.windowPositionUs);
+    if (timeline == seekTimeline) {
+      // Our internal timeline is the seek timeline, so the mapped position is correct.
+      return periodPosition;
+    }
+    // Attempt to find the mapped period in the internal timeline.
+    int periodIndex = timeline.getIndexOfPeriod(
+        seekTimeline.getPeriod(periodPosition.first, period, true).uid);
+    if (periodIndex != C.INDEX_UNSET) {
+      // We successfully located the period in the internal timeline.
+      return Pair.create(periodIndex, periodPosition.second);
+    }
+    // Try and find a subsequent period from the seek timeline in the internal timeline.
+    periodIndex = resolveSubsequentPeriod(periodPosition.first, seekTimeline, timeline);
+    if (periodIndex != C.INDEX_UNSET) {
+      // We found one. Map the SeekPosition onto the corresponding default position.
+      return getPeriodPosition(timeline.getPeriod(periodIndex, period).windowIndex, C.TIME_UNSET);
+    }
+    // We didn't find one. Give up.
+    return null;
+  }
+
+  /**
+   * Calls {@link #getPeriodPosition(Timeline, int, long)} using the current timeline.
+   */
+  private Pair<Integer, Long> getPeriodPosition(int windowIndex, long windowPositionUs) {
+    return getPeriodPosition(timeline, windowIndex, windowPositionUs);
+  }
+
+  /**
    * Converts (windowIndex, windowPositionUs) to the corresponding (periodIndex, periodPositionUs).
    *
+   * @param timeline The timeline containing the window.
    * @param windowIndex The window index.
    * @param windowPositionUs The window time, or {@link C#TIME_UNSET} to use the window's default
    *     start position.
    * @return The corresponding (periodIndex, periodPositionUs).
    */
-  private Pair<Integer, Long> getPeriodPosition(int windowIndex, long windowPositionUs) {
+  private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
+      long windowPositionUs) {
     timeline.getWindow(windowIndex, window);
     int periodIndex = window.firstPeriodIndex;
     long periodPositionUs = window.getPositionInFirstPeriodUs()
@@ -1340,6 +1416,20 @@ import java.io.IOException;
         // There's nothing we can do.
         Log.e(TAG, "Period release failed.", e);
       }
+    }
+
+  }
+
+  private static final class SeekPosition {
+
+    public final Timeline timeline;
+    public final int windowIndex;
+    public final long windowPositionUs;
+
+    public SeekPosition(Timeline timeline, int windowIndex, long windowPositionUs) {
+      this.timeline = timeline;
+      this.windowIndex = windowIndex;
+      this.windowPositionUs = windowPositionUs;
     }
 
   }
