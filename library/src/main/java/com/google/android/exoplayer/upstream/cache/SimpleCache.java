@@ -221,21 +221,14 @@ public final class SimpleCache implements Cache {
 
     index.load();
 
-    SimpleCacheSpan.upgradeOldFiles(cacheDir, index);
-
     File[] files = cacheDir.listFiles();
     if (files == null) {
       return;
     }
     for (File file : files) {
-      String name = file.getName();
-      if (!name.endsWith(SimpleCacheSpan.SUFFIX)) {
-        if (!name.equals(CachedContentIndex.FILE_NAME)) {
-          file.delete(); // Delete unknown files
-        }
+      if (file.getName().equals(CachedContentIndex.FILE_NAME)) {
         continue;
       }
-
       SimpleCacheSpan span = file.length() > 0
           ? SimpleCacheSpan.createCacheEntry(file, index) : null;
       if (span != null) {

@@ -27,14 +27,13 @@ import java.util.regex.Pattern;
  */
 /*package*/ final class SimpleCacheSpan extends CacheSpan {
 
-  private static final String FILE_EXTENSION = "exo";
-  public static final String SUFFIX = ".v3." + FILE_EXTENSION;
+  private static final String SUFFIX = ".v3.exo";
   private static final Pattern CACHE_FILE_PATTERN_V1 = Pattern.compile(
-      "^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\." + FILE_EXTENSION + "$", Pattern.DOTALL);
+      "^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\.exo$", Pattern.DOTALL);
   private static final Pattern CACHE_FILE_PATTERN_V2 = Pattern.compile(
-      "^(.+)\\.(\\d+)\\.(\\d+)\\.v2\\." + FILE_EXTENSION + "$", Pattern.DOTALL);
+      "^(.+)\\.(\\d+)\\.(\\d+)\\.v2\\.exo$", Pattern.DOTALL);
   private static final Pattern CACHE_FILE_PATTERN_V3 = Pattern.compile(
-      "^(\\d+)\\.(\\d+)\\.(\\d+)\\.v3\\." + FILE_EXTENSION + "$", Pattern.DOTALL);
+      "^(\\d+)\\.(\\d+)\\.(\\d+)\\.v3\\.exo$", Pattern.DOTALL);
 
   public static File getCacheFile(File cacheDir, int id, long position,
       long lastAccessTimestamp) {
@@ -54,7 +53,7 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Creates a cache span from an underlying cache file.
+   * Creates a cache span from an underlying cache file. Upgrades the file if necessary.
    *
    * @param file The cache file.
    * @param index Cached content index.
@@ -62,7 +61,15 @@ import java.util.regex.Pattern;
    *     present in the content index.
    */
   public static SimpleCacheSpan createCacheEntry(File file, CachedContentIndex index) {
-    Matcher matcher = CACHE_FILE_PATTERN_V3.matcher(file.getName());
+    String name = file.getName();
+    if (!name.endsWith(SUFFIX)) {
+      file = upgradeFile(file, index);
+      if (file == null) {
+        return null;
+      }
+    }
+
+    Matcher matcher = CACHE_FILE_PATTERN_V3.matcher(name);
     if (!matcher.matches()) {
       return null;
     }
@@ -73,36 +80,29 @@ import java.util.regex.Pattern;
         Long.parseLong(matcher.group(3)), file);
   }
 
-  /** Upgrades span files with old versions. */
-  public static void upgradeOldFiles(File cacheDir, CachedContentIndex index) {
-    for (File file : cacheDir.listFiles()) {
-      String name = file.getName();
-      if (!name.endsWith(SUFFIX) && name.endsWith(FILE_EXTENSION)) {
-        upgradeFile(file, index);
-      }
-    }
-  }
-
-  private static void upgradeFile(File file, CachedContentIndex index) {
+  private static File upgradeFile(File file, CachedContentIndex index) {
     String key;
     String filename = file.getName();
     Matcher matcher = CACHE_FILE_PATTERN_V2.matcher(filename);
     if (matcher.matches()) {
       key = Util.unescapeFileName(matcher.group(1));
       if (key == null) {
-        return;
+        return null;
       }
     } else {
       matcher = CACHE_FILE_PATTERN_V1.matcher(filename);
       if (!matcher.matches()) {
-        return;
+        return null;
       }
       key = matcher.group(1); // Keys were not escaped in version 1.
     }
 
     File newCacheFile = getCacheFile(file.getParentFile(), index.assignIdForKey(key),
         Long.parseLong(matcher.group(2)), Long.parseLong(matcher.group(3)));
-    file.renameTo(newCacheFile);
+    if (!file.renameTo(newCacheFile)) {
+      return null;
+    }
+    return newCacheFile;
   }
 
   private SimpleCacheSpan(String key, long position, long length, long lastAccessTimestamp,
