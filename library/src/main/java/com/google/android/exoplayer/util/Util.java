@@ -33,6 +33,7 @@ import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -235,13 +236,14 @@ public final class Util {
   }
 
   /**
-   * Closes an {@link OutputStream}, suppressing any {@link IOException} that may occur.
+   * Closes a {@link Closeable}, suppressing any {@link IOException} that may occur. Both {@link
+   * java.io.OutputStream} and {@link InputStream} are {@code Closeable}.
    *
-   * @param outputStream The {@link OutputStream} to close.
+   * @param closeable The {@link Closeable} to close.
    */
-  public static void closeQuietly(OutputStream outputStream) {
+  public static void closeQuietly(Closeable closeable) {
     try {
-      outputStream.close();
+      closeable.close();
     } catch (IOException e) {
       // Ignore.
     }

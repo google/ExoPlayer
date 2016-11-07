@@ -21,8 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.LinkedList;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -35,7 +34,7 @@ public final class SimpleCache implements Cache {
   private final File cacheDir;
   private final CacheEvictor evictor;
   private final HashMap<String, CacheSpan> lockedSpans;
-  private final HashMap<String, TreeSet<CacheSpan>> cachedSpans;
+  private final CachedContentIndex index;
   private final HashMap<String, ArrayList<Listener>> listeners;
   private long totalSpace = 0;
 
@@ -49,7 +48,7 @@ public final class SimpleCache implements Cache {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.lockedSpans = new HashMap<>();
-    this.cachedSpans = new HashMap<>();
+    this.index = new CachedContentIndex(cacheDir);
     this.listeners = new HashMap<>();
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -59,6 +58,7 @@ public final class SimpleCache implements Cache {
         synchronized (SimpleCache.this) {
           conditionVariable.open();
           initialize();
+          SimpleCache.this.evictor.onCacheInitialized();
         }
       }
     }.start();
@@ -89,13 +89,13 @@ public final class SimpleCache implements Cache {
 
   @Override
   public synchronized NavigableSet<CacheSpan> getCachedSpans(String key) {
-    TreeSet<CacheSpan> spansForKey = cachedSpans.get(key);
-    return spansForKey == null ? null : new TreeSet<>(spansForKey);
+    CachedContent cachedContent = index.get(key);
+    return cachedContent == null ? null : new TreeSet<CacheSpan>(cachedContent.getSpans());
   }
 
   @Override
   public synchronized Set<String> getKeys() {
-    return new HashSet<>(cachedSpans.keySet());
+    return new HashSet<>(index.getKeys());
   }
 
   @Override
@@ -104,11 +104,10 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized CacheSpan startReadWrite(String key, long position)
+  public synchronized SimpleCacheSpan startReadWrite(String key, long position)
       throws InterruptedException {
-    CacheSpan lookupSpan = CacheSpan.createLookup(key, position);
     while (true) {
-      CacheSpan span = startReadWriteNonBlocking(lookupSpan);
+      SimpleCacheSpan span = startReadWriteNonBlocking(key, position);
       if (span != null) {
         return span;
       } else {
@@ -122,31 +121,21 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized CacheSpan startReadWriteNonBlocking(String key, long position) {
-    return startReadWriteNonBlocking(CacheSpan.createLookup(key, position));
-  }
-
-  private synchronized CacheSpan startReadWriteNonBlocking(CacheSpan lookupSpan) {
-    CacheSpan spanningRegion = getSpan(lookupSpan);
+  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position) {
+    SimpleCacheSpan cacheSpan = getSpan(key, position);
 
     // Read case.
-    if (spanningRegion.isCached) {
-      CacheSpan oldCacheSpan = spanningRegion;
-      // Remove the old span from the in-memory representation.
-      TreeSet<CacheSpan> spansForKey = cachedSpans.get(oldCacheSpan.key);
-      Assertions.checkState(spansForKey.remove(oldCacheSpan));
+    if (cacheSpan.isCached) {
       // Obtain a new span with updated last access timestamp.
-      spanningRegion = oldCacheSpan.touch();
-      // Add the updated span back into the in-memory representation.
-      spansForKey.add(spanningRegion);
-      notifySpanTouched(oldCacheSpan, spanningRegion);
-      return spanningRegion;
+      SimpleCacheSpan newCacheSpan = index.get(key).touch(cacheSpan);
+      notifySpanTouched(cacheSpan, newCacheSpan);
+      return newCacheSpan;
     }
 
     // Write case, lock available.
-    if (!lockedSpans.containsKey(lookupSpan.key)) {
-      lockedSpans.put(lookupSpan.key, spanningRegion);
-      return spanningRegion;
+    if (!lockedSpans.containsKey(key)) {
+      lockedSpans.put(key, cacheSpan);
+      return cacheSpan;
     }
 
     // Write case, lock not available.
@@ -154,20 +143,21 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized File startFile(String key, long position, long length) {
+  public synchronized File startFile(String key, long position, long maxLength) {
     Assertions.checkState(lockedSpans.containsKey(key));
     if (!cacheDir.exists()) {
       // For some reason the cache directory doesn't exist. Make a best effort to create it.
-      removeStaleSpans();
+      removeStaleSpansAndCachedContents();
       cacheDir.mkdirs();
     }
-    evictor.onStartFile(this, key, position, length);
-    return CacheSpan.getCacheFileName(cacheDir, key, position, System.currentTimeMillis());
+    evictor.onStartFile(this, key, position, maxLength);
+    return SimpleCacheSpan.getCacheFile(cacheDir, index.assignIdForKey(key), position,
+        System.currentTimeMillis());
   }
 
   @Override
   public synchronized void commitFile(File file) {
-    CacheSpan span = CacheSpan.createCacheEntry(file);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(file, index);
     Assertions.checkState(span != null);
     Assertions.checkState(lockedSpans.containsKey(span.key));
     // If the file doesn't exist, don't add it to the in-memory representation.
@@ -175,12 +165,12 @@ public final class SimpleCache implements Cache {
       return;
     }
     // If the file has length 0, delete it and don't add it to the in-memory representation.
-    long length = file.length();
-    if (length == 0) {
+    if (file.length() == 0) {
       file.delete();
       return;
     }
     addSpan(span);
+    index.store();
     notifyAll();
   }
 
@@ -191,40 +181,33 @@ public final class SimpleCache implements Cache {
   }
 
   /**
-   * Returns the cache {@link CacheSpan} corresponding to the provided lookup {@link CacheSpan}.
-   * <p>
-   * If the lookup position is contained by an existing entry in the cache, then the returned
-   * {@link CacheSpan} defines the file in which the data is stored. If the lookup position is not
-   * contained by an existing entry, then the returned {@link CacheSpan} defines the maximum extents
-   * of the hole in the cache.
+   * Returns the cache {@link SimpleCacheSpan} corresponding to the provided lookup {@link
+   * SimpleCacheSpan}.
    *
-   * @param lookupSpan A lookup {@link CacheSpan} specifying a key and position.
-   * @return The corresponding cache {@link CacheSpan}.
+   * <p>If the lookup position is contained by an existing entry in the cache, then the returned
+   * {@link SimpleCacheSpan} defines the file in which the data is stored. If the lookup position is
+   * not contained by an existing entry, then the returned {@link SimpleCacheSpan} defines the
+   * maximum extents of the hole in the cache.
+   *
+   * @param key The key of the span being requested.
+   * @param position The position of the span being requested.
+   * @return The corresponding cache {@link SimpleCacheSpan}.
    */
-  private CacheSpan getSpan(CacheSpan lookupSpan) {
-    String key = lookupSpan.key;
-    long offset = lookupSpan.position;
-    TreeSet<CacheSpan> entries = cachedSpans.get(key);
-    if (entries == null) {
-      return CacheSpan.createOpenHole(key, lookupSpan.position);
+  private SimpleCacheSpan getSpan(String key, long position) {
+    CachedContent cachedContent = index.get(key);
+    if (cachedContent == null) {
+      return SimpleCacheSpan.createOpenHole(key, position);
     }
-    CacheSpan floorSpan = entries.floor(lookupSpan);
-    if (floorSpan != null &&
-        floorSpan.position <= offset && offset < floorSpan.position + floorSpan.length) {
-      // The lookup position is contained within floorSpan.
-      if (floorSpan.file.exists()) {
-        return floorSpan;
-      } else {
+    while (true) {
+      SimpleCacheSpan span = cachedContent.getSpan(position);
+      if (span.isCached && !span.file.exists()) {
         // The file has been deleted from under us. It's likely that other files will have been
         // deleted too, so scan the whole in-memory representation.
-        removeStaleSpans();
-        return getSpan(lookupSpan);
+        removeStaleSpansAndCachedContents();
+        continue;
       }
+      return span;
     }
-    CacheSpan ceilEntry = entries.ceiling(lookupSpan);
-    return ceilEntry == null ? CacheSpan.createOpenHole(key, lookupSpan.position) :
-        CacheSpan.createClosedHole(key, lookupSpan.position,
-            ceilEntry.position - lookupSpan.position);
   }
 
   /**
@@ -233,26 +216,37 @@ public final class SimpleCache implements Cache {
   private void initialize() {
     if (!cacheDir.exists()) {
       cacheDir.mkdirs();
+      return;
     }
+
+    index.load();
+
+    SimpleCacheSpan.upgradeOldFiles(cacheDir, index);
+
     File[] files = cacheDir.listFiles();
     if (files == null) {
       return;
     }
-    for (int i = 0; i < files.length; i++) {
-      File file = files[i];
-      if (file.length() == 0) {
-        file.delete();
-      } else {
-        file = CacheSpan.upgradeIfNeeded(file);
-        CacheSpan span = CacheSpan.createCacheEntry(file);
-        if (span == null) {
-          file.delete();
-        } else {
-          addSpan(span);
+    for (File file : files) {
+      String name = file.getName();
+      if (!name.endsWith(SimpleCacheSpan.SUFFIX)) {
+        if (!name.equals(CachedContentIndex.FILE_NAME)) {
+          file.delete(); // Delete unknown files
         }
+        continue;
+      }
+
+      SimpleCacheSpan span = file.length() > 0
+          ? SimpleCacheSpan.createCacheEntry(file, index) : null;
+      if (span != null) {
+        addSpan(span);
+      } else {
+        file.delete();
       }
     }
-    evictor.onCacheInitialized();
+
+    index.removeEmpty();
+    index.store();
   }
 
   /**
@@ -260,55 +254,47 @@ public final class SimpleCache implements Cache {
    *
    * @param span The span to be added.
    */
-  private void addSpan(CacheSpan span) {
-    TreeSet<CacheSpan> spansForKey = cachedSpans.get(span.key);
-    if (spansForKey == null) {
-      spansForKey = new TreeSet<>();
-      cachedSpans.put(span.key, spansForKey);
-    }
-    spansForKey.add(span);
+  private void addSpan(SimpleCacheSpan span) {
+    index.add(span.key).addSpan(span);
     totalSpace += span.length;
     notifySpanAdded(span);
   }
 
-  @Override
-  public synchronized void removeSpan(CacheSpan span) {
-    TreeSet<CacheSpan> spansForKey = cachedSpans.get(span.key);
+  private void removeSpan(CacheSpan span, boolean removeEmptyCachedContent) {
+    CachedContent cachedContent = index.get(span.key);
+    Assertions.checkState(cachedContent.removeSpan(span));
     totalSpace -= span.length;
-    Assertions.checkState(spansForKey.remove(span));
-    span.file.delete();
-    if (spansForKey.isEmpty()) {
-      cachedSpans.remove(span.key);
+    if (removeEmptyCachedContent && cachedContent.isEmpty()) {
+      index.removeEmpty(cachedContent.key);
+      index.store();
     }
     notifySpanRemoved(span);
+  }
+
+  @Override
+  public synchronized void removeSpan(CacheSpan span) {
+    removeSpan(span, true);
   }
 
   /**
    * Scans all of the cached spans in the in-memory representation, removing any for which files
    * no longer exist.
    */
-  private void removeStaleSpans() {
-    Iterator<Entry<String, TreeSet<CacheSpan>>> iterator = cachedSpans.entrySet().iterator();
-    while (iterator.hasNext()) {
-      Entry<String, TreeSet<CacheSpan>> next = iterator.next();
-      Iterator<CacheSpan> spanIterator = next.getValue().iterator();
-      boolean isEmpty = true;
-      while (spanIterator.hasNext()) {
-        CacheSpan span = spanIterator.next();
+  private void removeStaleSpansAndCachedContents() {
+    LinkedList<CacheSpan> spansToBeRemoved = new LinkedList<>();
+    for (CachedContent cachedContent : index.getAll()) {
+      for (CacheSpan span : cachedContent.getSpans()) {
         if (!span.file.exists()) {
-          spanIterator.remove();
-          if (span.isCached) {
-            totalSpace -= span.length;
-          }
-          notifySpanRemoved(span);
-        } else {
-          isEmpty = false;
+          spansToBeRemoved.add(span);
         }
       }
-      if (isEmpty) {
-        iterator.remove();
-      }
     }
+    for (CacheSpan span : spansToBeRemoved) {
+      // Remove span but not CachedContent to prevent multiple index.store() calls.
+      removeSpan(span, false);
+    }
+    index.removeEmpty();
+    index.store();
   }
 
   private void notifySpanRemoved(CacheSpan span) {
@@ -321,7 +307,7 @@ public final class SimpleCache implements Cache {
     evictor.onSpanRemoved(this, span);
   }
 
-  private void notifySpanAdded(CacheSpan span) {
+  private void notifySpanAdded(SimpleCacheSpan span) {
     ArrayList<Listener> keyListeners = listeners.get(span.key);
     if (keyListeners != null) {
       for (int i = keyListeners.size() - 1; i >= 0; i--) {
@@ -331,7 +317,7 @@ public final class SimpleCache implements Cache {
     evictor.onSpanAdded(this, span);
   }
 
-  private void notifySpanTouched(CacheSpan oldSpan, CacheSpan newSpan) {
+  private void notifySpanTouched(SimpleCacheSpan oldSpan, CacheSpan newSpan) {
     ArrayList<Listener> keyListeners = listeners.get(oldSpan.key);
     if (keyListeners != null) {
       for (int i = keyListeners.size() - 1; i >= 0; i--) {
@@ -343,39 +329,11 @@ public final class SimpleCache implements Cache {
 
   @Override
   public synchronized boolean isCached(String key, long position, long length) {
-    TreeSet<CacheSpan> entries = cachedSpans.get(key);
-    if (entries == null) {
+    CachedContent cachedContent = index.get(key);
+    if (cachedContent == null) {
       return false;
     }
-    CacheSpan lookupSpan = CacheSpan.createLookup(key, position);
-    CacheSpan floorSpan = entries.floor(lookupSpan);
-    if (floorSpan == null || floorSpan.position + floorSpan.length <= position) {
-      // We don't have a span covering the start of the queried region.
-      return false;
-    }
-    long queryEndPosition = position + length;
-    long currentEndPosition = floorSpan.position + floorSpan.length;
-    if (currentEndPosition >= queryEndPosition) {
-      // floorSpan covers the queried region.
-      return true;
-    }
-    Iterator<CacheSpan> iterator = entries.tailSet(floorSpan, false).iterator();
-    while (iterator.hasNext()) {
-      CacheSpan next = iterator.next();
-      if (next.position > currentEndPosition) {
-        // There's a hole in the cache within the queried region.
-        return false;
-      }
-      // We expect currentEndPosition to always equal (next.position + next.length), but
-      // perform a max check anyway to guard against the existence of overlapping spans.
-      currentEndPosition = Math.max(currentEndPosition, next.position + next.length);
-      if (currentEndPosition >= queryEndPosition) {
-        // We've found spans covering the queried region.
-        return true;
-      }
-    }
-    // We ran out of spans before covering the queried region.
-    return false;
+    return cachedContent.isCached(position, length);
   }
 
 }
