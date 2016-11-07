@@ -83,7 +83,9 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
     File wrongEscapedV2file = createTestFile("asd%za.3.4.v2.exo");
     File v1File = createTestFile("asd\u00aa.5.6.v1.exo");
 
-    SimpleCacheSpan.upgradeOldFiles(cacheDir, index);
+    for (File file : cacheDir.listFiles()) {
+      SimpleCacheSpan.createCacheEntry(file, index);
+    }
 
     assertTrue(v3file.exists());
     assertFalse(v2file.exists());

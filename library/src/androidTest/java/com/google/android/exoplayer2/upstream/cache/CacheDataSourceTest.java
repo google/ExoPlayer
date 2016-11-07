@@ -54,7 +54,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     assertReadDataContentLength(cacheDataSource, false, false);
     File[] files = cacheDir.listFiles();
     for (File file : files) {
-      if (file.getName().endsWith(SimpleCacheSpan.SUFFIX)) {
+      if (!file.getName().equals(CachedContentIndex.FILE_NAME)) {
         assertTrue(file.length() <= MAX_CACHE_FILE_SIZE);
       }
     }
