@@ -18,15 +18,15 @@ package com.google.android.exoplayer2.demo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.demo.databinding.PlayerActivityBinding;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -61,7 +62,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -102,10 +102,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private Handler mainHandler;
   private Timeline.Window window;
   private EventLogger eventLogger;
-  private SimpleExoPlayerView simpleExoPlayerView;
-  private LinearLayout debugRootView;
-  private TextView debugTextView;
-  private Button retryButton;
+  private PlayerActivityBinding binding;
 
   private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
@@ -132,17 +129,13 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
 
-    setContentView(R.layout.player_activity);
-    View rootView = findViewById(R.id.root);
-    rootView.setOnClickListener(this);
-    debugRootView = (LinearLayout) findViewById(R.id.controls_root);
-    debugTextView = (TextView) findViewById(R.id.debug_text_view);
-    retryButton = (Button) findViewById(R.id.retry_button);
-    retryButton.setOnClickListener(this);
+    binding = DataBindingUtil.setContentView(this, R.layout.player_activity);
 
-    simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
-    simpleExoPlayerView.setControllerVisibilityListener(this);
-    simpleExoPlayerView.requestFocus();
+    binding.root.setOnClickListener(this);
+    binding.retryButton.setOnClickListener(this);
+
+    binding.playerView.setControllerVisibilityListener(this);
+    binding.playerView.requestFocus();
   }
 
   @Override
@@ -185,8 +178,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, String[] permissions,
-      int[] grantResults) {
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                         @NonNull int[] grantResults) {
     if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
       initializePlayer();
     } else {
@@ -199,9 +192,9 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onClick(View view) {
-    if (view == retryButton) {
+    if (view == binding.retryButton) {
       initializePlayer();
-    } else if (view.getParent() == debugRootView) {
+    } else if (view.getParent() == binding.controlsRoot) {
       MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
       if (mappedTrackInfo != null) {
         trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
@@ -214,7 +207,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onVisibilityChange(int visibility) {
-    debugRootView.setVisibility(visibility);
+    binding.controlsRoot.setVisibility(visibility);
   }
 
   // Internal methods
@@ -265,7 +258,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       player.setVideoDebugListener(eventLogger);
       player.setId3Output(eventLogger);
 
-      simpleExoPlayerView.setPlayer(player);
+      binding.playerView.setPlayer(player);
       if (isTimelineStatic) {
         if (playerPosition == C.TIME_UNSET) {
           player.seekToDefaultPosition(playerWindow);
@@ -274,7 +267,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         }
       }
       player.setPlayWhenReady(shouldAutoPlay);
-      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+      debugViewHelper = new DebugTextViewHelper(player, binding.debugTextView);
       debugViewHelper.start();
       playerNeedsSource = true;
     }
@@ -466,10 +459,10 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   // User controls
 
   private void updateButtonVisibilities() {
-    debugRootView.removeAllViews();
+    binding.controlsRoot.removeAllViews();
 
-    retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
-    debugRootView.addView(retryButton);
+    binding.retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
+    binding.controlsRoot.addView(binding.retryButton);
 
     if (player == null) {
       return;
@@ -501,13 +494,13 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         button.setText(label);
         button.setTag(i);
         button.setOnClickListener(this);
-        debugRootView.addView(button, debugRootView.getChildCount() - 1);
+        binding.controlsRoot.addView(button, binding.controlsRoot.getChildCount() - 1);
       }
     }
   }
 
   private void showControls() {
-    debugRootView.setVisibility(View.VISIBLE);
+    binding.controlsRoot.setVisibility(View.VISIBLE);
   }
 
   private void showToast(int messageId) {
