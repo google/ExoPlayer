@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -57,6 +59,21 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
     super(eventHandler, eventListener, audioCapabilities, streamType);
   }
 
+  /**
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
+   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param streamType The type of audio stream for the {@link AudioTrack}.
+   */
+  public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+      AudioCapabilities audioCapabilities, int streamType,
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys) {
+    super(eventHandler, eventListener, audioCapabilities, streamType, drmSessionManager,
+        playClearSamplesWithoutKeys);
+  }
+
   @Override
   public int supportsFormat(Format format) {
     return OpusLibrary.isAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
@@ -64,9 +81,10 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected OpusDecoder createDecoder(Format format) throws OpusDecoderException {
+  protected OpusDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+      throws OpusDecoderException {
     return new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.initializationData);
+        format.initializationData, mediaCrypto);
   }
 
 }

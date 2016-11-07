@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -63,7 +64,8 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected FlacDecoder createDecoder(Format format) throws FlacDecoderException {
+  protected FlacDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+      throws FlacDecoderException {
     return new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.initializationData);
   }
 

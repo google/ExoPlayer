@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import android.media.AudioManager;
 import android.media.PlaybackParams;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
@@ -29,17 +30,24 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
 public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock {
 
+  private final boolean playClearSamplesWithoutKeys;
+
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
+  private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
   private DecoderCounters decoderCounters;
   private Format inputFormat;
@@ -47,11 +55,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         ? extends AudioDecoderException> decoder;
   private DecoderInputBuffer inputBuffer;
   private SimpleOutputBuffer outputBuffer;
+  private DrmSession<ExoMediaCrypto> drmSession;
+  private DrmSession<ExoMediaCrypto> pendingDrmSession;
 
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
+  private boolean waitingForKeys;
 
   private final AudioTrack audioTrack;
   private int audioSessionId;
@@ -70,7 +81,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener) {
-    this (eventHandler, eventListener, null, AudioManager.STREAM_MUSIC);
+    this(eventHandler, eventListener, null, AudioManager.STREAM_MUSIC);
   }
 
   /**
@@ -84,7 +95,31 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
       int streamType) {
+    this(eventHandler, eventListener, audioCapabilities, streamType, null, false);
+  }
+
+  /**
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
+   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param streamType The type of audio stream for the {@link AudioTrack}.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   */
+  public SimpleDecoderAudioRenderer(Handler eventHandler,
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
+      int streamType, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys) {
     super(C.TRACK_TYPE_AUDIO);
+    this.drmSessionManager = drmSessionManager;
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioTrack = new AudioTrack(audioCapabilities, streamType);
@@ -108,12 +143,26 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       return;
     }
 
+    drmSession = pendingDrmSession;
+    ExoMediaCrypto mediaCrypto = null;
+    if (drmSession != null) {
+      @DrmSession.State int drmSessionState = drmSession.getState();
+      if (drmSessionState == DrmSession.STATE_ERROR) {
+        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      } else if (drmSessionState == DrmSession.STATE_OPENED
+          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
+        mediaCrypto = drmSession.getMediaCrypto();
+      } else {
+        // The drm session isn't open yet.
+        return;
+      }
+    }
     // If we don't have a decoder yet, we need to instantiate one.
     if (decoder == null) {
       try {
         long codecInitializingTimestamp = SystemClock.elapsedRealtime();
         TraceUtil.beginSection("createAudioDecoder");
-        decoder = createDecoder(inputFormat);
+        decoder = createDecoder(inputFormat, mediaCrypto);
         TraceUtil.endSection();
         long codecInitializedTimestamp = SystemClock.elapsedRealtime();
         eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
@@ -141,11 +190,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * Creates a decoder for the given format.
    *
    * @param format The format for which a decoder is required.
+   * @param mediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted content.
+   *     Maybe null and can be ignored if decoder does not handle encrypted content.
    * @return The decoder.
    * @throws AudioDecoderException If an error occurred creating a suitable decoder.
    */
   protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-      ? extends AudioDecoderException> createDecoder(Format format) throws AudioDecoderException;
+      ? extends AudioDecoderException> createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+      throws AudioDecoderException;
 
   /**
    * Returns the format of audio buffers output by the decoder. Will not be called until the first
@@ -228,7 +280,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     return false;
   }
 
-  private boolean feedInputBuffer() throws AudioDecoderException {
+  private boolean feedInputBuffer() throws AudioDecoderException, ExoPlaybackException {
     if (inputStreamEnded) {
       return false;
     }
@@ -240,7 +292,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       }
     }
 
-    int result = readSource(formatHolder, inputBuffer);
+    int result;
+    if (waitingForKeys) {
+      // We've already read an encrypted sample into buffer, and are waiting for keys.
+      result = C.RESULT_BUFFER_READ;
+    } else {
+      result = readSource(formatHolder, inputBuffer);
+    }
+
     if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
@@ -254,6 +313,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       inputBuffer = null;
       return false;
     }
+    boolean bufferEncrypted = inputBuffer.isEncrypted();
+    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
+    if (waitingForKeys) {
+      return false;
+    }
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
     decoderCounters.inputBufferCount++;
@@ -261,8 +325,21 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     return true;
   }
 
+  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
+    if (drmSession == null) {
+      return false;
+    }
+    @DrmSession.State int drmSessionState = drmSession.getState();
+    if (drmSessionState == DrmSession.STATE_ERROR) {
+      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+    }
+    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS
+        && (bufferEncrypted || !playClearSamplesWithoutKeys);
+  }
+
   private void flushDecoder() {
     inputBuffer = null;
+    waitingForKeys = false;
     if (outputBuffer != null) {
       outputBuffer.release();
       outputBuffer = null;
@@ -278,7 +355,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   public boolean isReady() {
     return audioTrack.hasPendingData()
-        || (inputFormat != null && (isSourceReady() || outputBuffer != null));
+        || (inputFormat != null && !waitingForKeys && (isSourceReady() || outputBuffer != null));
   }
 
   @Override
@@ -339,6 +416,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     outputBuffer = null;
     inputFormat = null;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    waitingForKeys = false;
     try {
       if (decoder != null) {
         decoder.release();
@@ -347,12 +425,26 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       }
       audioTrack.release();
     } finally {
-      decoderCounters.ensureUpdated();
-      eventDispatcher.disabled(decoderCounters);
+      try {
+        if (drmSession != null) {
+          drmSessionManager.releaseSession(drmSession);
+        }
+      } finally {
+        try {
+          if (pendingDrmSession != null && pendingDrmSession != drmSession) {
+            drmSessionManager.releaseSession(pendingDrmSession);
+          }
+        } finally {
+          drmSession = null;
+          pendingDrmSession = null;
+          decoderCounters.ensureUpdated();
+          eventDispatcher.disabled(decoderCounters);
+        }
+      }
     }
   }
 
-  private boolean readFormat() {
+  private boolean readFormat() throws ExoPlaybackException {
     int result = readSource(formatHolder, null);
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
@@ -361,8 +453,28 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     return false;
   }
 
-  private void onInputFormatChanged(Format newFormat) {
+  private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+    Format oldFormat = inputFormat;
     inputFormat = newFormat;
+
+    boolean drmInitDataChanged = !Util.areEqual(inputFormat.drmInitData, oldFormat == null ? null
+        : oldFormat.drmInitData);
+    if (drmInitDataChanged) {
+      if (inputFormat.drmInitData != null) {
+        if (drmSessionManager == null) {
+          throw ExoPlaybackException.createForRenderer(
+              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+        }
+        pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(),
+            inputFormat.drmInitData);
+        if (pendingDrmSession == drmSession) {
+          drmSessionManager.releaseSession(pendingDrmSession);
+        }
+      } else {
+        pendingDrmSession = null;
+      }
+    }
+
     eventDispatcher.inputFormatChanged(newFormat);
   }
 

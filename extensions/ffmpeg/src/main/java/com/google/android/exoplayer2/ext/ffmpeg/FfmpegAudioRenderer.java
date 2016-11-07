@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -71,7 +72,8 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected FfmpegDecoder createDecoder(Format format) throws FfmpegDecoderException {
+  protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+      throws FfmpegDecoderException {
     decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
         format.sampleMimeType, format.initializationData);
     return decoder;

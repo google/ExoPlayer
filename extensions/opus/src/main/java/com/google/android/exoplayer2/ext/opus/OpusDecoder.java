@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.ext.opus;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.drm.DecryptionException;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -36,6 +39,12 @@ import java.util.List;
    */
   private static final int SAMPLE_RATE = 48000;
 
+  private static final int NO_ERROR = 0;
+  private static final int DECODE_ERROR = -1;
+  private static final int DRM_ERROR = -2;
+
+  private final ExoMediaCrypto exoMediaCrypto;
+
   private final int channelCount;
   private final int headerSkipSamples;
   private final int headerSeekPreRollSamples;
@@ -52,13 +61,19 @@ import java.util.List;
    * @param initializationData Codec-specific initialization data. The first element must contain an
    *     opus header. Optionally, the list may contain two additional buffers, which must contain
    *     the encoder delay and seek pre roll values in nanoseconds, encoded as longs.
+   * @param exoMediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted
+   *     content. Maybe null and can be ignored if decoder does not handle encrypted content.
    * @throws OpusDecoderException Thrown if an exception occurs when initializing the decoder.
    */
   public OpusDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
-      List<byte[]> initializationData) throws OpusDecoderException {
+      List<byte[]> initializationData, ExoMediaCrypto exoMediaCrypto) throws OpusDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!OpusLibrary.isAvailable()) {
       throw new OpusDecoderException("Failed to load decoder native libraries.");
+    }
+    this.exoMediaCrypto = exoMediaCrypto;
+    if (exoMediaCrypto != null && !OpusLibrary.opusIsSecureDecodeSupported()) {
+      throw new OpusDecoderException("Opus decoder does not support secure decode.");
     }
     byte[] headerBytes = initializationData.get(0);
     if (headerBytes.length < 19) {
@@ -139,11 +154,25 @@ import java.util.List;
       skipSamples = (inputBuffer.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
     }
     ByteBuffer inputData = inputBuffer.data;
-    int result = opusDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
-        outputBuffer, SAMPLE_RATE);
+    CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
+    int result = inputBuffer.isEncrypted()
+        ? opusSecureDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
+            outputBuffer, SAMPLE_RATE, exoMediaCrypto, cryptoInfo.mode,
+            cryptoInfo.key, cryptoInfo.iv, cryptoInfo.numSubSamples,
+            cryptoInfo.numBytesOfClearData, cryptoInfo.numBytesOfEncryptedData)
+        : opusDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
+            outputBuffer, SAMPLE_RATE);
     if (result < 0) {
-      return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
+      if (result == DRM_ERROR) {
+        String message = "Drm error: " + opusGetErrorMessage(nativeDecoderContext);
+        DecryptionException cause = new DecryptionException(
+            opusGetErrorCode(nativeDecoderContext), message);
+        return new OpusDecoderException(message, cause);
+      } else {
+        return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
+      }
     }
+
     ByteBuffer outputData = outputBuffer.data;
     outputData.position(0);
     outputData.limit(result);
@@ -182,8 +211,13 @@ import java.util.List;
       int gain, byte[] streamMap);
   private native int opusDecode(long decoder, long timeUs, ByteBuffer inputBuffer, int inputSize,
       SimpleOutputBuffer outputBuffer, int sampleRate);
+  private native int opusSecureDecode(long decoder, long timeUs, ByteBuffer inputBuffer,
+      int inputSize, SimpleOutputBuffer outputBuffer, int sampleRate,
+      ExoMediaCrypto wvCrypto, int inputMode, byte[] key, byte[] iv,
+      int numSubSamples, int[] numBytesOfClearData, int[] numBytesOfEncryptedData);
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);
-  private native String opusGetErrorMessage(int errorCode);
+  private native int opusGetErrorCode(long decoder);
+  private native String opusGetErrorMessage(long decoder);
 
 }

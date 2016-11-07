@@ -59,5 +59,5 @@ public final class VpxLibrary {
 
   private static native String vpxGetVersion();
   private static native String vpxGetBuildConfig();
-
+  public static native boolean vpxIsSecureDecodeSupported();
 }
