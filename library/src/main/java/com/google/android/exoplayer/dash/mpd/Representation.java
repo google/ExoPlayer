@@ -51,6 +51,10 @@ public abstract class Representation implements FormatWrapper {
    * The offset of the presentation timestamps in the media stream relative to media time.
    */
   public final long presentationTimeOffsetUs;
+  /**
+   * The base URL of the representation.
+   */
+  public final String baseUrl;
 
   private final String cacheKey;
   private final RangedUri initializationUri;
@@ -61,12 +65,13 @@ public abstract class Representation implements FormatWrapper {
    * @param contentId Identifies the piece of content to which this representation belongs.
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
+   * @param baseUrl A base URL.
    * @param segmentBase A segment base element for the representation.
    * @return The constructed instance.
    */
   public static Representation newInstance(String contentId, long revisionId, Format format,
-      SegmentBase segmentBase) {
-    return newInstance(contentId, revisionId, format, segmentBase, null);
+      String baseUrl, SegmentBase segmentBase) {
+    return newInstance(contentId, revisionId, format, baseUrl, segmentBase, null);
   }
 
   /**
@@ -75,18 +80,19 @@ public abstract class Representation implements FormatWrapper {
    * @param contentId Identifies the piece of content to which this representation belongs.
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
+   * @param baseUrl The base URL of the representation.
    * @param segmentBase A segment base element for the representation.
    * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
    * @return The constructed instance.
    */
   public static Representation newInstance(String contentId, long revisionId, Format format,
-      SegmentBase segmentBase, String customCacheKey) {
+      String baseUrl, SegmentBase segmentBase, String customCacheKey) {
     if (segmentBase instanceof SingleSegmentBase) {
       return new SingleSegmentRepresentation(contentId, revisionId, format,
-          (SingleSegmentBase) segmentBase, customCacheKey, -1);
+          (SingleSegmentBase) segmentBase, customCacheKey, -1, baseUrl);
     } else if (segmentBase instanceof MultiSegmentBase) {
       return new MultiSegmentRepresentation(contentId, revisionId, format,
-          (MultiSegmentBase) segmentBase, customCacheKey);
+          (MultiSegmentBase) segmentBase, customCacheKey, baseUrl);
     } else {
       throw new IllegalArgumentException("segmentBase must be of type SingleSegmentBase or "
           + "MultiSegmentBase");
@@ -94,7 +100,7 @@ public abstract class Representation implements FormatWrapper {
   }
 
   private Representation(String contentId, long revisionId, Format format,
-      SegmentBase segmentBase, String customCacheKey) {
+      String baseUrl, SegmentBase segmentBase, String customCacheKey) {
     this.contentId = contentId;
     this.revisionId = revisionId;
     this.format = format;
@@ -102,6 +108,7 @@ public abstract class Representation implements FormatWrapper {
         : contentId + "." + format.id + "." + revisionId;
     initializationUri = segmentBase.getInitialization(this);
     presentationTimeOffsetUs = segmentBase.getPresentationTimeOffsetUs();
+    this.baseUrl = baseUrl;
   }
 
   @Override
@@ -178,12 +185,12 @@ public abstract class Representation implements FormatWrapper {
     public static SingleSegmentRepresentation newInstance(String contentId, long revisionId,
         Format format, String uri, long initializationStart, long initializationEnd,
         long indexStart, long indexEnd, String customCacheKey, long contentLength) {
-      RangedUri rangedUri = new RangedUri(uri, null, initializationStart,
+      RangedUri rangedUri = new RangedUri("", initializationStart,
           initializationEnd - initializationStart + 1);
-      SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0, uri, indexStart,
+      SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0, indexStart,
           indexEnd - indexStart + 1);
       return new SingleSegmentRepresentation(contentId, revisionId,
-          format, segmentBase, customCacheKey, contentLength);
+          format, segmentBase, customCacheKey, contentLength, uri);
     }
 
     /**
@@ -195,15 +202,15 @@ public abstract class Representation implements FormatWrapper {
      * @param contentLength The content length, or -1 if unknown.
      */
     public SingleSegmentRepresentation(String contentId, long revisionId, Format format,
-        SingleSegmentBase segmentBase, String customCacheKey, long contentLength) {
-      super(contentId, revisionId, format, segmentBase, customCacheKey);
-      this.uri = Uri.parse(segmentBase.uri);
+        SingleSegmentBase segmentBase, String customCacheKey, long contentLength, String baseUrl) {
+      super(contentId, revisionId, format, baseUrl, segmentBase, customCacheKey);
+      this.uri = Uri.parse(baseUrl);
       this.indexUri = segmentBase.getIndex();
       this.contentLength = contentLength;
       // If we have an index uri then the index is defined externally, and we shouldn't return one
       // directly. If we don't, then we can't do better than an index defining a single segment.
       segmentIndex = indexUri != null ? null
-          : new DashSingleSegmentIndex(new RangedUri(segmentBase.uri, null, 0, contentLength));
+          : new DashSingleSegmentIndex(new RangedUri("", 0, contentLength));
     }
 
     @Override
@@ -234,8 +241,8 @@ public abstract class Representation implements FormatWrapper {
      * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
      */
     public MultiSegmentRepresentation(String contentId, long revisionId, Format format,
-        MultiSegmentBase segmentBase, String customCacheKey) {
-      super(contentId, revisionId, format, segmentBase, customCacheKey);
+        MultiSegmentBase segmentBase, String customCacheKey, String baseUrl) {
+      super(contentId, revisionId, format, baseUrl, segmentBase, customCacheKey);
       this.segmentBase = segmentBase;
     }
 

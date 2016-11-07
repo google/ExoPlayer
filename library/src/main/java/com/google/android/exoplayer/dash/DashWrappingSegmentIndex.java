@@ -58,7 +58,7 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 
   @Override
   public RangedUri getSegmentUrl(int segmentNum) {
-    return new RangedUri(uri, null, chunkIndex.offsets[segmentNum], chunkIndex.sizes[segmentNum]);
+    return new RangedUri(null, chunkIndex.offsets[segmentNum], chunkIndex.sizes[segmentNum]);
   }
 
   @Override

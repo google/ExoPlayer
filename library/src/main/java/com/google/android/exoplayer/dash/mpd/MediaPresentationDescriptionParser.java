@@ -54,7 +54,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 public class MediaPresentationDescriptionParser extends DefaultHandler
     implements UriLoadable.Parser<MediaPresentationDescription> {
 
-  private static final String TAG = "MediaPresentationDescriptionParser";
+  private static final String TAG = "MPDParser";
 
   private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))?");
 
@@ -202,11 +202,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (ParserUtil.isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase));
       } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
-        segmentBase = parseSegmentBase(xpp, baseUrl, null);
+        segmentBase = parseSegmentBase(xpp, null);
       } else if (ParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, baseUrl, null);
+        segmentBase = parseSegmentList(xpp, null);
       } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, baseUrl, null);
+        segmentBase = parseSegmentTemplate(xpp, null);
       }
     } while (!ParserUtil.isEndTag(xpp, "Period"));
 
@@ -261,11 +261,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (ParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
-        segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
+        segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase);
+        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
+        segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
       } else if (ParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
@@ -387,11 +387,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (ParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (ParserUtil.isStartTag(xpp, "SegmentBase")) {
-        segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
+        segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase);
+        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
+        segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
         ContentProtection contentProtection = parseContentProtection(xpp);
         if (contentProtection != null) {
@@ -403,7 +403,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, language, codecs);
     return buildRepresentation(contentId, -1, format,
-        segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
+        segmentBase != null ? segmentBase : new SingleSegmentBase(), baseUrl);
   }
 
   protected Format buildFormat(String id, String mimeType, int width, int height, float frameRate,
@@ -413,14 +413,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected Representation buildRepresentation(String contentId, int revisionId, Format format,
-      SegmentBase segmentBase) {
-    return Representation.newInstance(contentId, revisionId, format, segmentBase);
+      SegmentBase segmentBase, String baseUrl) {
+    return Representation.newInstance(contentId, revisionId, format, baseUrl, segmentBase, null);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
 
-  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, String baseUrl,
-      SingleSegmentBase parent) throws XmlPullParserException, IOException {
+  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, SingleSegmentBase parent)
+      throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -439,21 +439,21 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     do {
       xpp.next();
       if (ParserUtil.isStartTag(xpp, "Initialization")) {
-        initialization = parseInitialization(xpp, baseUrl);
+        initialization = parseInitialization(xpp);
       }
     } while (!ParserUtil.isEndTag(xpp, "SegmentBase"));
 
-    return buildSingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
+    return buildSingleSegmentBase(initialization, timescale, presentationTimeOffset,
         indexStart, indexLength);
   }
 
   protected SingleSegmentBase buildSingleSegmentBase(RangedUri initialization, long timescale,
-      long presentationTimeOffset, String baseUrl, long indexStart, long indexLength) {
-    return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
-        indexStart, indexLength);
+      long presentationTimeOffset, long indexStart, long indexLength) {
+    return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, indexStart,
+        indexLength);
   }
 
-  protected SegmentList parseSegmentList(XmlPullParser xpp, String baseUrl, SegmentList parent)
+  protected SegmentList parseSegmentList(XmlPullParser xpp, SegmentList parent)
       throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -469,14 +469,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     do {
       xpp.next();
       if (ParserUtil.isStartTag(xpp, "Initialization")) {
-        initialization = parseInitialization(xpp, baseUrl);
+        initialization = parseInitialization(xpp);
       } else if (ParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
       } else if (ParserUtil.isStartTag(xpp, "SegmentURL")) {
         if (segments == null) {
           segments = new ArrayList<>();
         }
-        segments.add(parseSegmentUrl(xpp, baseUrl));
+        segments.add(parseSegmentUrl(xpp));
       }
     } while (!ParserUtil.isEndTag(xpp, "SegmentList"));
 
@@ -497,8 +497,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, String baseUrl,
-      SegmentTemplate parent) throws XmlPullParserException, IOException {
+  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, SegmentTemplate parent)
+      throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -516,7 +516,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     do {
       xpp.next();
       if (ParserUtil.isStartTag(xpp, "Initialization")) {
-        initialization = parseInitialization(xpp, baseUrl);
+        initialization = parseInitialization(xpp);
       } else if (ParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
       }
@@ -528,15 +528,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
 
     return buildSegmentTemplate(initialization, timescale, presentationTimeOffset,
-        startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
+        startNumber, duration, timeline, initializationTemplate, mediaTemplate);
   }
 
   protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
       long presentationTimeOffset, int startNumber, long duration,
       List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
-      UrlTemplate mediaTemplate, String baseUrl) {
+      UrlTemplate mediaTemplate) {
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
-        startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
+        startNumber, duration, timeline, initializationTemplate, mediaTemplate);
   }
 
   protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
@@ -571,15 +571,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return defaultValue;
   }
 
-  protected RangedUri parseInitialization(XmlPullParser xpp, String baseUrl) {
-    return parseRangedUrl(xpp, baseUrl, "sourceURL", "range");
+  protected RangedUri parseInitialization(XmlPullParser xpp) {
+    return parseRangedUrl(xpp, "sourceURL", "range");
   }
 
-  protected RangedUri parseSegmentUrl(XmlPullParser xpp, String baseUrl) {
-    return parseRangedUrl(xpp, baseUrl, "media", "mediaRange");
+  protected RangedUri parseSegmentUrl(XmlPullParser xpp) {
+    return parseRangedUrl(xpp, "media", "mediaRange");
   }
 
-  protected RangedUri parseRangedUrl(XmlPullParser xpp, String baseUrl, String urlAttribute,
+  protected RangedUri parseRangedUrl(XmlPullParser xpp, String urlAttribute,
       String rangeAttribute) {
     String urlText = xpp.getAttributeValue(null, urlAttribute);
     long rangeStart = 0;
@@ -592,12 +592,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         rangeLength = Long.parseLong(rangeTextArray[1]) - rangeStart + 1;
       }
     }
-    return buildRangedUri(baseUrl, urlText, rangeStart, rangeLength);
+    return buildRangedUri(urlText, rangeStart, rangeLength);
   }
 
-  protected RangedUri buildRangedUri(String baseUrl, String urlText, long rangeStart,
-      long rangeLength) {
-    return new RangedUri(baseUrl, urlText, rangeStart, rangeLength);
+  protected RangedUri buildRangedUri(String urlText, long rangeStart, long rangeLength) {
+    return new RangedUri(urlText, rangeStart, rangeLength);
   }
 
   // AudioChannelConfiguration parsing.
