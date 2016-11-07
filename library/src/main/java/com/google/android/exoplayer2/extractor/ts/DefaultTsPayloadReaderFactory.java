@@ -78,6 +78,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
                 (flags & FLAG_DETECT_ACCESS_UNITS) != 0));
       case TsExtractor.TS_STREAM_TYPE_H265:
         return new PesReader(new H265Reader());
+      case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:
+        return new SectionReader(new SpliceInfoSectionReader());
       case TsExtractor.TS_STREAM_TYPE_ID3:
         return new PesReader(new Id3Reader());
       default:

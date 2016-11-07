@@ -64,6 +64,7 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H264 = 0x1B;
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
+  public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
 
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
