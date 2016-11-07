@@ -349,7 +349,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         boolean resendFormatOnInit = false;
         Extractor extractor;
         if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-          extractor = new RawCcExtractor();
+          extractor = new RawCcExtractor(representation.format);
           resendFormatOnInit = true;
         } else if (mimeTypeIsWebm(containerMimeType)) {
           extractor = new MatroskaExtractor();

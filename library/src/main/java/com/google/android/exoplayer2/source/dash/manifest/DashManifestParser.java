@@ -59,6 +59,10 @@ public class DashManifestParser extends DefaultHandler
 
   private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))?");
 
+  private static final Pattern CEA_608_ACCESSIBILITY_PATTERN = Pattern.compile("CC([1-4])=.*");
+  private static final Pattern CEA_708_ACCESSIBILITY_PATTERN =
+      Pattern.compile("([1-9]|[1-5][0-9]|6[0-3])=.*");
+
   private final String contentId;
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -235,6 +239,7 @@ public class DashManifestParser extends DefaultHandler
     int audioChannels = Format.NO_VALUE;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", Format.NO_VALUE);
     String language = xpp.getAttributeValue(null, "lang");
+    int accessibilityChannel = Format.NO_VALUE;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
 
@@ -256,12 +261,15 @@ public class DashManifestParser extends DefaultHandler
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Representation")) {
         RepresentationInfo representationInfo = parseRepresentation(xpp, baseUrl, mimeType, codecs,
-            width, height, frameRate, audioChannels, audioSamplingRate, language, segmentBase);
+            width, height, frameRate, audioChannels, audioSamplingRate, language,
+            accessibilityChannel, segmentBase);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
+        accessibilityChannel = parseAccessibilityValue(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
@@ -365,7 +373,8 @@ public class DashManifestParser extends DefaultHandler
   protected RepresentationInfo parseRepresentation(XmlPullParser xpp, String baseUrl,
       String adaptationSetMimeType, String adaptationSetCodecs, int adaptationSetWidth,
       int adaptationSetHeight, float adaptationSetFrameRate, int adaptationSetAudioChannels,
-      int adaptationSetAudioSamplingRate, String adaptationSetLanguage, SegmentBase segmentBase)
+      int adaptationSetAudioSamplingRate, String adaptationSetLanguage,
+      int adaptationSetAccessibilityChannel, SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
@@ -404,7 +413,8 @@ public class DashManifestParser extends DefaultHandler
     } while (!XmlPullParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
-        audioSamplingRate, bandwidth, adaptationSetLanguage, codecs);
+        audioSamplingRate, bandwidth, adaptationSetLanguage, adaptationSetAccessibilityChannel,
+        codecs);
     segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl);
 
     return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeDatas);
@@ -412,7 +422,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
       float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
-      String codecs) {
+      int accessiblityChannel, String codecs) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
       if (MimeTypes.isVideo(sampleMimeType)) {
@@ -423,7 +433,10 @@ public class DashManifestParser extends DefaultHandler
             bitrate, audioChannels, audioSamplingRate, null, 0, language);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
         return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
-            bitrate, 0, language);
+            bitrate, 0, language, accessiblityChannel);
+      } else if (containerMimeType.equals(MimeTypes.APPLICATION_RAWCC)) {
+        return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
+            bitrate, 0, language, accessiblityChannel);
       } else {
         return Format.createContainerFormat(id, containerMimeType, codecs, sampleMimeType, bitrate);
       }
@@ -723,6 +736,54 @@ public class DashManifestParser extends DefaultHandler
     } else {
       Assertions.checkState(firstType == secondType);
       return firstType;
+    }
+  }
+
+  private static int parseAccessibilityValue(XmlPullParser xpp)
+      throws IOException, XmlPullParserException {
+    String schemeIdUri = parseString(xpp, "schemeIdUri", null);
+    String valueString = parseString(xpp, "value", null);
+    int accessibilityValue;
+    if (schemeIdUri == null || valueString == null) {
+      accessibilityValue = Format.NO_VALUE;
+    } else if ("urn:scte:dash:cc:cea-608:2015".equals(schemeIdUri)) {
+      accessibilityValue = parseCea608AccessibilityChannel(valueString);
+    } else if ("urn:scte:dash:cc:cea-708:2015".equals(schemeIdUri)) {
+      accessibilityValue = parseCea708AccessibilityChannel(valueString);
+    } else {
+      accessibilityValue = Format.NO_VALUE;
+    }
+    do {
+      xpp.next();
+    } while (!XmlPullParserUtil.isEndTag(xpp, "Accessibility"));
+    return accessibilityValue;
+  }
+
+  static int parseCea608AccessibilityChannel(String accessibilityValueString) {
+    if (accessibilityValueString == null) {
+      return Format.NO_VALUE;
+    }
+    Matcher accessibilityValueMatcher =
+        CEA_608_ACCESSIBILITY_PATTERN.matcher(accessibilityValueString);
+    if (accessibilityValueMatcher.matches()) {
+      return Integer.parseInt(accessibilityValueMatcher.group(1));
+    } else {
+      Log.w(TAG, "Unable to parse channel number from " + accessibilityValueString);
+      return Format.NO_VALUE;
+    }
+  }
+
+  static int parseCea708AccessibilityChannel(String accessibilityValueString) {
+    if (accessibilityValueString == null) {
+      return Format.NO_VALUE;
+    }
+    Matcher accessibilityValueMatcher =
+        CEA_708_ACCESSIBILITY_PATTERN.matcher(accessibilityValueString);
+    if (accessibilityValueMatcher.matches()) {
+      return Integer.parseInt(accessibilityValueMatcher.group(1));
+    } else {
+      Log.w(TAG, "Unable to parse service block number from " + accessibilityValueString);
+      return Format.NO_VALUE;
     }
   }
 

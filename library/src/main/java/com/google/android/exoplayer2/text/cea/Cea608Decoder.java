@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.cea;
 
 import android.text.TextUtils;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
@@ -27,9 +28,15 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
  */
 public final class Cea608Decoder extends CeaDecoder {
 
-  private static final int NTSC_CC_FIELD_1 = 0x00;
-  private static final int CC_TYPE_MASK = 0x03;
+  private static final String TAG = "Cea608Decoder";
+
   private static final int CC_VALID_FLAG = 0x04;
+  private static final int CC_TYPE_FLAG = 0x02;
+  private static final int CC_FIELD_FLAG = 0x01;
+
+  private static final int NTSC_CC_FIELD_1 = 0x00;
+  private static final int NTSC_CC_FIELD_2 = 0x01;
+  private static final int CC_VALID_608_ID = 0x04;
 
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;
@@ -160,6 +167,8 @@ public final class Cea608Decoder extends CeaDecoder {
 
   private final StringBuilder captionStringBuilder;
 
+  private final int selectedField;
+
   private int captionMode;
   private int captionRowCount;
   private String captionString;
@@ -170,10 +179,21 @@ public final class Cea608Decoder extends CeaDecoder {
   private byte repeatableControlCc1;
   private byte repeatableControlCc2;
 
-  public Cea608Decoder() {
+  public Cea608Decoder(int accessibilityChannel) {
     ccData = new ParsableByteArray();
 
     captionStringBuilder = new StringBuilder();
+    switch (accessibilityChannel) {
+      case 3:
+      case 4:
+        selectedField = 2;
+        break;
+      case 1:
+      case 2:
+      case Format.NO_VALUE:
+      default:
+        selectedField = 1;
+    }
 
     setCaptionMode(CC_MODE_UNKNOWN);
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
@@ -219,14 +239,18 @@ public final class Cea608Decoder extends CeaDecoder {
     boolean captionDataProcessed = false;
     boolean isRepeatableControl = false;
     while (ccData.bytesLeft() > 0) {
-      byte ccTypeAndValid = (byte) (ccData.readUnsignedByte() & 0x07);
+      byte ccDataHeader = (byte) ccData.readUnsignedByte();
       byte ccData1 = (byte) (ccData.readUnsignedByte() & 0x7F);
       byte ccData2 = (byte) (ccData.readUnsignedByte() & 0x7F);
 
-      // Only examine valid NTSC_CC_FIELD_1 packets
-      if ((ccTypeAndValid & CC_VALID_FLAG) == 0
-          || (ccTypeAndValid & CC_TYPE_MASK) != NTSC_CC_FIELD_1) {
-        // TODO: Add support for NTSC_CC_FIELD_2 packets
+      // Only examine valid CEA-608 packets
+      if ((ccDataHeader & (CC_VALID_FLAG | CC_TYPE_FLAG)) != CC_VALID_608_ID) {
+        continue;
+      }
+
+      // Only examine packets within the selected field
+      if ((selectedField == 1 && (ccDataHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_1)
+          || (selectedField == 2 && (ccDataHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_2)) {
         continue;
       }
 

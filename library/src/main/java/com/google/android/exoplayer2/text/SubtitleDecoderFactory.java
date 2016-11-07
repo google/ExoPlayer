@@ -74,7 +74,12 @@ public interface SubtitleDecoderFactory {
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
-        return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
+        if (clazz == Cea608Decoder.class) {
+          return clazz.asSubclass(SubtitleDecoder.class)
+              .getConstructor(Integer.TYPE).newInstance(format.accessibilityChannel);
+        } else {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
+        }
       } catch (Exception e) {
         throw new IllegalStateException("Unexpected error instantiating decoder", e);
       }

@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -45,6 +44,8 @@ public final class RawCcExtractor implements Extractor {
   private static final int STATE_READING_TIMESTAMP_AND_COUNT = 1;
   private static final int STATE_READING_SAMPLES = 2;
 
+  private final Format format;
+
   private final ParsableByteArray dataScratch;
 
   private TrackOutput trackOutput;
@@ -55,7 +56,8 @@ public final class RawCcExtractor implements Extractor {
   private int remainingSampleCount;
   private int sampleBytesWritten;
 
-  public RawCcExtractor() {
+  public RawCcExtractor(Format format) {
+    this.format = format;
     dataScratch = new ParsableByteArray(SCRATCH_SIZE);
     parserState = STATE_READING_HEADER;
   }
@@ -65,9 +67,7 @@ public final class RawCcExtractor implements Extractor {
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
     trackOutput = output.track(0);
     output.endTracks();
-
-    trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
-        null, Format.NO_VALUE, 0, null, null));
+    trackOutput.format(format);
   }
 
   @Override
