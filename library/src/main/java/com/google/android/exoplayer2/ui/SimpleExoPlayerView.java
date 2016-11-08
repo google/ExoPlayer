@@ -189,8 +189,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     boolean useController = true;
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
-    int rewindMs = PlaybackControlView.DEFAULT_REWIND_MS;
-    int fastForwardMs = PlaybackControlView.DEFAULT_FAST_FORWARD_MS;
     int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
@@ -202,9 +200,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
         useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
         surfaceType = a.getInt(R.styleable.SimpleExoPlayerView_surface_type, surfaceType);
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
-        rewindMs = a.getInt(R.styleable.SimpleExoPlayerView_rewind_increment, rewindMs);
-        fastForwardMs = a.getInt(R.styleable.SimpleExoPlayerView_fastforward_increment,
-            fastForwardMs);
         controllerShowTimeoutMs = a.getInt(R.styleable.SimpleExoPlayerView_show_timeout,
             controllerShowTimeoutMs);
       } finally {
