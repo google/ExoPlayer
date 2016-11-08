@@ -25,6 +25,8 @@ import java.io.OutputStream;
  */
 public final class ReusableBufferedOutputStream extends BufferedOutputStream {
 
+  private boolean closed;
+
   public ReusableBufferedOutputStream(OutputStream out) {
     super(out);
   }
@@ -35,13 +37,14 @@ public final class ReusableBufferedOutputStream extends BufferedOutputStream {
 
   @Override
   public void close() throws IOException {
+    closed = true;
+
     Throwable thrown = null;
     try {
       flush();
     } catch (Throwable e) {
       thrown = e;
     }
-
     try {
       out.close();
     } catch (Throwable e) {
@@ -49,8 +52,6 @@ public final class ReusableBufferedOutputStream extends BufferedOutputStream {
         thrown = e;
       }
     }
-    out = null;
-
     if (thrown != null) {
       Util.sneakyThrow(thrown);
     }
@@ -64,7 +65,8 @@ public final class ReusableBufferedOutputStream extends BufferedOutputStream {
    * @throws IllegalStateException If the stream isn't closed.
    */
   public void reset(OutputStream out) {
-    Assertions.checkState(this.out == null);
+    Assertions.checkState(closed);
     this.out = out;
+    closed = false;
   }
 }
