@@ -20,7 +20,9 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.AtomicFile;
+import com.google.android.exoplayer.util.ReusableBufferedOutputStream;
 import com.google.android.exoplayer.util.Util;
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -59,6 +61,7 @@ import javax.crypto.spec.SecretKeySpec;
   private final Cipher cipher;
   private final SecretKeySpec secretKeySpec;
   private boolean changed;
+  private ReusableBufferedOutputStream bufferedOutputStream;
 
   /** Creates a CachedContentIndex which works on the index file in the given cacheDir. */
   public CachedContentIndex(File cacheDir) {
@@ -207,7 +210,7 @@ import javax.crypto.spec.SecretKeySpec;
   private boolean readFile() {
     DataInputStream input = null;
     try {
-      InputStream inputStream = atomicFile.openRead();
+      InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
       input = new DataInputStream(inputStream);
       int version = input.readInt();
       if (version != VERSION) {
@@ -255,7 +258,12 @@ import javax.crypto.spec.SecretKeySpec;
     DataOutputStream output = null;
     try {
       OutputStream outputStream = atomicFile.startWrite();
-      output = new DataOutputStream(outputStream);
+      if (bufferedOutputStream == null) {
+        bufferedOutputStream = new ReusableBufferedOutputStream(outputStream);
+      } else {
+        bufferedOutputStream.reset(outputStream);
+      }
+      output = new DataOutputStream(bufferedOutputStream);
       output.writeInt(VERSION);
 
       int flags = cipher != null ? FLAG_ENCRYPTED_INDEX : 0;
@@ -272,7 +280,7 @@ import javax.crypto.spec.SecretKeySpec;
           throw new IllegalStateException(e); // Should never happen.
         }
         output.flush();
-        output = new DataOutputStream(new CipherOutputStream(outputStream, cipher));
+        output = new DataOutputStream(new CipherOutputStream(bufferedOutputStream, cipher));
       }
 
       output.writeInt(keyToContent.size());

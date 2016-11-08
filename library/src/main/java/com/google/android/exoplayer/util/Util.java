@@ -920,6 +920,19 @@ public final class Util {
   }
 
   /**
+   * A hacky method that always throws {@code t} even if {@code t} is a checked exception,
+   * and is not declared to be thrown.
+   */
+  public static void sneakyThrow(Throwable t) {
+    Util.<RuntimeException>sneakyThrowInternal(t);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Throwable> void sneakyThrowInternal(Throwable t) throws T {
+    throw (T) t;
+  }
+
+  /**
    * Returns the result of updating a CRC with the specified bytes in a "most significant bit first"
    * order.
    *
