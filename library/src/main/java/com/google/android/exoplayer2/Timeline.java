@@ -114,10 +114,26 @@ public abstract class Timeline {
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
    * @param setIds Whether {@link Window#id} should be populated. If false, the field will be set to
-   * null. The caller should pass false for efficiency reasons unless the field is required.
+   *     null. The caller should pass false for efficiency reasons unless the field is required.
    * @return The populated {@link Window}, for convenience.
    */
-  public abstract Window getWindow(int windowIndex, Window window, boolean setIds);
+  public Window getWindow(int windowIndex, Window window, boolean setIds) {
+    return getWindow(windowIndex, window, setIds, 0);
+  }
+
+  /**
+   * Populates a {@link Window} with data for the window at the specified index.
+   *
+   * @param windowIndex The index of the window.
+   * @param window The {@link Window} to populate. Must not be null.
+   * @param setIds Whether {@link Window#id} should be populated. If false, the field will be set to
+   *     null. The caller should pass false for efficiency reasons unless the field is required.
+   * @param defaultPositionProjectionUs A duration into the future that the populated window's
+   *     default start position should be projected.
+   * @return The populated {@link Window}, for convenience.
+   */
+  public abstract Window getWindow(int windowIndex, Window window, boolean setIds,
+      long defaultPositionProjectionUs);
 
   /**
    * Returns the number of periods in the timeline.
@@ -231,7 +247,9 @@ public abstract class Timeline {
 
     /**
      * Returns the default position relative to the start of the window at which to begin playback,
-     * in milliseconds.
+     * in milliseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
      */
     public long getDefaultPositionMs() {
       return C.usToMs(defaultPositionUs);
@@ -239,7 +257,9 @@ public abstract class Timeline {
 
     /**
      * Returns the default position relative to the start of the window at which to begin playback,
-     * in microseconds.
+     * in microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
      */
     public long getDefaultPositionUs() {
       return defaultPositionUs;

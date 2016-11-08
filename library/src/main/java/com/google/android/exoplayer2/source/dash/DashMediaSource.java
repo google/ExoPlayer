@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
-import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -400,39 +399,13 @@ public final class DashMediaSource implements MediaSource {
             ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
       }
       // Snap the default position to the start of the segment containing it.
-      long defaultStartPositionUs = windowDurationUs - C.msToUs(presentationDelayForManifestMs);
-      if (defaultStartPositionUs < MIN_LIVE_DEFAULT_START_POSITION_US) {
+      windowDefaultStartPositionUs = windowDurationUs - C.msToUs(presentationDelayForManifestMs);
+      if (windowDefaultStartPositionUs < MIN_LIVE_DEFAULT_START_POSITION_US) {
         // The default start position is too close to the start of the live window. Set it to the
         // minimum default start position provided the window is at least twice as big. Else set
         // it to the middle of the window.
-        defaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
-      }
-
-      int periodIndex = 0;
-      long defaultStartPositionInPeriodUs = currentStartTimeUs + defaultStartPositionUs;
-      long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
-      while (periodIndex < manifest.getPeriodCount() - 1
-          && defaultStartPositionInPeriodUs >= periodDurationUs) {
-        defaultStartPositionInPeriodUs -= periodDurationUs;
-        periodIndex++;
-        periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
-      }
-      Period period = manifest.getPeriod(periodIndex);
-      int videoAdaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_VIDEO);
-      if (videoAdaptationSetIndex != C.INDEX_UNSET) {
-        // If there are multiple video adaptation sets with unaligned segments, the initial time may
-        // not correspond to the start of a segment in both, but this is an edge case.
-        DashSegmentIndex index =
-            period.adaptationSets.get(videoAdaptationSetIndex).representations.get(0).getIndex();
-        if (index != null) {
-          int segmentNum = index.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
-          windowDefaultStartPositionUs =
-              defaultStartPositionUs - defaultStartPositionInPeriodUs + index.getTimeUs(segmentNum);
-        } else {
-          windowDefaultStartPositionUs = defaultStartPositionUs;
-        }
-      } else {
-        windowDefaultStartPositionUs = defaultStartPositionUs;
+        windowDefaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US,
+            windowDurationUs / 2);
       }
     }
     long windowStartTimeMs = manifest.availabilityStartTime
@@ -561,8 +534,11 @@ public final class DashMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIdentifier) {
+    public Window getWindow(int windowIndex, Window window, boolean setIdentifier,
+        long defaultPositionProjectionUs) {
       Assertions.checkIndex(windowIndex, 0, 1);
+      long windowDefaultStartPositionUs = getAdjustedWindowDefaultStartPositionUs(
+          defaultPositionProjectionUs);
       return window.set(null, presentationStartTimeMs, windowStartTimeMs, true /* isSeekable */,
           manifest.dynamic, windowDefaultStartPositionUs, windowDurationUs, 0,
           manifest.getPeriodCount() - 1, offsetInFirstPeriodUs);
@@ -576,6 +552,48 @@ public final class DashMediaSource implements MediaSource {
       int periodId = (int) uid;
       return periodId < firstPeriodId || periodId >= firstPeriodId + getPeriodCount()
           ? C.INDEX_UNSET : (periodId - firstPeriodId);
+    }
+
+    private long getAdjustedWindowDefaultStartPositionUs(long defaultPositionProjectionUs) {
+      long windowDefaultStartPositionUs = this.windowDefaultStartPositionUs;
+      if (!manifest.dynamic) {
+        return windowDefaultStartPositionUs;
+      }
+      if (defaultPositionProjectionUs > 0) {
+        windowDefaultStartPositionUs += defaultPositionProjectionUs;
+        if (windowDefaultStartPositionUs > windowDurationUs) {
+          // The projection takes us beyond the end of the live window.
+          return C.TIME_UNSET;
+        }
+      }
+      // Attempt to snap to the start of the corresponding video segment.
+      int periodIndex = 0;
+      long defaultStartPositionInPeriodUs = offsetInFirstPeriodUs + windowDefaultStartPositionUs;
+      long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
+      while (periodIndex < manifest.getPeriodCount() - 1
+          && defaultStartPositionInPeriodUs >= periodDurationUs) {
+        defaultStartPositionInPeriodUs -= periodDurationUs;
+        periodIndex++;
+        periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
+      }
+      com.google.android.exoplayer2.source.dash.manifest.Period period =
+          manifest.getPeriod(periodIndex);
+      int videoAdaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_VIDEO);
+      if (videoAdaptationSetIndex == C.INDEX_UNSET) {
+        // No video adaptation set for snapping.
+        return windowDefaultStartPositionUs;
+      }
+      // If there are multiple video adaptation sets with unaligned segments, the initial time may
+      // not correspond to the start of a segment in both, but this is an edge case.
+      DashSegmentIndex snapIndex = period.adaptationSets.get(videoAdaptationSetIndex)
+          .representations.get(0).getIndex();
+      if (snapIndex == null) {
+        // Video adaptation set does not include an index for snapping.
+        return windowDefaultStartPositionUs;
+      }
+      int segmentNum = snapIndex.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
+      return windowDefaultStartPositionUs + snapIndex.getTimeUs(segmentNum)
+          - defaultStartPositionInPeriodUs;
     }
 
   }

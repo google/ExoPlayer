@@ -171,11 +171,13 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds) {
+    public Window getWindow(int windowIndex, Window window, boolean setIds,
+        long defaultPositionProjectionUs) {
       int sourceIndex = getSourceIndexForWindow(windowIndex);
       int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-      timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource, window, setIds);
+      timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource, window, setIds,
+          defaultPositionProjectionUs);
       window.firstPeriodIndex += firstPeriodIndexInSource;
       window.lastPeriodIndex += firstPeriodIndexInSource;
       return window;

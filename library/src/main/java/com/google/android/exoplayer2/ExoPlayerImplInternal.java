@@ -1015,20 +1015,38 @@ import java.io.IOException;
   }
 
   /**
+   * Calls {@link #getPeriodPosition(Timeline, int, long, long)} with a zero default position
+   * projection.
+   */
+  private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
+      long windowPositionUs) {
+    return getPeriodPosition(timeline, windowIndex, windowPositionUs, 0);
+  }
+
+  /**
    * Converts (windowIndex, windowPositionUs) to the corresponding (periodIndex, periodPositionUs).
    *
    * @param timeline The timeline containing the window.
    * @param windowIndex The window index.
    * @param windowPositionUs The window time, or {@link C#TIME_UNSET} to use the window's default
    *     start position.
-   * @return The corresponding (periodIndex, periodPositionUs).
+   * @param defaultPositionProjectionUs If {@code windowPositionUs} is {@link C#TIME_UNSET}, the
+   *     duration into the future by which the window's position should be projected.
+   * @return The corresponding (periodIndex, periodPositionUs), or null if {@code #windowPositionUs}
+   *     is {@link C#TIME_UNSET}, {@code defaultPositionProjectionUs} is non-zero, and the window's
+   *     position could not be projected by {@code defaultPositionProjectionUs}.
    */
   private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
-      long windowPositionUs) {
-    timeline.getWindow(windowIndex, window);
+      long windowPositionUs, long defaultPositionProjectionUs) {
+    timeline.getWindow(windowIndex, window, false, defaultPositionProjectionUs);
+    if (windowPositionUs == C.TIME_UNSET) {
+      windowPositionUs = window.getDefaultPositionUs();
+      if (windowPositionUs == C.TIME_UNSET) {
+        return null;
+      }
+    }
     int periodIndex = window.firstPeriodIndex;
-    long periodPositionUs = window.getPositionInFirstPeriodUs()
-        + (windowPositionUs == C.TIME_UNSET ? window.getDefaultPositionUs() : windowPositionUs);
+    long periodPositionUs = window.getPositionInFirstPeriodUs() + windowPositionUs;
     long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
     while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
         && periodIndex < window.lastPeriodIndex) {
@@ -1062,30 +1080,44 @@ import java.io.IOException;
             : (isFirstPeriodInWindow ? C.TIME_UNSET : 0);
         if (periodStartPositionUs == C.TIME_UNSET) {
           // This is the first period of a new window or we don't have a start position, so seek to
-          // the default position for the window.
-          Pair<Integer, Long> defaultPosition = getPeriodPosition(windowIndex, C.TIME_UNSET);
-          newLoadingPeriodIndex = defaultPosition.first;
-          periodStartPositionUs = defaultPosition.second;
+          // the default position for the window. If we're buffering ahead we also project the
+          // default position so that it's correct for starting playing the buffered duration of
+          // time in the future.
+          long defaultPositionProjectionUs = loadingPeriodHolder == null ? 0
+              : (loadingPeriodHolder.rendererPositionOffsetUs
+                  + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs()
+                  - loadingPeriodHolder.startPositionUs - rendererPositionUs);
+          Pair<Integer, Long> defaultPosition = getPeriodPosition(timeline, windowIndex,
+              C.TIME_UNSET, Math.max(0, defaultPositionProjectionUs));
+          if (defaultPosition == null) {
+            newLoadingPeriodIndex = C.INDEX_UNSET;
+            periodStartPositionUs = C.TIME_UNSET;
+          } else {
+            newLoadingPeriodIndex = defaultPosition.first;
+            periodStartPositionUs = defaultPosition.second;
+          }
         }
-        Object newPeriodUid = timeline.getPeriod(newLoadingPeriodIndex, period, true).uid;
-        MediaPeriod newMediaPeriod = mediaSource.createPeriod(newLoadingPeriodIndex,
-            loadControl.getAllocator(), periodStartPositionUs);
-        newMediaPeriod.prepare(this);
-        MediaPeriodHolder newPeriodHolder = new MediaPeriodHolder(renderers, rendererCapabilities,
-            trackSelector, mediaSource, newMediaPeriod, newPeriodUid, periodStartPositionUs);
-        timeline.getWindow(windowIndex, window);
-        newPeriodHolder.setIndex(timeline, window, newLoadingPeriodIndex);
-        if (loadingPeriodHolder != null) {
-          loadingPeriodHolder.setNext(newPeriodHolder);
-          newPeriodHolder.rendererPositionOffsetUs = loadingPeriodHolder.rendererPositionOffsetUs
-              + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs()
-              - loadingPeriodHolder.startPositionUs;
-        } else {
-          newPeriodHolder.rendererPositionOffsetUs = periodStartPositionUs;
+        if (newLoadingPeriodIndex != C.INDEX_UNSET) {
+          Object newPeriodUid = timeline.getPeriod(newLoadingPeriodIndex, period, true).uid;
+          MediaPeriod newMediaPeriod = mediaSource.createPeriod(newLoadingPeriodIndex,
+              loadControl.getAllocator(), periodStartPositionUs);
+          newMediaPeriod.prepare(this);
+          MediaPeriodHolder newPeriodHolder = new MediaPeriodHolder(renderers, rendererCapabilities,
+              trackSelector, mediaSource, newMediaPeriod, newPeriodUid, periodStartPositionUs);
+          timeline.getWindow(windowIndex, window);
+          newPeriodHolder.setIndex(timeline, window, newLoadingPeriodIndex);
+          if (loadingPeriodHolder != null) {
+            loadingPeriodHolder.setNext(newPeriodHolder);
+            newPeriodHolder.rendererPositionOffsetUs = loadingPeriodHolder.rendererPositionOffsetUs
+                + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs()
+                - loadingPeriodHolder.startPositionUs;
+          } else {
+            newPeriodHolder.rendererPositionOffsetUs = periodStartPositionUs;
+          }
+          bufferAheadPeriodCount++;
+          loadingPeriodHolder = newPeriodHolder;
+          setIsLoading(true);
         }
-        bufferAheadPeriodCount++;
-        loadingPeriodHolder = newPeriodHolder;
-        setIsLoading(true);
       }
     }
 
