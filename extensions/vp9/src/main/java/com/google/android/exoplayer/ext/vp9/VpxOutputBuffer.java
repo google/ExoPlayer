@@ -54,10 +54,14 @@ public final class VpxOutputBuffer extends OutputBuffer {
 
   /**
    * Resizes the buffer based on the given dimensions. Called via JNI after decoding completes.
+   * @return Whether the buffer was resized successfully.
    */
-  /* package */ void initForRgbFrame(int width, int height) {
+  /* package */ boolean initForRgbFrame(int width, int height) {
     this.width = width;
     this.height = height;
+    if (!isSafeToMultiply(width, height) || !isSafeToMultiply(width * height, 2)) {
+      return false;
+    }
     int minimumRgbSize = width * height * 2;
     if (data == null || data.capacity() < minimumRgbSize) {
       data = ByteBuffer.allocateDirect(minimumRgbSize);
@@ -65,19 +69,28 @@ public final class VpxOutputBuffer extends OutputBuffer {
     }
     data.position(0);
     data.limit(minimumRgbSize);
+    return true;
   }
 
   /**
    * Resizes the buffer based on the given stride. Called via JNI after decoding completes.
+   * @return Whether the buffer was resized successfully.
    */
-  /* package */ void initForYuvFrame(int width, int height, int yStride, int uvStride,
-      int colorspace) {
+  /* package */ boolean initForYuvFrame(
+      int width, int height, int yStride, int uvStride, int colorspace) {
     this.width = width;
     this.height = height;
     this.colorspace = colorspace;
+    int uvHeight = (int) (((long) height + 1) / 2);
+    if (!isSafeToMultiply(yStride, height) || !isSafeToMultiply(uvStride, uvHeight)) {
+      return false;
+    }
     int yLength = yStride * height;
-    int uvLength = uvStride * ((height + 1) / 2);
+    int uvLength = uvStride * uvHeight;
     int minimumYuvSize = yLength + (uvLength * 2);
+    if (!isSafeToMultiply(uvLength, 2) || minimumYuvSize < yLength) {
+      return false;
+    }
     if (data == null || data.capacity() < minimumYuvSize) {
       data = ByteBuffer.allocateDirect(minimumYuvSize);
     }
@@ -101,6 +114,15 @@ public final class VpxOutputBuffer extends OutputBuffer {
     yuvStrides[0] = yStride;
     yuvStrides[1] = uvStride;
     yuvStrides[2] = uvStride;
+    return true;
+  }
+
+  /**
+   * Ensures that the result of multiplying individual numbers can fit into the size limit of an
+   * integer.
+   */
+  private boolean isSafeToMultiply(int a, int b) {
+    return a >= 0 && b >= 0 && !(b > 0 && a >= Integer.MAX_VALUE / b);
   }
 
 }

@@ -113,8 +113,11 @@ import java.nio.ByteBuffer;
       return new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
     }
     outputBuffer.mode = outputMode;
-    if (vpxGetFrame(vpxDecContext, outputBuffer) != 0) {
+    int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
+    if (getFrameResult == 1) {
       outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+    } else if (getFrameResult == -1) {
+      return new VpxDecoderException("Buffer initialization failed.");
     }
     return null;
   }
