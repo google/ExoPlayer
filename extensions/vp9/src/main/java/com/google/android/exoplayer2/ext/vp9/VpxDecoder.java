@@ -122,8 +122,11 @@ import java.nio.ByteBuffer;
     }
 
     outputBuffer.init(inputBuffer.timeUs, outputMode);
-    if (vpxGetFrame(vpxDecContext, outputBuffer) != 0) {
+    int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
+    if (getFrameResult == 1) {
       outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+    } else if (getFrameResult == -1) {
+      return new VpxDecoderException("Buffer initialization failed.");
     }
     return null;
   }
