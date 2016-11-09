@@ -141,6 +141,12 @@ import java.util.List;
  *        <li>Type: {@link View}</li>
  *       </ul>
  *   </li>
+ *   <li><b>{@code exo_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
+ *       the app can access via {@link #getOverlayFrameLayout()}, provided for convenience.
+ *       <ul>
+ *        <li>Type: {@link FrameLayout}</li>
+ *       </ul>
+ *   </li>
  * </ul>
  * <p>
  * All child views are optional and so can be omitted if not required, however where defined they
@@ -167,6 +173,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private final SubtitleView subtitleView;
   private final PlaybackControlView controller;
   private final ComponentListener componentListener;
+  private final FrameLayout overlayFrameLayout;
 
   private SimpleExoPlayer player;
   private boolean useController;
@@ -230,6 +237,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     } else {
       surfaceView = null;
     }
+
+    // Overlay frame layout.
+    overlayFrameLayout = (FrameLayout) findViewById(R.id.exo_overlay);
 
     // Artwork view.
     artworkView = (ImageView) findViewById(R.id.exo_artwork);
@@ -421,13 +431,24 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Get the view onto which video is rendered. This is either a {@link SurfaceView} (default)
+   * Gets the view onto which video is rendered. This is either a {@link SurfaceView} (default)
    * or a {@link TextureView} if the {@code use_texture_view} view attribute has been set to true.
    *
-   * @return either a {@link SurfaceView} or a {@link TextureView}.
+   * @return Either a {@link SurfaceView} or a {@link TextureView}.
    */
   public View getVideoSurfaceView() {
     return surfaceView;
+  }
+
+  /**
+   * Gets the overlay {@link FrameLayout}, which can be populated with UI elements to show on top of
+   * the player.
+   *
+   * @return The overlay {@link FrameLayout}, or {@code null} if the layout has been customized and
+   *     the overlay is not present.
+   */
+  public FrameLayout getOverlayFrameLayout() {
+    return overlayFrameLayout;
   }
 
   @Override
