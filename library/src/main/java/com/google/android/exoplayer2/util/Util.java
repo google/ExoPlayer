@@ -31,6 +31,7 @@ import android.view.Display;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
@@ -40,7 +41,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -433,11 +433,12 @@ public final class Util {
    *
    * @param value The attribute value to decode.
    * @return The parsed timestamp in milliseconds since the epoch.
+   * @throws ParserException if an error occurs parsing the dateTime attribute value.
    */
-  public static long parseXsDateTime(String value) throws ParseException {
+  public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {
-      throw new ParseException("Invalid date/time format: " + value, 0);
+      throw new ParserException("Invalid date/time format: " + value);
     }
 
     int timezoneShift;

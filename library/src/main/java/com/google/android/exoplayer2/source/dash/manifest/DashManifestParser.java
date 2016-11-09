@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -98,13 +97,13 @@ public class DashManifestParser extends DefaultHandler
             "inputStream does not contain a valid media presentation description");
       }
       return parseMediaPresentationDescription(xpp, uri.toString());
-    } catch (XmlPullParserException | ParseException e) {
+    } catch (XmlPullParserException e) {
       throw new ParserException(e);
     }
   }
 
   protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp,
-      String baseUrl) throws XmlPullParserException, IOException, ParseException {
+      String baseUrl) throws XmlPullParserException, IOException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", C.TIME_UNSET);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", C.TIME_UNSET);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", C.TIME_UNSET);
@@ -815,7 +814,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   protected static long parseDateTime(XmlPullParser xpp, String name, long defaultValue)
-      throws ParseException {
+      throws ParserException {
     String value = xpp.getAttributeValue(null, name);
     if (value == null) {
       return defaultValue;

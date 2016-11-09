@@ -314,8 +314,8 @@ public final class DashMediaSource implements MediaSource {
     try {
       long utcTimestamp = Util.parseXsDateTime(timingElement.value);
       onUtcTimestampResolved(utcTimestamp - manifestLoadEndTimestamp);
-    } catch (ParseException e) {
-      onUtcTimestampResolutionError(new ParserException(e));
+    } catch (ParserException e) {
+      onUtcTimestampResolutionError(e);
     }
   }
 
@@ -648,11 +648,7 @@ public final class DashMediaSource implements MediaSource {
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
-      try {
-        return Util.parseXsDateTime(firstLine);
-      } catch (ParseException e) {
-        throw new ParserException(e);
-      }
+      return Util.parseXsDateTime(firstLine);
     }
 
   }
