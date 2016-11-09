@@ -67,6 +67,7 @@ import java.util.regex.Pattern;
       if (file == null) {
         return null;
       }
+      name = file.getName();
     }
 
     Matcher matcher = CACHE_FILE_PATTERN_V3.matcher(name);
