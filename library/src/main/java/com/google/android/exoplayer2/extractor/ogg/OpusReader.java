@@ -81,7 +81,7 @@ import java.util.List;
 
       setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS, null,
           Format.NO_VALUE, Format.NO_VALUE, channelCount, SAMPLE_RATE, initializationData, null, 0,
-          "und");
+          null);
       headerRead = true;
     } else {
       boolean headerPacket = packet.readInt() == OPUS_CODE;
