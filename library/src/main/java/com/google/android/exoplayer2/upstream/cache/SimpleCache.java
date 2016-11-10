@@ -38,18 +38,33 @@ public final class SimpleCache implements Cache {
   private final CachedContentIndex index;
   private final HashMap<String, ArrayList<Listener>> listeners;
   private long totalSpace = 0;
+  private CacheException initializationException;
 
   /**
    * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
    * the directory cannot be used to store other files.
    *
    * @param cacheDir A dedicated cache directory.
+   * @param evictor The evictor to be used.
    */
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
+    this(cacheDir, evictor, null);
+  }
+
+  /**
+   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
+   * the directory cannot be used to store other files.
+   *
+   * @param cacheDir A dedicated cache directory.
+   * @param evictor The evictor to be used.
+   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
+   *     The key must be 16 bytes long.
+   */
+  public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey) {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.lockedSpans = new HashMap<>();
-    this.index = new CachedContentIndex(cacheDir);
+    this.index = new CachedContentIndex(cacheDir, secretKey);
     this.listeners = new HashMap<>();
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -58,7 +73,11 @@ public final class SimpleCache implements Cache {
       public void run() {
         synchronized (SimpleCache.this) {
           conditionVariable.open();
-          initialize();
+          try {
+            initialize();
+          } catch (CacheException e) {
+            initializationException = e;
+          }
           SimpleCache.this.evictor.onCacheInitialized();
         }
       }
@@ -106,7 +125,7 @@ public final class SimpleCache implements Cache {
 
   @Override
   public synchronized SimpleCacheSpan startReadWrite(String key, long position)
-      throws InterruptedException {
+      throws InterruptedException, CacheException {
     while (true) {
       SimpleCacheSpan span = startReadWriteNonBlocking(key, position);
       if (span != null) {
@@ -122,7 +141,12 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position) {
+  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
+      throws CacheException {
+    if (initializationException != null) {
+      throw initializationException;
+    }
+
     SimpleCacheSpan cacheSpan = getSpan(key, position);
 
     // Read case.
@@ -144,7 +168,8 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized File startFile(String key, long position, long maxLength) {
+  public synchronized File startFile(String key, long position, long maxLength)
+      throws CacheException {
     Assertions.checkState(lockedSpans.containsKey(key));
     if (!cacheDir.exists()) {
       // For some reason the cache directory doesn't exist. Make a best effort to create it.
@@ -157,7 +182,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void commitFile(File file) {
+  public synchronized void commitFile(File file) throws CacheException {
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(file, index);
     Assertions.checkState(span != null);
     Assertions.checkState(lockedSpans.containsKey(span.key));
@@ -199,7 +224,7 @@ public final class SimpleCache implements Cache {
    * @param position The position of the span being requested.
    * @return The corresponding cache {@link SimpleCacheSpan}.
    */
-  private SimpleCacheSpan getSpan(String key, long position) {
+  private SimpleCacheSpan getSpan(String key, long position) throws CacheException {
     CachedContent cachedContent = index.get(key);
     if (cachedContent == null) {
       return SimpleCacheSpan.createOpenHole(key, position);
@@ -219,7 +244,7 @@ public final class SimpleCache implements Cache {
   /**
    * Ensures that the cache's in-memory representation has been initialized.
    */
-  private void initialize() {
+  private void initialize() throws CacheException {
     if (!cacheDir.exists()) {
       cacheDir.mkdirs();
       return;
@@ -259,7 +284,7 @@ public final class SimpleCache implements Cache {
     notifySpanAdded(span);
   }
 
-  private void removeSpan(CacheSpan span, boolean removeEmptyCachedContent) {
+  private void removeSpan(CacheSpan span, boolean removeEmptyCachedContent) throws CacheException {
     CachedContent cachedContent = index.get(span.key);
     Assertions.checkState(cachedContent.removeSpan(span));
     totalSpace -= span.length;
@@ -271,7 +296,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void removeSpan(CacheSpan span) {
+  public synchronized void removeSpan(CacheSpan span) throws CacheException {
     removeSpan(span, true);
   }
 
@@ -279,7 +304,7 @@ public final class SimpleCache implements Cache {
    * Scans all of the cached spans in the in-memory representation, removing any for which files
    * no longer exist.
    */
-  private void removeStaleSpansAndCachedContents() {
+  private void removeStaleSpansAndCachedContents() throws CacheException {
     LinkedList<CacheSpan> spansToBeRemoved = new LinkedList<>();
     for (CachedContent cachedContent : index.getAll()) {
       for (CacheSpan span : cachedContent.getSpans()) {
@@ -336,7 +361,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void setContentLength(String key, long length) {
+  public synchronized void setContentLength(String key, long length) throws CacheException {
     index.setContentLength(key, length);
     index.store();
   }

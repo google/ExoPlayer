@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
+import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Retention;
@@ -328,7 +328,7 @@ public final class CacheDataSource implements DataSource {
     return successful;
   }
 
-  private void setContentLength(long length) {
+  private void setContentLength(long length) throws IOException {
     cache.setContentLength(key, length);
   }
 
@@ -349,7 +349,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   private void handleBeforeThrow(IOException exception) {
-    if (currentDataSource == cacheReadDataSource || exception instanceof CacheDataSinkException) {
+    if (currentDataSource == cacheReadDataSource || exception instanceof CacheException) {
       seenCacheError = true;
     }
   }
