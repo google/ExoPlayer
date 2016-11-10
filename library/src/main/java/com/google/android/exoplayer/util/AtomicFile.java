@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,192 +22,176 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
- * Exoplayer internal version of the framework's {@link android.util.AtomicFile},
- * a helper class for performing atomic operations on a file by creating a
- * backup file until a write has successfully completed.
- * <p>
- * Atomic file guarantees file integrity by ensuring that a file has
- * been completely written and sync'd to disk before removing its backup.
- * As long as the backup file exists, the original file is considered
- * to be invalid (left over from a previous attempt to write the file).
- * </p><p>
- * Atomic file does not confer any file locking semantics.
- * Do not use this class when the file may be accessed or modified concurrently
- * by multiple threads or processes.  The caller is responsible for ensuring
- * appropriate mutual exclusion invariants whenever it accesses the file.
- * </p>
+ * A helper class for performing atomic operations on a file by creating a backup file until a write
+ * has successfully completed.
+ *
+ * <p>Atomic file guarantees file integrity by ensuring that a file has been completely written and
+ * sync'd to disk before removing its backup. As long as the backup file exists, the original file
+ * is considered to be invalid (left over from a previous attempt to write the file).
+ *
+ * <p>Atomic file does not confer any file locking semantics. Do not use this class when the file
+ * may be accessed or modified concurrently by multiple threads or processes. The caller is
+ * responsible for ensuring appropriate mutual exclusion invariants whenever it accesses the file.
  */
-public class AtomicFile {
-  private final File mBaseName;
-  private final File mBackupName;
+public final class AtomicFile {
+
+  private static final String TAG = "AtomicFile";
+
+  private final File baseName;
+  private final File backupName;
 
   /**
-   * Create a new AtomicFile for a file located at the given File path.
-   * The secondary backup file will be the same file path with ".bak" appended.
+   * Create a new AtomicFile for a file located at the given File path. The secondary backup file
+   * will be the same file path with ".bak" appended.
    */
   public AtomicFile(File baseName) {
-    mBaseName = baseName;
-    mBackupName = new File(baseName.getPath() + ".bak");
+    this.baseName = baseName;
+    backupName = new File(baseName.getPath() + ".bak");
   }
 
-  /**
-   * Return the path to the base file.  You should not generally use this,
-   * as the data at that path may not be valid.
-   */
-  public File getBaseFile() {
-    return mBaseName;
-  }
-
-  /**
-   * Delete the atomic file.  This deletes both the base and backup files.
-   */
+  /** Delete the atomic file. This deletes both the base and backup files. */
   public void delete() {
-    mBaseName.delete();
-    mBackupName.delete();
+    baseName.delete();
+    backupName.delete();
   }
 
   /**
-   * Start a new write operation on the file.  This returns a FileOutputStream
-   * to which you can write the new file data.  The existing file is replaced
-   * with the new data.  You <em>must not</em> directly close the given
-   * FileOutputStream; instead call either {@link #finishWrite(FileOutputStream)}
-   * or {@link #failWrite(FileOutputStream)}.
+   * Start a new write operation on the file. This returns an {@link OutputStream} to which you can
+   * write the new file data. If the whole data is written successfully you <em>must</em> call
+   * {@link #endWrite(OutputStream)}. On failure you should call {@link OutputStream#close()}
+   * only to free up resources used by it.
    *
-   * <p>Note that if another thread is currently performing
-   * a write, this will simply replace whatever that thread is writing
-   * with the new file being written by this thread, and when the other
-   * thread finishes the write the new write operation will no longer be
-   * safe (or will be lost).  You must do your own threading protection for
-   * access to AtomicFile.
+   * <p>Example usage:
+   *
+   * <pre>
+   *   DataOutputStream dataOutput = null;
+   *   try {
+   *     OutputStream outputStream = atomicFile.startWrite();
+   *     dataOutput = new DataOutputStream(outputStream); // Wrapper stream
+   *     dataOutput.write(data1);
+   *     dataOutput.write(data2);
+   *     atomicFile.endWrite(dataOutput); // Pass wrapper stream
+   *   } finally{
+   *     if (dataOutput != null) {
+   *       dataOutput.close();
+   *     }
+   *   }
+   * </pre>
+   *
+   * <p>Note that if another thread is currently performing a write, this will simply replace
+   * whatever that thread is writing with the new file being written by this thread, and when the
+   * other thread finishes the write the new write operation will no longer be safe (or will be
+   * lost). You must do your own threading protection for access to AtomicFile.
    */
-  public FileOutputStream startWrite() throws IOException {
+  public OutputStream startWrite() throws IOException {
     // Rename the current file so it may be used as a backup during the next read
-    if (mBaseName.exists()) {
-      if (!mBackupName.exists()) {
-        if (!mBaseName.renameTo(mBackupName)) {
-          Log.w("AtomicFile", "Couldn't rename file " + mBaseName
-              + " to backup file " + mBackupName);
+    if (baseName.exists()) {
+      if (!backupName.exists()) {
+        if (!baseName.renameTo(backupName)) {
+          Log.w(TAG, "Couldn't rename file " + baseName + " to backup file " + backupName);
         }
       } else {
-        mBaseName.delete();
+        baseName.delete();
       }
     }
-    FileOutputStream str = null;
+    OutputStream str = null;
     try {
-      str = new FileOutputStream(mBaseName);
+      str = new AtomicFileOutputStream(baseName);
     } catch (FileNotFoundException e) {
-      File parent = mBaseName.getParentFile();
+      File parent = baseName.getParentFile();
       if (!parent.mkdirs()) {
-        throw new IOException("Couldn't create directory " + mBaseName);
+        throw new IOException("Couldn't create directory " + baseName);
       }
       try {
-        str = new FileOutputStream(mBaseName);
+        str = new AtomicFileOutputStream(baseName);
       } catch (FileNotFoundException e2) {
-        throw new IOException("Couldn't create " + mBaseName);
+        throw new IOException("Couldn't create " + baseName);
       }
     }
     return str;
   }
 
   /**
-   * Call when you have successfully finished writing to the stream
-   * returned by {@link #startWrite()}.  This will close, sync, and
-   * commit the new data.  The next attempt to read the atomic file
-   * will return the new file stream.
-   */
-  public void finishWrite(FileOutputStream str) {
-    if (str != null) {
-      sync(str);
-      try {
-        str.close();
-        mBackupName.delete();
-      } catch (IOException e) {
-        Log.w("AtomicFile", "finishWrite: Got exception:", e);
-      }
-    }
-  }
-
-  /**
-   * Call when you have failed for some reason at writing to the stream
-   * returned by {@link #startWrite()}.  This will close the current
-   * write stream, and roll back to the previous state of the file.
-   */
-  public void failWrite(FileOutputStream str) {
-    if (str != null) {
-      sync(str);
-      try {
-        str.close();
-        mBaseName.delete();
-        mBackupName.renameTo(mBaseName);
-      } catch (IOException e) {
-        Log.w("AtomicFile", "failWrite: Got exception:", e);
-      }
-    }
-  }
-
-  /**
-   * Open the atomic file for reading.  If there previously was an
-   * incomplete write, this will roll back to the last good data before
-   * opening for read.  You should call close() on the FileInputStream when
-   * you are done reading from it.
+   * Call when you have successfully finished writing to the stream returned by {@link
+   * #startWrite()}. This will close, sync, and commit the new data. The next attempt to read the
+   * atomic file will return the new file stream.
    *
-   * <p>Note that if another thread is currently performing
-   * a write, this will incorrectly consider it to be in the state of a bad
-   * write and roll back, causing the new data currently being written to
-   * be dropped.  You must do your own threading protection for access to
-   * AtomicFile.
+   * @param str Outer-most wrapper OutputStream used to write to the stream returned by {@link
+   *     #startWrite()}.
+   * @see #startWrite()
    */
-  public FileInputStream openRead() throws FileNotFoundException {
-    if (mBackupName.exists()) {
-      mBaseName.delete();
-      mBackupName.renameTo(mBaseName);
-    }
-    return new FileInputStream(mBaseName);
+  public void endWrite(OutputStream str) throws IOException {
+    str.close();
+    // If close() throws exception, the next line is skipped.
+    backupName.delete();
   }
 
   /**
-   * A convenience for {@link #openRead()} that also reads all of the
-   * file contents into a byte array which is returned.
+   * Open the atomic file for reading. If there previously was an incomplete write, this will roll
+   * back to the last good data before opening for read.
+   *
+   * <p>Note that if another thread is currently performing a write, this will incorrectly consider
+   * it to be in the state of a bad write and roll back, causing the new data currently being
+   * written to be dropped. You must do your own threading protection for access to AtomicFile.
    */
-  public byte[] readFully() throws IOException {
-    FileInputStream stream = openRead();
-    try {
-      int pos = 0;
-      int avail = stream.available();
-      byte[] data = new byte[avail];
-      while (true) {
-        int amt = stream.read(data, pos, data.length - pos);
-        //Log.i("foo", "Read " + amt + " bytes at " + pos
-        //        + " of avail " + data.length);
-        if (amt <= 0) {
-          //Log.i("foo", "**** FINISHED READING: pos=" + pos
-          //        + " len=" + data.length);
-          return data;
-        }
-        pos += amt;
-        avail = stream.available();
-        if (avail > data.length - pos) {
-          byte[] newData = new byte[pos + avail];
-          System.arraycopy(data, 0, newData, 0, pos);
-          data = newData;
-        }
-      }
-    } finally {
-      stream.close();
+  public InputStream openRead() throws FileNotFoundException {
+    restoreBackup();
+    return new FileInputStream(baseName);
+  }
+
+  private void restoreBackup() {
+    if (backupName.exists()) {
+      baseName.delete();
+      backupName.renameTo(baseName);
     }
   }
 
-  private static boolean sync(FileOutputStream stream) {
-    try {
-      if (stream != null) {
-        stream.getFD().sync();
-      }
-      return true;
-    } catch (IOException e) {
-      // do nothing
+  private static final class AtomicFileOutputStream extends OutputStream {
+
+    private final FileOutputStream fileOutputStream;
+    private boolean closed = false;
+
+    public AtomicFileOutputStream(File file) throws FileNotFoundException {
+      fileOutputStream = new FileOutputStream(file);
     }
-    return false;
+
+    @Override
+    public void close() throws IOException {
+      if (closed) {
+        return;
+      }
+      closed = true;
+      flush();
+      try {
+        fileOutputStream.getFD().sync();
+      } catch (IOException e) {
+        Log.w(TAG, "Failed to sync file descriptor:", e);
+      }
+      fileOutputStream.close();
+    }
+
+    @Override
+    public void flush() throws IOException {
+      fileOutputStream.flush();
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+      fileOutputStream.write(b);
+    }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+      fileOutputStream.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+      fileOutputStream.write(b, off, len);
+    }
   }
 }

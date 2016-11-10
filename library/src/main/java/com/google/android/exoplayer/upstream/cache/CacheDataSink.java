@@ -18,10 +18,10 @@ package com.google.android.exoplayer.upstream.cache;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSink;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -42,14 +42,13 @@ public final class CacheDataSink implements DataSink {
   /**
    * Thrown when IOException is encountered when writing data into sink.
    */
-  public static class CacheDataSinkException extends IOException {
+  public static class CacheDataSinkException extends CacheException {
 
     public CacheDataSinkException(IOException cause) {
       super(cause);
     }
 
   }
-
 
   /**
    * @param cache The cache into which data should be written.
@@ -72,7 +71,7 @@ public final class CacheDataSink implements DataSink {
       dataSpecBytesWritten = 0;
       openNextOutputStream();
       return this;
-    } catch (FileNotFoundException e) {
+    } catch (IOException e) {
       throw new CacheDataSinkException(e);
     }
   }
@@ -107,7 +106,7 @@ public final class CacheDataSink implements DataSink {
     }
   }
 
-  private void openNextOutputStream() throws FileNotFoundException {
+  private void openNextOutputStream() throws IOException {
     file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
         Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize));
     outputStream = new FileOutputStream(file);

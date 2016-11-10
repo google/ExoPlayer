@@ -8,9 +8,11 @@ import com.google.android.exoplayer.testutil.TestUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import junit.framework.AssertionFailedError;
 
 /**
  * Tests {@link CachedContentIndex}.
@@ -91,21 +93,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   }
 
   public void testStoreAndLoad() throws Exception {
-    index.addNew(new CachedContent(5, "key1", 10));
-    index.add("key2");
-
-    index.store();
-
-    CachedContentIndex index2 = new CachedContentIndex(cacheDir);
-    index2.load();
-    
-    Set<String> keys = index.getKeys();
-    Set<String> keys2 = index2.getKeys();
-    assertEquals(keys, keys2);
-    for (String key : keys) {
-      assertEquals(index.getContentLength(key), index2.getContentLength(key));
-      assertEquals(index.get(key).getSpans(), index2.get(key).getSpans());
-    }
+    assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir));
   }
 
   public void testLoadV1() throws Exception {
@@ -166,6 +154,68 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertEquals(0, CachedContentIndex.getNewId(idToKey));
     idToKey.put(0, "");
     assertEquals(1, CachedContentIndex.getNewId(idToKey));
+  }
+
+  public void testEncryption() throws Exception {
+    byte[] key = "Bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
+    byte[] key2 = "bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
+
+    assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
+        new CachedContentIndex(cacheDir, key));
+
+    // Rename the index file from the test above
+    File file1 = new File(cacheDir, CachedContentIndex.FILE_NAME);
+    File file2 = new File(cacheDir, "file2compare");
+    assertTrue(file1.renameTo(file2));
+
+    // Write a new index file
+    assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
+        new CachedContentIndex(cacheDir, key));
+
+    assertEquals(file2.length(), file1.length());
+    // Assert file content is different
+    FileInputStream fis1 = new FileInputStream(file1);
+    FileInputStream fis2 = new FileInputStream(file2);
+    for (int b; (b = fis1.read()) == fis2.read();) {
+      assertTrue(b != -1);
+    }
+
+    boolean threw = false;
+    try {
+      assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
+          new CachedContentIndex(cacheDir, key2));
+    } catch (AssertionFailedError e) {
+      threw = true;
+    }
+    assertTrue("Encrypted index file can not be read with different encryption key", threw);
+
+    try {
+      assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
+          new CachedContentIndex(cacheDir));
+    } catch (AssertionFailedError e) {
+      threw = true;
+    }
+    assertTrue("Encrypted index file can not be read without encryption key", threw);
+
+    // Non encrypted index file can be read even when encryption key provided.
+    assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir),
+        new CachedContentIndex(cacheDir, key));
+  }
+
+  private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
+      throws IOException {
+    index.addNew(new CachedContent(5, "key1", 10));
+    index.add("key2");
+    index.store();
+
+    index2.load();
+    Set<String> keys = index.getKeys();
+    Set<String> keys2 = index2.getKeys();
+    assertEquals(keys, keys2);
+    for (String key : keys) {
+      assertEquals(index.getContentLength(key), index2.getContentLength(key));
+      assertEquals(index.get(key).getSpans(), index2.get(key).getSpans());
+    }
   }
 
 }

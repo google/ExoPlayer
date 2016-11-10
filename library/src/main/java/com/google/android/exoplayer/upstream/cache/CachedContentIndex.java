@@ -17,18 +17,30 @@ package com.google.android.exoplayer.upstream.cache;
 
 import android.util.SparseArray;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.AtomicFile;
 import com.google.android.exoplayer.util.Util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.Set;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * This class maintains the index of cached content.
@@ -36,15 +48,36 @@ import java.util.Set;
 /*package*/ final class CachedContentIndex {
 
   public static final String FILE_NAME = "cached_content_index.exi";
+
   private static final int VERSION = 1;
+
+  private static final int FLAG_ENCRYPTED_INDEX = 1;
 
   private final HashMap<String, CachedContent> keyToContent;
   private final SparseArray<String> idToKey;
   private final AtomicFile atomicFile;
+  private final Cipher cipher;
+  private final SecretKeySpec secretKeySpec;
   private boolean changed;
 
   /** Creates a CachedContentIndex which works on the index file in the given cacheDir. */
   public CachedContentIndex(File cacheDir) {
+    this(cacheDir, null);
+  }
+
+  /** Creates a CachedContentIndex which works on the index file in the given cacheDir. */
+  public CachedContentIndex(File cacheDir, byte[] secretKey) {
+    if (secretKey != null) {
+      try {
+        cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        secretKeySpec = new SecretKeySpec(secretKey, "AES");
+      } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+        throw new IllegalStateException(e); // Should never happen.
+      }
+    } else {
+      cipher = null;
+      secretKeySpec = null;
+    }
     keyToContent = new HashMap<>();
     idToKey = new SparseArray<>();
     atomicFile = new AtomicFile(new File(cacheDir, FILE_NAME));
@@ -53,18 +86,15 @@ import java.util.Set;
   /** Loads the index file. */
   public void load() {
     Assertions.checkState(!changed);
-    File cacheIndex = atomicFile.getBaseFile();
-    if (cacheIndex.exists()) {
-      if (!readFile()) {
-        cacheIndex.delete();
-        keyToContent.clear();
-        idToKey.clear();
-      }
+    if (!readFile()) {
+      atomicFile.delete();
+      keyToContent.clear();
+      idToKey.clear();
     }
   }
 
   /** Stores the index data to index file if there is a change. */
-  public void store() {
+  public void store() throws CacheException {
     if (!changed) {
       return;
     }
@@ -177,13 +207,30 @@ import java.util.Set;
   private boolean readFile() {
     DataInputStream input = null;
     try {
-      input = new DataInputStream(atomicFile.openRead());
+      InputStream inputStream = atomicFile.openRead();
+      input = new DataInputStream(inputStream);
       int version = input.readInt();
       if (version != VERSION) {
         // Currently there is no other version
         return false;
       }
-      input.readInt(); // ignore flags placeholder
+
+      int flags = input.readInt();
+      if ((flags & FLAG_ENCRYPTED_INDEX) != 0) {
+        if (cipher == null) {
+          return false;
+        }
+        byte[] initializationVector = new byte[16];
+        input.read(initializationVector);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
+        try {
+          cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+          throw new IllegalStateException(e);
+        }
+        input = new DataInputStream(new CipherInputStream(inputStream, cipher));
+      }
+
       int count = input.readInt();
       int hashCode = 0;
       for (int i = 0; i < count; i++) {
@@ -204,14 +251,30 @@ import java.util.Set;
     return true;
   }
 
-  private void writeFile() {
-    FileOutputStream outputStream = null;
+  private void writeFile() throws CacheException {
+    DataOutputStream output = null;
     try {
-      outputStream = atomicFile.startWrite();
-      DataOutputStream output = new DataOutputStream(outputStream);
-
+      OutputStream outputStream = atomicFile.startWrite();
+      output = new DataOutputStream(outputStream);
       output.writeInt(VERSION);
-      output.writeInt(0); // flags placeholder
+
+      int flags = cipher != null ? FLAG_ENCRYPTED_INDEX : 0;
+      output.writeInt(flags);
+
+      if (cipher != null) {
+        byte[] initializationVector = new byte[16];
+        new Random().nextBytes(initializationVector);
+        output.write(initializationVector);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
+        try {
+          cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+          throw new IllegalStateException(e); // Should never happen.
+        }
+        output.flush();
+        output = new DataOutputStream(new CipherOutputStream(outputStream, cipher));
+      }
+
       output.writeInt(keyToContent.size());
       int hashCode = 0;
       for (CachedContent cachedContent : keyToContent.values()) {
@@ -219,12 +282,11 @@ import java.util.Set;
         hashCode += cachedContent.headerHashCode();
       }
       output.writeInt(hashCode);
-
-      output.flush();
-      atomicFile.finishWrite(outputStream);
+      atomicFile.endWrite(output);
     } catch (IOException e) {
-      atomicFile.failWrite(outputStream);
-      throw new RuntimeException("Writing the new cache index file failed.", e);
+      throw new CacheException(e);
+    } finally {
+      Util.closeQuietly(output);
     }
   }
 
