@@ -20,8 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
+import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.TrackInfo;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -329,8 +329,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
-        pendingSeekAcks -= msg.arg1;
-        if (pendingSeekAcks == 0) {
+        if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           for (EventListener listener : listeners) {
             listener.onPositionDiscontinuity();
@@ -348,10 +347,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
-        @SuppressWarnings("unchecked")
-        Pair<Timeline, Object> timelineAndManifest = (Pair<Timeline, Object>) msg.obj;
-        timeline = timelineAndManifest.first;
-        manifest = timelineAndManifest.second;
+        SourceInfo sourceInfo = (SourceInfo) msg.obj;
+        timeline = sourceInfo.timeline;
+        manifest = sourceInfo.manifest;
+        playbackInfo = sourceInfo.playbackInfo;
+        pendingSeekAcks -= sourceInfo.seekAcks;
         for (EventListener listener : listeners) {
           listener.onTimelineChanged(timeline, manifest);
         }

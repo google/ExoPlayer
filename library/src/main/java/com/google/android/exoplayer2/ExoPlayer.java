@@ -113,6 +113,19 @@ public interface ExoPlayer {
   interface EventListener {
 
     /**
+     * Called when the timeline and/or manifest has been refreshed.
+     * <p>
+     * Note that if the timeline has changed then a position discontinuity may also have occurred.
+     * For example the current period index may have changed as a result of periods being added or
+     * removed from the timeline. The will <em>not</em> be reported via a separate call to
+     * {@link #onPositionDiscontinuity()}.
+     *
+     * @param timeline The latest timeline, or null if the timeline is being cleared.
+     * @param manifest The latest manifest, or null if the manifest is being cleared.
+     */
+    void onTimelineChanged(Timeline timeline, Object manifest);
+
+    /**
      * Called when the available or selected tracks change.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
@@ -139,14 +152,6 @@ public interface ExoPlayer {
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
     /**
-     * Called when timeline and/or manifest has been refreshed.
-     *
-     * @param timeline The latest timeline, or null if the timeline is being cleared.
-     * @param manifest The latest manifest, or null if the manifest is being cleared.
-     */
-    void onTimelineChanged(Timeline timeline, Object manifest);
-
-    /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
      * immediately after this method is called. The player instance can still be used, and
      * {@link #release()} must still be called on the player should it no longer be required.
@@ -156,9 +161,14 @@ public interface ExoPlayer {
     void onPlayerError(ExoPlaybackException error);
 
     /**
-     * Called when a position discontinuity occurs. Position discontinuities occur when seeks are
-     * performed, when playbacks transition from one period in the timeline to the next, and when
-     * the player introduces discontinuities internally.
+     * Called when a position discontinuity occurs without a change to the timeline. A position
+     * discontinuity occurs when the current window or period index changes (as a result of playback
+     * transitioning from one period in the timeline to the next), or when the playback position
+     * jumps within the period currently being played (as a result of a seek being performed, or
+     * when the source introduces a discontinuity internally).
+     * <p>
+     * When a position discontinuity occurs as a result of a change to the timeline this method is
+     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
      */
     void onPositionDiscontinuity();
 
@@ -403,7 +413,7 @@ public interface ExoPlayer {
   Timeline getCurrentTimeline();
 
   /**
-   * Returns the index of the period currently being played, or {@link C#INDEX_UNSET} if unknown.
+   * Returns the index of the period currently being played.
    */
   int getCurrentPeriodIndex();
 
