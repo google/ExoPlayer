@@ -297,8 +297,9 @@ public final class MediaCodecUtil {
         for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
           result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
         }
-        // We assume support for at least 360p.
-        result = Math.max(result, 480 * 360);
+        // We assume support for at least 480p (SDK_INT >= 21) or 360p (SDK_INT < 21), which are
+        // the levels mandated by the Android CDD.
+        result = Math.max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
       }
       maxH264DecodableFrameSize = result;
     }

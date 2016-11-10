@@ -21,6 +21,7 @@ import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
+import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -31,6 +32,8 @@ import com.google.android.exoplayer2.util.Util;
  */
 @TargetApi(16)
 public final class MediaCodecInfo {
+
+  public static final String TAG = "MediaCodecInfo";
 
   /**
    * The name of the decoder.
@@ -111,6 +114,7 @@ public final class MediaCodecInfo {
       return true;
     }
     if (!mimeType.equals(codecMimeType)) {
+      logNoSupport("codec.mime " + codec + ", " + codecMimeType);
       return false;
     }
     Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(codec);
@@ -124,6 +128,7 @@ public final class MediaCodecInfo {
         return true;
       }
     }
+    logNoSupport("codec.profileLevel, " + codec + ", " + codecMimeType);
     return false;
   }
 
@@ -139,10 +144,19 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public boolean isVideoSizeSupportedV21(int width, int height) {
     if (capabilities == null) {
+      logNoSupport("size.caps");
       return false;
     }
     VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
-    return videoCapabilities != null && videoCapabilities.isSizeSupported(width, height);
+    if (videoCapabilities == null) {
+      logNoSupport("size.vCaps");
+      return false;
+    }
+    if (!videoCapabilities.isSizeSupported(width, height)) {
+      logNoSupport("size.support, " + width + "x" + height);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -158,11 +172,19 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public boolean isVideoSizeAndRateSupportedV21(int width, int height, double frameRate) {
     if (capabilities == null) {
+      logNoSupport("sizeAndRate.caps");
       return false;
     }
     VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
-    return videoCapabilities != null && videoCapabilities.areSizeAndRateSupported(width, height,
-        frameRate);
+    if (videoCapabilities == null) {
+      logNoSupport("sizeAndRate.vCaps");
+      return false;
+    }
+    if (!videoCapabilities.areSizeAndRateSupported(width, height, frameRate)) {
+      logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -176,10 +198,19 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public boolean isAudioSampleRateSupportedV21(int sampleRate) {
     if (capabilities == null) {
+      logNoSupport("sampleRate.caps");
       return false;
     }
     AudioCapabilities audioCapabilities = capabilities.getAudioCapabilities();
-    return audioCapabilities != null && audioCapabilities.isSampleRateSupported(sampleRate);
+    if (audioCapabilities == null) {
+      logNoSupport("sampleRate.aCaps");
+      return false;
+    }
+    if (!audioCapabilities.isSampleRateSupported(sampleRate)) {
+      logNoSupport("sampleRate.support, " + sampleRate);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -193,10 +224,24 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public boolean isAudioChannelCountSupportedV21(int channelCount) {
     if (capabilities == null) {
+      logNoSupport("channelCount.caps");
       return false;
     }
     AudioCapabilities audioCapabilities = capabilities.getAudioCapabilities();
-    return audioCapabilities != null && audioCapabilities.getMaxInputChannelCount() >= channelCount;
+    if (audioCapabilities == null) {
+      logNoSupport("channelCount.aCaps");
+      return false;
+    }
+    if (audioCapabilities.getMaxInputChannelCount() < channelCount) {
+      logNoSupport("channelCount.support, " + channelCount);
+      return false;
+    }
+    return true;
+  }
+
+  private void logNoSupport(String message) {
+    Log.d(TAG, "FalseCheck [" + message + "] [" + name + ", " + mimeType + "] ["
+        + Util.DEVICE_DEBUG_INFO + "]");
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {

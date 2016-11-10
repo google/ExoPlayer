@@ -85,6 +85,12 @@ public final class Util {
    */
   public static final String MODEL = Build.MODEL;
 
+  /**
+   * A concise description of the device that it can be useful to log for debugging purposes.
+   */
+  public static final String DEVICE_DEBUG_INFO = DEVICE + ", " + MODEL + ", " + MANUFACTURER + ", "
+      + SDK_INT;
+
   private static final String TAG = "Util";
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"

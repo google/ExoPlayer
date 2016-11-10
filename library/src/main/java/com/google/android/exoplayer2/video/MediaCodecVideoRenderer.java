@@ -23,6 +23,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -198,6 +199,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         }
       } else {
         decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
+        if (!decoderCapable) {
+          Log.d(TAG, "FalseCheck [legacyFrameSize, " + format.width + "x" + format.height + "] ["
+              + Util.DEVICE_DEBUG_INFO + "]");
+        }
       }
     }
 

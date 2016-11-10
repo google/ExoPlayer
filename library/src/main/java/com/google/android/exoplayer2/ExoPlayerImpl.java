@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -73,7 +74,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
-    Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
+    Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION + " [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
     this.renderers = Assertions.checkNotNull(renderers);
     this.trackSelector = Assertions.checkNotNull(trackSelector);
