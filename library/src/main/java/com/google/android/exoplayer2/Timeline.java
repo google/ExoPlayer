@@ -197,8 +197,8 @@ public abstract class Timeline {
     public long presentationStartTimeMs;
 
     /**
-     * The windows start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown or
-     * not applicable. For informational purposes only.
+     * The window's start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown
+     * or not applicable. For informational purposes only.
      */
     public long windowStartTimeMs;
 
