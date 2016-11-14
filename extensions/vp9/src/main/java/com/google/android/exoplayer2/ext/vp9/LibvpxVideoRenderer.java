@@ -543,6 +543,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     if (this.outputBufferRenderer == outputBufferRenderer) {
       return;
     }
+    renderedFirstFrame = false;
     this.outputBufferRenderer = outputBufferRenderer;
     surface = null;
     outputMode = (outputBufferRenderer != null) ? VpxDecoder.OUTPUT_MODE_YUV
