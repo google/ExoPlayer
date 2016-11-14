@@ -95,7 +95,7 @@ public final class FlacExtractor implements Extractor {
         if (streamInfo == null) {
           throw new IOException("Metadata decoding failed");
         }
-      } catch (IOException e){
+      } catch (IOException e) {
         decoderJni.reset(0);
         input.setRetryPosition(0, e);
         throw e; // never executes
@@ -137,7 +137,7 @@ public final class FlacExtractor implements Extractor {
     int size;
     try {
       size = decoderJni.decodeSample(outputByteBuffer);
-    } catch (IOException e){
+    } catch (IOException e) {
       if (lastDecodePosition >= 0) {
         decoderJni.reset(lastDecodePosition);
         input.setRetryPosition(lastDecodePosition, e);
