@@ -41,7 +41,8 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
-public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock {
+public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock,
+    AudioTrack.Listener {
 
   private final boolean playClearSamplesWithoutKeys;
 
@@ -66,9 +67,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   private final AudioTrack audioTrack;
   private int audioSessionId;
-
-  private boolean audioTrackHasData;
-  private long lastFeedElapsedRealtimeMs;
 
   public SimpleDecoderAudioRenderer() {
     this(null, null);
@@ -122,7 +120,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack(audioCapabilities, streamType);
+    audioTrack = new AudioTrack(audioCapabilities, streamType, this);
     formatHolder = new FormatHolder();
   }
 
@@ -245,24 +243,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       } else {
         audioTrack.initialize(audioSessionId);
       }
-      audioTrackHasData = false;
       if (getState() == STATE_STARTED) {
         audioTrack.play();
-      }
-    } else {
-      // Check for AudioTrack underrun.
-      boolean audioTrackHadData = audioTrackHasData;
-      audioTrackHasData = audioTrack.hasPendingData();
-      if (audioTrackHadData && !audioTrackHasData && getState() == STATE_STARTED) {
-        long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
-        long bufferSizeMs = C.usToMs(audioTrack.getBufferSizeUs());
-        eventDispatcher.audioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs,
-            elapsedSinceLastFeedMs);
       }
     }
 
     int handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timeUs);
-    lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
@@ -491,6 +477,13 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         super.handleMessage(messageType, message);
         break;
     }
+  }
+
+  // AudioTrack.Listener implementation.
+
+  @Override
+  public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
   }
 
 }
