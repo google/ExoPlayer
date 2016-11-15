@@ -93,40 +93,6 @@ public final class Id3Decoder implements MetadataDecoder {
     return new Metadata(id3Frames);
   }
 
-  // TODO: Move the following three methods nearer to the bottom of the file.
-  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
-    int terminationPos = indexOfZeroByte(data, fromIndex);
-
-    // For single byte encoding charsets, we're done.
-    if (encoding == ID3_TEXT_ENCODING_ISO_8859_1 || encoding == ID3_TEXT_ENCODING_UTF_8) {
-      return terminationPos;
-    }
-
-    // Otherwise ensure an even index and look for a second zero byte.
-    while (terminationPos < data.length - 1) {
-      if (terminationPos % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
-        return terminationPos;
-      }
-      terminationPos = indexOfZeroByte(data, terminationPos + 1);
-    }
-
-    return data.length;
-  }
-
-  private static int indexOfZeroByte(byte[] data, int fromIndex) {
-    for (int i = fromIndex; i < data.length; i++) {
-      if (data[i] == (byte) 0) {
-        return i;
-      }
-    }
-    return data.length;
-  }
-
-  private static int delimiterLength(int encodingByte) {
-    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8)
-        ? 1 : 2;
-  }
-
   /**
    * @param data A {@link ParsableByteArray} from which the header should be read.
    * @return The parsed header, or null if the ID3 tag is unsupported.
@@ -508,6 +474,39 @@ public final class Id3Decoder implements MetadataDecoder {
       default:
         return "ISO-8859-1";
     }
+  }
+
+  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
+    int terminationPos = indexOfZeroByte(data, fromIndex);
+
+    // For single byte encoding charsets, we're done.
+    if (encoding == ID3_TEXT_ENCODING_ISO_8859_1 || encoding == ID3_TEXT_ENCODING_UTF_8) {
+      return terminationPos;
+    }
+
+    // Otherwise ensure an even index and look for a second zero byte.
+    while (terminationPos < data.length - 1) {
+      if (terminationPos % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
+        return terminationPos;
+      }
+      terminationPos = indexOfZeroByte(data, terminationPos + 1);
+    }
+
+    return data.length;
+  }
+
+  private static int indexOfZeroByte(byte[] data, int fromIndex) {
+    for (int i = fromIndex; i < data.length; i++) {
+      if (data[i] == (byte) 0) {
+        return i;
+      }
+    }
+    return data.length;
+  }
+
+  private static int delimiterLength(int encodingByte) {
+    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8)
+        ? 1 : 2;
   }
 
   private static final class Id3Header {
