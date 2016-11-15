@@ -33,6 +33,7 @@ import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -311,6 +312,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       player.setVideoListener(componentListener);
       player.addListener(componentListener);
       player.setTextOutput(componentListener);
+      maybeUpdateLayoutAspectRatio(player);
       maybeShowController(false);
       updateForCurrentTrackSelections();
     } else {
@@ -525,6 +527,13 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
     // Artwork disabled or unavailable.
     hideArtwork();
+  }
+
+  private void maybeUpdateLayoutAspectRatio(SimpleExoPlayer player) {
+    Format videoFormat = player.getVideoFormat();
+    if (videoFormat != null) {
+      componentListener.onVideoSizeChanged(videoFormat.width, videoFormat.height, videoFormat.rotationDegrees, videoFormat.pixelWidthHeightRatio);
+    }
   }
 
   private boolean setArtworkFromMetadata(Metadata metadata) {
