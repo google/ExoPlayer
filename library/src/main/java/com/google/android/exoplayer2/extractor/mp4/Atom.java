@@ -52,6 +52,7 @@ import java.util.List;
   public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
   public static final int TYPE_mdat = Util.getIntegerCodeForString("mdat");
   public static final int TYPE_mp4a = Util.getIntegerCodeForString("mp4a");
+  public static final int TYPE__mp3 = Util.getIntegerCodeForString(".mp3");
   public static final int TYPE_wave = Util.getIntegerCodeForString("wave");
   public static final int TYPE_lpcm = Util.getIntegerCodeForString("lpcm");
   public static final int TYPE_sowt = Util.getIntegerCodeForString("sowt");
