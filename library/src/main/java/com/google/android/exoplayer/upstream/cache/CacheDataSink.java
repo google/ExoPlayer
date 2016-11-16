@@ -21,9 +21,11 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Writes data into a cache.
@@ -32,10 +34,12 @@ public final class CacheDataSink implements DataSink {
 
   private final Cache cache;
   private final long maxCacheFileSize;
+  private final int bufferSize;
 
   private DataSpec dataSpec;
   private File file;
-  private FileOutputStream outputStream;
+  private OutputStream outputStream;
+  private FileOutputStream underlyingFileOutputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
 
@@ -57,8 +61,21 @@ public final class CacheDataSink implements DataSink {
    *    multiple cache files.
    */
   public CacheDataSink(Cache cache, long maxCacheFileSize) {
+    this(cache, maxCacheFileSize, 0);
+  }
+
+  /**
+   * @param cache The cache into which data should be written.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
+   *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
+   *    multiple cache files.
+   * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
+   *    value disables buffering.
+   */
+  public CacheDataSink(Cache cache, long maxCacheFileSize, int bufferSize) {
     this.cache = Assertions.checkNotNull(cache);
     this.maxCacheFileSize = maxCacheFileSize;
+    this.bufferSize = bufferSize;
   }
 
   @Override
@@ -109,7 +126,10 @@ public final class CacheDataSink implements DataSink {
   private void openNextOutputStream() throws IOException {
     file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
         Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize));
-    outputStream = new FileOutputStream(file);
+    underlyingFileOutputStream = new FileOutputStream(file);
+    outputStream = bufferSize > 0
+        ? new BufferedOutputStream(underlyingFileOutputStream, bufferSize)
+        : underlyingFileOutputStream;
     outputStreamBytesWritten = 0;
   }
 
@@ -121,7 +141,7 @@ public final class CacheDataSink implements DataSink {
     boolean success = false;
     try {
       outputStream.flush();
-      outputStream.getFD().sync();
+      underlyingFileOutputStream.getFD().sync();
       success = true;
     } finally {
       Util.closeQuietly(outputStream);
