@@ -294,21 +294,23 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
         return newPlaylist.copyWithStartTimeUs(primaryPlaylistSnapshot.getStartTimeUs());
       }
     }
-    int newSegmentsCount = newPlaylist.mediaSequence - oldPlaylist.mediaSequence;
-    if (newSegmentsCount == 0 && oldPlaylist.hasEndTag == newPlaylist.hasEndTag) {
-      return oldPlaylist;
-    }
     List<HlsMediaPlaylist.Segment> oldSegments = oldPlaylist.segments;
     int oldPlaylistSize = oldSegments.size();
-    if (newSegmentsCount <= oldPlaylistSize) {
-      ArrayList<HlsMediaPlaylist.Segment> newSegments = new ArrayList<>();
+    int newPlaylistSize = newPlaylist.segments.size();
+    int mediaSequenceOffset = newPlaylist.mediaSequence - oldPlaylist.mediaSequence;
+    if (newPlaylistSize == oldPlaylistSize && mediaSequenceOffset == 0
+        && oldPlaylist.hasEndTag == newPlaylist.hasEndTag) {
+      // Playlist has not changed.
+      return oldPlaylist;
+    }
+    if (mediaSequenceOffset <= oldPlaylistSize) {
       // We can extrapolate the start time of new segments from the segments of the old snapshot.
-      int newPlaylistSize = newPlaylist.segments.size();
-      for (int i = newSegmentsCount; i < oldPlaylistSize; i++) {
+      ArrayList<HlsMediaPlaylist.Segment> newSegments = new ArrayList<>(newPlaylistSize);
+      for (int i = mediaSequenceOffset; i < oldPlaylistSize; i++) {
         newSegments.add(oldSegments.get(i));
       }
       HlsMediaPlaylist.Segment lastSegment = oldSegments.get(oldPlaylistSize - 1);
-      for (int i = newPlaylistSize - newSegmentsCount; i < newPlaylistSize; i++) {
+      for (int i = newSegments.size(); i < newPlaylistSize; i++) {
         lastSegment = newPlaylist.segments.get(i).copyWithStartTimeUs(
             lastSegment.startTimeUs + lastSegment.durationUs);
         newSegments.add(lastSegment);
