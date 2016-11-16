@@ -49,7 +49,8 @@ public final class CacheDataSource implements DataSource {
    * Flags controlling the cache's behavior.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR})
+  @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR,
+      FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS})
   public @interface Flags {}
   /**
    * A flag indicating whether we will block reads if the cache key is locked. If this flag is
@@ -63,6 +64,11 @@ public final class CacheDataSource implements DataSource {
    * Subsequent cycles of these calls will then bypass the cache.
    */
   public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1;
+
+  /**
+   * A flag indicating that the cache should be bypassed for requests whose lengths are unset.
+   */
+  public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2;
 
   /**
    * Listener of {@link CacheDataSource} events.
@@ -87,6 +93,7 @@ public final class CacheDataSource implements DataSource {
 
   private final boolean blockOnCache;
   private final boolean ignoreCacheOnError;
+  private final boolean ignoreCacheForUnsetLengthRequests;
 
   private DataSource currentDataSource;
   private boolean currentRequestUnbounded;
@@ -146,6 +153,8 @@ public final class CacheDataSource implements DataSource {
     this.cacheReadDataSource = cacheReadDataSource;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
+    this.ignoreCacheForUnsetLengthRequests =
+        (flags & FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS) != 0;
     this.upstreamDataSource = upstream;
     if (cacheWriteDataSink != null) {
       this.cacheWriteDataSource = new TeeDataSource(upstream, cacheWriteDataSink);
@@ -162,7 +171,8 @@ public final class CacheDataSource implements DataSource {
       flags = dataSpec.flags;
       key = dataSpec.key != null ? dataSpec.key : uri.toString();
       readPosition = dataSpec.position;
-      currentRequestIgnoresCache = ignoreCacheOnError && seenCacheError;
+      currentRequestIgnoresCache = (ignoreCacheOnError && seenCacheError)
+          || (dataSpec.length == C.LENGTH_UNSET && ignoreCacheForUnsetLengthRequests);
       if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
         bytesRemaining = dataSpec.length;
       } else {
