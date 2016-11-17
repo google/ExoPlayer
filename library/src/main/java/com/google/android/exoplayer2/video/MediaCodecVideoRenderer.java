@@ -163,9 +163,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
-    lastReportedWidth = Format.NO_VALUE;
-    lastReportedHeight = Format.NO_VALUE;
-    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
+    clearLastReportedVideoSize();
   }
 
   @Override
@@ -272,9 +270,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
-    lastReportedWidth = Format.NO_VALUE;
-    lastReportedHeight = Format.NO_VALUE;
-    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
+    clearLastReportedVideoSize();
     frameReleaseTimeHelper.disable();
     try {
       super.onDisabled();
@@ -294,15 +290,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setSurface(Surface surface) throws ExoPlaybackException {
-    if (this.surface == surface) {
-      return;
-    }
+    // Clear state so that we always call the event listener with the video size and when a frame
+    // is rendered, even if the surface hasn't changed.
     renderedFirstFrame = false;
-    this.surface = surface;
-    int state = getState();
-    if (state == STATE_ENABLED || state == STATE_STARTED) {
-      releaseCodec();
-      maybeInitCodec();
+    clearLastReportedVideoSize();
+    // We only need to actually release and reinitialize the codec if the surface has changed.
+    if (this.surface != surface) {
+      this.surface = surface;
+      int state = getState();
+      if (state == STATE_ENABLED || state == STATE_STARTED) {
+        releaseCodec();
+        maybeInitCodec();
+      }
     }
   }
 
@@ -582,6 +581,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
     return (maxPixels * 3) / (2 * minCompressionRatio);
+  }
+
+  private void clearLastReportedVideoSize() {
+    lastReportedWidth = Format.NO_VALUE;
+    lastReportedHeight = Format.NO_VALUE;
+    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
+    lastReportedUnappliedRotationDegrees = Format.NO_VALUE;
   }
 
   private void maybeNotifyVideoSizeChanged() {

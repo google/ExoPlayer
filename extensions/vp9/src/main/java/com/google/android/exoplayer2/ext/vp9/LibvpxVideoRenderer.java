@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -85,8 +86,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private int previousWidth;
-  private int previousHeight;
+  private int lastReportedWidth;
+  private int lastReportedHeight;
 
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
@@ -146,8 +147,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     joiningDeadlineMs = -1;
-    previousWidth = -1;
-    previousHeight = -1;
+    clearLastReportedVideoSize();
     formatHolder = new FormatHolder();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
@@ -446,6 +446,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     outputBuffer = null;
     format = null;
     waitingForKeys = false;
+    clearLastReportedVideoSize();
     try {
       releaseDecoder();
     } finally {
@@ -520,35 +521,29 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
-      setSurface((Surface) message);
+      setOutput((Surface) message, null);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
-      setOutputBufferRenderer((VpxOutputBufferRenderer) message);
+      setOutput(null, (VpxOutputBufferRenderer) message);
     } else {
       super.handleMessage(messageType, message);
     }
   }
 
-  private void setSurface(Surface surface) {
-    if (this.surface == surface) {
-      return;
-    }
+  private void setOutput(Surface surface, VpxOutputBufferRenderer outputBufferRenderer) {
+    // At most one output may be non-null. Both may be null if the output is being cleared.
+    Assertions.checkState(surface == null || outputBufferRenderer == null);
+    // Clear state so that we always call the event listener with the video size and when a frame
+    // is rendered, even if the output hasn't changed.
     renderedFirstFrame = false;
-    this.surface = surface;
-    outputBufferRenderer = null;
-    outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
-    updateDecoder();
-  }
-
-  private void setOutputBufferRenderer(VpxOutputBufferRenderer outputBufferRenderer) {
-    if (this.outputBufferRenderer == outputBufferRenderer) {
-      return;
+    clearLastReportedVideoSize();
+    // We only need to update the decoder if the output has changed.
+    if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
+      this.surface = surface;
+      this.outputBufferRenderer = outputBufferRenderer;
+      outputMode = outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV
+          : surface != null ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
+      updateDecoder();
     }
-    renderedFirstFrame = false;
-    this.outputBufferRenderer = outputBufferRenderer;
-    surface = null;
-    outputMode = (outputBufferRenderer != null) ? VpxDecoder.OUTPUT_MODE_YUV
-        : VpxDecoder.OUTPUT_MODE_NONE;
-    updateDecoder();
   }
 
   private void updateDecoder() {
@@ -565,10 +560,15 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return surface != null || outputBufferRenderer != null;
   }
 
-  private void maybeNotifyVideoSizeChanged(final int width, final int height) {
-    if (previousWidth != width || previousHeight != height) {
-      previousWidth = width;
-      previousHeight = height;
+  private void clearLastReportedVideoSize() {
+    lastReportedWidth = Format.NO_VALUE;
+    lastReportedHeight = Format.NO_VALUE;
+  }
+
+  private void maybeNotifyVideoSizeChanged(int width, int height) {
+    if (lastReportedWidth != width || lastReportedHeight != height) {
+      lastReportedWidth = width;
+      lastReportedHeight = height;
       eventDispatcher.videoSizeChanged(width, height, 0, 1);
     }
   }
