@@ -918,7 +918,7 @@ import java.io.IOException;
       Object uid = loadingPeriodHolder.uid;
       int index = timeline.getIndexOfPeriod(uid);
       if (index == C.INDEX_UNSET) {
-        boolean restarted = attemptRestart(playingPeriodHolder.index, oldTimeline, timeline);
+        boolean restarted = attemptRestart(loadingPeriodHolder.index, oldTimeline, timeline);
         finishSourceInfoRefresh(manifest, true);
         if (!restarted) {
           // TODO: We should probably propagate an error here.
