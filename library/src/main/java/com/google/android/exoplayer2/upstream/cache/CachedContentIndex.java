@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.AtomicFile;
 import com.google.android.exoplayer2.util.Util;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -207,7 +209,7 @@ import javax.crypto.spec.SecretKeySpec;
   private boolean readFile() {
     DataInputStream input = null;
     try {
-      InputStream inputStream = atomicFile.openRead();
+      InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
       input = new DataInputStream(inputStream);
       int version = input.readInt();
       if (version != VERSION) {
@@ -254,7 +256,7 @@ import javax.crypto.spec.SecretKeySpec;
   private void writeFile() throws CacheException {
     DataOutputStream output = null;
     try {
-      OutputStream outputStream = atomicFile.startWrite();
+      OutputStream outputStream = new BufferedOutputStream(atomicFile.startWrite());
       output = new DataOutputStream(outputStream);
       output.writeInt(VERSION);
 
