@@ -268,6 +268,14 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     }
   }
 
+  @Override
+  public void onPlaylistLoadError(HlsMasterPlaylist.HlsUrl url, IOException error) {
+    for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
+      sampleStreamWrapper.onPlaylistLoadError(url, error);
+    }
+    callback.onContinueLoadingRequested(this);
+  }
+
   // Internal methods.
 
   private void buildAndPrepareSampleStreamWrappers() {

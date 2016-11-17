@@ -61,6 +61,14 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
      */
     void onPlaylistChanged();
 
+    /**
+     * Called if an error is encountered while loading the target playlist.
+     *
+     * @param url The loaded url that caused the error.
+     * @param error The loading error.
+     */
+    void onPlaylistLoadError(HlsUrl url, IOException error);
+
   }
 
   /**
@@ -131,11 +139,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   /**
-   * Gets the most recent snapshot available of the playlist referred by the provided
+   * Returns the most recent snapshot available of the playlist referenced by the provided
    * {@link HlsUrl}.
    *
    * @param url The {@link HlsUrl} corresponding to the requested media playlist.
-   * @return The most recent snapshot of the playlist referred by the provided {@link HlsUrl}. May
+   * @return The most recent snapshot of the playlist referenced by the provided {@link HlsUrl}. May
    *     be null if no snapshot has been loaded yet.
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
@@ -168,7 +176,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   /**
-   * Triggers a playlist refresh and sets the callback to be called once the playlist referred by
+   * Triggers a playlist refresh and sets the callback to be called once the playlist referenced by
    * the provided {@link HlsUrl} changes.
    *
    * @param key The {@link HlsUrl} of the playlist to be refreshed.
@@ -410,11 +418,18 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     @Override
     public int onLoadError(ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs,
         long loadDurationMs, IOException error) {
-      // TODO: Add support for playlist blacklisting in response to server error codes.
+      // TODO: Change primary playlist if this is the primary playlist bundle.
       boolean isFatal = error instanceof ParserException;
       eventDispatcher.loadError(loadable.dataSpec, C.DATA_TYPE_MANIFEST, elapsedRealtimeMs,
           loadDurationMs, loadable.bytesLoaded(), error, isFatal);
-      return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+      if (callback != null) {
+        callback.onPlaylistLoadError(playlistUrl, error);
+      }
+      if (isFatal) {
+        return Loader.DONT_RETRY_FATAL;
+      } else {
+        return primaryHlsUrl == playlistUrl ? Loader.RETRY : Loader.DONT_RETRY;
+      }
     }
 
     // Runnable implementation.

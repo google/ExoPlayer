@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -272,6 +273,10 @@ import java.util.LinkedList;
           sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
     }
     return largestQueuedTimestampUs;
+  }
+
+  public void onPlaylistLoadError(HlsUrl url, IOException error) {
+    chunkSource.onPlaylistLoadError(url, error);
   }
 
   // SampleStream implementation.

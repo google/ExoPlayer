@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
@@ -76,7 +76,7 @@ import java.util.Locale;
     /**
      * Indicates that the chunk source is waiting for the referred playlist to be refreshed.
      */
-    public HlsMasterPlaylist.HlsUrl playlist;
+    public HlsUrl playlist;
 
     /**
      * Clears the holder.
@@ -99,7 +99,7 @@ import java.util.Locale;
 
   private final DataSource dataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
-  private final HlsMasterPlaylist.HlsUrl[] variants;
+  private final HlsUrl[] variants;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
 
@@ -125,7 +125,7 @@ import java.util.Locale;
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
    */
-  public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsMasterPlaylist.HlsUrl[] variants,
+  public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
       DataSource dataSource, TimestampAdjusterProvider timestampAdjusterProvider) {
     this.playlistTracker = playlistTracker;
     this.variants = variants;
@@ -183,7 +183,7 @@ import java.util.Locale;
    * If a chunk is available then {@link HlsChunkHolder#chunk} is set. If the end of the stream has
    * been reached then {@link HlsChunkHolder#endOfStream} is set. If a chunk is not available but
    * the end of the stream has not been reached, {@link HlsChunkHolder#playlist} is set to
-   * contain the {@link HlsMasterPlaylist.HlsUrl} that refers to the playlist that needs refreshing.
+   * contain the {@link HlsUrl} that refers to the playlist that needs refreshing.
    *
    * @param previous The most recently loaded media chunk.
    * @param playbackPositionUs The current playback position. If {@code previous} is null then this
@@ -198,6 +198,8 @@ import java.util.Locale;
     // require downloading overlapping segments.
     long bufferedDurationUs = previous == null ? 0
         : Math.max(0, previous.getAdjustedStartTimeUs() - playbackPositionUs);
+
+    // Select the variant.
     trackSelection.updateSelectedTrack(bufferedDurationUs);
     int newVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
@@ -209,6 +211,7 @@ import java.util.Locale;
       return;
     }
 
+    // Select the chunk.
     int chunkMediaSequence;
     if (previous == null || switchingVariant) {
       long targetPositionUs = previous == null ? playbackPositionUs : previous.startTimeUs;
@@ -244,6 +247,7 @@ import java.util.Locale;
       return;
     }
 
+    // Handle encryption.
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
 
     // Check if encryption is specified.
@@ -272,7 +276,7 @@ import java.util.Locale;
 
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
 
-    // Configure the extractor that will read the chunk.
+    // Set the extractor that will read the chunk.
     Extractor extractor;
     boolean useInitializedExtractor = lastLoadedInitializationChunk != null
         && lastLoadedInitializationChunk.format == format;
@@ -343,6 +347,7 @@ import java.util.Locale;
       extractorNeedsInit = false;
     }
 
+    // Initialize the extractor.
     if (needNewExtractor && mediaPlaylist.initializationSegment != null
         && !useInitializedExtractor) {
       out.chunk = buildInitializationChunk(mediaPlaylist, extractor, format);
@@ -388,12 +393,28 @@ import java.util.Locale;
    *
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
-   * @param e The error.
+   * @param error The error.
    * @return Whether the load should be canceled.
    */
-  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException e) {
+  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException error) {
     return cancelable && ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
-        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), e);
+        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), error);
+  }
+
+  /**
+   * Called when an error is encountered while loading a playlist.
+   *
+   * @param url The url that references the playlist whose load encountered the error.
+   * @param error The error.
+   */
+  public void onPlaylistLoadError(HlsUrl url, IOException error) {
+    int trackGroupIndex = trackGroup.indexOf(url.format);
+    if (trackGroupIndex == C.INDEX_UNSET) {
+      // The url is not handled by this chunk source.
+      return;
+    }
+    ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
+        trackSelection.indexOf(trackGroupIndex), error);
   }
 
   // Private methods.
