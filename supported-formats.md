@@ -47,7 +47,7 @@ section for details).
 | Tx3g | YES | Embedded in FMP4 |
 | SubRip | YES | Embedded in WebM |
 | **Content protection** |||
-| Widevine | YES | API 19 and higher |
+| Widevine CENC | YES | API 19 and higher; "cenc" scheme only |
 | PlayReady SL2000 | YES | Android TV only |
 
 ### SmoothStreaming ###
