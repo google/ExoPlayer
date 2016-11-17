@@ -10,8 +10,12 @@ The minimum Android versions required for core ExoPlayer use cases are:
 |----------|:------------:|:------------:|
 | Audio playback | 4.1 | 16 |
 | Video playback | 4.1 | 16 |
-| Widevine DRM | 4.4 | 19 |
-| PlayReady DRM | AndroidTV | AndroidTV |
+| DASH (no DRM) | 4.4 | 16 |
+| DASH (Widevine CENC; "cenc" scheme) | 4.4 | 19 |
+| SmoothStreaming (no DRM) | 4.4 | 16 |
+| SmoothStreaming (PlayReady SL2000) | AndroidTV | AndroidTV |
+| HLS (no DRM) | 4.1 | 16 |
+| HLS (AES-128 encryption) | 4.1 | 16 |
 
 For a given use case, we aim to support ExoPlayer on all Android devices that
 satisfy the minimum version requirement. Known device specific compatibility
