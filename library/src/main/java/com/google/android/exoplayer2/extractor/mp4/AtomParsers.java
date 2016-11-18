@@ -50,6 +50,7 @@ import java.util.List;
   private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
   private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
   private static final int TYPE_cenc = Util.getIntegerCodeForString("cenc");
+  private static final int TYPE_meta = Util.getIntegerCodeForString("meta");
 
   /**
    * Parses a trak atom (defined in 14496-12).
@@ -541,6 +542,8 @@ import java.util.List;
     } else if (trackType == TYPE_text || trackType == TYPE_sbtl || trackType == TYPE_subt
         || trackType == TYPE_clcp) {
       return C.TRACK_TYPE_TEXT;
+    } else if (trackType == TYPE_meta) {
+      return C.TRACK_TYPE_METADATA;
     } else {
       return C.TRACK_TYPE_UNKNOWN;
     }
@@ -621,6 +624,9 @@ import java.util.List;
         out.format = Format.createTextSampleFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, language, drmInitData);
         out.requiredSampleTransformation = Track.TRANSFORMATION_CEA608_CDAT;
+      } else if (childAtomType == Atom.TYPE_camm) {
+        out.format = Format.createSampleFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_CAMERA_MOTION, null, Format.NO_VALUE, drmInitData);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
