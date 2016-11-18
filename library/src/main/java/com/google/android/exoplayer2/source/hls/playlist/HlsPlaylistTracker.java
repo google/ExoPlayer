@@ -311,6 +311,10 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       // Playlist has not changed.
       return oldPlaylist;
     }
+    if (mediaSequenceOffset < 0) {
+      // Playlist has changed but media sequence has regressed.
+      return oldPlaylist;
+    }
     if (mediaSequenceOffset <= oldPlaylistSize) {
       // We can extrapolate the start time of new segments from the segments of the old snapshot.
       ArrayList<HlsMediaPlaylist.Segment> newSegments = new ArrayList<>(newPlaylistSize);
