@@ -329,7 +329,7 @@ import java.util.LinkedList;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    if (loader.isLoading()) {
+    if (loadingFinished || loader.isLoading()) {
       return false;
     }
 
