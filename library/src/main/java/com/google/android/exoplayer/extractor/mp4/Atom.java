@@ -133,6 +133,7 @@ import java.util.List;
   public static final int TYPE_vp08 = Util.getIntegerCodeForString("vp08");
   public static final int TYPE_vp09 = Util.getIntegerCodeForString("vp09");
   public static final int TYPE_vpcC = Util.getIntegerCodeForString("vpcC");
+  public static final int TYPE_camm = Util.getIntegerCodeForString("camm");
   public static final int TYPE_DASHES = Util.getIntegerCodeForString("----");
 
   public final int type;
