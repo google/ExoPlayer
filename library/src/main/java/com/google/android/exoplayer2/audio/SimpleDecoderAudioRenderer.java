@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import android.media.AudioManager;
 import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,8 +46,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private final boolean playClearSamplesWithoutKeys;
 
   private final EventDispatcher eventDispatcher;
-  private final FormatHolder formatHolder;
+  private final AudioTrack audioTrack;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
+  private final FormatHolder formatHolder;
 
   private DecoderCounters decoderCounters;
   private Format inputFormat;
@@ -65,7 +65,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
 
-  private final AudioTrack audioTrack;
   private int audioSessionId;
 
   public SimpleDecoderAudioRenderer() {
@@ -79,7 +78,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener) {
-    this(eventHandler, eventListener, null, AudioManager.STREAM_MUSIC);
+    this(eventHandler, eventListener, null);
   }
 
   /**
@@ -88,12 +87,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType) {
-    this(eventHandler, eventListener, audioCapabilities, streamType, null, false);
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
+    this(eventHandler, eventListener, audioCapabilities, null, false);
   }
 
   /**
@@ -102,7 +99,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param streamType The type of audio stream for the {@link AudioTrack}.
    * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
    *     media is not required.
    * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
@@ -113,15 +109,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys) {
     super(C.TRACK_TYPE_AUDIO);
-    this.drmSessionManager = drmSessionManager;
-    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack(audioCapabilities, streamType, this);
+    audioTrack = new AudioTrack(audioCapabilities, this);
+    this.drmSessionManager = drmSessionManager;
     formatHolder = new FormatHolder();
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
   }
 
   @Override
@@ -472,6 +467,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         break;
       case C.MSG_SET_PLAYBACK_PARAMS:
         audioTrack.setPlaybackParams((PlaybackParams) message);
+        break;
+      case C.MSG_SET_STREAM_TYPE:
+        @C.StreamType int streamType = (Integer) message;
+        if (audioTrack.setStreamType(streamType)) {
+          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+        }
         break;
       default:
         super.handleMessage(messageType, message);

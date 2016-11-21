@@ -249,7 +249,6 @@ public final class AudioTrack {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final AudioCapabilities audioCapabilities;
-  private final int streamType;
   private final Listener listener;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
@@ -263,6 +262,8 @@ public final class AudioTrack {
   private android.media.AudioTrack audioTrack;
   private int sampleRate;
   private int channelConfig;
+  @C.StreamType
+  private int streamType;
   @C.Encoding
   private int sourceEncoding;
   @C.Encoding
@@ -301,12 +302,10 @@ public final class AudioTrack {
 
   /**
    * @param audioCapabilities The current audio capabilities.
-   * @param streamType The type of audio stream for the underlying {@link android.media.AudioTrack}.
    * @param listener Listener for audio track events.
    */
-  public AudioTrack(AudioCapabilities audioCapabilities, int streamType, Listener listener) {
+  public AudioTrack(AudioCapabilities audioCapabilities, Listener listener) {
     this.audioCapabilities = audioCapabilities;
-    this.streamType = streamType;
     this.listener = listener;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
@@ -327,6 +326,7 @@ public final class AudioTrack {
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
+    streamType = C.STREAM_TYPE_DEFAULT;
   }
 
   /**
@@ -740,6 +740,24 @@ public final class AudioTrack {
    */
   public void setPlaybackParams(PlaybackParams playbackParams) {
     audioTrackUtil.setPlaybackParams(playbackParams);
+  }
+
+  /**
+   * Sets the stream type for audio track. If the stream type has changed, {@link #isInitialized()}
+   * will return {@code false} and the caller must re-{@link #initialize(int)} the audio track
+   * before writing more data. The caller must not reuse the audio session identifier when
+   * re-initializing with a new stream type.
+   *
+   * @param streamType The {@link C.StreamType} to use for audio output.
+   * @return Whether the stream type changed.
+   */
+  public boolean setStreamType(@C.StreamType int streamType) {
+    if (this.streamType == streamType) {
+      return false;
+    }
+    this.streamType = streamType;
+    reset();
+    return true;
   }
 
   /**

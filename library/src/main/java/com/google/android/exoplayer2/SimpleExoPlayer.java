@@ -18,7 +18,6 @@ package com.google.android.exoplayer2;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
 import android.os.Handler;
@@ -114,6 +113,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private DecoderCounters videoDecoderCounters;
   private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
+  @C.StreamType
+  private int audioStreamType;
   private float volume;
   private PlaybackParamsHolder playbackParamsHolder;
 
@@ -152,6 +153,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     // Set initial values.
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    audioStreamType = C.STREAM_TYPE_DEFAULT;
     volume = 1;
 
     // Build the player and associated objects.
@@ -230,6 +232,36 @@ public final class SimpleExoPlayer implements ExoPlayer {
       setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture), true);
       textureView.setSurfaceTextureListener(componentListener);
     }
+  }
+
+  /**
+   * Sets the stream type for audio playback (see {@link C.StreamType} and
+   * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}). If the stream type
+   * is not set, audio renderers use {@link C#STREAM_TYPE_DEFAULT}.
+   * <p>
+   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
+   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
+   * share the same routing, so a new audio session id will be generated.
+   *
+   * @param audioStreamType The stream type for audio playback.
+   */
+  public void setAudioStreamType(@C.StreamType int audioStreamType) {
+    this.audioStreamType = audioStreamType;
+    ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
+    int count = 0;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_STREAM_TYPE, audioStreamType);
+      }
+    }
+    player.sendMessages(messages);
+  }
+
+  /**
+   * Returns the stream type for audio playback.
+   */
+  public @C.StreamType int getAudioStreamType() {
+    return audioStreamType;
   }
 
   /**
@@ -543,7 +575,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     Renderer audioRenderer = new MediaCodecAudioRenderer(MediaCodecSelector.DEFAULT,
         drmSessionManager, true, mainHandler, componentListener,
-        AudioCapabilities.getCapabilities(context), AudioManager.STREAM_MUSIC);
+        AudioCapabilities.getCapabilities(context));
     renderersList.add(audioRenderer);
 
     Renderer textRenderer = new TextRenderer(componentListener, mainHandler.getLooper());

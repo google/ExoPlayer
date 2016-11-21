@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.audio;
 
 import android.annotation.TargetApi;
-import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
@@ -107,7 +106,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
-        eventListener, null, AudioManager.STREAM_MUSIC);
+        eventListener, null);
   }
 
   /**
@@ -124,16 +123,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType) {
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack(audioCapabilities, streamType, this);
+    audioTrack = new AudioTrack(audioCapabilities, this);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -386,6 +383,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         break;
       case C.MSG_SET_PLAYBACK_PARAMS:
         audioTrack.setPlaybackParams((PlaybackParams) message);
+        break;
+      case C.MSG_SET_STREAM_TYPE:
+        @C.StreamType int streamType = (Integer) message;
+        if (audioTrack.setStreamType(streamType)) {
+          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+        }
         break;
       default:
         super.handleMessage(messageType, message);
