@@ -839,17 +839,21 @@ import java.io.IOException;
     timeline = timelineAndManifest.first;
     Object manifest = timelineAndManifest.second;
 
+    int processedInitialSeekCount = 0;
     if (oldTimeline == null) {
       if (pendingInitialSeekCount > 0) {
         Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingSeekPosition);
         if (periodPosition == null) {
           // We failed to resolve the seek position. Stop the player.
-          finishSourceInfoRefresh(manifest, false);
+          notifySourceInfoRefresh(manifest, 0);
           // TODO: We should probably propagate an error here.
           stopInternal();
           return;
         }
         playbackInfo = new PlaybackInfo(periodPosition.first, periodPosition.second);
+        processedInitialSeekCount = pendingInitialSeekCount;
+        pendingInitialSeekCount = 0;
+        pendingSeekPosition = null;
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         Pair<Integer, Long> defaultPosition = getPeriodPosition(0, C.TIME_UNSET);
         playbackInfo = new PlaybackInfo(defaultPosition.first, defaultPosition.second);
@@ -860,19 +864,34 @@ import java.io.IOException;
         : loadingPeriodHolder;
     if (periodHolder == null) {
       // We don't have any period holders, so we're done.
-      finishSourceInfoRefresh(manifest, true);
+      notifySourceInfoRefresh(manifest, processedInitialSeekCount);
       return;
     }
 
     int periodIndex = timeline.getIndexOfPeriod(periodHolder.uid);
     if (periodIndex == C.INDEX_UNSET) {
-      // We didn't find the current period in the new timeline. Attempt to restart.
-      boolean restarted = attemptRestart(periodHolder, oldTimeline, timeline);
-      finishSourceInfoRefresh(manifest, true);
-      if (!restarted) {
+      // We didn't find the current period in the new timeline. Attempt to resolve a subsequent
+      // period whose window we can restart from.
+      int newPeriodIndex = resolveSubsequentPeriod(periodHolder.index, oldTimeline, timeline);
+      if (newPeriodIndex == C.INDEX_UNSET) {
+        // We failed to resolve a subsequent period. Stop the player.
+        notifySourceInfoRefresh(manifest, processedInitialSeekCount);
         // TODO: We should probably propagate an error here.
         stopInternal();
+        return;
       }
+      // Release all loaded periods.
+      releasePeriodHoldersFrom(periodHolder);
+      playingPeriodHolder = null;
+      readingPeriodHolder = null;
+      loadingPeriodHolder = null;
+      // Find the default initial position in the window and seek to it.
+      Pair<Integer, Long> defaultPosition = getPeriodPosition(
+          timeline.getPeriod(newPeriodIndex, period).windowIndex, C.TIME_UNSET);
+      newPeriodIndex = defaultPosition.first;
+      long newPlayingPositionUs = defaultPosition.second;
+      playbackInfo = new PlaybackInfo(newPeriodIndex, newPlayingPositionUs);
+      notifySourceInfoRefresh(manifest, processedInitialSeekCount);
       return;
     }
 
@@ -925,40 +944,12 @@ import java.io.IOException;
       }
     }
 
-    finishSourceInfoRefresh(manifest, true);
+    notifySourceInfoRefresh(manifest, processedInitialSeekCount);
   }
 
-  private boolean attemptRestart(MediaPeriodHolder oldPeriodHolder, Timeline oldTimeline,
-      Timeline newTimeline) {
-    int newPeriodIndex = resolveSubsequentPeriod(oldPeriodHolder.index, oldTimeline, newTimeline);
-    if (newPeriodIndex == C.INDEX_UNSET) {
-      // We failed to find a replacement period. Stop the player.
-      return false;
-    }
-
-    // Release all loaded periods.
-    releasePeriodHoldersFrom(oldPeriodHolder);
-    playingPeriodHolder = null;
-    readingPeriodHolder = null;
-    loadingPeriodHolder = null;
-
-    // Find the default initial position in the window and seek to it.
-    Pair<Integer, Long> defaultPosition = getPeriodPosition(
-        timeline.getPeriod(newPeriodIndex, period).windowIndex, C.TIME_UNSET);
-    newPeriodIndex = defaultPosition.first;
-    long newPlayingPositionUs = defaultPosition.second;
-    playbackInfo = new PlaybackInfo(newPeriodIndex, newPlayingPositionUs);
-    return true;
-  }
-
-  private void finishSourceInfoRefresh(Object manifest, boolean processedInitialSeeks) {
-    SourceInfo sourceInfo = new SourceInfo(timeline, manifest, playbackInfo,
-        processedInitialSeeks ? pendingInitialSeekCount : 0);
-    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, sourceInfo).sendToTarget();
-    if (processedInitialSeeks) {
-      pendingInitialSeekCount = 0;
-      pendingSeekPosition = null;
-    }
+  private void notifySourceInfoRefresh(Object manifest, int processedInitialSeekCount) {
+    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED,
+        new SourceInfo(timeline, manifest, playbackInfo, processedInitialSeekCount)).sendToTarget();
   }
 
   /**
