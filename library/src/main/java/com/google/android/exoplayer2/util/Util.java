@@ -210,7 +210,9 @@ public final class Util {
    */
   public static void closeQuietly(DataSource dataSource) {
     try {
-      dataSource.close();
+      if (dataSource != null) {
+        dataSource.close();
+      }
     } catch (IOException e) {
       // Ignore.
     }
@@ -224,7 +226,9 @@ public final class Util {
    */
   public static void closeQuietly(Closeable closeable) {
     try {
-      closeable.close();
+      if (closeable != null) {
+        closeable.close();
+      }
     } catch (IOException e) {
       // Ignore.
     }
