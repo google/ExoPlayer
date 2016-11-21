@@ -40,10 +40,10 @@ public class DebugMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
   private int bufferCount;
 
   public DebugMediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      int videoScalingMode, long allowedJoiningTimeMs, Handler eventHandler,
-      VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
-    super(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
-        eventHandler, eventListener, maxDroppedFrameCountToNotify);
+      long allowedJoiningTimeMs, Handler eventHandler, VideoRendererEventListener eventListener,
+      int maxDroppedFrameCountToNotify) {
+    super(context, mediaCodecSelector, allowedJoiningTimeMs, null, false, eventHandler,
+        eventListener, maxDroppedFrameCountToNotify);
     startIndex = 0;
     queueSize = 0;
   }

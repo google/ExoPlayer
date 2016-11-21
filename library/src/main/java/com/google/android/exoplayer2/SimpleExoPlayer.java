@@ -103,6 +103,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   private Surface surface;
   private boolean ownsSurface;
+  @C.VideoScalingMode
+  private int videoScalingMode;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
   private TextRenderer.Output textOutput;
@@ -115,7 +117,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private int audioSessionId;
   @C.StreamType
   private int audioStreamType;
-  private float volume;
+  private float audioVolume;
   private PlaybackParamsHolder playbackParamsHolder;
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
@@ -152,12 +154,41 @@ public final class SimpleExoPlayer implements ExoPlayer {
     this.audioRendererCount = audioRendererCount;
 
     // Set initial values.
+    audioVolume = 1;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioStreamType = C.STREAM_TYPE_DEFAULT;
-    volume = 1;
+    videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
 
     // Build the player and associated objects.
     player = new ExoPlayerImpl(renderers, trackSelector, loadControl);
+  }
+
+  /**
+   * Sets the video scaling mode.
+   * <p>
+   * Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer} is
+   * enabled and if the output surface is owned by a {@link android.view.SurfaceView}.
+   *
+   * @param videoScalingMode The video scaling mode.
+   */
+  public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
+    this.videoScalingMode = videoScalingMode;
+    ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
+    int count = 0;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SCALING_MODE,
+            videoScalingMode);
+      }
+    }
+    player.sendMessages(messages);
+  }
+
+  /**
+   * Returns the video scaling mode.
+   */
+  public @C.VideoScalingMode int getVideoScalingMode() {
+    return videoScalingMode;
   }
 
   /**
@@ -267,15 +298,15 @@ public final class SimpleExoPlayer implements ExoPlayer {
   /**
    * Sets the audio volume, with 0 being silence and 1 being unity gain.
    *
-   * @param volume The volume.
+   * @param audioVolume The audio volume.
    */
-  public void setVolume(float volume) {
-    this.volume = volume;
+  public void setVolume(float audioVolume) {
+    this.audioVolume = audioVolume;
     ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
     int count = 0;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_VOLUME, volume);
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_VOLUME, audioVolume);
       }
     }
     player.sendMessages(messages);
@@ -285,7 +316,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
    * Returns the audio volume, with 0 being silence and 1 being unity gain.
    */
   public float getVolume() {
-    return volume;
+    return audioVolume;
   }
 
   /**
@@ -568,9 +599,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, ArrayList<Renderer> renderersList,
       long allowedVideoJoiningTimeMs) {
     MediaCodecVideoRenderer videoRenderer = new MediaCodecVideoRenderer(context,
-        MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-        allowedVideoJoiningTimeMs, drmSessionManager, false, mainHandler, componentListener,
-        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+        MediaCodecSelector.DEFAULT, allowedVideoJoiningTimeMs, drmSessionManager, false,
+        mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
     renderersList.add(videoRenderer);
 
     Renderer audioRenderer = new MediaCodecAudioRenderer(MediaCodecSelector.DEFAULT,

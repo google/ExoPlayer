@@ -223,6 +223,29 @@ public final class C {
   public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
+   * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  public @interface VideoScalingMode {}
+  /**
+   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
+      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+  /**
+   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
+      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+  /**
+   * A default video scaling mode for {@link MediaCodec}-based {@link Renderer}s.
+   */
+  public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+
+  /**
    * Track selection flags.
    */
   @Retention(RetentionPolicy.SOURCE)
@@ -462,6 +485,16 @@ public final class C {
    * share the same routing, so a new audio session id will be generated.
    */
   public static final int MSG_SET_STREAM_TYPE = 4;
+
+  /**
+   * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
+   * via {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message
+   * object should be one of the integer scaling modes in {@link C.VideoScalingMode}.
+   * <p>
+   * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
+   * owned by a {@link android.view.SurfaceView}.
+   */
+  public static final int MSG_SET_SCALING_MODE = 5;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to

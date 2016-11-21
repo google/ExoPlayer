@@ -57,7 +57,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
-  private final int videoScalingMode;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsAutoFrcWorkaround;
 
@@ -65,6 +64,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private CodecMaxValues codecMaxValues;
 
   private Surface surface;
+  @C.VideoScalingMode
+  private int scalingMode;
   private boolean renderedFirstFrame;
   private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
@@ -85,32 +86,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
    */
-  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      int videoScalingMode) {
-    this(context, mediaCodecSelector, videoScalingMode, 0);
+  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
+    this(context, mediaCodecSelector, 0);
   }
 
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      int videoScalingMode, long allowedJoiningTimeMs) {
-    this(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, null, -1);
+      long allowedJoiningTimeMs) {
+    this(context, mediaCodecSelector, allowedJoiningTimeMs, null, null, -1);
   }
 
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -120,17 +114,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      int videoScalingMode, long allowedJoiningTimeMs, Handler eventHandler,
-      VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
-    this(context, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
-        eventHandler, eventListener, maxDroppedFrameCountToNotify);
+      long allowedJoiningTimeMs, Handler eventHandler, VideoRendererEventListener eventListener,
+      int maxDroppedFrameCountToNotify) {
+    this(context, mediaCodecSelector, allowedJoiningTimeMs, null, false, eventHandler,
+        eventListener, maxDroppedFrameCountToNotify);
   }
 
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
@@ -147,12 +139,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      int videoScalingMode, long allowedJoiningTimeMs,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      long allowedJoiningTimeMs, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       VideoRendererEventListener eventListener, int maxDroppedFramesToNotify) {
     super(C.TRACK_TYPE_VIDEO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
@@ -163,6 +153,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
+    scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
     clearLastReportedVideoSize();
   }
 
@@ -284,6 +275,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
       setSurface((Surface) message);
+    } else if (messageType == C.MSG_SET_SCALING_MODE) {
+      scalingMode = (Integer) message;
+      MediaCodec codec = getCodec();
+      if (codec != null) {
+        setVideoScalingMode(codec, scalingMode);
+      }
     } else {
       super.handleMessage(messageType, message);
     }
@@ -358,7 +355,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       currentUnappliedRotationDegrees = pendingRotationDegrees;
     }
     // Must be applied each time the output format changes.
-    codec.setVideoScalingMode(videoScalingMode);
+    setVideoScalingMode(codec, scalingMode);
   }
 
   @Override
@@ -488,6 +485,36 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  private void clearLastReportedVideoSize() {
+    lastReportedWidth = Format.NO_VALUE;
+    lastReportedHeight = Format.NO_VALUE;
+    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
+    lastReportedUnappliedRotationDegrees = Format.NO_VALUE;
+  }
+
+  private void maybeNotifyVideoSizeChanged() {
+    if (lastReportedWidth != currentWidth || lastReportedHeight != currentHeight
+        || lastReportedUnappliedRotationDegrees != currentUnappliedRotationDegrees
+        || lastReportedPixelWidthHeightRatio != currentPixelWidthHeightRatio) {
+      eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
+          currentPixelWidthHeightRatio);
+      lastReportedWidth = currentWidth;
+      lastReportedHeight = currentHeight;
+      lastReportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
+      lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
+    }
+  }
+
+  private void maybeNotifyDroppedFrames() {
+    if (droppedFrames > 0) {
+      long now = SystemClock.elapsedRealtime();
+      long elapsedMs = now - droppedFrameAccumulationStartTimeMs;
+      eventDispatcher.droppedFrames(droppedFrames, elapsedMs);
+      droppedFrames = 0;
+      droppedFrameAccumulationStartTimeMs = now;
+    }
+  }
+
   @SuppressLint("InlinedApi")
   private static MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
       boolean deviceNeedsAutoFrcWorkaround) {
@@ -583,34 +610,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return (maxPixels * 3) / (2 * minCompressionRatio);
   }
 
-  private void clearLastReportedVideoSize() {
-    lastReportedWidth = Format.NO_VALUE;
-    lastReportedHeight = Format.NO_VALUE;
-    lastReportedPixelWidthHeightRatio = Format.NO_VALUE;
-    lastReportedUnappliedRotationDegrees = Format.NO_VALUE;
-  }
-
-  private void maybeNotifyVideoSizeChanged() {
-    if (lastReportedWidth != currentWidth || lastReportedHeight != currentHeight
-        || lastReportedUnappliedRotationDegrees != currentUnappliedRotationDegrees
-        || lastReportedPixelWidthHeightRatio != currentPixelWidthHeightRatio) {
-      eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
-          currentPixelWidthHeightRatio);
-      lastReportedWidth = currentWidth;
-      lastReportedHeight = currentHeight;
-      lastReportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
-      lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
-    }
-  }
-
-  private void maybeNotifyDroppedFrames() {
-    if (droppedFrames > 0) {
-      long now = SystemClock.elapsedRealtime();
-      long elapsedMs = now - droppedFrameAccumulationStartTimeMs;
-      eventDispatcher.droppedFrames(droppedFrames, elapsedMs);
-      droppedFrames = 0;
-      droppedFrameAccumulationStartTimeMs = now;
-    }
+  private static void setVideoScalingMode(MediaCodec codec, int scalingMode) {
+    codec.setVideoScalingMode(scalingMode);
   }
 
   /**
