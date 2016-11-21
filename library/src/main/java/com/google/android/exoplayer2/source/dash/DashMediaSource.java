@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -80,6 +81,7 @@ public final class DashMediaSource implements MediaSource {
 
   private static final String TAG = "DashMediaSource";
 
+  private final boolean sideloadedManifest;
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
@@ -95,6 +97,7 @@ public final class DashMediaSource implements MediaSource {
   private MediaSource.Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
+  private LoaderErrorThrower loaderErrorThrower;
 
   private Uri manifestUri;
   private long manifestLoadStartTimestamp;
@@ -105,6 +108,47 @@ public final class DashMediaSource implements MediaSource {
 
   private int firstPeriodId;
 
+  /**
+   * Constructs an instance to play a given {@link DashManifest}, which must be static.
+   *
+   * @param manifest The manifest. {@link DashManifest#dynamic} must be false.
+   * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
+      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+    this(manifest, chunkSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler,
+        eventListener);
+  }
+
+  /**
+   * Constructs an instance to play a given {@link DashManifest}, which must be static.
+   *
+   * @param manifest The manifest. {@link DashManifest#dynamic} must be false.
+   * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount, Handler eventHandler, AdaptiveMediaSourceEventListener
+      eventListener) {
+    this(manifest, null, null, null, chunkSourceFactory, minLoadableRetryCount,
+        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS, eventHandler, eventListener);
+  }
+
+  /**
+   * Constructs an instance to play the manifest at a given {@link Uri}, which may be dynamic or
+   * static.
+   *
+   * @param manifestUri The manifest {@link Uri}.
+   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
+   *     to load (and refresh) the manifest.
+   * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
@@ -113,32 +157,91 @@ public final class DashMediaSource implements MediaSource {
         eventHandler, eventListener);
   }
 
+  /**
+   * Constructs an instance to play the manifest at a given {@link Uri}, which may be dynamic or
+   * static.
+   *
+   * @param manifestUri The manifest {@link Uri}.
+   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
+   *     to load (and refresh) the manifest.
+   * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
+   *     default start position should precede the end of the live window. Use
+   *     {@link #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by
+   *     the manifest, if present.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
+    this(manifestUri, manifestDataSourceFactory, new DashManifestParser(), chunkSourceFactory,
+        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+  }
+
+  /**
+   * Constructs an instance to play the manifest at a given {@link Uri}, which may be dynamic or
+   * static.
+   *
+   * @param manifestUri The manifest {@link Uri}.
+   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
+   *     to load (and refresh) the manifest.
+   * @param manifestParser A parser for loaded manifest data.
+   * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
+   *     default start position should precede the end of the live window. Use
+   *     {@link #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by
+   *     the manifest, if present.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+      DashManifestParser manifestParser, DashChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
+    this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
+        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+  }
+
+  private DashMediaSource(DashManifest manifest, Uri manifestUri,
+      DataSource.Factory manifestDataSourceFactory, DashManifestParser manifestParser,
+      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+      long livePresentationDelayMs, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
+    this.manifest = manifest;
     this.manifestUri = manifestUri;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
+    this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
+    sideloadedManifest = manifest != null;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    manifestParser = new DashManifestParser();
-    manifestCallback = new ManifestCallback();
     manifestUriLock = new Object();
     periodsById = new SparseArray<>();
-    refreshManifestRunnable = new Runnable() {
-      @Override
-      public void run() {
-        startLoadingManifest();
-      }
-    };
-    simulateManifestRefreshRunnable = new Runnable() {
-      @Override
-      public void run() {
-        processManifest();
-      }
-    };
+    if (sideloadedManifest) {
+      Assertions.checkState(!manifest.dynamic);
+      manifestCallback = null;
+      refreshManifestRunnable = null;
+      simulateManifestRefreshRunnable = null;
+    } else {
+      manifestCallback = new ManifestCallback();
+      refreshManifestRunnable = new Runnable() {
+        @Override
+        public void run() {
+          startLoadingManifest();
+        }
+      };
+      simulateManifestRefreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+          processManifest(false);
+        }
+      };
+    }
   }
 
   /**
@@ -157,15 +260,21 @@ public final class DashMediaSource implements MediaSource {
   @Override
   public void prepareSource(MediaSource.Listener listener) {
     sourceListener = listener;
-    dataSource = manifestDataSourceFactory.createDataSource();
-    loader = new Loader("Loader:DashMediaSource");
-    handler = new Handler();
-    startLoadingManifest();
+    if (sideloadedManifest) {
+      loaderErrorThrower = new LoaderErrorThrower.Dummy();
+      processManifest(false);
+    } else {
+      dataSource = manifestDataSourceFactory.createDataSource();
+      loader = new Loader("Loader:DashMediaSource");
+      loaderErrorThrower = loader;
+      handler = new Handler();
+      startLoadingManifest();
+    }
   }
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    loader.maybeThrowError();
+    loaderErrorThrower.maybeThrowError();
   }
 
   @Override
@@ -174,7 +283,7 @@ public final class DashMediaSource implements MediaSource {
         manifest.getPeriod(periodIndex).startMs);
     DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + periodIndex, manifest,
         periodIndex, chunkSourceFactory, minLoadableRetryCount, periodEventDispatcher,
-        elapsedRealtimeOffsetMs, loader, allocator);
+        elapsedRealtimeOffsetMs, loaderErrorThrower, allocator);
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }
@@ -189,6 +298,7 @@ public final class DashMediaSource implements MediaSource {
   @Override
   public void releaseSource() {
     dataSource = null;
+    loaderErrorThrower = null;
     if (loader != null) {
       loader.release();
       loader = null;
@@ -247,11 +357,11 @@ public final class DashMediaSource implements MediaSource {
       if (manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
-        processManifestAndScheduleRefresh();
+        processManifest(true);
       }
     } else {
       firstPeriodId += removedPeriodCount;
-      processManifestAndScheduleRefresh();
+      processManifest(true);
     }
   }
 
@@ -327,21 +437,16 @@ public final class DashMediaSource implements MediaSource {
 
   private void onUtcTimestampResolved(long elapsedRealtimeOffsetMs) {
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
-    processManifestAndScheduleRefresh();
+    processManifest(true);
   }
 
   private void onUtcTimestampResolutionError(IOException error) {
     Log.e(TAG, "Failed to resolve UtcTiming element.", error);
     // Be optimistic and continue in the hope that the device clock is correct.
-    processManifestAndScheduleRefresh();
+    processManifest(true);
   }
 
-  private void processManifestAndScheduleRefresh() {
-    processManifest();
-    scheduleManifestRefresh();
-  }
-
-  private void processManifest() {
+  private void processManifest(boolean scheduleRefresh) {
     // Update any periods.
     for (int i = 0; i < periodsById.size(); i++) {
       int id = periodsById.keyAt(i);
@@ -351,9 +456,8 @@ public final class DashMediaSource implements MediaSource {
         // This period has been removed from the manifest so it doesn't need to be updated.
       }
     }
-    // Remove any pending simulated updates.
-    handler.removeCallbacks(simulateManifestRefreshRunnable);
     // Update the window.
+    boolean windowChangingImplicitly = false;
     int lastPeriodIndex = manifest.getPeriodCount() - 1;
     PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
         manifest.getPeriodDurationUs(0));
@@ -384,8 +488,7 @@ public final class DashMediaSource implements MediaSource {
           currentStartTimeUs = manifest.getPeriodDurationUs(0);
         }
       }
-      // The window is changing implicitly. Post a simulated manifest refresh to update it.
-      handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
+      windowChangingImplicitly = true;
     }
     long windowDurationUs = currentEndTimeUs - currentStartTimeUs;
     for (int i = 0; i < manifest.getPeriodCount() - 1; i++) {
@@ -414,6 +517,19 @@ public final class DashMediaSource implements MediaSource {
         firstPeriodId, currentStartTimeUs, windowDurationUs, windowDefaultStartPositionUs,
         manifest);
     sourceListener.onSourceInfoRefreshed(timeline, manifest);
+
+    if (!sideloadedManifest) {
+      // Remove any pending simulated refresh.
+      handler.removeCallbacks(simulateManifestRefreshRunnable);
+      // If the window is changing implicitly, post a simulated manifest refresh to update it.
+      if (windowChangingImplicitly) {
+        handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
+      }
+      // Schedule an explicit refresh if needed.
+      if (scheduleRefresh) {
+        scheduleManifestRefresh();
+      }
+    }
   }
 
   private void scheduleManifestRefresh() {
