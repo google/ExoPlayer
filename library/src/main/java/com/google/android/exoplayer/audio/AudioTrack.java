@@ -184,7 +184,6 @@ public final class AudioTrack {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final AudioCapabilities audioCapabilities;
-  private final int streamType;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
@@ -197,6 +196,7 @@ public final class AudioTrack {
   private android.media.AudioTrack audioTrack;
   private int sampleRate;
   private int channelConfig;
+  private int streamType;
   private int sourceEncoding;
   private int targetEncoding;
   private boolean passthrough;
@@ -243,7 +243,6 @@ public final class AudioTrack {
    */
   public AudioTrack(AudioCapabilities audioCapabilities, int streamType) {
     this.audioCapabilities = audioCapabilities;
-    this.streamType = streamType;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
       try {
@@ -261,6 +260,7 @@ public final class AudioTrack {
       audioTrackUtil = new AudioTrackUtil();
     }
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
+    this.streamType = streamType;
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
   }
@@ -700,6 +700,24 @@ public final class AudioTrack {
    */
   public void setPlaybackParams(PlaybackParams playbackParams) {
     audioTrackUtil.setPlaybackParameters(playbackParams);
+  }
+
+  /**
+   * Sets the stream type for audio track. If the stream type has changed, {@link #isInitialized()}
+   * will return {@code false} and the caller must re-{@link #initialize(int)} the audio track
+   * before writing more data. The caller must not reuse the audio session identifier when
+   * re-initializing with a new stream type.
+   *
+   * @param streamType The stream type to use for audio output.
+   * @return Whether the stream type changed.
+   */
+  public boolean setStreamType(int streamType) {
+    if (this.streamType == streamType) {
+      return false;
+    }
+    this.streamType = streamType;
+    reset();
+    return true;
   }
 
   /**
