@@ -50,7 +50,7 @@ public class AtomicFileTest extends InstrumentationTestCase {
     assertFalse(file.exists());
   }
 
-  public void testWriteEndRead() throws Exception {
+  public void testWriteRead() throws Exception {
     OutputStream output = atomicFile.startWrite();
     output.write(5);
     atomicFile.endWrite(output);

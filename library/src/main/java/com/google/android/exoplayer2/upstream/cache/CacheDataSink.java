@@ -138,6 +138,7 @@ public final class CacheDataSink implements DataSink {
     outputStreamBytesWritten = 0;
   }
 
+  @SuppressWarnings("ThrowFromFinallyBlock")
   private void closeCurrentOutputStream() throws IOException {
     if (outputStream == null) {
       return;
@@ -150,13 +151,14 @@ public final class CacheDataSink implements DataSink {
       success = true;
     } finally {
       Util.closeQuietly(outputStream);
-      if (success) {
-        cache.commitFile(file);
-      } else {
-        file.delete();
-      }
       outputStream = null;
+      File fileToCommit = file;
       file = null;
+      if (success) {
+        cache.commitFile(fileToCommit);
+      } else {
+        fileToCommit.delete();
+      }
     }
   }
 
