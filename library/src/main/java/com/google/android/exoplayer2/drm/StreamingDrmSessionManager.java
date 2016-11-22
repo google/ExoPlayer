@@ -447,15 +447,15 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
       switch (msg.what) {
         case MediaDrm.EVENT_KEY_REQUIRED:
           postKeyRequest();
-          return;
+          break;
         case MediaDrm.EVENT_KEY_EXPIRED:
           state = STATE_OPENED;
           onError(new KeysExpiredException());
-          return;
+          break;
         case MediaDrm.EVENT_PROVISION_REQUIRED:
           state = STATE_OPENED;
           postProvisionRequest();
-          return;
+          break;
       }
     }
 
@@ -483,10 +483,10 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
       switch (msg.what) {
         case MSG_PROVISION:
           onProvisionResponse(msg.obj);
-          return;
+          break;
         case MSG_KEYS:
           onKeyResponse(msg.obj);
-          return;
+          break;
       }
     }
 

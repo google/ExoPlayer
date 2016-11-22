@@ -69,10 +69,12 @@ public class AtomicFileTest extends InstrumentationTestCase {
     output.write(6);
 
     assertRead();
+    output.close();
 
     output = atomicFile.startWrite();
 
     assertRead();
+    output.close();
   }
 
   private void assertRead() throws IOException {

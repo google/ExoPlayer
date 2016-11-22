@@ -354,10 +354,7 @@ public final class SimpleCache implements Cache {
   @Override
   public synchronized boolean isCached(String key, long position, long length) {
     CachedContent cachedContent = index.get(key);
-    if (cachedContent == null) {
-      return false;
-    }
-    return cachedContent.isCached(position, length);
+    return cachedContent != null && cachedContent.isCached(position, length);
   }
 
   @Override

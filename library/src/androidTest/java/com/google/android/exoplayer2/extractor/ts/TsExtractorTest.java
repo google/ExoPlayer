@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -114,7 +113,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     assertEquals(1, factory.sdtReader.consumedSdts);
   }
 
-  private static void writeJunkData(ByteArrayOutputStream out, int length) throws IOException {
+  private static void writeJunkData(ByteArrayOutputStream out, int length) {
     for (int i = 0; i < length; i++) {
       if (((byte) i) == TS_SYNC_BYTE) {
         out.write(0);

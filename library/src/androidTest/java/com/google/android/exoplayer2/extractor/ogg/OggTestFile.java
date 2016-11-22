@@ -25,16 +25,16 @@ import junit.framework.Assert;
  */
 /* package */ final class OggTestFile {
 
-  public static final int MAX_PACKET_LENGTH = 2048;
-  public static final int MAX_SEGMENT_COUNT = 10;
-  public static final int MAX_GRANULES_IN_PAGE = 100000;
+  private static final int MAX_PACKET_LENGTH = 2048;
+  private static final int MAX_SEGMENT_COUNT = 10;
+  private static final int MAX_GRANULES_IN_PAGE = 100000;
 
-  byte[] data;
-  long lastGranule;
-  int packetCount;
-  int pageCount;
-  int firstPayloadPageSize;
-  long firstPayloadPageGranulePosition;
+  public final byte[] data;
+  public final long lastGranule;
+  public final int packetCount;
+  public final int pageCount;
+  public final int firstPayloadPageSize;
+  public final long firstPayloadPageGranulePosition;
 
   private OggTestFile(byte[] data, long lastGranule, int packetCount, int pageCount,
       int firstPayloadPageSize, long firstPayloadPageGranulePosition) {

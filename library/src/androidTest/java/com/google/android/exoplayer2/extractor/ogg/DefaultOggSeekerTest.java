@@ -110,8 +110,8 @@ public final class DefaultOggSeekerTest extends TestCase {
       long granuleDiff = currentGranule - targetGranule;
       if ((granuleDiff > DefaultOggSeeker.MATCH_RANGE || granuleDiff < 0)
           && positionDiff > DefaultOggSeeker.MATCH_BYTE_RANGE) {
-        fail(String.format("granuleDiff (%d) or positionDiff (%d) is more than allowed.",
-            granuleDiff, positionDiff));
+        fail("granuleDiff (" + granuleDiff + ") or positionDiff (" + positionDiff
+            + ") is more than allowed.");
       }
     }
   }

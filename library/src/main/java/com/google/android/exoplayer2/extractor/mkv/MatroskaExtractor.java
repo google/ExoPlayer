@@ -431,18 +431,18 @@ public final class MatroskaExtractor implements Extractor {
         }
         segmentContentPosition = contentPosition;
         segmentContentSize = contentSize;
-        return;
+        break;
       case ID_SEEK:
         seekEntryId = UNSET_ENTRY_ID;
         seekEntryPosition = C.POSITION_UNSET;
-        return;
+        break;
       case ID_CUES:
         cueTimesUs = new LongArray();
         cueClusterPositions = new LongArray();
-        return;
+        break;
       case ID_CUE_POINT:
         seenClusterPositionForCurrentCuePoint = false;
-        return;
+        break;
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
@@ -456,21 +456,21 @@ public final class MatroskaExtractor implements Extractor {
             sentSeekMap = true;
           }
         }
-        return;
+        break;
       case ID_BLOCK_GROUP:
         sampleSeenReferenceBlock = false;
-        return;
+        break;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
-        return;
+        break;
       case ID_CONTENT_ENCRYPTION:
         currentTrack.hasContentEncryption = true;
-        return;
+        break;
       case ID_TRACK_ENTRY:
         currentTrack = new Track();
-        return;
+        break;
       default:
-        return;
+        break;
     }
   }
 
@@ -484,7 +484,7 @@ public final class MatroskaExtractor implements Extractor {
         if (durationTimecode != C.TIME_UNSET) {
           durationUs = scaleTimecodeToUs(durationTimecode);
         }
-        return;
+        break;
       case ID_SEEK:
         if (seekEntryId == UNSET_ENTRY_ID || seekEntryPosition == C.POSITION_UNSET) {
           throw new ParserException("Mandatory element SeekID or SeekPosition not found");
@@ -492,7 +492,7 @@ public final class MatroskaExtractor implements Extractor {
         if (seekEntryId == ID_CUES) {
           cuesContentPosition = seekEntryPosition;
         }
-        return;
+        break;
       case ID_CUES:
         if (!sentSeekMap) {
           extractorOutput.seekMap(buildSeekMap());
@@ -500,7 +500,7 @@ public final class MatroskaExtractor implements Extractor {
         } else {
           // We have already built the cues. Ignore.
         }
-        return;
+        break;
       case ID_BLOCK_GROUP:
         if (blockState != BLOCK_STATE_DATA) {
           // We've skipped this block (due to incompatible track number).
@@ -512,7 +512,7 @@ public final class MatroskaExtractor implements Extractor {
         }
         commitSampleToOutput(tracks.get(blockTrackNumber), blockTimeUs);
         blockState = BLOCK_STATE_START;
-        return;
+        break;
       case ID_CONTENT_ENCODING:
         if (currentTrack.hasContentEncryption) {
           if (currentTrack.encryptionKeyId == null) {
@@ -521,12 +521,12 @@ public final class MatroskaExtractor implements Extractor {
           currentTrack.drmInitData = new DrmInitData(
               new SchemeData(C.UUID_NIL, MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
         }
-        return;
+        break;
       case ID_CONTENT_ENCODINGS:
         if (currentTrack.hasContentEncryption && currentTrack.sampleStrippedBytes != null) {
           throw new ParserException("Combining encryption and compression is not supported");
         }
-        return;
+        break;
       case ID_TRACK_ENTRY:
         if (tracks.get(currentTrack.number) == null && isCodecSupported(currentTrack.codecId)) {
           currentTrack.initializeOutput(extractorOutput, currentTrack.number);
@@ -535,15 +535,15 @@ public final class MatroskaExtractor implements Extractor {
           // We've seen this track entry before, or the codec is unsupported. Do nothing.
         }
         currentTrack = null;
-        return;
+        break;
       case ID_TRACKS:
         if (tracks.size() == 0) {
           throw new ParserException("No valid tracks were found");
         }
         extractorOutput.endTracks();
-        return;
+        break;
       default:
-        return;
+        break;
     }
   }
 
@@ -554,99 +554,99 @@ public final class MatroskaExtractor implements Extractor {
         if (value != 1) {
           throw new ParserException("EBMLReadVersion " + value + " not supported");
         }
-        return;
+        break;
       case ID_DOC_TYPE_READ_VERSION:
         // Validate that DocTypeReadVersion is supported. This extractor only supports up to v2.
         if (value < 1 || value > 2) {
           throw new ParserException("DocTypeReadVersion " + value + " not supported");
         }
-        return;
+        break;
       case ID_SEEK_POSITION:
         // Seek Position is the relative offset beginning from the Segment. So to get absolute
         // offset from the beginning of the file, we need to add segmentContentPosition to it.
         seekEntryPosition = value + segmentContentPosition;
-        return;
+        break;
       case ID_TIMECODE_SCALE:
         timecodeScale = value;
-        return;
+        break;
       case ID_PIXEL_WIDTH:
         currentTrack.width = (int) value;
-        return;
+        break;
       case ID_PIXEL_HEIGHT:
         currentTrack.height = (int) value;
-        return;
+        break;
       case ID_DISPLAY_WIDTH:
         currentTrack.displayWidth = (int) value;
-        return;
+        break;
       case ID_DISPLAY_HEIGHT:
         currentTrack.displayHeight = (int) value;
-        return;
+        break;
       case ID_DISPLAY_UNIT:
         currentTrack.displayUnit = (int) value;
-        return;
+        break;
       case ID_TRACK_NUMBER:
         currentTrack.number = (int) value;
-        return;
+        break;
       case ID_FLAG_DEFAULT:
         currentTrack.flagForced = value == 1;
-        return;
+        break;
       case ID_FLAG_FORCED:
         currentTrack.flagDefault = value == 1;
-        return;
+        break;
       case ID_TRACK_TYPE:
         currentTrack.type = (int) value;
-        return;
+        break;
       case ID_DEFAULT_DURATION:
         currentTrack.defaultSampleDurationNs = (int) value;
-        return;
+        break;
       case ID_CODEC_DELAY:
         currentTrack.codecDelayNs = value;
-        return;
+        break;
       case ID_SEEK_PRE_ROLL:
         currentTrack.seekPreRollNs = value;
-        return;
+        break;
       case ID_CHANNELS:
         currentTrack.channelCount = (int) value;
-        return;
+        break;
       case ID_AUDIO_BIT_DEPTH:
         currentTrack.audioBitDepth = (int) value;
-        return;
+        break;
       case ID_REFERENCE_BLOCK:
         sampleSeenReferenceBlock = true;
-        return;
+        break;
       case ID_CONTENT_ENCODING_ORDER:
         // This extractor only supports one ContentEncoding element and hence the order has to be 0.
         if (value != 0) {
           throw new ParserException("ContentEncodingOrder " + value + " not supported");
         }
-        return;
+        break;
       case ID_CONTENT_ENCODING_SCOPE:
         // This extractor only supports the scope of all frames.
         if (value != 1) {
           throw new ParserException("ContentEncodingScope " + value + " not supported");
         }
-        return;
+        break;
       case ID_CONTENT_COMPRESSION_ALGORITHM:
         // This extractor only supports header stripping.
         if (value != 3) {
           throw new ParserException("ContentCompAlgo " + value + " not supported");
         }
-        return;
+        break;
       case ID_CONTENT_ENCRYPTION_ALGORITHM:
         // Only the value 5 (AES) is allowed according to the WebM specification.
         if (value != 5) {
           throw new ParserException("ContentEncAlgo " + value + " not supported");
         }
-        return;
+        break;
       case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
         // Only the value 1 is allowed according to the WebM specification.
         if (value != 1) {
           throw new ParserException("AESSettingsCipherMode " + value + " not supported");
         }
-        return;
+        break;
       case ID_CUE_TIME:
         cueTimesUs.add(scaleTimecodeToUs(value));
-        return;
+        break;
       case ID_CUE_CLUSTER_POSITION:
         if (!seenClusterPositionForCurrentCuePoint) {
           // If there's more than one video/audio track, then there could be more than one
@@ -655,13 +655,13 @@ public final class MatroskaExtractor implements Extractor {
           cueClusterPositions.add(value);
           seenClusterPositionForCurrentCuePoint = true;
         }
-        return;
+        break;
       case ID_TIME_CODE:
         clusterTimecodeUs = scaleTimecodeToUs(value);
-        return;
+        break;
       case ID_BLOCK_DURATION:
         blockDurationUs = scaleTimecodeToUs(value);
-        return;
+        break;
       case ID_STEREO_MODE:
         int layout = (int) value;
         switch (layout) {
@@ -677,9 +677,9 @@ public final class MatroskaExtractor implements Extractor {
           default:
             break;
         }
-        return;
+        break;
       default:
-        return;
+        break;
     }
   }
 
@@ -687,12 +687,12 @@ public final class MatroskaExtractor implements Extractor {
     switch (id) {
       case ID_DURATION:
         durationTimecode = (long) value;
-        return;
+        break;
       case ID_SAMPLING_FREQUENCY:
         currentTrack.sampleRate = (int) value;
-        return;
+        break;
       default:
-        return;
+        break;
     }
   }
 
@@ -703,15 +703,15 @@ public final class MatroskaExtractor implements Extractor {
         if (!DOC_TYPE_WEBM.equals(value) && !DOC_TYPE_MATROSKA.equals(value)) {
           throw new ParserException("DocType " + value + " not supported");
         }
-        return;
+        break;
       case ID_CODEC_ID:
         currentTrack.codecId = value;
-        return;
+        break;
       case ID_LANGUAGE:
         currentTrack.language = value;
-        return;
+        break;
       default:
-        return;
+        break;
     }
   }
 
@@ -723,24 +723,24 @@ public final class MatroskaExtractor implements Extractor {
         input.readFully(seekEntryIdBytes.data, 4 - contentSize, contentSize);
         seekEntryIdBytes.setPosition(0);
         seekEntryId = (int) seekEntryIdBytes.readUnsignedInt();
-        return;
+        break;
       case ID_CODEC_PRIVATE:
         currentTrack.codecPrivate = new byte[contentSize];
         input.readFully(currentTrack.codecPrivate, 0, contentSize);
-        return;
+        break;
       case ID_PROJECTION_PRIVATE:
         currentTrack.projectionData = new byte[contentSize];
         input.readFully(currentTrack.projectionData, 0, contentSize);
-        return;
+        break;
       case ID_CONTENT_COMPRESSION_SETTINGS:
         // This extractor only supports header stripping, so the payload is the stripped bytes.
         currentTrack.sampleStrippedBytes = new byte[contentSize];
         input.readFully(currentTrack.sampleStrippedBytes, 0, contentSize);
-        return;
+        break;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
         currentTrack.encryptionKeyId = new byte[contentSize];
         input.readFully(currentTrack.encryptionKeyId, 0, contentSize);
-        return;
+        break;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
         // Please refer to http://www.matroska.org/technical/specs/index.html#simpleblock_structure
@@ -873,7 +873,7 @@ public final class MatroskaExtractor implements Extractor {
           writeSampleData(input, track, blockLacingSampleSizes[0]);
         }
 
-        return;
+        break;
       default:
         throw new ParserException("Unexpected id: " + id);
     }

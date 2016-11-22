@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  */
 public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
-  private Random random = new Random(0);
+  private final Random random = new Random(0);
 
   public void testSkipToNextPage() throws Exception {
     FakeExtractorInput extractorInput = TestData.createInput(

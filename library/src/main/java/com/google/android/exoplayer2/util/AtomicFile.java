@@ -98,7 +98,7 @@ public final class AtomicFile {
         baseName.delete();
       }
     }
-    OutputStream str = null;
+    OutputStream str;
     try {
       str = new AtomicFileOutputStream(baseName);
     } catch (FileNotFoundException e) {

@@ -28,7 +28,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
       0, 0, 0, 0, 0, 0, 0, 10, // original_content_length
       0, 0, 0, 2, // cache_id
       0, 5, 75, 76, 77, 78, 79, // cache_key
-      0, 0, 0, 0, 0, 0, 10, 00, // original_content_length
+      0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
       (byte) 0xF6, (byte) 0xFB, 0x50, 0x41 // hashcode_of_CachedContent_array
   };
   private CachedContentIndex index;

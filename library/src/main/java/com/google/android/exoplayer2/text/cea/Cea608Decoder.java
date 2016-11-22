@@ -369,22 +369,22 @@ public final class Cea608Decoder extends CeaDecoder {
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
           captionStringBuilder.setLength(0);
         }
-        return;
+        break;
       case CTRL_ERASE_NON_DISPLAYED_MEMORY:
         captionStringBuilder.setLength(0);
-        return;
+        break;
       case CTRL_END_OF_CAPTION:
         captionString = getDisplayCaption();
         captionStringBuilder.setLength(0);
-        return;
+        break;
       case CTRL_CARRIAGE_RETURN:
         maybeAppendNewline();
-        return;
+        break;
       case CTRL_BACKSPACE:
         if (captionStringBuilder.length() > 0) {
           captionStringBuilder.setLength(captionStringBuilder.length() - 1);
         }
-        return;
+        break;
     }
   }
 
