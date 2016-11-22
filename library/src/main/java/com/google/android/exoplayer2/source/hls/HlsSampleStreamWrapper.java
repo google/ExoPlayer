@@ -358,8 +358,6 @@ import java.util.LinkedList;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
       mediaChunk.init(this);
       mediaChunks.add(mediaChunk);
-    } else if (loadable instanceof HlsInitializationChunk) {
-      ((HlsInitializationChunk) loadable).init(this);
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
     eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,

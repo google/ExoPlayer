@@ -106,7 +106,6 @@ import java.util.Locale;
   private byte[] scratchSpace;
   private IOException fatalError;
 
-  private HlsInitializationChunk lastLoadedInitializationChunk;
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
   private String encryptionIvString;
@@ -266,20 +265,17 @@ import java.util.Locale;
       clearEncryptionData();
     }
 
-    // Compute start and end times, and the sequence number of the next chunk.
+    // Compute start time and sequence number of the next chunk.
     long startTimeUs = segment.startTimeUs;
     if (previous != null && !switchingVariant) {
       startTimeUs = previous.getAdjustedEndTimeUs();
     }
-    long endTimeUs = startTimeUs + segment.durationUs;
     Format format = variants[newVariantIndex].format;
 
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
 
     // Set the extractor that will read the chunk.
     Extractor extractor;
-    boolean useInitializedExtractor = lastLoadedInitializationChunk != null
-        && lastLoadedInitializationChunk.format == format;
     boolean needNewExtractor = previous == null
         || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || format != previous.trackFormat;
@@ -305,64 +301,56 @@ import java.util.Locale;
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)) {
       isTimestampMaster = true;
       if (needNewExtractor) {
-        if (useInitializedExtractor) {
-          extractor = lastLoadedInitializationChunk.extractor;
-        } else {
-          timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-              segment.discontinuitySequenceNumber, startTimeUs);
-          extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
-        }
+        timestampAdjuster = timestampAdjusterProvider.getAdjuster(
+            segment.discontinuitySequenceNumber, startTimeUs);
+        extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
       } else {
+        extractorNeedsInit = false;
         extractor = previous.extractor;
       }
     } else if (needNewExtractor) {
       // MPEG-2 TS segments, but we need a new extractor.
       isTimestampMaster = true;
-      if (useInitializedExtractor) {
-        extractor = lastLoadedInitializationChunk.extractor;
-      } else {
-        timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-            segment.discontinuitySequenceNumber, startTimeUs);
-        // This flag ensures the change of pid between streams does not affect the sample queues.
-        @DefaultTsPayloadReaderFactory.Flags
-        int esReaderFactoryFlags = 0;
-        String codecs = format.codecs;
-        if (!TextUtils.isEmpty(codecs)) {
-          // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
-          // exist. If we know from the codec attribute that they don't exist, then we can
-          // explicitly ignore them even if they're declared.
-          if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
-            esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_AAC_STREAM;
-          }
-          if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
-            esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
-          }
+      timestampAdjuster = timestampAdjusterProvider.getAdjuster(
+          segment.discontinuitySequenceNumber, startTimeUs);
+      // This flag ensures the change of pid between streams does not affect the sample queues.
+      @DefaultTsPayloadReaderFactory.Flags
+      int esReaderFactoryFlags = 0;
+      String codecs = format.codecs;
+      if (!TextUtils.isEmpty(codecs)) {
+        // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
+        // exist. If we know from the codec attribute that they don't exist, then we can
+        // explicitly ignore them even if they're declared.
+        if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
+          esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_AAC_STREAM;
         }
-        extractor = new TsExtractor(timestampAdjuster,
-            new DefaultTsPayloadReaderFactory(esReaderFactoryFlags), true);
+        if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
+          esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
+        }
       }
+      extractor = new TsExtractor(timestampAdjuster,
+          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags), true);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractor = previous.extractor;
       extractorNeedsInit = false;
     }
 
-    // Initialize the extractor.
-    if (needNewExtractor && mediaPlaylist.initializationSegment != null
-        && !useInitializedExtractor) {
-      out.chunk = buildInitializationChunk(mediaPlaylist, extractor, format);
-      return;
+    DataSpec initDataSpec = null;
+    Segment initSegment = mediaPlaylist.initializationSegment;
+    if (initSegment != null) {
+      Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
+      initDataSpec = new DataSpec(initSegmentUri, initSegment.byterangeOffset,
+          initSegment.byterangeLength, null);
     }
 
-    lastLoadedInitializationChunk = null;
     // Configure the data source and spec for the chunk.
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(dataSource, dataSpec, variants[newVariantIndex],
+    out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
         trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        startTimeUs, endTimeUs, chunkMediaSequence, segment.discontinuitySequenceNumber,
-        isTimestampMaster, timestampAdjuster, extractor, extractorNeedsInit, switchingVariant,
-        encryptionKey, encryptionIv);
+        segment, chunkMediaSequence, isTimestampMaster, timestampAdjuster, extractor,
+        extractorNeedsInit, switchingVariant, encryptionKey, encryptionIv);
   }
 
   /**
@@ -376,9 +364,6 @@ import java.util.Locale;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) chunk;
       playlistTracker.onChunkLoaded(mediaChunk.hlsUrl, mediaChunk.chunkIndex,
           mediaChunk.getAdjustedStartTimeUs());
-    }
-    if (chunk instanceof HlsInitializationChunk) {
-      lastLoadedInitializationChunk = (HlsInitializationChunk) chunk;
     } else if (chunk instanceof EncryptionKeyChunk) {
       EncryptionKeyChunk encryptionKeyChunk = (EncryptionKeyChunk) chunk;
       scratchSpace = encryptionKeyChunk.getDataHolder();
@@ -418,18 +403,6 @@ import java.util.Locale;
   }
 
   // Private methods.
-
-  private HlsInitializationChunk buildInitializationChunk(HlsMediaPlaylist mediaPlaylist,
-      Extractor extractor, Format format) {
-    Segment initSegment = mediaPlaylist.initializationSegment;
-    // The initialization segment is required before the actual media chunk.
-    Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
-    DataSpec initDataSpec = new DataSpec(initSegmentUri, initSegment.byterangeOffset,
-        initSegment.byterangeLength, null);
-    return new HlsInitializationChunk(dataSource, initDataSpec,
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), extractor,
-        format);
-  }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
       int trackSelectionReason, Object trackSelectionData) {

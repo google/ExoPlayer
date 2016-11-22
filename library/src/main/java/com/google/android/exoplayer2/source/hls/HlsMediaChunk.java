@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
@@ -54,13 +55,17 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public final HlsUrl hlsUrl;
 
+  private final DataSource initDataSource;
+  private final DataSpec initDataSpec;
   private final boolean isEncrypted;
   private final boolean extractorNeedsInit;
   private final boolean shouldSpliceIn;
   private final boolean isMasterTimestampSource;
   private final TimestampAdjuster timestampAdjuster;
 
+  private int initSegmentBytesLoaded;
   private int bytesLoaded;
+  private boolean initLoadCompleted;
   private HlsSampleStreamWrapper extractorOutput;
   private long adjustedEndTimeUs;
   private volatile boolean loadCanceled;
@@ -69,13 +74,12 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
+   * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
    * @param hlsUrl The url of the playlist from which this chunk was obtained.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
-   * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
-   * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
+   * @param segment The {@link Segment} for which this media chunk is created.
    * @param chunkIndex The media sequence number of the chunk.
-   * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param extractor The extractor to decode samples from the data.
@@ -86,23 +90,26 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
-  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, HlsUrl hlsUrl,
-      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, int discontinuitySequenceNumber, boolean isMasterTimestampSource,
-      TimestampAdjuster timestampAdjuster, Extractor extractor, boolean extractorNeedsInit,
-      boolean shouldSpliceIn, byte[] encryptionKey, byte[] encryptionIv) {
+  public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, DataSpec initDataSpec,
+      HlsUrl hlsUrl, int trackSelectionReason, Object trackSelectionData, Segment segment,
+      int chunkIndex, boolean isMasterTimestampSource, TimestampAdjuster timestampAdjuster,
+      Extractor extractor, boolean extractorNeedsInit, boolean shouldSpliceIn, byte[] encryptionKey,
+      byte[] encryptionIv) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, hlsUrl.format,
-        trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
+        trackSelectionReason, trackSelectionData, segment.startTimeUs,
+        segment.startTimeUs + segment.durationUs, chunkIndex);
+    this.initDataSpec = initDataSpec;
     this.hlsUrl = hlsUrl;
-    this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
     this.extractor = extractor;
     this.extractorNeedsInit = extractorNeedsInit;
     this.shouldSpliceIn = shouldSpliceIn;
     // Note: this.dataSource and dataSource may be different.
-    adjustedEndTimeUs = endTimeUs;
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    initDataSource = dataSource;
+    discontinuitySequenceNumber = segment.discontinuitySequenceNumber;
+    adjustedEndTimeUs = endTimeUs;
     uid = UID_SOURCE.getAndIncrement();
   }
 
@@ -158,6 +165,37 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void load() throws IOException, InterruptedException {
+    maybeLoadInitData();
+    if (!loadCanceled) {
+      loadMedia();
+    }
+  }
+
+  // Private methods.
+
+  private void maybeLoadInitData() throws IOException, InterruptedException {
+    if (!extractorNeedsInit || initLoadCompleted || initDataSpec == null) {
+      return;
+    }
+    DataSpec initSegmentDataSpec = Util.getRemainderDataSpec(initDataSpec, initSegmentBytesLoaded);
+    try {
+      ExtractorInput input = new DefaultExtractorInput(initDataSource,
+          initSegmentDataSpec.absoluteStreamPosition, initDataSource.open(initSegmentDataSpec));
+      try {
+        int result = Extractor.RESULT_CONTINUE;
+        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
+          result = extractor.read(input, null);
+        }
+      } finally {
+        initSegmentBytesLoaded += (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+      }
+    } finally {
+      Util.closeQuietly(dataSource);
+    }
+    initLoadCompleted = true;
+  }
+
+  private void loadMedia() throws IOException, InterruptedException {
     // If we previously fed part of this chunk to the extractor, we need to skip it this time. For
     // encrypted content we need to skip the data by reading it through the source, so as to ensure
     // correct decryption of the remainder of the chunk. For clear content, we can request the
@@ -193,12 +231,10 @@ import java.util.concurrent.atomic.AtomicInteger;
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
     loadCompleted = true;
   }
-
-  // Private methods
 
   /**
    * If the content is encrypted, returns an {@link Aes128DataSource} that wraps the original in
