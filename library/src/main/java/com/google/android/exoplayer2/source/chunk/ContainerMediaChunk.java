@@ -32,8 +32,9 @@ import java.io.IOException;
  */
 public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMetadataOutput {
 
-  private final ChunkExtractorWrapper extractorWrapper;
+  private final int chunkCount;
   private final long sampleOffsetUs;
+  private final ChunkExtractorWrapper extractorWrapper;
   private final Format sampleFormat;
 
   private volatile int bytesLoaded;
@@ -49,6 +50,9 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
+   * @param chunkCount The number of chunks in the underlying media that are spanned by this
+   *     instance. Normally equal to one, but may be larger if multiple chunks as defined by the
+   *     underlying media are being merged into a single load.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param sampleFormat The {@link Format} of the samples in the chunk, if known. May be null if
@@ -56,13 +60,19 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
       int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
+      int chunkIndex, int chunkCount, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
       Format sampleFormat) {
     super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
         endTimeUs, chunkIndex);
-    this.extractorWrapper = extractorWrapper;
+    this.chunkCount = chunkCount;
     this.sampleOffsetUs = sampleOffsetUs;
+    this.extractorWrapper = extractorWrapper;
     this.sampleFormat = sampleFormat;
+  }
+
+  @Override
+  public int getNextChunkIndex() {
+    return chunkIndex + chunkCount;
   }
 
   @Override
