@@ -231,7 +231,7 @@ import java.io.IOException;
 
   @Override
   public boolean continueLoading(long playbackPositionUs) {
-    if (loadingFinished) {
+    if (loadingFinished || (prepared && enabledTrackCount == 0)) {
       return false;
     }
     boolean continuedLoading = loadCondition.open();
