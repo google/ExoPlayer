@@ -60,6 +60,7 @@ import org.chromium.net.CronetEngine;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlRequestException;
 import org.chromium.net.UrlResponseInfo;
+import org.chromium.net.impl.UrlResponseInfoImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,7 +139,7 @@ public final class CronetDataSourceTest {
   private UrlResponseInfo createUrlResponseInfo(int statusCode) {
     ArrayList<Map.Entry<String, String>> responseHeaderList = new ArrayList<>();
     responseHeaderList.addAll(testResponseHeader.entrySet());
-    return new UrlResponseInfo(
+    return new UrlResponseInfoImpl(
         Collections.singletonList(TEST_URL),
         statusCode,
         null, // httpStatusText
