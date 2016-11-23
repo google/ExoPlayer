@@ -20,8 +20,8 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ReusableBufferedOutputStream;
 import com.google.android.exoplayer2.util.Util;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public final class CacheDataSink implements DataSink {
   private FileOutputStream underlyingFileOutputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
+  private ReusableBufferedOutputStream bufferedOutputStream;
 
   /**
    * Thrown when IOException is encountered when writing data into sink.
@@ -132,9 +133,17 @@ public final class CacheDataSink implements DataSink {
     file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
         Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize));
     underlyingFileOutputStream = new FileOutputStream(file);
-    outputStream = bufferSize > 0
-        ? new BufferedOutputStream(underlyingFileOutputStream, bufferSize)
-        : underlyingFileOutputStream;
+    if (bufferSize > 0) {
+      if (bufferedOutputStream == null) {
+        bufferedOutputStream = new ReusableBufferedOutputStream(underlyingFileOutputStream,
+            bufferSize);
+      } else {
+        bufferedOutputStream.reset(underlyingFileOutputStream);
+      }
+      outputStream = bufferedOutputStream;
+    } else {
+      outputStream = underlyingFileOutputStream;
+    }
     outputStreamBytesWritten = 0;
   }
 
