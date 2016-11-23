@@ -21,8 +21,9 @@ git clone https://github.com/google/ExoPlayer.git
 
 1. Find the latest Cronet release [here][] and navigate to its `Release/cronet`
    directory
-1. Download `cronet.jar`, `cronet_api.jar` and the `libs` directory
-1. Copy the two jar files into the `libs` directory of this extension
+1. Download `cronet_api.jar`, `cronet_impl_common_java.jar`,
+   `cronet_impl_native_java.jar` and the `libs` directory
+1. Copy the three jar files into the `libs` directory of this extension
 1. Copy the content of the downloaded `libs` directory into the `jniLibs`
    directory of this extension
 
