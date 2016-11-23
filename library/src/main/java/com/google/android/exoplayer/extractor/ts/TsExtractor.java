@@ -196,9 +196,11 @@ public final class TsExtractor implements Extractor {
     int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
     continuityCounters.put(pid, continuityCounter);
     if (previousCounter == continuityCounter) {
-      // Duplicate packet found.
-      tsPacketBuffer.setPosition(endOfPacket);
-      return RESULT_CONTINUE;
+      if (payloadExists) {
+        // Duplicate packet found.
+        tsPacketBuffer.setPosition(endOfPacket);
+        return RESULT_CONTINUE;
+      }
     } else if (continuityCounter != (previousCounter + 1) % 16) {
       discontinuityFound = true;
     }
