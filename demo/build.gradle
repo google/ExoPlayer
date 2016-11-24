@@ -37,16 +37,23 @@ android {
         abortOnError false
     }
 
+    flavorDimensions "extensions"
+
     productFlavors {
-        noExtensions
-        withExtensions
+        noExtns {
+            dimension "extensions"
+        }
+        extns {
+            dimension "extensions"
+        }
     }
+
 }
 
 dependencies {
     compile project(':library')
-    withExtensionsCompile project(path: ':extension-ffmpeg')
-    withExtensionsCompile project(path: ':extension-flac')
-    withExtensionsCompile project(path: ':extension-opus')
-    withExtensionsCompile project(path: ':extension-vp9')
+    extnsCompile project(path: ':extension-ffmpeg')
+    extnsCompile project(path: ':extension-flac')
+    extnsCompile project(path: ':extension-opus')
+    extnsCompile project(path: ':extension-vp9')
 }

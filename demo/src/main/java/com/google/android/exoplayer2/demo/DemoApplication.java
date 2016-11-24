@@ -36,13 +36,19 @@ public class DemoApplication extends Application {
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
   }
 
-  DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+  public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
     return new DefaultDataSourceFactory(this, bandwidthMeter,
         buildHttpDataSourceFactory(bandwidthMeter));
   }
 
-  HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+  public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
     return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
+  }
+
+  public boolean useExtensionRenderers() {
+    // We should return BuildConfig.FLAVOR_extensions.equals("extns") here, but this is currently
+    // incompatible with a Google internal build system.
+    return true;
   }
 
 }

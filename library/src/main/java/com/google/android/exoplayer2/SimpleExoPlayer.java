@@ -21,6 +21,7 @@ import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
 import android.os.Handler;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -45,6 +46,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +57,7 @@ import java.util.List;
  * be obtained from {@link ExoPlayerFactory}.
  */
 @TargetApi(16)
-public final class SimpleExoPlayer implements ExoPlayer {
+public class SimpleExoPlayer implements ExoPlayer {
 
   /**
    * A listener for video rendering information from a {@link SimpleExoPlayer}.
@@ -88,8 +91,33 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
   }
 
+  /**
+   * Modes for using extension renderers.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({EXTENSION_RENDERER_MODE_OFF, EXTENSION_RENDERER_MODE_ON, EXTENSION_RENDERER_MODE_PREFER})
+  public @interface ExtensionRendererMode {}
+  /**
+   * Do not allow use of extension renderers.
+   */
+  public static final int EXTENSION_RENDERER_MODE_OFF = 0;
+  /**
+   * Allow use of extension renderers. Extension renderers are indexed after core renderers of the
+   * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore
+   * prefer to use a core renderer to an extension renderer in the case that both are able to play
+   * a given track.
+   */
+  public static final int EXTENSION_RENDERER_MODE_ON = 1;
+  /**
+   * Allow use of extension renderers. Extension renderers are indexed before core renderers of the
+   * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore
+   * prefer to use an extension renderer to a core renderer in the case that both are able to play
+   * a given track.
+   */
+  public static final int EXTENSION_RENDERER_MODE_PREFER = 2;
+
   private static final String TAG = "SimpleExoPlayer";
-  private static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
+  protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final ExoPlayer player;
   private final Renderer[] renderers;
@@ -120,21 +148,16 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private float audioVolume;
   private PlaybackParamsHolder playbackParamsHolder;
 
-  /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
+  protected SimpleExoPlayer(Context context, TrackSelector trackSelector, LoadControl loadControl,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @ExtensionRendererMode int extensionRendererMode, long allowedVideoJoiningTimeMs) {
     mainHandler = new Handler();
     componentListener = new ComponentListener();
 
     // Build the renderers.
     ArrayList<Renderer> renderersList = new ArrayList<>();
-    if (preferExtensionDecoders) {
-      buildExtensionRenderers(renderersList, allowedVideoJoiningTimeMs);
-      buildRenderers(context, drmSessionManager, renderersList, allowedVideoJoiningTimeMs);
-    } else {
-      buildRenderers(context, drmSessionManager, renderersList, allowedVideoJoiningTimeMs);
-      buildExtensionRenderers(renderersList, allowedVideoJoiningTimeMs);
-    }
+    buildRenderers(context, mainHandler, drmSessionManager, extensionRendererMode,
+        allowedVideoJoiningTimeMs, renderersList);
     renderers = renderersList.toArray(new Renderer[renderersList.size()]);
 
     // Obtain counts of video and audio renderers.
@@ -593,46 +616,90 @@ public final class SimpleExoPlayer implements ExoPlayer {
     return player.getCurrentManifest();
   }
 
-  // Internal methods.
+  // Renderer building.
 
-  private void buildRenderers(Context context,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, ArrayList<Renderer> renderersList,
-      long allowedVideoJoiningTimeMs) {
-    MediaCodecVideoRenderer videoRenderer = new MediaCodecVideoRenderer(context,
-        MediaCodecSelector.DEFAULT, allowedVideoJoiningTimeMs, drmSessionManager, false,
-        mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
-    renderersList.add(videoRenderer);
-
-    Renderer audioRenderer = new MediaCodecAudioRenderer(MediaCodecSelector.DEFAULT,
-        drmSessionManager, true, mainHandler, componentListener,
-        AudioCapabilities.getCapabilities(context));
-    renderersList.add(audioRenderer);
-
-    Renderer textRenderer = new TextRenderer(componentListener, mainHandler.getLooper());
-    renderersList.add(textRenderer);
-
-    MetadataRenderer metadataRenderer = new MetadataRenderer(componentListener,
-        mainHandler.getLooper(), new Id3Decoder());
-    renderersList.add(metadataRenderer);
+  private void buildRenderers(Context context, Handler mainHandler,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @ExtensionRendererMode int extensionRendererMode, long allowedVideoJoiningTimeMs,
+      ArrayList<Renderer> out) {
+    buildVideoRenderers(context, mainHandler, drmSessionManager, extensionRendererMode,
+        componentListener, allowedVideoJoiningTimeMs, out);
+    buildAudioRenderers(context, mainHandler, drmSessionManager, extensionRendererMode,
+        componentListener, out);
+    buildTextRenderers(context, mainHandler, extensionRendererMode, componentListener, out);
+    buildMetadataRenderers(context, mainHandler, extensionRendererMode, componentListener, out);
+    buildMiscellaneousRenderers(context, mainHandler, extensionRendererMode, out);
   }
 
-  private void buildExtensionRenderers(ArrayList<Renderer> renderersList,
-      long allowedVideoJoiningTimeMs) {
-    // Load extension renderers using reflection so that demo app doesn't depend on them.
-    // Class.forName(<class name>) appears for each renderer so that automated tools like proguard
-    // can detect the use of reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
+  /**
+   * Builds video renderers for use by the player.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param mainHandler A handler associated with the main thread's looper.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player will
+   * not be used for DRM protected playbacks.
+   * @param extensionRendererMode The extension renderer mode.
+   * @param eventListener An event listener.
+   * @param allowedVideoJoiningTimeMs The maximum duration in milliseconds for which video renderers
+   *     can attempt to seamlessly join an ongoing playback.
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildVideoRenderers(Context context, Handler mainHandler,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @ExtensionRendererMode int extensionRendererMode, VideoRendererEventListener eventListener,
+      long allowedVideoJoiningTimeMs, ArrayList<Renderer> out) {
+    out.add(new MediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT,
+        allowedVideoJoiningTimeMs, drmSessionManager, false, mainHandler, eventListener,
+        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+
+    if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
+      return;
+    }
+    int extensionRendererIndex = out.size();
+    if (extensionRendererMode == EXTENSION_RENDERER_MODE_PREFER) {
+      extensionRendererIndex--;
+    }
+
     try {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
       Constructor<?> constructor = clazz.getConstructor(boolean.class, long.class, Handler.class,
           VideoRendererEventListener.class, int.class);
-      renderersList.add((Renderer) constructor.newInstance(true, allowedVideoJoiningTimeMs,
-          mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+      Renderer renderer = (Renderer) constructor.newInstance(true, allowedVideoJoiningTimeMs,
+          mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+      out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibvpxVideoRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Builds audio renderers for use by the player.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param mainHandler A handler associated with the main thread's looper.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player will
+   * not be used for DRM protected playbacks.
+   * @param extensionRendererMode The extension renderer mode.
+   * @param eventListener An event listener.
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildAudioRenderers(Context context, Handler mainHandler,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @ExtensionRendererMode int extensionRendererMode, AudioRendererEventListener eventListener,
+      ArrayList<Renderer> out) {
+    out.add(new MediaCodecAudioRenderer(MediaCodecSelector.DEFAULT, drmSessionManager, true,
+        mainHandler, eventListener, AudioCapabilities.getCapabilities(context)));
+
+    if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
+      return;
+    }
+    int extensionRendererIndex = out.size();
+    if (extensionRendererMode == EXTENSION_RENDERER_MODE_PREFER) {
+      extensionRendererIndex--;
     }
 
     try {
@@ -640,7 +707,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
           AudioRendererEventListener.class);
-      renderersList.add((Renderer) constructor.newInstance(mainHandler, componentListener));
+      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener);
+      out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibopusAudioRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
@@ -653,7 +721,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
           AudioRendererEventListener.class);
-      renderersList.add((Renderer) constructor.newInstance(mainHandler, componentListener));
+      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener);
+      out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibflacAudioRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
@@ -666,7 +735,8 @@ public final class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
           AudioRendererEventListener.class);
-      renderersList.add((Renderer) constructor.newInstance(mainHandler, componentListener));
+      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener);
+      out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded FfmpegAudioRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
@@ -674,6 +744,51 @@ public final class SimpleExoPlayer implements ExoPlayer {
       throw new RuntimeException(e);
     }
   }
+
+  /**
+   * Builds text renderers for use by the player.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param mainHandler A handler associated with the main thread's looper.
+   * @param extensionRendererMode The extension renderer mode.
+   * @param output An output for the renderers.
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildTextRenderers(Context context, Handler mainHandler,
+      @ExtensionRendererMode int extensionRendererMode, TextRenderer.Output output,
+      ArrayList<Renderer> out) {
+    out.add(new TextRenderer(output, mainHandler.getLooper()));
+  }
+
+  /**
+   * Builds metadata renderers for use by the player.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param mainHandler A handler associated with the main thread's looper.
+   * @param extensionRendererMode The extension renderer mode.
+   * @param output An output for the renderers.
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildMetadataRenderers(Context context, Handler mainHandler,
+      @ExtensionRendererMode int extensionRendererMode, MetadataRenderer.Output output,
+      ArrayList<Renderer> out) {
+    out.add(new MetadataRenderer(output, mainHandler.getLooper(), new Id3Decoder()));
+  }
+
+  /**
+   * Builds any miscellaneous renderers used by the player.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param mainHandler A handler associated with the main thread's looper.
+   * @param extensionRendererMode The extension renderer mode.
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildMiscellaneousRenderers(Context context, Handler mainHandler,
+      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
+    // Do nothing.
+  }
+
+  // Internal methods.
 
   private void removeSurfaceCallbacks() {
     if (textureView != null) {

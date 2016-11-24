@@ -21,11 +21,15 @@ import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.Surface;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
@@ -34,6 +38,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
+import com.google.android.exoplayer2.playbacktests.util.DebugSimpleExoPlayer;
 import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
@@ -727,7 +732,17 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    public MediaSource buildSource(HostActivity host, String userAgent,
+    protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
+        MappingTrackSelector trackSelector,
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+      SimpleExoPlayer player = new DebugSimpleExoPlayer(host, trackSelector,
+          new DefaultLoadControl(), drmSessionManager);
+      player.setVideoSurface(surface);
+      return player;
+    }
+
+    @Override
+    protected MediaSource buildSource(HostActivity host, String userAgent,
         TransferListener<? super DataSource> mediaTransferListener) {
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
       DataSource.Factory mediaDataSourceFactory = new DefaultDataSourceFactory(host, userAgent,
