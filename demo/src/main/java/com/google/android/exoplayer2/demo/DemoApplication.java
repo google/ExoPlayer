@@ -46,9 +46,7 @@ public class DemoApplication extends Application {
   }
 
   public boolean useExtensionRenderers() {
-    // We should return BuildConfig.FLAVOR_extensions.equals("extns") here, but this is currently
-    // incompatible with a Google internal build system.
-    return true;
+    return BuildConfig.FLAVOR.equals("withExtensions");
   }
 
 }
