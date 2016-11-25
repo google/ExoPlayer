@@ -17,17 +17,9 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
-import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
-import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
-import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
-import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
@@ -41,7 +33,6 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -88,14 +79,6 @@ import java.util.Locale;
     }
 
   }
-
-  private static final String AAC_FILE_EXTENSION = ".aac";
-  private static final String AC3_FILE_EXTENSION = ".ac3";
-  private static final String EC3_FILE_EXTENSION = ".ec3";
-  private static final String MP3_FILE_EXTENSION = ".mp3";
-  private static final String MP4_FILE_EXTENSION = ".mp4";
-  private static final String VTT_FILE_EXTENSION = ".vtt";
-  private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
   private final DataSource dataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
@@ -281,68 +264,10 @@ import java.util.Locale;
     if (previous != null && !switchingVariant) {
       startTimeUs = previous.getAdjustedEndTimeUs();
     }
-    Format format = variants[newVariantIndex].format;
-
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
 
-    // Set the extractor that will read the chunk.
-    Extractor extractor;
-    boolean needNewExtractor = previous == null
-        || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
-        || format != previous.trackFormat;
-    boolean extractorNeedsInit = true;
-    TimestampAdjuster timestampAdjuster = null;
-    String lastPathSegment = chunkUri.getLastPathSegment();
-    if (lastPathSegment.endsWith(AAC_FILE_EXTENSION)) {
-      // TODO: Inject a timestamp adjuster and use it along with ID3 PRIV tag values with owner
-      // identifier com.apple.streaming.transportStreamTimestamp. This may also apply to the MP3
-      // case below.
-      extractor = new AdtsExtractor(startTimeUs);
-    } else if (lastPathSegment.endsWith(AC3_FILE_EXTENSION)
-        || lastPathSegment.endsWith(EC3_FILE_EXTENSION)) {
-      extractor = new Ac3Extractor(startTimeUs);
-    } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
-      extractor = new Mp3Extractor(startTimeUs);
-    } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
-        || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
-      timestampAdjuster = timestampAdjusterProvider.getAdjuster(segment.discontinuitySequenceNumber,
-          startTimeUs);
-      extractor = new WebvttExtractor(format.language, timestampAdjuster);
-    } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)) {
-      if (needNewExtractor) {
-        timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-            segment.discontinuitySequenceNumber, startTimeUs);
-        extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
-      } else {
-        extractorNeedsInit = false;
-        extractor = previous.extractor;
-      }
-    } else if (needNewExtractor) {
-      // MPEG-2 TS segments, but we need a new extractor.
-      timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-          segment.discontinuitySequenceNumber, startTimeUs);
-      // This flag ensures the change of pid between streams does not affect the sample queues.
-      @DefaultTsPayloadReaderFactory.Flags
-      int esReaderFactoryFlags = 0;
-      String codecs = format.codecs;
-      if (!TextUtils.isEmpty(codecs)) {
-        // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
-        // exist. If we know from the codec attribute that they don't exist, then we can
-        // explicitly ignore them even if they're declared.
-        if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
-          esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_AAC_STREAM;
-        }
-        if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
-          esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
-        }
-      }
-      extractor = new TsExtractor(timestampAdjuster,
-          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags), true);
-    } else {
-      // MPEG-2 TS segments, and we need to continue using the same extractor.
-      extractor = previous.extractor;
-      extractorNeedsInit = false;
-    }
+    TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
+        segment.discontinuitySequenceNumber, startTimeUs);
 
     DataSpec initDataSpec = null;
     Segment initSegment = mediaPlaylist.initializationSegment;
@@ -356,9 +281,9 @@ import java.util.Locale;
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        segment, chunkMediaSequence, isTimestampMaster, timestampAdjuster, extractor,
-        extractorNeedsInit, switchingVariant, encryptionKey, encryptionIv);
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), segment,
+        chunkMediaSequence, isTimestampMaster, timestampAdjuster, previous, encryptionKey,
+        encryptionIv);
   }
 
   /**
