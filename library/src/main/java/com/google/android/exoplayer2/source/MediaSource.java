@@ -52,7 +52,9 @@ public interface MediaSource {
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
   /**
-   * Returns a {@link MediaPeriod} corresponding to the period at the specified index.
+   * Returns a new {@link MediaPeriod} corresponding to the period at the specified {@code index}.
+   * This method may be called multiple times with the same index without an intervening call to
+   * {@link #releasePeriod(MediaPeriod)}.
    *
    * @param index The index of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
