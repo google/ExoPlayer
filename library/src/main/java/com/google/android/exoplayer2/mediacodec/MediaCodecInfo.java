@@ -153,8 +153,14 @@ public final class MediaCodecInfo {
       return false;
     }
     if (!videoCapabilities.isSizeSupported(width, height)) {
-      logNoSupport("size.support, " + width + "x" + height);
-      return false;
+      // Capabilities are known to be inaccurately reported for vertical resolutions on some devices
+      // (b/31387661). If the video is vertical and the capabilities indicate support if the width
+      // and height are swapped, we assume that the vertical resolution is also supported.
+      if (width >= height || !videoCapabilities.isSizeSupported(height, width)) {
+        logNoSupport("size.support, " + width + "x" + height);
+        return false;
+      }
+      logAssumedSupport("size.rotated, " + width + "x" + height);
     }
     return true;
   }
@@ -181,8 +187,14 @@ public final class MediaCodecInfo {
       return false;
     }
     if (!videoCapabilities.areSizeAndRateSupported(width, height, frameRate)) {
-      logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
-      return false;
+      // Capabilities are known to be inaccurately reported for vertical resolutions on some devices
+      // (b/31387661). If the video is vertical and the capabilities indicate support if the width
+      // and height are swapped, we assume that the vertical resolution is also supported.
+      if (width >= height || !videoCapabilities.areSizeAndRateSupported(height, width, frameRate)) {
+        logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
+        return false;
+      }
+      logAssumedSupport("sizeAndRate.rotated, " + width + "x" + height + "x" + frameRate);
     }
     return true;
   }
@@ -240,7 +252,12 @@ public final class MediaCodecInfo {
   }
 
   private void logNoSupport(String message) {
-    Log.d(TAG, "FalseCheck [" + message + "] [" + name + ", " + mimeType + "] ["
+    Log.d(TAG, "NoSupport [" + message + "] [" + name + ", " + mimeType + "] ["
+        + Util.DEVICE_DEBUG_INFO + "]");
+  }
+
+  private void logAssumedSupport(String message) {
+    Log.d(TAG, "AssumedSupport [" + message + "] [" + name + ", " + mimeType + "] ["
         + Util.DEVICE_DEBUG_INFO + "]");
   }
 
