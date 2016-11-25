@@ -42,11 +42,12 @@ public final class HlsMediaSource implements MediaSource,
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private final HlsPlaylistTracker playlistTracker;
+  private final Uri manifestUri;
   private final DataSource.Factory dataSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
 
+  private HlsPlaylistTracker playlistTracker;
   private MediaSource.Listener sourceListener;
 
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory, Handler eventHandler,
@@ -58,15 +59,17 @@ public final class HlsMediaSource implements MediaSource,
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
+    this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
-        minLoadableRetryCount, this);
   }
 
   @Override
   public void prepareSource(MediaSource.Listener listener) {
+    Assertions.checkState(playlistTracker == null);
+    playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
+        minLoadableRetryCount, this);
     sourceListener = listener;
     playlistTracker.start();
   }
@@ -91,6 +94,7 @@ public final class HlsMediaSource implements MediaSource,
   @Override
   public void releaseSource() {
     playlistTracker.release();
+    playlistTracker = null;
     sourceListener = null;
   }
 
