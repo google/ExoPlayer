@@ -403,12 +403,12 @@ public interface ExoPlayer {
 
   /**
    * Returns the current manifest. The type depends on the {@link MediaSource} passed to
-   * {@link #prepare}.
+   * {@link #prepare}. May be null.
    */
   Object getCurrentManifest();
 
   /**
-   * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
+   * Returns the current {@link Timeline}. Never null, but may be empty.
    */
   Timeline getCurrentTimeline();
 

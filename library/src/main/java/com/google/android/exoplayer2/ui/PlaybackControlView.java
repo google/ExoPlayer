@@ -422,11 +422,11 @@ public class PlaybackControlView extends FrameLayout {
       return;
     }
     Timeline currentTimeline = player != null ? player.getCurrentTimeline() : null;
-    boolean haveTimeline = currentTimeline != null;
+    boolean haveNonEmptyTimeline = currentTimeline != null && !currentTimeline.isEmpty();
     boolean isSeekable = false;
     boolean enablePrevious = false;
     boolean enableNext = false;
-    if (haveTimeline) {
+    if (haveNonEmptyTimeline) {
       int currentWindowIndex = player.getCurrentWindowIndex();
       currentTimeline.getWindow(currentWindowIndex, currentWindow);
       isSeekable = currentWindow.isSeekable;
@@ -525,7 +525,7 @@ public class PlaybackControlView extends FrameLayout {
 
   private void previous() {
     Timeline currentTimeline = player.getCurrentTimeline();
-    if (currentTimeline == null) {
+    if (currentTimeline.isEmpty()) {
       return;
     }
     int currentWindowIndex = player.getCurrentWindowIndex();
@@ -540,7 +540,7 @@ public class PlaybackControlView extends FrameLayout {
 
   private void next() {
     Timeline currentTimeline = player.getCurrentTimeline();
-    if (currentTimeline == null) {
+    if (currentTimeline.isEmpty()) {
       return;
     }
     int currentWindowIndex = player.getCurrentWindowIndex();

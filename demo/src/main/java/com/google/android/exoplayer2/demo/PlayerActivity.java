@@ -360,7 +360,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       playerWindow = player.getCurrentWindowIndex();
       playerPosition = C.TIME_UNSET;
       Timeline timeline = player.getCurrentTimeline();
-      if (timeline != null && timeline.getWindow(playerWindow, window).isSeekable) {
+      if (!timeline.isEmpty() && timeline.getWindow(playerWindow, window).isSeekable) {
         playerPosition = player.getCurrentPosition();
       }
       player.release();
@@ -417,7 +417,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
-    isTimelineStatic = timeline != null && timeline.getWindowCount() > 0
+    isTimelineStatic = !timeline.isEmpty()
         && !timeline.getWindow(timeline.getWindowCount() - 1, window).isDynamic;
   }
 

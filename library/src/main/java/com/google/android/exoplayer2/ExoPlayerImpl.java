@@ -82,6 +82,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelections = new TrackSelectionArray(new TrackSelection[renderers.length]);
+    timeline = Timeline.EMPTY;
     window = new Timeline.Window();
     period = new Timeline.Period();
     trackGroups = TrackGroupArray.EMPTY;
@@ -120,8 +121,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     if (resetState) {
-      if (timeline != null || manifest != null) {
-        timeline = null;
+      if (!timeline.isEmpty() || manifest != null) {
+        timeline = Timeline.EMPTY;
         manifest = null;
         for (EventListener listener : listeners) {
           listener.onTimelineChanged(null, null);
@@ -178,7 +179,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int windowIndex, long positionMs) {
-    if (windowIndex < 0 || (timeline != null && windowIndex >= timeline.getWindowCount())) {
+    if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
       throw new IndexOutOfBoundsException();
     }
     pendingSeekAcks++;
@@ -223,7 +224,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public int getCurrentWindowIndex() {
-    if (timeline == null || pendingSeekAcks > 0) {
+    if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowIndex;
     } else {
       return timeline.getPeriod(playbackInfo.periodIndex, period).windowIndex;
@@ -232,7 +233,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getDuration() {
-    if (timeline == null) {
+    if (timeline.isEmpty()) {
       return C.TIME_UNSET;
     }
     return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
@@ -240,7 +241,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getCurrentPosition() {
-    if (timeline == null || pendingSeekAcks > 0) {
+    if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
       timeline.getPeriod(playbackInfo.periodIndex, period);
@@ -251,7 +252,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public long getBufferedPosition() {
     // TODO - Implement this properly.
-    if (timeline == null || pendingSeekAcks > 0) {
+    if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
       timeline.getPeriod(playbackInfo.periodIndex, period);
@@ -261,7 +262,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public int getBufferedPercentage() {
-    if (timeline == null) {
+    if (timeline.isEmpty()) {
       return 0;
     }
     long bufferedPosition = getBufferedPosition();

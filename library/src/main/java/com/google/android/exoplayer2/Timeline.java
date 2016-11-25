@@ -92,6 +92,46 @@ package com.google.android.exoplayer2;
 public abstract class Timeline {
 
   /**
+   * An empty timeline.
+   */
+  public static final Timeline EMPTY = new Timeline() {
+
+    @Override
+    public int getWindowCount() {
+      return 0;
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, boolean setIds,
+        long defaultPositionProjectionUs) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return 0;
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      return C.INDEX_UNSET;
+    }
+
+  };
+
+  /**
+   * Returns whether the timeline is empty.
+   */
+  public final boolean isEmpty() {
+    return getWindowCount() == 0;
+  }
+
+  /**
    * Returns the number of windows in the timeline.
    */
   public abstract int getWindowCount();
