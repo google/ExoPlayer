@@ -275,6 +275,10 @@ import java.util.LinkedList;
     return largestQueuedTimestampUs;
   }
 
+  public void setIsTimestampMaster(boolean isTimestampMaster) {
+    chunkSource.setIsTimestampMaster(isTimestampMaster);
+  }
+
   public void onPlaylistLoadError(HlsUrl url, IOException error) {
     chunkSource.onPlaylistLoadError(url, error);
   }

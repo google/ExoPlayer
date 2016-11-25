@@ -103,6 +103,7 @@ import java.util.Locale;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
 
+  private boolean isTimestampMaster;
   private byte[] scratchSpace;
   private IOException fatalError;
 
@@ -174,6 +175,16 @@ import java.util.Locale;
    */
   public void reset() {
     fatalError = null;
+  }
+
+  /**
+   * Sets whether this chunk source is responsible for initializing timestamp adjusters.
+   *
+   * @param isTimestampMaster True if this chunk source is responsible for initializing timestamp
+   *     adjusters.
+   */
+  public void setIsTimestampMaster(boolean isTimestampMaster) {
+    this.isTimestampMaster = isTimestampMaster;
   }
 
   /**
@@ -280,7 +291,6 @@ import java.util.Locale;
         || previous.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || format != previous.trackFormat;
     boolean extractorNeedsInit = true;
-    boolean isTimestampMaster = false;
     TimestampAdjuster timestampAdjuster = null;
     String lastPathSegment = chunkUri.getLastPathSegment();
     if (lastPathSegment.endsWith(AAC_FILE_EXTENSION)) {
@@ -299,7 +309,6 @@ import java.util.Locale;
           startTimeUs);
       extractor = new WebvttExtractor(format.language, timestampAdjuster);
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)) {
-      isTimestampMaster = true;
       if (needNewExtractor) {
         timestampAdjuster = timestampAdjusterProvider.getAdjuster(
             segment.discontinuitySequenceNumber, startTimeUs);
@@ -310,7 +319,6 @@ import java.util.Locale;
       }
     } else if (needNewExtractor) {
       // MPEG-2 TS segments, but we need a new extractor.
-      isTimestampMaster = true;
       timestampAdjuster = timestampAdjusterProvider.getAdjuster(
           segment.discontinuitySequenceNumber, startTimeUs);
       // This flag ensures the change of pid between streams does not affect the sample queues.
