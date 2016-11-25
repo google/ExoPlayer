@@ -981,9 +981,9 @@ import java.io.IOException;
    */
   private Pair<Integer, Long> resolveSeekPosition(SeekPosition seekPosition) {
     Timeline seekTimeline = seekPosition.timeline;
-    if (seekTimeline == null) {
-      // The application performed a blind seek without a timeline (most likely based on knowledge
-      // of what the timeline will be). Use the internal timeline.
+    if (seekTimeline.isEmpty()) {
+      // The application performed a blind seek without a non-empty timeline (most likely based on
+      // knowledge of what the future timeline will be). Use the internal timeline.
       seekTimeline = timeline;
       Assertions.checkIndex(seekPosition.windowIndex, 0, timeline.getWindowCount());
     }
