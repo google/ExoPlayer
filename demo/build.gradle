@@ -37,6 +37,10 @@ android {
         abortOnError false
     }
 
+    dataBinding {
+        enabled = true
+    }
+
     productFlavors {
         noExtensions
         withExtensions
