@@ -479,7 +479,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codec != null) {
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      while (feedInputBuffer()) {}
+      if (codec != null) {
+        while (feedInputBuffer()) {}
+      }
       TraceUtil.endSection();
     } else if (format != null) {
       skipToKeyframeBefore(positionUs);
@@ -864,7 +866,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           // The dequeued buffer indicates the end of the stream. Process it immediately.
           processEndOfStream();
           outputIndex = C.INDEX_UNSET;
-          return true;
+          return false;
         } else {
           // The dequeued buffer is a media buffer. Do some initial setup. The buffer will be
           // processed by calling processOutputBuffer (possibly multiple times) below.
@@ -885,7 +887,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
             || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();
-          return true;
         }
         return false;
       }
