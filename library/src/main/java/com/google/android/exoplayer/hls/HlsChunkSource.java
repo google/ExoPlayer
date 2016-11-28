@@ -694,6 +694,10 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     }
     HlsMediaPlaylist oldMediaPlaylist = variantPlaylists[oldVariantIndex];
     HlsMediaPlaylist newMediaPlaylist = variantPlaylists[newVariantIndex];
+    if (previousChunkIndex < oldMediaPlaylist.mediaSequence) {
+      // We have fallen behind the live window.
+      return newMediaPlaylist.mediaSequence - 1;
+    }
     double offsetToLiveInstantSecs = 0;
     for (int i = previousChunkIndex - oldMediaPlaylist.mediaSequence;
          i < oldMediaPlaylist.segments.size(); i++) {
