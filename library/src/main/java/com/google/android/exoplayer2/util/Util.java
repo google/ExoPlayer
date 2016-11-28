@@ -95,7 +95,7 @@ public final class Util {
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
       + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
-      + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
+      + "([Zz]|((\\+|\\-)(\\d\\d):?(\\d\\d)))?");
   private static final Pattern XS_DURATION_PATTERN =
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");

@@ -142,6 +142,8 @@ public class UtilTest extends TestCase {
   public void testParseXsDateTime() throws Exception {
     assertEquals(1403219262000L, Util.parseXsDateTime("2014-06-19T23:07:42"));
     assertEquals(1407322800000L, Util.parseXsDateTime("2014-08-06T11:00:00Z"));
+    assertEquals(1411161535000L, Util.parseXsDateTime("2014-09-19T13:18:55-08:00"));
+    assertEquals(1411161535000L, Util.parseXsDateTime("2014-09-19T13:18:55-0800"));
   }
 
   public void testUnescapeInvalidFileName() {
