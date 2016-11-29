@@ -368,13 +368,13 @@ public final class Id3Decoder implements MetadataDecoder {
     int mimeTypeEndIndex;
     if (majorVersion == 2) {
       mimeTypeEndIndex = 2;
-      mimeType = "image/" + new String(data, 0, 3, "ISO-8859-1").toLowerCase();
+      mimeType = "image/" + Util.toLowerInvariant(new String(data, 0, 3, "ISO-8859-1"));
       if (mimeType.equals("image/jpg")) {
         mimeType = "image/jpeg";
       }
     } else {
       mimeTypeEndIndex = indexOfZeroByte(data, 0);
-      mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1").toLowerCase();
+      mimeType = Util.toLowerInvariant(new String(data, 0, mimeTypeEndIndex, "ISO-8859-1"));
       if (mimeType.indexOf('/') == -1) {
         mimeType = "image/" + mimeType;
       }
