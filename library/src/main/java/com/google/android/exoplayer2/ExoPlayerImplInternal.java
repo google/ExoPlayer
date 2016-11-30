@@ -1068,8 +1068,9 @@ import java.io.IOException;
     }
 
     if (loadingPeriodHolder == null
-        || (loadingPeriodHolder.isFullyBuffered() && !loadingPeriodHolder.isLast
-        && (playingPeriodHolder == null
+        || (loadingPeriodHolder.isFullyBuffered()
+        && timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs() != C.TIME_UNSET
+        && !loadingPeriodHolder.isLast && (playingPeriodHolder == null
         || loadingPeriodHolder.index - playingPeriodHolder.index < MAXIMUM_BUFFER_AHEAD_PERIODS))) {
       // We don't have a loading period or it's fully loaded, so try and create the next one.
       int newLoadingPeriodIndex = loadingPeriodHolder == null ? playbackInfo.periodIndex
