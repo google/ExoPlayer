@@ -236,6 +236,8 @@ public class PlaybackControlView extends FrameLayout {
     componentListener = new ComponentListener();
 
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
+    setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+
     durationView = (TextView) findViewById(R.id.exo_duration);
     positionView = (TextView) findViewById(R.id.exo_position);
     progressBar = (SeekBar) findViewById(R.id.exo_progress);
@@ -359,6 +361,7 @@ public class PlaybackControlView extends FrameLayout {
         visibilityListener.onVisibilityChange(getVisibility());
       }
       updateAll();
+      requestPlayPauseFocus();
     }
     // Call hideAfterTimeout even if already visible to reset the timeout.
     hideAfterTimeout();
@@ -408,12 +411,18 @@ public class PlaybackControlView extends FrameLayout {
     if (!isVisible() || !isAttachedToWindow) {
       return;
     }
+    boolean requestPlayPauseFocus = false;
     boolean playing = player != null && player.getPlayWhenReady();
     if (playButton != null) {
-      playButton.setVisibility(playing ? GONE : VISIBLE);
+      requestPlayPauseFocus |= playing && playButton.isFocused();
+      playButton.setVisibility(playing ? View.GONE : View.VISIBLE);
     }
     if (pauseButton != null) {
-      pauseButton.setVisibility(playing ? VISIBLE : GONE);
+      requestPlayPauseFocus |= !playing && pauseButton.isFocused();
+      pauseButton.setVisibility(!playing ? View.GONE : View.VISIBLE);
+    }
+    if (requestPlayPauseFocus) {
+      requestPlayPauseFocus();
     }
   }
 
@@ -478,6 +487,15 @@ public class PlaybackControlView extends FrameLayout {
         delayMs = 1000;
       }
       postDelayed(updateProgressAction, delayMs);
+    }
+  }
+
+  private void requestPlayPauseFocus() {
+    boolean playing = player != null && player.getPlayWhenReady();
+    if (!playing && playButton != null) {
+      playButton.requestFocus();
+    } else if (playing && pauseButton != null) {
+      pauseButton.requestFocus();
     }
   }
 
@@ -590,38 +608,64 @@ public class PlaybackControlView extends FrameLayout {
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    if (player == null || event.getAction() != KeyEvent.ACTION_DOWN) {
-      return super.dispatchKeyEvent(event);
+    boolean handled = dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+    if (handled) {
+      show();
     }
-    switch (event.getKeyCode()) {
-      case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
-      case KeyEvent.KEYCODE_DPAD_RIGHT:
-        fastForward();
-        break;
-      case KeyEvent.KEYCODE_MEDIA_REWIND:
-      case KeyEvent.KEYCODE_DPAD_LEFT:
-        rewind();
-        break;
-      case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-        player.setPlayWhenReady(!player.getPlayWhenReady());
-        break;
-      case KeyEvent.KEYCODE_MEDIA_PLAY:
-        player.setPlayWhenReady(true);
-        break;
-      case KeyEvent.KEYCODE_MEDIA_PAUSE:
-        player.setPlayWhenReady(false);
-        break;
-      case KeyEvent.KEYCODE_MEDIA_NEXT:
-        next();
-        break;
-      case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-        previous();
-        break;
-      default:
-        return false;
+    return handled;
+  }
+
+  /**
+   * Called to process media key events. Any {@link KeyEvent} can be passed but only media key
+   * events will be handled.
+   *
+   * @param event A key event.
+   * @return Whether the key event was handled.
+   */
+  public boolean dispatchMediaKeyEvent(KeyEvent event) {
+    int keyCode = event.getKeyCode();
+    if (player == null || !isHandledMediaKey(keyCode)) {
+      return false;
+    }
+    if (event.getAction() == KeyEvent.ACTION_DOWN) {
+      switch (keyCode) {
+        case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+          fastForward();
+          break;
+        case KeyEvent.KEYCODE_MEDIA_REWIND:
+          rewind();
+          break;
+        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+          player.setPlayWhenReady(!player.getPlayWhenReady());
+          break;
+        case KeyEvent.KEYCODE_MEDIA_PLAY:
+          player.setPlayWhenReady(true);
+          break;
+        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+          player.setPlayWhenReady(false);
+          break;
+        case KeyEvent.KEYCODE_MEDIA_NEXT:
+          next();
+          break;
+        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+          previous();
+          break;
+        default:
+          break;
+      }
     }
     show();
     return true;
+  }
+
+  private static boolean isHandledMediaKey(int keyCode) {
+    return keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
+        || keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
+        || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS;
   }
 
   private final class ComponentListener implements ExoPlayer.EventListener,

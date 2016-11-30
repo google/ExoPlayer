@@ -17,9 +17,9 @@
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:layout_gravity="bottom"
+  android:layoutDirection="ltr"
   android:background="#CC000000"
-  android:orientation="vertical"
-  android:layoutDirection="ltr">
+  android:orientation="vertical">
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -69,6 +69,7 @@
       android:layout_width="0dp"
       android:layout_weight="1"
       android:layout_height="32dp"
+      android:focusable="false"
       style="?android:attr/progressBarStyleHorizontal"/>
 
     <TextView android:id="@id/exo_duration"
