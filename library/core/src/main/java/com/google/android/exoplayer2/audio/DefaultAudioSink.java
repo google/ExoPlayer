@@ -1218,6 +1218,8 @@ public final class DefaultAudioSink implements AudioSink {
       return Ac3Util.getAc3SyncframeAudioSampleCount();
     } else if (encoding == C.ENCODING_E_AC3) {
       return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
+    } else if (encoding == C.ENCODING_TRUE_HD) {
+      return Ac3Util.parseTrueHDSyncframeAudioSampleCount(buffer);
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }

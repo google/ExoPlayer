@@ -21,6 +21,7 @@ import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -48,6 +49,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -317,6 +319,7 @@ public final class MatroskaExtractor implements Extractor {
   private final ParsableByteArray encryptionInitializationVector;
   private final ParsableByteArray encryptionSubsampleData;
   private ByteBuffer encryptionSubsampleDataBuffer;
+  private final TrueHDSampleHolder samplesTrueHD;
 
   private long segmentContentSize;
   private long segmentContentPosition = C.POSITION_UNSET;
@@ -354,6 +357,8 @@ public final class MatroskaExtractor implements Extractor {
   private int blockTrackNumberLength;
   @C.BufferFlags
   private int blockFlags;
+
+  private int lastReadResult = Extractor.RESULT_CONTINUE;
 
   // Sample reading state.
   private int sampleBytesRead;
@@ -394,6 +399,7 @@ public final class MatroskaExtractor implements Extractor {
     subtitleSample = new ParsableByteArray();
     encryptionInitializationVector = new ParsableByteArray(ENCRYPTION_IV_SIZE);
     encryptionSubsampleData = new ParsableByteArray();
+    samplesTrueHD = new TrueHDSampleHolder();
   }
 
   @Override
@@ -413,6 +419,7 @@ public final class MatroskaExtractor implements Extractor {
     reader.reset();
     varintReader.reset();
     resetSample();
+    samplesTrueHD.resetOnSeek();
   }
 
   @Override
@@ -428,10 +435,12 @@ public final class MatroskaExtractor implements Extractor {
     while (continueReading && !sampleRead) {
       continueReading = reader.read(input);
       if (continueReading && maybeSeekForCues(seekPosition, input.getPosition())) {
-        return Extractor.RESULT_SEEK;
+        lastReadResult = Extractor.RESULT_SEEK;
+        return lastReadResult;
       }
     }
-    return continueReading ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
+    lastReadResult = continueReading ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
+    return lastReadResult;
   }
 
   /* package */ int getElementType(int id) {
@@ -1077,14 +1086,19 @@ public final class MatroskaExtractor implements Extractor {
   }
 
   private void commitSampleToOutput(Track track, long timeUs) {
-    if (CODEC_ID_SUBRIP.equals(track.codecId)) {
-      commitSubtitleSample(track, SUBRIP_TIMECODE_FORMAT, SUBRIP_PREFIX_END_TIMECODE_OFFSET,
-          SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR, SUBRIP_TIMECODE_EMPTY);
-    } else if (CODEC_ID_ASS.equals(track.codecId)) {
-      commitSubtitleSample(track, SSA_TIMECODE_FORMAT, SSA_PREFIX_END_TIMECODE_OFFSET,
-          SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR, SSA_TIMECODE_EMPTY);
+    if (CODEC_ID_TRUEHD.equals(track.codecId)) {
+      samplesTrueHD.flushSampleMetadata(timeUs, track.output, track.cryptoData, lastReadResult == RESULT_END_OF_INPUT);
     }
-    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
+    else {
+      if (CODEC_ID_SUBRIP.equals(track.codecId)) {
+        commitSubtitleSample(track, SUBRIP_TIMECODE_FORMAT, SUBRIP_PREFIX_END_TIMECODE_OFFSET,
+         SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR, SUBRIP_TIMECODE_EMPTY);
+      } else if (CODEC_ID_ASS.equals(track.codecId)) {
+        commitSubtitleSample(track, SSA_TIMECODE_FORMAT, SSA_PREFIX_END_TIMECODE_OFFSET,
+         SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR, SSA_TIMECODE_EMPTY);
+      }
+      track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
+    }
     sampleRead = true;
     resetSample();
   }
@@ -1250,6 +1264,11 @@ public final class MatroskaExtractor implements Extractor {
               readToOutput(input, output, sampleCurrentNalBytesRemaining);
         }
       }
+    } else if (CODEC_ID_TRUEHD.equals(track.codecId)) {
+      sampleBytesRead += size + sampleStrippedBytes.bytesLeft();
+      int written = samplesTrueHD.read(input, size, sampleStrippedBytes, output,
+                                      blockFlags, lastReadResult == RESULT_END_OF_INPUT);
+      sampleBytesWritten += written;
     } else {
       while (sampleBytesRead < size) {
         readToOutput(input, output, size - sampleBytesRead);
@@ -1929,6 +1948,121 @@ public final class MatroskaExtractor implements Extractor {
       }
     }
 
+  }
+
+  private class TrueHDSampleHolder {
+
+    private ByteBuffer samples;
+    private int counter;
+    private boolean mustStartWithSyncFrame;
+
+    private List<SampleMetadata> samplesMetadata = new ArrayList<>();
+
+    public TrueHDSampleHolder() {
+      mustStartWithSyncFrame = false;
+      counter = 0;
+      samples = ByteBuffer.allocate(0);
+      samples.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    private void reset() {
+      counter = 0;
+      samples.position(0);
+    }
+
+    public void resetOnSeek() {
+
+      mustStartWithSyncFrame = true;
+      samplesMetadata.clear();
+      reset();
+    }
+
+    public int read(ExtractorInput input, int size, ParsableByteArray strippedBytes,
+                    TrackOutput output, @C.BufferFlags int blockFlags, boolean forceFlush)
+            throws IOException, InterruptedException {
+      samplesMetadata.add(new SampleMetadata(size, samples.position(), blockFlags));
+      growBufferForSample(size + strippedBytes.bytesLeft());
+      appendSample(input, size, strippedBytes);
+      return flushSamplesWhenReady(output, forceFlush);
+    }
+
+    private void growBufferForSample(int sampleSize) {
+      int position = samples.position();
+      // grow if needed
+      if (position + sampleSize > samples.capacity()) {
+        samples.position(0);
+        ByteBuffer newBuff = ByteBuffer.allocate(position + sampleSize);
+        newBuff.order(ByteOrder.LITTLE_ENDIAN);
+        newBuff.put(samples);
+        samples = newBuff;
+        samples.position(position);
+      }
+    }
+
+    private void appendSample(ExtractorInput input, int size, ParsableByteArray strippedBytes)
+            throws IOException, InterruptedException {
+      int position = samples.position();
+      if (strippedBytes.bytesLeft() > 0) {
+        samples.put(strippedBytes.data);
+        position += strippedBytes.bytesLeft();
+        strippedBytes.skipBytes(strippedBytes.bytesLeft());
+      }
+      input.readFully(samples.array(), position, size);
+      samples.position(position + size);
+      ++counter;
+
+      if (mustStartWithSyncFrame) {
+        int checkPos = samples.position();
+        samples.position(0);
+        if (0 < Ac3Util.parseTrueHDSyncframeAudioSampleCount(samples)) {
+          mustStartWithSyncFrame = false;
+          samples.position(checkPos);
+        } else
+          resetOnSeek();
+      }
+    }
+
+    private int flushSamplesWhenReady(TrackOutput output, boolean forceFlush) {
+      if (counter == Ac3Util.TRUEHD_SAMPLE_COMMIT_COUNT || forceFlush) {
+        int written = samples.position();
+        output.sampleData(new ParsableByteArray(samples.array(), written), written);
+        reset();
+        return written;
+      }
+      return 0;
+    }
+
+    public void flushSampleMetadata(long timeUs, TrackOutput output,
+        TrackOutput.CryptoData encryptionKeyId, boolean forceFlush) {
+
+      if (samplesMetadata.isEmpty())
+        return;
+      samplesMetadata.get(samplesMetadata.size()-1).timeUs = timeUs;
+      if (samplesMetadata.size() == Ac3Util.TRUEHD_SAMPLE_COMMIT_COUNT || forceFlush) {
+        int size = 0;
+        for (SampleMetadata metadata : samplesMetadata)
+          size += metadata.size;
+        SampleMetadata metadata = samplesMetadata.get(0);
+        output.sampleMetadata(metadata.timeUs, metadata.blockFlags, size,
+                              metadata.offset, encryptionKeyId);
+        samplesMetadata.clear();
+      }
+    }
+
+    private class SampleMetadata {
+
+      public int size;
+      public long timeUs;
+      public final @C.BufferFlags int blockFlags;
+      public final int offset;
+
+      public SampleMetadata(int size, int offset, @C.BufferFlags int blockFlags) {
+        this.size = size;
+        this.timeUs = 0;
+        this.blockFlags = blockFlags;
+        this.offset = offset;
+      }
+    }
   }
 
 }

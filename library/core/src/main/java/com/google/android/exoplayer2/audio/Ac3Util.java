@@ -125,6 +125,12 @@ public final class Ac3Util {
       121, 139, 174, 208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
+   * Sample hold count for TRUE HD frames
+   */
+  public static final int TRUEHD_SAMPLE_COMMIT_COUNT = 16;
+
+
+  /**
    * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to
    * ETSI TS 102 366 Annex F. The reading position of {@code data} will be modified.
    *
@@ -300,6 +306,23 @@ public final class Ac3Util {
     } else { // sampleRate == 48000
       return 4 * bitrate;
     }
+  }
+
+  public static int parseTrueHDSyncframeAudioSampleCount(ByteBuffer buffer) {
+
+    if (buffer.limit() < 13)
+      return 0;
+    int ratebits;
+    int streamType = buffer.getInt(4);
+    if (streamType == 0xbb6f72f8) { // mlp
+      ratebits = buffer.get(10);
+    } else if (streamType == 0xba6f72f8) { // truehd
+      ratebits = buffer.get(8);
+    } else
+      return 0;
+
+    int frameSize = 40 << (ratebits & 7);
+    return frameSize * TRUEHD_SAMPLE_COMMIT_COUNT;
   }
 
   private Ac3Util() {}
