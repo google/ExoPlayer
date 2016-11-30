@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 <resources>
+
   <!-- Must be kept in sync with AspectRatioFrameLayout -->
   <attr name="resize_mode" format="enum">
     <enum name="fit" value="0"/>
@@ -21,6 +22,7 @@
     <enum name="fixed_height" value="2"/>
     <enum name="fill" value="3"/>
   </attr>
+
   <!-- Must be kept in sync with SimpleExoPlayerView -->
   <attr name="surface_type" format="enum">
     <enum name="none" value="0"/>

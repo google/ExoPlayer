@@ -15,20 +15,10 @@
 -->
 <resources>
 
-  <item name="exo_content_frame" type="id"/>
-  <item name="exo_shutter" type="id"/>
-  <item name="exo_subtitles" type="id"/>
-  <item name="exo_artwork" type="id"/>
-  <item name="exo_controller_placeholder" type="id"/>
-  <item name="exo_overlay" type="id"/>
-  <item name="exo_play" type="id"/>
-  <item name="exo_pause" type="id"/>
-  <item name="exo_rew" type="id"/>
-  <item name="exo_ffwd" type="id"/>
-  <item name="exo_prev" type="id"/>
-  <item name="exo_next" type="id"/>
-  <item name="exo_duration" type="id"/>
-  <item name="exo_position" type="id"/>
-  <item name="exo_progress" type="id"/>
+  <style name="ExoMediaButton">
+    <item name="android:background">?android:attr/selectableItemBackground</item>
+    <item name="android:layout_width">@dimen/exo_media_button_width</item>
+    <item name="android:layout_height">@dimen/exo_media_button_height</item>
+  </style>
 
 </resources>
