@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
@@ -54,6 +55,8 @@ import javax.crypto.spec.SecretKeySpec;
   private static final int VERSION = 1;
 
   private static final int FLAG_ENCRYPTED_INDEX = 1;
+
+  private static final String TAG = "CachedContentIndex";
 
   private final HashMap<String, CachedContent> keyToContent;
   private final SparseArray<String> idToKey;
@@ -224,7 +227,7 @@ import javax.crypto.spec.SecretKeySpec;
           return false;
         }
         byte[] initializationVector = new byte[16];
-        input.read(initializationVector);
+        input.readFully(initializationVector);
         IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
         try {
           cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
@@ -245,6 +248,7 @@ import javax.crypto.spec.SecretKeySpec;
         return false;
       }
     } catch (IOException e) {
+      Log.e(TAG, "Error reading cache content index file.", e);
       return false;
     } finally {
       if (input != null) {
