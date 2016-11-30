@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.util.ParsableBitArray;
@@ -44,16 +45,16 @@ public final class SectionReader implements TsPayloadReader {
   public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
       TrackIdGenerator idGenerator) {
     reader.init(timestampAdjuster, extractorOutput, idGenerator);
+    sectionLength = C.LENGTH_UNSET;
   }
 
   @Override
   public void seek() {
-    // Do nothing.
+    sectionLength = C.LENGTH_UNSET;
   }
 
   @Override
   public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator) {
-    // Skip pointer.
     if (payloadUnitStartIndicator) {
       int pointerField = data.readUnsignedByte();
       data.skipBytes(pointerField);
@@ -67,6 +68,9 @@ public final class SectionReader implements TsPayloadReader {
       sectionBytesRead = 0;
 
       sectionData.reset(sectionLength);
+    } else if (sectionLength == C.LENGTH_UNSET) {
+      // We're not already reading a section and this is not the start of a new one.
+      return;
     }
 
     int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
@@ -76,8 +80,8 @@ public final class SectionReader implements TsPayloadReader {
       // Not yet fully read.
       return;
     }
-
-    if (Util.crc(sectionData.data, 0, sectionLength, 0xFFFFFFFF) != 0) {
+    sectionLength = C.LENGTH_UNSET;
+    if (Util.crc(sectionData.data, 0, sectionBytesRead, 0xFFFFFFFF) != 0) {
       // CRC Invalid. The section gets discarded.
       return;
     }

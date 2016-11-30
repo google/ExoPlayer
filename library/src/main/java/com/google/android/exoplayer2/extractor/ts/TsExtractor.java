@@ -283,10 +283,15 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray sectionData) {
-      // table_id(8), section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
+      int tableId = sectionData.readUnsignedByte();
+      if (tableId != 0x00 /* program_association_section */) {
+        // See ISO/IEC 13818-1, section 2.4.4.4 for more information on table id assignment.
+        return;
+      }
+      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8)
-      sectionData.skipBytes(8);
+      sectionData.skipBytes(7);
 
       int programCount = sectionData.bytesLeft() / 4;
       for (int i = 0; i < programCount; i++) {
@@ -331,11 +336,15 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray sectionData) {
-      // table_id(8), section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
-      // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
-      // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
-      // Skip the rest of the PMT header.
-      sectionData.skipBytes(10);
+      int tableId = sectionData.readUnsignedByte();
+      if (tableId != 0x02 /* TS_program_map_section */) {
+        // See ISO/IEC 13818-1, section 2.4.4.4 for more information on table id assignment.
+        return;
+      }
+      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12), program_number (16),
+      // reserved (2), version_number (5), current_next_indicator (1), // section_number (8),
+      // last_section_number (8), reserved (3), PCR_PID (13)
+      sectionData.skipBytes(9);
 
       // Read program_info_length.
       sectionData.readBytes(pmtScratch, 2);
