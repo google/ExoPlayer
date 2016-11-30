@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
@@ -51,6 +52,10 @@ public final class Cea608Decoder extends CeaDecoder {
 
   // The default number of rows to display in roll-up captions mode.
   private static final int DEFAULT_CAPTIONS_ROW_COUNT = 4;
+
+  // An implied first byte for packets that are only 2 bytes long, consisting of marker bits
+  // (0b11111) + valid bit (0b1) + NTSC field 1 type bits (0b00).
+  private static final byte CC_IMPLICIT_DATA_HEADER = (byte) 0xFC;
 
   /**
    * Command initiating pop-on style captioning. Subsequent data should be loaded into a
@@ -164,9 +169,8 @@ public final class Cea608Decoder extends CeaDecoder {
   };
 
   private final ParsableByteArray ccData;
-
   private final StringBuilder captionStringBuilder;
-
+  private final int packetLength;
   private final int selectedField;
 
   private int captionMode;
@@ -179,10 +183,11 @@ public final class Cea608Decoder extends CeaDecoder {
   private byte repeatableControlCc1;
   private byte repeatableControlCc2;
 
-  public Cea608Decoder(int accessibilityChannel) {
+  public Cea608Decoder(String mimeType, int accessibilityChannel) {
     ccData = new ParsableByteArray();
-
     captionStringBuilder = new StringBuilder();
+
+    packetLength = MimeTypes.APPLICATION_MP4CEA608.equals(mimeType) ? 2 : 3;
     switch (accessibilityChannel) {
       case 3:
       case 4:
@@ -238,8 +243,9 @@ public final class Cea608Decoder extends CeaDecoder {
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
     boolean isRepeatableControl = false;
-    while (ccData.bytesLeft() > 0) {
-      byte ccDataHeader = (byte) ccData.readUnsignedByte();
+    while (ccData.bytesLeft() >= packetLength) {
+      byte ccDataHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
+          : (byte) ccData.readUnsignedByte();
       byte ccData1 = (byte) (ccData.readUnsignedByte() & 0x7F);
       byte ccData2 = (byte) (ccData.readUnsignedByte() & 0x7F);
 

@@ -75,8 +75,8 @@ public interface SubtitleDecoderFactory {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
         if (clazz == Cea608Decoder.class) {
-          return clazz.asSubclass(SubtitleDecoder.class)
-              .getConstructor(Integer.TYPE).newInstance(format.accessibilityChannel);
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
+              .newInstance(format.sampleMimeType, format.accessibilityChannel);
         } else {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
         }
@@ -102,6 +102,7 @@ public interface SubtitleDecoderFactory {
           case MimeTypes.APPLICATION_TX3G:
             return Class.forName("com.google.android.exoplayer2.text.tx3g.Tx3gDecoder");
           case MimeTypes.APPLICATION_CEA608:
+          case MimeTypes.APPLICATION_MP4CEA608:
             return Class.forName("com.google.android.exoplayer2.text.cea.Cea608Decoder");
           default:
             return null;
