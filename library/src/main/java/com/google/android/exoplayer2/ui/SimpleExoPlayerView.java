@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -479,10 +478,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     return useController ? controller.dispatchKeyEvent(event) : super.dispatchKeyEvent(event);
   }
 
-  public void setSubtitleStyle(CaptionStyleCompat style) {
-
-    if (subtitleView != null)
-      subtitleView.setStyle(style);
+  public SubtitleView getSubtitleView() {
+    return subtitleView;
   }
 
   private void maybeShowController(boolean isForced) {
