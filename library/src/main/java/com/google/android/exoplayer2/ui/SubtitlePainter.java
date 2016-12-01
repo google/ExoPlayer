@@ -233,7 +233,7 @@ import com.google.android.exoplayer2.util.Util;
       int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
       textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
           : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
-              : anchorPosition;
+          : anchorPosition;
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
@@ -257,7 +257,7 @@ import com.google.android.exoplayer2.util.Util;
       }
       textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
           : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
-              : anchorPosition;
+          : anchorPosition;
       if (textTop + textHeight > parentBottom) {
         textTop = parentBottom - textHeight;
       } else if (textTop < parentTop) {
