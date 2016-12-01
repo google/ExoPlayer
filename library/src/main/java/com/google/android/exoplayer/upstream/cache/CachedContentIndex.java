@@ -235,13 +235,17 @@ import javax.crypto.spec.SecretKeySpec;
           throw new IllegalStateException(e);
         }
         input = new DataInputStream(new CipherInputStream(inputStream, cipher));
+      } else {
+        if (cipher != null) {
+          changed = true; // Force index to be rewritten encrypted after read.
+        }
       }
 
       int count = input.readInt();
       int hashCode = 0;
       for (int i = 0; i < count; i++) {
         CachedContent cachedContent = new CachedContent(input);
-        addNew(cachedContent);
+        add(cachedContent);
         hashCode += cachedContent.headerHashCode();
       }
       if (input.readInt() != hashCode) {
@@ -302,10 +306,14 @@ import javax.crypto.spec.SecretKeySpec;
     }
   }
 
-  /** Adds the given CachedContent to the index. */
-  /*package*/ void addNew(CachedContent cachedContent) {
+  private void add(CachedContent cachedContent) {
     keyToContent.put(cachedContent.key, cachedContent);
     idToKey.put(cachedContent.id, cachedContent.key);
+  }
+
+  /** Adds the given CachedContent to the index. */
+  /*package*/ void addNew(CachedContent cachedContent) {
+    add(cachedContent);
     changed = true;
   }
 
