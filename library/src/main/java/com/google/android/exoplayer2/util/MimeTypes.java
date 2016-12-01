@@ -47,8 +47,6 @@ public final class MimeTypes {
   public static final String AUDIO_MPEG_L1 = BASE_TYPE_AUDIO + "/mpeg-L1";
   public static final String AUDIO_MPEG_L2 = BASE_TYPE_AUDIO + "/mpeg-L2";
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
-  public static final String AUDIO_ALAW = BASE_TYPE_AUDIO + "/g711-alaw";
-  public static final String AUDIO_ULAW = BASE_TYPE_AUDIO + "/g711-mlaw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
   public static final String AUDIO_E_AC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
