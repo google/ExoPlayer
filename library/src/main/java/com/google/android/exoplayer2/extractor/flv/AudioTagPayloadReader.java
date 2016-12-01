@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
-import android.media.AudioFormat;
-import android.media.AudioTrack;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -32,8 +30,6 @@ import java.util.Collections;
 /* package */ final class AudioTagPayloadReader extends TagPayloadReader {
 
   // Audio format
-  private static final int AUDIO_FORMAT_ALAW = 7;
-  private static final int AUDIO_FORMAT_ULAW = 8;
   private static final int AUDIO_FORMAT_AAC = 10;
 
   // AAC PACKET TYPE
@@ -48,7 +44,6 @@ import java.util.Collections;
   // State variables
   private boolean hasParsedAudioDataHeader;
   private boolean hasOutputFormat;
-  private int audioFormat;
 
   public AudioTagPayloadReader(TrackOutput output) {
     super(output);
@@ -63,26 +58,15 @@ import java.util.Collections;
   protected boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException {
     if (!hasParsedAudioDataHeader) {
       int header = data.readUnsignedByte();
-      audioFormat = (header >> 4) & 0x0F;
+      int audioFormat = (header >> 4) & 0x0F;
       int sampleRateIndex = (header >> 2) & 0x03;
-      int encodingSize = header & 0x01;
       if (sampleRateIndex < 0 || sampleRateIndex >= AUDIO_SAMPLING_RATE_TABLE.length) {
         throw new UnsupportedFormatException("Invalid sample rate index: " + sampleRateIndex);
       }
-      // TODO: Add support for MP3.
-      if (audioFormat == AUDIO_FORMAT_ALAW || audioFormat == AUDIO_FORMAT_ULAW) {
-
-          String type = (audioFormat == AUDIO_FORMAT_ALAW) ? MimeTypes.AUDIO_ALAW : MimeTypes.AUDIO_ULAW;
-          int encoding = (encodingSize == 1) ? C.ENCODING_PCM_16BIT : C.ENCODING_PCM_8BIT;
-          Format format = Format.createAudioSampleFormat(null, type, null, Format.NO_VALUE, Format.NO_VALUE,
-                  1, 8000, encoding, null, null, 0, null);
-          output.format(format);
-
-          hasOutputFormat = true;
-      } else if (audioFormat != AUDIO_FORMAT_AAC ) {
-          throw new UnsupportedFormatException("Audio format not supported: " + audioFormat);
+      // TODO: Add support for MP3 and PCM.
+      if (audioFormat != AUDIO_FORMAT_AAC) {
+        throw new UnsupportedFormatException("Audio format not supported: " + audioFormat);
       }
-
       hasParsedAudioDataHeader = true;
     } else {
       // Skip header if it was parsed previously.
@@ -94,9 +78,8 @@ import java.util.Collections;
   @Override
   protected void parsePayload(ParsableByteArray data, long timeUs) {
     int packetType = data.readUnsignedByte();
-
+    // Parse sequence header just in case it was not done before.
     if (packetType == AAC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
-      // Parse sequence header just in case it was not done before.
       byte[] audioSpecifiConfig = new byte[data.bytesLeft()];
       data.readBytes(audioSpecifiConfig, 0, audioSpecifiConfig.length);
       Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
@@ -106,10 +89,12 @@ import java.util.Collections;
           Collections.singletonList(audioSpecifiConfig), null, 0, null);
       output.format(format);
       hasOutputFormat = true;
-    } else if (audioFormat != AUDIO_FORMAT_AAC || packetType == AAC_PACKET_TYPE_AAC_RAW) {
-      int bytes = data.bytesLeft();
-      output.sampleData(data, bytes);
-      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, bytes, 0, null);
+    } else if (packetType == AAC_PACKET_TYPE_AAC_RAW) {
+      // Sample audio AAC frames
+      int bytesToWrite = data.bytesLeft();
+      output.sampleData(data, bytesToWrite);
+      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, bytesToWrite, 0, null);
     }
   }
+
 }
