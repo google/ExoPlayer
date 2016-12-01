@@ -1406,6 +1406,9 @@ public final class MatroskaExtractor implements Extractor {
           initializationData = Collections.singletonList(codecPrivate);
           break;
         case CODEC_ID_MP2:
+          mimeType = MimeTypes.AUDIO_MPEG_L2;
+          maxInputSize = MP3_MAX_INPUT_SIZE;
+          break;
         case CODEC_ID_MP3:
           mimeType = MimeTypes.AUDIO_MPEG;
           maxInputSize = MP3_MAX_INPUT_SIZE;
