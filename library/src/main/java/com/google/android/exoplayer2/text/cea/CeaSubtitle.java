@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.text.cea;
 
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,14 +27,10 @@ import java.util.List;
   private final List<Cue> cues;
 
   /**
-   * @param cue The subtitle cue.
+   * @param cues The subtitle cues.
    */
-  public CeaSubtitle(Cue cue) {
-    if (cue == null) {
-      cues = Collections.emptyList();
-    } else {
-      cues = Collections.singletonList(cue);
-    }
+  public CeaSubtitle(List<Cue> cues) {
+    this.cues = cues;
   }
 
   @Override
@@ -56,7 +51,6 @@ import java.util.List;
   @Override
   public List<Cue> getCues(long timeUs) {
     return cues;
-
   }
 
 }
