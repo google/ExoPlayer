@@ -1071,7 +1071,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     buffer with {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} set. False otherwise.
    */
   private static boolean codecNeedsEosFlushWorkaround(String name) {
-    return Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name);
+    return (Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name))
+        || (Util.SDK_INT <= 19 && "hb2000".equals(Util.DEVICE)
+            && ("OMX.amlogic.avc.decoder.awesome".equals(name)
+                || "OMX.amlogic.avc.decoder.awesome.secure".equals(name)));
   }
 
   /**
