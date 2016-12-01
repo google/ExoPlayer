@@ -27,6 +27,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -251,6 +252,8 @@ import javax.crypto.spec.SecretKeySpec;
       if (input.readInt() != hashCode) {
         return false;
       }
+    } catch (FileNotFoundException e) {
+      return false;
     } catch (IOException e) {
       Log.e(TAG, "Error reading cache content index file.", e);
       return false;
