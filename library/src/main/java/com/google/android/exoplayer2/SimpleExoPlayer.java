@@ -829,7 +829,11 @@ public class SimpleExoPlayer implements ExoPlayer {
     this.ownsSurface = ownsSurface;
   }
 
-  private final class ComponentListener implements VideoRendererEventListener,
+  protected ComponentListener getComponentListener() {
+    return componentListener;
+  }
+
+  protected final class ComponentListener implements VideoRendererEventListener,
       AudioRendererEventListener, TextRenderer.Output, MetadataRenderer.Output,
       SurfaceHolder.Callback, TextureView.SurfaceTextureListener {
 
