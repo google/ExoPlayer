@@ -472,6 +472,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
     return overlayFrameLayout;
   }
 
+  /**
+   * Gets the {@link SubtitleView}.
+   *
+   * @return The {@link SubtitleView}, or {@code null} if the layout has been customized and the
+   *     subtitle view is not present.
+   */
+  public SubtitleView getSubtitleView() {
+    return subtitleView;
+  }
+
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
     if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
