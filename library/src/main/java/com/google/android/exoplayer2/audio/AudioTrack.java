@@ -441,16 +441,14 @@ public final class AudioTrack {
       default:
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
-
-    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
-      if (channelConfig == (AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER) )
+      if (channelCount == 7)
         channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
-      else if (channelConfig == (AudioFormat.CHANNEL_OUT_QUAD | AudioFormat.CHANNEL_OUT_FRONT_CENTER)
-        || channelConfig == (AudioFormat.CHANNEL_OUT_QUAD)
-        || channelConfig == (AudioFormat.CHANNEL_OUT_STEREO | AudioFormat.CHANNEL_OUT_FRONT_CENTER))
+      else if (channelCount >=3 && channelCount <= 5)
         channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
     }
+
+    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     @C.Encoding int sourceEncoding;
     if (passthrough) {
       sourceEncoding = getEncodingForMimeType(mimeType);
