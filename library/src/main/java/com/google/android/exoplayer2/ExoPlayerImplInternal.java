@@ -1069,67 +1069,8 @@ import java.io.IOException;
       return;
     }
 
-    if (loadingPeriodHolder == null
-        || (loadingPeriodHolder.isFullyBuffered()
-        && timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs() != C.TIME_UNSET
-        && !loadingPeriodHolder.isLast && (playingPeriodHolder == null
-        || loadingPeriodHolder.index - playingPeriodHolder.index < MAXIMUM_BUFFER_AHEAD_PERIODS))) {
-      // We don't have a loading period or it's fully loaded, so try and create the next one.
-      int newLoadingPeriodIndex = loadingPeriodHolder == null ? playbackInfo.periodIndex
-          : loadingPeriodHolder.index + 1;
-      if (newLoadingPeriodIndex >= timeline.getPeriodCount()) {
-        // The period is not available yet.
-        mediaSource.maybeThrowSourceInfoRefreshError();
-      } else {
-        int windowIndex = timeline.getPeriod(newLoadingPeriodIndex, period).windowIndex;
-        boolean isFirstPeriodInWindow = newLoadingPeriodIndex
-            == timeline.getWindow(windowIndex, window).firstPeriodIndex;
-        long periodStartPositionUs;
-        if (loadingPeriodHolder == null) {
-          periodStartPositionUs = playbackInfo.startPositionUs;
-        } else if (!isFirstPeriodInWindow) {
-          // We're starting to buffer a new period in the current window. Always start from the
-          // beginning of the period.
-          periodStartPositionUs = 0;
-        } else {
-          // We're starting to buffer a new window. When playback transitions to this window we'll
-          // want it to be from its default start position. The expected delay until playback
-          // transitions is equal the duration of media that's currently buffered (assuming no
-          // interruptions). Hence we project the default start position forward by the duration of
-          // the buffer, and start buffering from this point.
-          long defaultPositionProjectionUs = loadingPeriodHolder.getRendererOffset()
-              + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs()
-              - rendererPositionUs;
-          Pair<Integer, Long> defaultPosition = getPeriodPosition(timeline, windowIndex,
-              C.TIME_UNSET, Math.max(0, defaultPositionProjectionUs));
-          if (defaultPosition == null) {
-            newLoadingPeriodIndex = C.INDEX_UNSET;
-            periodStartPositionUs = C.TIME_UNSET;
-          } else {
-            newLoadingPeriodIndex = defaultPosition.first;
-            periodStartPositionUs = defaultPosition.second;
-          }
-        }
-        if (newLoadingPeriodIndex != C.INDEX_UNSET) {
-          long rendererPositionOffsetUs = loadingPeriodHolder == null ? periodStartPositionUs
-              : (loadingPeriodHolder.getRendererOffset()
-                  + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs());
-          timeline.getPeriod(newLoadingPeriodIndex, period, true);
-          boolean isLastPeriod = newLoadingPeriodIndex == timeline.getPeriodCount() - 1
-              && !timeline.getWindow(period.windowIndex, window).isDynamic;
-          MediaPeriodHolder newPeriodHolder = new MediaPeriodHolder(renderers, rendererCapabilities,
-              rendererPositionOffsetUs, trackSelector, loadControl, mediaSource, period.uid,
-              newLoadingPeriodIndex, isLastPeriod, periodStartPositionUs);
-          if (loadingPeriodHolder != null) {
-            loadingPeriodHolder.next = newPeriodHolder;
-          }
-          loadingPeriodHolder = newPeriodHolder;
-          loadingPeriodHolder.mediaPeriod.prepare(this);
-          setIsLoading(true);
-        }
-      }
-    }
-
+    // Update the loading period if required.
+    maybeUpdateLoadingPeriod();
     if (loadingPeriodHolder == null || loadingPeriodHolder.isFullyBuffered()) {
       setIsLoading(false);
     } else if (loadingPeriodHolder != null && loadingPeriodHolder.needsContinueLoading) {
@@ -1193,6 +1134,79 @@ import java.io.IOException;
         }
       }
     }
+  }
+
+  private void maybeUpdateLoadingPeriod() throws IOException {
+    int newLoadingPeriodIndex;
+    if (loadingPeriodHolder == null) {
+      newLoadingPeriodIndex = playbackInfo.periodIndex;
+    } else {
+      int loadingPeriodIndex = loadingPeriodHolder.index;
+      if (loadingPeriodHolder.isLast || !loadingPeriodHolder.isFullyBuffered()
+          || timeline.getPeriod(loadingPeriodIndex, period).getDurationUs() == C.TIME_UNSET) {
+        // Either the existing loading period is the last period, or we are not ready to advance to
+        // loading the next period because it hasn't been fully buffered or its duration is unknown.
+        return;
+      }
+      if (playingPeriodHolder != null
+          && loadingPeriodIndex - playingPeriodHolder.index == MAXIMUM_BUFFER_AHEAD_PERIODS) {
+        // We are already buffering the maximum number of periods ahead.
+        return;
+      }
+      newLoadingPeriodIndex = loadingPeriodHolder.index + 1;
+    }
+
+    if (newLoadingPeriodIndex >= timeline.getPeriodCount()) {
+      // The next period is not available yet.
+      mediaSource.maybeThrowSourceInfoRefreshError();
+      return;
+    }
+
+    long newLoadingPeriodStartPositionUs;
+    if (loadingPeriodHolder == null) {
+      newLoadingPeriodStartPositionUs = playbackInfo.startPositionUs;
+    } else {
+      int newLoadingWindowIndex = timeline.getPeriod(newLoadingPeriodIndex, period).windowIndex;
+      if (newLoadingPeriodIndex
+          != timeline.getWindow(newLoadingWindowIndex, window).firstPeriodIndex) {
+        // We're starting to buffer a new period in the current window. Always start from the
+        // beginning of the period.
+        newLoadingPeriodStartPositionUs = 0;
+      } else {
+        // We're starting to buffer a new window. When playback transitions to this window we'll
+        // want it to be from its default start position. The expected delay until playback
+        // transitions is equal the duration of media that's currently buffered (assuming no
+        // interruptions). Hence we project the default start position forward by the duration of
+        // the buffer, and start buffering from this point.
+        long defaultPositionProjectionUs = loadingPeriodHolder.getRendererOffset()
+            + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs()
+            - rendererPositionUs;
+        Pair<Integer, Long> defaultPosition = getPeriodPosition(timeline, newLoadingWindowIndex,
+            C.TIME_UNSET, Math.max(0, defaultPositionProjectionUs));
+        if (defaultPosition == null) {
+          return;
+        }
+
+        newLoadingPeriodIndex = defaultPosition.first;
+        newLoadingPeriodStartPositionUs = defaultPosition.second;
+      }
+    }
+
+    long rendererPositionOffsetUs = loadingPeriodHolder == null ? newLoadingPeriodStartPositionUs
+        : (loadingPeriodHolder.getRendererOffset()
+            + timeline.getPeriod(loadingPeriodHolder.index, period).getDurationUs());
+    timeline.getPeriod(newLoadingPeriodIndex, period, true);
+    boolean isLastPeriod = newLoadingPeriodIndex == timeline.getPeriodCount() - 1
+        && !timeline.getWindow(period.windowIndex, window).isDynamic;
+    MediaPeriodHolder newPeriodHolder = new MediaPeriodHolder(renderers, rendererCapabilities,
+        rendererPositionOffsetUs, trackSelector, loadControl, mediaSource, period.uid,
+        newLoadingPeriodIndex, isLastPeriod, newLoadingPeriodStartPositionUs);
+    if (loadingPeriodHolder != null) {
+      loadingPeriodHolder.next = newPeriodHolder;
+    }
+    loadingPeriodHolder = newPeriodHolder;
+    loadingPeriodHolder.mediaPeriod.prepare(this);
+    setIsLoading(true);
   }
 
   private void handlePeriodPrepared(MediaPeriod period) throws ExoPlaybackException {
