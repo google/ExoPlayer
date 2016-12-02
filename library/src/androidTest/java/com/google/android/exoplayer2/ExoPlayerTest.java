@@ -208,7 +208,7 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
-    public void prepareSource(Listener listener) {
+    public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
       assertFalse(preparedSource);
       preparedSource = true;
       listener.onSourceInfoRefreshed(timeline, manifest);

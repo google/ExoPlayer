@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -48,7 +49,7 @@ public final class HlsMediaSource implements MediaSource,
   private final EventDispatcher eventDispatcher;
 
   private HlsPlaylistTracker playlistTracker;
-  private MediaSource.Listener sourceListener;
+  private Listener sourceListener;
 
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
@@ -66,7 +67,7 @@ public final class HlsMediaSource implements MediaSource,
   }
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     Assertions.checkState(playlistTracker == null);
     playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
         minLoadableRetryCount, this);

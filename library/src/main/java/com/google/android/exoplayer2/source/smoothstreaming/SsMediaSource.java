@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -73,7 +74,7 @@ public final class SsMediaSource implements MediaSource,
   private final SsManifestParser manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
 
-  private MediaSource.Listener sourceListener;
+  private Listener sourceListener;
   private DataSource manifestDataSource;
   private Loader manifestLoader;
   private LoaderErrorThrower manifestLoaderErrorThrower;
@@ -199,7 +200,7 @@ public final class SsMediaSource implements MediaSource,
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     sourceListener = listener;
     if (manifest != null) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();

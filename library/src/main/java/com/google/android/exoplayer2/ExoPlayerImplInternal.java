@@ -145,6 +145,7 @@ import java.io.IOException;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
+  private final ExoPlayer player;
   private final Timeline.Window window;
   private final Timeline.Period period;
 
@@ -174,7 +175,7 @@ import java.io.IOException;
 
   public ExoPlayerImplInternal(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl, boolean playWhenReady, Handler eventHandler,
-      PlaybackInfo playbackInfo) {
+      PlaybackInfo playbackInfo, ExoPlayer player) {
     this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.loadControl = loadControl;
@@ -182,6 +183,7 @@ import java.io.IOException;
     this.eventHandler = eventHandler;
     this.state = ExoPlayer.STATE_IDLE;
     this.playbackInfo = playbackInfo;
+    this.player = player;
 
     rendererCapabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
@@ -382,7 +384,7 @@ import java.io.IOException;
       playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
     }
     this.mediaSource = mediaSource;
-    mediaSource.prepareSource(this);
+    mediaSource.prepareSource(player, true, this);
     setState(ExoPlayer.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }

@@ -95,7 +95,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     };
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
     internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
-        eventHandler, playbackInfo);
+        eventHandler, playbackInfo, this);
   }
 
   @Override

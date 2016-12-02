@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -59,8 +60,8 @@ public final class LoopingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(final Listener listener) {
-    childSource.prepareSource(new Listener() {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
+    childSource.prepareSource(player, false, new Listener() {
       @Override
       public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
         childPeriodCount = timeline.getPeriodCount();

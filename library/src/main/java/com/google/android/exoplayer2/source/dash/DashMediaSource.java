@@ -21,6 +21,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -94,7 +95,7 @@ public final class DashMediaSource implements MediaSource {
   private final Runnable refreshManifestRunnable;
   private final Runnable simulateManifestRefreshRunnable;
 
-  private MediaSource.Listener sourceListener;
+  private Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
   private LoaderErrorThrower loaderErrorThrower;
@@ -258,7 +259,7 @@ public final class DashMediaSource implements MediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     sourceListener = listener;
     if (sideloadedManifest) {
       loaderErrorThrower = new LoaderErrorThrower.Dummy();

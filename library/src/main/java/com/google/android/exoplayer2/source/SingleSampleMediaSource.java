@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
 import android.os.Handler;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -84,7 +85,7 @@ public final class SingleSampleMediaSource implements MediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     listener.onSourceInfoRefreshed(timeline, null);
   }
 
