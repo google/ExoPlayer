@@ -84,6 +84,7 @@ public final class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
+  private static final String CODEC_ID_MP2 = "A_MPEG/L2";
   private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
   private static final String CODEC_ID_E_AC3 = "A_EAC3";
@@ -1218,6 +1219,7 @@ public final class MatroskaExtractor implements Extractor {
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
+        || CODEC_ID_MP2.equals(codecId)
         || CODEC_ID_MP3.equals(codecId)
         || CODEC_ID_AC3.equals(codecId)
         || CODEC_ID_E_AC3.equals(codecId)
@@ -1402,6 +1404,10 @@ public final class MatroskaExtractor implements Extractor {
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
           initializationData = Collections.singletonList(codecPrivate);
+          break;
+        case CODEC_ID_MP2:
+          mimeType = MimeTypes.AUDIO_MPEG_L2;
+          maxInputSize = MP3_MAX_INPUT_SIZE;
           break;
         case CODEC_ID_MP3:
           mimeType = MimeTypes.AUDIO_MPEG;
