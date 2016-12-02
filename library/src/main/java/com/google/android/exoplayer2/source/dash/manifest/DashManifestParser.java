@@ -414,7 +414,7 @@ public class DashManifestParser extends DefaultHandler
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, adaptationSetLanguage, adaptationSetAccessibilityChannel,
         codecs);
-    segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl);
+    segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
     return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeDatas);
   }

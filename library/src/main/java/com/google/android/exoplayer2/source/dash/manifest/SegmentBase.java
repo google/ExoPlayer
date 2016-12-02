@@ -84,7 +84,7 @@ public abstract class SegmentBase {
       this.indexLength = indexLength;
     }
 
-    public SingleSegmentBase(String uri) {
+    public SingleSegmentBase() {
       this(null, 1, 0, 0, 0);
     }
 
