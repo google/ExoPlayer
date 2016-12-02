@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -101,7 +102,6 @@ public final class MatroskaExtractor implements Extractor {
 
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
-  private static final int MP3_MAX_INPUT_SIZE = 4096;
   private static final int ENCRYPTION_IV_SIZE = 8;
   private static final int TRACK_TYPE_AUDIO = 2;
 
@@ -1407,11 +1407,11 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_MP2:
           mimeType = MimeTypes.AUDIO_MPEG_L2;
-          maxInputSize = MP3_MAX_INPUT_SIZE;
+          maxInputSize = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
           break;
         case CODEC_ID_MP3:
           mimeType = MimeTypes.AUDIO_MPEG;
-          maxInputSize = MP3_MAX_INPUT_SIZE;
+          maxInputSize = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
