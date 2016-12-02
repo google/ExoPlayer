@@ -548,7 +548,7 @@ public final class Cea608Decoder extends CeaDecoder {
   private static boolean isPreambleAddressCode(byte cc1, byte cc2) {
     // cc1 - 0|0|0|1|C|X|X|X
     // cc2 - 0|1|X|X|X|X|X|X
-    return ((cc1 & 0xF0) == 0x10) && ((cc2 & 0xC0) == 0x80);
+    return ((cc1 & 0xF0) == 0x10) && ((cc2 & 0xC0) == 0x40);
   }
 
   private static boolean isTabCtrlCode(byte cc1, byte cc2) {
