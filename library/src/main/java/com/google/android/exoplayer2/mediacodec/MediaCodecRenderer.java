@@ -472,6 +472,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    if (outputStreamEnded) {
+      return;
+    }
     if (format == null) {
       readFormat();
     }
@@ -479,9 +482,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codec != null) {
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      if (codec != null) {
-        while (feedInputBuffer()) {}
-      }
+      while (feedInputBuffer()) {}
       TraceUtil.endSection();
     } else if (format != null) {
       skipToKeyframeBefore(positionUs);
@@ -531,10 +532,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer() throws ExoPlaybackException {
-    if (inputStreamEnded
-        || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-      // The input stream has ended, or we need to re-initialize the codec but are still waiting
-      // for the existing codec to output any final output buffers.
+    if (codec == null || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+        || inputStreamEnded) {
+      // We need to reinitialize the codec or the input stream has ended.
       return false;
     }
 
@@ -848,10 +848,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @SuppressWarnings("deprecation")
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    if (outputStreamEnded) {
-      return false;
-    }
-
     if (outputIndex < 0) {
       outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
       if (outputIndex >= 0) {

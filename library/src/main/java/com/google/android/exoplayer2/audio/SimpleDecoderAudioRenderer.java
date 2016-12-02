@@ -19,6 +19,7 @@ import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -36,12 +37,35 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
 public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock,
     AudioTrack.Listener {
+
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({REINITIALIZATION_STATE_NONE, REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
+      REINITIALIZATION_STATE_WAIT_END_OF_STREAM})
+  private @interface ReinitializationState {}
+  /**
+   * The decoder does not need to be re-initialized.
+   */
+  private static final int REINITIALIZATION_STATE_NONE = 0;
+  /**
+   * The input format has changed in a way that requires the decoder to be re-initialized, but we
+   * haven't yet signaled an end of stream to the existing decoder. We need to do so in order to
+   * ensure that it outputs any remaining buffers before we release it.
+   */
+  private static final int REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM = 1;
+  /**
+   * The input format has changed in a way that requires the decoder to be re-initialized, and we've
+   * signaled an end of stream to the existing decoder. We're waiting for the decoder to output an
+   * end of stream signal to indicate that it has output any remaining buffers before we release it.
+   */
+  private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
   private final boolean playClearSamplesWithoutKeys;
 
@@ -58,6 +82,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private SimpleOutputBuffer outputBuffer;
   private DrmSession<ExoMediaCrypto> drmSession;
   private DrmSession<ExoMediaCrypto> pendingDrmSession;
+
+  @ReinitializationState
+  private int decoderReinitializationState;
+  private boolean decoderReceivedBuffers;
+  private boolean audioTrackNeedsConfigure;
 
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
@@ -117,6 +146,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     formatHolder = new FormatHolder();
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    decoderReinitializationState = REINITIALIZATION_STATE_NONE;
+    audioTrackNeedsConfigure = true;
   }
 
   @Override
@@ -136,47 +167,22 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       return;
     }
 
-    drmSession = pendingDrmSession;
-    ExoMediaCrypto mediaCrypto = null;
-    if (drmSession != null) {
-      @DrmSession.State int drmSessionState = drmSession.getState();
-      if (drmSessionState == DrmSession.STATE_ERROR) {
-        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
-      } else if (drmSessionState == DrmSession.STATE_OPENED
-          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
-        mediaCrypto = drmSession.getMediaCrypto();
-      } else {
-        // The drm session isn't open yet.
-        return;
-      }
-    }
     // If we don't have a decoder yet, we need to instantiate one.
-    if (decoder == null) {
+    maybeInitDecoder();
+
+    if (decoder != null) {
       try {
-        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-        TraceUtil.beginSection("createAudioDecoder");
-        decoder = createDecoder(inputFormat, mediaCrypto);
+        // Rendering loop.
+        TraceUtil.beginSection("drainAndFeed");
+        while (drainOutputBuffer()) {}
+        while (feedInputBuffer()) {}
         TraceUtil.endSection();
-        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-        eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
-            codecInitializedTimestamp - codecInitializingTimestamp);
-        decoderCounters.decoderInitCount++;
-      } catch (AudioDecoderException e) {
+      } catch (AudioTrack.InitializationException | AudioTrack.WriteException
+          | AudioDecoderException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
+      decoderCounters.ensureUpdated();
     }
-
-    // Rendering loop.
-    try {
-      TraceUtil.beginSection("drainAndFeed");
-      while (drainOutputBuffer()) {}
-      while (feedInputBuffer()) {}
-      TraceUtil.endSection();
-    } catch (AudioTrack.InitializationException | AudioTrack.WriteException
-        | AudioDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
-    }
-    decoderCounters.ensureUpdated();
   }
 
   /**
@@ -205,12 +211,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         null, null, 0, null);
   }
 
-  private boolean drainOutputBuffer() throws AudioDecoderException,
+  private boolean drainOutputBuffer() throws ExoPlaybackException, AudioDecoderException,
       AudioTrack.InitializationException, AudioTrack.WriteException {
-    if (outputStreamEnded) {
-      return false;
-    }
-
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
@@ -220,17 +222,29 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
 
     if (outputBuffer.isEndOfStream()) {
-      outputStreamEnded = true;
-      audioTrack.handleEndOfStream();
-      outputBuffer.release();
-      outputBuffer = null;
+      if (decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+        // We're waiting to re-initialize the decoder, and have now processed all final buffers.
+        releaseDecoder();
+        maybeInitDecoder();
+        // The audio track may need to be recreated once the new output format is known.
+        audioTrackNeedsConfigure = true;
+      } else {
+        outputBuffer.release();
+        outputBuffer = null;
+        outputStreamEnded = true;
+        audioTrack.handleEndOfStream();
+      }
       return false;
     }
 
-    if (!audioTrack.isInitialized()) {
+    if (audioTrackNeedsConfigure) {
       Format outputFormat = getOutputFormat();
       audioTrack.configure(outputFormat.sampleMimeType, outputFormat.channelCount,
           outputFormat.sampleRate, outputFormat.pcmEncoding, 0);
+      audioTrackNeedsConfigure = false;
+    }
+
+    if (!audioTrack.isInitialized()) {
       if (audioSessionId == AudioTrack.SESSION_ID_NOT_SET) {
         audioSessionId = audioTrack.initialize(AudioTrack.SESSION_ID_NOT_SET);
         eventDispatcher.audioSessionId(audioSessionId);
@@ -262,7 +276,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   private boolean feedInputBuffer() throws AudioDecoderException, ExoPlaybackException {
-    if (inputStreamEnded) {
+    if (decoder == null || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+        || inputStreamEnded) {
+      // We need to reinitialize the decoder or the input stream has ended.
       return false;
     }
 
@@ -271,6 +287,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       if (inputBuffer == null) {
         return false;
       }
+    }
+
+    if (decoderReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
+      inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+      decoder.queueInputBuffer(inputBuffer);
+      inputBuffer = null;
+      decoderReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
+      return false;
     }
 
     int result;
@@ -301,6 +325,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
+    decoderReceivedBuffers = true;
     decoderCounters.inputBufferCount++;
     inputBuffer = null;
     return true;
@@ -318,14 +343,20 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         && (bufferEncrypted || !playClearSamplesWithoutKeys);
   }
 
-  private void flushDecoder() {
-    inputBuffer = null;
+  private void flushDecoder() throws ExoPlaybackException {
     waitingForKeys = false;
-    if (outputBuffer != null) {
-      outputBuffer.release();
-      outputBuffer = null;
+    if (decoderReinitializationState != REINITIALIZATION_STATE_NONE) {
+      releaseDecoder();
+      maybeInitDecoder();
+    } else {
+      inputBuffer = null;
+      if (outputBuffer != null) {
+        outputBuffer.release();
+        outputBuffer = null;
+      }
+      decoder.flush();
+      decoderReceivedBuffers = false;
     }
-    decoder.flush();
   }
 
   @Override
@@ -370,7 +401,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
-  protected void onPositionReset(long positionUs, boolean joining) {
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;
@@ -393,17 +424,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   protected void onDisabled() {
-    inputBuffer = null;
-    outputBuffer = null;
     inputFormat = null;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    audioTrackNeedsConfigure = true;
     waitingForKeys = false;
     try {
-      if (decoder != null) {
-        decoder.release();
-        decoder = null;
-        decoderCounters.decoderReleaseCount++;
-      }
+      releaseDecoder();
       audioTrack.release();
     } finally {
       try {
@@ -423,6 +449,54 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         }
       }
     }
+  }
+
+  private void maybeInitDecoder() throws ExoPlaybackException {
+    if (decoder != null) {
+      return;
+    }
+
+    drmSession = pendingDrmSession;
+    ExoMediaCrypto mediaCrypto = null;
+    if (drmSession != null) {
+      @DrmSession.State int drmSessionState = drmSession.getState();
+      if (drmSessionState == DrmSession.STATE_ERROR) {
+        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      } else if (drmSessionState == DrmSession.STATE_OPENED
+          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
+        mediaCrypto = drmSession.getMediaCrypto();
+      } else {
+        // The drm session isn't open yet.
+        return;
+      }
+    }
+
+    try {
+      long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+      TraceUtil.beginSection("createAudioDecoder");
+      decoder = createDecoder(inputFormat, mediaCrypto);
+      TraceUtil.endSection();
+      long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+      eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
+          codecInitializedTimestamp - codecInitializingTimestamp);
+      decoderCounters.decoderInitCount++;
+    } catch (AudioDecoderException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
+  }
+
+  private void releaseDecoder() {
+    if (decoder == null) {
+      return;
+    }
+
+    inputBuffer = null;
+    outputBuffer = null;
+    decoder.release();
+    decoder = null;
+    decoderCounters.decoderReleaseCount++;
+    decoderReinitializationState = REINITIALIZATION_STATE_NONE;
+    decoderReceivedBuffers = false;
   }
 
   private boolean readFormat() throws ExoPlaybackException {
@@ -454,6 +528,15 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       } else {
         pendingDrmSession = null;
       }
+    }
+
+    if (decoderReceivedBuffers) {
+      // Signal end of stream and wait for any final output buffers before re-initialization.
+      decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
+    } else {
+      // There aren't any final output buffers, so release the decoder immediately.
+      releaseDecoder();
+      maybeInitDecoder();
     }
 
     eventDispatcher.inputFormatChanged(newFormat);
