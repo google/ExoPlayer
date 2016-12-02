@@ -409,7 +409,7 @@ public final class Cea608Decoder extends CeaDecoder {
     // underline toggle
     boolean nextRowDown = (cc2 & 0x20) != 0;
     if (row != currentCueBuilder.getRow() || nextRowDown) {
-      if (!currentCueBuilder.isEmpty()) {
+      if (captionMode != CC_MODE_ROLL_UP && !currentCueBuilder.isEmpty()) {
         currentCueBuilder = new CueBuilder(captionMode, captionRowCount);
         cueBuilders.add(currentCueBuilder);
       }
@@ -753,6 +753,11 @@ public final class Cea608Decoder extends CeaDecoder {
 
       return new Cue(cueString, Alignment.ALIGN_NORMAL, line, lineType, TYPE_UNSET, position,
           TYPE_UNSET, 0.8f);
+    }
+
+    @Override
+    public String toString() {
+      return captionStringBuilder.toString();
     }
 
     private static class CueStyle {
