@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -84,6 +85,7 @@ public final class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
+  private static final String CODEC_ID_MP2 = "A_MPEG/L2";
   private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
   private static final String CODEC_ID_E_AC3 = "A_EAC3";
@@ -100,7 +102,6 @@ public final class MatroskaExtractor implements Extractor {
 
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
-  private static final int MP3_MAX_INPUT_SIZE = 4096;
   private static final int ENCRYPTION_IV_SIZE = 8;
   private static final int TRACK_TYPE_AUDIO = 2;
 
@@ -1218,6 +1219,7 @@ public final class MatroskaExtractor implements Extractor {
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
+        || CODEC_ID_MP2.equals(codecId)
         || CODEC_ID_MP3.equals(codecId)
         || CODEC_ID_AC3.equals(codecId)
         || CODEC_ID_E_AC3.equals(codecId)
@@ -1403,9 +1405,13 @@ public final class MatroskaExtractor implements Extractor {
           mimeType = MimeTypes.AUDIO_AAC;
           initializationData = Collections.singletonList(codecPrivate);
           break;
+        case CODEC_ID_MP2:
+          mimeType = MimeTypes.AUDIO_MPEG_L2;
+          maxInputSize = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
+          break;
         case CODEC_ID_MP3:
           mimeType = MimeTypes.AUDIO_MPEG;
-          maxInputSize = MP3_MAX_INPUT_SIZE;
+          maxInputSize = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
