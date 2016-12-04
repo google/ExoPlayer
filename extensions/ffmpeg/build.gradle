@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -41,4 +42,14 @@ android {
 
 dependencies {
     compile project(':library')
+}
+
+publish {
+    artifactId = 'extension-ffmpeg'
+    description = 'FFMPEG audio extension for ExoPlayer.'
+    repoName = releaseRepoName
+    userOrg = releaseUserOrg
+    groupId = releaseGroupId
+    version = releaseVersion
+    website = releaseWebsite
 }
