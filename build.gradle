@@ -35,7 +35,10 @@ allprojects {
         releaseRepoName = 'exoplayer'
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.0.4'
+        // allows you to override the version on the commandline
+        // useful for building snapshots
+        // #./gradlew -Dexoplayer.version=r2.0.4-SNAPSHOT assemble publishToMavenLocal
+        releaseVersion = System.getProperty('exoplayer.version','r2.0.4')
         releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
 }
