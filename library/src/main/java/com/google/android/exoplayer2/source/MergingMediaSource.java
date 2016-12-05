@@ -93,7 +93,7 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     this.listener = listener;
     for (int i = 0; i < mediaSources.length; i++) {
       final int sourceIndex = i;
