@@ -398,6 +398,15 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Hides the playback controls. Does nothing if playback controls are disabled.
+   */
+  public void hideController() {
+    if (controller != null) {
+      controller.hide();
+    }
+  }
+
+  /**
    * Returns the playback controls timeout. The playback controls are automatically hidden after
    * this duration of time has elapsed without user input and with playback or buffering in
    * progress.
@@ -580,12 +589,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     if (artworkView != null) {
       artworkView.setImageResource(android.R.color.transparent); // Clears any bitmap reference.
       artworkView.setVisibility(INVISIBLE);
-    }
-  }
-
-  private void hideController() {
-    if (controller != null) {
-      controller.hide();
     }
   }
 
