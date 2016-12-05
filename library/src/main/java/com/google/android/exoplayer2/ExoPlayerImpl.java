@@ -179,9 +179,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int windowIndex, long positionMs) {
-    if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
-      throw new IndexOutOfBoundsException();
-    }
     pendingSeekAcks++;
     maskingWindowIndex = windowIndex;
     if (positionMs == C.TIME_UNSET) {

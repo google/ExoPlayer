@@ -987,7 +987,6 @@ import java.io.IOException;
       // The application performed a blind seek without a non-empty timeline (most likely based on
       // knowledge of what the future timeline will be). Use the internal timeline.
       seekTimeline = timeline;
-      Assertions.checkIndex(seekPosition.windowIndex, 0, timeline.getWindowCount());
     }
     // Map the SeekPosition to a position in the corresponding timeline.
     Pair<Integer, Long> periodPosition = getPeriodPosition(seekTimeline, seekPosition.windowIndex,
@@ -1044,6 +1043,7 @@ import java.io.IOException;
    */
   private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
       long windowPositionUs, long defaultPositionProjectionUs) {
+    Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
     timeline.getWindow(windowIndex, window, false, defaultPositionProjectionUs);
     if (windowPositionUs == C.TIME_UNSET) {
       windowPositionUs = window.getDefaultPositionUs();
