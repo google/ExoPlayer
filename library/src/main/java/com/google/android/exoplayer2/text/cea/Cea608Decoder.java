@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
-import static com.google.android.exoplayer2.text.Cue.TYPE_UNSET;
-
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Layout.Alignment;
@@ -406,8 +404,8 @@ public final class Cea608Decoder extends CeaDecoder {
 
     // cc2 - 0|1|N|ATTRBTE|U
     // N is the next row down toggle, ATTRBTE is the 4-byte encoded attribute, and U is the
-    // underline toggle
-    boolean nextRowDown = (cc2 & 0x20) != 0;
+    // underline toggle. The next row down toggle isn't applicable for roll-up captions.
+    boolean nextRowDown = captionMode != CC_MODE_ROLL_UP && (cc2 & 0x20) != 0;
     if (row != currentCueBuilder.getRow() || nextRowDown) {
       if (captionMode != CC_MODE_ROLL_UP && !currentCueBuilder.isEmpty()) {
         currentCueBuilder = new CueBuilder(captionMode, captionRowCount);
@@ -740,19 +738,25 @@ public final class Cea608Decoder extends CeaDecoder {
       cueString.append(buildSpannableString());
 
       float position = (float) (indent + tabOffset) / SCREEN_CHARWIDTH;
+      // adjust the position to fit within the safe area
+      position = position * 0.8f + 0.1f;
 
       float line;
       int lineType;
       if (captionMode == CC_MODE_ROLL_UP) {
-        line = (row - 1) - BASE_ROW;
         lineType = Cue.LINE_TYPE_NUMBER;
+        line = row - BASE_ROW;
+        // adjust the line to fit within the safe area
+        line--;
       } else {
-        line = (float) (row - 1) / BASE_ROW;
         lineType = Cue.LINE_TYPE_FRACTION;
+        line = (float) row / BASE_ROW;
+        // adjust the line to fit within the safe area
+        line = line * 0.8f + 0.1f;
       }
 
-      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, lineType, TYPE_UNSET, position,
-          TYPE_UNSET, 0.8f);
+      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, lineType, Cue.ANCHOR_TYPE_END,
+          position, Cue.ANCHOR_TYPE_START, Cue.DIMEN_UNSET);
     }
 
     @Override
