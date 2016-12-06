@@ -431,6 +431,9 @@ public final class ParsableByteArray {
    * @return The string encoded by the bytes.
    */
   public String readNullTerminatedString(int length) {
+    if (length == 0) {
+      return "";
+    }
     int stringLength = length;
     int lastIndex = position + length - 1;
     if (lastIndex < limit && data[lastIndex] == 0) {
