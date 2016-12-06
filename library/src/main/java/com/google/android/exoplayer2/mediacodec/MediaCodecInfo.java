@@ -51,6 +51,14 @@ public final class MediaCodecInfo {
    */
   public final boolean adaptive;
 
+  /**
+   * Whether the decoder supports tunneling.
+   *
+   * @see CodecCapabilities#isFeatureSupported(String)
+   * @see CodecCapabilities#FEATURE_TunneledPlayback
+   */
+  public final boolean tunneling;
+
   private final String mimeType;
   private final CodecCapabilities capabilities;
 
@@ -86,6 +94,7 @@ public final class MediaCodecInfo {
     this.mimeType = mimeType;
     this.capabilities = capabilities;
     adaptive = capabilities != null && isAdaptive(capabilities);
+    tunneling = capabilities != null && isTunneling(capabilities);
   }
 
   /**
@@ -268,6 +277,15 @@ public final class MediaCodecInfo {
   @TargetApi(19)
   private static boolean isAdaptiveV19(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
+  }
+
+  private static boolean isTunneling(CodecCapabilities capabilities) {
+    return Util.SDK_INT >= 21 && isTunnelingV21(capabilities);
+  }
+
+  @TargetApi(21)
+  private static boolean isTunnelingV21(CodecCapabilities capabilities) {
+    return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_TunneledPlayback);
   }
 
 }

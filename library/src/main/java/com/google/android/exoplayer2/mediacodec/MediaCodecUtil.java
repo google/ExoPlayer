@@ -81,7 +81,9 @@ public final class MediaCodecUtil {
   /**
    * Optional call to warm the codec cache for a given mime type.
    * <p>
-   * Calling this method may speed up subsequent calls to {@link #getDecoderInfo(String, boolean)}.
+   * Calling this method may speed up subsequent calls to
+   * {@link #getDecoderInfo(String, boolean, boolean)} and
+   * {@link #getDecoderInfos(String, boolean)}.
    *
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
@@ -113,14 +115,26 @@ public final class MediaCodecUtil {
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
+   * @param tunneling Whether the decoder is required to support tunneling. Always pass false unless
+   *     tunneling really is required.
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
    *     exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static MediaCodecInfo getDecoderInfo(String mimeType, boolean secure)
+  public static MediaCodecInfo getDecoderInfo(String mimeType, boolean secure, boolean tunneling)
       throws DecoderQueryException {
     List<MediaCodecInfo> decoderInfos = getDecoderInfos(mimeType, secure);
-    return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
+    if (tunneling) {
+      for (int i = 0; i < decoderInfos.size(); i++) {
+        MediaCodecInfo decoderInfo = decoderInfos.get(i);
+        if (decoderInfo.tunneling) {
+          return decoderInfo;
+        }
+      }
+      return null;
+    } else {
+      return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
+    }
   }
 
   /**
@@ -178,11 +192,10 @@ public final class MediaCodecUtil {
                 boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
                 if ((secureDecodersExplicit && key.secure == secure)
                     || (!secureDecodersExplicit && !key.secure)) {
-                  decoderInfos.add(
-                      MediaCodecInfo.newInstance(codecName, mimeType, capabilities));
+                  decoderInfos.add(MediaCodecInfo.newInstance(codecName, mimeType, capabilities));
                 } else if (!secureDecodersExplicit && secure) {
-                  decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure",
-                      mimeType, capabilities));
+                  decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure", mimeType,
+                      capabilities));
                   // It only makes sense to have one synthesized secure decoder, return immediately.
                   return decoderInfos;
                 }
@@ -292,7 +305,7 @@ public final class MediaCodecUtil {
   public static int maxH264DecodableFrameSize() throws DecoderQueryException {
     if (maxH264DecodableFrameSize == -1) {
       int result = 0;
-      MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false);
+      MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false, false);
       if (decoderInfo != null) {
         for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
           result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);

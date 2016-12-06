@@ -172,7 +172,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        requiresSecureDecryption);
+        requiresSecureDecryption, false);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }

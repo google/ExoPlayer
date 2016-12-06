@@ -270,7 +270,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected MediaCodecInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
       Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder);
+    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder, false);
   }
 
   /**
@@ -1020,7 +1020,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT < 24
         && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name))
         && ("flounder".equals(Util.DEVICE) || "flounder_lte".equals(Util.DEVICE)
-            || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE));
+        || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE));
   }
 
   /**
