@@ -404,14 +404,18 @@ public final class Cea608Decoder extends CeaDecoder {
 
     // cc2 - 0|1|N|ATTRBTE|U
     // N is the next row down toggle, ATTRBTE is the 4-byte encoded attribute, and U is the
-    // underline toggle. The next row down toggle isn't applicable for roll-up captions.
-    boolean nextRowDown = captionMode != CC_MODE_ROLL_UP && (cc2 & 0x20) != 0;
-    if (row != currentCueBuilder.getRow() || nextRowDown) {
+    // underline toggle.
+    boolean nextRowDown = (cc2 & 0x20) != 0;
+    if (nextRowDown) {
+      row++;
+    }
+
+    if (row != currentCueBuilder.getRow()) {
       if (captionMode != CC_MODE_ROLL_UP && !currentCueBuilder.isEmpty()) {
         currentCueBuilder = new CueBuilder(captionMode, captionRowCount);
         cueBuilders.add(currentCueBuilder);
       }
-      currentCueBuilder.setRow(nextRowDown ? ++row : row);
+      currentCueBuilder.setRow(row);
     }
 
     if ((cc2 & 0x01) == 0x01) {
@@ -492,7 +496,10 @@ public final class Cea608Decoder extends CeaDecoder {
   private List<Cue> getDisplayCues() {
     List<Cue> displayCues = new ArrayList<>();
     for (int i = 0; i < cueBuilders.size(); i++) {
-      displayCues.add(cueBuilders.get(i).build());
+      Cue cue = cueBuilders.get(i).build();
+      if (cue != null) {
+        displayCues.add(cue);
+      }
     }
     return displayCues;
   }
@@ -727,36 +734,62 @@ public final class Cea608Decoder extends CeaDecoder {
 
     public Cue build() {
       SpannableStringBuilder cueString = new SpannableStringBuilder();
-
-      // add any rolled up captions, separated by new lines
+      // Add any rolled up captions, separated by new lines.
       for (int i = 0; i < rolledUpCaptions.size(); i++) {
         cueString.append(rolledUpCaptions.get(i));
         cueString.append('\n');
       }
-
-      // add the current line
+      // Add the current line.
       cueString.append(buildSpannableString());
 
-      float position = (float) (indent + tabOffset) / SCREEN_CHARWIDTH;
-      // adjust the position to fit within the safe area
-      position = position * 0.8f + 0.1f;
-
-      float line;
-      int lineType;
-      if (captionMode == CC_MODE_ROLL_UP) {
-        lineType = Cue.LINE_TYPE_NUMBER;
-        line = row - BASE_ROW;
-        // adjust the line to fit within the safe area
-        line--;
-      } else {
-        lineType = Cue.LINE_TYPE_FRACTION;
-        line = (float) row / BASE_ROW;
-        // adjust the line to fit within the safe area
-        line = line * 0.8f + 0.1f;
+      if (cueString.length() == 0) {
+        // The cue is empty.
+        return null;
       }
 
-      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, lineType, Cue.ANCHOR_TYPE_END,
-          position, Cue.ANCHOR_TYPE_START, Cue.DIMEN_UNSET);
+      float position;
+      int positionAnchor;
+      // The number of empty columns before the start of the text, in the range [0-31].
+      int startPadding = indent + tabOffset;
+      // The number of empty columns after the end of the text, in the same range.
+      int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
+      int startEndPaddingDelta = startPadding - endPadding;
+      if (captionMode == CC_MODE_POP_ON && Math.abs(startEndPaddingDelta) < 3) {
+        // Treat approximately centered pop-on captions are middle aligned.
+        position = 0.5f;
+        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
+        // Treat pop-on captions with less padding at the end than the start as end aligned.
+        position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
+        // Adjust the position to fit within the safe area.
+        position = position * 0.8f + 0.1f;
+        positionAnchor = Cue.ANCHOR_TYPE_END;
+      } else {
+        // For all other cases assume start aligned.
+        position = (float) startPadding / SCREEN_CHARWIDTH;
+        // Adjust the position to fit within the safe area.
+        position = position * 0.8f + 0.1f;
+        positionAnchor = Cue.ANCHOR_TYPE_START;
+      }
+
+      int lineAnchor;
+      int line;
+      // Note: Row indices are in the range [1-15].
+      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
+        lineAnchor = Cue.ANCHOR_TYPE_END;
+        line = row - BASE_ROW;
+        // Two line adjustments. The first is because line indices from the bottom of the window
+        // start from -1 rather than 0. The second is a blank row to act as the safe area.
+        line -= 2;
+      } else {
+        lineAnchor = Cue.ANCHOR_TYPE_START;
+        // Line indices from the top of the window start from 0, but we want a blank row to act as
+        // the safe area. As a result no adjustment is necessary.
+        line = row;
+      }
+
+      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_NUMBER, lineAnchor,
+          position, positionAnchor, Cue.DIMEN_UNSET);
     }
 
     @Override

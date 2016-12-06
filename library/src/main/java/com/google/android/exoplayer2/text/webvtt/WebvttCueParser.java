@@ -256,7 +256,13 @@ import java.util.regex.Pattern;
     if (s.endsWith("%")) {
       builder.setLine(WebvttParserUtil.parsePercentage(s)).setLineType(Cue.LINE_TYPE_FRACTION);
     } else {
-      builder.setLine(Integer.parseInt(s)).setLineType(Cue.LINE_TYPE_NUMBER);
+      int lineNumber = Integer.parseInt(s);
+      if (lineNumber < 0) {
+        // WebVTT defines line -1 as last visible row when lineAnchor is ANCHOR_TYPE_START, where-as
+        // Cue defines it to be the first row that's not visible.
+        lineNumber--;
+      }
+      builder.setLine(lineNumber).setLineType(Cue.LINE_TYPE_NUMBER);
     }
   }
 
