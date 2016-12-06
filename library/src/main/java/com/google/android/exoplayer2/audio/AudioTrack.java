@@ -442,10 +442,17 @@ public final class AudioTrack {
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
     if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
-      if (channelCount == 7)
-        channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
-      else if (channelCount >=3 && channelCount <= 5)
-        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
+      switch(channelCount) {
+        case 7:
+          channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
+          break;
+        case 3:
+        case 5:
+          channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
+          break;
+        default:
+          break;
+      }
     }
 
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
