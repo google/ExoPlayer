@@ -278,10 +278,9 @@ import java.util.Locale;
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence,
-        segment.discontinuitySequenceNumber, isTimestampMaster, timestampAdjuster, previous,
-        encryptionKey, encryptionIv);
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), startTimeUs,
+        startTimeUs + segment.durationUs, chunkMediaSequence, segment.discontinuitySequenceNumber,
+        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
   }
 
   /**
