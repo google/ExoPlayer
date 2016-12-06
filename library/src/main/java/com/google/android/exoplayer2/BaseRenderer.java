@@ -107,8 +107,13 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void setCurrentStreamIsFinal() {
+  public final void setCurrentStreamFinal() {
     streamIsFinal = true;
+  }
+
+  @Override
+  public final boolean isCurrentStreamFinal() {
+    return streamIsFinal;
   }
 
   @Override
@@ -243,7 +248,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Reads from the enabled upstream source. If the upstream source has been read to the end then
-   * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamIsFinal()} has been
+   * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
    *
    * @see SampleStream#readData(FormatHolder, DecoderInputBuffer)

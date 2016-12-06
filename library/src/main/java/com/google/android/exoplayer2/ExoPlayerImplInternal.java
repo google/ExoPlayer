@@ -378,7 +378,7 @@ import java.io.IOException;
   }
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition) {
-    resetInternal();
+    resetInternal(true);
     loadControl.onPrepared();
     if (resetPosition) {
       playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
@@ -548,9 +548,16 @@ import java.io.IOException;
 
     Pair<Integer, Long> periodPosition = resolveSeekPosition(seekPosition);
     if (periodPosition == null) {
-      // TODO: We should probably propagate an error here.
-      // We failed to resolve the seek position. Stop the player.
-      stopInternal();
+      // The seek position was valid for the timeline that it was performed into, but the
+      // timeline has changed and a suitable seek position could not be resolved in the new one.
+      playbackInfo = new PlaybackInfo(0, 0);
+      eventHandler.obtainMessage(MSG_SEEK_ACK, playbackInfo).sendToTarget();
+      // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't
+      // ignored.
+      playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
+      setState(ExoPlayer.STATE_ENDED);
+      // Reset, but retain the source so that it can still be used should a seek occur.
+      resetInternal(false);
       return;
     }
 
@@ -639,13 +646,13 @@ import java.io.IOException;
   }
 
   private void stopInternal() {
-    resetInternal();
+    resetInternal(true);
     loadControl.onStopped();
     setState(ExoPlayer.STATE_IDLE);
   }
 
   private void releaseInternal() {
-    resetInternal();
+    resetInternal(true);
     loadControl.onReleased();
     setState(ExoPlayer.STATE_IDLE);
     synchronized (this) {
@@ -654,7 +661,7 @@ import java.io.IOException;
     }
   }
 
-  private void resetInternal() {
+  private void resetInternal(boolean releaseMediaSource) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
     standaloneMediaClock.stop();
@@ -672,15 +679,17 @@ import java.io.IOException;
     enabledRenderers = new Renderer[0];
     releasePeriodHoldersFrom(playingPeriodHolder != null ? playingPeriodHolder
         : loadingPeriodHolder);
-    if (mediaSource != null) {
-      mediaSource.releaseSource();
-      mediaSource = null;
-    }
     loadingPeriodHolder = null;
     readingPeriodHolder = null;
     playingPeriodHolder = null;
-    timeline = null;
     setIsLoading(false);
+    if (releaseMediaSource) {
+      if (mediaSource != null) {
+        mediaSource.releaseSource();
+        mediaSource = null;
+      }
+      timeline = null;
+    }
   }
 
   private void sendMessagesInternal(ExoPlayerMessage[] messages) throws ExoPlaybackException {
@@ -845,18 +854,21 @@ import java.io.IOException;
     if (oldTimeline == null) {
       if (pendingInitialSeekCount > 0) {
         Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingSeekPosition);
-        if (periodPosition == null) {
-          // We failed to resolve the seek position. Stop the player.
-          notifySourceInfoRefresh(manifest, 0);
-          // TODO: We should probably propagate an error here.
-          stopInternal();
-          return;
-        }
-        playbackInfo = new PlaybackInfo(periodPosition.first, periodPosition.second);
         processedInitialSeekCount = pendingInitialSeekCount;
         pendingInitialSeekCount = 0;
         pendingSeekPosition = null;
+        if (periodPosition == null) {
+          // The seek position was valid for the timeline that it was performed into, but the
+          // timeline has changed and a suitable seek position could not be resolved in the new one.
+          handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
+          return;
+        }
+        playbackInfo = new PlaybackInfo(periodPosition.first, periodPosition.second);
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
+        if (timeline.isEmpty()) {
+          handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
+          return;
+        }
         Pair<Integer, Long> defaultPosition = getPeriodPosition(0, C.TIME_UNSET);
         playbackInfo = new PlaybackInfo(defaultPosition.first, defaultPosition.second);
       }
@@ -876,10 +888,8 @@ import java.io.IOException;
       // period whose window we can restart from.
       int newPeriodIndex = resolveSubsequentPeriod(periodHolder.index, oldTimeline, timeline);
       if (newPeriodIndex == C.INDEX_UNSET) {
-        // We failed to resolve a subsequent period. Stop the player.
-        notifySourceInfoRefresh(manifest, processedInitialSeekCount);
-        // TODO: We should probably propagate an error here.
-        stopInternal();
+        // We failed to resolve a suitable restart position.
+        handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
         return;
       }
       // We resolved a subsequent period. Seek to the default position in the corresponding window.
@@ -949,6 +959,18 @@ import java.io.IOException;
     notifySourceInfoRefresh(manifest, processedInitialSeekCount);
   }
 
+  private void handleSourceInfoRefreshEndedPlayback(Object manifest,
+      int processedInitialSeekCount) {
+    // Set the playback position to (0,0) for notifying the eventHandler.
+    playbackInfo = new PlaybackInfo(0, 0);
+    notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+    // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't ignored.
+    playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
+    setState(ExoPlayer.STATE_ENDED);
+    // Reset, but retain the source so that it can still be used should a seek occur.
+    resetInternal(false);
+  }
+
   private void notifySourceInfoRefresh(Object manifest, int processedInitialSeekCount) {
     eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED,
         new SourceInfo(timeline, manifest, playbackInfo, processedInitialSeekCount)).sendToTarget();
@@ -980,6 +1002,8 @@ import java.io.IOException;
    *
    * @param seekPosition The position to resolve.
    * @return The resolved position, or null if resolution was not successful.
+   * @throws IllegalSeekPositionException If the window index of the seek position is outside the
+   *     bounds of the timeline.
    */
   private Pair<Integer, Long> resolveSeekPosition(SeekPosition seekPosition) {
     Timeline seekTimeline = seekPosition.timeline;
@@ -989,8 +1013,15 @@ import java.io.IOException;
       seekTimeline = timeline;
     }
     // Map the SeekPosition to a position in the corresponding timeline.
-    Pair<Integer, Long> periodPosition = getPeriodPosition(seekTimeline, seekPosition.windowIndex,
-        seekPosition.windowPositionUs);
+    Pair<Integer, Long> periodPosition;
+    try {
+      periodPosition = getPeriodPosition(seekTimeline, seekPosition.windowIndex,
+          seekPosition.windowPositionUs);
+    } catch (IndexOutOfBoundsException e) {
+      // The window index of the seek position was outside the bounds of the timeline.
+      throw new IllegalSeekPositionException(timeline, seekPosition.windowIndex,
+          seekPosition.windowPositionUs);
+    }
     if (timeline == seekTimeline) {
       // Our internal timeline is the seek timeline, so the mapped position is correct.
       return periodPosition;
@@ -1096,9 +1127,12 @@ import java.io.IOException;
     }
 
     if (readingPeriodHolder.isLast) {
-      // The renderers have their final SampleStreams.
       for (Renderer renderer : enabledRenderers) {
-        renderer.setCurrentStreamIsFinal();
+        // Defer setting the stream as final until the renderer has actually consumed the whole
+        // stream in case of playlist changes that cause the stream to be no longer final.
+        if (renderer.hasReadStreamToEnd()) {
+          renderer.setCurrentStreamFinal();
+        }
       }
       return;
     }
@@ -1108,6 +1142,7 @@ import java.io.IOException;
         return;
       }
     }
+
     if (readingPeriodHolder.next != null && readingPeriodHolder.next.prepared) {
       TrackSelectionArray oldTrackSelections = readingPeriodHolder.trackSelections;
       readingPeriodHolder = readingPeriodHolder.next;
@@ -1117,7 +1152,8 @@ import java.io.IOException;
         TrackSelection oldSelection = oldTrackSelections.get(i);
         TrackSelection newSelection = newTrackSelections.get(i);
         if (oldSelection != null) {
-          if (newSelection != null) {
+          boolean isCurrentStreamFinal = renderer.isCurrentStreamFinal();
+          if (newSelection != null && !isCurrentStreamFinal) {
             // Replace the renderer's SampleStream so the transition to playing the next period can
             // be seamless.
             Format[] formats = new Format[newSelection.length()];
@@ -1126,10 +1162,10 @@ import java.io.IOException;
             }
             renderer.replaceStream(formats, readingPeriodHolder.sampleStreams[i],
                 readingPeriodHolder.getRendererOffset());
-          } else {
+          } else if (!isCurrentStreamFinal) {
             // The renderer will be disabled when transitioning to playing the next period. Mark the
             // SampleStream as final to play out any remaining data.
-            renderer.setCurrentStreamIsFinal();
+            renderer.setCurrentStreamFinal();
           }
         }
       }
@@ -1266,10 +1302,12 @@ import java.io.IOException;
       rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
       TrackSelection newSelection = periodHolder.trackSelections.get(i);
       if (newSelection != null) {
-        // The renderer should be enabled when playing the new period.
         enabledRendererCount++;
-      } else if (rendererWasEnabledFlags[i]) {
-        // The renderer should be disabled when playing the new period.
+      }
+      if (rendererWasEnabledFlags[i] && (newSelection == null || renderer.isCurrentStreamFinal())) {
+        // The renderer should be disabled before playing the next period, either because it's not
+        // needed to play the next period, or because we need to disable and re-enable it because
+        // the renderer thinks that its current stream is final.
         if (renderer == rendererMediaClockSource) {
           // Sync standaloneMediaClock so that it can take over timing responsibilities.
           standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
