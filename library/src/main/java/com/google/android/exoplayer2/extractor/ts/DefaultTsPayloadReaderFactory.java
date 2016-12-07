@@ -31,13 +31,14 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_ALLOW_NON_IDR_KEYFRAMES, FLAG_IGNORE_AAC_STREAM,
-      FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS})
+      FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS, FLAG_IGNORE_SPLICE_INFO_STREAM})
   public @interface Flags {
   }
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int FLAG_IGNORE_AAC_STREAM = 2;
   public static final int FLAG_IGNORE_H264_STREAM = 4;
   public static final int FLAG_DETECT_ACCESS_UNITS = 8;
+  public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 16;
 
   @Flags
   private final int flags;
@@ -62,8 +63,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_MPA_LSF:
         return new PesReader(new MpegAudioReader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_AAC:
-        return (flags & FLAG_IGNORE_AAC_STREAM) != 0 ? null
-            : new PesReader(new AdtsReader(false, esInfo.language));
+        return isSet(FLAG_IGNORE_AAC_STREAM)
+            ? null : new PesReader(new AdtsReader(false, esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_AC3:
       case TsExtractor.TS_STREAM_TYPE_E_AC3:
         return new PesReader(new Ac3Reader(esInfo.language));
@@ -73,18 +74,22 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_H262:
         return new PesReader(new H262Reader());
       case TsExtractor.TS_STREAM_TYPE_H264:
-        return (flags & FLAG_IGNORE_H264_STREAM) != 0 ? null
-            : new PesReader(new H264Reader((flags & FLAG_ALLOW_NON_IDR_KEYFRAMES) != 0,
-                (flags & FLAG_DETECT_ACCESS_UNITS) != 0));
+        return isSet(FLAG_IGNORE_H264_STREAM) ? null : new PesReader(
+            new H264Reader(isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES), isSet(FLAG_DETECT_ACCESS_UNITS)));
       case TsExtractor.TS_STREAM_TYPE_H265:
         return new PesReader(new H265Reader());
       case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:
-        return new SectionReader(new SpliceInfoSectionReader());
+        return isSet(FLAG_IGNORE_SPLICE_INFO_STREAM)
+            ? null : new SectionReader(new SpliceInfoSectionReader());
       case TsExtractor.TS_STREAM_TYPE_ID3:
         return new PesReader(new Id3Reader());
       default:
         return null;
     }
+  }
+
+  private boolean isSet(@Flags int flag) {
+    return (flags & flag) != 0;
   }
 
 }
