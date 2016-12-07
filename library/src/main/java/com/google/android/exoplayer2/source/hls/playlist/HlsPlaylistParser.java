@@ -67,6 +67,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_BANDWIDTH = Pattern.compile("BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
+  private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
+      + ":(\\d+)\\b");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
       + ":(\\d+)\\b");
@@ -207,6 +209,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       throws IOException {
     int mediaSequence = 0;
     int version = 1; // Default version == 1.
+    long targetDurationUs = C.TIME_UNSET;
     boolean hasEndTag = false;
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
@@ -239,6 +242,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         initializationSegment = new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength);
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
+      } else if (line.startsWith(TAG_TARGET_DURATION)) {
+        targetDurationUs = parseIntAttr(line, REGEX_TARGET_DURATION) * C.MICROS_PER_SECOND;
       } else if (line.startsWith(TAG_MEDIA_SEQUENCE)) {
         mediaSequence = parseIntAttr(line, REGEX_MEDIA_SEQUENCE);
         segmentMediaSequence = mediaSequence;
@@ -300,8 +305,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasEndTag = true;
       }
     }
-    return new HlsMediaPlaylist(baseUri, playlistStartTimeUs, mediaSequence, version, hasEndTag,
-        playlistStartTimeUs != 0, initializationSegment, segments);
+    return new HlsMediaPlaylist(baseUri, playlistStartTimeUs, mediaSequence, version,
+        targetDurationUs, hasEndTag, playlistStartTimeUs != 0, initializationSegment, segments);
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {

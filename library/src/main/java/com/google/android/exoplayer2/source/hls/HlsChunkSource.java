@@ -278,9 +278,10 @@ import java.util.Locale;
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), startTimeUs,
-        startTimeUs + segment.durationUs, chunkMediaSequence, segment.discontinuitySequenceNumber,
-        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
+        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence,
+        segment.discontinuitySequenceNumber, isTimestampMaster, timestampAdjuster, previous,
+        encryptionKey, encryptionIv);
   }
 
   /**
@@ -317,19 +318,19 @@ import java.util.Locale;
   }
 
   /**
-   * Called when an error is encountered while loading a playlist.
+   * Called when a playlist is blacklisted.
    *
-   * @param url The url that references the playlist whose load encountered the error.
-   * @param error The error.
+   * @param url The url that references the blacklisted playlist.
+   * @param blacklistMs The amount of milliseconds for which the playlist was blacklisted.
    */
-  public void onPlaylistLoadError(HlsUrl url, IOException error) {
+  public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
     int trackGroupIndex = trackGroup.indexOf(url.format);
-    if (trackGroupIndex == C.INDEX_UNSET) {
-      // The url is not handled by this chunk source.
-      return;
+    if (trackGroupIndex != C.INDEX_UNSET) {
+      int trackSelectionIndex = trackSelection.indexOf(trackGroupIndex);
+      if (trackSelectionIndex != C.INDEX_UNSET) {
+        trackSelection.blacklist(trackSelectionIndex, blacklistMs);
+      }
     }
-    ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
-        trackSelection.indexOf(trackGroupIndex), error);
   }
 
   // Private methods.

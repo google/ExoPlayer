@@ -68,19 +68,21 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final long startTimeUs;
   public final int mediaSequence;
   public final int version;
-  public final Segment initializationSegment;
-  public final List<Segment> segments;
+  public final long targetDurationUs;
   public final boolean hasEndTag;
   public final boolean hasProgramDateTime;
+  public final Segment initializationSegment;
+  public final List<Segment> segments;
   public final long durationUs;
 
-  public HlsMediaPlaylist(String baseUri, long startTimeUs, int mediaSequence, int version,
-      boolean hasEndTag, boolean hasProgramDateTime, Segment initializationSegment,
-      List<Segment> segments) {
+  public HlsMediaPlaylist(String baseUri, long startTimeUs, int mediaSequence,
+      int version, long targetDurationUs, boolean hasEndTag, boolean hasProgramDateTime,
+      Segment initializationSegment, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.startTimeUs = startTimeUs;
     this.mediaSequence = mediaSequence;
     this.version = version;
+    this.targetDurationUs = targetDurationUs;
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.initializationSegment = initializationSegment;
@@ -105,8 +107,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   public HlsMediaPlaylist copyWithStartTimeUs(long startTimeUs) {
-    return new HlsMediaPlaylist(baseUri, startTimeUs, mediaSequence, version, hasEndTag,
-        hasProgramDateTime, initializationSegment, segments);
+    return new HlsMediaPlaylist(baseUri, startTimeUs, mediaSequence, version, targetDurationUs,
+        hasEndTag, hasProgramDateTime, initializationSegment, segments);
   }
 
 }

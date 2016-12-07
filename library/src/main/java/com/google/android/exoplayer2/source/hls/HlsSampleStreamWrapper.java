@@ -279,8 +279,8 @@ import java.util.LinkedList;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public void onPlaylistLoadError(HlsUrl url, IOException error) {
-    chunkSource.onPlaylistLoadError(url, error);
+  public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
+    chunkSource.onPlaylistBlacklisted(url, blacklistMs);
   }
 
   // SampleStream implementation.
