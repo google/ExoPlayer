@@ -126,7 +126,7 @@ public final class FlvExtractor implements Extractor, SeekMap {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     parserState = STATE_READING_FLV_HEADER;
     bytesToNextTagHeader = 0;
   }

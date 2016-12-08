@@ -105,7 +105,7 @@ public final class RawCcExtractor implements Extractor {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     parserState = STATE_READING_HEADER;
   }
 

@@ -123,7 +123,7 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     synchronizedHeaderData = 0;
     basisTimeUs = C.TIME_UNSET;
     samplesRead = 0;

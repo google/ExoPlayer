@@ -66,28 +66,23 @@ public class TestUtil {
     }
   }
 
-  public static FakeExtractorOutput consumeTestData(Extractor extractor, byte[] data)
-      throws IOException, InterruptedException {
-    return consumeTestData(extractor, newExtractorInput(data));
-  }
-
-  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input)
-      throws IOException, InterruptedException {
-    return consumeTestData(extractor, input, false);
+  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
+      long timeUs) throws IOException, InterruptedException {
+    return consumeTestData(extractor, input, timeUs, false);
   }
 
   public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
-      boolean retryFromStartIfLive) throws IOException, InterruptedException {
+      long timeUs, boolean retryFromStartIfLive) throws IOException, InterruptedException {
     FakeExtractorOutput output = new FakeExtractorOutput();
     extractor.init(output);
-    consumeTestData(extractor, input, output, retryFromStartIfLive);
+    consumeTestData(extractor, input, timeUs, output, retryFromStartIfLive);
     return output;
   }
 
-  private static void consumeTestData(Extractor extractor, FakeExtractorInput input,
+  private static void consumeTestData(Extractor extractor, FakeExtractorInput input, long timeUs,
       FakeExtractorOutput output, boolean retryFromStartIfLive)
       throws IOException, InterruptedException {
-    extractor.seek(input.getPosition());
+    extractor.seek(input.getPosition(), timeUs);
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
@@ -114,7 +109,7 @@ public class TestUtil {
         for (int i = 0; i < output.numberOfTracks; i++) {
           output.trackOutputs.valueAt(i).clear();
         }
-        extractor.seek(0);
+        extractor.seek(0, 0);
       }
     }
   }
@@ -277,7 +272,7 @@ public class TestUtil {
 
     Assert.assertTrue(sniffTestData(extractor, input));
     input.resetPeekPosition();
-    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, true);
+    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
 
     if (simulateUnknownLength
         && assetExists(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION)) {
@@ -297,7 +292,7 @@ public class TestUtil {
           extractorOutput.trackOutputs.valueAt(i).clear();
         }
 
-        consumeTestData(extractor, input, extractorOutput, false);
+        consumeTestData(extractor, input, timeUs, extractorOutput, false);
         extractorOutput.assertOutput(instrumentation, sampleFile + '.' + j + DUMP_EXTENSION);
       }
     }

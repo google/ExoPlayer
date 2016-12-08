@@ -453,7 +453,7 @@ import java.io.IOException;
         pendingResetPositionUs = C.TIME_UNSET;
         return;
       }
-      loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs));
+      loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs), pendingResetPositionUs);
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
@@ -486,7 +486,7 @@ import java.io.IOException;
       for (int i = 0; i < trackCount; i++) {
         sampleQueues.valueAt(i).reset(!prepared || trackEnabledStates[i]);
       }
-      loadable.setLoadPosition(0);
+      loadable.setLoadPosition(0, 0);
     }
   }
 
@@ -578,6 +578,7 @@ import java.io.IOException;
     private volatile boolean loadCanceled;
 
     private boolean pendingExtractorSeek;
+    private long seekTimeUs;
     private long length;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
@@ -591,8 +592,9 @@ import java.io.IOException;
       this.length = C.LENGTH_UNSET;
     }
 
-    public void setLoadPosition(long position) {
+    public void setLoadPosition(long position, long timeUs) {
       positionHolder.position = position;
+      seekTimeUs = timeUs;
       pendingExtractorSeek = true;
     }
 
@@ -620,7 +622,7 @@ import java.io.IOException;
           input = new DefaultExtractorInput(dataSource, position, length);
           Extractor extractor = extractorHolder.selectExtractor(input);
           if (pendingExtractorSeek) {
-            extractor.seek(position);
+            extractor.seek(position, seekTimeUs);
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {

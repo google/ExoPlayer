@@ -149,7 +149,7 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     timestampAdjuster.reset();
     tsPacketBuffer.reset();
     continuityCounters.clear();

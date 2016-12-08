@@ -155,7 +155,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     if (position == 0) {
       metadataParsed = false;
     }
