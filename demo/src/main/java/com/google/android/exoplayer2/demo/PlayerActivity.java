@@ -469,10 +469,12 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     updateButtonVisibilities();
     MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
     if (mappedTrackInfo != null) {
-      if (mappedTrackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_VIDEO)) {
+      if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_VIDEO)
+          == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
         showToast(R.string.error_unsupported_video);
       }
-      if (mappedTrackInfo.hasOnlyUnplayableTracks(C.TRACK_TYPE_AUDIO)) {
+      if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_AUDIO)
+          == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
         showToast(R.string.error_unsupported_audio);
       }
     }

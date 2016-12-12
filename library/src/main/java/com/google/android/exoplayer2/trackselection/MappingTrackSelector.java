@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -138,8 +139,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * @param groups The {@link TrackGroupArray} for which the override should be applied.
    * @param override The override.
    */
-  // TODO - Don't allow overrides that select unsupported tracks, unless some flag has been
-  // explicitly set by the user to indicate that they want this.
   public final void setSelectionOverride(int rendererIndex, TrackGroupArray groups,
       SelectionOverride override) {
     Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
@@ -411,13 +410,18 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     public static final int RENDERER_SUPPORT_NO_TRACKS = 0;
     /**
-     * The renderer has associated tracks, but cannot play any of them.
+     * The renderer has associated tracks, but all are of unsupported types.
      */
-    public static final int RENDERER_SUPPORT_UNPLAYABLE_TRACKS = 1;
+    public static final int RENDERER_SUPPORT_UNSUPPORTED_TRACKS = 1;
     /**
-     * The renderer has associated tracks, and can play at least one of them.
+     * The renderer has associated tracks and at least one is of a supported type, but all of the
+     * tracks whose types are supported exceed the renderer's capabilities.
      */
-    public static final int RENDERER_SUPPORT_PLAYABLE_TRACKS = 2;
+    public static final int RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS = 2;
+    /**
+     * The renderer has associated tracks and can play at least one of them.
+     */
+    public static final int RENDERER_SUPPORT_PLAYABLE_TRACKS = 3;
 
     /**
      * The number of renderers to which tracks are mapped.
@@ -465,21 +469,49 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *
      * @param rendererIndex The renderer index.
      * @return One of {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS},
-     *     {@link #RENDERER_SUPPORT_UNPLAYABLE_TRACKS} and {@link #RENDERER_SUPPORT_NO_TRACKS}.
+     *     {@link #RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS},
+     *     {@link #RENDERER_SUPPORT_UNSUPPORTED_TRACKS} and {@link #RENDERER_SUPPORT_NO_TRACKS}.
      */
     public int getRendererSupport(int rendererIndex) {
-      boolean hasTracks = false;
+      int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       int[][] rendererFormatSupport = formatSupport[rendererIndex];
       for (int i = 0; i < rendererFormatSupport.length; i++) {
         for (int j = 0; j < rendererFormatSupport[i].length; j++) {
-          hasTracks = true;
-          if ((rendererFormatSupport[i][j] & RendererCapabilities.FORMAT_SUPPORT_MASK)
-              == RendererCapabilities.FORMAT_HANDLED) {
-            return RENDERER_SUPPORT_PLAYABLE_TRACKS;
+          int trackRendererSupport;
+          switch (rendererFormatSupport[i][j] & RendererCapabilities.FORMAT_SUPPORT_MASK) {
+            case RendererCapabilities.FORMAT_HANDLED:
+              return RENDERER_SUPPORT_PLAYABLE_TRACKS;
+            case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:
+              trackRendererSupport = RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS;
+              break;
+            default:
+              trackRendererSupport = RENDERER_SUPPORT_UNSUPPORTED_TRACKS;
+              break;
           }
+          bestRendererSupport = Math.max(bestRendererSupport, trackRendererSupport);
         }
       }
-      return hasTracks ? RENDERER_SUPPORT_UNPLAYABLE_TRACKS : RENDERER_SUPPORT_NO_TRACKS;
+      return bestRendererSupport;
+    }
+
+    /**
+     * Returns the best level of support obtained from {@link #getRendererSupport(int)} for all
+     * renderers of the specified track type. If no renderers exist for the specified type then
+     * {@link #RENDERER_SUPPORT_NO_TRACKS} is returned.
+     *
+     * @param trackType The track type. One of the {@link C} {@code TRACK_TYPE_*} constants.
+     * @return One of {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS},
+     *     {@link #RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS},
+     *     {@link #RENDERER_SUPPORT_UNSUPPORTED_TRACKS} and {@link #RENDERER_SUPPORT_NO_TRACKS}.
+     */
+    public int getTrackTypeRendererSupport(int trackType) {
+      int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
+      for (int i = 0; i < length; i++) {
+        if (rendererTrackTypes[i] == trackType) {
+          bestRendererSupport = Math.max(bestRendererSupport, getRendererSupport(i));
+        }
+      }
+      return bestRendererSupport;
     }
 
     /**
@@ -574,25 +606,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     public TrackGroupArray getUnassociatedTrackGroups() {
       return unassociatedTrackGroups;
-    }
-
-    /**
-     * Returns true if tracks of the specified type exist and have been associated with renderers,
-     * but are all unplayable. Returns false in all other cases.
-     *
-     * @param trackType The track type.
-     * @return True if tracks of the specified type exist, if at least one renderer exists that
-     *     handles tracks of the specified type, and if all of the tracks if the specified type are
-     *     unplayable. False in all other cases.
-     */
-    public boolean hasOnlyUnplayableTracks(int trackType) {
-      int rendererSupport = RENDERER_SUPPORT_NO_TRACKS;
-      for (int i = 0; i < length; i++) {
-        if (rendererTrackTypes[i] == trackType) {
-          rendererSupport = Math.max(rendererSupport, getRendererSupport(i));
-        }
-      }
-      return rendererSupport == RENDERER_SUPPORT_UNPLAYABLE_TRACKS;
     }
 
   }

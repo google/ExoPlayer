@@ -69,12 +69,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *   <li>Non seamless adaptation is allowed.</li>
      *   <li>No max limit for video width/height.</li>
      *   <li>Video constraints are exceeded if no supported selection can be made otherwise.</li>
-     *   <li>Renderer capabilities are not exceeded even if no supported selection can be made.</li>
+     *   <li>Renderer capabilities are exceeded if no supported selection can be made.</li>
      *   <li>No viewport width/height constraints are set.</li>
      * </ul>
      */
     public Parameters() {
-      this(null, null, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE, true, false,
+      this(null, null, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE, true, true,
           Integer.MAX_VALUE, Integer.MAX_VALUE, true);
     }
 
