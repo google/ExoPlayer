@@ -78,7 +78,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
-  private final boolean mapByType;
+  private final boolean hlsMode;
   private final TimestampAdjuster timestampAdjuster;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
@@ -106,14 +106,14 @@ public final class TsExtractor implements Extractor {
   /**
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
-   * @param mapByType True if {@link TrackOutput}s should be mapped by their type, false to map them
-   *     by their PID.
+   * @param hlsMode Whether the extractor should be used in HLS mode. If true, {@link TrackOutput}s
+   *     are mapped by their type (instead of PID) and continuity counters are ignored.
    */
   public TsExtractor(TimestampAdjuster timestampAdjuster,
-      TsPayloadReader.Factory payloadReaderFactory, boolean mapByType) {
+      TsPayloadReader.Factory payloadReaderFactory, boolean hlsMode) {
     this.timestampAdjuster = timestampAdjuster;
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
-    this.mapByType = mapByType;
+    this.hlsMode = hlsMode;
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     trackIds = new SparseBooleanArray();
@@ -211,18 +211,22 @@ public final class TsExtractor implements Extractor {
     tsScratch.skipBits(2); // transport_scrambling_control
     boolean adaptationFieldExists = tsScratch.readBit();
     boolean payloadExists = tsScratch.readBit();
+
+    // Discontinuity check.
     boolean discontinuityFound = false;
     int continuityCounter = tsScratch.readBits(4);
-    int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
-    continuityCounters.put(pid, continuityCounter);
-    if (previousCounter == continuityCounter) {
-      if (payloadExists) {
-        // Duplicate packet found.
-        tsPacketBuffer.setPosition(endOfPacket);
-        return RESULT_CONTINUE;
+    if (!hlsMode) {
+      int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
+      continuityCounters.put(pid, continuityCounter);
+      if (previousCounter == continuityCounter) {
+        if (payloadExists) {
+          // Duplicate packet found.
+          tsPacketBuffer.setPosition(endOfPacket);
+          return RESULT_CONTINUE;
+        }
+      } else if (continuityCounter != (previousCounter + 1) % 16) {
+        discontinuityFound = true;
       }
-    } else if (continuityCounter != (previousCounter + 1) % 16) {
-      discontinuityFound = true;
     }
 
     // Skip the adaptation field.
@@ -354,7 +358,7 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if (mapByType && id3Reader == null) {
+      if (hlsMode && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
         EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, new byte[0]);
@@ -377,14 +381,14 @@ public final class TsExtractor implements Extractor {
         }
         remainingEntriesLength -= esInfoLength + 5;
 
-        int trackId = mapByType ? streamType : elementaryPid;
+        int trackId = hlsMode ? streamType : elementaryPid;
         if (trackIds.get(trackId)) {
           continue;
         }
         trackIds.put(trackId, true);
 
         TsPayloadReader reader;
-        if (mapByType && streamType == TS_STREAM_TYPE_ID3) {
+        if (hlsMode && streamType == TS_STREAM_TYPE_ID3) {
           reader = id3Reader;
         } else {
           reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
@@ -397,7 +401,7 @@ public final class TsExtractor implements Extractor {
           tsPayloadReaders.put(elementaryPid, reader);
         }
       }
-      if (mapByType) {
+      if (hlsMode) {
         if (!tracksEnded) {
           output.endTracks();
         }
