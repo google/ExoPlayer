@@ -125,7 +125,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         timeline = Timeline.EMPTY;
         manifest = null;
         for (EventListener listener : listeners) {
-          listener.onTimelineChanged(null, null);
+          listener.onTimelineChanged(timeline, manifest);
         }
       }
       if (tracksSelected) {

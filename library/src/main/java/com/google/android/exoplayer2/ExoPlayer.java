@@ -120,8 +120,8 @@ public interface ExoPlayer {
      * removed from the timeline. The will <em>not</em> be reported via a separate call to
      * {@link #onPositionDiscontinuity()}.
      *
-     * @param timeline The latest timeline, or null if the timeline is being cleared.
-     * @param manifest The latest manifest, or null if the manifest is being cleared.
+     * @param timeline The latest timeline. Never null, but may be empty.
+     * @param manifest The latest manifest. May be null.
      */
     void onTimelineChanged(Timeline timeline, Object manifest);
 
