@@ -190,7 +190,7 @@ import java.util.Locale;
     // Use start time of the previous chunk rather than its end time because switching format will
     // require downloading overlapping segments.
     long bufferedDurationUs = previous == null ? 0
-        : Math.max(0, previous.getAdjustedStartTimeUs() - playbackPositionUs);
+        : Math.max(0, previous.startTimeUs - playbackPositionUs);
 
     // Select the variant.
     trackSelection.updateSelectedTrack(bufferedDurationUs);
@@ -291,11 +291,7 @@ import java.util.Locale;
    * @param chunk The chunk whose load has been completed.
    */
   public void onChunkLoadCompleted(Chunk chunk) {
-    if (chunk instanceof HlsMediaChunk) {
-      HlsMediaChunk mediaChunk = (HlsMediaChunk) chunk;
-      playlistTracker.onChunkLoaded(mediaChunk.hlsUrl, mediaChunk.chunkIndex,
-          mediaChunk.getAdjustedStartTimeUs());
-    } else if (chunk instanceof EncryptionKeyChunk) {
+    if (chunk instanceof EncryptionKeyChunk) {
       EncryptionKeyChunk encryptionKeyChunk = (EncryptionKeyChunk) chunk;
       scratchSpace = encryptionKeyChunk.getDataHolder();
       setEncryptionData(encryptionKeyChunk.dataSpec.uri, encryptionKeyChunk.iv,

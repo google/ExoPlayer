@@ -75,12 +75,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   /**
-   * The minimum number of milliseconds by which a media playlist segment's start time has to drift
-   * from the actual start time of the chunk it refers to for it to be adjusted.
-   */
-  private static final long TIMESTAMP_ADJUSTMENT_THRESHOLD_US = 500000;
-
-  /**
    * The minimum number of milliseconds that a url is kept as primary url, if no
    * {@link #getPlaylistSnapshot} call is made for that url.
    */
@@ -172,6 +166,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    *     be null if no snapshot has been loaded yet.
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
+    maybeSetPrimaryUrl(url);
     return playlistBundles.get(url).getPlaylistSnapshot();
   }
 
@@ -216,18 +211,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public boolean isLive() {
     return isLive;
-  }
-
-  /**
-   * Called when a chunk from a media playlist is loaded.
-   *
-   * @param hlsUrl The url of the playlist from which the chunk was obtained.
-   * @param chunkMediaSequence The media sequence number of the loaded chunk.
-   * @param adjustedStartTimeUs The adjusted start time of the loaded chunk.
-   */
-  public void onChunkLoaded(HlsUrl hlsUrl, int chunkMediaSequence, long adjustedStartTimeUs) {
-    playlistBundles.get(hlsUrl).adjustTimestampsOfPlaylist(chunkMediaSequence, adjustedStartTimeUs);
-    maybeSetPrimaryUrl(hlsUrl);
   }
 
   // Loader.Callback implementation.
@@ -295,8 +278,10 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   private void maybeSetPrimaryUrl(HlsUrl url) {
-    if (!masterPlaylist.variants.contains(url)) {
-      // Only allow variant urls to be chosen as primary.
+    if (!masterPlaylist.variants.contains(url)
+        || (primaryUrlSnapshot != null && primaryUrlSnapshot.hasEndTag)) {
+      // Only allow variant urls to be chosen as primary. Also prevent changing the primary url if
+      // the last primary snapshot contains an end tag.
       return;
     }
     MediaPlaylistBundle currentPrimaryBundle = playlistBundles.get(primaryHlsUrl);
@@ -427,22 +412,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       if (!mediaPlaylistLoader.isLoading()) {
         mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
       }
-    }
-
-    public void adjustTimestampsOfPlaylist(int chunkMediaSequence, long adjustedChunkStartTimeUs) {
-      int indexOfChunk = chunkMediaSequence - playlistSnapshot.mediaSequence;
-      if (playlistSnapshot.hasProgramDateTime || indexOfChunk < 0) {
-        return;
-      }
-      Segment actualSegment = playlistSnapshot.segments.get(indexOfChunk);
-      long segmentAbsoluteStartTimeUs =
-          actualSegment.relativeStartTimeUs + playlistSnapshot.startTimeUs;
-      long timestampDriftUs = Math.abs(segmentAbsoluteStartTimeUs - adjustedChunkStartTimeUs);
-      if (timestampDriftUs < TIMESTAMP_ADJUSTMENT_THRESHOLD_US) {
-        return;
-      }
-      playlistSnapshot = playlistSnapshot.copyWithStartTimeUs(
-          adjustedChunkStartTimeUs - actualSegment.relativeStartTimeUs);
     }
 
     // Loader.Callback implementation.

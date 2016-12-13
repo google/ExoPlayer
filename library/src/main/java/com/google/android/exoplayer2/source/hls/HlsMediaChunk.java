@@ -91,7 +91,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private int bytesLoaded;
   private boolean initLoadCompleted;
   private HlsSampleStreamWrapper extractorOutput;
-  private long adjustedEndTimeUs;
   private volatile boolean loadCanceled;
   private volatile boolean loadCompleted;
 
@@ -141,7 +140,6 @@ import java.util.concurrent.atomic.AtomicInteger;
       id3Data = null;
     }
     initDataSource = dataSource;
-    adjustedEndTimeUs = endTimeUs;
     uid = UID_SOURCE.getAndIncrement();
   }
 
@@ -154,20 +152,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void init(HlsSampleStreamWrapper output) {
     extractorOutput = output;
     output.init(uid, previousChunk != null && previousChunk.hlsUrl != hlsUrl);
-  }
-
-  /**
-   * Returns the presentation time in microseconds of the first sample in the chunk.
-   */
-  public long getAdjustedStartTimeUs() {
-    return adjustedEndTimeUs - getDurationUs();
-  }
-
-  /**
-   * Returns the presentation time in microseconds of the last sample in the chunk.
-   */
-  public long getAdjustedEndTimeUs() {
-    return adjustedEndTimeUs;
   }
 
   @Override
@@ -264,10 +248,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractor.read(input, null);
-        }
-        long adjustedEndTimeUs = extractorOutput.getLargestQueuedTimestampUs();
-        if (adjustedEndTimeUs != Long.MIN_VALUE) {
-          this.adjustedEndTimeUs = adjustedEndTimeUs;
         }
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
