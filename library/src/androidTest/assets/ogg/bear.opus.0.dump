@@ -22,7 +22,7 @@ track 0:
     encoderPadding = -1
     subsampleOffsetUs = 9223372036854775807
     selectionFlags = 0
-    language = und
+    language = null
     drmInitData = -
     initializationData:
       data = length 19, hash BFE794DB

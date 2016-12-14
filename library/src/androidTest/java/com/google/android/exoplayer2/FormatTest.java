@@ -24,6 +24,8 @@ import android.annotation.TargetApi;
 import android.media.MediaFormat;
 import android.os.Parcel;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -56,11 +58,14 @@ public final class FormatTest extends TestCase {
         TestUtil.buildTestData(128, 1 /* data seed */));
     DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
     byte[] projectionData = new byte[] {1, 2, 3};
+    Metadata metadata = new Metadata(
+        new TextInformationFrame("id1", "description1"),
+        new TextInformationFrame("id2", "description2"));
 
     Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null,
         1024, 2048, 1920, 1080, 24, 90, 2, projectionData, C.STEREO_MODE_TOP_BOTTOM, 6, 44100,
-        C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und", Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA,
-        drmInitData);
+        C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und", Format.NO_VALUE, Format.OFFSET_SAMPLE_RELATIVE,
+        INIT_DATA, drmInitData, metadata);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);

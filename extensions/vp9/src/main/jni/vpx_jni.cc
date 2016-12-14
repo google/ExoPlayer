@@ -59,6 +59,7 @@ static jmethodID initForRgbFrame;
 static jmethodID initForYuvFrame;
 static jfieldID dataField;
 static jfieldID outputModeField;
+static int errorCode;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv* env;
@@ -72,6 +73,7 @@ DECODER_FUNC(jlong, vpxInit) {
   vpx_codec_ctx_t* context = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
+  errorCode = 0;
   if (vpx_codec_dec_init(context, &vpx_codec_vp9_dx_algo, &cfg, 0)) {
     LOGE("ERROR: Fail to initialize libvpx decoder.");
     return 0;
@@ -81,9 +83,9 @@ DECODER_FUNC(jlong, vpxInit) {
   const jclass outputBufferClass = env->FindClass(
       "com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
-                                     "(IIIII)V");
+                                     "(IIIII)Z");
   initForRgbFrame = env->GetMethodID(outputBufferClass, "initForRgbFrame",
-                                     "(II)V");
+                                     "(II)Z");
   dataField = env->GetFieldID(outputBufferClass, "data",
                               "Ljava/nio/ByteBuffer;");
   outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
@@ -97,11 +99,24 @@ DECODER_FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {
       reinterpret_cast<const uint8_t*>(env->GetDirectBufferAddress(encoded));
   const vpx_codec_err_t status =
       vpx_codec_decode(context, buffer, len, NULL, 0);
+  errorCode = 0;
   if (status != VPX_CODEC_OK) {
     LOGE("ERROR: vpx_codec_decode() failed, status= %d", status);
+    errorCode = status;
     return -1;
   }
   return 0;
+}
+
+DECODER_FUNC(jlong, vpxSecureDecode, jlong jContext, jobject encoded, jint len,
+    jobject mediaCrypto, jint inputMode, jbyteArray&, jbyteArray&,
+    jint inputNumSubSamples, jintArray numBytesOfClearData,
+    jintArray numBytesOfEncryptedData) {
+  // Doesn't support
+  // Java client should have checked vpxSupportSecureDecode
+  // and avoid calling this
+  // return -2 (DRM Error)
+  return -2;
 }
 
 DECODER_FUNC(jlong, vpxClose, jlong jContext) {
@@ -126,7 +141,11 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
   if (outputMode == kOutputModeRgb) {
     // resize buffer if required.
-    env->CallVoidMethod(jOutputBuffer, initForRgbFrame, img->d_w, img->d_h);
+    jboolean initResult = env->CallBooleanMethod(jOutputBuffer, initForRgbFrame,
+                                                 img->d_w, img->d_h);
+    if (initResult == JNI_FALSE) {
+      return -1;
+    }
 
     // get pointer to the data buffer.
     const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);
@@ -155,9 +174,12 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     }
 
     // resize buffer if required.
-    env->CallVoidMethod(jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
-                        img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U],
-                        colorspace);
+    jboolean initResult = env->CallBooleanMethod(
+        jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
+        img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U], colorspace);
+    if (initResult == JNI_FALSE) {
+      return -1;
+    }
 
     // get pointer to the data buffer.
     const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);
@@ -179,6 +201,15 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
 DECODER_FUNC(jstring, vpxGetErrorMessage, jlong jContext) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   return env->NewStringUTF(vpx_codec_error(context));
+}
+
+DECODER_FUNC(jint, vpxGetErrorCode, jlong jContext) {
+  return errorCode;
+}
+
+LIBRARY_FUNC(jstring, vpxIsSecureDecodeSupported) {
+  // Doesn't support
+  return 0;
 }
 
 LIBRARY_FUNC(jstring, vpxGetVersion) {

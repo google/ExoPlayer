@@ -42,10 +42,11 @@ android {
 dependencies {
     compile project(':library')
     compile files('libs/cronet_api.jar')
-    compile files('libs/cronet.jar')
+    compile files('libs/cronet_impl_common_java.jar')
+    compile files('libs/cronet_impl_native_java.jar')
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
     androidTestCompile project(':library')
-    androidTestCompile 'com.android.support.test:runner:0.4'
+    androidTestCompile 'com.android.support.test:runner:0.5'
 }

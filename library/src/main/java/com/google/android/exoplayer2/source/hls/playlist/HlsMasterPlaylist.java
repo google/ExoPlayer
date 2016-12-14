@@ -73,4 +73,10 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     this.muxedCaptionFormat = muxedCaptionFormat;
   }
 
+  public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUri) {
+    List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUri));
+    List<HlsUrl> emptyList = Collections.emptyList();
+    return new HlsMasterPlaylist(null, variant, emptyList, emptyList, null, null);
+  }
+
 }

@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TimestampAdjuster;
-import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.TrackIdGenerator;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -127,7 +127,7 @@ public final class PsExtractor implements Extractor {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     timestampAdjuster.reset();
     for (int i = 0; i < psPayloadReaders.size(); i++) {
       psPayloadReaders.valueAt(i).seek();
@@ -202,7 +202,7 @@ public final class PsExtractor implements Extractor {
         }
         if (elementaryStreamReader != null) {
           TrackIdGenerator idGenerator = new TrackIdGenerator(streamId, MAX_STREAM_ID_PLUS_ONE);
-          elementaryStreamReader.init(output, idGenerator);
+          elementaryStreamReader.createTracks(output, idGenerator);
           payloadReader = new PesReader(elementaryStreamReader, timestampAdjuster);
           psPayloadReaders.put(streamId, payloadReader);
         }
@@ -253,8 +253,7 @@ public final class PsExtractor implements Extractor {
     private int extendedHeaderLength;
     private long timeUs;
 
-    public PesReader(ElementaryStreamReader pesPayloadReader,
-        TimestampAdjuster timestampAdjuster) {
+    public PesReader(ElementaryStreamReader pesPayloadReader, TimestampAdjuster timestampAdjuster) {
       this.pesPayloadReader = pesPayloadReader;
       this.timestampAdjuster = timestampAdjuster;
       pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);

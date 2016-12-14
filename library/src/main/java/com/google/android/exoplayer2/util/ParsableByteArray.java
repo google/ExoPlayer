@@ -300,9 +300,9 @@ public final class ParsableByteArray {
    */
   public int readLittleEndianInt() {
     return (data[position++] & 0xFF)
-        | (data[position++]  & 0xFF) << 8
-        | (data[position++]  & 0xFF) << 16
-        | (data[position++]  & 0xFF) << 24;
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 24;
   }
 
   /**
@@ -421,6 +421,27 @@ public final class ParsableByteArray {
    */
   public String readString(int length) {
     return readString(length, Charset.defaultCharset());
+  }
+
+  /**
+   * Reads the next {@code length} bytes as UTF-8 characters. A terminating NUL byte is ignored,
+   * if present.
+   *
+   * @param length The number of bytes to read.
+   * @return The string encoded by the bytes.
+   */
+  public String readNullTerminatedString(int length) {
+    if (length == 0) {
+      return "";
+    }
+    int stringLength = length;
+    int lastIndex = position + length - 1;
+    if (lastIndex < limit && data[lastIndex] == 0) {
+      stringLength--;
+    }
+    String result = new String(data, position, stringLength, Charset.defaultCharset());
+    position += length;
+    return result;
   }
 
   /**

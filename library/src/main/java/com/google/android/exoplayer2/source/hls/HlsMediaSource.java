@@ -18,19 +18,25 @@ package com.google.android.exoplayer2.source.hls;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * An HLS {@link MediaSource}.
  */
-public final class HlsMediaSource implements MediaSource {
+public final class HlsMediaSource implements MediaSource,
+    HlsPlaylistTracker.PrimaryPlaylistListener {
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -42,7 +48,8 @@ public final class HlsMediaSource implements MediaSource {
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
 
-  private MediaSource.Listener sourceListener;
+  private HlsPlaylistTracker playlistTracker;
+  private Listener sourceListener;
 
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
@@ -60,22 +67,24 @@ public final class HlsMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    Assertions.checkState(playlistTracker == null);
+    playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
+        minLoadableRetryCount, this);
     sourceListener = listener;
-    // TODO: Defer until the playlist has been loaded.
-    listener.onSourceInfoRefreshed(new SinglePeriodTimeline(C.TIME_UNSET, false), null);
+    playlistTracker.start();
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() {
-    // Do nothing.
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    playlistTracker.maybeThrowPlaylistRefreshError();
   }
 
   @Override
   public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     Assertions.checkArgument(index == 0);
-    return new HlsMediaPeriod(manifestUri, dataSourceFactory, minLoadableRetryCount,
-        eventDispatcher, sourceListener, allocator, positionUs);
+    return new HlsMediaPeriod(playlistTracker, dataSourceFactory, minLoadableRetryCount,
+        eventDispatcher, allocator, positionUs);
   }
 
   @Override
@@ -85,7 +94,27 @@ public final class HlsMediaSource implements MediaSource {
 
   @Override
   public void releaseSource() {
+    playlistTracker.release();
+    playlistTracker = null;
     sourceListener = null;
+  }
+
+  @Override
+  public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
+    SinglePeriodTimeline timeline;
+    if (playlistTracker.isLive()) {
+      // TODO: fix windowPositionInPeriodUs when playlist is empty.
+      long windowPositionInPeriodUs = playlist.startTimeUs;
+      List<HlsMediaPlaylist.Segment> segments = playlist.segments;
+      long windowDefaultStartPositionUs = segments.isEmpty() ? 0
+          : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
+      timeline = new SinglePeriodTimeline(C.TIME_UNSET, playlist.durationUs,
+          windowPositionInPeriodUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
+    } else /* not live */ {
+      timeline = new SinglePeriodTimeline(playlist.durationUs, playlist.durationUs, 0, 0, true,
+          false);
+    }
+    sourceListener.onSourceInfoRefreshed(timeline, playlist);
   }
 
 }

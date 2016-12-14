@@ -81,15 +81,15 @@ import java.io.IOException;
   }
 
   /**
-   * @see Extractor#seek(long)
+   * @see Extractor#seek(long, long)
    */
-  final void seek(long position) {
+  final void seek(long position, long timeUs) {
     oggPacket.reset();
     if (position == 0) {
       reset(!seekMapSet);
     } else {
       if (state != STATE_READ_HEADERS) {
-        targetGranule = oggSeeker.startSeek();
+        targetGranule = oggSeeker.startSeek(timeUs);
         state = STATE_READ_PAYLOAD;
       }
     }
@@ -144,7 +144,10 @@ import java.io.IOException;
     } else if (input.getLength() == C.LENGTH_UNSET) {
       oggSeeker = new UnseekableOggSeeker();
     } else {
-      oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this);
+      OggPageHeader firstPayloadPageHeader = oggPacket.getPageHeader();
+      oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this,
+          firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
+          firstPayloadPageHeader.granulePosition);
     }
 
     setupData = null;
@@ -159,7 +162,7 @@ import java.io.IOException;
       seekPosition.position = position;
       return Extractor.RESULT_SEEK;
     } else if (position < -1) {
-      onSeekEnd(-position - 2);
+      onSeekEnd(-(position + 2));
     }
     if (!seekMapSet) {
       SeekMap seekMap = oggSeeker.createSeekMap();
@@ -229,7 +232,7 @@ import java.io.IOException;
   /**
    * Called on end of seeking.
    *
-   * @param currentGranule Current granule at the current position of input.
+   * @param currentGranule The granule at the current input position.
    */
   protected void onSeekEnd(long currentGranule) {
     this.currentGranule = currentGranule;
@@ -243,7 +246,7 @@ import java.io.IOException;
     }
 
     @Override
-    public long startSeek() {
+    public long startSeek(long timeUs) {
       return 0;
     }
 

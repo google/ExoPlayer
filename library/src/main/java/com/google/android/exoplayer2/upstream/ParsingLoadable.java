@@ -113,8 +113,8 @@ public final class ParsingLoadable<T> implements Loadable {
       inputStream.open();
       result = parser.parse(dataSource.getUri(), inputStream);
     } finally {
-      inputStream.close();
       bytesLoaded = inputStream.bytesRead();
+      inputStream.close();
     }
   }
 

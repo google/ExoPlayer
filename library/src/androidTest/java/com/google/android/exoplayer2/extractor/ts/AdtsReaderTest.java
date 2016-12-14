@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader.TrackIdGenerator;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -52,7 +52,7 @@ public class AdtsReaderTest extends TestCase {
   public static final byte[] ADTS_CONTENT = TestUtil.createByteArray(
       0x20, 0x00, 0x20, 0x00, 0x00, 0x80, 0x0e);
 
-  private static final byte TEST_DATA[] = TestUtil.joinByteArrays(
+  private static final byte[] TEST_DATA = TestUtil.joinByteArrays(
       ID3_DATA_1,
       ID3_DATA_2,
       ADTS_HEADER,
@@ -73,7 +73,7 @@ public class AdtsReaderTest extends TestCase {
     id3Output = fakeExtractorOutput.track(1);
     adtsReader = new AdtsReader(true);
     TrackIdGenerator idGenerator = new TrackIdGenerator(0, 1);
-    adtsReader.init(fakeExtractorOutput, idGenerator);
+    adtsReader.createTracks(fakeExtractorOutput, idGenerator);
     data = new ParsableByteArray(TEST_DATA);
     firstFeed = true;
   }

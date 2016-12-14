@@ -30,6 +30,7 @@ public final class SubripDecoderTest extends InstrumentationTestCase {
   private static final String TYPICAL_EXTRA_BLANK_LINE = "subrip/typical_extra_blank_line";
   private static final String TYPICAL_MISSING_TIMECODE = "subrip/typical_missing_timecode";
   private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
+  private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
   private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
   public void testDecodeEmpty() throws IOException {
@@ -89,6 +90,15 @@ public final class SubripDecoderTest extends InstrumentationTestCase {
     assertEquals(4, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue3(subtitle, 2);
+  }
+
+  public void testDecodeTypicalNegativeTimestamps() throws IOException {
+    // Parsing should succeed, parsing the third cue only.
+    SubripDecoder decoder = new SubripDecoder();
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_NEGATIVE_TIMESTAMPS);
+    SubripSubtitle subtitle = decoder.decode(bytes, bytes.length);
+    assertEquals(2, subtitle.getEventTimeCount());
+    assertTypicalCue3(subtitle, 0);
   }
 
   public void testDecodeNoEndTimecodes() throws IOException {

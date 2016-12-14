@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -57,6 +59,10 @@ public final class Mp3Extractor implements Extractor {
    * The maximum number of bytes to peek when sniffing, excluding the ID3 header, before giving up.
    */
   private static final int MAX_SNIFF_BYTES = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
+  /**
+   * Maximum length of data read into {@link #scratch}.
+   */
+  private static final int SCRATCH_LENGTH = 10;
 
   /**
    * Mask that includes the audio header values that must match between frames.
@@ -77,6 +83,7 @@ public final class Mp3Extractor implements Extractor {
 
   private int synchronizedHeaderData;
 
+  private Metadata metadata;
   private Seeker seeker;
   private long basisTimeUs;
   private long samplesRead;
@@ -97,7 +104,7 @@ public final class Mp3Extractor implements Extractor {
    */
   public Mp3Extractor(long forcedFirstSampleTimestampUs) {
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
-    scratch = new ParsableByteArray(4);
+    scratch = new ParsableByteArray(SCRATCH_LENGTH);
     synchronizedHeader = new MpegAudioHeader();
     gaplessInfoHolder = new GaplessInfoHolder();
     basisTimeUs = C.TIME_UNSET;
@@ -116,7 +123,7 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     synchronizedHeaderData = 0;
     basisTimeUs = C.TIME_UNSET;
     samplesRead = 0;
@@ -144,7 +151,7 @@ public final class Mp3Extractor implements Extractor {
       trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType, null,
           Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
           synchronizedHeader.sampleRate, Format.NO_VALUE, gaplessInfoHolder.encoderDelay,
-          gaplessInfoHolder.encoderPadding, null, null, 0, null));
+          gaplessInfoHolder.encoderPadding, null, null, 0, null, metadata));
     }
     return readSample(input);
   }
@@ -199,7 +206,7 @@ public final class Mp3Extractor implements Extractor {
     int searchLimitBytes = sniffing ? MAX_SNIFF_BYTES : MAX_SYNC_BYTES;
     input.resetPeekPosition();
     if (input.getPosition() == 0) {
-      Id3Util.parseId3(input, gaplessInfoHolder);
+      peekId3Data(input);
       peekedId3Bytes = (int) input.getPeekPosition();
       if (!sniffing) {
         input.skipFully(peekedId3Bytes);
@@ -251,6 +258,45 @@ public final class Mp3Extractor implements Extractor {
     }
     synchronizedHeaderData = candidateSynchronizedHeaderData;
     return true;
+  }
+
+  /**
+   * Peeks ID3 data from the input, including gapless playback information.
+   *
+   * @param input The {@link ExtractorInput} from which data should be peeked.
+   * @throws IOException If an error occurred peeking from the input.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  private void peekId3Data(ExtractorInput input) throws IOException, InterruptedException {
+    int peekedId3Bytes = 0;
+    while (true) {
+      input.peekFully(scratch.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+      scratch.setPosition(0);
+      if (scratch.readUnsignedInt24() != Id3Decoder.ID3_TAG) {
+        // Not an ID3 tag.
+        break;
+      }
+      scratch.skipBytes(3); // Skip major version, minor version and flags.
+      int framesLength = scratch.readSynchSafeInt();
+      int tagLength = Id3Decoder.ID3_HEADER_LENGTH + framesLength;
+
+      if (metadata == null) {
+        byte[] id3Data = new byte[tagLength];
+        System.arraycopy(scratch.data, 0, id3Data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+        input.peekFully(id3Data, Id3Decoder.ID3_HEADER_LENGTH, framesLength);
+        metadata = new Id3Decoder().decode(id3Data, tagLength);
+        if (metadata != null) {
+          gaplessInfoHolder.setFromMetadata(metadata);
+        }
+      } else {
+        input.advancePeekPosition(framesLength);
+      }
+
+      peekedId3Bytes += tagLength;
+    }
+
+    input.resetPeekPosition();
+    input.advancePeekPosition(peekedId3Bytes);
   }
 
   /**

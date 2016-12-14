@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +68,25 @@ public final class GaplessInfoHolder {
   }
 
   /**
+   * Populates the holder with data parsed from ID3 {@link Metadata}.
+   *
+   * @param metadata The metadata from which to parse the gapless information.
+   * @return Whether the holder was populated.
+   */
+  public boolean setFromMetadata(Metadata metadata) {
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry entry = metadata.get(i);
+      if (entry instanceof CommentFrame) {
+        CommentFrame commentFrame = (CommentFrame) entry;
+        if (setFromComment(commentFrame.description, commentFrame.text)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * Populates the holder with data parsed from a gapless playback comment (stored in an ID3 header
    * or MPEG 4 user data), if valid and non-zero.
    *
@@ -73,7 +94,7 @@ public final class GaplessInfoHolder {
    * @param data The comment's payload data.
    * @return Whether the holder was populated.
    */
-  public boolean setFromComment(String name, String data) {
+  private boolean setFromComment(String name, String data) {
     if (!GAPLESS_COMMENT_ID.equals(name)) {
       return false;
     }

@@ -412,8 +412,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   // Internal methods.
 
   private UrlRequest buildRequest(DataSpec dataSpec) throws OpenException {
-    UrlRequest.Builder requestBuilder = new UrlRequest.Builder(dataSpec.uri.toString(), this,
-        executor, cronetEngine);
+    UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(dataSpec.uri.toString(),
+        this, executor);
     // Set the headers.
     synchronized (requestProperties) {
       if (dataSpec.postBody != null && dataSpec.postBody.length != 0

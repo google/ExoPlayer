@@ -92,6 +92,46 @@ package com.google.android.exoplayer2;
 public abstract class Timeline {
 
   /**
+   * An empty timeline.
+   */
+  public static final Timeline EMPTY = new Timeline() {
+
+    @Override
+    public int getWindowCount() {
+      return 0;
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, boolean setIds,
+        long defaultPositionProjectionUs) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return 0;
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      return C.INDEX_UNSET;
+    }
+
+  };
+
+  /**
+   * Returns whether the timeline is empty.
+   */
+  public final boolean isEmpty() {
+    return getWindowCount() == 0;
+  }
+
+  /**
    * Returns the number of windows in the timeline.
    */
   public abstract int getWindowCount();
@@ -114,10 +154,26 @@ public abstract class Timeline {
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
    * @param setIds Whether {@link Window#id} should be populated. If false, the field will be set to
-   * null. The caller should pass false for efficiency reasons unless the field is required.
+   *     null. The caller should pass false for efficiency reasons unless the field is required.
    * @return The populated {@link Window}, for convenience.
    */
-  public abstract Window getWindow(int windowIndex, Window window, boolean setIds);
+  public Window getWindow(int windowIndex, Window window, boolean setIds) {
+    return getWindow(windowIndex, window, setIds, 0);
+  }
+
+  /**
+   * Populates a {@link Window} with data for the window at the specified index.
+   *
+   * @param windowIndex The index of the window.
+   * @param window The {@link Window} to populate. Must not be null.
+   * @param setIds Whether {@link Window#id} should be populated. If false, the field will be set to
+   *     null. The caller should pass false for efficiency reasons unless the field is required.
+   * @param defaultPositionProjectionUs A duration into the future that the populated window's
+   *     default start position should be projected.
+   * @return The populated {@link Window}, for convenience.
+   */
+  public abstract Window getWindow(int windowIndex, Window window, boolean setIds,
+      long defaultPositionProjectionUs);
 
   /**
    * Returns the number of periods in the timeline.
@@ -181,8 +237,8 @@ public abstract class Timeline {
     public long presentationStartTimeMs;
 
     /**
-     * The windows start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown or
-     * not applicable. For informational purposes only.
+     * The window's start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown
+     * or not applicable. For informational purposes only.
      */
     public long windowStartTimeMs;
 
@@ -206,9 +262,24 @@ public abstract class Timeline {
      */
     public int lastPeriodIndex;
 
-    private long defaultPositionUs;
-    private long durationUs;
-    private long positionInFirstPeriodUs;
+    /**
+     * The default position relative to the start of the window at which to begin playback, in
+     * microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
+     */
+    public long defaultPositionUs;
+
+    /**
+     * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long durationUs;
+
+    /**
+     * The position of the start of this window relative to the start of the first period belonging
+     * to it, in microseconds.
+     */
+    public long positionInFirstPeriodUs;
 
     /**
      * Sets the data held by this window.
@@ -231,7 +302,9 @@ public abstract class Timeline {
 
     /**
      * Returns the default position relative to the start of the window at which to begin playback,
-     * in milliseconds.
+     * in milliseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
      */
     public long getDefaultPositionMs() {
       return C.usToMs(defaultPositionUs);
@@ -239,7 +312,9 @@ public abstract class Timeline {
 
     /**
      * Returns the default position relative to the start of the window at which to begin playback,
-     * in microseconds.
+     * in microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
      */
     public long getDefaultPositionUs() {
       return defaultPositionUs;
@@ -303,7 +378,11 @@ public abstract class Timeline {
      */
     public int windowIndex;
 
-    private long durationUs;
+    /**
+     * The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long durationUs;
+
     private long positionInWindowUs;
 
     /**

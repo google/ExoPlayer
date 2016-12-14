@@ -16,13 +16,11 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
-    android:focusable="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
   <com.google.android.exoplayer2.ui.SimpleExoPlayerView android:id="@+id/player_view"
-      android:focusable="true"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
 

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.vp9;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import com.google.android.exoplayer2.BaseRenderer;
@@ -28,8 +29,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 
@@ -56,8 +62,10 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private final boolean scaleToFit;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
+  private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
+  private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
   private DecoderCounters decoderCounters;
   private Format format;
@@ -65,6 +73,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private DecoderInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
   private VpxOutputBuffer nextOutputBuffer;
+  private DrmSession<ExoMediaCrypto> drmSession;
+  private DrmSession<ExoMediaCrypto> pendingDrmSession;
 
   private Bitmap bitmap;
   private boolean renderedFirstFrame;
@@ -72,11 +82,12 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
   private int outputMode;
+  private boolean waitingForKeys;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private int previousWidth;
-  private int previousHeight;
+  private int lastReportedWidth;
+  private int lastReportedHeight;
 
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
@@ -104,13 +115,39 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
       Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
+    this(scaleToFit, allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify,
+        null, false);
+  }
+
+  /**
+   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   */
+  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
+      Handler eventHandler, VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys) {
     super(C.TRACK_TYPE_VIDEO);
     this.scaleToFit = scaleToFit;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
+    this.drmSessionManager = drmSessionManager;
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     joiningDeadlineMs = -1;
-    previousWidth = -1;
-    previousHeight = -1;
+    clearLastReportedVideoSize();
     formatHolder = new FormatHolder();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
@@ -135,12 +172,27 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     }
 
     if (isRendererAvailable()) {
+      drmSession = pendingDrmSession;
+      ExoMediaCrypto mediaCrypto = null;
+      if (drmSession != null) {
+        int drmSessionState = drmSession.getState();
+        if (drmSessionState == DrmSession.STATE_ERROR) {
+          throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+        } else if (drmSessionState == DrmSession.STATE_OPENED
+            || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
+          mediaCrypto = drmSession.getMediaCrypto();
+        } else {
+          // The drm session isn't open yet.
+          return;
+        }
+      }
       try {
         if (decoder == null) {
           // If we don't have a decoder yet, we need to instantiate one.
           long codecInitializingTimestamp = SystemClock.elapsedRealtime();
           TraceUtil.beginSection("createVpxDecoder");
-          decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
+          decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
+              mediaCrypto);
           decoder.setOutputMode(outputMode);
           TraceUtil.endSection();
           long codecInitializedTimestamp = SystemClock.elapsedRealtime();
@@ -258,7 +310,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     surface.unlockCanvasAndPost(canvas);
   }
 
-  private boolean feedInputBuffer() throws VpxDecoderException {
+  private boolean feedInputBuffer() throws VpxDecoderException, ExoPlaybackException {
     if (inputStreamEnded) {
       return false;
     }
@@ -270,7 +322,14 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       }
     }
 
-    int result = readSource(formatHolder, inputBuffer);
+    int result;
+    if (waitingForKeys) {
+      // We've already read an encrypted sample into buffer, and are waiting for keys.
+      result = C.RESULT_BUFFER_READ;
+    } else {
+      result = readSource(formatHolder, inputBuffer);
+    }
+
     if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
@@ -284,6 +343,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       inputBuffer = null;
       return false;
     }
+    boolean bufferEncrypted = inputBuffer.isEncrypted();
+    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
+    if (waitingForKeys) {
+      return false;
+    }
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
     decoderCounters.inputBufferCount++;
@@ -291,8 +355,21 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return true;
   }
 
+  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
+    if (drmSession == null) {
+      return false;
+    }
+    int drmSessionState = drmSession.getState();
+    if (drmSessionState == DrmSession.STATE_ERROR) {
+      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+    }
+    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS
+        && (bufferEncrypted || !playClearSamplesWithoutKeys);
+  }
+
   private void flushDecoder() {
     inputBuffer = null;
+    waitingForKeys = false;
     if (outputBuffer != null) {
       outputBuffer.release();
       outputBuffer = null;
@@ -311,6 +388,9 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   public boolean isReady() {
+    if (waitingForKeys) {
+      return false;
+    }
     if (format != null && (isSourceReady() || outputBuffer != null)
         && (renderedFirstFrame || !isRendererAvailable())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
@@ -365,11 +445,27 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     inputBuffer = null;
     outputBuffer = null;
     format = null;
+    waitingForKeys = false;
+    clearLastReportedVideoSize();
     try {
       releaseDecoder();
     } finally {
-      decoderCounters.ensureUpdated();
-      eventDispatcher.disabled(decoderCounters);
+      try {
+        if (drmSession != null) {
+          drmSessionManager.releaseSession(drmSession);
+        }
+      } finally {
+        try {
+          if (pendingDrmSession != null && pendingDrmSession != drmSession) {
+            drmSessionManager.releaseSession(pendingDrmSession);
+          }
+        } finally {
+          drmSession = null;
+          pendingDrmSession = null;
+          decoderCounters.ensureUpdated();
+          eventDispatcher.disabled(decoderCounters);
+        }
+      }
     }
   }
 
@@ -378,10 +474,18 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       decoder.release();
       decoder = null;
       decoderCounters.decoderReleaseCount++;
+      waitingForKeys = false;
+      if (drmSession != null && pendingDrmSession != drmSession) {
+        try {
+          drmSessionManager.releaseSession(drmSession);
+        } finally {
+          drmSession = null;
+        }
+      }
     }
   }
 
-  private boolean readFormat() {
+  private boolean readFormat() throws ExoPlaybackException {
     int result = readSource(formatHolder, null);
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
@@ -390,42 +494,56 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return false;
   }
 
-  private void onInputFormatChanged(Format newFormat) {
+  private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+    Format oldFormat = format;
     format = newFormat;
+
+    boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
+        : oldFormat.drmInitData);
+    if (drmInitDataChanged) {
+      if (format.drmInitData != null) {
+        if (drmSessionManager == null) {
+          throw ExoPlaybackException.createForRenderer(
+              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+        }
+        pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
+        if (pendingDrmSession == drmSession) {
+          drmSessionManager.releaseSession(pendingDrmSession);
+        }
+      } else {
+        pendingDrmSession = null;
+      }
+    }
+
     eventDispatcher.inputFormatChanged(format);
   }
 
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
-      setSurface((Surface) message);
+      setOutput((Surface) message, null);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
-      setOutputBufferRenderer((VpxOutputBufferRenderer) message);
+      setOutput(null, (VpxOutputBufferRenderer) message);
     } else {
       super.handleMessage(messageType, message);
     }
   }
 
-  private void setSurface(Surface surface) {
-    if (this.surface == surface) {
-      return;
-    }
+  private void setOutput(Surface surface, VpxOutputBufferRenderer outputBufferRenderer) {
+    // At most one output may be non-null. Both may be null if the output is being cleared.
+    Assertions.checkState(surface == null || outputBufferRenderer == null);
+    // Clear state so that we always call the event listener with the video size and when a frame
+    // is rendered, even if the output hasn't changed.
     renderedFirstFrame = false;
-    this.surface = surface;
-    outputBufferRenderer = null;
-    outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
-    updateDecoder();
-  }
-
-  private void setOutputBufferRenderer(VpxOutputBufferRenderer outputBufferRenderer) {
-    if (this.outputBufferRenderer == outputBufferRenderer) {
-      return;
+    clearLastReportedVideoSize();
+    // We only need to update the decoder if the output has changed.
+    if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
+      this.surface = surface;
+      this.outputBufferRenderer = outputBufferRenderer;
+      outputMode = outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV
+          : surface != null ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
+      updateDecoder();
     }
-    this.outputBufferRenderer = outputBufferRenderer;
-    surface = null;
-    outputMode = (outputBufferRenderer != null) ? VpxDecoder.OUTPUT_MODE_YUV
-        : VpxDecoder.OUTPUT_MODE_NONE;
-    updateDecoder();
   }
 
   private void updateDecoder() {
@@ -442,10 +560,15 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return surface != null || outputBufferRenderer != null;
   }
 
-  private void maybeNotifyVideoSizeChanged(final int width, final int height) {
-    if (previousWidth != width || previousHeight != height) {
-      previousWidth = width;
-      previousHeight = height;
+  private void clearLastReportedVideoSize() {
+    lastReportedWidth = Format.NO_VALUE;
+    lastReportedHeight = Format.NO_VALUE;
+  }
+
+  private void maybeNotifyVideoSizeChanged(int width, int height) {
+    if (lastReportedWidth != width || lastReportedHeight != height) {
+      lastReportedWidth = width;
+      lastReportedHeight = height;
       eventDispatcher.videoSizeChanged(width, height, 0, 1);
     }
   }

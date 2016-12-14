@@ -41,12 +41,12 @@ public class Period {
 
   /**
    * @param id The period identifier. May be null.
-   * @param start The start time of the period in milliseconds.
+   * @param startMs The start time of the period in milliseconds.
    * @param adaptationSets The adaptation sets belonging to the period.
    */
-  public Period(String id, long start, List<AdaptationSet> adaptationSets) {
+  public Period(String id, long startMs, List<AdaptationSet> adaptationSets) {
     this.id = id;
-    this.startMs = start;
+    this.startMs = startMs;
     this.adaptationSets = Collections.unmodifiableList(adaptationSets);
   }
 

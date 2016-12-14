@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.extractor.rawcc;
 
 import android.annotation.TargetApi;
 import android.test.InstrumentationTestCase;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
  * Tests for {@link RawCcExtractor}.
@@ -27,12 +29,15 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 public final class RawCcExtractorTest extends InstrumentationTestCase {
 
   public void testRawCcSample() throws Exception {
-    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
-      @Override
-      public Extractor create() {
-        return new RawCcExtractor();
-      }
-    }, "rawcc/sample.rawcc", getInstrumentation());
+    TestUtil.assertOutput(
+        new TestUtil.ExtractorFactory() {
+          @Override
+          public Extractor create() {
+            return new RawCcExtractor(
+                Format.createTextContainerFormat(null, null, MimeTypes.APPLICATION_CEA608,
+                    "cea608", Format.NO_VALUE, 0, null, 1));
+          }
+        }, "rawcc/sample.rawcc", getInstrumentation());
   }
 
 }

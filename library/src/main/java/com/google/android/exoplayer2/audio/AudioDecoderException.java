@@ -27,4 +27,15 @@ public abstract class AudioDecoderException extends Exception {
     super(detailMessage);
   }
 
+  /**
+   * @param detailMessage The detail message for this exception.
+   * @param cause the cause (which is saved for later retrieval by the
+   *     {@link #getCause()} method).  (A <tt>null</tt> value is
+   *     permitted, and indicates that the cause is nonexistent or
+   *     unknown.)
+   */
+  public AudioDecoderException(String detailMessage, Throwable cause) {
+    super(detailMessage, cause);
+  }
+
 }

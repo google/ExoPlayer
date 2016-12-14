@@ -19,15 +19,18 @@ import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.Surface;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
@@ -35,6 +38,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
+import com.google.android.exoplayer2.playbacktests.util.DebugSimpleExoPlayer;
 import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
@@ -629,7 +633,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
+    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
       return false;
@@ -696,12 +700,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     @TargetApi(18)
     @SuppressWarnings("ResourceType")
-    protected final StreamingDrmSessionManager buildDrmSessionManager(final String userAgent) {
-      StreamingDrmSessionManager drmSessionManager = null;
+    protected final StreamingDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+        final String userAgent) {
+      StreamingDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (isWidevineEncrypted) {
         try {
           // Force L3 if secure decoder is not available.
-          boolean forceL3Widevine = MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null;
+          boolean forceL3Widevine =
+              MediaCodecUtil.getDecoderInfo(videoMimeType, true, false) == null;
           MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
           String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
           String widevineContentId = forceL3Widevine ? WIDEVINE_SW_CRYPTO_CONTENT_ID
@@ -727,7 +733,17 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    public MediaSource buildSource(HostActivity host, String userAgent,
+    protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
+        MappingTrackSelector trackSelector,
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+      SimpleExoPlayer player = new DebugSimpleExoPlayer(host, trackSelector,
+          new DefaultLoadControl(), drmSessionManager);
+      player.setVideoSurface(surface);
+      return player;
+    }
+
+    @Override
+    protected MediaSource buildSource(HostActivity host, String userAgent,
         TransferListener<? super DataSource> mediaTransferListener) {
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
       DataSource.Factory mediaDataSourceFactory = new DefaultDataSourceFactory(host, userAgent,
@@ -803,7 +819,6 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
     private DashTestTrackSelector(String audioFormatId, String[] videoFormatIds,
         boolean canIncludeAdditionalVideoFormats) {
-      super(new Handler(Looper.getMainLooper()));
       this.audioFormatId = audioFormatId;
       this.videoFormatIds = videoFormatIds;
       this.canIncludeAdditionalVideoFormats = canIncludeAdditionalVideoFormats;

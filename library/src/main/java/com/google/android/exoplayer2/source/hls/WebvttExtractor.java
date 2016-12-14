@@ -79,7 +79,7 @@ import java.util.regex.Pattern;
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     // This extractor is only used for the HLS use case, which should not call this method.
     throw new IllegalStateException();
   }

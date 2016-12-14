@@ -42,14 +42,14 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       LoadControl loadControl) {
     return newSimpleInstance(context, trackSelector, loadControl, null);
   }
 
   /**
    * Creates a {@link SimpleExoPlayer} instance. Must be called from a thread that has an associated
-   * {@link Looper}.
+   * {@link Looper}. Available extension renderers are not used.
    *
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -57,9 +57,10 @@ public final class ExoPlayerFactory {
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    return newSimpleInstance(context, trackSelector, loadControl, drmSessionManager, false);
+    return newSimpleInstance(context, trackSelector, loadControl,
+        drmSessionManager, SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF);
   }
 
   /**
@@ -71,15 +72,15 @@ public final class ExoPlayerFactory {
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
-   * @param preferExtensionDecoders True to prefer {@link Renderer} instances defined in
-   *     available extensions over those defined in the core library. Note that extensions must be
-   *     included in the application build for setting this flag to have any effect.
+   * @param extensionRendererMode The extension renderer mode, which determines if and how available
+   *     extension renderers are used. Note that extensions must be included in the application
+   *     build for them to be considered available.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean preferExtensionDecoders) {
+      @SimpleExoPlayer.ExtensionRendererMode int extensionRendererMode) {
     return newSimpleInstance(context, trackSelector, loadControl, drmSessionManager,
-        preferExtensionDecoders, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
+        extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
   }
 
   /**
@@ -91,17 +92,18 @@ public final class ExoPlayerFactory {
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
-   * @param preferExtensionDecoders True to prefer {@link Renderer} instances defined in
-   *     available extensions over those defined in the core library. Note that extensions must be
-   *     included in the application build for setting this flag to have any effect.
+   * @param extensionRendererMode The extension renderer mode, which determines if and how available
+   *     extension renderers are used. Note that extensions must be included in the application
+   *     build for them to be considered available.
    * @param allowedVideoJoiningTimeMs The maximum duration for which a video renderer can attempt to
    *     seamlessly join an ongoing playback.
    */
-  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector<?> trackSelector,
+  public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean preferExtensionDecoders, long allowedVideoJoiningTimeMs) {
+      @SimpleExoPlayer.ExtensionRendererMode int extensionRendererMode,
+      long allowedVideoJoiningTimeMs) {
     return new SimpleExoPlayer(context, trackSelector, loadControl, drmSessionManager,
-        preferExtensionDecoders, allowedVideoJoiningTimeMs);
+        extensionRendererMode, allowedVideoJoiningTimeMs);
   }
 
   /**
@@ -111,7 +113,7 @@ public final class ExoPlayerFactory {
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector<?> trackSelector) {
+  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector) {
     return newInstance(renderers, trackSelector, new DefaultLoadControl());
   }
 
@@ -123,7 +125,7 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector<?> trackSelector,
+  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl) {
     return new ExoPlayerImpl(renderers, trackSelector, loadControl);
   }

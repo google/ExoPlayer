@@ -46,7 +46,7 @@ public final class PriorityTaskManager {
   private final PriorityQueue<Integer> queue;
   private int highestPriority;
 
-  private PriorityTaskManager() {
+  public PriorityTaskManager() {
     queue = new PriorityQueue<>(10, Collections.reverseOrder());
     highestPriority = Integer.MIN_VALUE;
   }

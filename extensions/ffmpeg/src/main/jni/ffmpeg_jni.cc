@@ -267,7 +267,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
                                               sampleFormat, 1);
     AVAudioResampleContext *resampleContext;
     if (context->opaque) {
-      resampleContext = (AVAudioResampleContext *)context->opaque;
+      resampleContext = (AVAudioResampleContext *) context->opaque;
     } else {
       resampleContext = avresample_alloc_context();
       av_opt_set_int(resampleContext, "in_channel_layout",  channelLayout, 0);
@@ -326,7 +326,7 @@ void releaseContext(AVCodecContext *context) {
     return;
   }
   AVAudioResampleContext *resampleContext;
-  if (resampleContext = (AVAudioResampleContext *)context->opaque) {
+  if ((resampleContext = (AVAudioResampleContext *) context->opaque)) {
     avresample_free(&resampleContext);
     context->opaque = NULL;
   }

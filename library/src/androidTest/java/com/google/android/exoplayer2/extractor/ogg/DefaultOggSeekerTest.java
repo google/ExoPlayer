@@ -27,9 +27,9 @@ import junit.framework.TestCase;
  */
 public final class DefaultOggSeekerTest extends TestCase {
 
-  public void testSetupUnboundAudioLength() {
+  public void testSetupWithUnsetEndPositionFails() {
     try {
-      new DefaultOggSeeker(0, C.LENGTH_UNSET, new TestStreamReader());
+      new DefaultOggSeeker(0, C.LENGTH_UNSET, new TestStreamReader(), 1, 1);
       fail();
     } catch (IllegalArgumentException e) {
       // ignored
@@ -43,11 +43,12 @@ public final class DefaultOggSeekerTest extends TestCase {
     }
   }
 
-  public void testSeeking(Random random) throws IOException, InterruptedException {
+  private void testSeeking(Random random) throws IOException, InterruptedException {
     OggTestFile testFile = OggTestFile.generate(random, 1000);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(testFile.data).build();
     TestStreamReader streamReader = new TestStreamReader();
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, testFile.data.length, streamReader);
+    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, testFile.data.length, streamReader,
+        testFile.firstPayloadPageSize, testFile.firstPayloadPageGranulePosition);
     OggPageHeader pageHeader = new OggPageHeader();
 
     while (true) {
@@ -109,8 +110,8 @@ public final class DefaultOggSeekerTest extends TestCase {
       long granuleDiff = currentGranule - targetGranule;
       if ((granuleDiff > DefaultOggSeeker.MATCH_RANGE || granuleDiff < 0)
           && positionDiff > DefaultOggSeeker.MATCH_BYTE_RANGE) {
-        fail(String.format("granuleDiff (%d) or positionDiff (%d) is more than allowed.",
-            granuleDiff, positionDiff));
+        fail("granuleDiff (" + granuleDiff + ") or positionDiff (" + positionDiff
+            + ") is more than allowed.");
       }
     }
   }

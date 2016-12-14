@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.support.annotation.IntDef;
 import android.view.Surface;
@@ -160,6 +161,42 @@ public final class C {
       ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
   /**
+   * Stream types for an {@link android.media.AudioTrack}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STREAM_TYPE_ALARM, STREAM_TYPE_MUSIC, STREAM_TYPE_NOTIFICATION, STREAM_TYPE_RING,
+      STREAM_TYPE_SYSTEM, STREAM_TYPE_VOICE_CALL})
+  public @interface StreamType {}
+  /**
+   * @see AudioManager#STREAM_ALARM
+   */
+  public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
+  /**
+   * @see AudioManager#STREAM_MUSIC
+   */
+  public static final int STREAM_TYPE_MUSIC = AudioManager.STREAM_MUSIC;
+  /**
+   * @see AudioManager#STREAM_NOTIFICATION
+   */
+  public static final int STREAM_TYPE_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
+  /**
+   * @see AudioManager#STREAM_RING
+   */
+  public static final int STREAM_TYPE_RING = AudioManager.STREAM_RING;
+  /**
+   * @see AudioManager#STREAM_SYSTEM
+   */
+  public static final int STREAM_TYPE_SYSTEM = AudioManager.STREAM_SYSTEM;
+  /**
+   * @see AudioManager#STREAM_VOICE_CALL
+   */
+  public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
+  /**
+   * The default stream type used by audio renderers.
+   */
+  public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
+
+  /**
    * Flags which can apply to a buffer containing a media sample.
    */
   @Retention(RetentionPolicy.SOURCE)
@@ -184,6 +221,29 @@ public final class C {
    * Indicates that a buffer should be decoded but not rendered.
    */
   public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
+
+  /**
+   * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  public @interface VideoScalingMode {}
+  /**
+   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
+      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+  /**
+   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
+      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+  /**
+   * A default video scaling mode for {@link MediaCodec}-based {@link Renderer}s.
+   */
+  public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
   /**
    * Track selection flags.
@@ -397,20 +457,44 @@ public final class C {
   public static final int MSG_SET_SURFACE = 1;
 
   /**
-   * The type of a message that can be passed to an audio {@link Renderer} via
+   * A type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   public static final int MSG_SET_VOLUME = 2;
 
   /**
-   * The type of a message that can be passed to an audio {@link Renderer} via
+   * A type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be a {@link android.media.PlaybackParams}, which will be used to configure the
+   * should be a {@link android.media.PlaybackParams}, or null, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
    * caller after it has been passed
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 3;
+
+  /**
+   * A type of a message that can be passed to an audio {@link Renderer} via
+   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
+   * should be one of the integer stream types in {@link C.StreamType}, and will specify the stream
+   * type of the underlying {@link android.media.AudioTrack}. See also
+   * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}. If the stream type
+   * is not set, audio renderers use {@link #STREAM_TYPE_DEFAULT}.
+   * <p>
+   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
+   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
+   * share the same routing, so a new audio session id will be generated.
+   */
+  public static final int MSG_SET_STREAM_TYPE = 4;
+
+  /**
+   * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
+   * via {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message
+   * object should be one of the integer scaling modes in {@link C.VideoScalingMode}.
+   * <p>
+   * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
+   * owned by a {@link android.view.SurfaceView}.
+   */
+  public static final int MSG_SET_SCALING_MODE = 5;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
