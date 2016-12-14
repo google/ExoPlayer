@@ -64,6 +64,11 @@ update to this version.
 
 ### r2.0.3 ###
 
+* Fix crash on Jellybean devices when using playback controls
+  ([#1965](https://github.com/google/ExoPlayer/issues/1965)).
+
+### r2.0.3 ###
+
 * Fixed NullPointerException in ExtractorMediaSource
   ([#1914](https://github.com/google/ExoPlayer/issues/1914)).
 * Fixed NullPointerException in HlsMediaPeriod
