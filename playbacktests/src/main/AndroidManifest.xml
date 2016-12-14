@@ -14,30 +14,4 @@
      limitations under the License.
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer2.playbacktests"
-    android:versionCode="2004"
-    android:versionName="2.0.4">
-
-  <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-permission android:name="android.permission.WAKE_LOCK"/>
-
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="24"/>
-
-  <application android:debuggable="true"
-      android:allowBackup="false"
-      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
-
-    <activity android:name="com.google.android.exoplayer2.playbacktests.util.HostActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:label="ExoPlayerTest"/>
-
-  </application>
-
-  <instrumentation
-      android:targetPackage="com.google.android.exoplayer2.playbacktests"
-      android:name="android.test.InstrumentationTestRunner"/>
-
-</manifest>
+<manifest package="com.google.android.exoplayer2.playbacktests"/>
