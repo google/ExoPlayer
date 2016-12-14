@@ -14,6 +14,7 @@ com.google.android.exoplayer2.extractor.wav
 com.google.android.exoplayer2.mediacodec
 com.google.android.exoplayer2.metadata
 com.google.android.exoplayer2.metadata.id3
+com.google.android.exoplayer2.metadata.scte35
 com.google.android.exoplayer2.source
 com.google.android.exoplayer2.source.chunk
 com.google.android.exoplayer2.source.dash
