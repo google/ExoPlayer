@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
+import com.google.android.exoplayer2.ui.PlaybackControlView.SeekDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
 
@@ -438,6 +439,17 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setControllerVisibilityListener(PlaybackControlView.VisibilityListener listener) {
     Assertions.checkState(controller != null);
     controller.setVisibilityListener(listener);
+  }
+
+  /**
+   * Sets the {@link SeekDispatcher}.
+   *
+   * @param seekDispatcher The {@link SeekDispatcher}, or null to use
+   *     {@link PlaybackControlView#DEFAULT_SEEK_DISPATCHER}.
+   */
+  public void setSeekDispatcher(SeekDispatcher seekDispatcher) {
+    Assertions.checkState(controller != null);
+    controller.setSeekDispatcher(seekDispatcher);
   }
 
   /**

@@ -330,17 +330,19 @@ public interface ExoPlayer {
   /**
    * Seeks to a position specified in milliseconds in the current window.
    *
-   * @param windowPositionMs The seek position in the current window.
+   * @param positionMs The seek position in the current window, or {@link C#TIME_UNSET} to seek to
+   *     the window's default position.
    */
-  void seekTo(long windowPositionMs);
+  void seekTo(long positionMs);
 
   /**
    * Seeks to a position specified in milliseconds in the specified window.
    *
    * @param windowIndex The index of the window.
-   * @param windowPositionMs The seek position in the specified window.
+   * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek to
+   *     the window's default position.
    */
-  void seekTo(int windowIndex, long windowPositionMs);
+  void seekTo(int windowIndex, long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
