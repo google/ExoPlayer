@@ -71,9 +71,9 @@ FUNC(jlong, vpxInit) {
   const jclass outputBufferClass = env->FindClass(
       "com/google/android/exoplayer/ext/vp9/VpxOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
-                                     "(IIIII)V");
+                                     "(IIIII)Z");
   initForRgbFrame = env->GetMethodID(outputBufferClass, "initForRgbFrame",
-                                     "(II)V");
+                                     "(II)Z");
   dataField = env->GetFieldID(outputBufferClass, "data",
                               "Ljava/nio/ByteBuffer;");
   outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
@@ -116,7 +116,11 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
   if (outputMode == kOutputModeRgb) {
     // resize buffer if required.
-    env->CallVoidMethod(jOutputBuffer, initForRgbFrame, img->d_w, img->d_h);
+    jboolean initResult = env->CallBooleanMethod(jOutputBuffer, initForRgbFrame,
+                                                 img->d_w, img->d_h);
+    if (initResult == JNI_FALSE) {
+      return -1;
+    }
 
     // get pointer to the data buffer.
     const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);
@@ -145,9 +149,12 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     }
 
     // resize buffer if required.
-    env->CallVoidMethod(jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
-                        img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U],
-                        colorspace);
+    jboolean initResult = env->CallBooleanMethod(
+        jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
+        img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U], colorspace);
+    if (initResult == JNI_FALSE) {
+      return -1;
+    }
 
     // get pointer to the data buffer.
     const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);

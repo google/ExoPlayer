@@ -187,10 +187,10 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   // Private methods.
 
   private static Representation buildVodRepresentation(Format format) {
-    RangedUri rangedUri = new RangedUri("https://example.com/1.mp4", null, 0, 100);
-    SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0,
-        "https://example.com/1.mp4", 0, -1);
-    return Representation.newInstance(null, 0, format, segmentBase);
+    String baseUrl = "https://example.com/1.mp4";
+    RangedUri rangedUri = new RangedUri("", 0, 100);
+    SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0, 0, -1);
+    return Representation.newInstance(null, 0, format, baseUrl, segmentBase);
   }
 
   private static Representation buildSegmentTimelineRepresentation(long timelineDurationMs,
@@ -203,28 +203,29 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     int segmentCount = (int) Util.ceilDivide(timelineDurationMs, LIVE_SEGMENT_DURATION_MS);
     for (int i = 0; i < segmentCount - 1; i++) {
       segmentTimeline.add(new SegmentTimelineElement(segmentStartTimeMs, LIVE_SEGMENT_DURATION_MS));
-      mediaSegments.add(new RangedUri("", "", byteStart, 500L));
+      mediaSegments.add(new RangedUri("", byteStart, 500L));
       segmentStartTimeMs += LIVE_SEGMENT_DURATION_MS;
       byteStart += 500;
     }
     // The final segment duration is calculated so that the total duration is timelineDurationMs.
     long finalSegmentDurationMs = (timelineStartTimeMs + timelineDurationMs) - segmentStartTimeMs;
     segmentTimeline.add(new SegmentTimelineElement(segmentStartTimeMs, finalSegmentDurationMs));
-    mediaSegments.add(new RangedUri("", "", byteStart, 500L));
+    mediaSegments.add(new RangedUri("", byteStart, 500L));
     segmentStartTimeMs += finalSegmentDurationMs;
     byteStart += 500;
     // Construct the list.
     MultiSegmentBase segmentBase = new SegmentList(null, 1000, 0, 0, 0, segmentTimeline,
         mediaSegments);
-    return Representation.newInstance(null, 0, REGULAR_VIDEO, segmentBase);
+    return Representation.newInstance(null, 0, REGULAR_VIDEO, null, segmentBase);
   }
 
   private static Representation buildSegmentTemplateRepresentation() {
     UrlTemplate initializationTemplate = null;
     UrlTemplate mediaTemplate = UrlTemplate.compile("$RepresentationID$/$Number$");
     MultiSegmentBase segmentBase = new SegmentTemplate(null, 1000, 0, 0, LIVE_SEGMENT_DURATION_MS,
-        null, initializationTemplate, mediaTemplate, "http://www.youtube.com");
-    return Representation.newInstance(null, 0, REGULAR_VIDEO, segmentBase);
+        null, initializationTemplate, mediaTemplate);
+    return Representation.newInstance(null, 0, REGULAR_VIDEO, "http://www.youtube.com",
+        segmentBase, null);
   }
 
   private static MediaPresentationDescription buildMpd(long durationMs,

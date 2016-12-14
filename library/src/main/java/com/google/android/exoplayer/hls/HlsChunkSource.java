@@ -513,8 +513,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
         return;
       }
-      // This flag ensures the change of pid between streams does not affect the sample queues.
-      int workaroundFlags = TsExtractor.WORKAROUND_MAP_BY_TYPE;
+      // Enable HLS workarounds for the extractor.
+      int workaroundFlags = TsExtractor.WORKAROUND_HLS_MODE;
       String codecs = format.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
@@ -694,6 +694,10 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     }
     HlsMediaPlaylist oldMediaPlaylist = variantPlaylists[oldVariantIndex];
     HlsMediaPlaylist newMediaPlaylist = variantPlaylists[newVariantIndex];
+    if (previousChunkIndex < oldMediaPlaylist.mediaSequence) {
+      // We have fallen behind the live window.
+      return newMediaPlaylist.mediaSequence - 1;
+    }
     double offsetToLiveInstantSecs = 0;
     for (int i = previousChunkIndex - oldMediaPlaylist.mediaSequence;
          i < oldMediaPlaylist.segments.size(); i++) {

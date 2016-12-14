@@ -21,7 +21,7 @@ package com.google.android.exoplayer.upstream.cache;
  */
 public interface CacheEvictor extends Cache.Listener {
 
-  /** Invoked when cache has beeen initialized. */
+  /** Invoked when cache has been initialized. */
   void onCacheInitialized();
 
   /**

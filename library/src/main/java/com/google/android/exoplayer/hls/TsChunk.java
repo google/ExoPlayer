@@ -68,7 +68,7 @@ public final class TsChunk extends MediaChunk {
     this.extractorWrapper = extractorWrapper;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
-    adjustedEndTimeUs = startTimeUs;
+    adjustedEndTimeUs = endTimeUs;
   }
 
   @Override

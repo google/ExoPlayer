@@ -16,14 +16,17 @@
 package com.google.android.exoplayer.testutil;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+import junit.framework.Assert;
 import org.mockito.MockitoAnnotations;
 
 /**
@@ -102,6 +105,23 @@ public class TestUtil {
       throws IOException {
     InputStream is = instrumentation.getContext().getResources().getAssets().open(fileName);
     return Util.toByteArray(is);
+  }
+
+  public static void recursiveDelete(File fileOrDirectory) {
+    if (fileOrDirectory.isDirectory()) {
+      for (File child : fileOrDirectory.listFiles()) {
+        recursiveDelete(child);
+      }
+    }
+    fileOrDirectory.delete();
+  }
+
+  /** Creates an empty folder in the application specific cache directory. */
+  public static File createTempFolder(Context context) throws IOException {
+    File tempFolder = File.createTempFile("ExoPlayerTest", null, context.getCacheDir());
+    Assert.assertTrue(tempFolder.delete());
+    Assert.assertTrue(tempFolder.mkdir());
+    return tempFolder;
   }
 
 }

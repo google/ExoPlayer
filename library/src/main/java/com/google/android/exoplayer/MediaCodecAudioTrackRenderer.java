@@ -69,20 +69,32 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   /**
-   * The type of a message that can be passed to an instance of this class via
+   * A type of a message that can be passed to an instance of this class via
    * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   public static final int MSG_SET_VOLUME = 1;
 
   /**
-   * The type of a message that can be passed to an instance of this class via
+   * A type of a message that can be passed to an instance of this class via
    * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
    * should be a {@link android.media.PlaybackParams}, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
    * caller after it has been passed
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 2;
+
+  /**
+   * A type of a message that can be passed to an instance of this class via
+   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * should be an integer stream type accepted by {@link android.media.AudioTrack}'s constructor
+   * (see {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}).
+   * <p>
+   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
+   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
+   * share the same routing, so a new audio session id will be generated.
+   */
+  public static final int MSG_SET_STREAM_TYPE = 3;
 
   private final EventListener eventListener;
   private final AudioTrack audioTrack;
@@ -440,6 +452,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
         break;
       case MSG_SET_PLAYBACK_PARAMS:
         audioTrack.setPlaybackParams((PlaybackParams) message);
+        break;
+      case MSG_SET_STREAM_TYPE:
+        int streamType = (Integer) message;
+        if (audioTrack.setStreamType(streamType)) {
+          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+        }
         break;
       default:
         super.handleMessage(messageType, message);

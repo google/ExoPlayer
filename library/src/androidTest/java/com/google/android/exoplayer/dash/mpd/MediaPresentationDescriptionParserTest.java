@@ -25,6 +25,7 @@ import java.io.InputStream;
 public class MediaPresentationDescriptionParserTest extends InstrumentationTestCase {
 
   private static final String SAMPLE_MPD_1 = "dash/sample_mpd_1";
+  private static final String SAMPLE_MPD_2 = "dash/sample_mpd_2";
 
   public void testParseMediaPresentationDescription() throws IOException {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
@@ -32,6 +33,33 @@ public class MediaPresentationDescriptionParserTest extends InstrumentationTestC
         getInstrumentation().getContext().getResources().getAssets().open(SAMPLE_MPD_1);
     // Simple test to ensure that the sample manifest parses without throwing any exceptions.
     parser.parse("https://example.com/test.mpd", inputStream);
+  }
+
+  public void testParseMediaPresentationDescriptionWithSegmentTemplate() throws IOException {
+    MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
+    InputStream inputStream =
+            getInstrumentation().getContext().getResources().getAssets().open(SAMPLE_MPD_2);
+    // Simple test to ensure that the sample manifest parses without throwing any exceptions.
+    MediaPresentationDescription mpd = parser.parse("https://example.com/test.mpd", inputStream);
+    assertEquals(1, mpd.getPeriodCount());
+
+    Period period = mpd.getPeriod(0);
+    assertNotNull(period);
+    assertEquals(2, period.adaptationSets.size());
+
+    for (AdaptationSet adaptationSet : period.adaptationSets) {
+      assertNotNull(adaptationSet);
+      for (Representation representation : adaptationSet.representations) {
+        if (representation instanceof Representation.MultiSegmentRepresentation) {
+          Representation.MultiSegmentRepresentation multiSegmentRepresentation =
+              (Representation.MultiSegmentRepresentation) representation;
+          int firstSegmentIndex = multiSegmentRepresentation.getFirstSegmentNum();
+          RangedUri uri = multiSegmentRepresentation.getSegmentUrl(firstSegmentIndex);
+          assertTrue(uri.resolveUriString(representation.baseUrl).contains(
+              "redirector.googlevideo.com"));
+        }
+      }
+    }
   }
 
 }

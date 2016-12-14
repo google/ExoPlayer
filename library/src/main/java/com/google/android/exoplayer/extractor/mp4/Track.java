@@ -29,6 +29,7 @@ public final class Track {
   public static final int TYPE_text = Util.getIntegerCodeForString("text");
   public static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
   public static final int TYPE_subt = Util.getIntegerCodeForString("subt");
+  public static final int TYPE_meta = Util.getIntegerCodeForString("meta");
 
   /**
    * The track identifier.

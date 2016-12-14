@@ -41,7 +41,7 @@ public final class TsExtractor implements Extractor {
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;
   public static final int WORKAROUND_IGNORE_H264_STREAM = 4;
   public static final int WORKAROUND_DETECT_ACCESS_UNITS = 8;
-  public static final int WORKAROUND_MAP_BY_TYPE = 16;
+  public static final int WORKAROUND_HLS_MODE = 16;
 
   private static final String TAG = "TsExtractor";
 
@@ -191,16 +191,22 @@ public final class TsExtractor implements Extractor {
     tsScratch.skipBits(2); // transport_scrambling_control
     boolean adaptationFieldExists = tsScratch.readBit();
     boolean payloadExists = tsScratch.readBit();
+
+    // Discontinuity check.
     boolean discontinuityFound = false;
     int continuityCounter = tsScratch.readBits(4);
-    int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
-    continuityCounters.put(pid, continuityCounter);
-    if (previousCounter == continuityCounter) {
-      // Duplicate packet found.
-      tsPacketBuffer.setPosition(endOfPacket);
-      return RESULT_CONTINUE;
-    } else if (continuityCounter != (previousCounter + 1) % 16) {
-      discontinuityFound = true;
+    if ((workaroundFlags & WORKAROUND_HLS_MODE) == 0) {
+      int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
+      continuityCounters.put(pid, continuityCounter);
+      if (previousCounter == continuityCounter) {
+        if (payloadExists) {
+          // Duplicate packet found.
+          tsPacketBuffer.setPosition(endOfPacket);
+          return RESULT_CONTINUE;
+        }
+      } else if (continuityCounter != (previousCounter + 1) % 16) {
+        discontinuityFound = true;
+      }
     }
 
     // Skip the adaptation field.
@@ -408,7 +414,7 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 && id3Reader == null) {
+      if ((workaroundFlags & WORKAROUND_HLS_MODE) != 0 && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See b/20261500.
         id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
@@ -430,7 +436,7 @@ public final class TsExtractor implements Extractor {
           sectionData.skipBytes(esInfoLength);
         }
         remainingEntriesLength -= esInfoLength + 5;
-        int trackId = (workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0 ? streamType : elementaryPid;
+        int trackId = (workaroundFlags & WORKAROUND_HLS_MODE) != 0 ? streamType : elementaryPid;
         if (trackIds.get(trackId)) {
           continue;
         }
@@ -471,7 +477,7 @@ public final class TsExtractor implements Extractor {
                 new SeiReader(output.track(nextEmbeddedTrackId++)));
             break;
           case TS_STREAM_TYPE_ID3:
-            if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0) {
+            if ((workaroundFlags & WORKAROUND_HLS_MODE) != 0) {
               pesPayloadReader = id3Reader;
             } else {
               pesPayloadReader = new Id3Reader(output.track(nextEmbeddedTrackId++));
@@ -488,7 +494,7 @@ public final class TsExtractor implements Extractor {
               new PesReader(pesPayloadReader, ptsTimestampAdjuster));
         }
       }
-      if ((workaroundFlags & WORKAROUND_MAP_BY_TYPE) != 0) {
+      if ((workaroundFlags & WORKAROUND_HLS_MODE) != 0) {
        if (!tracksEnded) {
          output.endTracks();
        }

@@ -30,6 +30,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
   private static final String TYPICAL_EXTRA_BLANK_LINE = "subrip/typical_extra_blank_line";
   private static final String TYPICAL_MISSING_TIMECODE = "subrip/typical_missing_timecode";
   private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
+  private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
   private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
   public void testParseEmpty() throws IOException {
@@ -113,6 +114,15 @@ public final class SubripParserTest extends InstrumentationTestCase {
     assertEquals(3456000, subtitle.getEventTime(2));
     assertEquals("Or to the end of the media.",
         subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
+  }
+
+  public void testDecodeTypicalNegativeTimestamps() throws IOException {
+    // Parsing should succeed, parsing the third cue only.
+    SubripParser parser = new SubripParser();
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_NEGATIVE_TIMESTAMPS);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    assertEquals(2, subtitle.getEventTimeCount());
+    assertTypicalCue3(subtitle, 0);
   }
 
   private static void assertTypicalCue1(SubripSubtitle subtitle, int eventIndex) {
