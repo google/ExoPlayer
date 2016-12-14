@@ -64,7 +64,7 @@ public final class Util {
    * overridden for local testing.
    */
   public static final int SDK_INT =
-      (Build.VERSION.SDK_INT == 23 && Build.VERSION.CODENAME.charAt(0) == 'N') ? 24
+      (Build.VERSION.SDK_INT == 25 && Build.VERSION.CODENAME.charAt(0) == 'O') ? 26
       : Build.VERSION.SDK_INT;
 
   /**
