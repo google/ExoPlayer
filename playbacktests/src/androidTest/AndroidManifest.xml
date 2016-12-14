@@ -16,9 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer2.playbacktests"
-    android:versionCode="2004"
-    android:versionName="2.0.4">
+    package="com.google.android.exoplayer2.playbacktests">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
