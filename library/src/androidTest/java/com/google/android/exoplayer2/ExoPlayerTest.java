@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -48,12 +49,25 @@ public final class ExoPlayerTest extends TestCase {
    */
   private static final int TIMEOUT_MS = 10000;
 
+  /**
+   * Tests playback of a source that exposes a single period.
+   */
   public void testPlayToEnd() throws Exception {
     PlayerWrapper playerWrapper = new PlayerWrapper();
     Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
         Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE, null, null);
-    playerWrapper.setup(new SinglePeriodTimeline(0, false), new Object(), format);
-    playerWrapper.blockUntilEndedOrError(TIMEOUT_MS);
+    playerWrapper.setup(new SinglePeriodTimeline(0, false), null, format);
+    playerWrapper.blockUntilEnded(TIMEOUT_MS);
+  }
+
+  /**
+   * Tests playback of a source that exposes an empty timeline. Playback is expected to end without
+   * error.
+   */
+  public void testPlayEmptyTimeline() throws Exception {
+    PlayerWrapper playerWrapper = new PlayerWrapper();
+    playerWrapper.setup(Timeline.EMPTY, null, null);
+    playerWrapper.blockUntilEnded(TIMEOUT_MS);
   }
 
   /**
@@ -81,12 +95,11 @@ public final class ExoPlayerTest extends TestCase {
 
     // Called on the test thread.
 
-    public void blockUntilEndedOrError(long timeoutMs) throws Exception {
+    public void blockUntilEnded(long timeoutMs) throws Exception {
       if (!endedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
         exception = new TimeoutException("Test playback timed out.");
       }
       release();
-
       // Throw any pending exception (from playback, timing out or releasing).
       if (exception != null) {
         throw exception;
@@ -194,17 +207,16 @@ public final class ExoPlayerTest extends TestCase {
     private final Timeline timeline;
     private final Object manifest;
     private final Format format;
+    private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
 
-    private FakeMediaPeriod mediaPeriod;
     private boolean preparedSource;
-    private boolean releasedPeriod;
     private boolean releasedSource;
 
     public FakeMediaSource(Timeline timeline, Object manifest, Format format) {
-      Assertions.checkArgument(timeline.getPeriodCount() == 1);
       this.timeline = timeline;
       this.manifest = manifest;
       this.format = format;
+      activeMediaPeriods = new ArrayList<>();
     }
 
     @Override
@@ -221,33 +233,29 @@ public final class ExoPlayerTest extends TestCase {
 
     @Override
     public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+      Assertions.checkIndex(index, 0, timeline.getPeriodCount());
       assertTrue(preparedSource);
-      assertNull(mediaPeriod);
-      assertFalse(releasedPeriod);
       assertFalse(releasedSource);
       assertEquals(0, index);
       assertEquals(0, positionUs);
-      mediaPeriod = new FakeMediaPeriod(format);
+      FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(format);
+      activeMediaPeriods.add(mediaPeriod);
       return mediaPeriod;
     }
 
     @Override
     public void releasePeriod(MediaPeriod mediaPeriod) {
       assertTrue(preparedSource);
-      assertNotNull(this.mediaPeriod);
-      assertFalse(releasedPeriod);
       assertFalse(releasedSource);
-      assertEquals(this.mediaPeriod, mediaPeriod);
-      this.mediaPeriod.release();
-      releasedPeriod = true;
+      assertTrue(activeMediaPeriods.remove(mediaPeriod));
+      ((FakeMediaPeriod) mediaPeriod).release();
     }
 
     @Override
     public void releaseSource() {
       assertTrue(preparedSource);
-      assertNotNull(this.mediaPeriod);
-      assertTrue(releasedPeriod);
       assertFalse(releasedSource);
+      assertTrue(activeMediaPeriods.isEmpty());
       releasedSource = true;
     }
 
@@ -400,7 +408,6 @@ public final class ExoPlayerTest extends TestCase {
 
     public FakeVideoRenderer(Format expectedFormat) {
       super(C.TRACK_TYPE_VIDEO);
-      Assertions.checkArgument(MimeTypes.isVideo(expectedFormat.sampleMimeType));
       this.expectedFormat = expectedFormat;
     }
 
