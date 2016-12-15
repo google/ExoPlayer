@@ -133,4 +133,32 @@ public interface MediaPeriod extends SequenceableLoader {
    */
   long seekToUs(long positionUs);
 
+  // SequenceableLoader interface. Overridden to provide more specific documentation.
+
+  /**
+   * Returns the next load time, or {@link C#TIME_END_OF_SOURCE} if loading has finished.
+   * <p>
+   * This method should only be called after the period has been prepared. It may be called when no
+   * tracks are selected.
+   */
+  @Override
+  long getNextLoadPositionUs();
+
+  /**
+   * Attempts to continue loading.
+   * <p>
+   * This method may be called both during and after the period has been prepared.
+   * <p>
+   * A period may call {@link Callback#onContinueLoadingRequested(SequenceableLoader)} on the
+   * {@link Callback} passed to {@link #prepare(Callback)} to request that this method be called
+   * when the period is permitted to continue loading data. A period may do this both during and
+   * after preparation.
+   *
+   * @param positionUs The current playback position.
+   * @return True if progress was made, meaning that {@link #getNextLoadPositionUs()} will return
+   *     a different value than prior to the call. False otherwise.
+   */
+  @Override
+  boolean continueLoading(long positionUs);
+
 }
