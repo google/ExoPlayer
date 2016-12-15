@@ -129,7 +129,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioTrack = new AudioTrack(audioCapabilities, this);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
@@ -274,7 +274,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onDisabled() {
-    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
       audioTrack.release();
     } finally {
@@ -328,8 +328,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (!audioTrack.isInitialized()) {
       // Initialize the AudioTrack now.
       try {
-        if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
-          audioSessionId = audioTrack.initialize(C.AUDIO_SESSION_ID_UNSET);
+        if (audioSessionId == AudioTrack.SESSION_ID_NOT_SET) {
+          audioSessionId = audioTrack.initialize(AudioTrack.SESSION_ID_NOT_SET);
           eventDispatcher.audioSessionId(audioSessionId);
           onAudioSessionId(audioSessionId);
         } else {
@@ -387,7 +387,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case C.MSG_SET_STREAM_TYPE:
         @C.StreamType int streamType = (Integer) message;
         if (audioTrack.setStreamType(streamType)) {
-          audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
         }
         break;
       default:

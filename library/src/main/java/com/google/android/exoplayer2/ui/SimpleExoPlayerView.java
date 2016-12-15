@@ -65,13 +65,6 @@ import java.util.List;
  *         <li>Default: {@code true}</li>
  *       </ul>
  *   </li>
- *   <li><b>{@code default_artwork}</b> - Default artwork to use if no artwork available in audio
- *       streams.
- *       <ul>
- *         <li>Corresponding method: {@link #setDefaultArtwork(Bitmap)}</li>
- *         <li>Default: {@code null}</li>
- *       </ul>
- *   </li>
  *   <li><b>{@code use_controller}</b> - Whether playback controls are displayed.
  *       <ul>
  *         <li>Corresponding method: {@link #setUseController(boolean)}</li>
@@ -186,7 +179,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private SimpleExoPlayer player;
   private boolean useController;
   private boolean useArtwork;
-  private Bitmap defaultArtwork;
   private int controllerShowTimeoutMs;
 
   public SimpleExoPlayerView(Context context) {
@@ -202,7 +194,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     int playerLayoutId = R.layout.exo_simple_player_view;
     boolean useArtwork = true;
-    int defaultArtwork = 0;
     boolean useController = true;
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
@@ -214,8 +205,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
         playerLayoutId = a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id,
             playerLayoutId);
         useArtwork = a.getBoolean(R.styleable.SimpleExoPlayerView_use_artwork, useArtwork);
-        defaultArtwork = a.getResourceId(R.styleable.SimpleExoPlayerView_default_artwork,
-                defaultArtwork);
         useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
         surfaceType = a.getInt(R.styleable.SimpleExoPlayerView_surface_type, surfaceType);
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
@@ -257,9 +246,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     // Artwork view.
     artworkView = (ImageView) findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
-    if (defaultArtwork != 0) {
-      this.defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtwork);
-    }
 
     // Subtitle view.
     subtitleView = (SubtitleView) findViewById(R.id.exo_subtitles);
@@ -361,26 +347,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     Assertions.checkState(!useArtwork || artworkView != null);
     if (this.useArtwork != useArtwork) {
       this.useArtwork = useArtwork;
-      updateForCurrentTrackSelections();
-    }
-  }
-
-  /**
-   * Returns the default artwork to display.
-   */
-  public Bitmap getDefaultArtwork() {
-    return defaultArtwork;
-  }
-
-  /**
-   * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
-   * present in the media.
-   *
-   * @param defaultArtwork the default artwork to display.
-   */
-  public void setDefaultArtwork(Bitmap defaultArtwork) {
-    if (this.defaultArtwork != defaultArtwork) {
-      this.defaultArtwork = defaultArtwork;
       updateForCurrentTrackSelections();
     }
   }
@@ -603,9 +569,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
           }
         }
       }
-      if (setArtworkFromBitmap(defaultArtwork)) {
-        return;
-      }
     }
     // Artwork disabled or unavailable.
     hideArtwork();
@@ -617,23 +580,18 @@ public final class SimpleExoPlayerView extends FrameLayout {
       if (metadataEntry instanceof ApicFrame) {
         byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        return setArtworkFromBitmap(bitmap);
-      }
-    }
-    return false;
-  }
-
-  private boolean setArtworkFromBitmap(Bitmap bitmap) {
-    if (bitmap != null) {
-      int bitmapWidth = bitmap.getWidth();
-      int bitmapHeight = bitmap.getHeight();
-      if (bitmapWidth > 0 && bitmapHeight > 0) {
-        if (contentFrame != null) {
-          contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
+        if (bitmap != null) {
+          int bitmapWidth = bitmap.getWidth();
+          int bitmapHeight = bitmap.getHeight();
+          if (bitmapWidth > 0 && bitmapHeight > 0) {
+            if (contentFrame != null) {
+              contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
+            }
+            artworkView.setImageBitmap(bitmap);
+            artworkView.setVisibility(VISIBLE);
+            return true;
+          }
         }
-        artworkView.setImageBitmap(bitmap);
-        artworkView.setVisibility(VISIBLE);
-        return true;
       }
     }
     return false;

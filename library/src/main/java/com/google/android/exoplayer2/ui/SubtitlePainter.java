@@ -146,13 +146,9 @@ import com.google.android.exoplayer2.util.Util;
       // Nothing to draw.
       return;
     }
-
-    int windowColor = cue.windowColorSet ? cue.windowColor : style.windowColor;
-
     if (!applyEmbeddedStyles) {
       // Strip out any embedded styling.
       cueText = cueText.toString();
-      windowColor = style.windowColor;
     }
     if (areCharSequencesEqual(this.cueText, cueText)
         && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
@@ -165,7 +161,7 @@ import com.google.android.exoplayer2.util.Util;
         && this.applyEmbeddedStyles == applyEmbeddedStyles
         && this.foregroundColor == style.foregroundColor
         && this.backgroundColor == style.backgroundColor
-        && this.windowColor == windowColor
+        && this.windowColor == style.windowColor
         && this.edgeType == style.edgeType
         && this.edgeColor == style.edgeColor
         && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
@@ -191,7 +187,7 @@ import com.google.android.exoplayer2.util.Util;
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.foregroundColor = style.foregroundColor;
     this.backgroundColor = style.backgroundColor;
-    this.windowColor = windowColor;
+    this.windowColor = style.windowColor;
     this.edgeType = style.edgeType;
     this.edgeColor = style.edgeColor;
     this.textPaint.setTypeface(style.typeface);

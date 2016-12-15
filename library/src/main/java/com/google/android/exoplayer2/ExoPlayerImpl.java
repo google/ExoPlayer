@@ -332,10 +332,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          if (msg.arg1 != 0) {
-            for (EventListener listener : listeners) {
-              listener.onPositionDiscontinuity();
-            }
+          for (EventListener listener : listeners) {
+            listener.onPositionDiscontinuity();
           }
         }
         break;
