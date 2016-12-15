@@ -244,7 +244,7 @@ import java.io.IOException;
 
   @Override
   public long getNextLoadPositionUs() {
-    return getBufferedPositionUs();
+    return enabledTrackCount == 0 ? C.TIME_END_OF_SOURCE : getBufferedPositionUs();
   }
 
   @Override
