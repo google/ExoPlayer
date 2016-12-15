@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.audio;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioTimestamp;
 import android.media.PlaybackParams;
 import android.os.ConditionVariable;
@@ -30,26 +32,28 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Plays audio data. The implementation delegates to an {@link android.media.AudioTrack} and handles
  * playback position smoothing, non-blocking writes and reconfiguration.
  * <p>
  * Before starting playback, specify the input format by calling
- * {@link #configure(String, int, int, int, int)}. Next call {@link #initialize(int)}, optionally
- * specifying an audio session.
+ * {@link #configure(String, int, int, int, int)}. Next call {@link #initialize(int)} or
+ * {@link #initializeV21(int, boolean)}, optionally specifying an audio session and whether the
+ * track is to be used with tunneling video playback.
  * <p>
  * Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
  * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
  * <p>
  * Call {@link #configure(String, int, int, int, int)} whenever the input format changes. If
  * {@link #isInitialized()} returns {@code false} after the call, it is necessary to call
- * {@link #initialize(int)} before writing more data.
+ * {@link #initialize(int)} or {@link #initializeV21(int, boolean)} before writing more data.
  * <p>
  * The underlying {@link android.media.AudioTrack} is created by {@link #initialize(int)} and
  * released by {@link #reset()} (and {@link #configure(String, int, int, int, int)} unless the input
- * format is unchanged). It is safe to call {@link #initialize(int)} after calling {@link #reset()}
- * without reconfiguration.
+ * format is unchanged). It is safe to call {@link #initialize(int)} or
+ * {@link #initializeV21(int, boolean)} after calling {@link #reset()} without reconfiguration.
  * <p>
  * Call {@link #release()} when the instance is no longer required.
  */
@@ -144,9 +148,11 @@ public final class AudioTrack {
   public static final int RESULT_BUFFER_CONSUMED = 2;
 
   /**
-   * Represents an unset {@link android.media.AudioTrack} session identifier.
+   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
+   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
    */
-  public static final int SESSION_ID_NOT_SET = 0;
+  @SuppressWarnings("InlinedApi")
+  public static final int SESSION_ID_NOT_SET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
   /**
    * Returned by {@link #getCurrentPositionUs} when the position is not set.
@@ -273,6 +279,10 @@ public final class AudioTrack {
   private int bufferSize;
   private long bufferSizeUs;
 
+  private boolean useHwAvSync;
+  private ByteBuffer avSyncHeader;
+  private int bytesUntilNextAvSync;
+
   private int nextPlayheadOffsetIndex;
   private int playheadOffsetCount;
   private long smoothedPlayheadOffsetUs;
@@ -341,8 +351,8 @@ public final class AudioTrack {
   }
 
   /**
-   * Returns whether the audio track has been successfully initialized via {@link #initialize} and
-   * not yet {@link #reset}.
+   * Returns whether the audio track has been successfully initialized via {@link #initialize} or
+   * {@link #initializeV21(int, boolean)}, and has not yet been {@link #reset}.
    */
   public boolean isInitialized() {
     return audioTrack != null;
@@ -498,11 +508,26 @@ public final class AudioTrack {
   /**
    * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
    *
-   * @param sessionId Audio track session identifier to re-use, or {@link #SESSION_ID_NOT_SET} to
-   *     create a new one.
-   * @return The new (or re-used) session identifier.
+   * @param sessionId Audio track session identifier, or {@link #SESSION_ID_NOT_SET} to create one.
+   * @return The audio track session identifier.
    */
   public int initialize(int sessionId) throws InitializationException {
+    return initializeInternal(sessionId, false);
+  }
+
+  /**
+   * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
+   *
+   * @param sessionId Audio track session identifier, or {@link #SESSION_ID_NOT_SET} to create one.
+   * @param tunneling Whether the audio track is to be used with tunneling video playback.
+   * @return The audio track session identifier.
+   */
+  public int initializeV21(int sessionId, boolean tunneling) throws InitializationException {
+    Assertions.checkState(Util.SDK_INT >= 21);
+    return initializeInternal(sessionId, tunneling);
+  }
+
+  private int initializeInternal(int sessionId, boolean tunneling) throws InitializationException {
     // If we're asynchronously releasing a previous audio track then we block until it has been
     // released. This guarantees that we cannot end up in a state where we have multiple audio
     // track instances. Without this guarantee it would be possible, in extreme cases, to exhaust
@@ -510,7 +535,11 @@ public final class AudioTrack {
     // initialization of the audio track to fail.
     releasingConditionVariable.block();
 
-    if (sessionId == SESSION_ID_NOT_SET) {
+    useHwAvSync = tunneling;
+    if (useHwAvSync) {
+      audioTrack = createHwAvSyncAudioTrackV21(sampleRate, channelConfig, targetEncoding,
+          bufferSize, sessionId);
+    } else if (sessionId == SESSION_ID_NOT_SET) {
       audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig,
           targetEncoding, bufferSize, MODE_STREAM);
     } else {
@@ -692,7 +721,9 @@ public final class AudioTrack {
         buffer.position(buffer.position() + bytesWritten);
       }
     } else {
-      bytesWritten = writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
+      bytesWritten = useHwAvSync
+          ? writeNonBlockingWithAvSyncV21(audioTrack, buffer, bytesRemaining, presentationTimeUs)
+          : writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
     }
 
     if (bytesWritten < 0) {
@@ -718,6 +749,7 @@ public final class AudioTrack {
   public void handleEndOfStream() {
     if (isInitialized()) {
       audioTrackUtil.handleEndOfStream(getSubmittedFrames());
+      bytesUntilNextAvSync = 0;
     }
   }
 
@@ -743,19 +775,27 @@ public final class AudioTrack {
   }
 
   /**
-   * Sets the stream type for audio track. If the stream type has changed, {@link #isInitialized()}
-   * will return {@code false} and the caller must re-{@link #initialize(int)} the audio track
-   * before writing more data. The caller must not reuse the audio session identifier when
-   * re-initializing with a new stream type.
+   * Sets the stream type for audio track. If the stream type has changed and if the audio track
+   * is not configured for use with video tunneling, then the audio track is reset and the caller
+   * must re-initialize the audio track before writing more data. The caller must not reuse the
+   * audio session identifier when re-initializing with a new stream type.
+   * <p>
+   * If the audio track is configured for use with video tunneling then the stream type is ignored
+   * and the audio track is not reset. The passed stream type will be used if the audio track is
+   * later re-configured into non-tunneled mode.
    *
    * @param streamType The {@link C.StreamType} to use for audio output.
-   * @return Whether the stream type changed.
+   * @return Whether the audio track was reset as a result of this call.
    */
   public boolean setStreamType(@C.StreamType int streamType) {
     if (this.streamType == streamType) {
       return false;
     }
     this.streamType = streamType;
+    if (useHwAvSync) {
+      // The stream type is ignored in tunneling mode, so no need to reset.
+      return false;
+    }
     reset();
     return true;
   }
@@ -795,9 +835,9 @@ public final class AudioTrack {
   /**
    * Releases the underlying audio track asynchronously.
    * <p>
-   * Calling {@link #initialize(int)} will block until the audio track has been released, so it is
-   * safe to initialize immediately after a reset. The audio session may remain active until
-   * {@link #release()} is called.
+   * Calling {@link #initialize(int)} or {@link #initializeV21(int, boolean)} will block until the
+   * audio track has been released, so it is safe to initialize immediately after a reset. The audio
+   * session may remain active until {@link #release()} is called.
    */
   public void reset() {
     if (isInitialized()) {
@@ -805,6 +845,7 @@ public final class AudioTrack {
       submittedEncodedFrames = 0;
       framesPerEncodedSample = 0;
       currentSourceBuffer = null;
+      avSyncHeader = null;
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
       resetSyncParams();
@@ -1021,6 +1062,26 @@ public final class AudioTrack {
   }
 
   /**
+   * Instantiates an {@link android.media.AudioTrack} to be used with tunneling video playback.
+   */
+  @TargetApi(21)
+  private static android.media.AudioTrack createHwAvSyncAudioTrackV21(int sampleRate,
+      int channelConfig, int encoding, int bufferSize, int sessionId) {
+    AudioAttributes attributesBuilder = new AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+        .setFlags(AudioAttributes.FLAG_HW_AV_SYNC)
+        .build();
+    AudioFormat format = new AudioFormat.Builder()
+        .setChannelMask(channelConfig)
+        .setEncoding(encoding)
+        .setSampleRate(sampleRate)
+        .build();
+    return new android.media.AudioTrack(attributesBuilder, format, bufferSize, MODE_STREAM,
+        sessionId);
+  }
+
+  /**
    * Converts the provided buffer into 16-bit PCM.
    *
    * @param buffer The buffer containing the data to convert.
@@ -1125,9 +1186,48 @@ public final class AudioTrack {
   }
 
   @TargetApi(21)
-  private static int writeNonBlockingV21(
-      android.media.AudioTrack audioTrack, ByteBuffer buffer, int size) {
+  private static int writeNonBlockingV21(android.media.AudioTrack audioTrack, ByteBuffer buffer,
+      int size) {
     return audioTrack.write(buffer, size, WRITE_NON_BLOCKING);
+  }
+
+  @TargetApi(21)
+  private int writeNonBlockingWithAvSyncV21(android.media.AudioTrack audioTrack,
+      ByteBuffer buffer, int size, long presentationTimeUs) {
+    // TODO: Uncomment this when [Internal ref b/33627517] is clarified or fixed.
+    // if (Util.SDK_INT >= 23) {
+    //   // The underlying platform AudioTrack writes AV sync headers directly.
+    //   return audioTrack.write(buffer, size, WRITE_NON_BLOCKING, presentationTimeUs * 1000);
+    // }
+    if (avSyncHeader == null) {
+      avSyncHeader = ByteBuffer.allocate(16);
+      avSyncHeader.order(ByteOrder.BIG_ENDIAN);
+      avSyncHeader.putInt(0x55550001);
+    }
+    if (bytesUntilNextAvSync == 0) {
+      avSyncHeader.putInt(4, size);
+      avSyncHeader.putLong(8, presentationTimeUs * 1000);
+      avSyncHeader.position(0);
+      bytesUntilNextAvSync = size;
+    }
+    int avSyncHeaderBytesRemaining = avSyncHeader.remaining();
+    if (avSyncHeaderBytesRemaining > 0) {
+      int result = audioTrack.write(avSyncHeader, avSyncHeaderBytesRemaining, WRITE_NON_BLOCKING);
+      if (result < 0) {
+        bytesUntilNextAvSync = 0;
+        return result;
+      }
+      if (result < avSyncHeaderBytesRemaining) {
+        return 0;
+      }
+    }
+    int result = writeNonBlockingV21(audioTrack, buffer, size);
+    if (result < 0) {
+      bytesUntilNextAvSync = 0;
+      return result;
+    }
+    bytesUntilNextAvSync -= result;
+    return result;
   }
 
   @TargetApi(21)
