@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import android.test.InstrumentationTestCase;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.TestUtil;
 
@@ -24,13 +25,21 @@ import com.google.android.exoplayer2.testutil.TestUtil;
  */
 public final class FragmentedMp4ExtractorTest extends InstrumentationTestCase {
 
+  private static final TestUtil.ExtractorFactory EXTRACTOR_FACTORY =
+      new TestUtil.ExtractorFactory() {
+        @Override
+        public Extractor create() {
+          return new FragmentedMp4Extractor();
+        }
+      };
+
   public void testSample() throws Exception {
-    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
-      @Override
-      public Extractor create() {
-        return new FragmentedMp4Extractor();
-      }
-    }, "mp4/sample_fragmented.mp4", getInstrumentation());
+    TestUtil.assertOutput(EXTRACTOR_FACTORY, "mp4/sample_fragmented.mp4", getInstrumentation());
+  }
+
+  public void testAtomWithZeroSize() throws Exception {
+    TestUtil.assertThrows(EXTRACTOR_FACTORY, "mp4/sample_fragmented_zero_size_atom.mp4",
+        getInstrumentation(), ParserException.class);
   }
 
 }

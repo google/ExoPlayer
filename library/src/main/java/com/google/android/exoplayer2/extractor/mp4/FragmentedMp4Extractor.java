@@ -257,6 +257,10 @@ public final class FragmentedMp4Extractor implements Extractor {
       atomSize = atomHeader.readUnsignedLongToLong();
     }
 
+    if (atomSize < atomHeaderBytesRead) {
+      throw new ParserException("Atom size less than header length (unsupported).");
+    }
+
     long atomPosition = input.getPosition() - atomHeaderBytesRead;
     if (atomType == Atom.TYPE_moof) {
       // The data positions may be updated when parsing the tfhd/trun.

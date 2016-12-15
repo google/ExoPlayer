@@ -300,6 +300,81 @@ public class TestUtil {
     return extractorOutput;
   }
 
+  /**
+   * Calls {@link #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)} with all
+   * possible combinations of "simulate" parameters.
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param sampleFile The path to the input sample.
+   * @param instrumentation To be used to load the sample file.
+   * @param expectedThrowable Expected {@link Throwable} class.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
+   */
+  public static void assertThrows(ExtractorFactory factory, String sampleFile,
+      Instrumentation instrumentation, Class<? extends Throwable> expectedThrowable)
+      throws IOException, InterruptedException {
+    byte[] fileData = getByteArray(instrumentation, sampleFile);
+    assertThrows(factory, fileData, expectedThrowable);
+  }
+
+  /**
+   * Calls {@link #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)} with all
+   * possible combinations of "simulate" parameters.
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param fileData Content of the input file.
+   * @param expectedThrowable Expected {@link Throwable} class.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
+   */
+  public static void assertThrows(ExtractorFactory factory, byte[] fileData,
+      Class<? extends Throwable> expectedThrowable) throws IOException, InterruptedException {
+    assertThrows(factory.create(), fileData, expectedThrowable, false, false, false);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true, false, false);
+    assertThrows(factory.create(), fileData, expectedThrowable, false,  true, false);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true,  true, false);
+    assertThrows(factory.create(), fileData, expectedThrowable, false, false,  true);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true, false,  true);
+    assertThrows(factory.create(), fileData, expectedThrowable, false,  true,  true);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true,  true,  true);
+  }
+
+  /**
+   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code sampleFile}.
+   *
+   * @param extractor The {@link Extractor} to be tested.
+   * @param fileData Content of the input file.
+   * @param expectedThrowable Expected {@link Throwable} class.
+   * @param simulateIOErrors If true simulates IOErrors.
+   * @param simulateUnknownLength If true simulates unknown input length.
+   * @param simulatePartialReads If true simulates partial reads.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertThrows(Extractor extractor, byte[] fileData,
+      Class<? extends Throwable> expectedThrowable, boolean simulateIOErrors,
+      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
+      InterruptedException {
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
+        .setSimulateIOErrors(simulateIOErrors)
+        .setSimulateUnknownLength(simulateUnknownLength)
+        .setSimulatePartialReads(simulatePartialReads).build();
+    try {
+      consumeTestData(extractor, input, 0, true);
+      throw new AssertionError(expectedThrowable.getSimpleName() + " expected but not thrown");
+    } catch (Throwable throwable) {
+      if (expectedThrowable.equals(throwable.getClass())) {
+        return; // Pass!
+      }
+      throw throwable;
+    }
+  }
+
   public static void recursiveDelete(File fileOrDirectory) {
     if (fileOrDirectory.isDirectory()) {
       for (File child : fileOrDirectory.listFiles()) {
