@@ -84,7 +84,6 @@ public final class ExoPlayerTest extends TestCase {
     private Format expectedFormat;
     private ExoPlayer player;
     private Exception exception;
-    private boolean seenPositionDiscontinuity;
 
     public PlayerWrapper() {
       endedCountDownLatch = new CountDownLatch(1);
@@ -121,7 +120,7 @@ public final class ExoPlayerTest extends TestCase {
             player.setPlayWhenReady(true);
             player.prepare(new FakeMediaSource(timeline, manifest, format));
           } catch (Exception e) {
-            handlePlayerException(e);
+            handleError(e);
           }
         }
       });
@@ -136,7 +135,7 @@ public final class ExoPlayerTest extends TestCase {
               player.release();
             }
           } catch (Exception e) {
-            handlePlayerException(e);
+            handleError(e);
           } finally {
             playerThread.quit();
           }
@@ -145,7 +144,7 @@ public final class ExoPlayerTest extends TestCase {
       playerThread.join();
     }
 
-    private void handlePlayerException(Exception exception) {
+    private void handleError(Exception exception) {
       if (this.exception == null) {
         this.exception = exception;
       }
@@ -180,20 +179,13 @@ public final class ExoPlayerTest extends TestCase {
 
     @Override
     public void onPlayerError(ExoPlaybackException exception) {
-      this.exception = exception;
-      endedCountDownLatch.countDown();
+      handleError(exception);
     }
 
     @Override
     public void onPositionDiscontinuity() {
-      assertFalse(seenPositionDiscontinuity);
-      assertEquals(0, player.getCurrentWindowIndex());
-      assertEquals(0, player.getCurrentPeriodIndex());
-      assertEquals(0, player.getCurrentPosition());
-      assertEquals(0, player.getBufferedPosition());
-      assertEquals(expectedTimeline, player.getCurrentTimeline());
-      assertEquals(expectedManifest, player.getCurrentManifest());
-      seenPositionDiscontinuity = true;
+      // Should never happen.
+      handleError(new IllegalStateException("Received position discontinuity"));
     }
 
   }

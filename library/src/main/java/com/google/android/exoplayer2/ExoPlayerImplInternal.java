@@ -559,7 +559,7 @@ import java.io.IOException;
       // The seek position was valid for the timeline that it was performed into, but the
       // timeline has changed and a suitable seek position could not be resolved in the new one.
       playbackInfo = new PlaybackInfo(0, 0);
-      eventHandler.obtainMessage(MSG_SEEK_ACK, playbackInfo).sendToTarget();
+      eventHandler.obtainMessage(MSG_SEEK_ACK, 1, 0, playbackInfo).sendToTarget();
       // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't
       // ignored.
       playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
@@ -569,6 +569,7 @@ import java.io.IOException;
       return;
     }
 
+    boolean seekPositionAdjusted = seekPosition.windowPositionUs == C.TIME_UNSET;
     int periodIndex = periodPosition.first;
     long periodPositionUs = periodPosition.second;
 
@@ -578,10 +579,13 @@ import java.io.IOException;
         // Seek position equals the current position. Do nothing.
         return;
       }
-      periodPositionUs = seekToPeriodPosition(periodIndex, periodPositionUs);
+      long newPeriodPositionUs = seekToPeriodPosition(periodIndex, periodPositionUs);
+      seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
+      periodPositionUs = newPeriodPositionUs;
     } finally {
       playbackInfo = new PlaybackInfo(periodIndex, periodPositionUs);
-      eventHandler.obtainMessage(MSG_SEEK_ACK, playbackInfo).sendToTarget();
+      eventHandler.obtainMessage(MSG_SEEK_ACK, seekPositionAdjusted ? 1 : 0, 0, playbackInfo)
+          .sendToTarget();
     }
   }
 
