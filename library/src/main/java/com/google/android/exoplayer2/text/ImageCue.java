@@ -4,12 +4,30 @@ import android.graphics.Bitmap;
 
 public class ImageCue extends Cue {
 
-    public ImageCue() { super(""); }
+  final private long start_display_time;
+  final private int x;
+  final private int y;
+  final private int height;
+  final private int width;
+  final private Bitmap bitmap;
+  final private boolean isForced;
 
-    public Bitmap getBitmap() { return null; }
-    public int getX() { return 0; }
-    public int getY() { return 0; }
-    public int getWidth() { return 0; }
-    public int getHeight() { return 0; }
-    public boolean isForcedSubtitle() { return false; }
+  public ImageCue(Bitmap bitmap, long start_display_time, int x, int y, int width, int height, boolean isForced) {
+    super("");
+    this.bitmap = bitmap;
+    this.start_display_time = start_display_time;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.isForced = isForced;
+  }
+
+  public long getStartDisplayTime() { return start_display_time; }
+  public Bitmap getBitmap() { return bitmap; }
+  public int getX() { return x; }
+  public int getY() { return y; }
+  public int getWidth() { return width; }
+  public int getHeight() { return height; }
+  public boolean isForcedSubtitle() { return isForced; }
 }
