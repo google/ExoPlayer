@@ -614,10 +614,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private final class ComponentListener implements SimpleExoPlayer.VideoListener,
       TextRenderer.Output, ExoPlayer.EventListener {
 
-
-    private int sourceWidth = 0;
-    private int sourceHeight = 0;
-
     // TextRenderer.Output implementation
 
     @Override
@@ -648,10 +644,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
         int surfaceAnchorY = (int) surfaceView.getY();
         int surfaceWidth = surfaceView.getWidth();
         int surfaceHeight = surfaceView.getHeight();
+        int sourceWidth = cue.getPlaneWidth();
+        int sourceHeight = cue.getPlaneHeight();
         int subAnchorX = cue.getX();
         int subAnchorY = cue.getY();
-        int subScaleWidth = cue.getWidth();
-        int subScaleHeight = cue.getHeight();
+        int subScaleWidth = cue.getBitmapWidth();
+        int subScaleHeight = cue.getBitmapHeight();
 
         // they should change together as we keep the aspect ratio
         if ((surfaceHeight != sourceHeight || surfaceWidth != sourceWidth)
@@ -691,8 +689,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
 
-      sourceWidth = width;
-      sourceHeight = height;
       if (contentFrame != null) {
         float aspectRatio = height == 0 ? 1 : (width * pixelWidthHeightRatio) / height;
         contentFrame.setAspectRatio(aspectRatio);
