@@ -15,22 +15,36 @@
 -->
 <resources>
 
+  <!-- Must be kept in sync with AspectRatioFrameLayout -->
   <attr name="resize_mode" format="enum">
     <enum name="fit" value="0"/>
     <enum name="fixed_width" value="1"/>
     <enum name="fixed_height" value="2"/>
+    <enum name="fill" value="3"/>
+  </attr>
+
+  <!-- Must be kept in sync with SimpleExoPlayerView -->
+  <attr name="surface_type" format="enum">
+    <enum name="none" value="0"/>
+    <enum name="surface_view" value="1"/>
+    <enum name="texture_view" value="2"/>
   </attr>
   <attr name="show_timeout" format="integer"/>
   <attr name="rewind_increment" format="integer"/>
   <attr name="fastforward_increment" format="integer"/>
+  <attr name="player_layout_id" format="reference"/>
+  <attr name="controller_layout_id" format="reference"/>
 
   <declare-styleable name="SimpleExoPlayerView">
+    <attr name="use_artwork" format="boolean"/>
     <attr name="use_controller" format="boolean"/>
-    <attr name="use_texture_view" format="boolean"/>
+    <attr name="surface_type"/>
     <attr name="show_timeout"/>
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>
     <attr name="resize_mode"/>
+    <attr name="player_layout_id"/>
+    <attr name="controller_layout_id"/>
   </declare-styleable>
 
   <declare-styleable name="AspectRatioFrameLayout">
@@ -41,6 +55,7 @@
     <attr name="show_timeout"/>
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>
+    <attr name="controller_layout_id"/>
   </declare-styleable>
 
 </resources>

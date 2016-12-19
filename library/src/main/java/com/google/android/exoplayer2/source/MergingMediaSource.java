@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.support.annotation.IntDef;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
@@ -92,11 +93,11 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(final Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     this.listener = listener;
     for (int i = 0; i < mediaSources.length; i++) {
       final int sourceIndex = i;
-      mediaSources[sourceIndex].prepareSource(new Listener() {
+      mediaSources[sourceIndex].prepareSource(player, false, new Listener() {
         @Override
         public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
           handleSourceInfoRefreshed(sourceIndex, timeline, manifest);

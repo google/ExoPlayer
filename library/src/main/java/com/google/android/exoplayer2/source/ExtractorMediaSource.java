@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -135,7 +136,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   }
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     sourceListener = listener;
     timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
     listener.onSourceInfoRefreshed(timeline, null);

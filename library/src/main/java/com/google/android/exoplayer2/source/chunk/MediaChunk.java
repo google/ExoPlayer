@@ -53,7 +53,7 @@ public abstract class MediaChunk extends Chunk {
   /**
    * Returns the next chunk index.
    */
-  public final int getNextChunkIndex() {
+  public int getNextChunkIndex() {
     return chunkIndex + 1;
   }
 

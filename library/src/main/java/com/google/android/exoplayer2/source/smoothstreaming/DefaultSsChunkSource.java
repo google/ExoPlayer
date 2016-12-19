@@ -218,7 +218,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;
     return new ContainerMediaChunk(dataSource, dataSpec, format, trackSelectionReason,
-        trackSelectionData, chunkStartTimeUs, chunkEndTimeUs, chunkIndex, sampleOffsetUs,
+        trackSelectionData, chunkStartTimeUs, chunkEndTimeUs, chunkIndex, 1, sampleOffsetUs,
         extractorWrapper, format);
   }
 

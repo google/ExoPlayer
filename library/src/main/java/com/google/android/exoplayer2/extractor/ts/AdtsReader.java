@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
@@ -32,7 +33,7 @@ import java.util.Collections;
 /**
  * Parses a continuous ADTS byte stream and extracts individual frames.
  */
-/* package */ final class AdtsReader extends ElementaryStreamReader {
+/* package */ final class AdtsReader implements ElementaryStreamReader {
 
   private static final String TAG = "AdtsReader";
 
@@ -106,7 +107,7 @@ import java.util.Collections;
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     output = extractorOutput.track(idGenerator.getNextId());
     if (exposeId3) {
       id3Output = extractorOutput.track(idGenerator.getNextId());

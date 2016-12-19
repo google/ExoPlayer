@@ -252,7 +252,7 @@ import com.google.android.exoplayer2.util.Util;
         if (cueLine >= 0) {
           anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
         } else {
-          anchorPosition = Math.round(cueLine * firstLineHeight) + parentBottom;
+          anchorPosition = Math.round((cueLine + 1) * firstLineHeight) + parentBottom;
         }
       }
       textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight

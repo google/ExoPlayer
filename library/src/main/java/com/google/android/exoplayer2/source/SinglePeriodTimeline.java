@@ -74,9 +74,18 @@ public final class SinglePeriodTimeline extends Timeline {
   }
 
   @Override
-  public Window getWindow(int windowIndex, Window window, boolean setIds) {
+  public Window getWindow(int windowIndex, Window window, boolean setIds,
+      long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, 1);
     Object id = setIds ? ID : null;
+    long windowDefaultStartPositionUs = this.windowDefaultStartPositionUs;
+    if (isDynamic) {
+      windowDefaultStartPositionUs += defaultPositionProjectionUs;
+      if (windowDefaultStartPositionUs > windowDurationUs) {
+        // The projection takes us beyond the end of the live window.
+        windowDefaultStartPositionUs = C.TIME_UNSET;
+      }
+    }
     return window.set(id, C.TIME_UNSET, C.TIME_UNSET, isSeekable, isDynamic,
         windowDefaultStartPositionUs, windowDurationUs, 0, 0, windowPositionInPeriodUs);
   }

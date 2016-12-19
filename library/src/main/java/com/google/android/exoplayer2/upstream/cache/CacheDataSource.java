@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
 import android.support.annotation.IntDef;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -25,7 +24,7 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSink.CacheDataSinkException;
+import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Retention;
@@ -51,7 +50,7 @@ public final class CacheDataSource implements DataSource {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR,
-      FLAG_CACHE_UNBOUNDED_REQUESTS})
+      FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS})
   public @interface Flags {}
   /**
    * A flag indicating whether we will block reads if the cache key is locked. If this flag is
@@ -67,11 +66,9 @@ public final class CacheDataSource implements DataSource {
   public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1;
 
   /**
-   * A flag indicating whether the response is cached if the range of the request is unbounded.
-   * Disabled by default because, as a side effect, this may allow streams with every chunk from a
-   * separate URL cached which is broken currently.
+   * A flag indicating that the cache should be bypassed for requests whose lengths are unset.
    */
-  public static final int FLAG_CACHE_UNBOUNDED_REQUESTS = 1 << 2;
+  public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2;
 
   /**
    * Listener of {@link CacheDataSource} events.
@@ -88,8 +85,6 @@ public final class CacheDataSource implements DataSource {
 
   }
 
-  private static final String TAG = "CacheDataSource";
-
   private final Cache cache;
   private final DataSource cacheReadDataSource;
   private final DataSource cacheWriteDataSource;
@@ -98,7 +93,7 @@ public final class CacheDataSource implements DataSource {
 
   private final boolean blockOnCache;
   private final boolean ignoreCacheOnError;
-  private final boolean bypassUnboundedRequests;
+  private final boolean ignoreCacheForUnsetLengthRequests;
 
   private DataSource currentDataSource;
   private boolean currentRequestUnbounded;
@@ -127,8 +122,8 @@ public final class CacheDataSource implements DataSource {
    *
    * @param cache The cache.
    * @param upstream A {@link DataSource} for reading data not in the cache.
-   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR}
-   *     and {@link #FLAG_CACHE_UNBOUNDED_REQUESTS} or 0.
+   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE} and {@link
+   *     #FLAG_IGNORE_CACHE_ON_ERROR} or 0.
    * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the cached data size
    *     exceeds this value, then the data will be fragmented into multiple cache files. The
    *     finer-grained this is the finer-grained the eviction policy can be.
@@ -148,8 +143,8 @@ public final class CacheDataSource implements DataSource {
    * @param upstream A {@link DataSource} for reading data not in the cache.
    * @param cacheReadDataSource A {@link DataSource} for reading data from the cache.
    * @param cacheWriteDataSink A {@link DataSink} for writing data to the cache.
-   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR}
-   *     and {@link #FLAG_CACHE_UNBOUNDED_REQUESTS} or 0.
+   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE} and {@link
+   *     #FLAG_IGNORE_CACHE_ON_ERROR} or 0.
    * @param eventListener An optional {@link EventListener} to receive events.
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
@@ -158,7 +153,8 @@ public final class CacheDataSource implements DataSource {
     this.cacheReadDataSource = cacheReadDataSource;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
-    this.bypassUnboundedRequests = (flags & FLAG_CACHE_UNBOUNDED_REQUESTS) == 0;
+    this.ignoreCacheForUnsetLengthRequests =
+        (flags & FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS) != 0;
     this.upstreamDataSource = upstream;
     if (cacheWriteDataSink != null) {
       this.cacheWriteDataSource = new TeeDataSource(upstream, cacheWriteDataSink);
@@ -173,10 +169,10 @@ public final class CacheDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       flags = dataSpec.flags;
-      key = dataSpec.key;
+      key = dataSpec.key != null ? dataSpec.key : uri.toString();
       readPosition = dataSpec.position;
       currentRequestIgnoresCache = (ignoreCacheOnError && seenCacheError)
-          || (bypassUnboundedRequests && dataSpec.length == C.LENGTH_UNSET);
+          || (dataSpec.length == C.LENGTH_UNSET && ignoreCacheForUnsetLengthRequests);
       if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
         bytesRemaining = dataSpec.length;
       } else {
@@ -342,11 +338,8 @@ public final class CacheDataSource implements DataSource {
     return successful;
   }
 
-  private void setContentLength(long length) {
-    if (!cache.setContentLength(key, length)) {
-      Log.e(TAG, "cache.setContentLength(" + length + ") failed. cache.getContentLength() = "
-          + cache.getContentLength(key));
-    }
+  private void setContentLength(long length) throws IOException {
+    cache.setContentLength(key, length);
   }
 
   private void closeCurrentSource() throws IOException {
@@ -366,7 +359,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   private void handleBeforeThrow(IOException exception) {
-    if (currentDataSource == cacheReadDataSource || exception instanceof CacheDataSinkException) {
+    if (currentDataSource == cacheReadDataSource || exception instanceof CacheException) {
       seenCacheError = true;
     }
   }

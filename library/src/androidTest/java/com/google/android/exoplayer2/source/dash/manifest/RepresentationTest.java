@@ -27,16 +27,17 @@ public class RepresentationTest extends TestCase {
 
   public void testGetCacheKey() {
     String uri = "http://www.google.com";
-    SegmentBase base = new SingleSegmentBase(new RangedUri(uri, null, 0, 1), 1, 0, uri, 1, 1);
+    SegmentBase base = new SingleSegmentBase(new RangedUri(null, 0, 1), 1, 0, 1, 1);
     Format format = Format.createVideoContainerFormat("0", MimeTypes.APPLICATION_MP4, null,
         MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null);
-    Representation representation = Representation.newInstance("test_stream_1", 3, format, base);
+    Representation representation = Representation.newInstance("test_stream_1", 3, format, uri,
+        base);
     assertEquals("test_stream_1.0.3", representation.getCacheKey());
 
     format = Format.createVideoContainerFormat("150", MimeTypes.APPLICATION_MP4, null,
         MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null);
     representation = Representation.newInstance("test_stream_1", Representation.REVISION_ID_DEFAULT,
-        format, base);
+        format, uri, base);
     assertEquals("test_stream_1.150.-1", representation.getCacheKey());
   }
 

@@ -30,38 +30,34 @@ import java.nio.ByteBuffer;
 
 /**
  * A renderer for metadata.
- *
- * @param <T> The type of the metadata.
  */
-public final class MetadataRenderer<T> extends BaseRenderer implements Callback {
+public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   /**
    * Receives output from a {@link MetadataRenderer}.
-   *
-   * @param <T> The type of the metadata.
    */
-  public interface Output<T> {
+  public interface Output {
 
     /**
      * Called each time there is a metadata associated with current playback time.
      *
      * @param metadata The metadata.
      */
-    void onMetadata(T metadata);
+    void onMetadata(Metadata metadata);
 
   }
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
-  private final MetadataDecoder<T> metadataDecoder;
-  private final Output<T> output;
+  private final MetadataDecoder metadataDecoder;
+  private final Output output;
   private final Handler outputHandler;
   private final FormatHolder formatHolder;
   private final DecoderInputBuffer buffer;
 
   private boolean inputStreamEnded;
   private long pendingMetadataTimestamp;
-  private T pendingMetadata;
+  private Metadata pendingMetadata;
 
   /**
    * @param output The output.
@@ -72,8 +68,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
    *     called directly on the player's internal rendering thread.
    * @param metadataDecoder A decoder for the metadata.
    */
-  public MetadataRenderer(Output<T> output, Looper outputLooper,
-      MetadataDecoder<T> metadataDecoder) {
+  public MetadataRenderer(Output output, Looper outputLooper, MetadataDecoder metadataDecoder) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
@@ -137,7 +132,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
     return true;
   }
 
-  private void invokeRenderer(T metadata) {
+  private void invokeRenderer(Metadata metadata) {
     if (outputHandler != null) {
       outputHandler.obtainMessage(MSG_INVOKE_RENDERER, metadata).sendToTarget();
     } else {
@@ -150,13 +145,13 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_INVOKE_RENDERER:
-        invokeRendererInternal((T) msg.obj);
+        invokeRendererInternal((Metadata) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeRendererInternal(T metadata) {
+  private void invokeRendererInternal(Metadata metadata) {
     output.onMetadata(metadata);
   }
 

@@ -20,12 +20,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.DtsUtil;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Parses a continuous DTS byte stream and extracts individual samples.
  */
-/* package */ final class DtsReader extends ElementaryStreamReader {
+/* package */ final class DtsReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;
@@ -77,7 +78,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     output = extractorOutput.track(idGenerator.getNextId());
   }
 

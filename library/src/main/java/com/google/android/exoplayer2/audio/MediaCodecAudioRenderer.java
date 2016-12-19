@@ -16,14 +16,12 @@
 package com.google.android.exoplayer2.audio;
 
 import android.annotation.TargetApi;
-import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.PlaybackParams;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
-import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -43,7 +41,8 @@ import java.nio.ByteBuffer;
  * Decodes and renders audio using {@link MediaCodec} and {@link AudioTrack}.
  */
 @TargetApi(16)
-public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
+public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock,
+    AudioTrack.Listener {
 
   private final EventDispatcher eventDispatcher;
   private final AudioTrack audioTrack;
@@ -54,9 +53,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private int audioSessionId;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
-
-  private boolean audioTrackHasData;
-  private long lastFeedElapsedRealtimeMs;
 
   /**
    * @param mediaCodecSelector A decoder selector.
@@ -76,7 +72,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
 
@@ -109,7 +106,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
-        eventListener, null, AudioManager.STREAM_MUSIC);
+        eventListener, null);
   }
 
   /**
@@ -126,16 +123,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      int streamType) {
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    audioTrack = new AudioTrack(audioCapabilities, streamType);
+    audioTrack = new AudioTrack(audioCapabilities, this);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -149,7 +144,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | FORMAT_HANDLED;
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false);
+    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false, false);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
@@ -343,29 +338,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         } else {
           audioTrack.initialize(audioSessionId);
         }
-        audioTrackHasData = false;
       } catch (AudioTrack.InitializationException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       if (getState() == STATE_STARTED) {
         audioTrack.play();
       }
-    } else {
-      // Check for AudioTrack underrun.
-      boolean audioTrackHadData = audioTrackHasData;
-      audioTrackHasData = audioTrack.hasPendingData();
-      if (audioTrackHadData && !audioTrackHasData && getState() == STATE_STARTED) {
-        long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
-        long bufferSizeMs = C.usToMs(audioTrack.getBufferSizeUs());
-        eventDispatcher.audioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs,
-            elapsedSinceLastFeedMs);
-      }
     }
 
     int handleBufferResult;
     try {
       handleBufferResult = audioTrack.handleBuffer(buffer, bufferPresentationTimeUs);
-      lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } catch (AudioTrack.WriteException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
@@ -404,10 +387,23 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case C.MSG_SET_PLAYBACK_PARAMS:
         audioTrack.setPlaybackParams((PlaybackParams) message);
         break;
+      case C.MSG_SET_STREAM_TYPE:
+        @C.StreamType int streamType = (Integer) message;
+        if (audioTrack.setStreamType(streamType)) {
+          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+        }
+        break;
       default:
         super.handleMessage(messageType, message);
         break;
     }
+  }
+
+  // AudioTrack.Listener implementation.
+
+  @Override
+  public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
   }
 
 }

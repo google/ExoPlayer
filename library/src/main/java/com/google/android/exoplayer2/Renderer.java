@@ -149,7 +149,13 @@ public interface Renderer extends ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
-  void setCurrentStreamIsFinal();
+  void setCurrentStreamFinal();
+
+  /**
+   * Returns whether the current {@link SampleStream} will be the final one supplied before the
+   * renderer is next disabled or reset.
+   */
+  boolean isCurrentStreamFinal();
 
   /**
    * Throws an error that's preventing the renderer from reading from its {@link SampleStream}. Does

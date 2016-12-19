@@ -72,15 +72,14 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
 
       assertEquals(2679, mediaPlaylist.mediaSequence);
-      assertEquals(8, mediaPlaylist.targetDurationSecs);
       assertEquals(3, mediaPlaylist.version);
-      assertEquals(false, mediaPlaylist.live);
+      assertEquals(true, mediaPlaylist.hasEndTag);
       List<HlsMediaPlaylist.Segment> segments = mediaPlaylist.segments;
       assertNotNull(segments);
       assertEquals(5, segments.size());
 
       assertEquals(4, segments.get(0).discontinuitySequenceNumber);
-      assertEquals(7.975, segments.get(0).durationSecs);
+      assertEquals(7975000, segments.get(0).durationUs);
       assertEquals(false, segments.get(0).isEncrypted);
       assertEquals(null, segments.get(0).encryptionKeyUri);
       assertEquals(null, segments.get(0).encryptionIV);
@@ -89,7 +88,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals("https://priv.example.com/fileSequence2679.ts", segments.get(0).url);
 
       assertEquals(4, segments.get(1).discontinuitySequenceNumber);
-      assertEquals(7.975, segments.get(1).durationSecs);
+      assertEquals(7975000, segments.get(1).durationUs);
       assertEquals(true, segments.get(1).isEncrypted);
       assertEquals("https://priv.example.com/key.php?r=2680", segments.get(1).encryptionKeyUri);
       assertEquals("0x1566B", segments.get(1).encryptionIV);
@@ -98,7 +97,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals("https://priv.example.com/fileSequence2680.ts", segments.get(1).url);
 
       assertEquals(4, segments.get(2).discontinuitySequenceNumber);
-      assertEquals(7.941, segments.get(2).durationSecs);
+      assertEquals(7941000, segments.get(2).durationUs);
       assertEquals(false, segments.get(2).isEncrypted);
       assertEquals(null, segments.get(2).encryptionKeyUri);
       assertEquals(null, segments.get(2).encryptionIV);
@@ -107,7 +106,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals("https://priv.example.com/fileSequence2681.ts", segments.get(2).url);
 
       assertEquals(5, segments.get(3).discontinuitySequenceNumber);
-      assertEquals(7.975, segments.get(3).durationSecs);
+      assertEquals(7975000, segments.get(3).durationUs);
       assertEquals(true, segments.get(3).isEncrypted);
       assertEquals("https://priv.example.com/key.php?r=2682", segments.get(3).encryptionKeyUri);
       // 0xA7A == 2682.
@@ -118,7 +117,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals("https://priv.example.com/fileSequence2682.ts", segments.get(3).url);
 
       assertEquals(5, segments.get(4).discontinuitySequenceNumber);
-      assertEquals(7.975, segments.get(4).durationSecs);
+      assertEquals(7975000, segments.get(4).durationUs);
       assertEquals(true, segments.get(4).isEncrypted);
       assertEquals("https://priv.example.com/key.php?r=2682", segments.get(4).encryptionKeyUri);
       // 0xA7B == 2683.

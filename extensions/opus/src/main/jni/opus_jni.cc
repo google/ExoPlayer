@@ -60,11 +60,13 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
 static const int kBytesPerSample = 2;  // opus fixed point uses 16 bit samples.
 static int channelCount;
+static int errorCode;
 
 DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
      jint numStreams, jint numCoupled, jint gain, jbyteArray jStreamMap) {
   int status = OPUS_INVALID_STATE;
   ::channelCount = channelCount;
+  errorCode = 0;
   jbyte* streamMapBytes = env->GetByteArrayElements(jStreamMap, 0);
   uint8_t* streamMap = reinterpret_cast<uint8_t*>(streamMapBytes);
   OpusMSDecoder* decoder = opus_multistream_decoder_create(
@@ -109,8 +111,22 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
       env->GetDirectBufferAddress(jOutputBufferData));
   int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
       outputBufferData, outputSize, 0);
+  // record error code
+  errorCode = (sampleCount < 0) ? sampleCount : 0;
   return (sampleCount < 0) ? sampleCount
       : sampleCount * kBytesPerSample * channelCount;
+}
+
+DECODER_FUNC(jint, opusSecureDecode, jlong jDecoder, jlong jTimeUs,
+     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
+     jint sampleRate, jobject mediaCrypto, jint inputMode, jbyteArray key,
+     jbyteArray javaIv, jint inputNumSubSamples, jintArray numBytesOfClearData,
+     jintArray numBytesOfEncryptedData) {
+  // Doesn't support
+  // Java client should have checked vpxSupportSecureDecode
+  // and avoid calling this
+  // return -2 (DRM Error)
+  return -2;
 }
 
 DECODER_FUNC(void, opusClose, jlong jDecoder) {
@@ -123,8 +139,17 @@ DECODER_FUNC(void, opusReset, jlong jDecoder) {
   opus_multistream_decoder_ctl(decoder, OPUS_RESET_STATE);
 }
 
-DECODER_FUNC(jstring, opusGetErrorMessage, jint errorCode) {
+DECODER_FUNC(jstring, opusGetErrorMessage, jlong jContext) {
   return env->NewStringUTF(opus_strerror(errorCode));
+}
+
+DECODER_FUNC(jint, opusGetErrorCode, jlong jContext) {
+  return errorCode;
+}
+
+LIBRARY_FUNC(jstring, opusIsSecureDecodeSupported) {
+  // Doesn't support
+  return 0;
 }
 
 LIBRARY_FUNC(jstring, opusGetVersion) {

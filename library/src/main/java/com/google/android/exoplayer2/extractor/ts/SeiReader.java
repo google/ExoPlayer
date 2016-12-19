@@ -57,19 +57,13 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         seiBuffer.skipBytes(8);
         // Ignore first three bits: reserved (1) + process_cc_data_flag (1) + zero_bit (1).
         int ccCount = seiBuffer.readUnsignedByte() & 0x1F;
+        // Ignore em_data (1)
         seiBuffer.skipBytes(1);
-        int sampleBytes = 0;
-        for (int i = 0; i < ccCount; i++) {
-          int ccValidityAndType = seiBuffer.peekUnsignedByte() & 0x07;
-          // Check that validity == 1 and type == 0 (i.e. NTSC_CC_FIELD_1).
-          if (ccValidityAndType != 0x04) {
-            seiBuffer.skipBytes(3);
-          } else {
-            sampleBytes += 3;
-            output.sampleData(seiBuffer, 3);
-          }
-        }
-        output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytes, 0, null);
+        // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
+        // + cc_data_1 (8) + cc_data_2 (8).
+        int sampleLength = ccCount * 3;
+        output.sampleData(seiBuffer, sampleLength);
+        output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
         // Ignore trailing information in SEI, if any.
         seiBuffer.skipBytes(payloadSize - (10 + ccCount * 3));
       } else {

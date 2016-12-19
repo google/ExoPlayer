@@ -22,11 +22,13 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
@@ -111,6 +113,28 @@ public interface ExoPlayer {
   interface EventListener {
 
     /**
+     * Called when the timeline and/or manifest has been refreshed.
+     * <p>
+     * Note that if the timeline has changed then a position discontinuity may also have occurred.
+     * For example the current period index may have changed as a result of periods being added or
+     * removed from the timeline. The will <em>not</em> be reported via a separate call to
+     * {@link #onPositionDiscontinuity()}.
+     *
+     * @param timeline The latest timeline. Never null, but may be empty.
+     * @param manifest The latest manifest. May be null.
+     */
+    void onTimelineChanged(Timeline timeline, Object manifest);
+
+    /**
+     * Called when the available or selected tracks change.
+     *
+     * @param trackGroups The available tracks. Never null, but may be of length zero.
+     * @param trackSelections The track selections for each {@link Renderer}. Never null and always
+     *     of length {@link #getRendererCount()}, but may contain null elements.
+     */
+    void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
+
+    /**
      * Called when the player starts or stops loading the source.
      *
      * @param isLoading Whether the source is currently being loaded.
@@ -128,14 +152,6 @@ public interface ExoPlayer {
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
     /**
-     * Called when timeline and/or manifest has been refreshed.
-     *
-     * @param timeline The latest timeline, or null if the timeline is being cleared.
-     * @param manifest The latest manifest, or null if the manifest is being cleared.
-     */
-    void onTimelineChanged(Timeline timeline, Object manifest);
-
-    /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
      * immediately after this method is called. The player instance can still be used, and
      * {@link #release()} must still be called on the player should it no longer be required.
@@ -145,9 +161,14 @@ public interface ExoPlayer {
     void onPlayerError(ExoPlaybackException error);
 
     /**
-     * Called when a position discontinuity occurs. Position discontinuities occur when seeks are
-     * performed, when playbacks transition from one period in the timeline to the next, and when
-     * the player introduces discontinuities internally.
+     * Called when a position discontinuity occurs without a change to the timeline. A position
+     * discontinuity occurs when the current window or period index changes (as a result of playback
+     * transitioning from one period in the timeline to the next), or when the playback position
+     * jumps within the period currently being played (as a result of a seek being performed, or
+     * when the source introduces a discontinuity internally).
+     * <p>
+     * When a position discontinuity occurs as a result of a change to the timeline this method is
+     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
      */
     void onPositionDiscontinuity();
 
@@ -259,11 +280,11 @@ public interface ExoPlayer {
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
    *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
-   * @param resetTimeline Whether the timeline and manifest should be reset. Should be true unless
-   *     the player is being prepared to play the same media as it was playing previously (e.g. if
-   *     playback failed and is being retried).
+   * @param resetState Whether the timeline, manifest, tracks and track selections should be reset.
+   *     Should be true unless the player is being prepared to play the same media as it was playing
+   *     previously (e.g. if playback failed and is being retried).
    */
-  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetTimeline);
+  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
@@ -309,17 +330,19 @@ public interface ExoPlayer {
   /**
    * Seeks to a position specified in milliseconds in the current window.
    *
-   * @param windowPositionMs The seek position in the current window.
+   * @param positionMs The seek position in the current window, or {@link C#TIME_UNSET} to seek to
+   *     the window's default position.
    */
-  void seekTo(long windowPositionMs);
+  void seekTo(long positionMs);
 
   /**
    * Seeks to a position specified in milliseconds in the specified window.
    *
    * @param windowIndex The index of the window.
-   * @param windowPositionMs The seek position in the specified window.
+   * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek to
+   *     the window's default position.
    */
-  void seekTo(int windowIndex, long windowPositionMs);
+  void seekTo(int windowIndex, long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -357,18 +380,42 @@ public interface ExoPlayer {
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
+   * Returns the number of renderers.
+   */
+  int getRendererCount();
+
+  /**
+   * Returns the track type that the renderer at a given index handles.
+   *
+   * @see Renderer#getTrackType()
+   * @param index The index of the renderer.
+   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   */
+  int getRendererType(int index);
+
+  /**
+   * Returns the available track groups.
+   */
+  TrackGroupArray getCurrentTrackGroups();
+
+  /**
+   * Returns the current track selections for each renderer.
+   */
+  TrackSelectionArray getCurrentTrackSelections();
+
+  /**
    * Returns the current manifest. The type depends on the {@link MediaSource} passed to
-   * {@link #prepare}.
+   * {@link #prepare}. May be null.
    */
   Object getCurrentManifest();
 
   /**
-   * Returns the current {@link Timeline}, or {@code null} if there is no timeline.
+   * Returns the current {@link Timeline}. Never null, but may be empty.
    */
   Timeline getCurrentTimeline();
 
   /**
-   * Returns the index of the period currently being played, or {@link C#INDEX_UNSET} if unknown.
+   * Returns the index of the period currently being played.
    */
   int getCurrentPeriodIndex();
 

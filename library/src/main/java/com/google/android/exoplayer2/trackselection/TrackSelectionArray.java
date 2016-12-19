@@ -20,12 +20,8 @@ import java.util.Arrays;
 /**
  * The result of a {@link TrackSelector} operation.
  */
-public final class TrackSelections<T> {
+public final class TrackSelectionArray {
 
-  /**
-   * Opaque information associated with the result.
-   */
-  public final T info;
   /**
    * The number of selections in the result. Greater than or equal to zero.
    */
@@ -37,11 +33,9 @@ public final class TrackSelections<T> {
   private int hashCode;
 
   /**
-   * @param info Opaque information associated with the result.
    * @param trackSelections The selections. Must not be null, but may contain null elements.
    */
-  public TrackSelections(T info, TrackSelection... trackSelections) {
-    this.info = info;
+  public TrackSelectionArray(TrackSelection... trackSelections) {
     this.trackSelections = trackSelections;
     this.length = trackSelections.length;
   }
@@ -81,7 +75,7 @@ public final class TrackSelections<T> {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    TrackSelections<?> other = (TrackSelections<?>) obj;
+    TrackSelectionArray other = (TrackSelectionArray) obj;
     return Arrays.equals(trackSelections, other.trackSelections);
   }
 

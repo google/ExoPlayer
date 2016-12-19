@@ -95,10 +95,22 @@ public class Cue {
    * <p>
    * {@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a line number, where the size of each
    * line is taken to be the size of the first line of the cue. When {@link #line} is greater than
-   * or equal to 0, lines count from the start of the viewport (the first line is numbered 0). When
-   * {@link #line} is negative, lines count from the end of the viewport (the last line is numbered
-   * -1). For horizontal text the size of the first line of the cue is its height, and the start
-   * and end of the viewport are the top and bottom respectively.
+   * or equal to 0 lines count from the start of the viewport, with 0 indicating zero offset from
+   * the start edge. When {@link #line} is negative lines count from the end of the viewport, with
+   * -1 indicating zero offset from the end edge. For horizontal text the line spacing is the height
+   * of the first line of the cue, and the start and end of the viewport are the top and bottom
+   * respectively.
+   * <p>
+   * Note that it's particularly important to consider the effect of {@link #lineAnchor} when using
+   * {@link #LINE_TYPE_NUMBER}. {@code (line == 0 && lineAnchor == ANCHOR_TYPE_START)} positions a
+   * (potentially multi-line) cue at the very top of the viewport.
+   * {@code (line == -1 && lineAnchor == ANCHOR_TYPE_END)} positions a (potentially multi-line) cue
+   * at the very bottom of the viewport. {@code (line == 0 && lineAnchor == ANCHOR_TYPE_END)}
+   * and {@code (line == -1 && lineAnchor == ANCHOR_TYPE_START)} position cues entirely outside of
+   * the viewport. {@code (line == 1 && lineAnchor == ANCHOR_TYPE_END)} positions a cue so that only
+   * the last line is visible at the top of the viewport.
+   * {@code (line == -2 && lineAnchor == ANCHOR_TYPE_START)} position a cue so that only its first
+   * line is visible at the bottom of the viewport.
    */
   @LineType
   public final int lineType;

@@ -19,8 +19,8 @@ import android.os.Handler;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -49,11 +49,10 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
   public LibflacAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities, int streamType) {
-    super(eventHandler, eventListener, audioCapabilities, streamType);
+      AudioCapabilities audioCapabilities) {
+    super(eventHandler, eventListener, audioCapabilities);
   }
 
   @Override
@@ -63,7 +62,8 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected FlacDecoder createDecoder(Format format) throws FlacDecoderException {
+  protected FlacDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+      throws FlacDecoderException {
     return new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.initializationData);
   }
 

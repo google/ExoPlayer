@@ -29,9 +29,9 @@ public interface MediaCodecSelector {
   MediaCodecSelector DEFAULT = new MediaCodecSelector() {
 
     @Override
-    public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
-        throws DecoderQueryException {
-      return MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
+    public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder,
+        boolean requiresTunneling) throws DecoderQueryException {
+      return MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder, requiresTunneling);
     }
 
     @Override
@@ -46,12 +46,13 @@ public interface MediaCodecSelector {
    *
    * @param mimeType The mime type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
+   * @param requiresTunneling Whether a decoder that supports tunneling is required.
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
    *     exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
-      throws DecoderQueryException;
+  MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder,
+      boolean requiresTunneling) throws DecoderQueryException;
 
   /**
    * Selects a decoder to instantiate for audio passthrough.

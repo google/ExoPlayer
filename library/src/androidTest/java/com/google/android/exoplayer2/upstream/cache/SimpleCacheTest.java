@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.test.InstrumentationTestCase;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.File;
@@ -36,10 +35,7 @@ public class SimpleCacheTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    // Create a temporary folder
-    cacheDir = File.createTempFile("SimpleCacheTest", null);
-    assertTrue(cacheDir.delete());
-    assertTrue(cacheDir.mkdir());
+    this.cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
   }
 
   @Override
@@ -48,7 +44,7 @@ public class SimpleCacheTest extends InstrumentationTestCase {
   }
 
   public void testCommittingOneFile() throws Exception {
-    SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
+    SimpleCache simpleCache = getSimpleCache();
 
     CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, 0);
     assertFalse(cacheSpan.isCached);
@@ -79,37 +75,40 @@ public class SimpleCacheTest extends InstrumentationTestCase {
   }
 
   public void testSetGetLength() throws Exception {
-    SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
+    SimpleCache simpleCache = getSimpleCache();
 
     assertEquals(C.LENGTH_UNSET, simpleCache.getContentLength(KEY_1));
-    assertTrue(simpleCache.setContentLength(KEY_1, 15));
+    simpleCache.setContentLength(KEY_1, 15);
     assertEquals(15, simpleCache.getContentLength(KEY_1));
 
     simpleCache.startReadWrite(KEY_1, 0);
 
     addCache(simpleCache, 0, 15);
 
-    assertTrue(simpleCache.setContentLength(KEY_1, 150));
+    simpleCache.setContentLength(KEY_1, 150);
     assertEquals(150, simpleCache.getContentLength(KEY_1));
 
     addCache(simpleCache, 140, 10);
 
-    // Try to set length shorter then the content
-    assertFalse(simpleCache.setContentLength(KEY_1, 15));
-    assertEquals("Content length should be unchanged.",
-        150, simpleCache.getContentLength(KEY_1));
-
-    /* TODO Enable when the length persistance is fixed
     // Check if values are kept after cache is reloaded.
-    simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
-    assertEquals(150, simpleCache.getContentLength(KEY_1));
-    CacheSpan lastSpan = simpleCache.startReadWrite(KEY_1, 145);
+    SimpleCache simpleCache2 = getSimpleCache();
+    Set<String> keys = simpleCache.getKeys();
+    Set<String> keys2 = simpleCache2.getKeys();
+    assertEquals(keys, keys2);
+    for (String key : keys) {
+      assertEquals(simpleCache.getContentLength(key), simpleCache2.getContentLength(key));
+      assertEquals(simpleCache.getCachedSpans(key), simpleCache2.getCachedSpans(key));
+    }
 
     // Removing the last span shouldn't cause the length be change next time cache loaded
-    simpleCache.removeSpan(lastSpan);
-    simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
-    assertEquals(150, simpleCache.getContentLength(KEY_1));
-     */
+    SimpleCacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
+    simpleCache2.removeSpan(lastSpan);
+    simpleCache2 = getSimpleCache();
+    assertEquals(150, simpleCache2.getContentLength(KEY_1));
+  }
+
+  private SimpleCache getSimpleCache() {
+    return new SimpleCache(cacheDir, new NoOpCacheEvictor());
   }
 
   private void addCache(SimpleCache simpleCache, int position, int length) throws IOException {

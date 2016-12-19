@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,6 +57,10 @@ public class DashManifestParser extends DefaultHandler
   private static final String TAG = "MpdParser";
 
   private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))?");
+
+  private static final Pattern CEA_608_ACCESSIBILITY_PATTERN = Pattern.compile("CC([1-4])=.*");
+  private static final Pattern CEA_708_ACCESSIBILITY_PATTERN =
+      Pattern.compile("([1-9]|[1-5][0-9]|6[0-3])=.*");
 
   private final String contentId;
   private final XmlPullParserFactory xmlParserFactory;
@@ -94,13 +97,13 @@ public class DashManifestParser extends DefaultHandler
             "inputStream does not contain a valid media presentation description");
       }
       return parseMediaPresentationDescription(xpp, uri.toString());
-    } catch (XmlPullParserException | ParseException e) {
+    } catch (XmlPullParserException e) {
       throw new ParserException(e);
     }
   }
 
   protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp,
-      String baseUrl) throws XmlPullParserException, IOException, ParseException {
+      String baseUrl) throws XmlPullParserException, IOException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", C.TIME_UNSET);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", C.TIME_UNSET);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", C.TIME_UNSET);
@@ -205,11 +208,11 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
-        segmentBase = parseSegmentBase(xpp, baseUrl, null);
+        segmentBase = parseSegmentBase(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, baseUrl, null);
+        segmentBase = parseSegmentList(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, baseUrl, null);
+        segmentBase = parseSegmentTemplate(xpp, null);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Period"));
 
@@ -235,6 +238,7 @@ public class DashManifestParser extends DefaultHandler
     int audioChannels = Format.NO_VALUE;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", Format.NO_VALUE);
     String language = xpp.getAttributeValue(null, "lang");
+    int accessibilityChannel = Format.NO_VALUE;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
 
@@ -256,18 +260,21 @@ public class DashManifestParser extends DefaultHandler
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Representation")) {
         RepresentationInfo representationInfo = parseRepresentation(xpp, baseUrl, mimeType, codecs,
-            width, height, frameRate, audioChannels, audioSamplingRate, language, segmentBase);
+            width, height, frameRate, audioChannels, audioSamplingRate, language,
+            accessibilityChannel, segmentBase);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
+        accessibilityChannel = parseAccessibilityValue(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
-        segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
+        segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase);
+        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
+        segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
@@ -365,7 +372,8 @@ public class DashManifestParser extends DefaultHandler
   protected RepresentationInfo parseRepresentation(XmlPullParser xpp, String baseUrl,
       String adaptationSetMimeType, String adaptationSetCodecs, int adaptationSetWidth,
       int adaptationSetHeight, float adaptationSetFrameRate, int adaptationSetAudioChannels,
-      int adaptationSetAudioSamplingRate, String adaptationSetLanguage, SegmentBase segmentBase)
+      int adaptationSetAudioSamplingRate, String adaptationSetLanguage,
+      int adaptationSetAccessibilityChannel, SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
@@ -390,11 +398,11 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
-        segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
+        segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase);
+        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
+        segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         SchemeData contentProtection = parseContentProtection(xpp);
         if (contentProtection != null) {
@@ -404,15 +412,16 @@ public class DashManifestParser extends DefaultHandler
     } while (!XmlPullParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
-        audioSamplingRate, bandwidth, adaptationSetLanguage, codecs);
-    segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl);
+        audioSamplingRate, bandwidth, adaptationSetLanguage, adaptationSetAccessibilityChannel,
+        codecs);
+    segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
-    return new RepresentationInfo(format, segmentBase, drmSchemeDatas);
+    return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeDatas);
   }
 
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
       float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
-      String codecs) {
+      int accessiblityChannel, String codecs) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
       if (MimeTypes.isVideo(sampleMimeType)) {
@@ -423,7 +432,10 @@ public class DashManifestParser extends DefaultHandler
             bitrate, audioChannels, audioSamplingRate, null, 0, language);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
         return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
-            bitrate, 0, language);
+            bitrate, 0, language, accessiblityChannel);
+      } else if (containerMimeType.equals(MimeTypes.APPLICATION_RAWCC)) {
+        return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
+            bitrate, 0, language, accessiblityChannel);
       } else {
         return Format.createContainerFormat(id, containerMimeType, codecs, sampleMimeType, bitrate);
       }
@@ -441,13 +453,13 @@ public class DashManifestParser extends DefaultHandler
       format = format.copyWithDrmInitData(new DrmInitData(drmSchemeDatas));
     }
     return Representation.newInstance(contentId, Representation.REVISION_ID_DEFAULT, format,
-        representationInfo.segmentBase);
+        representationInfo.baseUrl, representationInfo.segmentBase);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
 
-  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, String baseUrl,
-      SingleSegmentBase parent) throws XmlPullParserException, IOException {
+  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, SingleSegmentBase parent)
+      throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -466,21 +478,21 @@ public class DashManifestParser extends DefaultHandler
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
-        initialization = parseInitialization(xpp, baseUrl);
+        initialization = parseInitialization(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentBase"));
 
-    return buildSingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
-        indexStart, indexLength);
+    return buildSingleSegmentBase(initialization, timescale, presentationTimeOffset, indexStart,
+        indexLength);
   }
 
   protected SingleSegmentBase buildSingleSegmentBase(RangedUri initialization, long timescale,
-      long presentationTimeOffset, String baseUrl, long indexStart, long indexLength) {
-    return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
-        indexStart, indexLength);
+      long presentationTimeOffset, long indexStart, long indexLength) {
+    return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, indexStart,
+        indexLength);
   }
 
-  protected SegmentList parseSegmentList(XmlPullParser xpp, String baseUrl, SegmentList parent)
+  protected SegmentList parseSegmentList(XmlPullParser xpp, SegmentList parent)
       throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -496,14 +508,14 @@ public class DashManifestParser extends DefaultHandler
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
-        initialization = parseInitialization(xpp, baseUrl);
+        initialization = parseInitialization(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentURL")) {
         if (segments == null) {
           segments = new ArrayList<>();
         }
-        segments.add(parseSegmentUrl(xpp, baseUrl));
+        segments.add(parseSegmentUrl(xpp));
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentList"));
 
@@ -524,8 +536,8 @@ public class DashManifestParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, String baseUrl,
-      SegmentTemplate parent) throws XmlPullParserException, IOException {
+  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, SegmentTemplate parent)
+      throws XmlPullParserException, IOException {
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
@@ -542,7 +554,7 @@ public class DashManifestParser extends DefaultHandler
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
-        initialization = parseInitialization(xpp, baseUrl);
+        initialization = parseInitialization(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
       }
@@ -554,15 +566,15 @@ public class DashManifestParser extends DefaultHandler
     }
 
     return buildSegmentTemplate(initialization, timescale, presentationTimeOffset,
-        startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
+        startNumber, duration, timeline, initializationTemplate, mediaTemplate);
   }
 
   protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
       long presentationTimeOffset, int startNumber, long duration,
       List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
-      UrlTemplate mediaTemplate, String baseUrl) {
+      UrlTemplate mediaTemplate) {
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
-        startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
+        startNumber, duration, timeline, initializationTemplate, mediaTemplate);
   }
 
   protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
@@ -597,15 +609,15 @@ public class DashManifestParser extends DefaultHandler
     return defaultValue;
   }
 
-  protected RangedUri parseInitialization(XmlPullParser xpp, String baseUrl) {
-    return parseRangedUrl(xpp, baseUrl, "sourceURL", "range");
+  protected RangedUri parseInitialization(XmlPullParser xpp) {
+    return parseRangedUrl(xpp, "sourceURL", "range");
   }
 
-  protected RangedUri parseSegmentUrl(XmlPullParser xpp, String baseUrl) {
-    return parseRangedUrl(xpp, baseUrl, "media", "mediaRange");
+  protected RangedUri parseSegmentUrl(XmlPullParser xpp) {
+    return parseRangedUrl(xpp, "media", "mediaRange");
   }
 
-  protected RangedUri parseRangedUrl(XmlPullParser xpp, String baseUrl, String urlAttribute,
+  protected RangedUri parseRangedUrl(XmlPullParser xpp, String urlAttribute,
       String rangeAttribute) {
     String urlText = xpp.getAttributeValue(null, urlAttribute);
     long rangeStart = 0;
@@ -618,12 +630,11 @@ public class DashManifestParser extends DefaultHandler
         rangeLength = Long.parseLong(rangeTextArray[1]) - rangeStart + 1;
       }
     }
-    return buildRangedUri(baseUrl, urlText, rangeStart, rangeLength);
+    return buildRangedUri(urlText, rangeStart, rangeLength);
   }
 
-  protected RangedUri buildRangedUri(String baseUrl, String urlText, long rangeStart,
-      long rangeLength) {
-    return new RangedUri(baseUrl, urlText, rangeStart, rangeLength);
+  protected RangedUri buildRangedUri(String urlText, long rangeStart, long rangeLength) {
+    return new RangedUri(urlText, rangeStart, rangeLength);
   }
 
   // AudioChannelConfiguration parsing.
@@ -727,6 +738,54 @@ public class DashManifestParser extends DefaultHandler
     }
   }
 
+  private static int parseAccessibilityValue(XmlPullParser xpp)
+      throws IOException, XmlPullParserException {
+    String schemeIdUri = parseString(xpp, "schemeIdUri", null);
+    String valueString = parseString(xpp, "value", null);
+    int accessibilityValue;
+    if (schemeIdUri == null || valueString == null) {
+      accessibilityValue = Format.NO_VALUE;
+    } else if ("urn:scte:dash:cc:cea-608:2015".equals(schemeIdUri)) {
+      accessibilityValue = parseCea608AccessibilityChannel(valueString);
+    } else if ("urn:scte:dash:cc:cea-708:2015".equals(schemeIdUri)) {
+      accessibilityValue = parseCea708AccessibilityChannel(valueString);
+    } else {
+      accessibilityValue = Format.NO_VALUE;
+    }
+    do {
+      xpp.next();
+    } while (!XmlPullParserUtil.isEndTag(xpp, "Accessibility"));
+    return accessibilityValue;
+  }
+
+  static int parseCea608AccessibilityChannel(String accessibilityValueString) {
+    if (accessibilityValueString == null) {
+      return Format.NO_VALUE;
+    }
+    Matcher accessibilityValueMatcher =
+        CEA_608_ACCESSIBILITY_PATTERN.matcher(accessibilityValueString);
+    if (accessibilityValueMatcher.matches()) {
+      return Integer.parseInt(accessibilityValueMatcher.group(1));
+    } else {
+      Log.w(TAG, "Unable to parse channel number from " + accessibilityValueString);
+      return Format.NO_VALUE;
+    }
+  }
+
+  static int parseCea708AccessibilityChannel(String accessibilityValueString) {
+    if (accessibilityValueString == null) {
+      return Format.NO_VALUE;
+    }
+    Matcher accessibilityValueMatcher =
+        CEA_708_ACCESSIBILITY_PATTERN.matcher(accessibilityValueString);
+    if (accessibilityValueMatcher.matches()) {
+      return Integer.parseInt(accessibilityValueMatcher.group(1));
+    } else {
+      Log.w(TAG, "Unable to parse service block number from " + accessibilityValueString);
+      return Format.NO_VALUE;
+    }
+  }
+
   protected static float parseFrameRate(XmlPullParser xpp, float defaultValue) {
     float frameRate = defaultValue;
     String frameRateAttribute = xpp.getAttributeValue(null, "frameRate");
@@ -755,7 +814,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   protected static long parseDateTime(XmlPullParser xpp, String name, long defaultValue)
-      throws ParseException {
+      throws ParserException {
     String value = xpp.getAttributeValue(null, name);
     if (value == null) {
       return defaultValue;
@@ -788,12 +847,14 @@ public class DashManifestParser extends DefaultHandler
   private static final class RepresentationInfo {
 
     public final Format format;
+    public final String baseUrl;
     public final SegmentBase segmentBase;
     public final ArrayList<SchemeData> drmSchemeDatas;
 
-    public RepresentationInfo(Format format, SegmentBase segmentBase,
+    public RepresentationInfo(Format format, String baseUrl, SegmentBase segmentBase,
         ArrayList<SchemeData> drmSchemeDatas) {
       this.format = format;
+      this.baseUrl = baseUrl;
       this.segmentBase = segmentBase;
       this.drmSchemeDatas = drmSchemeDatas;
     }

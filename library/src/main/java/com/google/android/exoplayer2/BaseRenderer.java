@@ -70,8 +70,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(Format[] formats, SampleStream stream, long positionUs,
-      boolean joining, long offsetUs) throws ExoPlaybackException {
+  public final void enable(Format[] formats, SampleStream stream, long positionUs, boolean joining,
+      long offsetUs) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
     onEnabled(joining);
@@ -107,8 +107,13 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void setCurrentStreamIsFinal() {
+  public final void setCurrentStreamFinal() {
     streamIsFinal = true;
+  }
+
+  @Override
+  public final boolean isCurrentStreamFinal() {
+    return streamIsFinal;
   }
 
   @Override
@@ -119,6 +124,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
     streamIsFinal = false;
+    readEndOfStream = false;
     onPositionReset(positionUs, false);
   }
 
@@ -194,8 +200,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onPositionReset(long positionUs, boolean joining)
-      throws ExoPlaybackException {
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -243,7 +248,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Reads from the enabled upstream source. If the upstream source has been read to the end then
-   * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamIsFinal()} has been
+   * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
    *
    * @see SampleStream#readData(FormatHolder, DecoderInputBuffer)

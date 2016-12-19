@@ -92,7 +92,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
       extractor.init(this);
       extractorInitialized = true;
     } else {
-      extractor.seek(0);
+      extractor.seek(0, 0);
       if (resendFormatOnInit && sentFormat != null) {
         trackOutput.format(sentFormat);
       }

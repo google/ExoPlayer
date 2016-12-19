@@ -47,6 +47,8 @@ public final class MimeTypes {
   public static final String AUDIO_MPEG_L1 = BASE_TYPE_AUDIO + "/mpeg-L1";
   public static final String AUDIO_MPEG_L2 = BASE_TYPE_AUDIO + "/mpeg-L2";
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
+  public static final String AUDIO_ALAW = BASE_TYPE_AUDIO + "/g711-alaw";
+  public static final String AUDIO_ULAW = BASE_TYPE_AUDIO + "/g711-mlaw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
   public static final String AUDIO_E_AC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
@@ -70,10 +72,13 @@ public final class MimeTypes {
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
-  public static final String APPLICATION_MP4VTT = BASE_TYPE_APPLICATION + "/x-mp4vtt";
+  public static final String APPLICATION_MP4VTT = BASE_TYPE_APPLICATION + "/x-mp4-vtt";
+  public static final String APPLICATION_MP4CEA608 = BASE_TYPE_APPLICATION + "/x-mp4-cea-608";
   public static final String APPLICATION_RAWCC = BASE_TYPE_APPLICATION + "/x-rawcc";
   public static final String APPLICATION_VOBSUB = BASE_TYPE_APPLICATION + "/vobsub";
   public static final String APPLICATION_PGS = BASE_TYPE_APPLICATION + "/pgs";
+  public static final String APPLICATION_SCTE35 = BASE_TYPE_APPLICATION + "/x-scte35";
+  public static final String APPLICATION_CAMERA_MOTION = BASE_TYPE_APPLICATION + "/x-camera-motion";
 
   private MimeTypes() {}
 
@@ -84,7 +89,7 @@ public final class MimeTypes {
    * @return Whether the top level type is audio.
    */
   public static boolean isAudio(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_AUDIO);
+    return BASE_TYPE_AUDIO.equals(getTopLevelType(mimeType));
   }
 
   /**
@@ -94,7 +99,7 @@ public final class MimeTypes {
    * @return Whether the top level type is video.
    */
   public static boolean isVideo(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_VIDEO);
+    return BASE_TYPE_VIDEO.equals(getTopLevelType(mimeType));
   }
 
   /**
@@ -104,7 +109,7 @@ public final class MimeTypes {
    * @return Whether the top level type is text.
    */
   public static boolean isText(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_TEXT);
+    return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType));
   }
 
   /**
@@ -114,7 +119,7 @@ public final class MimeTypes {
    * @return Whether the top level type is application.
    */
   public static boolean isApplication(String mimeType) {
-    return getTopLevelType(mimeType).equals(BASE_TYPE_APPLICATION);
+    return BASE_TYPE_APPLICATION.equals(getTopLevelType(mimeType));
   }
 
 
@@ -211,10 +216,10 @@ public final class MimeTypes {
     } else if (isVideo(mimeType)) {
       return C.TRACK_TYPE_VIDEO;
     } else if (isText(mimeType) || APPLICATION_CEA608.equals(mimeType)
-        || APPLICATION_SUBRIP.equals(mimeType) || APPLICATION_TTML.equals(mimeType)
-        || APPLICATION_TX3G.equals(mimeType) || APPLICATION_MP4VTT.equals(mimeType)
-        || APPLICATION_RAWCC.equals(mimeType) || APPLICATION_VOBSUB.equals(mimeType)
-        || APPLICATION_PGS.equals(mimeType)) {
+        || APPLICATION_CEA708.equals(mimeType) || APPLICATION_SUBRIP.equals(mimeType)
+        || APPLICATION_TTML.equals(mimeType) || APPLICATION_TX3G.equals(mimeType)
+        || APPLICATION_MP4VTT.equals(mimeType) || APPLICATION_RAWCC.equals(mimeType)
+        || APPLICATION_VOBSUB.equals(mimeType) || APPLICATION_PGS.equals(mimeType)) {
       return C.TRACK_TYPE_TEXT;
     } else if (APPLICATION_ID3.equals(mimeType)) {
       return C.TRACK_TYPE_METADATA;
@@ -237,9 +242,12 @@ public final class MimeTypes {
    * Returns the top-level type of {@code mimeType}.
    *
    * @param mimeType The mimeType whose top-level type is required.
-   * @return The top-level type.
+   * @return The top-level type, or null if the mimeType is null.
    */
   private static String getTopLevelType(String mimeType) {
+    if (mimeType == null) {
+      return null;
+    }
     int indexOfSlash = mimeType.indexOf('/');
     if (indexOfSlash == -1) {
       throw new IllegalArgumentException("Invalid mime type: " + mimeType);
