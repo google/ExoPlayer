@@ -267,6 +267,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
         return streamIsFinal ? C.RESULT_BUFFER_READ : C.RESULT_NOTHING_READ;
       }
       buffer.timeUs += streamOffsetUs;
+    } else if (result == C.RESULT_FORMAT_READ) {
+      Format format = formatHolder.format;
+      if (format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
+        format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + streamOffsetUs);
+        formatHolder.format = format;
+      }
     }
     return result;
   }
