@@ -1,9 +1,19 @@
 # Release notes #
 
-### r2.1.0 ###
+### r2.1.1 ###
 
-This release contains important bug fixes. Users of r2.0.x should proactively
-update to this version.
+Bugfix release only. Users of r2.1.0 and r2.0.x should proactively update to
+this version.
+
+* Fix some subtitle types (e.g. WebVTT) being displayed out of sync
+  ([#2208](https://github.com/google/ExoPlayer/issues/2208)).
+* Fix incorrect position reporting for on-demand HLS media that includes
+  EXT-X-PROGRAM-DATE-TIME tags
+  ([#2224](https://github.com/google/ExoPlayer/issues/2224)).
+* Fix issue where playbacks could get stuck in the initial buffering state if
+  over 1MB of data needs to be read to initialize the playback.
+
+### r2.1.0 ###
 
 * HLS: Support for seeking in live streams
   ([#87](https://github.com/google/ExoPlayer/issues/87)).
