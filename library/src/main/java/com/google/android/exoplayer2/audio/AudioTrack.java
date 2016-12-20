@@ -443,6 +443,8 @@ public final class AudioTrack {
       default:
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
+
+    // Workaround for overly strict channel configuration checks on nVidia Shield.
     if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
       switch(channelCount) {
         case 7:
