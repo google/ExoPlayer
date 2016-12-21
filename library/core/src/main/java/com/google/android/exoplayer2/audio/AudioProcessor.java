@@ -56,7 +56,8 @@ public interface AudioProcessor {
    *     {@link #isActive()} has changed as a result of the call.
    * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
    */
-  boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
+  boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding,
+                    @C.PcmEncoding int outputEncoding)
       throws UnhandledFormatException;
 
   /**

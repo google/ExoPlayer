@@ -25,6 +25,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -496,8 +497,9 @@ public final class AudioTrack {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
+        @C.PcmEncoding int outputEncoding = getPCMEncodingForSource(encoding, channelCount);
         try {
-          flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
+          flush |= audioProcessor.configure(sampleRate, channelCount, encoding, outputEncoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
@@ -574,8 +576,13 @@ public final class AudioTrack {
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-    outputEncoding = passthrough ? encoding : C.ENCODING_PCM_16BIT;
-    outputPcmFrameSize = Util.getPcmFrameSize(C.ENCODING_PCM_16BIT, channelCount);
+    outputEncoding = encoding;
+    @C.PcmEncoding int getPcmFrameEncoding = C.ENCODING_INVALID;
+    if (passthrough || encoding == C.ENCODING_PCM_16BIT)
+      getPcmFrameEncoding = C.ENCODING_PCM_16BIT;
+    else if (encoding == C.ENCODING_PCM_FLOAT)
+      getPcmFrameEncoding = C.ENCODING_PCM_FLOAT;
+    outputPcmFrameSize = Util.getPcmFrameSize(getPcmFrameEncoding, channelCount);
 
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
@@ -1441,6 +1448,29 @@ public final class AudioTrack {
         return C.ENCODING_DTS_HD;
       default:
         return C.ENCODING_INVALID;
+    }
+  }
+
+  private @C.PcmEncoding int getPCMEncodingForSource(@C.Encoding int encoding, int channelCount) {
+    switch (encoding) {
+      case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_32BIT:
+        if (audioCapabilities != null && audioCapabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
+         && ((Util.SDK_INT > 20 && channelCount <=2) || (Util.SDK_INT >= 24)))
+          return C.ENCODING_PCM_FLOAT;
+      case C.ENCODING_PCM_8BIT:
+      case C.ENCODING_PCM_16BIT:
+        return C.ENCODING_PCM_16BIT;
+      case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_AC3:
+      case C.ENCODING_E_AC3:
+      case C.ENCODING_DTS:
+      case C.ENCODING_DTS_HD:
+      case Format.NO_VALUE:
+      case C.ENCODING_INVALID:
+      default:
+        // Never happens.
+        throw new IllegalStateException();
     }
   }
 
