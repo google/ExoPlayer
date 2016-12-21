@@ -36,6 +36,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <ImageView
+        android:id="@+id/exo_subtitles_image"
+        android:visibility="invisible"
+        android:layout_height="0dp"
+        android:layout_width="0dp" />
+
   </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 
   <View android:id="@id/exo_controller_placeholder"
