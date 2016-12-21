@@ -178,7 +178,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private SimpleExoPlayer player;
   private boolean useController;
   private boolean useArtwork;
-  private boolean subtitlesEnabled = false;
   private int controllerShowTimeoutMs;
 
   public SimpleExoPlayerView(Context context) {
@@ -524,26 +523,14 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return;
     }
     TrackSelectionArray selections = player.getCurrentTrackSelections();
-    boolean quickExit = false;
     for (int i = 0; i < selections.length; i++) {
-      switch(player.getRendererType(i)) {
-        case C.TRACK_TYPE_VIDEO:
-          if (selections.get(i) != null) {
-            // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
-            // onRenderedFirstFrame().
-
-            hideArtwork();
-            quickExit = true;
-          }
-          break;
-        case C.TRACK_TYPE_TEXT:
-          if (selections.get(i) != null)
-            subtitlesEnabled = true;
-          break;
+      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
+        // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
+        // onRenderedFirstFrame().
+        hideArtwork();
+        return;
       }
     }
-    if (quickExit)
-      return;
     // Video disabled so the shutter must be closed.
     if (shutterView != null) {
       shutterView.setVisibility(VISIBLE);
@@ -614,7 +601,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onCues(List<Cue> cues) {
-
       if (subtitleView != null) {
         subtitleView.onCues(cues);
       }
@@ -625,7 +611,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
-
       if (contentFrame != null) {
         float aspectRatio = height == 0 ? 1 : (width * pixelWidthHeightRatio) / height;
         contentFrame.setAspectRatio(aspectRatio);
