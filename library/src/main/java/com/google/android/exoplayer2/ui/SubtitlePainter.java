@@ -18,11 +18,13 @@ package com.google.android.exoplayer2.ui;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.text.Layout.Alignment;
 import android.text.StaticLayout;
@@ -63,6 +65,7 @@ import com.google.android.exoplayer2.util.Util;
   private final Paint paint;
 
   // Previous input variables.
+  private Bitmap cueBitmap;
   private CharSequence cueText;
   private Alignment cueTextAlignment;
   private float cueLine;
@@ -74,6 +77,7 @@ import com.google.android.exoplayer2.util.Util;
   @Cue.AnchorType
   private int cuePositionAnchor;
   private float cueSize;
+  private float cueSizeHeight;
   private boolean applyEmbeddedStyles;
   private int foregroundColor;
   private int backgroundColor;
@@ -93,6 +97,7 @@ import com.google.android.exoplayer2.util.Util;
   private int textLeft;
   private int textTop;
   private int textPaddingX;
+  private Rect bitmapRect;
 
   @SuppressWarnings("ResourceType")
   public SubtitlePainter(Context context) {
@@ -142,40 +147,43 @@ import com.google.android.exoplayer2.util.Util;
       float bottomPaddingFraction, Canvas canvas, int cueBoxLeft, int cueBoxTop, int cueBoxRight,
       int cueBoxBottom) {
     CharSequence cueText = cue.text;
-    if (TextUtils.isEmpty(cueText)) {
+    boolean textIsEmpty = TextUtils.isEmpty(cueText);
+    if (textIsEmpty && cue.bitmap == null) {
       // Nothing to draw.
       return;
     }
-    if (!applyEmbeddedStyles) {
+    if (!applyEmbeddedStyles && !textIsEmpty) {
       // Strip out any embedded styling.
       cueText = cueText.toString();
     }
-    if (areCharSequencesEqual(this.cueText, cueText)
-        && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
-        && this.cueLine == cue.line
-        && this.cueLineType == cue.lineType
-        && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
-        && this.cuePosition == cue.position
-        && Util.areEqual(this.cuePositionAnchor, cue.positionAnchor)
-        && this.cueSize == cue.size
-        && this.applyEmbeddedStyles == applyEmbeddedStyles
-        && this.foregroundColor == style.foregroundColor
-        && this.backgroundColor == style.backgroundColor
-        && this.windowColor == style.windowColor
-        && this.edgeType == style.edgeType
-        && this.edgeColor == style.edgeColor
-        && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
-        && this.textSizePx == textSizePx
-        && this.bottomPaddingFraction == bottomPaddingFraction
-        && this.parentLeft == cueBoxLeft
-        && this.parentTop == cueBoxTop
-        && this.parentRight == cueBoxRight
-        && this.parentBottom == cueBoxBottom) {
+    if (((cue.bitmap != null && cue.bitmap == cueBitmap) ||
+     (!textIsEmpty && areCharSequencesEqual(this.cueText, cueText)))
+     && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
+     && this.cueLine == cue.line
+     && this.cueLineType == cue.lineType
+     && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
+     && this.cuePosition == cue.position
+     && Util.areEqual(this.cuePositionAnchor, cue.positionAnchor)
+     && this.cueSize == cue.size
+     && this.applyEmbeddedStyles == applyEmbeddedStyles
+     && this.foregroundColor == style.foregroundColor
+     && this.backgroundColor == style.backgroundColor
+     && this.windowColor == style.windowColor
+     && this.edgeType == style.edgeType
+     && this.edgeColor == style.edgeColor
+     && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
+     && this.textSizePx == textSizePx
+     && this.bottomPaddingFraction == bottomPaddingFraction
+     && this.parentLeft == cueBoxLeft
+     && this.parentTop == cueBoxTop
+     && this.parentRight == cueBoxRight
+     && this.parentBottom == cueBoxBottom) {
       // We can use the cached layout.
       drawLayout(canvas);
       return;
     }
 
+    this.cueBitmap = cue.bitmap;
     this.cueText = cueText;
     this.cueTextAlignment = cue.textAlignment;
     this.cueLine = cue.line;
@@ -184,6 +192,7 @@ import com.google.android.exoplayer2.util.Util;
     this.cuePosition = cue.position;
     this.cuePositionAnchor = cue.positionAnchor;
     this.cueSize = cue.size;
+    this.cueSizeHeight = cue.size_height;
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.foregroundColor = style.foregroundColor;
     this.backgroundColor = style.backgroundColor;
@@ -197,6 +206,32 @@ import com.google.android.exoplayer2.util.Util;
     this.parentTop = cueBoxTop;
     this.parentRight = cueBoxRight;
     this.parentBottom = cueBoxBottom;
+
+    if (this.cueBitmap != null)
+      setupBitmapLayout();
+    else
+      setupTextLayout();
+
+    drawLayout(canvas);
+  }
+
+  /**
+   * Setup {@link #textLayout} for later drawing.
+   */
+  private void setupBitmapLayout() {
+
+    int parentWidth = parentRight - parentLeft;
+    int parentHeight = parentBottom - parentTop;
+    int x = parentLeft + (int) ((float) parentWidth * cuePosition);
+    int y = parentTop + (int) ((float) parentHeight * cueLine);
+    bitmapRect = new Rect(x,y,
+     x + (int)((float) parentWidth * cueSize),y + (int)((float) parentHeight * cueSizeHeight));
+  }
+
+  /**
+   * Setup {@link #textLayout} for later drawing.
+   */
+  private void setupTextLayout() {
 
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
@@ -275,8 +310,27 @@ import com.google.android.exoplayer2.util.Util;
     this.textLeft = textLeft;
     this.textTop = textTop;
     this.textPaddingX = textPaddingX;
+  }
 
-    drawLayout(canvas);
+  /**
+   * Draws {@link #textLayout} or {@link #cueBitmap} into the provided canvas.
+   *
+   * @param canvas The canvas into which to draw.
+   */
+  private void drawLayout(Canvas canvas) {
+    if (cueBitmap != null)
+      drawBitmapLayout(canvas);
+    else
+      drawTextLayout(canvas);
+  }
+
+  /**
+   * Draws {@link #cueBitmap} into the provided canvas.
+   *
+   * @param canvas The canvas into which to draw.
+   */
+  private void drawBitmapLayout(Canvas canvas) {
+    canvas.drawBitmap(cueBitmap, null, bitmapRect, null);
   }
 
   /**
@@ -284,7 +338,7 @@ import com.google.android.exoplayer2.util.Util;
    *
    * @param canvas The canvas into which to draw.
    */
-  private void drawLayout(Canvas canvas) {
+  private void drawTextLayout(Canvas canvas) {
     final StaticLayout layout = textLayout;
     if (layout == null) {
       // Nothing to draw.

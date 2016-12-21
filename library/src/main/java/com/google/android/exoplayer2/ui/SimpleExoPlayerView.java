@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.ImageCue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -172,7 +171,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private final View surfaceView;
   private final ImageView artworkView;
   private final SubtitleView subtitleView;
-  private final ImageView subtitleImageView;
   private final PlaybackControlView controller;
   private final ComponentListener componentListener;
   private final FrameLayout overlayFrameLayout;
@@ -255,8 +253,6 @@ public final class SimpleExoPlayerView extends FrameLayout {
       subtitleView.setUserDefaultStyle();
       subtitleView.setUserDefaultTextSize();
     }
-
-    subtitleImageView = (ImageView) findViewById(R.id.exo_subtitles_image);
 
     // Playback control view.
     View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
@@ -619,67 +615,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onCues(List<Cue> cues) {
 
-      boolean skipNormalCues = false;
-      if (subtitleImageView != null) {
-
-        final ImageCue cue = (cues != null && !cues.isEmpty() && cues.get(0) instanceof ImageCue) ? (ImageCue) cues.get(0) : null;
-        skipNormalCues = (cue != null);
-        if (cue == null || (!subtitlesEnabled && !cue.isForcedSubtitle())) {
-          subtitleImageView.setImageBitmap(null);
-          subtitleImageView.setVisibility(View.INVISIBLE);
-        }
-        else {
-          handleImageCue(cue);
-        }
-      }
-      if (!skipNormalCues && subtitleView != null) {
+      if (subtitleView != null) {
         subtitleView.onCues(cues);
-      }
-    }
-
-    private void handleImageCue(ImageCue cue) {
-      Bitmap bitmap = cue.getBitmap();
-      if (bitmap != null && surfaceView != null) {
-        int surfaceAnchorX = (int) surfaceView.getX();
-        int surfaceAnchorY = (int) surfaceView.getY();
-        int surfaceWidth = surfaceView.getWidth();
-        int surfaceHeight = surfaceView.getHeight();
-        int sourceWidth = cue.getPlaneWidth();
-        int sourceHeight = cue.getPlaneHeight();
-        int subAnchorX = cue.getX();
-        int subAnchorY = cue.getY();
-        int subScaleWidth = cue.getBitmapWidth();
-        int subScaleHeight = cue.getBitmapHeight();
-
-        // they should change together as we keep the aspect ratio
-        if ((surfaceHeight != sourceHeight || surfaceWidth != sourceWidth)
-         && sourceHeight > 0 && sourceWidth > 0) {
-          double scale;
-          if (surfaceWidth != sourceWidth)
-            scale = (double) surfaceWidth / (double) sourceWidth;
-          else
-            scale = (double) surfaceHeight / (double) sourceHeight;
-          subScaleHeight = (int) (scale * subScaleHeight);
-          subScaleWidth = (int) (scale * subScaleWidth);
-        }
-        if (surfaceAnchorX != 0)
-          subAnchorX += surfaceAnchorX;
-        if (subAnchorY != 0)
-          subAnchorY += surfaceAnchorY;
-
-        ViewGroup.LayoutParams params = subtitleImageView.getLayoutParams();
-        params.width = subScaleWidth;
-        params.height = subScaleHeight;
-        subtitleImageView.setX(subAnchorX);
-        subtitleImageView.setY(subAnchorY);
-        subtitleImageView.setLayoutParams(params);
-        subtitleImageView.setImageBitmap(bitmap);
-        subtitleImageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        subtitleImageView.setVisibility(View.VISIBLE);
-      }
-      else {
-        subtitleImageView.setImageBitmap(null);
-        subtitleImageView.setVisibility(View.INVISIBLE);
       }
     }
 
