@@ -61,4 +61,16 @@ public interface SampleStream {
    */
   void skipToKeyframeBefore(long timeUs);
 
+  /**
+   * To see if the sample stream contains the target time or not.
+   *
+   * @param timeUs The specified time.
+   * @return The offset of the keyframe's data if the keyframe was present.
+   *	  otherwise, return  {@link C#SEEK_TARGET_OUT_OF_RANGE_BEFORE}	if the seek time is out of the target range and precedes the eariest timestamp within sampleQueue;
+   *	  return {@link C#SEEK_TARGET_OUT_OF_RANGE_AFTER} if the seek time is out of the target range and coming after the latest timestamp within sampleQueue.
+   *	  return {@link C#SEEK_TARGET_WITHIN_THE_RANGE} if the seek time is within the range.
+   *   or return {@link C#SEEK_TARGET_UNKNOWN} if the relationship is undefined.
+   */
+  public int isContain(long timeUs);
+
 }

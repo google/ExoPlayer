@@ -115,14 +115,31 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   /**
+   * Reset the position; clear downloaded media chunks & cancel current loading. 
+   *
+   * @param positionUs The seek position in microseconds.
+   */
+  public void cleanUpAndReload(long positionUs) { 
+    pendingResetPositionUs = positionUs;
+    loadingFinished = false;
+    mediaChunks.clear();
+    if (loader.isLoading()) {
+      loader.cancelLoading();
+    } else {
+      sampleQueue.reset(true);
+    }
+  }
+
+  /**
    * Seeks to the specified position in microseconds.
    *
    * @param positionUs The seek position in microseconds.
    */
-  public void seekToUs(long positionUs) {
+  public long seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
-    boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
+    long result = sampleQueue.skipToKeyframeBefore(positionUs);
+	boolean seekInsideBuffer = !isPendingReset() && (result == C.SEEK_TARGET_OK);
     if (seekInsideBuffer) {
       // We succeeded. All we need to do is discard any chunks that we've moved past.
       while (mediaChunks.size() > 1
@@ -131,15 +148,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       }
     } else {
       // We failed, and need to restart.
-      pendingResetPositionUs = positionUs;
-      loadingFinished = false;
-      mediaChunks.clear();
-      if (loader.isLoading()) {
-        loader.cancelLoading();
-      } else {
-        sampleQueue.reset(true);
-      }
+      cleanUpAndReload (positionUs);
     }
+    return result;
   }
 
   /**
@@ -192,6 +203,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void skipToKeyframeBefore(long timeUs) {
     sampleQueue.skipToKeyframeBefore(timeUs);
+  }
+
+  @Override
+  public int isContain(long timeUs) {
+    return sampleQueue.isContain(timeUs);
   }
 
   // Loader.Callback implementation.

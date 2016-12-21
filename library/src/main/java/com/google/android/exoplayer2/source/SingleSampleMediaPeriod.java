@@ -232,6 +232,11 @@ import java.util.Arrays;
       // Do nothing.
     }
 
+    @Override
+    public int isContain(long timeUs) {
+      return C.SEEK_TARGET_UNKNOWN;
+    }
+
   }
 
   /* package */ static final class SourceLoadable implements Loadable {

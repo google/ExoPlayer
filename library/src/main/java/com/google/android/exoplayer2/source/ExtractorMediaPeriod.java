@@ -291,7 +291,7 @@ import java.io.IOException;
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < trackCount; i++) {
       if (trackEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
+        seekInsideBuffer = (sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs) == C.SEEK_TARGET_OK);
       }
     }
     // If we failed to seek within the sample queues, we need to restart.
@@ -554,6 +554,11 @@ import java.io.IOException;
     @Override
     public void skipToKeyframeBefore(long timeUs) {
       sampleQueues.valueAt(track).skipToKeyframeBefore(timeUs);
+    }
+
+    @Override
+    public int isContain(long timeUs) {
+      return sampleQueues.valueAt(track).isContain(timeUs);
     }
 
   }

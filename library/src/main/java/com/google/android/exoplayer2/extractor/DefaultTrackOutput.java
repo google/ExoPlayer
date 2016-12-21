@@ -229,15 +229,21 @@ public final class DefaultTrackOutput implements TrackOutput {
    * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
    *
    * @param timeUs The seek time.
-   * @return Whether the skip was successful.
+   * @return The result, which can be {@link C#SEEK_TARGET_OK}, {@link C#SEEK_TARGET_WITHIN_THE_RANGE},
+   *     {@link C#SEEK_TARGET_OUT_OF_RANGE_BEFORE} or {@link C#SEEK_TARGET_OUT_OF_RANGE_AFTER}.
    */
-  public boolean skipToKeyframeBefore(long timeUs) {
+  public long skipToKeyframeBefore(long timeUs) {
     long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
-    if (nextOffset == C.POSITION_UNSET) {
-      return false;
+    if (nextOffset <= C.SEEK_TARGET_WITHIN_THE_RANGE) {
+      return nextOffset;
     }
     dropDownstreamTo(nextOffset);
-    return true;
+    return C.SEEK_TARGET_OK;
+  }
+
+  public int isContain(long timeUs) {
+    int result = infoQueue.isContain(timeUs, false);
+    return result;
   }
 
   /**
@@ -776,18 +782,72 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     /**
      * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
+     * Code refactoring from skipToKeyframeBefore().
      *
      * @param timeUs The seek time.
+     * @param findClosestKey Whether we should find sample count to closest key; if not, we will return once we have met the first key.
      * @return The offset of the keyframe's data if the keyframe was present.
-     *     {@link C#POSITION_UNSET} otherwise.
+     *      otherwise, return  {@link C#SEEK_TARGET_OUT_OF_RANGE_BEFORE}  if the seek time is out of the target range and precedes the eariest timestamp within sampleQueue;
+     *      return {@link C#SEEK_TARGET_OUT_OF_RANGE_AFTER}	if the seek time is out of the target range and coming after the latest timestamp within sampleQueue.
+     *      or return {@link C#SEEK_TARGET_WITHIN_THE_RANGE}	if the seek time is within the range.
      */
-    public synchronized long skipToKeyframeBefore(long timeUs) {
-      if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
-        return C.POSITION_UNSET;
+    public synchronized int isContain(long timeUs, boolean findClosestKey) {
+      if (queueSize == 0) {
+        return ((timeUs > largestQueuedTimestampUs) ? (C.SEEK_TARGET_OUT_OF_RANGE_AFTER) : (C.SEEK_TARGET_OUT_OF_RANGE_BEFORE)); 
+      }
+
+      if (timeUs < timesUs[relativeReadIndex]) {
+        return C.SEEK_TARGET_OUT_OF_RANGE_BEFORE;
       }
 
       if (timeUs > largestQueuedTimestampUs) {
-        return C.POSITION_UNSET;
+        return C.SEEK_TARGET_OUT_OF_RANGE_AFTER;
+      }
+
+      int result = C.SEEK_TARGET_WITHIN_THE_RANGE;
+
+      // This could be optimized to use a binary search, however in practice callers to this method
+      // often pass times near to the start of the buffer. Hence it's unclear whether switching to
+      // a binary search would yield any real benefit.
+      int sampleCount = 0;
+      int sampleCountToKeyframe = -1; 
+      int searchIndex = relativeReadIndex; 
+      while (searchIndex != relativeWriteIndex) {
+        if (timesUs[searchIndex] > timeUs) {
+          break;
+        } else if ((flags[searchIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
+          result = C.SEEK_TARGET_OK;
+          sampleCountToKeyframe = sampleCount;
+          if (!findClosestKey) {
+            break;
+          }
+        }
+        searchIndex = (searchIndex + 1) % capacity;
+        sampleCount++;
+      }
+      return ((result == C.SEEK_TARGET_OK) ? sampleCountToKeyframe : result); 
+    }
+
+    /**
+     * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
+     *
+     * @param timeUs The seek time.
+     * @return The offset of the keyframe's data if the keyframe was present.
+     *      otherwise, return  {@link C#SEEK_TARGET_OUT_OF_RANGE_BEFORE}  if the seek time is out of the target range and precedes the eariest timestamp within sampleQueue;
+     *      return {@link C#SEEK_TARGET_OUT_OF_RANGE_AFTER}	if the seek time is out of the target range and coming after the latest timestamp within sampleQueue.
+     *      or return {@link C#SEEK_TARGET_WITHIN_THE_RANGE}	if the seek time is within the range.
+     */
+    public synchronized long skipToKeyframeBefore(long timeUs) {
+      if (queueSize == 0) {
+        return ((timeUs > largestQueuedTimestampUs) ? (C.SEEK_TARGET_OUT_OF_RANGE_AFTER) : (C.SEEK_TARGET_OUT_OF_RANGE_BEFORE)); 
+      }
+
+      if (timeUs < timesUs[relativeReadIndex]) {
+        return C.SEEK_TARGET_OUT_OF_RANGE_BEFORE;
+      }
+
+      if (timeUs > largestQueuedTimestampUs) {
+        return C.SEEK_TARGET_OUT_OF_RANGE_AFTER;
       }
 
       // This could be optimized to use a binary search, however in practice callers to this method
@@ -809,7 +869,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       }
 
       if (sampleCountToKeyframe == -1) {
-        return C.POSITION_UNSET;
+        return C.SEEK_TARGET_WITHIN_THE_RANGE;
       }
 
       queueSize -= sampleCountToKeyframe;
