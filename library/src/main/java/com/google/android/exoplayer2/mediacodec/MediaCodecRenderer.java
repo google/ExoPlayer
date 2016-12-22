@@ -202,6 +202,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
 
+  private long latestResetPosition;
+
   protected DecoderCounters decoderCounters;
 
   /**
@@ -230,6 +232,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    latestResetPosition = C.TIME_UNSET;
   }
 
   @Override
@@ -388,6 +391,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
+    latestResetPosition = positionUs;
     if (codec != null) {
       flushCodec();
     }
@@ -886,6 +890,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
         return false;
       }
+    }
+
+    /*latestResetPosition works as Gstreamer's segment stop for filtering out-of-range frames at renderer*/
+    if (latestResetPosition > outputBufferInfo.presentationTimeUs) {
+      shouldSkipOutputBuffer = true;
     }
 
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
