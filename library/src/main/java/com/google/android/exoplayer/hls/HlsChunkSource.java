@@ -520,10 +520,10 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
         // exist. If we know from the codec attribute that they don't exist, then we can explicitly
         // ignore them even if they're declared.
-        if (MimeTypes.getAudioMediaMimeType(codecs) != MimeTypes.AUDIO_AAC) {
+        if (!MimeTypes.getAudioMediaMimeType(codecs).equals(MimeTypes.AUDIO_AAC)) {
           workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_AAC_STREAM;
         }
-        if (MimeTypes.getVideoMediaMimeType(codecs) != MimeTypes.VIDEO_H264) {
+        if (!MimeTypes.getVideoMediaMimeType(codecs).equals(MimeTypes.VIDEO_H264)) {
           workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_H264_STREAM;
         }
       }
