@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static android.R.attr.subtitle;
+
 /**
  * Created by cablej01 on 26/12/2016.
  */
@@ -59,7 +61,7 @@ import java.util.Map;
 
 public class SSADecoder extends SimpleSubtitleDecoder {
     private static final String TAG = "SSADecoder";
-    private static String defaultDialogueFormat = "Start, End, , Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text";
+    private static String defaultDialogueFormat = "Start, End, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text";
     private static String defaultStyleFormat = "Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding";
     private String[] dialogueFormat;
     private String[] styleFormat;
@@ -99,21 +101,18 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         decodeHeader(data);
         String currentLine;
         while ((currentLine = data.readLine()) != null) {
-            while(true) {
-                currentLine = data.readLine();
-                if(currentLine==null)
-                    break;
-                Log.i(TAG, currentLine);
-                if(!currentLine.contains(":"))
-                    break;
-                String p[] = currentLine.split(":",2);
-                if(p[0].equals("Format")) {
-                    dialogueFormat = parseKeys(p[1]);
-                }
-                else if(p[0].equals("Dialogue")) {
-                    Map<String,String> ev = parseLine(dialogueFormat, p[1].trim());
-                    subtitle.addEvent(ev, styles);
-                }
+            if(currentLine==null)
+                break;
+            Log.i(TAG, currentLine);
+            if(!currentLine.contains(":"))
+                break;
+            String p[] = currentLine.split(":",2);
+            if(p[0].equals("Format")) {
+                dialogueFormat = parseKeys(p[1]);
+            }
+            else if(p[0].equals("Dialogue")) {
+                Map<String,String> ev = parseLine(dialogueFormat, p[1].trim());
+                subtitle.addEvent(ev, styles);
             }
         }
         return subtitle;
@@ -176,7 +175,7 @@ public class SSADecoder extends SimpleSubtitleDecoder {
     public static Map<String,String> parseLine(String[] keys, String event) {
         Map<String,String> result = new HashMap<>();
         String fields[] = event.split(", *", keys.length);
-        for(int i=0; i<keys.length; i++) {
+        for(int i=0; i<fields.length; i++) {
             String k = keys[i];
             String v = fields[i].trim();
             result.put(k, v);

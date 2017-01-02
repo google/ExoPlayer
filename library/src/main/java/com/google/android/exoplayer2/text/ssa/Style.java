@@ -2,6 +2,8 @@ package com.google.android.exoplayer2.text.ssa;
 
 import java.util.Map;
 
+import static android.R.attr.angle;
+
 /**
  * Created by cablej01 on 27/12/2016.
  */
@@ -12,9 +14,11 @@ public class Style {
     private int fontSize;
     private int primaryColour, secondaryColour, outlineColour, backColour;
     private boolean bold, italic, underline, strikeOut;
-    private int scaleX, scaleY, spacing, angle;
+    private int scaleX, scaleY, spacing;
+    private float angle;
     private int borderStyle;
-    private int outline, shadow, alignment, marginL, marginR, marginV;
+    private float outline;
+    private int shadow, alignment, marginL, marginR, marginV;
     private int alphaLevel=0;
     private int encoding;
 
@@ -30,16 +34,16 @@ public class Style {
         secondaryColour = parseColour(init.get("secondarycolour"));
         outlineColour = parseColour(init.get("outlinecolour"));
         backColour = parseColour(init.get("backcolour"));
-        bold = init.get("bold").equals("0")?false:true;
-        italic = init.get("italic").equals("0")?false:true;
-        underline = init.get("underline").equals("0")?false:true;
-        strikeOut = init.get("strikeout").equals("0")?false:true;
+        bold = !init.get("bold").equals("0");
+        italic = !init.get("italic").equals("0");
+        underline = !init.get("underline").equals("0");
+        strikeOut = !init.get("strikeout").equals("0");
         scaleX = Integer.parseInt(init.get("scalex"));
         scaleY = Integer.parseInt(init.get("scaley"));
         spacing = Integer.parseInt(init.get("spacing"));
-        angle = Integer.parseInt(init.get("angle"));
+        angle = Float.parseFloat(init.get("angle"));
         borderStyle = Integer.parseInt(init.get("borderstyle"));
-        outline = Integer.parseInt(init.get("outline"));
+        outline = Float.parseFloat(init.get("outline"));
         shadow = Integer.parseInt(init.get("shadow"));
         alignment = Integer.parseInt(init.get("alignment"));
         marginL = Integer.parseInt(init.get("marginl"));
@@ -197,11 +201,11 @@ public class Style {
         this.spacing = spacing;
     }
 
-    public int getAngle() {
+    public float getAngle() {
         return angle;
     }
 
-    public void setAngle(int angle) {
+    public void setAngle(float angle) {
         this.angle = angle;
     }
 
@@ -213,11 +217,11 @@ public class Style {
         this.borderStyle = borderStyle;
     }
 
-    public int getOutline() {
+    public float getOutline() {
         return outline;
     }
 
-    public void setOutline(int outline) {
+    public void setOutline(float outline) {
         this.outline = outline;
     }
 

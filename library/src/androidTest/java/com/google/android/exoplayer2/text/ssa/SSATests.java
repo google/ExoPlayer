@@ -13,17 +13,21 @@ import java.text.SimpleDateFormat;
 
 public class SSATests extends InstrumentationTestCase {
     private static final String TYPICAL_FILE = "ssa/typical";
-    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+
+    public void testTimeCodeConvert() throws IOException {
+        assertEquals("0:00:04.230", SSADecoder.formatTimeCode(SSADecoder.parseTimecode("0:00:04.23")));
+    }
 
     public void testDecodeTypical() throws IOException {
         SSADecoder decoder = new SSADecoder();
         byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
         SSASubtitle subtitle = decoder.decodeFile(bytes, bytes.length);
         int n = subtitle.getEventTimeCount();
-        assertEquals(462, n);
+        assertEquals(924, n); // includes end events
         assertTypicalCue1(subtitle, 0);
         assertTypicalCue2(subtitle, 2);
         assertTypicalCue3(subtitle, 4);
+        assertTypicalCue4(subtitle, 6);
     }
 
     /*
@@ -34,27 +38,35 @@ public class SSATests extends InstrumentationTestCase {
     */
 
     private static void assertTypicalCue1(SSASubtitle subtitle, int eventIndex) {
-        assertEquals("00:00:04.230", sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex))));
+        assertEquals("0:00:04.230", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex)));
         assertEquals("The prince should be with the princess.",
                 subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
-        assertEquals("00:00:09.610", sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex+1))));
+        assertEquals("0:00:06.900", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex+1)));
     }
+
     private static void assertTypicalCue2(SSASubtitle subtitle, int eventIndex) {
-        assertEquals("00:00:33.010", sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex))));
-        assertEquals("Kiss Him, Not Me",
+        assertEquals("0:00:09.610", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex)));
+        assertEquals("Who was the one who decided that?",
                 subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
-        assertEquals("00:01:48.870", sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex+1))));
+        assertEquals("0:00:13.200", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex+1)));
     }
 
     private static void assertTypicalCue3(SSASubtitle subtitle, int eventIndex) {
-        String s1 = sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex)));
-        String s2 = sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex+1)));
+        assertEquals("0:00:33.010", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex)));
+        assertEquals("Kiss Him, Not Me",
+                subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
+        assertEquals("0:00:41.770", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex+1)));
+    }
+
+    private static void assertTypicalCue4(SSASubtitle subtitle, int eventIndex) {
+        String s1 = SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex));
+        String s2 = SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex+1));
         String s3 =
                 subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString();
-        assertEquals("00:01:59.610", sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex))));
-        assertEquals("Nice one, Igarashi!",
+        assertEquals("0:01:48.870", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex)));
+        assertEquals("Can She Do It? A Real Life Otome Game",
                 subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
-        assertEquals("00:02:01.220", sdf.format(new java.util.Date(subtitle.getEventTime(eventIndex+1))));
+        assertEquals("0:01:54.380", SSADecoder.formatTimeCode(subtitle.getEventTime(eventIndex+1)));
     }
 
 }
