@@ -18,7 +18,7 @@ public class SSATests extends InstrumentationTestCase {
     public void testDecodeTypical() throws IOException {
         SSADecoder decoder = new SSADecoder();
         byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
-        SSASubtitle subtitle = decoder.decode(bytes, bytes.length);
+        SSASubtitle subtitle = decoder.decodeFile(bytes, bytes.length);
         int n = subtitle.getEventTimeCount();
         assertEquals(462, n);
         assertTypicalCue1(subtitle, 0);

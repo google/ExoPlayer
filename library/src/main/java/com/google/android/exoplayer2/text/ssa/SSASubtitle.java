@@ -1,21 +1,15 @@
 package com.google.android.exoplayer2.text.ssa;
 
-import android.text.Layout;
 import android.util.Log;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static android.R.attr.start;
 
 /**
  * Created by cablej01 on 26/12/2016.

@@ -1,10 +1,6 @@
 package com.google.android.exoplayer2.text.ssa;
 
-import android.graphics.Outline;
-
 import java.util.Map;
-
-import static android.os.Build.VERSION_CODES.M;
 
 /**
  * Created by cablej01 on 27/12/2016.

@@ -1,37 +1,15 @@
 package com.google.android.exoplayer2.text.ssa;
 
-import android.content.Intent;
-import android.text.Layout;
-import android.util.ArrayMap;
 import android.util.Log;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-import com.google.android.exoplayer2.util.LongArray;
-import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
-import static android.R.attr.breadCrumbShortTitle;
-import static android.R.attr.data;
-import static android.R.attr.format;
-import static android.R.attr.key;
-import static android.R.attr.lines;
-import static android.R.attr.subtitle;
-import static android.R.attr.text;
-import static android.R.attr.textAlignment;
-import static android.R.attr.track;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-import static com.google.android.exoplayer2.text.Cue.DIMEN_UNSET;
-import static com.google.android.exoplayer2.text.Cue.TYPE_UNSET;
 
 /**
  * Created by cablej01 on 26/12/2016.
@@ -115,7 +93,7 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         return subtitle;
     }
 
-    public void decodeFile(byte[] bytes, int length) {
+    public SSASubtitle decodeFile(byte[] bytes, int length) {
         SSASubtitle subtitle = new SSASubtitle();
         ParsableByteArray data = new ParsableByteArray(bytes, length);
         decodeHeader(data);
@@ -138,6 +116,7 @@ public class SSADecoder extends SimpleSubtitleDecoder {
                 }
             }
         }
+        return subtitle;
     }
 
     public void decodeHeader(byte[] bytes, int length) {
@@ -156,13 +135,10 @@ public class SSADecoder extends SimpleSubtitleDecoder {
 
             if (currentLine.equals("[Script Info]")) {
                 // TODO
-                continue;
             } else if (currentLine.equals("[V4+ Styles]")) {
                 parseStyles(styles, data);
-                continue;
             } else if (currentLine.equals("[V4 Styles]")) {
                 parseStyles(styles, data);
-                continue;
             } else if (currentLine.equals("[Events]")) {
                 break;
             }
@@ -245,7 +221,7 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         long hours = minutes / 60;
         minutes -= 60*hours;
         double sec = seconds + ((float)us)/1000000.0;
-        return String.format("%01d:%02d:%06.3f", hours, minutes, sec);
+        return String.format(Locale.US, "%01d:%02d:%06.3f", hours, minutes, sec);
     }
 
     public static long parseTimecode(String time) {
