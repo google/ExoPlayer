@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+import android.content.Intent;
+import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -30,6 +32,8 @@ import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.mp4.Track;
+import com.google.android.exoplayer2.text.ssa.SSADecoder;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -38,14 +42,25 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import static android.R.attr.format;
+import static android.R.attr.longClickable;
+import static android.R.attr.mimeType;
+import static android.R.attr.track;
+import static android.R.id.input;
 
 /**
  * Extracts data from a Matroska or WebM file.
@@ -97,6 +112,7 @@ public final class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_ACM = "A_MS/ACM";
   private static final String CODEC_ID_PCM_INT_LIT = "A_PCM/INT/LIT";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
+  private static final String CODEC_ID_ASS = "S_TEXT/ASS";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
   private static final String CODEC_ID_PGS = "S_HDMV/PGS";
 
@@ -861,9 +877,9 @@ public final class MatroskaExtractor implements Extractor {
         if (id == ID_SIMPLE_BLOCK) {
           // For SimpleBlock, we have metadata for each sample here.
           while (blockLacingSampleIndex < blockLacingSampleCount) {
-            writeSampleData(input, track, blockLacingSampleSizes[blockLacingSampleIndex]);
             long sampleTimeUs = this.blockTimeUs
-                + (blockLacingSampleIndex * track.defaultSampleDurationNs) / 1000;
+                    + (blockLacingSampleIndex * track.defaultSampleDurationNs) / 1000;
+            writeSampleData(input, track, blockLacingSampleSizes[blockLacingSampleIndex]);
             commitSampleToOutput(track, sampleTimeUs);
             blockLacingSampleIndex++;
           }
@@ -883,6 +899,9 @@ public final class MatroskaExtractor implements Extractor {
   private void commitSampleToOutput(Track track, long timeUs) {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubripSample(track);
+    }
+    if (CODEC_ID_ASS.equals(track.codecId)) {
+      writeSSASample(track);
     }
     track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.encryptionKeyId);
     sampleRead = true;
@@ -933,6 +952,12 @@ public final class MatroskaExtractor implements Extractor {
       subripSample.setLimit(sizeWithPrefix);
       // Defer writing the data to the track output. We need to modify the sample data by setting
       // the correct end timecode, which we might not have yet.
+      return;
+    }
+    if (CODEC_ID_ASS.equals(track.codecId)) {
+      // Defer writing the data to the track output. We need to modify the sample data by setting
+      // the correct end timecode, which we might not have yet.
+      cacheSSASampleData(input, track, size);
       return;
     }
 
@@ -1076,6 +1101,26 @@ public final class MatroskaExtractor implements Extractor {
     }
   }
 
+    private void cacheSSASampleData(ExtractorInput input, Track track, int size) throws IOException,
+            InterruptedException
+    {
+        ParsableByteArray ssaSample = new ParsableByteArray(size);
+        input.readFully(ssaSample.data, 0, size);
+        track.ssaSample = ssaSample.readString(size);
+    }
+
+  private void writeSSASample(Track track) {
+    StringBuffer s = new StringBuffer();
+    if(track.ssaHeader != null) {
+        // header contains the original format but the Matroska encoder changes this.
+        SSADecoder.writeMangledHeader(s, track.ssaHeader);
+    }
+    SSADecoder.buildDialogue(s, track.ssaSample, blockDurationUs);
+    ParsableByteArray out = new ParsableByteArray(s.toString().getBytes());
+    track.output.sampleData(out, out.limit());
+    sampleBytesWritten += out.limit();
+  }
+
   private void writeSubripSample(Track track) {
     setSubripSampleEndTimecode(subripSample.data, blockDurationUs);
     // Note: If we ever want to support DRM protected subtitles then we'll need to output the
@@ -1102,6 +1147,7 @@ public final class MatroskaExtractor implements Extractor {
     System.arraycopy(timeCodeData, 0, subripSampleData, SUBRIP_PREFIX_END_TIMECODE_OFFSET,
         SUBRIP_TIMECODE_LENGTH);
   }
+
 
   /**
    * Writes {@code length} bytes of sample data into {@code target} at {@code offset}, consisting of
@@ -1231,6 +1277,7 @@ public final class MatroskaExtractor implements Extractor {
         || CODEC_ID_ACM.equals(codecId)
         || CODEC_ID_PCM_INT_LIT.equals(codecId)
         || CODEC_ID_SUBRIP.equals(codecId)
+        || CODEC_ID_ASS.equals(codecId)
         || CODEC_ID_VOBSUB.equals(codecId)
         || CODEC_ID_PGS.equals(codecId);
   }
@@ -1335,6 +1382,8 @@ public final class MatroskaExtractor implements Extractor {
     public boolean flagForced;
     public boolean flagDefault = true;
     private String language = "eng";
+    public byte[] ssaHeader = null;
+    public String ssaSample = null;
 
     // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
     public TrackOutput output;
@@ -1453,6 +1502,10 @@ public final class MatroskaExtractor implements Extractor {
         case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
           break;
+        case CODEC_ID_ASS:
+          mimeType = MimeTypes.TEXT_SSA;
+          ssaHeader = codecPrivate;
+          break;
         case CODEC_ID_VOBSUB:
           mimeType = MimeTypes.APPLICATION_VOBSUB;
           initializationData = Collections.singletonList(codecPrivate);
@@ -1493,6 +1546,10 @@ public final class MatroskaExtractor implements Extractor {
           || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
         format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, initializationData, language, drmInitData);
+      } else if (MimeTypes.TEXT_SSA.equals(mimeType)) {
+        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
+              Format.NO_VALUE, selectionFlags, language, drmInitData);
+        output.track(number).sampleData(new ParsableByteArray(codecPrivate), codecPrivate.length);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
