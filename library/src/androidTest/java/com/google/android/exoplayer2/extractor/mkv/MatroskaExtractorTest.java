@@ -32,7 +32,16 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
       }
     }, "mkv/sample.mkv", getInstrumentation());
   }
-
+/*
+  public void testMkvSSASample() throws Exception {
+    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new MatroskaExtractor();
+      }
+    }, "mkv/ssasample.mkv", getInstrumentation());
+  }
+*/
   public void testWebmSubsampleEncryption() throws Exception {
     TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
       @Override

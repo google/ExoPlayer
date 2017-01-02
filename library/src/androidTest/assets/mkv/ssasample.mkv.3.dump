@@ -1,0 +1,83 @@
+seekMap:
+  isSeekable = true
+  duration = 1449923000
+  getPosition(0) = 12068
+numberOfTracks = 3
+track 1:
+  format:
+    bitrate = -1
+    id = 1
+    containerMimeType = null
+    sampleMimeType = video/avc
+    maxInputSize = -1
+    width = 848
+    height = 480
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = 1.0058962
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+      data = length 33, hash D89E426D
+      data = length 10, hash 7A0D0F2B
+  sample count = 0
+track 2:
+  format:
+    bitrate = -1
+    id = 2
+    containerMimeType = null
+    sampleMimeType = audio/vorbis
+    maxInputSize = 8192
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = -1.0
+    channelCount = 2
+    sampleRate = 44100
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 1
+    language = jpn
+    drmInitData = -
+    initializationData:
+      data = length 30, hash 604D0FB4
+      data = length 3832, hash 400807EA
+  sample count = 0
+track 3:
+  format:
+    bitrate = -1
+    id = 3
+    containerMimeType = null
+    sampleMimeType = text/x-ssa
+    maxInputSize = -1
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = -1
+    pixelWidthHeightRatio = -1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = -1
+    encoderPadding = -1
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 1
+    language = eng
+    drmInitData = -
+    initializationData:
+  sample count = 1
+  sample 0:
+    time = 1447083000
+    flags = 1
+    data = length 108, hash 6EE53EC5
+tracksEnded = true
