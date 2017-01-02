@@ -188,8 +188,6 @@ public final class Format implements Parcelable {
   private int hashCode;
   private MediaFormat frameworkMediaFormat;
 
-  private byte[] header = new byte[0];
-
   // Video.
 
   public static Format createVideoContainerFormat(String id, String containerMimeType,
