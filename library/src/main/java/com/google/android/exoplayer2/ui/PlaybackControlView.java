@@ -735,8 +735,14 @@ public class PlaybackControlView extends FrameLayout {
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-      if (fromUser && positionView != null) {
-        positionView.setText(stringForTime(positionValue(progress)));
+      if (fromUser) {
+        long position = positionValue(progress);
+        if (positionView != null) {
+          positionView.setText(stringForTime(position));
+        }
+        if (player != null && !dragging) {
+          seekTo(position);
+        }
       }
     }
 
