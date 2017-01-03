@@ -1319,7 +1319,6 @@ import java.io.IOException;
       return;
     }
 
-    playingPeriodHolder = periodHolder;
     int enabledRendererCount = 0;
     boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
@@ -1329,10 +1328,12 @@ import java.io.IOException;
       if (newSelection != null) {
         enabledRendererCount++;
       }
-      if (rendererWasEnabledFlags[i] && (newSelection == null || renderer.isCurrentStreamFinal())) {
+      if (rendererWasEnabledFlags[i] && (newSelection == null
+          || (renderer.isCurrentStreamFinal()
+          && renderer.getStream() == playingPeriodHolder.sampleStreams[i]))) {
         // The renderer should be disabled before playing the next period, either because it's not
-        // needed to play the next period, or because we need to disable and re-enable it because
-        // the renderer thinks that its current stream is final.
+        // needed to play the next period, or because we need to re-enable it as its current stream
+        // is final and it's not reading ahead.
         if (renderer == rendererMediaClockSource) {
           // Sync standaloneMediaClock so that it can take over timing responsibilities.
           standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
@@ -1344,6 +1345,7 @@ import java.io.IOException;
       }
     }
 
+    playingPeriodHolder = periodHolder;
     eventHandler.obtainMessage(MSG_TRACKS_CHANGED, periodHolder.getTrackInfo()).sendToTarget();
     enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
   }
