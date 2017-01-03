@@ -345,15 +345,16 @@ public abstract class MappingTrackSelector extends TrackSelector {
   private static int findRenderer(RendererCapabilities[] rendererCapabilities, TrackGroup group)
       throws ExoPlaybackException {
     int bestRendererIndex = rendererCapabilities.length;
-    int bestSupportLevel = RendererCapabilities.FORMAT_UNSUPPORTED_TYPE;
+    int bestFormatSupportLevel = RendererCapabilities.FORMAT_UNSUPPORTED_TYPE;
     for (int rendererIndex = 0; rendererIndex < rendererCapabilities.length; rendererIndex++) {
       RendererCapabilities rendererCapability = rendererCapabilities[rendererIndex];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
-        int trackSupportLevel = rendererCapability.supportsFormat(group.getFormat(trackIndex));
-        if (trackSupportLevel > bestSupportLevel) {
+        int formatSupportLevel = rendererCapability.supportsFormat(group.getFormat(trackIndex))
+            & RendererCapabilities.FORMAT_SUPPORT_MASK;
+        if (formatSupportLevel > bestFormatSupportLevel) {
           bestRendererIndex = rendererIndex;
-          bestSupportLevel = trackSupportLevel;
-          if (bestSupportLevel == RendererCapabilities.FORMAT_HANDLED) {
+          bestFormatSupportLevel = formatSupportLevel;
+          if (bestFormatSupportLevel == RendererCapabilities.FORMAT_HANDLED) {
             // We can't do better.
             return bestRendererIndex;
           }
