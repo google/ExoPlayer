@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -275,7 +276,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h264_adaptive";
     testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-            MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
+        MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
   public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
@@ -837,7 +838,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
       selections[VIDEO_RENDERER_INDEX] = new RandomTrackSelection(
           rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
-          getTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
+          getVideoTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
               rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
               canIncludeAdditionalVideoFormats),
           0 /* seed */);
@@ -849,20 +850,24 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return selections;
     }
 
-    private static int[] getTrackIndices(TrackGroup trackGroup, int[] formatSupport,
+    private static int[] getVideoTrackIndices(TrackGroup trackGroup, int[] formatSupport,
         String[] formatIds, boolean canIncludeAdditionalFormats) {
       List<Integer> trackIndices = new ArrayList<>();
 
       // Always select explicitly listed representations.
       for (String formatId : formatIds) {
-        trackIndices.add(getTrackIndex(trackGroup, formatId));
+        int trackIndex = getTrackIndex(trackGroup, formatId);
+        Log.d(TAG, "Adding base video format: "
+            + Format.toLogString(trackGroup.getFormat(trackIndex)));
+        trackIndices.add(trackIndex);
       }
 
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
           if (!trackIndices.contains(i) && isFormatHandled(formatSupport[i])) {
-            Log.d(TAG, "Adding video format: " + trackGroup.getFormat(i).id);
+            Log.d(TAG, "Adding extra video format: "
+                + Format.toLogString(trackGroup.getFormat(i)));
             trackIndices.add(i);
           }
         }

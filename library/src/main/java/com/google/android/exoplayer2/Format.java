@@ -510,7 +510,7 @@ public final class Format implements Parcelable {
   @Override
   public String toString() {
     return "Format(" + id + ", " + containerMimeType + ", " + sampleMimeType + ", " + bitrate + ", "
-        + ", " + language + ", [" + width + ", " + height + ", " + frameRate + "]"
+        + language + ", [" + width + ", " + height + ", " + frameRate + "]"
         + ", [" + channelCount + ", " + sampleRate + "])";
   }
 
@@ -591,6 +591,38 @@ public final class Format implements Parcelable {
     if (value != NO_VALUE) {
       format.setFloat(key, value);
     }
+  }
+
+  // Utility methods
+
+  /**
+   * Returns a prettier {@link String} than {@link #toString()}, intended for logging.
+   */
+  public static String toLogString(Format format) {
+    if (format == null) {
+      return "null";
+    }
+    StringBuilder builder = new StringBuilder();
+    builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
+    if (format.bitrate != Format.NO_VALUE) {
+      builder.append(", bitrate=").append(format.bitrate);
+    }
+    if (format.width != Format.NO_VALUE && format.height != Format.NO_VALUE) {
+      builder.append(", res=").append(format.width).append("x").append(format.height);
+    }
+    if (format.frameRate != Format.NO_VALUE) {
+      builder.append(", fps=").append(format.frameRate);
+    }
+    if (format.channelCount != Format.NO_VALUE) {
+      builder.append(", channels=").append(format.channelCount);
+    }
+    if (format.sampleRate != Format.NO_VALUE) {
+      builder.append(", sample_rate=").append(format.sampleRate);
+    }
+    if (format.language != null) {
+      builder.append(", language=").append(format.language);
+    }
+    return builder.toString();
   }
 
   // Parcelable implementation.

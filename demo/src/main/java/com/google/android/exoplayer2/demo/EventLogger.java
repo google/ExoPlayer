@@ -153,7 +153,7 @@ import java.util.Locale;
             String formatSupport = getFormatSupportString(
                 mappedTrackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
             Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
-                + getFormatString(trackGroup.getFormat(trackIndex))
+                + Format.toLogString(trackGroup.getFormat(trackIndex))
                 + ", supported=" + formatSupport);
           }
           Log.d(TAG, "    ]");
@@ -185,7 +185,7 @@ import java.util.Locale;
           String formatSupport = getFormatSupportString(
               RendererCapabilities.FORMAT_UNSUPPORTED_TYPE);
           Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
-              + getFormatString(trackGroup.getFormat(trackIndex))
+              + Format.toLogString(trackGroup.getFormat(trackIndex))
               + ", supported=" + formatSupport);
         }
         Log.d(TAG, "    ]");
@@ -224,7 +224,7 @@ import java.util.Locale;
 
   @Override
   public void onAudioInputFormatChanged(Format format) {
-    Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
+    Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format)
         + "]");
   }
 
@@ -254,7 +254,7 @@ import java.util.Locale;
 
   @Override
   public void onVideoInputFormatChanged(Format format) {
-    Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
+    Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format)
         + "]");
   }
 
@@ -431,33 +431,6 @@ import java.util.Locale;
       default:
         return "?";
     }
-  }
-
-  private static String getFormatString(Format format) {
-    if (format == null) {
-      return "null";
-    }
-    StringBuilder builder = new StringBuilder();
-    builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
-    if (format.bitrate != Format.NO_VALUE) {
-      builder.append(", bitrate=").append(format.bitrate);
-    }
-    if (format.width != Format.NO_VALUE && format.height != Format.NO_VALUE) {
-      builder.append(", res=").append(format.width).append("x").append(format.height);
-    }
-    if (format.frameRate != Format.NO_VALUE) {
-      builder.append(", fps=").append(format.frameRate);
-    }
-    if (format.channelCount != Format.NO_VALUE) {
-      builder.append(", channels=").append(format.channelCount);
-    }
-    if (format.sampleRate != Format.NO_VALUE) {
-      builder.append(", sample_rate=").append(format.sampleRate);
-    }
-    if (format.language != null) {
-      builder.append(", language=").append(format.language);
-    }
-    return builder.toString();
   }
 
   private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
