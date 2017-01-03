@@ -157,7 +157,7 @@ BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 TrackSelection.Factory videoTrackSelectionFactory =
     new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
 TrackSelector trackSelector =
-    new DefaultTrackSelector(mainHandler, videoTrackSelectionFactory);
+    new DefaultTrackSelector(videoTrackSelectionFactory);
 
 // 2. Create a default LoadControl
 LoadControl loadControl = new DefaultLoadControl();
