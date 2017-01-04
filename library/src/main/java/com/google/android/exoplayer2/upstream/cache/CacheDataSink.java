@@ -81,10 +81,12 @@ public final class CacheDataSink implements DataSink {
 
   @Override
   public void open(DataSpec dataSpec) throws CacheDataSinkException {
-    this.dataSpec = dataSpec;
-    if (dataSpec.length == C.LENGTH_UNSET) {
+    if (dataSpec.length == C.LENGTH_UNSET
+        && !dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH)) {
+      this.dataSpec = null;
       return;
     }
+    this.dataSpec = dataSpec;
     dataSpecBytesWritten = 0;
     try {
       openNextOutputStream();
@@ -95,7 +97,7 @@ public final class CacheDataSink implements DataSink {
 
   @Override
   public void write(byte[] buffer, int offset, int length) throws CacheDataSinkException {
-    if (dataSpec.length == C.LENGTH_UNSET) {
+    if (dataSpec == null) {
       return;
     }
     try {
@@ -119,7 +121,7 @@ public final class CacheDataSink implements DataSink {
 
   @Override
   public void close() throws CacheDataSinkException {
-    if (dataSpec == null || dataSpec.length == C.LENGTH_UNSET) {
+    if (dataSpec == null) {
       return;
     }
     try {
@@ -130,8 +132,10 @@ public final class CacheDataSink implements DataSink {
   }
 
   private void openNextOutputStream() throws IOException {
+    long maxLength = dataSpec.length == C.LENGTH_UNSET ? maxCacheFileSize
+        : Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize);
     file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
-        Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize));
+        maxLength);
     underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
