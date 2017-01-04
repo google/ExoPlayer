@@ -94,8 +94,10 @@ public final class HlsMediaSource implements MediaSource,
 
   @Override
   public void releaseSource() {
-    playlistTracker.release();
-    playlistTracker = null;
+    if (playlistTracker != null) {
+      playlistTracker.release();
+      playlistTracker = null;
+    }
     sourceListener = null;
   }
 
