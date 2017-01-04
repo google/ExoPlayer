@@ -880,7 +880,9 @@ public class FragmentedMp4Extractor implements Extractor {
         // We skip bytes preceding the next sample to read.
         int bytesToSkip = (int) (nextDataPosition - input.getPosition());
         if (bytesToSkip < 0) {
-          throw new ParserException("Offset to sample data was negative.");
+          // Assume the sample data must be contiguous in the mdat with no preceding data.
+          Log.w(TAG, "Ignoring negative offset to sample data.");
+          bytesToSkip = 0;
         }
         input.skipFully(bytesToSkip);
       }
