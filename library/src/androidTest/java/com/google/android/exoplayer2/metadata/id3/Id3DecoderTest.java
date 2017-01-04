@@ -63,4 +63,15 @@ public class Id3DecoderTest extends TestCase {
     assertEquals("Hello World", textInformationFrame.description);
   }
 
+  public void testDecodePrivFrame() throws MetadataDecoderException {
+    byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 19, 80, 82, 73, 86, 0, 0, 0, 9, 0, 0,
+        116, 101, 115, 116, 0, 1, 2, 3, 4};
+    Id3Decoder decoder = new Id3Decoder();
+    Metadata metadata = decoder.decode(rawId3, rawId3.length);
+    assertEquals(1, metadata.length());
+    PrivFrame privFrame = (PrivFrame) metadata.get(0);
+    assertEquals("test", privFrame.owner);
+    MoreAsserts.assertEquals(new byte[] {1, 2, 3, 4}, privFrame.privateData);
+  }
+
 }
