@@ -96,19 +96,58 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
   }
 
+  /**
+   * Returns whether this playlist is newer than {@code other}.
+   *
+   * @param other The playlist to compare.
+   * @return Whether this playlist is newer than {@code other}.
+   */
   public boolean isNewerThan(HlsMediaPlaylist other) {
-    return other == null || mediaSequence > other.mediaSequence
-        || (mediaSequence == other.mediaSequence && segments.size() > other.segments.size())
-        || (hasEndTag && !other.hasEndTag);
+    if (other == null || mediaSequence > other.mediaSequence) {
+      return true;
+    }
+    if (mediaSequence < other.mediaSequence) {
+      return false;
+    }
+    // The media sequences are equal.
+    int segmentCount = segments.size();
+    int otherSegmentCount = other.segments.size();
+    return segmentCount > otherSegmentCount
+        || (segmentCount == otherSegmentCount && hasEndTag && !other.hasEndTag);
   }
 
   public long getEndTimeUs() {
     return startTimeUs + durationUs;
   }
 
+  /**
+   * Returns a playlist identical to this one except for the start time, which is set to the
+   * specified value. If the start time already equals the specified value then the playlist will
+   * return itself.
+   *
+   * @param startTimeUs The start time for the returned playlist.
+   * @return The playlist.
+   */
   public HlsMediaPlaylist copyWithStartTimeUs(long startTimeUs) {
+    if (this.startTimeUs == startTimeUs) {
+      return this;
+    }
     return new HlsMediaPlaylist(baseUri, startTimeUs, mediaSequence, version, targetDurationUs,
         hasEndTag, hasProgramDateTime, initializationSegment, segments);
+  }
+
+  /**
+   * Returns a playlist identical to this one except that an end tag is added. If an end tag is
+   * already present then the playlist will return itself.
+   *
+   * @return The playlist.
+   */
+  public HlsMediaPlaylist copyWithEndTag() {
+    if (this.hasEndTag) {
+      return this;
+    }
+    return new HlsMediaPlaylist(baseUri, startTimeUs, mediaSequence, version, targetDurationUs,
+        true, hasProgramDateTime, initializationSegment, segments);
   }
 
 }

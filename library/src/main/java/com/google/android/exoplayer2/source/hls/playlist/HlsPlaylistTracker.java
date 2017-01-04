@@ -334,16 +334,18 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
   }
 
-  /**
-   * TODO: Track discontinuities for media playlists that don't include the discontinuity number.
-   */
-  private HlsMediaPlaylist adjustPlaylistTimestamps(HlsMediaPlaylist oldPlaylist,
-      HlsMediaPlaylist newPlaylist) {
-    if (newPlaylist.hasProgramDateTime) {
-      if (newPlaylist.isNewerThan(oldPlaylist)) {
-        return newPlaylist;
+  // TODO: Track discontinuities for media playlists that don't include the discontinuity number.
+  private HlsMediaPlaylist getLatestPlaylistSnapshot(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    if (loadedPlaylist.hasProgramDateTime) {
+      if (loadedPlaylist.isNewerThan(oldPlaylist)) {
+        return loadedPlaylist;
       } else {
-        return oldPlaylist;
+        // If the loaded playlist has an end tag but is not newer than the old playlist then we have
+        // an inconsistent state. This is typically caused by the server incorrectly resetting the
+        // media sequence when appending the end tag. We resolve this case as best we can by
+        // returning the old playlist with the end tag appended.
+        return loadedPlaylist.hasEndTag ? oldPlaylist.copyWithEndTag() : oldPlaylist;
       }
     }
     // TODO: Once playlist type support is added, the snapshot's age can be added by using the
@@ -351,28 +353,28 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     long primarySnapshotStartTimeUs = primaryUrlSnapshot != null
         ? primaryUrlSnapshot.startTimeUs : 0;
     if (oldPlaylist == null) {
-      if (newPlaylist.startTimeUs == primarySnapshotStartTimeUs) {
+      if (loadedPlaylist.startTimeUs == primarySnapshotStartTimeUs) {
         // Playback has just started or is VOD so no adjustment is needed.
-        return newPlaylist;
+        return loadedPlaylist;
       } else {
-        return newPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
+        return loadedPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
       }
+    }
+    if (!loadedPlaylist.isNewerThan(oldPlaylist)) {
+      // See comment above.
+      return loadedPlaylist.hasEndTag ? oldPlaylist.copyWithEndTag() : oldPlaylist;
     }
     List<Segment> oldSegments = oldPlaylist.segments;
     int oldPlaylistSize = oldSegments.size();
-    if (!newPlaylist.isNewerThan(oldPlaylist)) {
-      // Playlist has not changed.
-      return oldPlaylist;
-    }
-    int mediaSequenceOffset = newPlaylist.mediaSequence - oldPlaylist.mediaSequence;
+    int mediaSequenceOffset = loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence;
     if (mediaSequenceOffset <= oldPlaylistSize) {
       long adjustedNewPlaylistStartTimeUs = mediaSequenceOffset == oldPlaylistSize
           ? oldPlaylist.getEndTimeUs()
           : oldPlaylist.startTimeUs + oldSegments.get(mediaSequenceOffset).relativeStartTimeUs;
-      return newPlaylist.copyWithStartTimeUs(adjustedNewPlaylistStartTimeUs);
+      return loadedPlaylist.copyWithStartTimeUs(adjustedNewPlaylistStartTimeUs);
     }
     // No segments overlap, we assume the new playlist start coincides with the primary playlist.
-    return newPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
+    return loadedPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
   }
 
   /**
@@ -460,15 +462,15 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     // Internal methods.
 
-    private void processLoadedPlaylist(HlsMediaPlaylist loadedMediaPlaylist) {
+    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
-      playlistSnapshot = adjustPlaylistTimestamps(oldPlaylist, loadedMediaPlaylist);
+      playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
       long refreshDelayUs = C.TIME_UNSET;
-      if (oldPlaylist != playlistSnapshot) {
+      if (playlistSnapshot != oldPlaylist) {
         if (onPlaylistUpdated(playlistUrl, playlistSnapshot)) {
           refreshDelayUs = playlistSnapshot.targetDurationUs;
         }
-      } else if (!loadedMediaPlaylist.hasEndTag) {
+      } else if (!playlistSnapshot.hasEndTag) {
         refreshDelayUs = playlistSnapshot.targetDurationUs / 2;
       }
       if (refreshDelayUs != C.TIME_UNSET) {
