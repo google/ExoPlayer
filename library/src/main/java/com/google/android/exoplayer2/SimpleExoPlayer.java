@@ -29,7 +29,6 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -178,7 +177,7 @@ public class SimpleExoPlayer implements ExoPlayer {
 
     // Set initial values.
     audioVolume = 1;
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     audioStreamType = C.STREAM_TYPE_DEFAULT;
     videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
 
@@ -393,7 +392,7 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Returns the audio session identifier, or {@code AudioTrack.SESSION_ID_NOT_SET} if not set.
+   * Returns the audio session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} if not set.
    */
   public int getAudioSessionId() {
     return audioSessionId;
@@ -949,7 +948,7 @@ public class SimpleExoPlayer implements ExoPlayer {
       }
       audioFormat = null;
       audioDecoderCounters = null;
-      audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+      audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     }
 
     // TextRenderer.Output implementation

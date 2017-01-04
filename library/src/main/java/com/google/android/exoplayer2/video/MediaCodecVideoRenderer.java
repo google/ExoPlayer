@@ -403,7 +403,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
-    if (earlyUs < -30000) {
+    if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
       return true;
@@ -435,6 +435,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     // We're either not playing, or it's not time to render the frame yet.
     return false;
+  }
+
+  /**
+   * Returns true if the current frame should be dropped.
+   *
+   * @param earlyUs Time indicating how early the frame is. Negative values indicate late frame.
+   * @param elapsedRealtimeUs Wall clock time.
+   */
+  protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
+    // Drop the frame if we're more than 30ms late rendering the frame.
+    return earlyUs < -30000;
   }
 
   private void skipOutputBuffer(MediaCodec codec, int bufferIndex) {

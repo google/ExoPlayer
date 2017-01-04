@@ -37,6 +37,7 @@
 
   <declare-styleable name="SimpleExoPlayerView">
     <attr name="use_artwork" format="boolean"/>
+    <attr name="default_artwork" format="reference"/>
     <attr name="use_controller" format="boolean"/>
     <attr name="surface_type"/>
     <attr name="show_timeout"/>

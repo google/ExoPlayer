@@ -104,15 +104,14 @@ public final class HlsMediaSource implements MediaSource,
     SinglePeriodTimeline timeline;
     if (playlistTracker.isLive()) {
       // TODO: fix windowPositionInPeriodUs when playlist is empty.
-      long windowPositionInPeriodUs = playlist.startTimeUs;
       List<HlsMediaPlaylist.Segment> segments = playlist.segments;
       long windowDefaultStartPositionUs = segments.isEmpty() ? 0
           : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
       timeline = new SinglePeriodTimeline(C.TIME_UNSET, playlist.durationUs,
-          windowPositionInPeriodUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
+          playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
     } else /* not live */ {
-      timeline = new SinglePeriodTimeline(playlist.durationUs, playlist.durationUs, 0, 0, true,
-          false);
+      timeline = new SinglePeriodTimeline(playlist.startTimeUs + playlist.durationUs,
+          playlist.durationUs, playlist.startTimeUs, 0, true, false);
     }
     sourceListener.onSourceInfoRefreshed(timeline, playlist);
   }
