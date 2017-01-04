@@ -339,6 +339,8 @@ public final class FragmentedMp4Extractor implements Extractor {
       ChunkIndex segmentIndex = parseSidx(leaf.data, inputPosition);
       extractorOutput.seekMap(segmentIndex);
       haveOutputSeekMap = true;
+    } else if (leaf.type == Atom.TYPE_emsg) {
+      onEmsgLeafAtomRead(leaf);
     }
   }
 
@@ -415,6 +417,10 @@ public final class FragmentedMp4Extractor implements Extractor {
         trackBundles.valueAt(i).updateDrmInitData(drmInitData);
       }
     }
+  }
+
+  private void onEmsgLeafAtomRead(LeafAtom emsg) {
+    // Do nothing.
   }
 
   /**
@@ -1134,7 +1140,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_pssh || atom == Atom.TYPE_saiz
         || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid
         || atom == Atom.TYPE_sbgp || atom == Atom.TYPE_sgpd || atom == Atom.TYPE_elst
-        || atom == Atom.TYPE_mehd;
+        || atom == Atom.TYPE_mehd || atom == Atom.TYPE_emsg;
   }
 
   /** Returns whether the extractor should decode a container atom with type {@code atom}. */
