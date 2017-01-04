@@ -58,7 +58,7 @@ this version.
 * Fix issues that could cause ExtractorMediaSource based playbacks to get stuck
   buffering ([#1962](https://github.com/google/ExoPlayer/issues/1962)).
 * Correctly set SimpleExoPlayerView surface aspect ratio when an active player
-  is attached ([#2077](https://github.com/google/ExoPlayer/issues/1976)).
+  is attached ([#2077](https://github.com/google/ExoPlayer/issues/2077)).
 * OGG: Fix playback of short OGG files
   ([#1976](https://github.com/google/ExoPlayer/issues/1976)).
 * MP4: Support `.mp3` tracks
