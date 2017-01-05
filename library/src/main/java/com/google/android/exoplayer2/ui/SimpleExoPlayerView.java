@@ -202,7 +202,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     int playerLayoutId = R.layout.exo_simple_player_view;
     boolean useArtwork = true;
-    int defaultArtwork = 0;
+    int defaultArtworkId = 0;
     boolean useController = true;
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
@@ -214,8 +214,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
         playerLayoutId = a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id,
             playerLayoutId);
         useArtwork = a.getBoolean(R.styleable.SimpleExoPlayerView_use_artwork, useArtwork);
-        defaultArtwork = a.getResourceId(R.styleable.SimpleExoPlayerView_default_artwork,
-                defaultArtwork);
+        defaultArtworkId = a.getResourceId(R.styleable.SimpleExoPlayerView_default_artwork,
+            defaultArtworkId);
         useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
         surfaceType = a.getInt(R.styleable.SimpleExoPlayerView_surface_type, surfaceType);
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
@@ -257,8 +257,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     // Artwork view.
     artworkView = (ImageView) findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
-    if (defaultArtwork != 0) {
-      this.defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtwork);
+    if (defaultArtworkId != 0) {
+      defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtworkId);
     }
 
     // Subtitle view.

@@ -438,10 +438,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns true if the current frame should be dropped.
+   * Returns whether the buffer being processed should be dropped.
    *
-   * @param earlyUs Time indicating how early the frame is. Negative values indicate late frame.
-   * @param elapsedRealtimeUs Wall clock time.
+   * @param earlyUs The time until the buffer should be presented in microseconds. A negative value
+   *     indicates that the buffer is late.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    */
   protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
     // Drop the frame if we're more than 30ms late rendering the frame.
