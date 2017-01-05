@@ -786,9 +786,7 @@ public final class DefaultTrackOutput implements TrackOutput {
         return C.POSITION_UNSET;
       }
 
-      int lastWriteIndex = (relativeWriteIndex == 0 ? capacity : relativeWriteIndex) - 1;
-      long lastTimeUs = timesUs[lastWriteIndex];
-      if (timeUs > lastTimeUs) {
+      if (timeUs > largestQueuedTimestampUs) {
         return C.POSITION_UNSET;
       }
 
