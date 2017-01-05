@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import okhttp3.CacheControl;
@@ -24,7 +25,7 @@ import okhttp3.Call;
 /**
  * A {@link Factory} that produces {@link OkHttpDataSource}.
  */
-public final class OkHttpDataSourceFactory implements Factory {
+public final class OkHttpDataSourceFactory extends BaseFactory {
 
   private final Call.Factory callFactory;
   private final String userAgent;
@@ -58,7 +59,7 @@ public final class OkHttpDataSourceFactory implements Factory {
   }
 
   @Override
-  public OkHttpDataSource createDataSource() {
+  protected OkHttpDataSource createDataSourceInternal() {
     return new OkHttpDataSource(callFactory, userAgent, null, listener, cacheControl);
   }
 
