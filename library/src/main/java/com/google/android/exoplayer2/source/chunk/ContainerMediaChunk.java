@@ -128,7 +128,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
     loadCompleted = true;
   }

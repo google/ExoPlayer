@@ -119,7 +119,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
       }
     } finally {
-      reader.close();
+      Util.closeQuietly(reader);
     }
     throw new ParserException("Failed to parse the playlist, could not identify any tags.");
   }

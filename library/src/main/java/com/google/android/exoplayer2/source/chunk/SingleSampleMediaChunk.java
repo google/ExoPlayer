@@ -98,7 +98,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       int sampleSize = bytesLoaded;
       trackOutput.sampleMetadata(startTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
     loadCompleted = true;
   }

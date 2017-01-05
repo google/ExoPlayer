@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -276,7 +277,7 @@ import java.util.Arrays;
           result = dataSource.read(sampleData, sampleSize, sampleData.length - sampleSize);
         }
       } finally {
-        dataSource.close();
+        Util.closeQuietly(dataSource);
       }
     }
 

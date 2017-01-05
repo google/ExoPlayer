@@ -150,7 +150,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
   }
 

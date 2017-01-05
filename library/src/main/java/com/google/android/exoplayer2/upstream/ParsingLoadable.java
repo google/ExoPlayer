@@ -19,6 +19,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -114,7 +115,7 @@ public final class ParsingLoadable<T> implements Loadable {
       result = parser.parse(dataSource.getUri(), inputStream);
     } finally {
       bytesLoaded = inputStream.bytesRead();
-      inputStream.close();
+      Util.closeQuietly(inputStream);
     }
   }
 
