@@ -1138,18 +1138,24 @@ import java.io.IOException;
     }
 
     if (readingPeriodHolder.isLast) {
-      for (Renderer renderer : enabledRenderers) {
+      for (int i = 0; i < renderers.length; i++) {
+        Renderer renderer = renderers[i];
+        SampleStream sampleStream = readingPeriodHolder.sampleStreams[i];
         // Defer setting the stream as final until the renderer has actually consumed the whole
         // stream in case of playlist changes that cause the stream to be no longer final.
-        if (renderer.hasReadStreamToEnd()) {
+        if (sampleStream != null && renderer.getStream() == sampleStream
+            && renderer.hasReadStreamToEnd()) {
           renderer.setCurrentStreamFinal();
         }
       }
       return;
     }
 
-    for (Renderer renderer : enabledRenderers) {
-      if (!renderer.hasReadStreamToEnd()) {
+    for (int i = 0; i < renderers.length; i++) {
+      Renderer renderer = renderers[i];
+      SampleStream sampleStream = readingPeriodHolder.sampleStreams[i];
+      if (renderer.getStream() != sampleStream
+          || (sampleStream != null && !renderer.hasReadStreamToEnd())) {
         return;
       }
     }
