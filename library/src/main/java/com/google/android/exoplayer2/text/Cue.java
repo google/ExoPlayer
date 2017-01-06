@@ -90,8 +90,6 @@ public class Cue {
    * <p>
    * For horizontal text and {@link #lineType} equal to {@link #LINE_TYPE_FRACTION}, this is the
    * fractional vertical position relative to the top of the viewport.
-   * <p>
-   * If {@link #bitmap} is not null then this value is used to indicate the top position
    */
   public final float line;
   /**
@@ -126,8 +124,6 @@ public class Cue {
    * For horizontal text, this is the horizontal position relative to the left of the viewport. Note
    * that positioning is relative to the left of the viewport even in the case of right-to-left
    * text.
-   * <p>
-   * If {@link #bitmap} is not null then this value is used to indicate the left position
    */
   public final float position;
   /**
@@ -143,23 +139,15 @@ public class Cue {
   /**
    * The size of the cue box in the writing direction specified as a fraction of the viewport size
    * in that direction, or {@link #DIMEN_UNSET}.
-   * <p>
-   * If {@link #bitmap} is not null then this value is used to indicate the width
    */
   public final float size;
 
   /**
-   * The height size of the cue box when a {@link #bitmap} is set specified as a fraction of the
-   * viewport size in that direction, or {@link #DIMEN_UNSET}.
-   */
-  public final float size_height;
-
-  /**
    *
    */
-  public Cue(Bitmap bitmap, float left, float top, float size, float size_height) {
-    this(null, null, top, LINE_TYPE_FRACTION, TYPE_UNSET, left, TYPE_UNSET, size, size_height,
-     bitmap);
+  public Cue(Bitmap bitmap, float left, float top, int plane_width) {
+    this(null, null, top, LINE_TYPE_FRACTION, ANCHOR_TYPE_START, left, ANCHOR_TYPE_START,
+     (float) bitmap.getWidth() / plane_width, bitmap);
   }
 
   /**
@@ -184,8 +172,7 @@ public class Cue {
    */
   public Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size) {
-    this(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, size,
-     DIMEN_UNSET, null);
+    this(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, size, null);
   }
   /**
    * @param text See {@link #text}.
@@ -196,12 +183,11 @@ public class Cue {
    * @param position See {@link #position}.
    * @param positionAnchor See {@link #positionAnchor}.
    * @param size See {@link #size}.
-   * @param size_height See {@link #size_height}.
    * @param bitmap See {@link #bitmap}.
    */
   private Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
     @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size,
-    float size_height, Bitmap bitmap) {
+    Bitmap bitmap) {
     this.text = text;
     this.textAlignment = textAlignment;
     this.line = line;
@@ -210,7 +196,6 @@ public class Cue {
     this.position = position;
     this.positionAnchor = positionAnchor;
     this.size = size;
-    this.size_height = size_height;
     this.bitmap = bitmap;
   }
 

@@ -77,7 +77,6 @@ import com.google.android.exoplayer2.util.Util;
   @Cue.AnchorType
   private int cuePositionAnchor;
   private float cueSize;
-  private float cueSizeHeight;
   private boolean applyEmbeddedStyles;
   private int foregroundColor;
   private int backgroundColor;
@@ -192,7 +191,6 @@ import com.google.android.exoplayer2.util.Util;
     this.cuePosition = cue.position;
     this.cuePositionAnchor = cue.positionAnchor;
     this.cueSize = cue.size;
-    this.cueSizeHeight = cue.size_height;
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.foregroundColor = style.foregroundColor;
     this.backgroundColor = style.backgroundColor;
@@ -224,8 +222,9 @@ import com.google.android.exoplayer2.util.Util;
     int parentHeight = parentBottom - parentTop;
     int x = parentLeft + (int) ((float) parentWidth * cuePosition);
     int y = parentTop + (int) ((float) parentHeight * cueLine);
-    bitmapRect = new Rect(x,y,
-     x + (int)((float) parentWidth * cueSize),y + (int)((float) parentHeight * cueSizeHeight));
+    int width = (int) (parentWidth * cueSize);
+    int height = (int) (width * ((float) cueBitmap.getHeight() / cueBitmap.getWidth()));
+    bitmapRect = new Rect(x, y, x + width, y + height);
   }
 
   /**
