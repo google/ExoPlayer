@@ -79,6 +79,7 @@ public final class MimeTypes {
   public static final String APPLICATION_PGS = BASE_TYPE_APPLICATION + "/pgs";
   public static final String APPLICATION_SCTE35 = BASE_TYPE_APPLICATION + "/x-scte35";
   public static final String APPLICATION_CAMERA_MOTION = BASE_TYPE_APPLICATION + "/x-camera-motion";
+  public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
 
   private MimeTypes() {}
 

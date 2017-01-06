@@ -21,9 +21,9 @@ import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import junit.framework.TestCase;
 
 /**
- * Test for {@link Id3Decoder}
+ * Test for {@link Id3Decoder}.
  */
-public class Id3DecoderTest extends TestCase {
+public final class Id3DecoderTest extends TestCase {
 
   public void testDecodeTxxxFrame() throws MetadataDecoderException {
     byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 41, 84, 88, 88, 88, 0, 0, 0, 31, 0, 0,
