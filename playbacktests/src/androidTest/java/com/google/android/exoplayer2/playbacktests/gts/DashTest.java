@@ -30,10 +30,10 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -701,9 +701,9 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     @TargetApi(18)
     @SuppressWarnings("ResourceType")
-    protected final StreamingDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+    protected final DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
         final String userAgent) {
-      StreamingDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+      DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (isWidevineEncrypted) {
         try {
           // Force L3 if secure decoder is not available.
@@ -717,7 +717,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(
               WIDEVINE_LICENSE_URL + widevineContentId,
               new DefaultHttpDataSourceFactory(userAgent));
-          drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(drmCallback, null,
+          drmSessionManager = DefaultDrmSessionManager.newWidevineInstance(drmCallback, null,
               null, null);
           if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {
             drmSessionManager.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);

@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
@@ -55,7 +55,7 @@ import java.util.Locale;
  */
 /* package */ final class EventLogger implements ExoPlayer.EventListener,
     AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
-    ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
+    ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener,
     MetadataRenderer.Output {
 
   private static final String TAG = "EventLogger";
@@ -279,11 +279,21 @@ import java.util.Locale;
     // Do nothing.
   }
 
-  // StreamingDrmSessionManager.EventListener
+  // DefaultDrmSessionManager.EventListener
 
   @Override
   public void onDrmSessionManagerError(Exception e) {
     printInternalError("drmSessionManagerError", e);
+  }
+
+  @Override
+  public void onDrmKeysRestored() {
+    Log.d(TAG, "drmKeysRestored [" + getSessionTimeString() + "]");
+  }
+
+  @Override
+  public void onDrmKeysRemoved() {
+    Log.d(TAG, "drmKeysRemoved [" + getSessionTimeString() + "]");
   }
 
   @Override
