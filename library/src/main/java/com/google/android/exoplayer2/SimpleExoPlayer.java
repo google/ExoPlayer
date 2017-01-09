@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -449,15 +448,6 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * @deprecated Use {@link #setMetadataOutput(MetadataRenderer.Output)} instead.
-   * @param output The output.
-   */
-  @Deprecated
-  public void setId3Output(MetadataRenderer.Output output) {
-    setMetadataOutput(output);
-  }
-
-  /**
    * Sets a listener to receive metadata events.
    *
    * @param output The output.
@@ -771,7 +761,7 @@ public class SimpleExoPlayer implements ExoPlayer {
   protected void buildMetadataRenderers(Context context, Handler mainHandler,
       @ExtensionRendererMode int extensionRendererMode, MetadataRenderer.Output output,
       ArrayList<Renderer> out) {
-    out.add(new MetadataRenderer(output, mainHandler.getLooper(), new Id3Decoder()));
+    out.add(new MetadataRenderer(output, mainHandler.getLooper()));
   }
 
   /**

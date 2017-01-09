@@ -49,12 +49,13 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
-  private final MetadataDecoder metadataDecoder;
+  private final MetadataDecoderFactory decoderFactory;
   private final Output output;
   private final Handler outputHandler;
   private final FormatHolder formatHolder;
   private final DecoderInputBuffer buffer;
 
+  private MetadataDecoder decoder;
   private boolean inputStreamEnded;
   private long pendingMetadataTimestamp;
   private Metadata pendingMetadata;
@@ -66,21 +67,38 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    *     looper associated with the application's main thread, which can be obtained using
    *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
    *     called directly on the player's internal rendering thread.
-   * @param metadataDecoder A decoder for the metadata.
    */
-  public MetadataRenderer(Output output, Looper outputLooper, MetadataDecoder metadataDecoder) {
+  public MetadataRenderer(Output output, Looper outputLooper) {
+    this(output, outputLooper, MetadataDecoderFactory.DEFAULT);
+  }
+
+  /**
+   * @param output The output.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using
+   *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
+   *     called directly on the player's internal rendering thread.
+   * @param decoderFactory A factory from which to obtain {@link MetadataDecoder} instances.
+   */
+  public MetadataRenderer(Output output, Looper outputLooper,
+      MetadataDecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
-    this.metadataDecoder = Assertions.checkNotNull(metadataDecoder);
+    this.decoderFactory = Assertions.checkNotNull(decoderFactory);
     formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
   @Override
   public int supportsFormat(Format format) {
-    return metadataDecoder.canDecode(format.sampleMimeType) ? FORMAT_HANDLED
-        : FORMAT_UNSUPPORTED_TYPE;
+    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+  }
+
+  @Override
+  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
+    decoder = decoderFactory.createDecoder(formats[0]);
   }
 
   @Override
@@ -102,7 +120,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
           try {
             buffer.flip();
             ByteBuffer bufferData = buffer.data;
-            pendingMetadata = metadataDecoder.decode(bufferData.array(), bufferData.limit());
+            pendingMetadata = decoder.decode(bufferData.array(), bufferData.limit());
           } catch (MetadataDecoderException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
           }
@@ -119,6 +137,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   @Override
   protected void onDisabled() {
     pendingMetadata = null;
+    decoder = null;
     super.onDisabled();
   }
 

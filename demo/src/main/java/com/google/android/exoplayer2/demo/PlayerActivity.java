@@ -278,7 +278,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       player.addListener(eventLogger);
       player.setAudioDebugListener(eventLogger);
       player.setVideoDebugListener(eventLogger);
-      player.setId3Output(eventLogger);
+      player.setMetadataOutput(eventLogger);
 
       simpleExoPlayerView.setPlayer(player);
       if (isTimelineStatic) {
