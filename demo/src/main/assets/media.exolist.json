@@ -352,6 +352,10 @@
     "name": "Misc",
     "samples": [
       {
+        "name": "Watashi ga Motete Dousunda - 01 SSA",
+        "uri": "http://192.168.1.133:8080/Watashi ga Motete Dousunda - 01.mkv"
+      },
+      {
         "name": "Dizzy",
         "uri": "http://html5demos.com/assets/dizzy.mp4"
       },

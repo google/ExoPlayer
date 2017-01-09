@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static android.R.attr.data;
 import static android.R.attr.subtitle;
+import static android.R.attr.x;
 
 /**
  * Created by cablej01 on 26/12/2016.
@@ -58,19 +60,31 @@ import static android.R.attr.subtitle;
     than the previous one, the value passed to getCues will go down.
  */
 
-
+/**
+ * A {@link SimpleSubtitleDecoder} for ASS/SSA.
+ */
 public class SSADecoder extends SimpleSubtitleDecoder {
     private static final String TAG = "SSADecoder";
-    private static String defaultDialogueFormat = "Start, End, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text";
+    private static String defaultDialogueFormat = "Start, End, ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text";
     private static String defaultStyleFormat = "Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding";
     private String[] dialogueFormat;
     private String[] styleFormat;
     private Map<String,Style> styles = new HashMap<>();
 
+// 0,0,Watamote-internal/narrator,Serinuma,0000,0000,0000,      ,The prince should be with the princess.
+//  , ,style                     ,name    ,L   ,R,   V   ,Effect, text
     public SSADecoder() {
         super("SSADecoder");
         dialogueFormat = parseKeys(defaultDialogueFormat);
         styleFormat = parseKeys(defaultStyleFormat);
+    }
+
+    public SSADecoder(byte[] header) {
+        super("SSADecoder");
+        styleFormat = parseKeys(defaultStyleFormat);
+        decodeHeader(header, header.length);
+        // put back the Matroska format
+        dialogueFormat = parseKeys(defaultDialogueFormat);
     }
 
     /**
@@ -183,22 +197,8 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         return result;
     }
 
-    public static void writeMangledHeader(StringBuffer s, byte[] data){
-        // header contains the original format but the Matroska encoder changes this.
-        // we won't need anything after the [Events] line
-        try {
-            String header = new String(data, "UTF-8").split("\\[Events]")[0];
-            s.append(header);
-        }
-        catch (UnsupportedEncodingException e) {
-            // we know this can't happen
-        }
-        s.append("[Events]\n");
-        s.append(defaultDialogueFormat);
-        s.append("\n");
-    }
-
-    public static void buildDialogue(StringBuffer s, String data, long durationUs) {
+    public static String buildDialogue(String data, long durationUs) {
+        StringBuffer s = new StringBuffer();
         s.append("Dialogue: ");
         s.append(SSADecoder.formatTimeCode(0)); // blockTimeUs
         s.append(",");
@@ -210,6 +210,7 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         s.append(",");
         s.append(data);
         s.append("\n");
+        return s.toString();
     }
 
     public static String formatTimeCode(long tc_us) {

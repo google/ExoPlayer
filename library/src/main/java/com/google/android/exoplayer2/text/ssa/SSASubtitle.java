@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static android.R.attr.start;
+
 /**
  * Created by cablej01 on 26/12/2016.
  */
@@ -91,7 +93,8 @@ public class SSASubtitle implements Subtitle {
         String effect = ev.get("effect");
         String text = ev.get("text").replaceAll("\\\\N", "\n");
         String simpleText = text.replaceAll("\\{[^{]*\\}", "");
-        Cue cue = new SSACue(text, style, layer, effect);
+        //Cue cue = new SSACue(text, style, layer, effect);
+        Cue cue = new Cue(simpleText);
         long start = SSADecoder.parseTimecode(ev.get("start"));
         cueTimesUs.add(start);
         cues.add(cue);

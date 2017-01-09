@@ -17,12 +17,15 @@ package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
+import com.google.android.exoplayer2.text.ssa.SSADecoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
 import com.google.android.exoplayer2.text.tx3g.Tx3gDecoder;
 import com.google.android.exoplayer2.text.webvtt.Mp4WebvttDecoder;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
+
+import static android.R.attr.mimeType;
 
 /**
  * A factory for {@link SubtitleDecoder} instances.
@@ -75,10 +78,15 @@ public interface SubtitleDecoderFactory {
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
+        if(clazz == SSADecoder.class) {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(byte[].class)
+                  .newInstance(format.initializationData.get(0));
+        }
         if (clazz == Cea608Decoder.class) {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
               .newInstance(format.sampleMimeType, format.accessibilityChannel);
-        } else {
+        }
+        else {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
         }
       } catch (Exception e) {
