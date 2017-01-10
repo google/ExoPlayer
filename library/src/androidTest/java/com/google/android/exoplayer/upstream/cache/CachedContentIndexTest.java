@@ -176,7 +176,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Assert file content is different
     FileInputStream fis1 = new FileInputStream(file1);
     FileInputStream fis2 = new FileInputStream(file2);
-    for (int b; (b = fis1.read()) == fis2.read();) {
+    for (int b; (b = fis1.read()) == fis2.read(); ) {
       assertTrue(b != -1);
     }
 
@@ -200,6 +200,12 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Non encrypted index file can be read even when encryption key provided.
     assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir),
         new CachedContentIndex(cacheDir, key));
+
+    // Test multiple store() calls
+    CachedContentIndex index = new CachedContentIndex(cacheDir, key);
+    index.addNew(new CachedContent(15, "key3", 110));
+    index.store();
+    assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
   }
 
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)

@@ -302,6 +302,9 @@ import javax.crypto.spec.SecretKeySpec;
       }
       output.writeInt(hashCode);
       atomicFile.endWrite(output);
+      // Avoid calling close twice. Duplicate CipherOutputStream.close calls did
+      // not used to be no-ops: https://android-review.googlesource.com/#/c/272799/
+      output = null;
     } catch (IOException e) {
       throw new CacheException(e);
     } finally {
