@@ -26,10 +26,12 @@ import java.io.IOException;
  * Wraps a {@link MediaPeriod} and clips its {@link SampleStream}s to provide a subsequence of their
  * samples.
  */
-/* package */ final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
+public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
+  /**
+   * The {@link MediaPeriod} wrapped by this clipping media period.
+   */
   public final MediaPeriod mediaPeriod;
-  private final ClippingMediaSource mediaSource;
 
   private MediaPeriod.Callback callback;
   private long startUs;
@@ -40,16 +42,29 @@ import java.io.IOException;
   /**
    * Creates a new clipping media period that provides a clipped view of the specified
    * {@link MediaPeriod}'s sample streams.
+   * <p>
+   * The clipping start/end positions must be specified by calling {@link #setClipping(long, long)}
+   * on the playback thread before preparation completes.
    *
    * @param mediaPeriod The media period to clip.
-   * @param mediaSource The {@link ClippingMediaSource} to which this period belongs.
    */
-  public ClippingMediaPeriod(MediaPeriod mediaPeriod, ClippingMediaSource mediaSource) {
+  public ClippingMediaPeriod(MediaPeriod mediaPeriod) {
     this.mediaPeriod = mediaPeriod;
-    this.mediaSource = mediaSource;
     startUs = C.TIME_UNSET;
     endUs = C.TIME_UNSET;
     sampleStreams = new ClippingSampleStream[0];
+  }
+
+  /**
+   * Sets the clipping start/end times for this period, in microseconds.
+   *
+   * @param startUs The clipping start time, in microseconds.
+   * @param endUs The clipping end time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
+   *     indicate the end of the period.
+   */
+  public void setClipping(long startUs, long endUs) {
+    this.startUs = startUs;
+    this.endUs = endUs;
   }
 
   @Override
@@ -80,7 +95,8 @@ import java.io.IOException;
     long enablePositionUs = mediaPeriod.selectTracks(selections, mayRetainStreamFlags,
         internalStreams, streamResetFlags, positionUs + startUs);
     Assertions.checkState(enablePositionUs == positionUs + startUs
-        || (enablePositionUs >= startUs && enablePositionUs <= endUs));
+        || (enablePositionUs >= startUs
+        && (endUs == C.TIME_END_OF_SOURCE || enablePositionUs <= endUs)));
     for (int i = 0; i < streams.length; i++) {
       if (internalStreams[i] == null) {
         sampleStreams[i] = null;
@@ -110,14 +126,16 @@ import java.io.IOException;
     if (discontinuityUs == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
-    Assertions.checkState(discontinuityUs >= startUs && discontinuityUs <= endUs);
+    Assertions.checkState(discontinuityUs >= startUs);
+    Assertions.checkState(endUs == C.TIME_END_OF_SOURCE || discontinuityUs <= endUs);
     return discontinuityUs - startUs;
   }
 
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = mediaPeriod.getBufferedPositionUs();
-    if (bufferedPositionUs == C.TIME_END_OF_SOURCE || bufferedPositionUs >= endUs) {
+    if (bufferedPositionUs == C.TIME_END_OF_SOURCE
+        || (endUs != C.TIME_END_OF_SOURCE && bufferedPositionUs >= endUs)) {
       return C.TIME_END_OF_SOURCE;
     }
     return Math.max(0, bufferedPositionUs - startUs);
@@ -131,14 +149,16 @@ import java.io.IOException;
       }
     }
     long seekUs = mediaPeriod.seekToUs(positionUs + startUs);
-    Assertions.checkState(seekUs == positionUs + startUs || (seekUs >= startUs && seekUs <= endUs));
+    Assertions.checkState(seekUs == positionUs + startUs
+        || (seekUs >= startUs && (endUs == C.TIME_END_OF_SOURCE || seekUs <= endUs)));
     return seekUs - startUs;
   }
 
   @Override
   public long getNextLoadPositionUs() {
     long nextLoadPositionUs = mediaPeriod.getNextLoadPositionUs();
-    if (nextLoadPositionUs == C.TIME_END_OF_SOURCE || nextLoadPositionUs >= endUs) {
+    if (nextLoadPositionUs == C.TIME_END_OF_SOURCE
+        || (endUs != C.TIME_END_OF_SOURCE && nextLoadPositionUs >= endUs)) {
       return C.TIME_END_OF_SOURCE;
     }
     return nextLoadPositionUs - startUs;
@@ -153,8 +173,6 @@ import java.io.IOException;
 
   @Override
   public void onPrepared(MediaPeriod mediaPeriod) {
-    startUs = mediaSource.getStartUs();
-    endUs = mediaSource.getEndUs();
     Assertions.checkState(startUs != C.TIME_UNSET && endUs != C.TIME_UNSET);
     // If the clipping start position is non-zero, the clipping sample streams will adjust
     // timestamps on buffers they read from the unclipped sample streams. These adjusted buffer
@@ -223,15 +241,15 @@ import java.io.IOException;
       }
       int result = stream.readData(formatHolder, buffer);
       // TODO: Clear gapless playback metadata if a format was read (if applicable).
-      if ((result == C.RESULT_BUFFER_READ && buffer.timeUs >= endUs)
-          || (result == C.RESULT_NOTHING_READ
-          && mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE)) {
+      if (endUs != C.TIME_END_OF_SOURCE && ((result == C.RESULT_BUFFER_READ
+          && buffer.timeUs >= endUs) || (result == C.RESULT_NOTHING_READ
+          && mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE))) {
         buffer.clear();
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         sentEos = true;
         return C.RESULT_BUFFER_READ;
       }
-      if (result == C.RESULT_BUFFER_READ) {
+      if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
         buffer.timeUs -= startUs;
       }
       return result;

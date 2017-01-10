@@ -21,17 +21,19 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * {@link MediaSource} that wraps a source and clips its timeline based on specified start/end
  * positions. The wrapped source may only have a single period/window and it must not be dynamic
- * (live). The specified start position must correspond to a synchronization sample in the period.
+ * (live).
  */
 public final class ClippingMediaSource implements MediaSource, MediaSource.Listener {
 
   private final MediaSource mediaSource;
   private final long startUs;
   private final long endUs;
+  private final ArrayList<ClippingMediaPeriod> mediaPeriods;
 
   private MediaSource.Listener sourceListener;
   private ClippingTimeline clippingTimeline;
@@ -51,20 +53,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     this.mediaSource = Assertions.checkNotNull(mediaSource);
     startUs = startPositionUs;
     endUs = endPositionUs;
-  }
-
-  /**
-   * Returns the start position of the clipping source's timeline in microseconds.
-   */
-  /* package */ long getStartUs() {
-    return clippingTimeline.startUs;
-  }
-
-  /**
-   * Returns the end position of the clipping source's timeline in microseconds.
-   */
-  /* package */ long getEndUs() {
-    return clippingTimeline.endUs;
+    mediaPeriods = new ArrayList<>();
   }
 
   @Override
@@ -80,12 +69,16 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
 
   @Override
   public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
-    return new ClippingMediaPeriod(
-        mediaSource.createPeriod(index, allocator, startUs + positionUs), this);
+    ClippingMediaPeriod mediaPeriod = new ClippingMediaPeriod(
+        mediaSource.createPeriod(index, allocator, startUs + positionUs));
+    mediaPeriods.add(mediaPeriod);
+    mediaPeriod.setClipping(clippingTimeline.startUs, clippingTimeline.endUs);
+    return mediaPeriod;
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
+    Assertions.checkState(mediaPeriods.remove(mediaPeriod));
     mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
   }
 
@@ -100,6 +93,13 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     clippingTimeline = new ClippingTimeline(timeline, startUs, endUs);
     sourceListener.onSourceInfoRefreshed(clippingTimeline, manifest);
+    long startUs = clippingTimeline.startUs;
+    long endUs = clippingTimeline.endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE
+        : clippingTimeline.endUs;
+    int count = mediaPeriods.size();
+    for (int i = 0; i < count; i++) {
+      mediaPeriods.get(i).setClipping(startUs, endUs);
+    }
   }
 
   /**
@@ -112,7 +112,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     private final long endUs;
 
     /**
-     * Creates a new timeline that wraps the specified timeline.
+     * Creates a new clipping timeline that wraps the specified timeline.
      *
      * @param timeline The timeline to clip.
      * @param startUs The number of microseconds to clip from the start of {@code timeline}.
