@@ -41,8 +41,7 @@ import java.nio.ByteBuffer;
  * Decodes and renders audio using {@link MediaCodec} and {@link AudioTrack}.
  */
 @TargetApi(16)
-public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock,
-    AudioTrack.Listener {
+public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
   private final EventDispatcher eventDispatcher;
   private final AudioTrack audioTrack;
@@ -50,7 +49,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean passthroughEnabled;
   private android.media.MediaFormat passthroughMediaFormat;
   private int pcmEncoding;
-  private int audioSessionId;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
 
@@ -129,8 +127,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-    audioTrack = new AudioTrack(audioCapabilities, this);
+    audioTrack = new AudioTrack(audioCapabilities, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -246,6 +243,20 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // Do nothing.
   }
 
+  /**
+   * Called when an {@link AudioTrack} underrun occurs.
+   *
+   * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
+   * @param bufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds, if it is
+   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
+   *     as the buffered media can have a variable bitrate so the duration may be unknown.
+   * @param elapsedSinceLastFeedMs The time since the {@link AudioTrack} was last fed data.
+   */
+  protected void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs,
+      long elapsedSinceLastFeedMs) {
+    // Do nothing.
+  }
+
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     super.onEnabled(joining);
@@ -274,7 +285,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onDisabled() {
-    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     try {
       audioTrack.release();
     } finally {
@@ -325,28 +335,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
-    if (!audioTrack.isInitialized()) {
-      // Initialize the AudioTrack now.
-      try {
-        if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
-          audioSessionId = audioTrack.initialize(C.AUDIO_SESSION_ID_UNSET);
-          eventDispatcher.audioSessionId(audioSessionId);
-          onAudioSessionId(audioSessionId);
-        } else {
-          audioTrack.initialize(audioSessionId);
-        }
-      } catch (AudioTrack.InitializationException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
-      }
-      if (getState() == STATE_STARTED) {
-        audioTrack.play();
-      }
-    }
-
     int handleBufferResult;
     try {
       handleBufferResult = audioTrack.handleBuffer(buffer, bufferPresentationTimeUs);
-    } catch (AudioTrack.WriteException e) {
+    } catch (AudioTrack.InitializationException | AudioTrack.WriteException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
 
@@ -386,9 +378,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         break;
       case C.MSG_SET_STREAM_TYPE:
         @C.StreamType int streamType = (Integer) message;
-        if (audioTrack.setStreamType(streamType)) {
-          audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-        }
+        audioTrack.setStreamType(streamType);
         break;
       default:
         super.handleMessage(messageType, message);
@@ -396,11 +386,21 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
   }
 
-  // AudioTrack.Listener implementation.
+  private final class AudioTrackListener implements AudioTrack.Listener {
 
-  @Override
-  public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+    @Override
+    public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+      eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      MediaCodecAudioRenderer.this.onAudioTrackUnderrun(bufferSize, bufferSizeMs,
+          elapsedSinceLastFeedMs);
+    }
+
+    @Override
+    public void onAudioSessionId(int audioSessionId) {
+      eventDispatcher.audioSessionId(audioSessionId);
+      MediaCodecAudioRenderer.this.onAudioSessionId(audioSessionId);
+    }
+
   }
 
 }
