@@ -308,9 +308,14 @@ public final class Id3Decoder implements MetadataDecoder {
     int descriptionEndIndex = indexOfEos(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
+    String value;
     int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
-    String value = new String(data, valueStartIndex, valueEndIndex - valueStartIndex, charset);
+    if (valueStartIndex < data.length) {
+      int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
+      value = new String(data, valueStartIndex, valueEndIndex - valueStartIndex, charset);
+    } else {
+      value = "";
+    }
 
     return new TxxxFrame(description, value);
   }
@@ -408,15 +413,25 @@ public final class Id3Decoder implements MetadataDecoder {
     int descriptionEndIndex = indexOfEos(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
+    String text;
     int textStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int textEndIndex = indexOfEos(data, textStartIndex, encoding);
-    String text = new String(data, textStartIndex, textEndIndex - textStartIndex, charset);
+    if (textStartIndex < data.length) {
+      int textEndIndex = indexOfEos(data, textStartIndex, encoding);
+      text = new String(data, textStartIndex, textEndIndex - textStartIndex, charset);
+    } else {
+      text = "";
+    }
 
     return new CommentFrame(language, description, text);
   }
 
   private static TextInformationFrame decodeTextInformationFrame(ParsableByteArray id3Data,
       int frameSize, String id) throws UnsupportedEncodingException {
+    if (frameSize <= 1) {
+      // Frame is empty or contains only the text encoding byte.
+      return new TextInformationFrame(id, "");
+    }
+
     int encoding = id3Data.readUnsignedByte();
     String charset = getCharsetName(encoding);
 
