@@ -153,6 +153,24 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
+  public final int supportsFormat(Format format) {
+    int formatSupport = supportsFormatInternal(format);
+    if (formatSupport == FORMAT_UNSUPPORTED_TYPE || formatSupport == FORMAT_UNSUPPORTED_SUBTYPE) {
+      return formatSupport;
+    }
+    return ADAPTIVE_NOT_SEAMLESS | formatSupport;
+  }
+
+  /**
+   * Returns the {@link #FORMAT_SUPPORT_MASK} component of the return value for
+   * {@link #supportsFormat(Format)}.
+   *
+   * @param format The format.
+   * @return The extent to which the renderer supports the format itself.
+   */
+  protected abstract int supportsFormatInternal(Format format);
+
+  @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
