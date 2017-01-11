@@ -228,29 +228,26 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   /**
-   * Called when the audio session id becomes known. Once the id is known it will not change (and
-   * hence this method will not be called again) unless the renderer is disabled and then
-   * subsequently re-enabled.
-   * <p>
-   * The default implementation is a no-op. One reason for overriding this method would be to
-   * instantiate and enable a {@link Virtualizer} in order to spatialize the audio channels. For
-   * this use case, any {@link Virtualizer} instances should be released in {@link #onDisabled()}
-   * (if not before).
+   * Called when the audio session id becomes known. The default implementation is a no-op. One
+   * reason for overriding this method would be to instantiate and enable a {@link Virtualizer} in
+   * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
+   * should be released in {@link #onDisabled()} (if not before).
    *
-   * @param audioSessionId The audio session id.
+   * @see AudioTrack.Listener#onAudioSessionId(int)
    */
   protected void onAudioSessionId(int audioSessionId) {
     // Do nothing.
   }
 
   /**
-   * Called when an {@link AudioTrack} underrun occurs.
-   *
-   * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
-   * @param bufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds, if it is
-   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
-   *     as the buffered media can have a variable bitrate so the duration may be unknown.
-   * @param elapsedSinceLastFeedMs The time since the {@link AudioTrack} was last fed data.
+   * @see AudioTrack.Listener#onPositionDiscontinuity()
+   */
+  protected void onAudioTrackPositionDiscontinuity() {
+    // Do nothing.
+  }
+
+  /**
+   * @see AudioTrack.Listener#onUnderrun(int, long, long)
    */
   protected void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs,
       long elapsedSinceLastFeedMs) {
@@ -335,36 +332,21 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
-    int handleBufferResult;
     try {
-      handleBufferResult = audioTrack.handleBuffer(buffer, bufferPresentationTimeUs);
+      if (audioTrack.handleBuffer(buffer, bufferPresentationTimeUs)) {
+        codec.releaseOutputBuffer(bufferIndex, false);
+        decoderCounters.renderedOutputBufferCount++;
+        return true;
+      }
     } catch (AudioTrack.InitializationException | AudioTrack.WriteException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
-
-    // If we are out of sync, allow currentPositionUs to jump backwards.
-    if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
-      handleAudioTrackDiscontinuity();
-      allowPositionDiscontinuity = true;
-    }
-
-    // Release the buffer if it was consumed.
-    if ((handleBufferResult & AudioTrack.RESULT_BUFFER_CONSUMED) != 0) {
-      codec.releaseOutputBuffer(bufferIndex, false);
-      decoderCounters.renderedOutputBufferCount++;
-      return true;
-    }
-
     return false;
   }
 
   @Override
   protected void onOutputStreamEnded() {
     audioTrack.handleEndOfStream();
-  }
-
-  protected void handleAudioTrackDiscontinuity() {
-    // Do nothing
   }
 
   @Override
@@ -389,16 +371,22 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private final class AudioTrackListener implements AudioTrack.Listener {
 
     @Override
-    public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-      eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
-      MediaCodecAudioRenderer.this.onAudioTrackUnderrun(bufferSize, bufferSizeMs,
-          elapsedSinceLastFeedMs);
-    }
-
-    @Override
     public void onAudioSessionId(int audioSessionId) {
       eventDispatcher.audioSessionId(audioSessionId);
       MediaCodecAudioRenderer.this.onAudioSessionId(audioSessionId);
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+      onAudioTrackPositionDiscontinuity();
+      // We are out of sync so allow currentPositionUs to jump backwards.
+      MediaCodecAudioRenderer.this.allowPositionDiscontinuity = true;
+    }
+
+    @Override
+    public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+      eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
 
   }

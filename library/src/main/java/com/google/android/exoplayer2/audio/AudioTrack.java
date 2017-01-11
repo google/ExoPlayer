@@ -64,6 +64,19 @@ public final class AudioTrack {
   public interface Listener {
 
     /**
+     * Called when the audio track has been initialized with the specified {@code audioSessionId}.
+     *
+     * @param audioSessionId The audio session id.
+     */
+    void onAudioSessionId(int audioSessionId);
+
+    /**
+     * Called when the audio track handles a buffer whose timestamp is discontinuous with the last
+     * buffer handled since it was reset.
+     */
+    void onPositionDiscontinuity();
+
+    /**
      * Called when the audio track underruns.
      *
      * @param bufferSize The size of the track's buffer, in bytes.
@@ -73,13 +86,6 @@ public final class AudioTrack {
      * @param elapsedSinceLastFeedMs The time since the track was last fed data, in milliseconds.
      */
     void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
-
-    /**
-     * Called when the audio track has been initialized with the specified {@code audioSessionId}.
-     *
-     * @param audioSessionId The audio session id.
-     */
-    void onAudioSessionId(int audioSessionId);
 
   }
 
@@ -143,15 +149,6 @@ public final class AudioTrack {
     }
 
   }
-
-  /**
-   * Returned in the result of {@link #handleBuffer} if the buffer was discontinuous.
-   */
-  public static final int RESULT_POSITION_DISCONTINUITY = 1;
-  /**
-   * Returned in the result of {@link #handleBuffer} if the buffer can be released.
-   */
-  public static final int RESULT_BUFFER_CONSUMED = 2;
 
   /**
    * Returned by {@link #getCurrentPositionUs} when the position is not set.
@@ -591,24 +588,21 @@ public final class AudioTrack {
    * Attempts to write data from a {@link ByteBuffer} to the audio track, starting from its current
    * position and ending at its limit (exclusive). The position of the {@link ByteBuffer} is
    * advanced by the number of bytes that were successfully written.
+   * {@link Listener#onPositionDiscontinuity()} will be called if {@code presentationTimeUs} is
+   * discontinuous with the last buffer handled since the track was reset.
    * <p>
-   * Returns a bit field containing {@link #RESULT_BUFFER_CONSUMED} if the data was written in full,
-   * and {@link #RESULT_POSITION_DISCONTINUITY} if the buffer was discontinuous with previously
-   * written data.
-   * <p>
-   * If the data was not written in full then the same {@link ByteBuffer} must be provided to
-   * subsequent calls until it has been fully consumed, except in the case of an interleaving call
-   * to {@link #configure} or {@link #reset}.
+   * Returns whether the data was written in full. If the data was not written in full then the same
+   * {@link ByteBuffer} must be provided to subsequent calls until it has been fully consumed,
+   * except in the case of an interleaving call to {@link #reset()} (or an interleaving call to
+   * {@link #configure(String, int, int, int, int)} that caused the track to be reset).
    *
    * @param buffer The buffer containing audio data to play back.
    * @param presentationTimeUs Presentation timestamp of the next buffer in microseconds.
-   * @return A bit field with {@link #RESULT_BUFFER_CONSUMED} if the buffer can be released, and
-   *     {@link #RESULT_POSITION_DISCONTINUITY} if the buffer was not contiguous with previously
-   *     written data.
+   * @return Whether the buffer was consumed fully.
    * @throws InitializationException If an error occurs initializing the track.
    * @throws WriteException If an error occurs writing the audio data.
    */
-  public int handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+  public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
       throws InitializationException, WriteException {
     if (!isInitialized()) {
       initialize();
@@ -623,12 +617,12 @@ public final class AudioTrack {
       long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
       listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs), elapsedSinceLastFeedMs);
     }
-    int result = writeBuffer(buffer, presentationTimeUs);
+    boolean result = writeBuffer(buffer, presentationTimeUs);
     lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
     return result;
   }
 
-  private int writeBuffer(ByteBuffer buffer, long presentationTimeUs) throws WriteException {
+  private boolean writeBuffer(ByteBuffer buffer, long presentationTimeUs) throws WriteException {
     boolean isNewSourceBuffer = currentSourceBuffer == null;
     Assertions.checkState(isNewSourceBuffer || currentSourceBuffer == buffer);
     currentSourceBuffer = buffer;
@@ -637,7 +631,7 @@ public final class AudioTrack {
       // An AC-3 audio track continues to play data written while it is paused. Stop writing so its
       // buffer empties. See [Internal: b/18899620].
       if (audioTrack.getPlayState() == PLAYSTATE_PAUSED) {
-        return 0;
+        return false;
       }
 
       // A new AC-3 audio track's playback position continues to increase from the old track's
@@ -645,7 +639,7 @@ public final class AudioTrack {
       // head position actually returns to zero.
       if (audioTrack.getPlayState() == PLAYSTATE_STOPPED
           && audioTrackUtil.getPlaybackHeadPosition() != 0) {
-        return 0;
+        return false;
       }
     }
 
@@ -656,7 +650,7 @@ public final class AudioTrack {
       if (!currentSourceBuffer.hasRemaining()) {
         // The buffer is empty.
         currentSourceBuffer = null;
-        return RESULT_BUFFER_CONSUMED;
+        return true;
       }
 
       useResampledBuffer = targetEncoding != sourceEncoding;
@@ -689,7 +683,7 @@ public final class AudioTrack {
           // number of bytes submitted.
           startMediaTimeUs += (presentationTimeUs - expectedPresentationTimeUs);
           startMediaTimeState = START_IN_SYNC;
-          result |= RESULT_POSITION_DISCONTINUITY;
+          listener.onPositionDiscontinuity();
         }
       }
       if (Util.SDK_INT < 21) {
@@ -739,9 +733,9 @@ public final class AudioTrack {
         submittedEncodedFrames += framesPerEncodedSample;
       }
       currentSourceBuffer = null;
-      result |= RESULT_BUFFER_CONSUMED;
+      return true;
     }
-    return result;
+    return false;
   }
 
   /**
