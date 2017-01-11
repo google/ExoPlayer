@@ -39,9 +39,9 @@ import java.nio.ByteOrder;
  * <p>
  * Before starting playback, specify the input format by calling
  * {@link #configure(String, int, int, int, int)}. Optionally call {@link #setAudioSessionId(int)},
- * {@link #setTunnelingEnabledV21(boolean)} and {@link #setStreamType(int)} to configure audio
- * playback. These methods may be called after writing data to the track, in which case it will be
- * reinitialized as required.
+ * {@link #setStreamType(int)}, {@link #enableTunnelingV21(int)} and {@link #disableTunneling()}
+ * to configure audio playback. These methods may be called after writing data to the track, in
+ * which case it will be reinitialized as required.
  * <p>
  * Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
  * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
@@ -64,9 +64,9 @@ public final class AudioTrack {
   public interface Listener {
 
     /**
-     * Called when the audio track has been initialized with the specified {@code audioSessionId}.
+     * Called when the audio track has been initialized with a newly generated audio session id.
      *
-     * @param audioSessionId The audio session id.
+     * @param audioSessionId The newly generated audio session id.
      */
     void onAudioSessionId(int audioSessionId);
 
@@ -275,7 +275,6 @@ public final class AudioTrack {
   private int bufferSize;
   private long bufferSizeUs;
 
-  private boolean useHwAvSync;
   private ByteBuffer avSyncHeader;
   private int bytesUntilNextAvSync;
 
@@ -520,8 +519,7 @@ public final class AudioTrack {
     // initialization of the audio track to fail.
     releasingConditionVariable.block();
 
-    useHwAvSync = tunneling;
-    if (useHwAvSync) {
+    if (tunneling) {
       audioTrack = createHwAvSyncAudioTrackV21(sampleRate, channelConfig, targetEncoding,
           bufferSize, audioSessionId);
     } else if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
@@ -716,7 +714,7 @@ public final class AudioTrack {
         buffer.position(buffer.position() + bytesWritten);
       }
     } else {
-      bytesWritten = useHwAvSync
+      bytesWritten = tunneling
           ? writeNonBlockingWithAvSyncV21(audioTrack, buffer, bytesRemaining, presentationTimeUs)
           : writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
     }
@@ -771,13 +769,12 @@ public final class AudioTrack {
 
   /**
    * Sets the stream type for audio track. If the stream type has changed and if the audio track
-   * is not configured for use with video tunneling, then the audio track is reset and will be
-   * reinitialized on the next call to {@link #handleBuffer(ByteBuffer, long)}. An audio session
-   * cannot be reused after a change of stream type, so the audio session identifier will be reset.
+   * is not configured for use with tunneling, then the audio track is reset and the audio session
+   * id is cleared.
    * <p>
-   * If the audio track is configured for use with video tunneling then the stream type is ignored
-   * and the audio track is not reset. The passed stream type will be used if the audio track is
-   * later re-configured into non-tunneled mode.
+   * If the audio track is configured for use with tunneling then the stream type is ignored, the
+   * audio track is not reset and the audio session id is not cleared. The passed stream type will
+   * be used if the audio track is later re-configured into non-tunneled mode.
    *
    * @param streamType The {@link C.StreamType} to use for audio output.
    */
@@ -786,7 +783,7 @@ public final class AudioTrack {
       return;
     }
     this.streamType = streamType;
-    if (useHwAvSync) {
+    if (tunneling) {
       // The stream type is ignored in tunneling mode, so no need to reset.
       return;
     }
@@ -795,7 +792,7 @@ public final class AudioTrack {
   }
 
   /**
-   * Sets the audio session id, and resets the audio track if the audio session id has changed.
+   * Sets the audio session id. The audio track is reset if the audio session id has changed.
    */
   public void setAudioSessionId(int audioSessionId) {
     if (this.audioSessionId != audioSessionId) {
@@ -805,16 +802,29 @@ public final class AudioTrack {
   }
 
   /**
-   * Sets whether tunneling is enabled. Enabling tunneling requires platform API version 21 onwards.
-   * Resets the audio track if tunneling was enabled/disabled.
+   * Enables tunneling. The audio track is reset if tunneling was previously disabled or if the
+   * audio session id has changed. Enabling tunneling requires platform API version 21 onwards.
    *
-   * @param tunneling Whether the audio track will be used with tunneling video playback.
+   * @param tunnelingAudioSessionId The audio session id to use.
    * @throws IllegalStateException Thrown if enabling tunneling on platform API version < 21.
    */
-  public void setTunnelingEnabledV21(boolean tunneling) {
-    if (this.tunneling != tunneling) {
-      Assertions.checkState(Util.SDK_INT >= 21);
-      this.tunneling = tunneling;
+  public void enableTunnelingV21(int tunnelingAudioSessionId) {
+    Assertions.checkState(Util.SDK_INT >= 21);
+    if (!tunneling || audioSessionId != tunnelingAudioSessionId) {
+      tunneling = true;
+      audioSessionId = tunnelingAudioSessionId;
+      reset();
+    }
+  }
+
+  /**
+   * Disables tunneling. If tunneling was previously enabled then the audio track is reset and the
+   * audio session id is cleared.
+   */
+  public void disableTunneling() {
+    if (tunneling) {
+      tunneling = false;
+      audioSessionId = C.AUDIO_SESSION_ID_UNSET;
       reset();
     }
   }

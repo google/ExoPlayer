@@ -258,6 +258,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     super.onEnabled(joining);
     eventDispatcher.enabled(decoderCounters);
+    // TODO: Allow this to be set.
+    int tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
+      audioTrack.enableTunnelingV21(tunnelingAudioSessionId);
+    } else {
+      audioTrack.disableTunneling();
+    }
   }
 
   @Override
