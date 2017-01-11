@@ -8,12 +8,14 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import static android.R.attr.data;
 import static android.R.attr.subtitle;
 import static android.R.attr.x;
+import static android.media.CamcorderProfile.get;
 
 /**
  * Created by cablej01 on 26/12/2016.
@@ -65,26 +67,23 @@ import static android.R.attr.x;
  */
 public class SSADecoder extends SimpleSubtitleDecoder {
     private static final String TAG = "SSADecoder";
-    private static String defaultDialogueFormat = "Start, End, ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text";
-    private static String defaultStyleFormat = "Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding";
-    private String[] dialogueFormat;
-    private String[] styleFormat;
+    private String[] dialogueFormat = null;
+    private String[] styleFormat = null;
     private Map<String,Style> styles = new HashMap<>();
 
-// 0,0,Watamote-internal/narrator,Serinuma,0000,0000,0000,      ,The prince should be with the princess.
-//  , ,style                     ,name    ,L   ,R,   V   ,Effect, text
     public SSADecoder() {
         super("SSADecoder");
-        dialogueFormat = parseKeys(defaultDialogueFormat);
-        styleFormat = parseKeys(defaultStyleFormat);
     }
 
-    public SSADecoder(byte[] header) {
+    public SSADecoder(byte[] header, byte[] dialogueFormatBytes) {
         super("SSADecoder");
-        styleFormat = parseKeys(defaultStyleFormat);
         decodeHeader(header, header.length);
-        // put back the Matroska format
-        dialogueFormat = parseKeys(defaultDialogueFormat);
+        try {
+            dialogueFormat = parseKeys(new String(dialogueFormatBytes, "UTF-8"));
+        }
+        catch (UnsupportedEncodingException e) {
+            // can't happen?
+        }
     }
 
     /**

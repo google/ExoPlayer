@@ -1498,7 +1498,10 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_ASS:
           mimeType = MimeTypes.TEXT_SSA;
-          initializationData = Collections.singletonList(codecPrivate);
+          initializationData = new ArrayList<>(3);
+          // this dialogue format is specific to Matroska
+          initializationData.add("Start, End, ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text".getBytes());
+          initializationData.add(codecPrivate);
           break;
         case CODEC_ID_VOBSUB:
           mimeType = MimeTypes.APPLICATION_VOBSUB;
