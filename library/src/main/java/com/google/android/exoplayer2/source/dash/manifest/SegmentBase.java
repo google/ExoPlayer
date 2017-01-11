@@ -143,7 +143,7 @@ public abstract class SegmentBase {
       } else {
         // The high index cannot be unbounded. Identify the segment using binary search.
         while (lowIndex <= highIndex) {
-          int midIndex = (lowIndex + highIndex) / 2;
+          int midIndex = lowIndex + (highIndex - lowIndex) / 2;
           long midTimeUs = getSegmentTimeUs(midIndex);
           if (midTimeUs < timeUs) {
             lowIndex = midIndex + 1;
