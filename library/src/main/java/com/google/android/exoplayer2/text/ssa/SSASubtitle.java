@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static android.R.attr.start;
+import static android.os.Build.VERSION_CODES.N;
 
 /**
  * Created by cablej01 on 26/12/2016.
@@ -92,6 +93,7 @@ public class SSASubtitle implements Subtitle {
         int layer = Integer.parseInt(ev.get("layer"));
         String effect = ev.get("effect");
         String text = ev.get("text").replaceAll("\\\\N", "\n");
+        text = text.replaceAll("\\\\n", "\n");
         String simpleText = text.replaceAll("\\{[^{]*\\}", "");
         //Cue cue = new SSACue(text, style, layer, effect);
         Cue cue = new Cue(simpleText);
@@ -99,7 +101,7 @@ public class SSASubtitle implements Subtitle {
         cueTimesUs.add(start);
         cues.add(cue);
         // add null cue to remove this cue after it's duration
-        long end = SSADecoder.parseTimecode(ev.get("end"));
+        long end = 10*SSADecoder.parseTimecode(ev.get("end"));
         cueTimesUs.add(end);
         cues.add(null);
     }

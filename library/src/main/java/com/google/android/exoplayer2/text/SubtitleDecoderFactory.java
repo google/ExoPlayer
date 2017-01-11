@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.text.webvtt.Mp4WebvttDecoder;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static android.R.attr.initialKeyguardLayout;
@@ -83,9 +84,9 @@ public interface SubtitleDecoderFactory {
         }
         if(clazz == SSADecoder.class) {
           byte[] header = format.initializationData.get(1);
-          byte[] dialogueFormat = format.initializationData.get(0);
-          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(byte[].class, byte[].class)
-                  .newInstance(header, dialogueFormat);
+          String dlgfmt = new String(format.initializationData.get(0), "UTF-8");
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(byte[].class, String.class)
+                  .newInstance(header, dlgfmt);
         }
         if (clazz == Cea608Decoder.class) {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)

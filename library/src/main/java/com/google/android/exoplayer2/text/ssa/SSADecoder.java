@@ -70,20 +70,16 @@ public class SSADecoder extends SimpleSubtitleDecoder {
     private String[] dialogueFormat = null;
     private String[] styleFormat = null;
     private Map<String,Style> styles = new HashMap<>();
+    private final static long _1e6 = 1000000;
 
     public SSADecoder() {
         super("SSADecoder");
     }
 
-    public SSADecoder(byte[] header, byte[] dialogueFormatBytes) {
+    public SSADecoder(byte[] header, String dlgfmt) {
         super("SSADecoder");
         decodeHeader(header, header.length);
-        try {
-            dialogueFormat = parseKeys(new String(dialogueFormatBytes, "UTF-8"));
-        }
-        catch (UnsupportedEncodingException e) {
-            // can't happen?
-        }
+        dialogueFormat = parseKeys(dlgfmt);
     }
 
     /**
@@ -203,7 +199,7 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         s.append(",");
         long endUs = durationUs; // + blockTimeUs
         if (endUs == C.TIME_UNSET) {
-            endUs = 2000000; // 2 second default duration
+            endUs = 2*_1e6; // 2 second default duration
         }
         s.append(SSADecoder.formatTimeCode(endUs));
         s.append(",");
@@ -213,13 +209,13 @@ public class SSADecoder extends SimpleSubtitleDecoder {
     }
 
     public static String formatTimeCode(long tc_us) {
-        long seconds = tc_us / 1000000;
-        long us = tc_us - 1000000*seconds;
+        long seconds = tc_us / _1e6;
+        long us = tc_us - _1e6*seconds;
         long minutes = seconds / 60;
         seconds -= 60 * minutes;
         long hours = minutes / 60;
         minutes -= 60*hours;
-        double sec = seconds + ((float)us)/1000000.0;
+        double sec = seconds + ((float)us)/_1e6;
         return String.format(Locale.US, "%01d:%02d:%06.3f", hours, minutes, sec);
     }
 
@@ -228,8 +224,8 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         long hours = Long.parseLong(p[0]);
         long minutes = Long.parseLong(p[1]);
         float seconds = Float.parseFloat(p[2]);
-        float us = 1000000*seconds;
+        float us = _1e6*seconds;
         long lus = ((long)us);
-        return lus + 1000000 * (60 * (minutes + 60 * hours));
+        return lus + _1e6 * (60 * (minutes + 60 * hours));
     }
 }
