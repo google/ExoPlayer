@@ -74,7 +74,8 @@ public interface SubtitleDecoderFactory {
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
-        if (clazz == Cea608Decoder.class) {
+        if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
+            || format.sampleMimeType.equals(MimeTypes.APPLICATION_MP4CEA608)) {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
               .newInstance(format.sampleMimeType, format.accessibilityChannel);
         } else {
