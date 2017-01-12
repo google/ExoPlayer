@@ -172,7 +172,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        requiresSecureDecryption, false);
+        requiresSecureDecryption);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
@@ -196,8 +196,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     int adaptiveSupport = decoderInfo.adaptive ? ADAPTIVE_SEAMLESS : ADAPTIVE_NOT_SEAMLESS;
+    int tunnelingSupport = decoderInfo.tunneling ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
-    return adaptiveSupport | formatSupport;
+    return adaptiveSupport | tunnelingSupport | formatSupport;
   }
 
   @Override

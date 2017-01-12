@@ -634,7 +634,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false, false);
+    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
       return false;
@@ -707,8 +707,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       if (isWidevineEncrypted) {
         try {
           // Force L3 if secure decoder is not available.
-          boolean forceL3Widevine =
-              MediaCodecUtil.getDecoderInfo(videoMimeType, true, false) == null;
+          boolean forceL3Widevine = MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null;
           MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
           String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
           String widevineContentId = forceL3Widevine ? WIDEVINE_SW_CRYPTO_CONTENT_ID

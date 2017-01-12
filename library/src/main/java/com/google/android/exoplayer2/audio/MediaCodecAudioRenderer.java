@@ -138,10 +138,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (!MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
+    int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
-      return ADAPTIVE_NOT_SEAMLESS | FORMAT_HANDLED;
+      return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | FORMAT_HANDLED;
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false, false);
+    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
@@ -152,7 +153,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         && (format.channelCount == Format.NO_VALUE
         ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
     int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
-    return ADAPTIVE_NOT_SEAMLESS | formatSupport;
+    return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
   }
 
   @Override

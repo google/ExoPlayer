@@ -158,7 +158,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     if (formatSupport == FORMAT_UNSUPPORTED_TYPE || formatSupport == FORMAT_UNSUPPORTED_SUBTYPE) {
       return formatSupport;
     }
-    return ADAPTIVE_NOT_SEAMLESS | formatSupport;
+    int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
+    return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
   }
 
   /**
