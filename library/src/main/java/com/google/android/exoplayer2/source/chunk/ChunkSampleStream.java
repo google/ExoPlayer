@@ -115,6 +115,20 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   /**
+   * Check if the input position locates within the chunk we are downloading now.
+   *
+   * @param positionUs The target position in microseconds.
+   * @return Whether the input position locates within the chunk we are downloading now.
+   */
+  public boolean isWithinLastChunk(long positionUs) {
+    if (isPendingReset() || loadingFinished) {
+      return false;
+    } else {
+      return ((positionUs >= getCurrentLoadPositionUs()) && (positionUs < getNextLoadPositionUs()));
+    }
+  }
+
+  /**
    * Seeks to the specified position in microseconds.
    *
    * @param positionUs The seek position in microseconds.
@@ -122,7 +136,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
-    boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
+    boolean seekInsideBuffer = !isPendingReset() && 
+        sampleQueue.skipToKeyframeBefore(positionUs, isWithinLastChunk(positionUs));
     if (seekInsideBuffer) {
       // We succeeded. All we need to do is discard any chunks that we've moved past.
       while (mediaChunks.size() > 1
@@ -282,6 +297,14 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs);
     return true;
+  }
+
+  public long getCurrentLoadPositionUs() {
+    if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else {
+      return loadingFinished ? C.TIME_END_OF_SOURCE : mediaChunks.getLast().startTimeUs;
+    }
   }
 
   @Override

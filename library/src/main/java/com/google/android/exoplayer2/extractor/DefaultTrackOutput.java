@@ -229,10 +229,26 @@ public final class DefaultTrackOutput implements TrackOutput {
    * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
    *
    * @param timeUs The seek time.
+   * @param skipToLastKey Skip to last key regardless the seek time is out of range .
+   * @return Whether the skip was successful.
+   */
+  public boolean skipToKeyframeBefore(long timeUs, boolean skipToLastKey) {
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs, skipToLastKey);
+    if (nextOffset == C.POSITION_UNSET) {
+      return false;
+    }
+    dropDownstreamTo(nextOffset);
+    return true;
+  }
+
+  /**
+   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   *
+   * @param timeUs The seek time.
    * @return Whether the skip was successful.
    */
   public boolean skipToKeyframeBefore(long timeUs) {
-    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs, false);
     if (nextOffset == C.POSITION_UNSET) {
       return false;
     }
@@ -781,12 +797,12 @@ public final class DefaultTrackOutput implements TrackOutput {
      * @return The offset of the keyframe's data if the keyframe was present.
      *     {@link C#POSITION_UNSET} otherwise.
      */
-    public synchronized long skipToKeyframeBefore(long timeUs) {
+    public synchronized long skipToKeyframeBefore(long timeUs, boolean skipToLastKey) {
       if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
         return C.POSITION_UNSET;
       }
 
-      if (timeUs > largestQueuedTimestampUs) {
+      if (timeUs > largestQueuedTimestampUs && !skipToLastKey) {
         return C.POSITION_UNSET;
       }
 
