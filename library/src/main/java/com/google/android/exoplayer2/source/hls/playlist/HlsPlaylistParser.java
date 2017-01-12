@@ -39,6 +39,22 @@ import java.util.regex.Pattern;
  */
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
 
+  /**
+   * Thrown if the input does not start with an HLS playlist header.
+   */
+  public static final class UnrecognizedInputFormatException extends ParserException {
+
+    public final Uri inputUri;
+
+    public UnrecognizedInputFormatException(Uri inputUri) {
+      super("Input does not start with the #EXTM3U header. Uri: " + inputUri);
+      this.inputUri = inputUri;
+    }
+
+  }
+
+  private static final String PLAYLIST_HEADER = "#EXTM3U";
+
   private static final String TAG_VERSION = "#EXT-X-VERSION";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
@@ -97,6 +113,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     Queue<String> extraLines = new LinkedList<>();
     String line;
     try {
+      if (!checkPlaylistHeader(reader)) {
+        throw new UnrecognizedInputFormatException(uri);
+      }
       while ((line = reader.readLine()) != null) {
         line = line.trim();
         if (line.isEmpty()) {
@@ -122,6 +141,35 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Util.closeQuietly(reader);
     }
     throw new ParserException("Failed to parse the playlist, could not identify any tags.");
+  }
+
+  private static boolean checkPlaylistHeader(BufferedReader reader) throws IOException {
+    int last = reader.read();
+    if (last == 0xEF) {
+      if (reader.read() != 0xBB || reader.read() != 0xBF) {
+        return false;
+      }
+      // The playlist contains a Byte Order Mark, which gets discarded.
+      last = reader.read();
+    }
+    last = skipIgnorableWhitespace(reader, true, last);
+    int playlistHeaderLength = PLAYLIST_HEADER.length();
+    for (int i = 0; i < playlistHeaderLength; i++) {
+      if (last != PLAYLIST_HEADER.charAt(i)) {
+        return false;
+      }
+      last = reader.read();
+    }
+    last = skipIgnorableWhitespace(reader, false, last);
+    return Util.isLinebreak(last);
+  }
+
+  private static int skipIgnorableWhitespace(BufferedReader reader, boolean skipLinebreaks, int c)
+      throws IOException {
+    while (c != -1 && Character.isWhitespace(c) && (skipLinebreaks || !Util.isLinebreak(c))) {
+      c = reader.read();
+    }
+    return c;
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)

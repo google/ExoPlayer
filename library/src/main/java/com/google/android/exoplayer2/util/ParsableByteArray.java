@@ -494,7 +494,7 @@ public final class ParsableByteArray {
       return null;
     }
     int lineLimit = position;
-    while (lineLimit < limit && data[lineLimit] != '\n' && data[lineLimit] != '\r') {
+    while (lineLimit < limit && !Util.isLinebreak(data[lineLimit])) {
       lineLimit++;
     }
     if (lineLimit - position >= 3 && data[position] == (byte) 0xEF
