@@ -28,22 +28,15 @@ android {
         // greater.
         minSdkVersion 9
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
     }
 
     buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
         // Re-enable test coverage when the following issue is fixed:
         // https://code.google.com/p/android/issues/detail?id=226070
         // debug {
         //     testCoverageEnabled = true
         // }
-    }
-
-    lintOptions {
-        abortOnError false
     }
 
     sourceSets {
