@@ -18,10 +18,12 @@ package com.google.android.exoplayer2.metadata.id3;
 import android.util.Log;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +56,18 @@ public final class Id3Decoder implements MetadataDecoder {
   }
 
   @Override
+  public Metadata decode(MetadataInputBuffer inputBuffer) {
+    ByteBuffer buffer = inputBuffer.data;
+    return decode(buffer.array(), buffer.limit());
+  }
+
+  /**
+   * Decodes ID3 tags.
+   *
+   * @param data The bytes to decode ID3 tags from.
+   * @param size Amount of bytes in {@code data} to read.
+   * @return A {@link Metadata} object containing the decoded ID3 tags.
+   */
   public Metadata decode(byte[] data, int size) {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);

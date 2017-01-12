@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.metadata.emsg;
 
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import java.nio.ByteBuffer;
 import junit.framework.TestCase;
 
 /**
@@ -34,7 +36,9 @@ public final class EventMessageDecoderTest extends TestCase {
         0, 15, 67, -45, // id = 1000403
         0, 1, 2, 3, 4}; // message_data = {0, 1, 2, 3, 4}
     EventMessageDecoder decoder = new EventMessageDecoder();
-    Metadata metadata = decoder.decode(rawEmsgBody, rawEmsgBody.length);
+    MetadataInputBuffer buffer = new MetadataInputBuffer();
+    buffer.data = ByteBuffer.allocate(rawEmsgBody.length).put(rawEmsgBody);
+    Metadata metadata = decoder.decode(buffer);
     assertEquals(1, metadata.length());
     EventMessage eventMessage = (EventMessage) metadata.get(0);
     assertEquals("urn:test", eventMessage.schemeIdUri);

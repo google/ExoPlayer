@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
-import java.nio.ByteBuffer;
 
 /**
  * A renderer for metadata.
@@ -53,7 +51,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private final Output output;
   private final Handler outputHandler;
   private final FormatHolder formatHolder;
-  private final DecoderInputBuffer buffer;
+  private final MetadataInputBuffer buffer;
 
   private MetadataDecoder decoder;
   private boolean inputStreamEnded;
@@ -88,7 +86,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
     this.decoderFactory = Assertions.checkNotNull(decoderFactory);
     formatHolder = new FormatHolder();
-    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    buffer = new MetadataInputBuffer();
   }
 
   @Override
@@ -117,10 +115,10 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
           inputStreamEnded = true;
         } else {
           pendingMetadataTimestamp = buffer.timeUs;
+          buffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+          buffer.flip();
           try {
-            buffer.flip();
-            ByteBuffer bufferData = buffer.data;
-            pendingMetadata = decoder.decode(bufferData.array(), bufferData.limit());
+            pendingMetadata = decoder.decode(buffer);
           } catch (MetadataDecoderException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
           }

@@ -15,26 +15,22 @@
  */
 package com.google.android.exoplayer2.metadata;
 
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+
 /**
- * Decodes metadata from binary data.
+ * A {@link DecoderInputBuffer} for a {@link MetadataDecoder}.
  */
-public interface MetadataDecoder {
+public final class MetadataInputBuffer extends DecoderInputBuffer {
 
   /**
-   * Checks whether the decoder supports a given mime type.
-   *
-   * @param mimeType A metadata mime type.
-   * @return Whether the mime type is supported.
+   * An offset that must be added to the metadata's timestamps after it's been decoded, or
+   * {@link Format#OFFSET_SAMPLE_RELATIVE} if {@link #timeUs} should be added.
    */
-  boolean canDecode(String mimeType);
+  public long subsampleOffsetUs;
 
-  /**
-   * Decodes a {@link Metadata} element from the provided input buffer.
-   *
-   * @param inputBuffer The input buffer to decode.
-   * @return The decoded metadata object.
-   * @throws MetadataDecoderException If a problem occurred decoding the data.
-   */
-  Metadata decode(MetadataInputBuffer inputBuffer) throws MetadataDecoderException;
+  public MetadataInputBuffer() {
+    super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+  }
 
 }
