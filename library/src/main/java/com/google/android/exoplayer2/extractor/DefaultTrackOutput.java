@@ -225,14 +225,21 @@ public final class DefaultTrackOutput implements TrackOutput {
     return infoQueue.getLargestQueuedTimestampUs();
   }
 
-  public boolean skipToLastKeyframe(long timeUs) {
-    long nextOffset = infoQueue.skipToLastKeyframe(timeUs);
-    if (nextOffset <= C.SEEK_TARGET_WITHIN_THE_RANGE) {
+  /**
+   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   *
+   * @param timeUs The seek time.
+   * @return Whether the skip was successful.
+   */
+  public boolean skipToKeyframeBefore(long timeUs, ) {
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
+    if (nextOffset == C.POSITION_UNSET) {
       return false;
     }
     dropDownstreamTo(nextOffset);
     return true;
   }
+
 
   /**
    * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
@@ -781,40 +788,6 @@ public final class DefaultTrackOutput implements TrackOutput {
       extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
           : extrasHolder.offset + extrasHolder.size;
       return C.RESULT_BUFFER_READ;
-    }
-
-    public synchronized long skipToLastKeyframe(long timeUs) {
-      if (timeUs <= largestQueuedTimestampUs) {
-        if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
-          return C.SEEK_TARGET_OUT_OF_RANGE_BEFORE; /*in fact, this case could also be applied with optimization*/
-        } else {
-          return skipToKeyframeBefore(timeUs);
-        }
-      }
-
-      // otherwise, we locate out of the sampleQueue but within the last media chunk.
-      int lastWriteIndex = (relativeWriteIndex == 0 ? capacity : relativeWriteIndex) - 1;
-      int sampleCount = 0;
-      int searchIndex = lastWriteIndex;
-      while (searchIndex != relativeReadIndex) {
-        sampleCount++; 
-        if ((flags[searchIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
-          // We've found the first keyframe from upstream side.
-          break;
-        }
-        searchIndex = (searchIndex > 0 ? (searchIndex - 1) : (capacity - 1));
-      }
-
-      if (searchIndex == relativeReadIndex) {
-        return C.SEEK_TARGET_OUT_OF_RANGE_AFTER;
-      }
-
-      int dropCount = (queueSize - sampleCount);
-      queueSize = sampleCount;
-      relativeReadIndex = searchIndex;
-      absoluteReadIndex += dropCount;
-
-      return offsets[relativeReadIndex];
     }
 
     /**
