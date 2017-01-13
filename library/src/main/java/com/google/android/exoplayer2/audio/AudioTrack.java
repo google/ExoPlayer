@@ -641,7 +641,6 @@ public final class AudioTrack {
       }
     }
 
-    int result = 0;
     if (isNewSourceBuffer) {
       // We're seeing this buffer for the first time.
 
