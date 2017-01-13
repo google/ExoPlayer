@@ -163,7 +163,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   public void testEncryption() throws Exception {
     byte[] key = "Bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
-    byte[] key2 = "bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
+    byte[] key2 = "Foo12345Foo12345".getBytes(C.UTF8_NAME); // 128 bit key
 
     assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
         new CachedContentIndex(cacheDir, key));
