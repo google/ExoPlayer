@@ -67,14 +67,25 @@ import javax.crypto.spec.SecretKeySpec;
   private boolean changed;
   private ReusableBufferedOutputStream bufferedOutputStream;
 
-  /** Creates a CachedContentIndex which works on the index file in the given cacheDir. */
+  /**
+   * Creates a CachedContentIndex which works on the index file in the given cacheDir.
+   *
+   * @param cacheDir Directory where the index file is kept.
+   */
   public CachedContentIndex(File cacheDir) {
     this(cacheDir, null);
   }
 
-  /** Creates a CachedContentIndex which works on the index file in the given cacheDir. */
+  /**
+   * Creates a CachedContentIndex which works on the index file in the given cacheDir.
+   *
+   * @param cacheDir Directory where the index file is kept.
+   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
+   *     The key must be 16 bytes long.
+   */
   public CachedContentIndex(File cacheDir, byte[] secretKey) {
     if (secretKey != null) {
+      Assertions.checkArgument(secretKey.length == 16);
       try {
         cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         secretKeySpec = new SecretKeySpec(secretKey, "AES");
