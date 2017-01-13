@@ -876,6 +876,7 @@ public final class AudioTrack {
       framesPerEncodedSample = 0;
       currentSourceBuffer = null;
       avSyncHeader = null;
+      bytesUntilNextAvSync = 0;
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
       resetSyncParams();

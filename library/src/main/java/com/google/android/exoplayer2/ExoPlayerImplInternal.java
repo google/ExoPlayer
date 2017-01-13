@@ -26,10 +26,10 @@ import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.PriorityHandlerThread;
@@ -68,20 +68,6 @@ import java.io.IOException;
       playbackInfo.positionUs = positionUs;
       playbackInfo.bufferedPositionUs = bufferedPositionUs;
       return playbackInfo;
-    }
-
-  }
-
-  public static final class TrackInfo {
-
-    public final TrackGroupArray groups;
-    public final TrackSelectionArray selections;
-    public final Object info;
-
-    public TrackInfo(TrackGroupArray groups, TrackSelectionArray selections, Object info) {
-      this.groups = groups;
-      this.selections = selections;
-      this.info = info;
     }
 
   }
@@ -799,7 +785,8 @@ import java.io.IOException;
           }
         }
       }
-      eventHandler.obtainMessage(MSG_TRACKS_CHANGED, periodHolder.getTrackInfo()).sendToTarget();
+      eventHandler.obtainMessage(MSG_TRACKS_CHANGED, periodHolder.trackSelectorResult)
+          .sendToTarget();
       enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
     } else {
       // Release and re-prepare/buffer periods after the one whose selection changed.
@@ -1161,9 +1148,9 @@ import java.io.IOException;
     }
 
     if (readingPeriodHolder.next != null && readingPeriodHolder.next.prepared) {
-      TrackSelectionArray oldTrackSelections = readingPeriodHolder.trackSelections;
+      TrackSelectionArray oldTrackSelections = readingPeriodHolder.trackSelectorResult.selections;
       readingPeriodHolder = readingPeriodHolder.next;
-      TrackSelectionArray newTrackSelections = readingPeriodHolder.trackSelections;
+      TrackSelectionArray newTrackSelections = readingPeriodHolder.trackSelectorResult.selections;
 
       boolean initialDiscontinuity =
           readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET;
@@ -1330,7 +1317,7 @@ import java.io.IOException;
     for (int i = 0; i < renderers.length; i++) {
       Renderer renderer = renderers[i];
       rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
-      TrackSelection newSelection = periodHolder.trackSelections.get(i);
+      TrackSelection newSelection = periodHolder.trackSelectorResult.selections.get(i);
       if (newSelection != null) {
         enabledRendererCount++;
       }
@@ -1352,7 +1339,7 @@ import java.io.IOException;
     }
 
     playingPeriodHolder = periodHolder;
-    eventHandler.obtainMessage(MSG_TRACKS_CHANGED, periodHolder.getTrackInfo()).sendToTarget();
+    eventHandler.obtainMessage(MSG_TRACKS_CHANGED, periodHolder.trackSelectorResult).sendToTarget();
     enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
   }
 
@@ -1362,7 +1349,7 @@ import java.io.IOException;
     enabledRendererCount = 0;
     for (int i = 0; i < renderers.length; i++) {
       Renderer renderer = renderers[i];
-      TrackSelection newSelection = playingPeriodHolder.trackSelections.get(i);
+      TrackSelection newSelection = playingPeriodHolder.trackSelectorResult.selections.get(i);
       if (newSelection != null) {
         enabledRenderers[enabledRendererCount++] = renderer;
         if (renderer.getState() == Renderer.STATE_DISABLED) {
@@ -1414,6 +1401,7 @@ import java.io.IOException;
     public boolean hasEnabledTracks;
     public MediaPeriodHolder next;
     public boolean needsContinueLoading;
+    public TrackSelectorResult trackSelectorResult;
 
     private final Renderer[] renderers;
     private final RendererCapabilities[] rendererCapabilities;
@@ -1421,9 +1409,6 @@ import java.io.IOException;
     private final LoadControl loadControl;
     private final MediaSource mediaSource;
 
-    private Object trackSelectionsInfo;
-    private TrackGroupArray trackGroups;
-    private TrackSelectionArray trackSelections;
     private TrackSelectionArray periodTrackSelections;
 
     public MediaPeriodHolder(Renderer[] renderers, RendererCapabilities[] rendererCapabilities,
@@ -1470,20 +1455,18 @@ import java.io.IOException;
 
     public void handlePrepared() throws ExoPlaybackException {
       prepared = true;
-      trackGroups = mediaPeriod.getTrackGroups();
       selectTracks();
       startPositionUs = updatePeriodTrackSelection(startPositionUs, false);
     }
 
     public boolean selectTracks() throws ExoPlaybackException {
-      Pair<TrackSelectionArray, Object> selectorResult = trackSelector.selectTracks(
-          rendererCapabilities, trackGroups);
-      TrackSelectionArray newTrackSelections = selectorResult.first;
+      TrackSelectorResult selectorResult = trackSelector.selectTracks(rendererCapabilities,
+          mediaPeriod.getTrackGroups());
+      TrackSelectionArray newTrackSelections = selectorResult.selections;
       if (newTrackSelections.equals(periodTrackSelections)) {
         return false;
       }
-      trackSelections = newTrackSelections;
-      trackSelectionsInfo = selectorResult.second;
+      trackSelectorResult = selectorResult;
       return true;
     }
 
@@ -1494,6 +1477,7 @@ import java.io.IOException;
 
     public long updatePeriodTrackSelection(long positionUs, boolean forceRecreateStreams,
         boolean[] streamResetFlags) {
+      TrackSelectionArray trackSelections = trackSelectorResult.selections;
       for (int i = 0; i < trackSelections.length; i++) {
         mayRetainStreamFlags[i] = !forceRecreateStreams
             && Util.areEqual(periodTrackSelections == null ? null : periodTrackSelections.get(i),
@@ -1517,12 +1501,8 @@ import java.io.IOException;
       }
 
       // The track selection has changed.
-      loadControl.onTracksSelected(renderers, trackGroups, trackSelections);
+      loadControl.onTracksSelected(renderers, trackSelectorResult.groups, trackSelections);
       return positionUs;
-    }
-
-    public TrackInfo getTrackInfo() {
-      return new TrackInfo(trackGroups, trackSelections, trackSelectionsInfo);
     }
 
     public void release() {

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
@@ -227,9 +226,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
   // TrackSelector implementation.
 
   @Override
-  public final Pair<TrackSelectionArray, Object> selectTracks(
-      RendererCapabilities[] rendererCapabilities, TrackGroupArray trackGroups)
-      throws ExoPlaybackException {
+  public final TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
+      TrackGroupArray trackGroups) throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
     // of each array is to store data associated with track groups that cannot be associated with
     // any renderer.
@@ -297,7 +295,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     MappedTrackInfo mappedTrackInfo = new MappedTrackInfo(rendererTrackTypes,
         rendererTrackGroupArrays, mixedMimeTypeAdaptationSupport, rendererFormatSupports,
         unassociatedTrackGroupArray);
-    return Pair.<TrackSelectionArray, Object>create(new TrackSelectionArray(trackSelections),
+    return new TrackSelectorResult(trackGroups, new TrackSelectionArray(trackSelections),
         mappedTrackInfo);
   }
 

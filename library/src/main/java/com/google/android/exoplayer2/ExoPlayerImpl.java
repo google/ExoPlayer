@@ -22,12 +22,12 @@ import android.os.Message;
 import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
-import com.google.android.exoplayer2.ExoPlayerImplInternal.TrackInfo;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -319,11 +319,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_TRACKS_CHANGED: {
-        TrackInfo trackInfo = (TrackInfo) msg.obj;
+        TrackSelectorResult trackSelectorResult = (TrackSelectorResult) msg.obj;
         tracksSelected = true;
-        trackGroups = trackInfo.groups;
-        trackSelections = trackInfo.selections;
-        trackSelector.onSelectionActivated(trackInfo.info);
+        trackGroups = trackSelectorResult.groups;
+        trackSelections = trackSelectorResult.selections;
+        trackSelector.onSelectionActivated(trackSelectorResult.info);
         for (EventListener listener : listeners) {
           listener.onTracksChanged(trackGroups, trackSelections);
         }
