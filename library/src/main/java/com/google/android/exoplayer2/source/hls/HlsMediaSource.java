@@ -104,17 +104,23 @@ public final class HlsMediaSource implements MediaSource,
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
     SinglePeriodTimeline timeline;
+    long windowDefaultStartPositionUs = playlist.startOffsetUs;
     if (playlistTracker.isLive()) {
       long periodDurationUs = playlist.hasEndTag ? (playlist.startTimeUs + playlist.durationUs)
           : C.TIME_UNSET;
       List<HlsMediaPlaylist.Segment> segments = playlist.segments;
-      long windowDefaultStartPositionUs = segments.isEmpty() ? 0
-          : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
+      if (windowDefaultStartPositionUs == C.TIME_UNSET) {
+        windowDefaultStartPositionUs = segments.isEmpty() ? 0
+            : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
+      }
       timeline = new SinglePeriodTimeline(periodDurationUs, playlist.durationUs,
           playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
     } else /* not live */ {
+      if (windowDefaultStartPositionUs == C.TIME_UNSET) {
+        windowDefaultStartPositionUs = 0;
+      }
       timeline = new SinglePeriodTimeline(playlist.startTimeUs + playlist.durationUs,
-          playlist.durationUs, playlist.startTimeUs, 0, true, false);
+          playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs, true, false);
     }
     sourceListener.onSourceInfoRefreshed(timeline, playlist);
   }
