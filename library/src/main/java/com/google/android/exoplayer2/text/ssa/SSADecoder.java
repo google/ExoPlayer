@@ -192,22 +192,6 @@ public class SSADecoder extends SimpleSubtitleDecoder {
         return result;
     }
 
-    public static String buildDialogue(String data, long durationUs) {
-        StringBuffer s = new StringBuffer();
-        s.append("Dialogue: ");
-        s.append(SSADecoder.formatTimeCode(0)); // blockTimeUs
-        s.append(",");
-        long endUs = durationUs; // + blockTimeUs
-        if (endUs == C.TIME_UNSET) {
-            endUs = 2*_1e6; // 2 second default duration
-        }
-        s.append(SSADecoder.formatTimeCode(endUs));
-        s.append(",");
-        s.append(data);
-        s.append("\n");
-        return s.toString();
-    }
-
     public static String formatTimeCode(long tc_us) {
         long seconds = tc_us / _1e6;
         long us = tc_us - _1e6*seconds;

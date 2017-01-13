@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static android.R.attr.data;
 import static android.R.attr.format;
 import static android.R.attr.longClickable;
 import static android.R.attr.mimeType;
@@ -1110,8 +1111,17 @@ public final class MatroskaExtractor implements Extractor {
     }
 
   private void writeSSASample(Track track) {
-    String s = SSADecoder.buildDialogue(track.ssaSample, blockDurationUs);
-    ParsableByteArray out = new ParsableByteArray(s.getBytes());
+    long startUs = 0; // blockTimeUs
+    StringBuffer s = new StringBuffer();
+    s.append("Dialogue: ");
+    s.append(SSADecoder.formatTimeCode(startUs));
+    s.append(",");
+    long endUs = startUs + blockDurationUs;
+    s.append(SSADecoder.formatTimeCode(endUs));
+    s.append(",");
+    s.append(track.ssaSample);
+    s.append("\n");
+    ParsableByteArray out = new ParsableByteArray(s.toString().getBytes());
     track.output.sampleData(out, out.limit());
     sampleBytesWritten += out.limit();
   }
