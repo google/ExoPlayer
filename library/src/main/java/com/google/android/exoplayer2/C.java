@@ -510,6 +510,32 @@ public final class C {
   public static final int MSG_CUSTOM_BASE = 10000;
 
   /**
+   *  Represents the seek position locates within the target range and the keyframe before it is found.
+   */
+  public static final int SEEK_TARGET_OK = 0;
+
+  /**
+   *   Represents the seek position locates within the target range but the keyframe before it is NOT found.
+   */
+  public static final int SEEK_TARGET_WITHIN_THE_RANGE = -1;
+
+  /**
+   *  Represents the seek position is out of the target range and precedes the eariest timestamp within sampleQueue.
+   */
+  public static final int SEEK_TARGET_OUT_OF_RANGE_BEFORE = -2;
+
+  /**
+   *  Represents the seek position is out of the target range and coming after the latest timestamp within sampleQueue.
+   */
+  public static final int SEEK_TARGET_OUT_OF_RANGE_AFTER = -3;
+
+
+  /**
+   *  Represents whether the seek position is within the target range is unknown.
+   */
+  public static final int SEEK_TARGET_UNKNOWN = -4;
+
+  /**
    * The stereo mode for 360/3D/VR videos.
    */
   @Retention(RetentionPolicy.SOURCE)
