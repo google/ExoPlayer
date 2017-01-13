@@ -71,9 +71,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       throws IOException {
     DataSourceInputStream inputStream = new DataSourceInputStream(
         dataSource, new DataSpec(Uri.parse(manifestUriString)));
-    inputStream.open();
-    DashManifestParser parser = new DashManifestParser();
-    return parser.parse(dataSource.getUri(), inputStream);
+    try {
+      inputStream.open();
+      DashManifestParser parser = new DashManifestParser();
+      return parser.parse(dataSource.getUri(), inputStream);
+    } finally {
+      inputStream.close();
+    }
   }
 
   /**
