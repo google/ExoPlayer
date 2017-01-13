@@ -546,6 +546,36 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public int getRendererCount() {
+    return player.getRendererCount();
+  }
+
+  @Override
+  public int getRendererType(int index) {
+    return player.getRendererType(index);
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    return player.getCurrentTrackGroups();
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
+    return player.getCurrentTrackSelections();
+  }
+
+  @Override
+  public Timeline getCurrentTimeline() {
+    return player.getCurrentTimeline();
+  }
+
+  @Override
+  public Object getCurrentManifest() {
+    return player.getCurrentManifest();
+  }
+
+  @Override
   public int getCurrentPeriodIndex() {
     return player.getCurrentPeriodIndex();
   }
@@ -576,33 +606,13 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public int getRendererCount() {
-    return player.getRendererCount();
+  public boolean isCurrentWindowDynamic() {
+    return player.isCurrentWindowDynamic();
   }
 
   @Override
-  public int getRendererType(int index) {
-    return player.getRendererType(index);
-  }
-
-  @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return player.getCurrentTrackGroups();
-  }
-
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return player.getCurrentTrackSelections();
-  }
-
-  @Override
-  public Timeline getCurrentTimeline() {
-    return player.getCurrentTimeline();
-  }
-
-  @Override
-  public Object getCurrentManifest() {
-    return player.getCurrentManifest();
+  public boolean isCurrentWindowSeekable() {
+    return player.isCurrentWindowSeekable();
   }
 
   // Renderer building.

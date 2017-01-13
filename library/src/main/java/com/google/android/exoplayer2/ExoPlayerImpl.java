@@ -272,6 +272,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public boolean isCurrentWindowDynamic() {
+    if (timeline.isEmpty()) {
+      return false;
+    }
+    return timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
+  }
+
+  @Override
+  public boolean isCurrentWindowSeekable() {
+    if (timeline.isEmpty()) {
+      return false;
+    }
+    return timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
+  }
+
+  @Override
   public int getRendererCount() {
     return renderers.length;
   }
