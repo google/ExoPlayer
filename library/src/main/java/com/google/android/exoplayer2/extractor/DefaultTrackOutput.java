@@ -231,6 +231,22 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param timeUs The seek time.
    * @return Whether the skip was successful.
    */
+  public boolean skipToKeyframeBefore(long timeUs, ) {
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
+    if (nextOffset == C.POSITION_UNSET) {
+      return false;
+    }
+    dropDownstreamTo(nextOffset);
+    return true;
+  }
+
+
+  /**
+   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   *
+   * @param timeUs The seek time.
+   * @return Whether the skip was successful.
+   */
   public boolean skipToKeyframeBefore(long timeUs) {
     long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
     if (nextOffset == C.POSITION_UNSET) {
