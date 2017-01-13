@@ -445,7 +445,7 @@ public final class AudioTrack {
 
     // Workaround for overly strict channel configuration checks on nVidia Shield.
     if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
-      switch(channelCount) {
+      switch (channelCount) {
         case 7:
           channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
           break;
@@ -459,6 +459,13 @@ public final class AudioTrack {
     }
 
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
+
+    // Workaround for Nexus Player not reporting support for mono passthrough.
+    // (See [Internal: b/34268671].)
+    if (Util.SDK_INT <= 25 && "fugu".equals(Util.DEVICE) && passthrough && channelCount == 1) {
+      channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
+    }
+
     @C.Encoding int sourceEncoding;
     if (passthrough) {
       sourceEncoding = getEncodingForMimeType(mimeType);
