@@ -101,7 +101,7 @@ public class SSASubtitle implements Subtitle {
         cueTimesUs.add(start);
         cues.add(cue);
         // add null cue to remove this cue after it's duration
-        long end = 10*SSADecoder.parseTimecode(ev.get("end"));
+        long end = SSADecoder.parseTimecode(ev.get("end"));
         cueTimesUs.add(end);
         cues.add(null);
     }
