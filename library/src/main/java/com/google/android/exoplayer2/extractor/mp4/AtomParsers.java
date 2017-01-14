@@ -604,7 +604,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl
           || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb
           || childAtomType == Atom.TYPE_lpcm || childAtomType == Atom.TYPE_sowt
-          || childAtomType == Atom.TYPE__mp3) {
+          || childAtomType == Atom.TYPE__mp3 || childAtomType == Atom.TYPE_alac) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
@@ -839,6 +839,8 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_RAW;
     } else if (atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
+    } else if (atomType == Atom.TYPE_alac) {
+      mimeType = MimeTypes.AUDIO_ALAC;
     }
 
     byte[] initializationData = null;
@@ -876,6 +878,10 @@ import java.util.List;
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0,
             language);
+      } else if (childAtomType == Atom.TYPE_alac) {
+        initializationData = new byte[childAtomSize];
+        parent.setPosition(childPosition);
+        parent.readBytes(initializationData, 0, childAtomSize);
       }
       childPosition += childAtomSize;
     }
