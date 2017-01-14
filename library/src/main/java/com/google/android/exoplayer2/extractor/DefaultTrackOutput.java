@@ -248,12 +248,7 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @return Whether the skip was successful.
    */
   public boolean skipToKeyframeBefore(long timeUs) {
-    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs, false);
-    if (nextOffset == C.POSITION_UNSET) {
-      return false;
-    }
-    dropDownstreamTo(nextOffset);
-    return true;
+    return infoQueue.skipToKeyframeBefore(timeUs, false);
   }
 
   /**
