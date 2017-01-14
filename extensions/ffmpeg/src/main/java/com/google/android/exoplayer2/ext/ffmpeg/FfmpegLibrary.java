@@ -92,6 +92,8 @@ public final class FfmpegLibrary {
         return "amrwb";
       case MimeTypes.AUDIO_FLAC:
         return "flac";
+      case MimeTypes.AUDIO_ALAC:
+        return "alac";
       default:
         return null;
     }

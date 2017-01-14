@@ -87,7 +87,11 @@ import java.util.List;
     }
     if (!hasOutputFormat) {
       channelCount = ffmpegGetChannelCount(nativeContext);
-      sampleRate = ffmpegGetSampleRate(nativeContext);
+      if ("alac".equals(codecName)) {
+        sampleRate = ByteBuffer.wrap(extraData, extraData.length - 4, 4).getInt();
+      } else {
+        sampleRate = ffmpegGetSampleRate(nativeContext);
+      }
       hasOutputFormat = true;
     }
     outputBuffer.data.position(0);
@@ -123,6 +127,7 @@ import java.util.List;
   private static byte[] getExtraData(String mimeType, List<byte[]> initializationData) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
+      case MimeTypes.AUDIO_ALAC:
       case MimeTypes.AUDIO_OPUS:
         return initializationData.get(0);
       case MimeTypes.AUDIO_VORBIS:
