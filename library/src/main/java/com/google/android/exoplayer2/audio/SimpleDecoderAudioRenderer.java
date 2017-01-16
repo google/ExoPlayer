@@ -552,6 +552,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       // There aren't any final output buffers, so release the decoder immediately.
       releaseDecoder();
       maybeInitDecoder();
+      audioTrackNeedsConfigure = true;
     }
 
     eventDispatcher.inputFormatChanged(newFormat);
