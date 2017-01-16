@@ -282,6 +282,12 @@ public final class Id3Decoder implements MetadataDecoder {
       } else if (frameId0 == 'C' && frameId1 == 'O' && frameId2 == 'M'
           && (frameId3 == 'M' || majorVersion == 2)) {
         frame = decodeCommentFrame(id3Data, frameSize);
+      } else if (frameId0 == 'W' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
+        frame = decodeUrlLinkFrame(id3Data, frameSize);
+      } else if (frameId0 == 'C' && frameId1 == 'H' && frameId2 == 'A' && frameId3 == 'P') {
+        frame = decodeChapterFrame(id3Data, frameSize, majorVersion, unsignedIntFrameSizeHack);
+      } else if (frameId0 == 'C' && frameId1 == 'T' && frameId2 == 'O' && frameId3 == 'C') {
+        frame = decodeChapterTOCFrame(id3Data, frameSize, majorVersion, unsignedIntFrameSizeHack);
       } else {
         String id = majorVersion == 2
             ? String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2)
@@ -442,6 +448,112 @@ public final class Id3Decoder implements MetadataDecoder {
     String description = new String(data, 0, descriptionEndIndex, charset);
 
     return new TextInformationFrame(id, description);
+  }
+
+  private static UrlLinkFrame decodeUrlLinkFrame(ParsableByteArray id3Data,
+      int frameSize) throws UnsupportedEncodingException {
+    int encoding = id3Data.readUnsignedByte();
+    String charset = getCharsetName(encoding);
+
+    byte[] data = new byte[frameSize - 1];
+    id3Data.readBytes(data, 0, frameSize - 1);
+
+    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    String description = new String(data, 0, descriptionEndIndex, charset);
+
+    int urlStartIndex = descriptionEndIndex + 1;
+    int urlEndIndex = indexOfEos(data, urlStartIndex, encoding);
+    int urlLength = urlEndIndex - urlStartIndex;
+    String url = new String(data, urlStartIndex, urlLength, charset);
+
+    return new UrlLinkFrame(description, url);
+  }
+
+  private static ChapterFrame decodeChapterFrame(ParsableByteArray id3Data, int frameSize,
+      int majorVersion, boolean unsignedIntFrameSizeHack) throws UnsupportedEncodingException {
+    byte[] frameBytes = new byte[frameSize];
+    id3Data.readBytes(frameBytes, 0, frameSize - 1);
+
+    ParsableByteArray chapterData = new ParsableByteArray(frameBytes);
+
+    int chapterIdEndIndex = indexOfZeroByte(frameBytes, 0) + 1;
+    String chapterId = chapterData.readNullTerminatedString(chapterIdEndIndex);
+
+    chapterData.setPosition(chapterIdEndIndex);
+    int startTime = chapterData.readInt();
+    int endTime = chapterData.readInt();
+    int startOffset = chapterData.readInt();
+    int endOffset = chapterData.readInt();
+
+    String title = null;
+    String url = null;
+    ApicFrame image = null;
+
+    int frameHeaderSize = majorVersion == 2 ? 6 : 10;
+    while (chapterData.bytesLeft() >= frameHeaderSize) {
+      Id3Frame frame = decodeFrame(majorVersion, chapterData, unsignedIntFrameSizeHack);
+      if (frame == null) {
+        continue;
+      }
+      if (frame instanceof TextInformationFrame) {
+        TextInformationFrame textFrame = (TextInformationFrame)frame;
+        if (textFrame.id != null && textFrame.id.equals("TIT2")) {
+          title = textFrame.description;
+        }
+      }
+      else if (frame instanceof UrlLinkFrame) {
+        UrlLinkFrame linkFrame = (UrlLinkFrame)frame;
+        url = linkFrame.url;
+      }
+      else if (frame instanceof ApicFrame) {
+        image = (ApicFrame)frame;
+      }
+    }
+
+    return new ChapterFrame(chapterId, startTime, endTime, startOffset, endOffset, title, url, image);
+  }
+
+  private static ChapterTOCFrame decodeChapterTOCFrame(ParsableByteArray id3Data, int frameSize,
+    int majorVersion, boolean unsignedIntFrameSizeHack) throws UnsupportedEncodingException {
+    byte[] frameBytes = new byte[frameSize];
+    id3Data.readBytes(frameBytes, 0, frameSize - 1);
+
+    ParsableByteArray tocData = new ParsableByteArray(frameBytes);
+
+    int idEndIndex = indexOfZeroByte(frameBytes, 0) + 1;
+    String id = tocData.readNullTerminatedString(idEndIndex);
+    tocData.setPosition(idEndIndex);
+
+    int flags = tocData.readUnsignedByte();
+    boolean isRoot = (flags & 0x0002) != 0;
+    boolean isOrdered = (flags & 0x0001) != 0;
+
+    int entryCount = tocData.readUnsignedByte();
+    String[] children = new String[entryCount];
+    for (int i = 0; i < entryCount && tocData.bytesLeft() > 0; i++) {
+      int startIndex = tocData.getPosition();
+      int endIndex = indexOfZeroByte(frameBytes, startIndex) + 1;
+      int stringLength = endIndex - startIndex;
+      String childId = tocData.readNullTerminatedString(stringLength);
+      children[i] = childId;
+    }
+
+    String title = null;
+    int frameHeaderSize = majorVersion == 2 ? 6 : 10;
+    while (tocData.bytesLeft() >= frameHeaderSize) {
+      Id3Frame frame = decodeFrame(majorVersion, tocData, unsignedIntFrameSizeHack);
+      if (frame == null) {
+        continue;
+      }
+      if (frame instanceof TextInformationFrame) {
+        TextInformationFrame textFrame = (TextInformationFrame)frame;
+        if (textFrame.id != null && textFrame.id.equals("TIT2")) {
+          title = textFrame.description;
+        }
+      }
+    }
+
+    return new ChapterTOCFrame(id, isRoot, isOrdered, children, title);
   }
 
   private static BinaryFrame decodeBinaryFrame(ParsableByteArray id3Data, int frameSize,
