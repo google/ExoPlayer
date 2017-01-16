@@ -514,13 +514,14 @@ public final class ExoPlayerTest extends TestCase {
 
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      if (readFormat) {
+      if (buffer == null || !readFormat) {
+        formatHolder.format = format;
+        readFormat = true;
+        return C.RESULT_FORMAT_READ;
+      } else {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
       }
-      formatHolder.format = format;
-      readFormat = true;
-      return C.RESULT_FORMAT_READ;
     }
 
     @Override

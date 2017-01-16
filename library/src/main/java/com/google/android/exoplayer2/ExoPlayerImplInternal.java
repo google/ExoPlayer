@@ -610,6 +610,7 @@ import java.io.IOException;
       enabledRenderers = new Renderer[0];
       rendererMediaClock = null;
       rendererMediaClockSource = null;
+      playingPeriodHolder = null;
     }
 
     // Update the holders.

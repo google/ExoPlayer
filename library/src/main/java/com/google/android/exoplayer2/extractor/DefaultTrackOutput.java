@@ -265,7 +265,8 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.  May be null if the
+   *     caller requires that the format of the stream be read even if it's not changing.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
@@ -751,7 +752,8 @@ public final class DefaultTrackOutput implements TrackOutput {
      *     about the sample, but not its data. The size and absolute position of the data in the
      *     rolling buffer is stored in {@code extrasHolder}, along with an encryption id if present
      *     and the absolute position of the first byte that may still be required after the current
-     *     sample has been read.
+     *     sample has been read. May be null if the caller requires that the format of the stream be
+     *     read even if it's not changing.
      * @param downstreamFormat The current downstream {@link Format}. If the format of the next
      *     sample is different to the current downstream format then a format will be read.
      * @param extrasHolder The holder into which extra sample information should be written.
@@ -761,14 +763,14 @@ public final class DefaultTrackOutput implements TrackOutput {
     public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
         Format downstreamFormat, BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
-        if (upstreamFormat != null && upstreamFormat != downstreamFormat) {
+        if (upstreamFormat != null && (buffer == null || upstreamFormat != downstreamFormat)) {
           formatHolder.format = upstreamFormat;
           return C.RESULT_FORMAT_READ;
         }
         return C.RESULT_NOTHING_READ;
       }
 
-      if (formats[relativeReadIndex] != downstreamFormat) {
+      if (buffer == null || formats[relativeReadIndex] != downstreamFormat) {
         formatHolder.format = formats[relativeReadIndex];
         return C.RESULT_FORMAT_READ;
       }

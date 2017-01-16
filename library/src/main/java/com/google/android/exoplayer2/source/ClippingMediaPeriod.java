@@ -235,6 +235,9 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       if (pendingDiscontinuity) {
         return C.RESULT_NOTHING_READ;
       }
+      if (buffer == null) {
+        return stream.readData(formatHolder, null);
+      }
       if (sentEos) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;

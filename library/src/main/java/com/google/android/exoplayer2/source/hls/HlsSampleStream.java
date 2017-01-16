@@ -26,7 +26,7 @@ import java.io.IOException;
 /* package */ final class HlsSampleStream implements SampleStream {
 
   public final int group;
-  
+
   private final HlsSampleStreamWrapper sampleStreamWrapper;
 
   public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int group) {

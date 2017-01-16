@@ -251,11 +251,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
    *
-   * @see SampleStream#readData(FormatHolder, DecoderInputBuffer)
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. May be null if the
+   *     caller requires that the format of the stream be read even if it's not changing.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
