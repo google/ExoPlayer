@@ -260,6 +260,11 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       stream.skipToKeyframeBefore(startUs + timeUs);
     }
 
+    @Override
+    public int isContain(long timeUs) {
+      return C.SEEK_TARGET_UNKNOWN;
+    }
+
   }
 
 }

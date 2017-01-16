@@ -35,6 +35,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private boolean readEndOfStream;
   private boolean streamIsFinal;
 
+  private long latestUpstreamSampleTime;
+
   /**
    * @param trackType The track type that the renderer handles. One of the {@link C}
    * {@code TRACK_TYPE_*} constants.
@@ -62,6 +64,16 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public MediaClock getMediaClock() {
     return null;
+  }
+
+  @Override
+  public long getRenderedPositionUs() {
+    return C.TIME_UNSET;
+  }
+
+  @Override
+  public long getLatestUpstreamSampleTime() {
+    return latestUpstreamSampleTime;
   }
 
   @Override
@@ -267,6 +279,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
         return streamIsFinal ? C.RESULT_BUFFER_READ : C.RESULT_NOTHING_READ;
       }
       buffer.timeUs += streamOffsetUs;
+      latestUpstreamSampleTime = buffer.timeUs;
     } else if (result == C.RESULT_FORMAT_READ) {
       Format format = formatHolder.format;
       if (format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {

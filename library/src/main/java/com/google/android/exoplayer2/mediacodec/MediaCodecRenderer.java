@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.source.SampleStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -202,6 +203,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
 
+  private long latestResetPosition;
+  private long latestPresentationTimeUs;
+
   protected DecoderCounters decoderCounters;
 
   /**
@@ -230,6 +234,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    latestResetPosition = C.TIME_UNSET;
+    latestPresentationTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -385,12 +391,26 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
+  public long getRenderedPositionUs() {
+    return latestPresentationTimeUs;
+  }
+
+  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    if (codec != null) {
-      flushCodec();
+    latestResetPosition = positionUs;
+
+    long latestUpstreamSampleTime = getLatestUpstreamSampleTime();
+    boolean withinCodec = ((positionUs >= latestPresentationTimeUs) && (positionUs <= latestUpstreamSampleTime));
+    SampleStream sampleStream = getStream();
+    int result = sampleStream.isContain(positionUs);
+    if (!withinCodec && (result <= C.SEEK_TARGET_OUT_OF_RANGE_BEFORE)) {
+      if (codec != null) {
+        flushCodec();
+      }
     }
+    latestPresentationTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -797,7 +817,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param presentationTimeUs The timestamp associated with the output buffer.
    */
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    // Do nothing.
+    latestPresentationTimeUs = presentationTimeUs;
   }
 
   /**
@@ -886,6 +906,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
         return false;
       }
+    }
+
+    /*latestResetPosition works as Gstreamer's segment stop for filtering out-of-range frames at renderer*/
+    if (latestResetPosition > outputBufferInfo.presentationTimeUs) {
+      shouldSkipOutputBuffer = true;
     }
 
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],

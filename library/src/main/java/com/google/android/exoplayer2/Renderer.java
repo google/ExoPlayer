@@ -253,4 +253,18 @@ public interface Renderer extends ExoPlayerComponent {
    */
   void disable();
 
+  /**
+   * Get the latest rendered position .
+   * <p>
+   * @return The latest rendered position in us.
+   */
+  long getRenderedPositionUs();
+
+  /**
+   * Returns PTS of the latest sample read from upstream source .
+   *
+   * @return PTS of the latest sample read from upstream source.
+   */
+  long getLatestUpstreamSampleTime();
+
 }

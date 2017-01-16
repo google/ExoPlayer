@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.C;
 import java.io.IOException;
 
 /**
@@ -54,4 +55,9 @@ import java.io.IOException;
     sampleStreamWrapper.skipToKeyframeBefore(group, timeUs);
   }
 
+  @Override
+  public int isContain(long timeUs) {
+    // TODO:
+    return C.SEEK_TARGET_UNKNOWN;
+  }
 }
