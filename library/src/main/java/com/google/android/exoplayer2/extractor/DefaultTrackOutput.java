@@ -226,29 +226,37 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
-   *
-   * @param timeUs The seek time.
-   * @param skipToLastKey Skip to last key regardless the seek time is out of range .
-   * @return Whether the skip was successful.
-   */
-  public boolean skipToKeyframeBefore(long timeUs, boolean skipToLastKey) {
-    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs, skipToLastKey);
-    if (nextOffset == C.POSITION_UNSET) {
-      return false;
-    }
-    dropDownstreamTo(nextOffset);
-    return true;
-  }
-
-  /**
-   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
+   * contains a keyframe with a timestamp of {@code timeUs} or earlier, and if {@code timeUs} falls
+   * within the currently buffered media.
+   * <p>
+   * This method is equivalent to {@code skipToKeyframeBefore(timeUs, false)}.
    *
    * @param timeUs The seek time.
    * @return Whether the skip was successful.
    */
   public boolean skipToKeyframeBefore(long timeUs) {
-    return infoQueue.skipToKeyframeBefore(timeUs, false);
+    return skipToKeyframeBefore(timeUs, false);
+  }
+
+  /**
+   * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
+   * contains a keyframe with a timestamp of {@code timeUs} or earlier. If
+   * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
+   * falls within the buffer.
+   *
+   * @param timeUs The seek time.
+   * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
+   *     of the buffer.
+   * @return Whether the skip was successful.
+   */
+  public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
+    if (nextOffset == C.POSITION_UNSET) {
+      return false;
+    }
+    dropDownstreamTo(nextOffset);
+    return true;
   }
 
   /**
@@ -786,18 +794,22 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
 
     /**
-     * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
+     * Attempts to locate the keyframe before or at the specified time. If
+     * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
+     * falls within the buffer.
      *
      * @param timeUs The seek time.
+     * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
+     *     of the buffer.
      * @return The offset of the keyframe's data if the keyframe was present.
      *     {@link C#POSITION_UNSET} otherwise.
      */
-    public synchronized long skipToKeyframeBefore(long timeUs, boolean skipToLastKey) {
+    public synchronized long skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
       if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
         return C.POSITION_UNSET;
       }
 
-      if (timeUs > largestQueuedTimestampUs && !skipToLastKey) {
+      if (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer) {
         return C.POSITION_UNSET;
       }
 
