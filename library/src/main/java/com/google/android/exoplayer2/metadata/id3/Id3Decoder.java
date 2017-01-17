@@ -505,7 +505,7 @@ public final class Id3Decoder implements MetadataDecoder {
       }
       if (frame instanceof TextInformationFrame) {
         TextInformationFrame textFrame = (TextInformationFrame)frame;
-        if (textFrame.id != null && textFrame.id.equals("TIT2")) {
+        if ("TIT2".equals(textFrame.id)) {
           title = textFrame.description;
         }
       }
