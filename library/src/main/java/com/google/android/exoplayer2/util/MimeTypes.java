@@ -65,12 +65,12 @@ public final class MimeTypes {
 
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+  public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_CEA608 = BASE_TYPE_APPLICATION + "/cea-608";
   public static final String APPLICATION_CEA708 = BASE_TYPE_APPLICATION + "/cea-708";
   public static final String APPLICATION_SUBRIP = BASE_TYPE_APPLICATION + "/x-subrip";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
-  public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
   public static final String APPLICATION_MP4VTT = BASE_TYPE_APPLICATION + "/x-mp4-vtt";
   public static final String APPLICATION_MP4CEA608 = BASE_TYPE_APPLICATION + "/x-mp4-cea-608";
@@ -217,12 +217,16 @@ public final class MimeTypes {
     } else if (isVideo(mimeType)) {
       return C.TRACK_TYPE_VIDEO;
     } else if (isText(mimeType) || APPLICATION_CEA608.equals(mimeType)
-        || APPLICATION_CEA708.equals(mimeType) || APPLICATION_SUBRIP.equals(mimeType)
-        || APPLICATION_TTML.equals(mimeType) || APPLICATION_TX3G.equals(mimeType)
-        || APPLICATION_MP4VTT.equals(mimeType) || APPLICATION_RAWCC.equals(mimeType)
-        || APPLICATION_VOBSUB.equals(mimeType) || APPLICATION_PGS.equals(mimeType)) {
+        || APPLICATION_CEA708.equals(mimeType) || APPLICATION_MP4CEA608.equals(mimeType)
+        || APPLICATION_SUBRIP.equals(mimeType) || APPLICATION_TTML.equals(mimeType)
+        || APPLICATION_TX3G.equals(mimeType) || APPLICATION_MP4VTT.equals(mimeType)
+        || APPLICATION_RAWCC.equals(mimeType) || APPLICATION_VOBSUB.equals(mimeType)
+        || APPLICATION_PGS.equals(mimeType)) {
       return C.TRACK_TYPE_TEXT;
-    } else if (APPLICATION_ID3.equals(mimeType)) {
+    } else if (APPLICATION_ID3.equals(mimeType)
+        || APPLICATION_EMSG.equals(mimeType)
+        || APPLICATION_SCTE35.equals(mimeType)
+        || APPLICATION_CAMERA_MOTION.equals(mimeType)) {
       return C.TRACK_TYPE_METADATA;
     } else {
       return C.TRACK_TYPE_UNKNOWN;
