@@ -20,7 +20,7 @@ import android.os.Parcelable;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Text information ("T000" - "TZZZ", excluding "TXXX") ID3 frame.
+ * Text information ID3 frame.
  */
 public final class TextInformationFrame extends Id3Frame {
 

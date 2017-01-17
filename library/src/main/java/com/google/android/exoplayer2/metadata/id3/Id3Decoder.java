@@ -586,8 +586,8 @@ public final class Id3Decoder implements MetadataDecoder {
   }
 
   /**
-   * Performs in-place removal of unsynchronization for {@code length} bytes starting from {@link
-   * ParsableByteArray#getPosition()}
+   * Performs in-place removal of unsynchronization for {@code length} bytes starting from
+   * {@link ParsableByteArray#getPosition()}
    *
    * @param data Contains the data to be processed.
    * @param length The length of the data to be processed.

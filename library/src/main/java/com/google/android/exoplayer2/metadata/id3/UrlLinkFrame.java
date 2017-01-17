@@ -21,7 +21,7 @@ import android.os.Parcelable;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * WXXX (User defined URL link) ID3 frame.
+ * Url link ID3 frame.
  */
 public final class UrlLinkFrame extends Id3Frame {
 
