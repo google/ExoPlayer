@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.metadata.id3.GeobFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -362,6 +363,9 @@ import java.util.Locale;
         TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
         Log.d(TAG, prefix + String.format("%s: value=%s", textInformationFrame.id,
             textInformationFrame.value));
+      } else if (entry instanceof UrlLinkFrame) {
+        UrlLinkFrame urlLinkFrame = (UrlLinkFrame) entry;
+        Log.d(TAG, prefix + String.format("%s: url=%s", urlLinkFrame.id, urlLinkFrame.url));
       } else if (entry instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) entry;
         Log.d(TAG, prefix + String.format("%s: owner=%s", privFrame.id, privFrame.owner));
@@ -375,7 +379,7 @@ import java.util.Locale;
             apicFrame.id, apicFrame.mimeType, apicFrame.description));
       } else if (entry instanceof CommentFrame) {
         CommentFrame commentFrame = (CommentFrame) entry;
-        Log.d(TAG, prefix + String.format("%s: language=%s description=%s", commentFrame.id,
+        Log.d(TAG, prefix + String.format("%s: language=%s, description=%s", commentFrame.id,
             commentFrame.language, commentFrame.description));
       } else if (entry instanceof Id3Frame) {
         Id3Frame id3Frame = (Id3Frame) entry;

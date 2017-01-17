@@ -382,7 +382,7 @@ public final class Id3Decoder implements MetadataDecoder {
     String url;
     int urlStartIndex = descriptionEndIndex + delimiterLength(encoding);
     if (urlStartIndex < data.length) {
-      int urlEndIndex = indexOfZeroByte(data, 0);
+      int urlEndIndex = indexOfZeroByte(data, urlStartIndex);
       url = new String(data, urlStartIndex, urlEndIndex - urlStartIndex, "ISO-8859-1");
     } else {
       url = "";
@@ -521,10 +521,10 @@ public final class Id3Decoder implements MetadataDecoder {
         "ISO-8859-1");
     id3Data.setPosition(chapterIdEndIndex + 1);
 
-    int startTime = id3Data.readUnsignedByte();
-    int endTime = id3Data.readUnsignedByte();
-    int startOffset = id3Data.readUnsignedByte();
-    int endOffset = id3Data.readUnsignedByte();
+    int startTime = id3Data.readInt();
+    int endTime = id3Data.readInt();
+    int startOffset = id3Data.readInt();
+    int endOffset = id3Data.readInt();
 
     ArrayList<Id3Frame> subFrames = new ArrayList<>();
     int limit = framePosition + frameSize;
