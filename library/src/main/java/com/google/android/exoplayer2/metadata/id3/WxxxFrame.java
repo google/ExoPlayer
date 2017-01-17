@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,20 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Url Frame "WXX" ID3 frame.
  */
-public class UrlLinkFrame extends Id3Frame {
+public final class WxxxFrame extends Id3Frame {
 
   public static final String ID = "WXXX";
 
   public final String description;
   public final String url;
 
-  public UrlLinkFrame(String description, String url) {
+  public WxxxFrame(String description, String url) {
     super(ID);
     this.description = description;
     this.url = url;
   }
 
-  /* package */ UrlLinkFrame(Parcel in) {
+  /* package */ WxxxFrame(Parcel in) {
     super(ID);
     description = in.readString();
     url = in.readString();
@@ -50,7 +50,7 @@ public class UrlLinkFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    UrlLinkFrame other = (UrlLinkFrame) obj;
+    WxxxFrame other = (WxxxFrame) obj;
     return Util.areEqual(description, other.description)
         && Util.areEqual(url, other.url);
   }
@@ -69,17 +69,17 @@ public class UrlLinkFrame extends Id3Frame {
     dest.writeString(url);
   }
 
-  public static final Parcelable.Creator<UrlLinkFrame> CREATOR =
-      new Parcelable.Creator<UrlLinkFrame>() {
+  public static final Parcelable.Creator<WxxxFrame> CREATOR =
+      new Parcelable.Creator<WxxxFrame>() {
 
       @Override
-      public UrlLinkFrame createFromParcel(Parcel in) {
-        return new UrlLinkFrame(in);
+      public WxxxFrame createFromParcel(Parcel in) {
+        return new WxxxFrame(in);
       }
 
       @Override
-      public UrlLinkFrame[] newArray(int size) {
-        return new UrlLinkFrame[size];
+      public WxxxFrame[] newArray(int size) {
+        return new WxxxFrame[size];
       }
 
     };

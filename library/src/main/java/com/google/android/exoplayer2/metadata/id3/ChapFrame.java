@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Chapter information "CHAP" ID3 frame.
  */
-public final class ChapterFrame extends Id3Frame {
+public final class ChapFrame extends Id3Frame {
 
   public static final String ID = "CHAP";
 
@@ -35,8 +35,8 @@ public final class ChapterFrame extends Id3Frame {
   public final String url;
   public final ApicFrame image;
 
-  public ChapterFrame(String chapterId, int startTime, int endTime, int startOffset, int endOffset,
-    String title, String url, ApicFrame image) {
+  public ChapFrame(String chapterId, int startTime, int endTime, int startOffset, int endOffset,
+                   String title, String url, ApicFrame image) {
     super(ID);
     this.chapterId = chapterId;
     this.startTime = startTime;
@@ -48,7 +48,7 @@ public final class ChapterFrame extends Id3Frame {
     this.image = image;
   }
 
-  /* package */ ChapterFrame(Parcel in) {
+  /* package */ ChapFrame(Parcel in) {
     super(ID);
     this.chapterId = in.readString();
     this.startTime = in.readInt();
@@ -68,15 +68,15 @@ public final class ChapterFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    ChapterFrame other = (ChapterFrame) obj;
-    return Util.areEqual(chapterId, other.chapterId)
-      && startTime == other.startTime
+    ChapFrame other = (ChapFrame) obj;
+    return startTime == other.startTime
       && endTime == other.endTime
       && startOffset == other.startOffset
       && endOffset == other.endOffset
-      && title != null ? title.equals(other.title) : other.title == null
-      && url != null ? url.equals(other.url) : other.url == null
-      && image != null ? image.equals(other.image) : other.image == null;
+      && Util.areEqual(chapterId, other.chapterId)
+      && Util.areEqual(title, other.title)
+      && Util.areEqual(url, other.url)
+      && Util.areEqual(image, other.image);
   }
 
   @Override
@@ -103,7 +103,7 @@ public final class ChapterFrame extends Id3Frame {
     dest.writeString(title);
     dest.writeString(url);
     dest.writeString(title);
-    dest.writeParcelable(this.image, flags);
+    dest.writeParcelable(image, flags);
   }
 
   @Override
@@ -111,15 +111,15 @@ public final class ChapterFrame extends Id3Frame {
     return 0;
   }
 
-  public static final Creator<ChapterFrame> CREATOR = new Creator<ChapterFrame>() {
+  public static final Creator<ChapFrame> CREATOR = new Creator<ChapFrame>() {
     @Override
-    public ChapterFrame createFromParcel(Parcel in) {
-      return new ChapterFrame(in);
+    public ChapFrame createFromParcel(Parcel in) {
+      return new ChapFrame(in);
     }
 
     @Override
-    public ChapterFrame[] newArray(int size) {
-      return new ChapterFrame[size];
+    public ChapFrame[] newArray(int size) {
+      return new ChapFrame[size];
     }
   };
 }

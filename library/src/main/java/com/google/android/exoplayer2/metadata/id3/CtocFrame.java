@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 
+import com.google.android.exoplayer2.util.Util;
+
 import java.util.Arrays;
 
 /**
  * Chapter table of contents information "CTOC" ID3 frame.
  */
-public class ChapterTOCFrame extends Id3Frame {
+public final class CtocFrame extends Id3Frame {
 
   public static final String ID = "CTOC";
 
@@ -32,7 +34,7 @@ public class ChapterTOCFrame extends Id3Frame {
   public final String[] children;
   public final String title;
 
-  public ChapterTOCFrame(String elementId, boolean isRoot, boolean isOrdered, String[] children, String title) {
+  public CtocFrame(String elementId, boolean isRoot, boolean isOrdered, String[] children, String title) {
     super(ID);
     this.elementId = elementId;
     this.isRoot = isRoot;
@@ -41,7 +43,7 @@ public class ChapterTOCFrame extends Id3Frame {
     this.title = title;
   }
 
-  /* package */ ChapterTOCFrame(Parcel in) {
+  /* package */ CtocFrame(Parcel in) {
     super(ID);
     this.elementId = in.readString();
     this.isRoot = in.readByte() != 0;
@@ -58,12 +60,12 @@ public class ChapterTOCFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    ChapterTOCFrame other = (ChapterTOCFrame) obj;
-    return elementId != null ? elementId.equals(other.elementId) : other.elementId == null
-      && isRoot == other.isRoot
+    CtocFrame other = (CtocFrame) obj;
+    return isRoot == other.isRoot
       && isOrdered == other.isOrdered
-      && Arrays.equals(children, other.children)
-      && title != null ? title.equals(other.title) : other.title == null;
+      && Util.areEqual(elementId, other.elementId)
+      && Util.areEqual(title, other.title)
+      && Arrays.equals(children, other.children);
   }
 
   @Override
@@ -79,22 +81,22 @@ public class ChapterTOCFrame extends Id3Frame {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(this.elementId);
-    dest.writeByte((byte)(this.isRoot ? 1 : 0));
-    dest.writeByte((byte)(this.isOrdered ? 1 : 0));
-    dest.writeStringArray(this.children);
-    dest.writeString(this.title);
+    dest.writeString(elementId);
+    dest.writeByte((byte)(isRoot ? 1 : 0));
+    dest.writeByte((byte)(isOrdered ? 1 : 0));
+    dest.writeStringArray(children);
+    dest.writeString(title);
   }
 
-  public static final Creator<ChapterTOCFrame> CREATOR = new Creator<ChapterTOCFrame>() {
+  public static final Creator<CtocFrame> CREATOR = new Creator<CtocFrame>() {
     @Override
-    public ChapterTOCFrame createFromParcel(Parcel in) {
-      return new ChapterTOCFrame(in);
+    public CtocFrame createFromParcel(Parcel in) {
+      return new CtocFrame(in);
     }
 
     @Override
-    public ChapterTOCFrame[] newArray(int size) {
-      return new ChapterTOCFrame[size];
+    public CtocFrame[] newArray(int size) {
+      return new CtocFrame[size];
     }
   };
 }
