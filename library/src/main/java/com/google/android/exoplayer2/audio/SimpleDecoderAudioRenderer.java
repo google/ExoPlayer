@@ -407,8 +407,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
-    // TODO: Allow this to be set.
-    int tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
       audioTrack.enableTunnelingV21(tunnelingAudioSessionId);
     } else {

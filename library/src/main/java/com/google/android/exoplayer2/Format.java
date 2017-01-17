@@ -183,10 +183,8 @@ public final class Format implements Parcelable {
    */
   public final int accessibilityChannel;
 
-  // Lazily initialized hashcode and framework media format.
-
+  // Lazily initialized hashcode.
   private int hashCode;
-  private MediaFormat frameworkMediaFormat;
 
   // Video.
 
@@ -495,25 +493,22 @@ public final class Format implements Parcelable {
   @SuppressLint("InlinedApi")
   @TargetApi(16)
   public final MediaFormat getFrameworkMediaFormatV16() {
-    if (frameworkMediaFormat == null) {
-      MediaFormat format = new MediaFormat();
-      format.setString(MediaFormat.KEY_MIME, sampleMimeType);
-      maybeSetStringV16(format, MediaFormat.KEY_LANGUAGE, language);
-      maybeSetIntegerV16(format, MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
-      maybeSetIntegerV16(format, MediaFormat.KEY_WIDTH, width);
-      maybeSetIntegerV16(format, MediaFormat.KEY_HEIGHT, height);
-      maybeSetFloatV16(format, MediaFormat.KEY_FRAME_RATE, frameRate);
-      maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
-      maybeSetIntegerV16(format, MediaFormat.KEY_CHANNEL_COUNT, channelCount);
-      maybeSetIntegerV16(format, MediaFormat.KEY_SAMPLE_RATE, sampleRate);
-      maybeSetIntegerV16(format, "encoder-delay", encoderDelay);
-      maybeSetIntegerV16(format, "encoder-padding", encoderPadding);
-      for (int i = 0; i < initializationData.size(); i++) {
-        format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
-      }
-      frameworkMediaFormat = format;
+    MediaFormat format = new MediaFormat();
+    format.setString(MediaFormat.KEY_MIME, sampleMimeType);
+    maybeSetStringV16(format, MediaFormat.KEY_LANGUAGE, language);
+    maybeSetIntegerV16(format, MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+    maybeSetIntegerV16(format, MediaFormat.KEY_WIDTH, width);
+    maybeSetIntegerV16(format, MediaFormat.KEY_HEIGHT, height);
+    maybeSetFloatV16(format, MediaFormat.KEY_FRAME_RATE, frameRate);
+    maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
+    maybeSetIntegerV16(format, MediaFormat.KEY_CHANNEL_COUNT, channelCount);
+    maybeSetIntegerV16(format, MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+    maybeSetIntegerV16(format, "encoder-delay", encoderDelay);
+    maybeSetIntegerV16(format, "encoder-padding", encoderPadding);
+    for (int i = 0; i < initializationData.size(); i++) {
+      format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
     }
-    return frameworkMediaFormat;
+    return format;
   }
 
   @Override

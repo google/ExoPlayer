@@ -28,6 +28,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final int trackType;
 
+  private RendererConfiguration configuration;
   private int index;
   private int state;
   private SampleStream stream;
@@ -70,9 +71,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(Format[] formats, SampleStream stream, long positionUs, boolean joining,
-      long offsetUs) throws ExoPlaybackException {
+  public final void enable(RendererConfiguration configuration, Format[] formats,
+      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+      throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
+    this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
     replaceStream(formats, stream, offsetUs);
@@ -238,9 +241,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // Methods to be called by subclasses.
 
   /**
+   * Returns the configuration set when the renderer was most recently enabled.
+   */
+  protected final RendererConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  /**
    * Returns the index of the renderer within the player.
-   *
-   * @return The index of the renderer within the player.
    */
   protected final int getIndex() {
     return index;

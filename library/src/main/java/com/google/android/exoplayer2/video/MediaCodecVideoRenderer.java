@@ -210,8 +210,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     super.onEnabled(joining);
-    // TODO: Allow this to be set.
-    tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
     tunneling = tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET;
     eventDispatcher.enabled(decoderCounters);
     frameReleaseTimeHelper.enable();
@@ -583,10 +582,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     // Configure tunneling if enabled.
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
-      frameworkMediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_TunneledPlayback, true);
-      frameworkMediaFormat.setInteger(MediaFormat.KEY_AUDIO_SESSION_ID, tunnelingAudioSessionId);
+      configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
     }
     return frameworkMediaFormat;
+  }
+
+  @TargetApi(21)
+  private static void configureTunnelingV21(MediaFormat mediaFormat, int tunnelingAudioSessionId) {
+    mediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_TunneledPlayback, true);
+    mediaFormat.setInteger(MediaFormat.KEY_AUDIO_SESSION_ID, tunnelingAudioSessionId);
   }
 
   /**
