@@ -16,13 +16,13 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
-
 import com.google.android.exoplayer2.util.Util;
+import java.util.Arrays;
 
 /**
- * Chapter information "CHAP" ID3 frame.
+ * Chapter information ID3 frame.
  */
-public final class ChapFrame extends Id3Frame {
+public final class ChapterFrame extends Id3Frame {
 
   public static final String ID = "CHAP";
 
@@ -31,33 +31,31 @@ public final class ChapFrame extends Id3Frame {
   public final int endTime;
   public final int startOffset;
   public final int endOffset;
-  public final String title;
-  public final String url;
-  public final ApicFrame image;
+  private final Id3Frame[] subFrames;
 
-  public ChapFrame(String chapterId, int startTime, int endTime, int startOffset, int endOffset,
-                   String title, String url, ApicFrame image) {
+  public ChapterFrame(String chapterId, int startTime, int endTime, int startOffset, int endOffset,
+      Id3Frame[] subFrames) {
     super(ID);
     this.chapterId = chapterId;
     this.startTime = startTime;
     this.endTime = endTime;
     this.startOffset = startOffset;
     this.endOffset = endOffset;
-    this.title = title;
-    this.url = url;
-    this.image = image;
+    this.subFrames = subFrames;
   }
 
-  /* package */ ChapFrame(Parcel in) {
+  /* package */ ChapterFrame(Parcel in) {
     super(ID);
     this.chapterId = in.readString();
     this.startTime = in.readInt();
     this.endTime = in.readInt();
     this.startOffset = in.readInt();
     this.endOffset = in.readInt();
-    this.title = in.readString();
-    this.url = in.readString();
-    this.image = in.readParcelable(ApicFrame.class.getClassLoader());
+    int subFrameCount = in.readInt();
+    subFrames = new Id3Frame[subFrameCount];
+    for (int i = 0; i < subFrameCount; i++) {
+      subFrames[i] = in.readParcelable(Id3Frame.class.getClassLoader());
+    }
   }
 
   @Override
@@ -68,28 +66,23 @@ public final class ChapFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    ChapFrame other = (ChapFrame) obj;
+    ChapterFrame other = (ChapterFrame) obj;
     return startTime == other.startTime
-      && endTime == other.endTime
-      && startOffset == other.startOffset
-      && endOffset == other.endOffset
-      && Util.areEqual(chapterId, other.chapterId)
-      && Util.areEqual(title, other.title)
-      && Util.areEqual(url, other.url)
-      && Util.areEqual(image, other.image);
+        && endTime == other.endTime
+        && startOffset == other.startOffset
+        && endOffset == other.endOffset
+        && Util.areEqual(chapterId, other.chapterId)
+        && Arrays.equals(subFrames, other.subFrames);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
-    result = 31 * result + (chapterId != null ? chapterId.hashCode() : 0);
     result = 31 * result + startTime;
     result = 31 * result + endTime;
     result = 31 * result + startOffset;
     result = 31 * result + endOffset;
-    result = 31 * result + (title != null ? title.hashCode() : 0);
-    result = 31 * result + (url != null ? url.hashCode() : 0);
-    result = 31 * result + (image != null ? image.hashCode() : 0);
+    result = 31 * result + (chapterId != null ? chapterId.hashCode() : 0);
     return result;
   }
 
@@ -100,10 +93,10 @@ public final class ChapFrame extends Id3Frame {
     dest.writeInt(endTime);
     dest.writeInt(startOffset);
     dest.writeInt(endOffset);
-    dest.writeString(title);
-    dest.writeString(url);
-    dest.writeString(title);
-    dest.writeParcelable(image, flags);
+    dest.writeInt(subFrames.length);
+    for (int i = 0; i < subFrames.length; i++) {
+      dest.writeParcelable(subFrames[i], 0);
+    }
   }
 
   @Override
@@ -111,15 +104,18 @@ public final class ChapFrame extends Id3Frame {
     return 0;
   }
 
-  public static final Creator<ChapFrame> CREATOR = new Creator<ChapFrame>() {
+  public static final Creator<ChapterFrame> CREATOR = new Creator<ChapterFrame>() {
+
     @Override
-    public ChapFrame createFromParcel(Parcel in) {
-      return new ChapFrame(in);
+    public ChapterFrame createFromParcel(Parcel in) {
+      return new ChapterFrame(in);
     }
 
     @Override
-    public ChapFrame[] newArray(int size) {
-      return new ChapFrame[size];
+    public ChapterFrame[] newArray(int size) {
+      return new ChapterFrame[size];
     }
+
   };
+
 }

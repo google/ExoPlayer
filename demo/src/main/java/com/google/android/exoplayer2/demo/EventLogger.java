@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.metadata.id3.GeobFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -359,10 +358,10 @@ import java.util.Locale;
   private void printMetadata(Metadata metadata, String prefix) {
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
-      if (entry instanceof TxxxFrame) {
-        TxxxFrame txxxFrame = (TxxxFrame) entry;
-        Log.d(TAG, prefix + String.format("%s: description=%s, value=%s", txxxFrame.id,
-            txxxFrame.description, txxxFrame.value));
+      if (entry instanceof TextInformationFrame) {
+        TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
+        Log.d(TAG, prefix + String.format("%s: value=%s", textInformationFrame.id,
+            textInformationFrame.value));
       } else if (entry instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) entry;
         Log.d(TAG, prefix + String.format("%s: owner=%s", privFrame.id, privFrame.owner));
@@ -374,10 +373,6 @@ import java.util.Locale;
         ApicFrame apicFrame = (ApicFrame) entry;
         Log.d(TAG, prefix + String.format("%s: mimeType=%s, description=%s",
             apicFrame.id, apicFrame.mimeType, apicFrame.description));
-      } else if (entry instanceof TextInformationFrame) {
-        TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
-        Log.d(TAG, prefix + String.format("%s: description=%s", textInformationFrame.id,
-            textInformationFrame.description));
       } else if (entry instanceof CommentFrame) {
         CommentFrame commentFrame = (CommentFrame) entry;
         Log.d(TAG, prefix + String.format("%s: language=%s description=%s", commentFrame.id,

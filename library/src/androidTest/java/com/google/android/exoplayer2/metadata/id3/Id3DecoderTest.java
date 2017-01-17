@@ -32,9 +32,10 @@ public final class Id3DecoderTest extends TestCase {
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertEquals(1, metadata.length());
-    TxxxFrame txxxFrame = (TxxxFrame) metadata.get(0);
-    assertEquals("", txxxFrame.description);
-    assertEquals("mdialog_VINDICO1527664_start", txxxFrame.value);
+    TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
+    assertEquals("TXXX", textInformationFrame.id);
+    assertEquals("", textInformationFrame.description);
+    assertEquals("mdialog_VINDICO1527664_start", textInformationFrame.value);
   }
 
   public void testDecodeApicFrame() throws MetadataDecoderException {
@@ -60,7 +61,8 @@ public final class Id3DecoderTest extends TestCase {
     assertEquals(1, metadata.length());
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertEquals("TIT2", textInformationFrame.id);
-    assertEquals("Hello World", textInformationFrame.description);
+    assertNull(textInformationFrame.description);
+    assertEquals("Hello World", textInformationFrame.value);
   }
 
   public void testDecodePrivFrame() throws MetadataDecoderException {

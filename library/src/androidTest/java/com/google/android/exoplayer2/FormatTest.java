@@ -59,8 +59,8 @@ public final class FormatTest extends TestCase {
     DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
     byte[] projectionData = new byte[] {1, 2, 3};
     Metadata metadata = new Metadata(
-        new TextInformationFrame("id1", "description1"),
-        new TextInformationFrame("id2", "description2"));
+        new TextInformationFrame("id1", "description1", "value1"),
+        new TextInformationFrame("id2", "description2", "value2"));
 
     Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null,
         1024, 2048, 1920, 1080, 24, 90, 2, projectionData, C.STEREO_MODE_TOP_BOTTOM, 6, 44100,

@@ -22,9 +22,9 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /**
- * Chapter table of contents information "CTOC" ID3 frame.
+ * Chapter table of contents ID3 frame.
  */
-public final class CtocFrame extends Id3Frame {
+public final class ChapterTOCFrame extends Id3Frame {
 
   public static final String ID = "CTOC";
 
@@ -32,24 +32,29 @@ public final class CtocFrame extends Id3Frame {
   public final boolean isRoot;
   public final boolean isOrdered;
   public final String[] children;
-  public final String title;
+  public final Id3Frame[] subFrames;
 
-  public CtocFrame(String elementId, boolean isRoot, boolean isOrdered, String[] children, String title) {
+  public ChapterTOCFrame(String elementId, boolean isRoot, boolean isOrdered, String[] children,
+      Id3Frame[] subFrames) {
     super(ID);
     this.elementId = elementId;
     this.isRoot = isRoot;
     this.isOrdered = isOrdered;
     this.children = children;
-    this.title = title;
+    this.subFrames = subFrames;
   }
 
-  /* package */ CtocFrame(Parcel in) {
+  /* package */ ChapterTOCFrame(Parcel in) {
     super(ID);
     this.elementId = in.readString();
     this.isRoot = in.readByte() != 0;
     this.isOrdered = in.readByte() != 0;
     this.children = in.createStringArray();
-    this.title = in.readString();
+    int subFrameCount = in.readInt();
+    subFrames = new Id3Frame[subFrameCount];
+    for (int i = 0; i < subFrameCount; i++) {
+      subFrames[i] = in.readParcelable(Id3Frame.class.getClassLoader());
+    }
   }
 
   @Override
@@ -60,43 +65,47 @@ public final class CtocFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    CtocFrame other = (CtocFrame) obj;
+    ChapterTOCFrame other = (ChapterTOCFrame) obj;
     return isRoot == other.isRoot
-      && isOrdered == other.isOrdered
-      && Util.areEqual(elementId, other.elementId)
-      && Util.areEqual(title, other.title)
-      && Arrays.equals(children, other.children);
+        && isOrdered == other.isOrdered
+        && Util.areEqual(elementId, other.elementId)
+        && Arrays.equals(children, other.children)
+        && Arrays.equals(subFrames, other.subFrames);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
-    result = 31 * result + (elementId != null ? elementId.hashCode() : 0);
     result = 31 * result + (isRoot ? 1 : 0);
     result = 31 * result + (isOrdered ? 1 : 0);
-    result = 31 * result + Arrays.hashCode(children);
-    result = 31 * result + (title != null ? title.hashCode() : 0);
+    result = 31 * result + (elementId != null ? elementId.hashCode() : 0);
     return result;
   }
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(elementId);
-    dest.writeByte((byte)(isRoot ? 1 : 0));
-    dest.writeByte((byte)(isOrdered ? 1 : 0));
+    dest.writeByte((byte) (isRoot ? 1 : 0));
+    dest.writeByte((byte) (isOrdered ? 1 : 0));
     dest.writeStringArray(children);
-    dest.writeString(title);
+    dest.writeInt(subFrames.length);
+    for (int i = 0; i < subFrames.length; i++) {
+      dest.writeParcelable(subFrames[i], 0);
+    }
   }
 
-  public static final Creator<CtocFrame> CREATOR = new Creator<CtocFrame>() {
+  public static final Creator<ChapterTOCFrame> CREATOR = new Creator<ChapterTOCFrame>() {
+
     @Override
-    public CtocFrame createFromParcel(Parcel in) {
-      return new CtocFrame(in);
+    public ChapterTOCFrame createFromParcel(Parcel in) {
+      return new ChapterTOCFrame(in);
     }
 
     @Override
-    public CtocFrame[] newArray(int size) {
-      return new CtocFrame[size];
+    public ChapterTOCFrame[] newArray(int size) {
+      return new ChapterTOCFrame[size];
     }
+
   };
+
 }
