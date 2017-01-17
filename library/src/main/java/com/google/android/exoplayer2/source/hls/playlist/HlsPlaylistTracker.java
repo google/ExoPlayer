@@ -334,47 +334,71 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
   }
 
-  // TODO: Track discontinuities for media playlists that don't include the discontinuity number.
   private HlsMediaPlaylist getLatestPlaylistSnapshot(HlsMediaPlaylist oldPlaylist,
       HlsMediaPlaylist loadedPlaylist) {
-    if (loadedPlaylist.hasProgramDateTime) {
-      if (loadedPlaylist.isNewerThan(oldPlaylist)) {
-        return loadedPlaylist;
-      } else {
+    if (!loadedPlaylist.isNewerThan(oldPlaylist)) {
+      if (loadedPlaylist.hasEndTag) {
         // If the loaded playlist has an end tag but is not newer than the old playlist then we have
         // an inconsistent state. This is typically caused by the server incorrectly resetting the
         // media sequence when appending the end tag. We resolve this case as best we can by
         // returning the old playlist with the end tag appended.
-        return loadedPlaylist.hasEndTag ? oldPlaylist.copyWithEndTag() : oldPlaylist;
+        return oldPlaylist.copyWithEndTag();
+      } else {
+        return oldPlaylist;
       }
     }
-    // TODO: Once playlist type support is added, the snapshot's age can be added by using the
-    // target duration.
+    long startTimeUs = getLoadedPlaylistStartTimeUs(oldPlaylist, loadedPlaylist);
+    int discontinuitySequence = getLoadedPlaylistDiscontinuitySequence(oldPlaylist, loadedPlaylist);
+    return loadedPlaylist.copyWith(startTimeUs, discontinuitySequence);
+  }
+
+  private long getLoadedPlaylistStartTimeUs(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    if (loadedPlaylist.hasProgramDateTime) {
+      return loadedPlaylist.startTimeUs;
+    }
     long primarySnapshotStartTimeUs = primaryUrlSnapshot != null
         ? primaryUrlSnapshot.startTimeUs : 0;
     if (oldPlaylist == null) {
-      if (loadedPlaylist.startTimeUs == primarySnapshotStartTimeUs) {
-        // Playback has just started or is VOD so no adjustment is needed.
-        return loadedPlaylist;
-      } else {
-        return loadedPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
-      }
+      return primarySnapshotStartTimeUs;
     }
-    if (!loadedPlaylist.isNewerThan(oldPlaylist)) {
-      // See comment above.
-      return loadedPlaylist.hasEndTag ? oldPlaylist.copyWithEndTag() : oldPlaylist;
+    int oldPlaylistSize = oldPlaylist.segments.size();
+    Segment firstOldOverlappingSegment = getFirstOldOverlappingSegment(oldPlaylist, loadedPlaylist);
+    if (firstOldOverlappingSegment != null) {
+      return oldPlaylist.startTimeUs + firstOldOverlappingSegment.relativeStartTimeUs;
+    } else if (oldPlaylistSize == loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence) {
+      return oldPlaylist.getEndTimeUs();
+    } else {
+      // No segments overlap, we assume the new playlist start coincides with the primary playlist.
+      return primarySnapshotStartTimeUs;
     }
-    List<Segment> oldSegments = oldPlaylist.segments;
-    int oldPlaylistSize = oldSegments.size();
+  }
+
+  private int getLoadedPlaylistDiscontinuitySequence(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    if (loadedPlaylist.hasDiscontinuitySequence) {
+      return loadedPlaylist.discontinuitySequence;
+    }
+    // TODO: Improve cross-playlist discontinuity adjustment.
+    int primaryUrlDiscontinuitySequence = primaryUrlSnapshot != null
+        ? primaryUrlSnapshot.discontinuitySequence : 0;
+    if (oldPlaylist == null) {
+      return primaryUrlDiscontinuitySequence;
+    }
+    Segment firstOldOverlappingSegment = getFirstOldOverlappingSegment(oldPlaylist, loadedPlaylist);
+    if (firstOldOverlappingSegment != null) {
+      return oldPlaylist.discontinuitySequence
+          + firstOldOverlappingSegment.relativeDiscontinuitySequence
+          - loadedPlaylist.segments.get(0).relativeDiscontinuitySequence;
+    }
+    return primaryUrlDiscontinuitySequence;
+  }
+
+  private static Segment getFirstOldOverlappingSegment(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
     int mediaSequenceOffset = loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence;
-    if (mediaSequenceOffset <= oldPlaylistSize) {
-      long adjustedNewPlaylistStartTimeUs = mediaSequenceOffset == oldPlaylistSize
-          ? oldPlaylist.getEndTimeUs()
-          : oldPlaylist.startTimeUs + oldSegments.get(mediaSequenceOffset).relativeStartTimeUs;
-      return loadedPlaylist.copyWithStartTimeUs(adjustedNewPlaylistStartTimeUs);
-    }
-    // No segments overlap, we assume the new playlist start coincides with the primary playlist.
-    return loadedPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
+    List<Segment> oldSegments = oldPlaylist.segments;
+    return mediaSequenceOffset < oldSegments.size() ? oldSegments.get(mediaSequenceOffset) : null;
   }
 
   /**

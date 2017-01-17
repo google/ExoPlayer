@@ -270,8 +270,10 @@ import java.util.Locale;
 
     // Compute start time of the next chunk.
     long startTimeUs = mediaPlaylist.startTimeUs + segment.relativeStartTimeUs;
+    int discontinuitySequence = mediaPlaylist.discontinuitySequence
+        + segment.relativeDiscontinuitySequence;
     TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-        segment.discontinuitySequenceNumber, startTimeUs);
+        discontinuitySequence, startTimeUs);
 
     // Configure the data source and spec for the chunk.
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
@@ -279,9 +281,8 @@ import java.util.Locale;
         null);
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
         trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence,
-        segment.discontinuitySequenceNumber, isTimestampMaster, timestampAdjuster, previous,
-        encryptionKey, encryptionIv);
+        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
+        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
   }
 
   /**
