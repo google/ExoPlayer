@@ -192,11 +192,11 @@ public final class Format implements Parcelable {
 
   public static Format createVideoContainerFormat(String id, String containerMimeType,
       String sampleMimeType, String codecs, int bitrate, int width, int height,
-      float frameRate, List<byte[]> initializationData) {
+      float frameRate, List<byte[]> initializationData, @C.SelectionFlags int selectionFlags) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, width,
         height, frameRate, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, 0, null, NO_VALUE, OFFSET_SAMPLE_RELATIVE, initializationData, null,
-        null);
+        NO_VALUE, NO_VALUE, selectionFlags, null, NO_VALUE, OFFSET_SAMPLE_RELATIVE,
+        initializationData, null, null);
   }
 
   public static Format createVideoSampleFormat(String id, String sampleMimeType, String codecs,
@@ -289,8 +289,8 @@ public final class Format implements Parcelable {
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
-      int bitrate, @C.SelectionFlags int selectionFlags, String language,
-      int accessibilityChannel, DrmInitData drmInitData) {
+      int bitrate, @C.SelectionFlags int selectionFlags, String language, int accessibilityChannel,
+      DrmInitData drmInitData) {
     return createTextSampleFormat(id, sampleMimeType, codecs, bitrate, selectionFlags, language,
         accessibilityChannel, drmInitData, OFFSET_SAMPLE_RELATIVE);
   }
@@ -323,11 +323,13 @@ public final class Format implements Parcelable {
 
   // Generic.
 
-  public static Format createContainerFormat(String id, String containerMimeType, String codecs,
-      String sampleMimeType, int bitrate) {
+  public static Format createContainerFormat(String id, String containerMimeType,
+      String sampleMimeType, String codecs, int bitrate, @C.SelectionFlags int selectionFlags,
+      String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, 0, null, NO_VALUE, OFFSET_SAMPLE_RELATIVE, null, null, null);
+        NO_VALUE, NO_VALUE, selectionFlags, language, NO_VALUE, OFFSET_SAMPLE_RELATIVE, null, null,
+        null);
   }
 
   public static Format createSampleFormat(String id, String sampleMimeType,

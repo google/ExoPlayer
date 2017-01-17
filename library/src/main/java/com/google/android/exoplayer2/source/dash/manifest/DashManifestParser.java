@@ -243,6 +243,7 @@ public class DashManifestParser extends DefaultHandler
     List<RepresentationInfo> representationInfos = new ArrayList<>();
     List<InbandEventStream> adaptationSetInbandEventStreams = new ArrayList<>();
     List<InbandEventStream> commonRepresentationInbandEventStreams = null;
+    @C.SelectionFlags int selectionFlags = 0;
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -260,10 +261,16 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentComponent")) {
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Role")) {
+        selectionFlags |= parseRole(xpp);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
+        audioChannels = parseAudioChannelConfiguration(xpp);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
+        accessibilityChannel = parseAccessibilityValue(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Representation")) {
         RepresentationInfo representationInfo = parseRepresentation(xpp, baseUrl, mimeType, codecs,
             width, height, frameRate, audioChannels, audioSamplingRate, language,
-            accessibilityChannel, segmentBase);
+            accessibilityChannel, selectionFlags, segmentBase);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
@@ -283,10 +290,6 @@ public class DashManifestParser extends DefaultHandler
             }
           }
         }
-      } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
-        audioChannels = parseAudioChannelConfiguration(xpp);
-      } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
-        accessibilityChannel = parseAccessibilityValue(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
@@ -403,6 +406,24 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
+   * Parses a Role element.
+   *
+   * @param xpp The parser from which to read.
+   * @throws XmlPullParserException If an error occurs parsing the element.
+   * @throws IOException If an error occurs reading the element.
+   * @return {@link C.SelectionFlags} parsed from the element.
+   */
+  protected int parseRole(XmlPullParser xpp) throws XmlPullParserException, IOException {
+    String schemeIdUri = parseString(xpp, "schemeIdUri", null);
+    String value = parseString(xpp, "value", null);
+    do {
+      xpp.next();
+    } while (!XmlPullParserUtil.isEndTag(xpp, "Role"));
+    return "urn:mpeg:dash:role:2011".equals(schemeIdUri) && "main".equals(value)
+        ? C.SELECTION_FLAG_DEFAULT : 0;
+  }
+
+  /**
    * Parses children of AdaptationSet elements not specifically parsed elsewhere.
    *
    * @param xpp The XmpPullParser from which the AdaptationSet child should be parsed.
@@ -420,8 +441,8 @@ public class DashManifestParser extends DefaultHandler
       String adaptationSetMimeType, String adaptationSetCodecs, int adaptationSetWidth,
       int adaptationSetHeight, float adaptationSetFrameRate, int adaptationSetAudioChannels,
       int adaptationSetAudioSamplingRate, String adaptationSetLanguage,
-      int adaptationSetAccessibilityChannel, SegmentBase segmentBase)
-      throws XmlPullParserException, IOException {
+      int adaptationSetAccessibilityChannel, @C.SelectionFlags int adaptationSetSelectionFlags,
+      SegmentBase segmentBase) throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
 
@@ -463,7 +484,7 @@ public class DashManifestParser extends DefaultHandler
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, adaptationSetLanguage, adaptationSetAccessibilityChannel,
-        codecs);
+        adaptationSetSelectionFlags, codecs);
     segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
     return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeDatas, inbandEventStreams);
@@ -471,27 +492,23 @@ public class DashManifestParser extends DefaultHandler
 
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
       float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
-      int accessiblityChannel, String codecs) {
+      int accessiblityChannel, @C.SelectionFlags int selectionFlags, String codecs) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
       if (MimeTypes.isVideo(sampleMimeType)) {
         return Format.createVideoContainerFormat(id, containerMimeType, sampleMimeType, codecs,
-            bitrate, width, height, frameRate, null);
+            bitrate, width, height, frameRate, null, selectionFlags);
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(id, containerMimeType, sampleMimeType, codecs,
-            bitrate, audioChannels, audioSamplingRate, null, 0, language);
-      } else if (mimeTypeIsRawText(sampleMimeType)) {
+            bitrate, audioChannels, audioSamplingRate, null, selectionFlags, language);
+      } else if (mimeTypeIsRawText(sampleMimeType)
+          || MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
         return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
-            bitrate, 0, language, accessiblityChannel);
-      } else if (containerMimeType.equals(MimeTypes.APPLICATION_RAWCC)) {
-        return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
-            bitrate, 0, language, accessiblityChannel);
-      } else {
-        return Format.createContainerFormat(id, containerMimeType, codecs, sampleMimeType, bitrate);
+            bitrate, selectionFlags, language, accessiblityChannel);
       }
-    } else {
-      return Format.createContainerFormat(id, containerMimeType, codecs, sampleMimeType, bitrate);
     }
+    return Format.createContainerFormat(id, containerMimeType, sampleMimeType, codecs, bitrate,
+        selectionFlags, language);
   }
 
   protected Representation buildRepresentation(RepresentationInfo representationInfo,

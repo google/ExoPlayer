@@ -240,7 +240,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         line = iterator.next();
         String name = Integer.toString(variants.size());
         Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
-            codecs, bitrate, width, height, Format.NO_VALUE, null);
+            codecs, bitrate, width, height, Format.NO_VALUE, null, 0);
         variants.add(new HlsMasterPlaylist.HlsUrl(name, line, format, null, null, null));
       }
     }
