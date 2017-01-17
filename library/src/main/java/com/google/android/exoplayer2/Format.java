@@ -330,6 +330,13 @@ public final class Format implements Parcelable {
         NO_VALUE, NO_VALUE, 0, null, NO_VALUE, OFFSET_SAMPLE_RELATIVE, null, null, null);
   }
 
+  public static Format createSampleFormat(String id, String sampleMimeType,
+      long subsampleOffsetUs) {
+    return new Format(id, null, sampleMimeType, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, 0, null, NO_VALUE, subsampleOffsetUs, null, null, null);
+  }
+
   public static Format createSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, DrmInitData drmInitData) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,

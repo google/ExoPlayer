@@ -28,11 +28,14 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
  */
 public final class SpliceInfoSectionReader implements SectionPayloadReader {
 
+  private TimestampAdjuster timestampAdjuster;
   private TrackOutput output;
+  private boolean formatDeclared;
 
   @Override
   public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
       TsPayloadReader.TrackIdGenerator idGenerator) {
+    this.timestampAdjuster = timestampAdjuster;
     output = extractorOutput.track(idGenerator.getNextId());
     output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35, null,
         Format.NO_VALUE, null));
@@ -40,9 +43,19 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
 
   @Override
   public void consume(ParsableByteArray sectionData) {
+    if (!formatDeclared) {
+      if (timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET) {
+        // There is not enough information to initialize the timestamp adjuster.
+        return;
+      }
+      output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35,
+          timestampAdjuster.getTimestampOffsetUs()));
+      formatDeclared = true;
+    }
     int sampleSize = sectionData.bytesLeft();
     output.sampleData(sectionData, sampleSize);
-    output.sampleMetadata(0, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+    output.sampleMetadata(timestampAdjuster.getLastAdjustedTimestampUs(), C.BUFFER_FLAG_KEY_FRAME,
+        sampleSize, 0, null);
   }
 
 }
