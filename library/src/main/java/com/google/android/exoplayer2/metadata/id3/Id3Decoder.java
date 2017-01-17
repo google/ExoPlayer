@@ -560,6 +560,7 @@ public final class Id3Decoder implements MetadataDecoder {
       int startIndex = id3Data.getPosition();
       int endIndex = indexOfZeroByte(id3Data.data, startIndex);
       children[i] = new String(id3Data.data, startIndex, endIndex - startIndex, "ISO-8859-1");
+      id3Data.setPosition(endIndex + 1);
     }
 
     ArrayList<Id3Frame> subFrames = new ArrayList<>();
