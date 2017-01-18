@@ -564,9 +564,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         }
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, (byte[]) response);
-        if (offlineLicenseKeySetId != null && (keySetId == null || keySetId.length == 0)) {
-          // This means that the keySetId is unchanged.
-        } else {
+        if (keySetId != null && keySetId.length != 0) {
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
