@@ -16,15 +16,13 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
-
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.Arrays;
 
 /**
  * Chapter table of contents ID3 frame.
  */
-public final class ChapterTOCFrame extends Id3Frame {
+public final class ChapterTocFrame extends Id3Frame {
 
   public static final String ID = "CTOC";
 
@@ -32,9 +30,9 @@ public final class ChapterTOCFrame extends Id3Frame {
   public final boolean isRoot;
   public final boolean isOrdered;
   public final String[] children;
-  public final Id3Frame[] subFrames;
+  private final Id3Frame[] subFrames;
 
-  public ChapterTOCFrame(String elementId, boolean isRoot, boolean isOrdered, String[] children,
+  public ChapterTocFrame(String elementId, boolean isRoot, boolean isOrdered, String[] children,
       Id3Frame[] subFrames) {
     super(ID);
     this.elementId = elementId;
@@ -44,7 +42,7 @@ public final class ChapterTOCFrame extends Id3Frame {
     this.subFrames = subFrames;
   }
 
-  /* package */ ChapterTOCFrame(Parcel in) {
+  /* package */ ChapterTocFrame(Parcel in) {
     super(ID);
     this.elementId = in.readString();
     this.isRoot = in.readByte() != 0;
@@ -57,6 +55,20 @@ public final class ChapterTOCFrame extends Id3Frame {
     }
   }
 
+  /**
+   * Returns the number of sub-frames.
+   */
+  public int getSubFrameCount() {
+    return subFrames.length;
+  }
+
+  /**
+   * Returns the sub-frame at {@code index}.
+   */
+  public Id3Frame getSubFrame(int index) {
+    return subFrames[index];
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -65,7 +77,7 @@ public final class ChapterTOCFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    ChapterTOCFrame other = (ChapterTOCFrame) obj;
+    ChapterTocFrame other = (ChapterTocFrame) obj;
     return isRoot == other.isRoot
         && isOrdered == other.isOrdered
         && Util.areEqual(elementId, other.elementId)
@@ -94,16 +106,16 @@ public final class ChapterTOCFrame extends Id3Frame {
     }
   }
 
-  public static final Creator<ChapterTOCFrame> CREATOR = new Creator<ChapterTOCFrame>() {
+  public static final Creator<ChapterTocFrame> CREATOR = new Creator<ChapterTocFrame>() {
 
     @Override
-    public ChapterTOCFrame createFromParcel(Parcel in) {
-      return new ChapterTOCFrame(in);
+    public ChapterTocFrame createFromParcel(Parcel in) {
+      return new ChapterTocFrame(in);
     }
 
     @Override
-    public ChapterTOCFrame[] newArray(int size) {
-      return new ChapterTOCFrame[size];
+    public ChapterTocFrame[] newArray(int size) {
+      return new ChapterTocFrame[size];
     }
 
   };

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.util.Log;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
@@ -368,8 +369,8 @@ public final class Id3Decoder implements MetadataDecoder {
     return new TextInformationFrame(id, null, value);
   }
 
-  private static UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data,
-      int frameSize) throws UnsupportedEncodingException {
+  private static UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
     int encoding = id3Data.readUnsignedByte();
     String charset = getCharsetName(encoding);
 
@@ -523,8 +524,14 @@ public final class Id3Decoder implements MetadataDecoder {
 
     int startTime = id3Data.readInt();
     int endTime = id3Data.readInt();
-    int startOffset = id3Data.readInt();
-    int endOffset = id3Data.readInt();
+    long startOffset = id3Data.readUnsignedInt();
+    if (startOffset == 0xFFFFFFFFL) {
+      startOffset = C.POSITION_UNSET;
+    }
+    long endOffset = id3Data.readUnsignedInt();
+    if (endOffset == 0xFFFFFFFFL) {
+      endOffset = C.POSITION_UNSET;
+    }
 
     ArrayList<Id3Frame> subFrames = new ArrayList<>();
     int limit = framePosition + frameSize;
@@ -541,7 +548,7 @@ public final class Id3Decoder implements MetadataDecoder {
     return new ChapterFrame(chapterId, startTime, endTime, startOffset, endOffset, subFrameArray);
   }
 
-  private static ChapterTOCFrame decodeChapterTOCFrame(ParsableByteArray id3Data, int frameSize,
+  private static ChapterTocFrame decodeChapterTOCFrame(ParsableByteArray id3Data, int frameSize,
       int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize)
       throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
@@ -575,7 +582,7 @@ public final class Id3Decoder implements MetadataDecoder {
 
     Id3Frame[] subFrameArray = new Id3Frame[subFrames.size()];
     subFrames.toArray(subFrameArray);
-    return new ChapterTOCFrame(elementId, isRoot, isOrdered, children, subFrameArray);
+    return new ChapterTocFrame(elementId, isRoot, isOrdered, children, subFrameArray);
   }
 
   private static BinaryFrame decodeBinaryFrame(ParsableByteArray id3Data, int frameSize,

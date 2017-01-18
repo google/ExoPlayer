@@ -19,9 +19,9 @@ import android.os.Parcel;
 import junit.framework.TestCase;
 
 /**
- * Test for {@link ChapterTOCFrame}.
+ * Test for {@link ChapterTocFrame}.
  */
-public final class ChapterTOCFrameTest extends TestCase {
+public final class ChapterTocFrameTest extends TestCase {
 
   public void testParcelable() {
     String[] children = new String[] {"child0", "child1"};
@@ -29,15 +29,15 @@ public final class ChapterTOCFrameTest extends TestCase {
         new TextInformationFrame("TIT2", null, "title"),
         new UrlLinkFrame("WXXX", "description", "url")
     };
-    ChapterTOCFrame chapterTOCFrameToParcel = new ChapterTOCFrame("id", false, true, children,
+    ChapterTocFrame chapterTocFrameToParcel = new ChapterTocFrame("id", false, true, children,
         subFrames);
 
     Parcel parcel = Parcel.obtain();
-    chapterTOCFrameToParcel.writeToParcel(parcel, 0);
+    chapterTocFrameToParcel.writeToParcel(parcel, 0);
     parcel.setDataPosition(0);
 
-    ChapterTOCFrame chapterTOCFrameFromParcel = ChapterTOCFrame.CREATOR.createFromParcel(parcel);
-    assertEquals(chapterTOCFrameToParcel, chapterTOCFrameFromParcel);
+    ChapterTocFrame chapterTocFrameFromParcel = ChapterTocFrame.CREATOR.createFromParcel(parcel);
+    assertEquals(chapterTocFrameToParcel, chapterTocFrameFromParcel);
 
     parcel.recycle();
   }

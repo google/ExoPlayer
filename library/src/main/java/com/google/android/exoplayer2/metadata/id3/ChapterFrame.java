@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -27,18 +28,24 @@ public final class ChapterFrame extends Id3Frame {
   public static final String ID = "CHAP";
 
   public final String chapterId;
-  public final int startTime;
-  public final int endTime;
-  public final int startOffset;
-  public final int endOffset;
+  public final int startTimeMs;
+  public final int endTimeMs;
+  /**
+   * The byte offset of the start of the chapter, or {@link C#POSITION_UNSET} if not set.
+   */
+  public final long startOffset;
+  /**
+   * The byte offset of the end of the chapter, or {@link C#POSITION_UNSET} if not set.
+   */
+  public final long endOffset;
   private final Id3Frame[] subFrames;
 
-  public ChapterFrame(String chapterId, int startTime, int endTime, int startOffset, int endOffset,
-      Id3Frame[] subFrames) {
+  public ChapterFrame(String chapterId, int startTimeMs, int endTimeMs, long startOffset,
+      long endOffset, Id3Frame[] subFrames) {
     super(ID);
     this.chapterId = chapterId;
-    this.startTime = startTime;
-    this.endTime = endTime;
+    this.startTimeMs = startTimeMs;
+    this.endTimeMs = endTimeMs;
     this.startOffset = startOffset;
     this.endOffset = endOffset;
     this.subFrames = subFrames;
@@ -47,15 +54,29 @@ public final class ChapterFrame extends Id3Frame {
   /* package */ ChapterFrame(Parcel in) {
     super(ID);
     this.chapterId = in.readString();
-    this.startTime = in.readInt();
-    this.endTime = in.readInt();
-    this.startOffset = in.readInt();
-    this.endOffset = in.readInt();
+    this.startTimeMs = in.readInt();
+    this.endTimeMs = in.readInt();
+    this.startOffset = in.readLong();
+    this.endOffset = in.readLong();
     int subFrameCount = in.readInt();
     subFrames = new Id3Frame[subFrameCount];
     for (int i = 0; i < subFrameCount; i++) {
       subFrames[i] = in.readParcelable(Id3Frame.class.getClassLoader());
     }
+  }
+
+  /**
+   * Returns the number of sub-frames.
+   */
+  public int getSubFrameCount() {
+    return subFrames.length;
+  }
+
+  /**
+   * Returns the sub-frame at {@code index}.
+   */
+  public Id3Frame getSubFrame(int index) {
+    return subFrames[index];
   }
 
   @Override
@@ -67,8 +88,8 @@ public final class ChapterFrame extends Id3Frame {
       return false;
     }
     ChapterFrame other = (ChapterFrame) obj;
-    return startTime == other.startTime
-        && endTime == other.endTime
+    return startTimeMs == other.startTimeMs
+        && endTimeMs == other.endTimeMs
         && startOffset == other.startOffset
         && endOffset == other.endOffset
         && Util.areEqual(chapterId, other.chapterId)
@@ -78,10 +99,10 @@ public final class ChapterFrame extends Id3Frame {
   @Override
   public int hashCode() {
     int result = 17;
-    result = 31 * result + startTime;
-    result = 31 * result + endTime;
-    result = 31 * result + startOffset;
-    result = 31 * result + endOffset;
+    result = 31 * result + startTimeMs;
+    result = 31 * result + endTimeMs;
+    result = 31 * result + (int) startOffset;
+    result = 31 * result + (int) endOffset;
     result = 31 * result + (chapterId != null ? chapterId.hashCode() : 0);
     return result;
   }
@@ -89,13 +110,13 @@ public final class ChapterFrame extends Id3Frame {
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(chapterId);
-    dest.writeInt(startTime);
-    dest.writeInt(endTime);
-    dest.writeInt(startOffset);
-    dest.writeInt(endOffset);
+    dest.writeInt(startTimeMs);
+    dest.writeInt(endTimeMs);
+    dest.writeLong(startOffset);
+    dest.writeLong(endOffset);
     dest.writeInt(subFrames.length);
-    for (int i = 0; i < subFrames.length; i++) {
-      dest.writeParcelable(subFrames[i], 0);
+    for (Id3Frame subFrame : subFrames) {
+      dest.writeParcelable(subFrame, 0);
     }
   }
 
