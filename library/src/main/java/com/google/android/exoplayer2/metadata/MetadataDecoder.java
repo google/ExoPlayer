@@ -21,14 +21,6 @@ package com.google.android.exoplayer2.metadata;
 public interface MetadataDecoder {
 
   /**
-   * Checks whether the decoder supports a given mime type.
-   *
-   * @param mimeType A metadata mime type.
-   * @return Whether the mime type is supported.
-   */
-  boolean canDecode(String mimeType);
-
-  /**
    * Decodes a {@link Metadata} element from the provided input buffer.
    *
    * @param inputBuffer The input buffer to decode.

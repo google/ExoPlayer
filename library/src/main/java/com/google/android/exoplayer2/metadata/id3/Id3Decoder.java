@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.UnsupportedEncodingException;
@@ -50,11 +49,6 @@ public final class Id3Decoder implements MetadataDecoder {
   private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
-
-  @Override
-  public boolean canDecode(String mimeType) {
-    return mimeType.equals(MimeTypes.APPLICATION_ID3);
-  }
 
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {

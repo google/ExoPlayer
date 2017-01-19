@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.metadata.emsg;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -30,11 +29,6 @@ import java.util.Arrays;
  * first byte of the scheme_id_uri field).
  */
 public final class EventMessageDecoder implements MetadataDecoder {
-
-  @Override
-  public boolean canDecode(String mimeType) {
-    return MimeTypes.APPLICATION_EMSG.equals(mimeType);
-  }
 
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
