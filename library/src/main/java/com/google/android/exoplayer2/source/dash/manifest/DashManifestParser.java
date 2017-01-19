@@ -343,8 +343,7 @@ public class DashManifestParser extends DefaultHandler
       return C.TRACK_TYPE_VIDEO;
     } else if (MimeTypes.isAudio(sampleMimeType)) {
       return C.TRACK_TYPE_AUDIO;
-    } else if (mimeTypeIsRawText(sampleMimeType)
-        || MimeTypes.APPLICATION_RAWCC.equals(format.containerMimeType)) {
+    } else if (mimeTypeIsRawText(sampleMimeType)) {
       return C.TRACK_TYPE_TEXT;
     }
     return C.TRACK_TYPE_UNKNOWN;
@@ -501,8 +500,7 @@ public class DashManifestParser extends DefaultHandler
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(id, containerMimeType, sampleMimeType, codecs,
             bitrate, audioChannels, audioSamplingRate, null, selectionFlags, language);
-      } else if (mimeTypeIsRawText(sampleMimeType)
-          || MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
+      } else if (mimeTypeIsRawText(sampleMimeType)) {
         return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, codecs,
             bitrate, selectionFlags, language, accessiblityChannel);
       }
@@ -731,6 +729,14 @@ public class DashManifestParser extends DefaultHandler
       return MimeTypes.getAudioMediaMimeType(codecs);
     } else if (MimeTypes.isVideo(containerMimeType)) {
       return MimeTypes.getVideoMediaMimeType(codecs);
+    } else if (mimeTypeIsRawText(containerMimeType)) {
+      return containerMimeType;
+    } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
+      if ("stpp".equals(codecs)) {
+        return MimeTypes.APPLICATION_TTML;
+      } else if ("wvtt".equals(codecs)) {
+        return MimeTypes.APPLICATION_MP4VTT;
+      }
     } else if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
       if (codecs != null) {
         if (codecs.contains("cea708")) {
@@ -740,14 +746,6 @@ public class DashManifestParser extends DefaultHandler
         }
       }
       return null;
-    } else if (mimeTypeIsRawText(containerMimeType)) {
-      return containerMimeType;
-    } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
-      if ("stpp".equals(codecs)) {
-        return MimeTypes.APPLICATION_TTML;
-      } else if ("wvtt".equals(codecs)) {
-        return MimeTypes.APPLICATION_MP4VTT;
-      }
     }
     return null;
   }
@@ -759,7 +757,11 @@ public class DashManifestParser extends DefaultHandler
    * @return Whether the mimeType is a text sample mimeType.
    */
   private static boolean mimeTypeIsRawText(String mimeType) {
-    return MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);
+    return MimeTypes.isText(mimeType)
+        || MimeTypes.APPLICATION_TTML.equals(mimeType)
+        || MimeTypes.APPLICATION_MP4VTT.equals(mimeType)
+        || MimeTypes.APPLICATION_CEA708.equals(mimeType)
+        || MimeTypes.APPLICATION_CEA608.equals(mimeType);
   }
 
   /**
