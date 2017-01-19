@@ -46,25 +46,16 @@ public class AdaptationSet {
   public final List<Representation> representations;
 
   /**
-   * The {@link InbandEventStream}s contained by all {@link Representation}s in the adaptation set.
-   */
-  public final List<InbandEventStream> inbandEventStreams;
-
-  /**
    * @param id A non-negative identifier for the adaptation set that's unique in the scope of its
    *     containing period, or {@link #ID_UNSET} if not specified.
    * @param type The type of the adaptation set. One of the {@link com.google.android.exoplayer2.C}
    *     {@code TRACK_TYPE_*} constants.
    * @param representations The {@link Representation}s in the adaptation set.
-   * @param inbandEventStreams The {@link InbandEventStream}s contained by all
-   *     {@link Representation}s in the adaptation set.
    */
-  public AdaptationSet(int id, int type, List<Representation> representations,
-      List<InbandEventStream> inbandEventStreams) {
+  public AdaptationSet(int id, int type, List<Representation> representations) {
     this.id = id;
     this.type = type;
     this.representations = Collections.unmodifiableList(representations);
-    this.inbandEventStreams = Collections.unmodifiableList(inbandEventStreams);
   }
 
 }

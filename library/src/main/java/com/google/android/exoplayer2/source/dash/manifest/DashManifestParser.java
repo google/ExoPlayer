@@ -240,9 +240,8 @@ public class DashManifestParser extends DefaultHandler
     String language = xpp.getAttributeValue(null, "lang");
     int accessibilityChannel = Format.NO_VALUE;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
+    ArrayList<InbandEventStream> inbandEventStreams = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
-    List<InbandEventStream> adaptationSetInbandEventStreams = new ArrayList<>();
-    List<InbandEventStream> commonRepresentationInbandEventStreams = null;
     @C.SelectionFlags int selectionFlags = 0;
 
     boolean seenFirstBaseUrl = false;
@@ -274,22 +273,6 @@ public class DashManifestParser extends DefaultHandler
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
-        // Initialize or update InbandEventStream elements defined in all child Representations.
-        List<InbandEventStream> inbandEventStreams = representationInfo.inbandEventStreams;
-        if (commonRepresentationInbandEventStreams == null) {
-          // Initialize with the elements defined in this representation.
-          commonRepresentationInbandEventStreams = new ArrayList<>(inbandEventStreams);
-        } else {
-          // Remove elements that are not also defined in this representation.
-          for (int i = commonRepresentationInbandEventStreams.size() - 1; i >= 0; i--) {
-            InbandEventStream inbandEventStream = commonRepresentationInbandEventStreams.get(i);
-            if (!inbandEventStreams.contains(inbandEventStream)) {
-              Log.w(TAG, "Ignoring InbandEventStream element not defined on all Representations: "
-                  + inbandEventStream);
-              commonRepresentationInbandEventStreams.remove(i);
-            }
-          }
-        }
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
@@ -297,33 +280,25 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
-        adaptationSetInbandEventStreams.add(parseInbandEventStream(xpp));
+        inbandEventStreams.add(parseInbandEventStream(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "AdaptationSet"));
 
-    // Pull up InbandEventStream elements defined in all child Representations.
-    for (int i = 0; i < commonRepresentationInbandEventStreams.size(); i++) {
-      InbandEventStream inbandEventStream = commonRepresentationInbandEventStreams.get(i);
-      if (!adaptationSetInbandEventStreams.contains(inbandEventStream)) {
-        adaptationSetInbandEventStreams.add(inbandEventStream);
-      }
-    }
-
     // Build the representations.
     List<Representation> representations = new ArrayList<>(representationInfos.size());
     for (int i = 0; i < representationInfos.size(); i++) {
       representations.add(buildRepresentation(representationInfos.get(i), contentId,
-          drmSchemeDatas));
+          drmSchemeDatas, inbandEventStreams));
     }
 
-    return buildAdaptationSet(id, contentType, representations, adaptationSetInbandEventStreams);
+    return buildAdaptationSet(id, contentType, representations);
   }
 
   protected AdaptationSet buildAdaptationSet(int id, int contentType,
-      List<Representation> representations, List<InbandEventStream> inbandEventStreams) {
-    return new AdaptationSet(id, contentType, representations, inbandEventStreams);
+      List<Representation> representations) {
+    return new AdaptationSet(id, contentType, representations);
   }
 
   protected int parseContentType(XmlPullParser xpp) {
@@ -510,15 +485,18 @@ public class DashManifestParser extends DefaultHandler
   }
 
   protected Representation buildRepresentation(RepresentationInfo representationInfo,
-      String contentId, ArrayList<SchemeData> extraDrmSchemeDatas) {
+      String contentId, ArrayList<SchemeData> extraDrmSchemeDatas,
+      ArrayList<InbandEventStream> extraInbandEventStreams) {
     Format format = representationInfo.format;
     ArrayList<SchemeData> drmSchemeDatas = representationInfo.drmSchemeDatas;
     drmSchemeDatas.addAll(extraDrmSchemeDatas);
     if (!drmSchemeDatas.isEmpty()) {
       format = format.copyWithDrmInitData(new DrmInitData(drmSchemeDatas));
     }
+    ArrayList<InbandEventStream> inbandEventStremas = representationInfo.inbandEventStreams;
+    inbandEventStremas.addAll(extraInbandEventStreams);
     return Representation.newInstance(contentId, Representation.REVISION_ID_DEFAULT, format,
-        representationInfo.baseUrl, representationInfo.segmentBase);
+        representationInfo.baseUrl, representationInfo.segmentBase, inbandEventStremas);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.

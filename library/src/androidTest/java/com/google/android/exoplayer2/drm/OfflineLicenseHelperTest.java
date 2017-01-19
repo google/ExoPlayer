@@ -27,14 +27,12 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
-import com.google.android.exoplayer2.source.dash.manifest.InbandEventStream;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import org.mockito.Mock;
 
@@ -205,18 +203,17 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   private static DashManifest newDashManifestWithAllElements() {
     return newDashManifest(newPeriods(newAdaptationSets(newRepresentations(newDrmInitData()))));
   }
-  
+
   private static DashManifest newDashManifest(Period... periods) {
     return new DashManifest(0, 0, 0, false, 0, 0, 0, null, null, Arrays.asList(periods));
   }
-  
+
   private static Period newPeriods(AdaptationSet... adaptationSets) {
     return new Period("", 0, Arrays.asList(adaptationSets));
   }
 
   private static AdaptationSet newAdaptationSets(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations),
-        Collections.<InbandEventStream>emptyList());
+    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations));
   }
 
   private static Representation newRepresentations(DrmInitData drmInitData) {
@@ -225,7 +222,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   }
 
   private static DrmInitData newDrmInitData() {
-    return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "mimeType", 
+    return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "mimeType",
         new byte[]{1, 4, 7, 0, 3, 6}));
   }
 
