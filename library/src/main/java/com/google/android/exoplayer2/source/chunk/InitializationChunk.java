@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SeekMapOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * A {@link Chunk} that uses an {@link Extractor} to decode initialization data for single track.
  */
-public final class InitializationChunk extends Chunk implements SingleTrackMetadataOutput,
+public final class InitializationChunk extends Chunk implements SeekMapOutput,
     TrackOutput {
 
   private final ChunkExtractorWrapper extractorWrapper;
@@ -85,7 +85,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
     return seekMap;
   }
 
-  // SingleTrackMetadataOutput implementation.
+  // SeekMapOutput implementation.
 
   @Override
   public void seekMap(SeekMap seekMap) {
