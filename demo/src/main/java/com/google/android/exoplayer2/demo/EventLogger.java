@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.GeobFrame;
@@ -384,6 +385,10 @@ import java.util.Locale;
       } else if (entry instanceof Id3Frame) {
         Id3Frame id3Frame = (Id3Frame) entry;
         Log.d(TAG, prefix + String.format("%s", id3Frame.id));
+      } else if (entry instanceof EventMessage) {
+        EventMessage eventMessage = (EventMessage) entry;
+        Log.d(TAG, prefix + String.format("EMSG: scheme=%s, id=%d, value=%s",
+            eventMessage.schemeIdUri, eventMessage.id, eventMessage.value));
       }
     }
   }
