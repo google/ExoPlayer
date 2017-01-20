@@ -61,10 +61,14 @@ public final class TrackSelectorResult {
   /**
    * Returns whether this result is equivalent to {@code other} for all renderers.
    *
-   * @param other The other {@link TrackSelectorResult}. May be null.
+   * @param other The other {@link TrackSelectorResult}. May be null, in which case {@code false}
+   *     will be returned in all cases.
    * @return Whether this result is equivalent to {@code other} for all renderers.
    */
   public boolean isEquivalent(TrackSelectorResult other) {
+    if (other == null) {
+      return false;
+    }
     for (int i = 0; i < selections.length; i++) {
       if (!isEquivalent(other, i)) {
         return false;
@@ -78,13 +82,14 @@ public final class TrackSelectorResult {
    * The results are equivalent if they have equal track selections and configurations for the
    * renderer.
    *
-   * @param other The other {@link TrackSelectorResult}. May be null.
+   * @param other The other {@link TrackSelectorResult}. May be null, in which case {@code false}
+   *     will be returned in all cases.
    * @param index The renderer index to check for equivalence.
    * @return Whether this result is equivalent to {@code other} for all renderers.
    */
   public boolean isEquivalent(TrackSelectorResult other, int index) {
     if (other == null) {
-      return selections.get(index) == null && rendererConfigurations[index] == null;
+      return false;
     }
     return Util.areEqual(selections.get(index), other.selections.get(index))
         && Util.areEqual(rendererConfigurations[index], other.rendererConfigurations[index]);
