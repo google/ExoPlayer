@@ -47,7 +47,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   }
 
-  private final Extractor extractor;
+  public final Extractor extractor;
+
   private final Format manifestFormat;
   private final boolean preferManifestDrmInitData;
   private final boolean resendFormatOnInit;
@@ -97,20 +98,6 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
         trackOutput.format(sentFormat);
       }
     }
-  }
-
-  /**
-   * Reads from the provided {@link ExtractorInput}.
-   *
-   * @param input The {@link ExtractorInput} from which to read.
-   * @return One of {@link Extractor#RESULT_CONTINUE} and {@link Extractor#RESULT_END_OF_INPUT}.
-   * @throws IOException If an error occurred reading from the source.
-   * @throws InterruptedException If the thread was interrupted.
-   */
-  public int read(ExtractorInput input) throws IOException, InterruptedException {
-    int result = extractor.read(input, null);
-    Assertions.checkState(result != Extractor.RESULT_SEEK);
-    return result;
   }
 
   // ExtractorOutput implementation.
