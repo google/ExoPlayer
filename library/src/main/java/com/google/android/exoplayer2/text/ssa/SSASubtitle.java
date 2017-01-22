@@ -3,6 +3,7 @@ package com.google.android.exoplayer2.text.ssa;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static android.R.attr.start;
+import static android.R.attr.text;
 import static android.os.Build.VERSION_CODES.N;
 
 /**
@@ -63,40 +65,68 @@ public class SSASubtitle implements Subtitle {
         }
     }
 
+    private void addifNonZero(StringBuffer s, String key, String m) {
+        if(!m.equals("")) {
+            int n = Integer.parseInt(m);
+            if(n>0) {
+                s.append(String.format("%s:%d; ", key, n));
+            }
+        }
+    }
+
+    protected void addEvent(Map<String,String> ev) {
+        StringBuffer text = new StringBuffer();
+        StringBuffer s = new StringBuffer();
+        addifNonZero(s, "marginL", ev.get("marginl"));
+        addifNonZero(s, "marginR", ev.get("marginr"));
+        addifNonZero(s, "marginV", ev.get("marginv"));
+        addifNonZero(s, "layer", ev.get("layer"));
+        String m = ev.get("effect");
+        if(!m.equals("")) {
+            s.append(String.format("effect:%s;", m));
+        }
+        if(s.length()>0) {
+            m = s.toString();
+            s = new StringBuffer();
+            s.append(" style=\"");
+            s.append(m);
+            s.append("\"");
+        }
+        if(!ev.get("style").equals("Default")){
+            s.append(" class=\"");
+            s.append(ev.get("style"));
+            s.append("\"");
+        }
+        String textContent = ev.get("text").replaceAll("\\\\N", "\n");
+        textContent = textContent.replaceAll("\\\\n", "\n");
+        String simpleText = textContent.replaceAll("\\{[^{]*\\}", "");
+        Cue cue = null;
+        if(!s.toString().trim().equals("")) {
+            text.append("<span");
+            text.append(s);
+            text.append(">");
+            text.append(simpleText);
+            text.append("</span>");
+            cue = new Cue(text.toString());
+        }
+        else {
+            cue = new Cue(simpleText);
+        }
+        long start = SSADecoder.parseTimecode(ev.get("start"));
+        cueTimesUs.add(start);
+        cues.add(cue);
+        // add null cue to remove this cue after it's duration
+        long end = SSADecoder.parseTimecode(ev.get("end"));
+        cueTimesUs.add(end);
+        cues.add(null);
+    }
+
     protected void addEvent(Map<String,String> ev, Map<String,Style> styles) {
-        int marginL = 0;
-        String m = ev.get("marginl");
-        if(!m.equals(""))
-            marginL = Integer.parseInt(m);
-        int marginR = 0;
-        m = ev.get("marginr");
-        if(!m.equals(""))
-            marginR = Integer.parseInt(m);
-        int marginV = 0;
-        m = ev.get("marginv");
-        if(!m.equals(""))
-            marginV = Integer.parseInt(m);
-        String styleName = ev.get("style");
-        Style style = styles.get(styleName);
-        if(marginL!=0 || marginR!=0 || marginV !=0) {
-            style = new Style(style);
-        }
-        if(marginL!=0) {
-            style.setMarginL(marginL);
-        }
-        if(marginR!=0) {
-            style.setMarginR(marginR);
-        }
-        if(marginV!=0) {
-            style.setMarginV(marginV);
-        }
-        int layer = Integer.parseInt(ev.get("layer"));
-        String effect = ev.get("effect");
-        String text = ev.get("text").replaceAll("\\\\N", "\n");
-        text = text.replaceAll("\\\\n", "\n");
-        String simpleText = text.replaceAll("\\{[^{]*\\}", "");
-        //Cue cue = new SSACue(text, style, layer, effect);
-        Cue cue = new Cue(simpleText);
+        Style style = styles.get(ev.get("style"));
+        // TODO clone style and override margins from fields
+        String textContent = ev.get("text").replaceAll("\\\\N", "\n");
+        textContent = textContent.replaceAll("\\\\n", "\n");
+        Cue cue = new SSACue(textContent, style, Integer.parseInt(ev.get("layer")), ev.get("effect"));
         long start = SSADecoder.parseTimecode(ev.get("start"));
         cueTimesUs.add(start);
         cues.add(cue);

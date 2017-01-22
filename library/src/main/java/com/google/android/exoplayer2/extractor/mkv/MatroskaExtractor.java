@@ -1112,6 +1112,7 @@ public final class MatroskaExtractor implements Extractor {
 
   private void writeSSASample(Track track) {
     long startUs = 0; // blockTimeUs
+    startUs = blockTimeUs;
     StringBuffer s = new StringBuffer();
     s.append("Dialogue: ");
     s.append(SSADecoder.formatTimeCode(startUs));
