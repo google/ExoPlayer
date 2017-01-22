@@ -84,20 +84,13 @@ public interface SubtitleDecoderFactory {
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
-<<<<<<< HEAD
-        if(clazz == SSADecoder.class) {
+        if (format.sampleMimeType.equals(MimeTypes.TEXT_SSA)) {
           byte[] header = format.initializationData.get(1);
           String dlgfmt = new String(format.initializationData.get(0), "UTF-8");
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(byte[].class, String.class)
                   .newInstance(header, dlgfmt);
         }
-        if (clazz == Cea608Decoder.class) {
-          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
-              .newInstance(format.sampleMimeType, format.accessibilityChannel);
-        }
-        else {
-=======
-        if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
+        else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
             || format.sampleMimeType.equals(MimeTypes.APPLICATION_MP4CEA608)) {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
               .newInstance(format.sampleMimeType, format.accessibilityChannel);
@@ -105,7 +98,6 @@ public interface SubtitleDecoderFactory {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(Integer.TYPE)
               .newInstance(format.accessibilityChannel);
         } else {
->>>>>>> upstream/dev-v2
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
         }
       } catch (Exception e) {
