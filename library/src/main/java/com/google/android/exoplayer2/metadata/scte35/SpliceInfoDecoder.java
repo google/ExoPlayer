@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.metadata.scte35;
 
-import android.text.TextUtils;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataDecoderException;
-import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.nio.ByteBuffer;
 
 /**
  * Decodes splice info sections and produces splice commands.
@@ -43,12 +43,10 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
   }
 
   @Override
-  public boolean canDecode(String mimeType) {
-    return TextUtils.equals(mimeType, MimeTypes.APPLICATION_SCTE35);
-  }
-
-  @Override
-  public Metadata decode(byte[] data, int size) throws MetadataDecoderException {
+  public Metadata decode(MetadataInputBuffer inputBuffer) throws MetadataDecoderException {
+    ByteBuffer buffer = inputBuffer.data;
+    byte[] data = buffer.array();
+    int size = buffer.limit();
     sectionData.reset(data, size);
     sectionHeader.reset(data, size);
     // table_id(8), section_syntax_indicator(1), private_indicator(1), reserved(2),

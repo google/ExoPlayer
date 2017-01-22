@@ -270,7 +270,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected MediaCodecInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
       Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder, false);
+    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder);
   }
 
   /**

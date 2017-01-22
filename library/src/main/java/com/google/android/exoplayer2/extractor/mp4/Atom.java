@@ -127,6 +127,7 @@ import java.util.List;
   public static final int TYPE_mean = Util.getIntegerCodeForString("mean");
   public static final int TYPE_name = Util.getIntegerCodeForString("name");
   public static final int TYPE_data = Util.getIntegerCodeForString("data");
+  public static final int TYPE_emsg = Util.getIntegerCodeForString("emsg");
   public static final int TYPE_st3d = Util.getIntegerCodeForString("st3d");
   public static final int TYPE_sv3d = Util.getIntegerCodeForString("sv3d");
   public static final int TYPE_proj = Util.getIntegerCodeForString("proj");

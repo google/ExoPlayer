@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -62,6 +63,7 @@ import java.io.IOException;
   private final ExtractorMediaSource.EventListener eventListener;
   private final MediaSource.Listener sourceListener;
   private final Allocator allocator;
+  private final String customCacheKey;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
   private final ConditionVariable loadCondition;
@@ -101,11 +103,13 @@ import java.io.IOException;
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param sourceListener A listener to notify when the timeline has been loaded.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
+   *     indexing. May be null.
    */
   public ExtractorMediaPeriod(Uri uri, DataSource dataSource, Extractor[] extractors,
       int minLoadableRetryCount, Handler eventHandler,
       ExtractorMediaSource.EventListener eventListener, MediaSource.Listener sourceListener,
-      Allocator allocator) {
+      Allocator allocator, String customCacheKey) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -113,6 +117,7 @@ import java.io.IOException;
     this.eventListener = eventListener;
     this.sourceListener = sourceListener;
     this.allocator = allocator;
+    this.customCacheKey = customCacheKey;
     loader = new Loader("Loader:ExtractorMediaPeriod");
     extractorHolder = new ExtractorHolder(extractors, this);
     loadCondition = new ConditionVariable();
@@ -615,7 +620,7 @@ import java.io.IOException;
         ExtractorInput input = null;
         try {
           long position = positionHolder.position;
-          length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNSET, null));
+          length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNSET, customCacheKey));
           if (length != C.LENGTH_UNSET) {
             length += position;
           }
@@ -640,7 +645,7 @@ import java.io.IOException;
           } else if (input != null) {
             positionHolder.position = input.getPosition();
           }
-          dataSource.close();
+          Util.closeQuietly(dataSource);
         }
       }
     }

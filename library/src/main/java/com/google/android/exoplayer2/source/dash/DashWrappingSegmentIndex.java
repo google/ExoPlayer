@@ -28,9 +28,8 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
   /**
    * @param chunkIndex The {@link ChunkIndex} to wrap.
-   * @param uri The URI where the data is located.
    */
-  public DashWrappingSegmentIndex(ChunkIndex chunkIndex, String uri) {
+  public DashWrappingSegmentIndex(ChunkIndex chunkIndex) {
     this.chunkIndex = chunkIndex;
   }
 

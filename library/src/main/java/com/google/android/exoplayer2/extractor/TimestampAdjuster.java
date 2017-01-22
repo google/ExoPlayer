@@ -52,6 +52,34 @@ public final class TimestampAdjuster {
   }
 
   /**
+   * Returns the last adjusted timestamp. If no timestamp has been adjusted, returns
+   * {@code firstSampleTimestampUs} as provided to the constructor. If this value is
+   * {@link #DO_NOT_OFFSET}, returns {@link C#TIME_UNSET}.
+   *
+   * @return The last adjusted timestamp. If not present, {@code firstSampleTimestampUs} is
+   *     returned unless equal to {@link #DO_NOT_OFFSET}, in which case {@link C#TIME_UNSET} is
+   *     returned.
+   */
+  public long getLastAdjustedTimestampUs() {
+    return lastSampleTimestamp != C.TIME_UNSET ? lastSampleTimestamp
+        : firstSampleTimestampUs != DO_NOT_OFFSET ? firstSampleTimestampUs : C.TIME_UNSET;
+  }
+
+  /**
+   * Returns the offset between the input of {@link #adjustSampleTimestamp(long)} and its output.
+   * If {@link #DO_NOT_OFFSET} was provided to the constructor, 0 is returned. If the timestamp
+   * adjuster is yet not initialized, {@link C#TIME_UNSET} is returned.
+   *
+   * @return The offset between {@link #adjustSampleTimestamp(long)}'s input and output.
+   *     {@link C#TIME_UNSET} if the adjuster is not yet initialized and 0 if timestamps should not
+   *     be offset.
+   */
+  public long getTimestampOffsetUs() {
+    return firstSampleTimestampUs == DO_NOT_OFFSET ? 0
+        : lastSampleTimestamp == C.TIME_UNSET ? C.TIME_UNSET : timestampOffsetUs;
+  }
+
+  /**
    * Resets the instance to its initial state.
    */
   public void reset() {

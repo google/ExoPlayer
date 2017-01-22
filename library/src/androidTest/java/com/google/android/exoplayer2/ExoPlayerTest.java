@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -29,6 +28,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,16 +49,11 @@ public final class ExoPlayerTest extends TestCase {
    */
   private static final int TIMEOUT_MS = 10000;
 
-  /**
-   * Tests playback of a source that exposes a single period.
-   */
-  public void testPlayToEnd() throws Exception {
-    PlayerWrapper playerWrapper = new PlayerWrapper();
-    Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
-        Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE, null, null);
-    playerWrapper.setup(new SinglePeriodTimeline(0, false), null, format);
-    playerWrapper.blockUntilEnded(TIMEOUT_MS);
-  }
+  private static final Format TEST_VIDEO_FORMAT = Format.createVideoSampleFormat(null,
+      MimeTypes.VIDEO_H264, null, Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE,
+      null, null);
+  private static final Format TEST_AUDIO_FORMAT =  Format.createAudioSampleFormat(null,
+      MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
 
   /**
    * Tests playback of a source that exposes an empty timeline. Playback is expected to end without
@@ -66,8 +61,100 @@ public final class ExoPlayerTest extends TestCase {
    */
   public void testPlayEmptyTimeline() throws Exception {
     PlayerWrapper playerWrapper = new PlayerWrapper();
-    playerWrapper.setup(Timeline.EMPTY, null, null);
+    Timeline timeline = Timeline.EMPTY;
+    MediaSource mediaSource = new FakeMediaSource(timeline, null);
+    FakeRenderer renderer = new FakeRenderer(null);
+    playerWrapper.setup(mediaSource, renderer);
     playerWrapper.blockUntilEnded(TIMEOUT_MS);
+    assertEquals(0, playerWrapper.positionDiscontinuityCount);
+    assertEquals(0, renderer.formatReadCount);
+    assertEquals(0, renderer.bufferReadCount);
+    assertFalse(renderer.isEnded);
+    assertEquals(timeline, playerWrapper.timeline);
+    assertNull(playerWrapper.manifest);
+  }
+
+  /**
+   * Tests playback of a source that exposes a single period.
+   */
+  public void testPlaySinglePeriodTimeline() throws Exception {
+    PlayerWrapper playerWrapper = new PlayerWrapper();
+    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
+    Object manifest = new Object();
+    MediaSource mediaSource = new FakeMediaSource(timeline, manifest, TEST_VIDEO_FORMAT);
+    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
+    playerWrapper.setup(mediaSource, renderer);
+    playerWrapper.blockUntilEnded(TIMEOUT_MS);
+    assertEquals(0, playerWrapper.positionDiscontinuityCount);
+    assertEquals(1, renderer.formatReadCount);
+    assertEquals(1, renderer.bufferReadCount);
+    assertTrue(renderer.isEnded);
+    assertEquals(timeline, playerWrapper.timeline);
+    assertEquals(manifest, playerWrapper.manifest);
+    assertEquals(new TrackGroupArray(new TrackGroup(TEST_VIDEO_FORMAT)), playerWrapper.trackGroups);
+  }
+
+  /**
+   * Tests playback of a source that exposes three periods.
+   */
+  public void testPlayMultiPeriodTimeline() throws Exception {
+    PlayerWrapper playerWrapper = new PlayerWrapper();
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(false, false, 0),
+        new TimelineWindowDefinition(false, false, 0),
+        new TimelineWindowDefinition(false, false, 0));
+    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT);
+    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
+    playerWrapper.setup(mediaSource, renderer);
+    playerWrapper.blockUntilEnded(TIMEOUT_MS);
+    assertEquals(2, playerWrapper.positionDiscontinuityCount);
+    assertEquals(3, renderer.formatReadCount);
+    assertEquals(1, renderer.bufferReadCount);
+    assertTrue(renderer.isEnded);
+    assertEquals(timeline, playerWrapper.timeline);
+    assertNull(playerWrapper.manifest);
+  }
+
+  /**
+   * Tests that the player does not unnecessarily reset renderers when playing a multi-period
+   * source.
+   */
+  public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
+    final PlayerWrapper playerWrapper = new PlayerWrapper();
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(false, false, 10),
+        new TimelineWindowDefinition(false, false, 10),
+        new TimelineWindowDefinition(false, false, 10));
+    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT,
+        TEST_AUDIO_FORMAT);
+
+    FakeRenderer videoRenderer = new FakeRenderer(TEST_VIDEO_FORMAT);
+    FakeMediaClockRenderer audioRenderer = new FakeMediaClockRenderer(TEST_AUDIO_FORMAT) {
+
+      @Override
+      public long getPositionUs() {
+        // Simulate the playback position lagging behind the reading position: the renderer media
+        // clock position will be the start of the timeline until the stream is set to be final, at
+        // which point it jumps to the end of the timeline allowing the playing period to advance.
+        // TODO: Avoid hard-coding ExoPlayerImplInternal.RENDERER_TIMESTAMP_OFFSET_US.
+        return isCurrentStreamFinal() ? 60000030 : 60000000;
+      }
+
+      @Override
+      public boolean isEnded() {
+        // Allow playback to end once the final period is playing.
+        return playerWrapper.positionDiscontinuityCount == 2;
+      }
+
+    };
+    playerWrapper.setup(mediaSource, videoRenderer, audioRenderer);
+    playerWrapper.blockUntilEnded(TIMEOUT_MS);
+    assertEquals(2, playerWrapper.positionDiscontinuityCount);
+    assertEquals(1, audioRenderer.positionResetCount);
+    assertTrue(videoRenderer.isEnded);
+    assertTrue(audioRenderer.isEnded);
+    assertEquals(timeline, playerWrapper.timeline);
+    assertNull(playerWrapper.manifest);
   }
 
   /**
@@ -79,11 +166,14 @@ public final class ExoPlayerTest extends TestCase {
     private final HandlerThread playerThread;
     private final Handler handler;
 
-    private Timeline expectedTimeline;
-    private Object expectedManifest;
-    private Format expectedFormat;
     private ExoPlayer player;
+    private Timeline timeline;
+    private Object manifest;
+    private TrackGroupArray trackGroups;
     private Exception exception;
+
+    // Written only on the main thread.
+    private volatile int positionDiscontinuityCount;
 
     public PlayerWrapper() {
       endedCountDownLatch = new CountDownLatch(1);
@@ -105,20 +195,15 @@ public final class ExoPlayerTest extends TestCase {
       }
     }
 
-    public void setup(final Timeline timeline, final Object manifest, final Format format) {
-      expectedTimeline = timeline;
-      expectedManifest = manifest;
-      expectedFormat = format;
+    public void setup(final MediaSource mediaSource, final Renderer... renderers) {
       handler.post(new Runnable() {
         @Override
         public void run() {
           try {
-            Renderer fakeRenderer = new FakeVideoRenderer(expectedFormat);
-            player = ExoPlayerFactory.newInstance(new Renderer[] {fakeRenderer},
-                new DefaultTrackSelector());
+            player = ExoPlayerFactory.newInstance(renderers, new DefaultTrackSelector());
             player.addListener(PlayerWrapper.this);
             player.setPlayWhenReady(true);
-            player.prepare(new FakeMediaSource(timeline, manifest, format));
+            player.prepare(mediaSource);
           } catch (Exception e) {
             handleError(e);
           }
@@ -167,14 +252,13 @@ public final class ExoPlayerTest extends TestCase {
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-      assertEquals(expectedTimeline, timeline);
-      assertEquals(expectedManifest, manifest);
+      this.timeline = timeline;
+      this.manifest = manifest;
     }
 
     @Override
-    public void onTracksChanged(TrackGroupArray trackGroups,
-        TrackSelectionArray trackSelections) {
-      assertEquals(new TrackGroupArray(new TrackGroup(expectedFormat)), trackGroups);
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      this.trackGroups = trackGroups;
     }
 
     @Override
@@ -182,10 +266,69 @@ public final class ExoPlayerTest extends TestCase {
       handleError(exception);
     }
 
+    @SuppressWarnings("NonAtomicVolatileUpdate")
     @Override
     public void onPositionDiscontinuity() {
-      // Should never happen.
-      handleError(new IllegalStateException("Received position discontinuity"));
+      positionDiscontinuityCount++;
+    }
+
+  }
+
+  private static final class TimelineWindowDefinition {
+
+    public final boolean isSeekable;
+    public final boolean isDynamic;
+    public final long durationUs;
+
+    public TimelineWindowDefinition(boolean isSeekable, boolean isDynamic, long durationUs) {
+      this.isSeekable = isSeekable;
+      this.isDynamic = isDynamic;
+      this.durationUs = durationUs;
+    }
+
+  }
+
+  private static final class FakeTimeline extends Timeline {
+
+    private final TimelineWindowDefinition[] windowDefinitions;
+
+    public FakeTimeline(TimelineWindowDefinition... windowDefinitions) {
+      this.windowDefinitions = windowDefinitions;
+    }
+
+    @Override
+    public int getWindowCount() {
+      return windowDefinitions.length;
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, boolean setIds,
+        long defaultPositionProjectionUs) {
+      TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
+      Object id = setIds ? windowIndex : null;
+      return window.set(id, C.TIME_UNSET, C.TIME_UNSET, windowDefinition.isSeekable,
+          windowDefinition.isDynamic, 0, windowDefinition.durationUs, windowIndex, windowIndex, 0);
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return windowDefinitions.length;
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      TimelineWindowDefinition windowDefinition = windowDefinitions[periodIndex];
+      Object id = setIds ? periodIndex : null;
+      return period.set(id, id, periodIndex, windowDefinition.durationUs, 0);
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      if (!(uid instanceof Integer)) {
+        return C.INDEX_UNSET;
+      }
+      int index = (Integer) uid;
+      return index >= 0 && index < windowDefinitions.length ? index : C.INDEX_UNSET;
     }
 
   }
@@ -198,16 +341,20 @@ public final class ExoPlayerTest extends TestCase {
 
     private final Timeline timeline;
     private final Object manifest;
-    private final Format format;
+    private final TrackGroupArray trackGroupArray;
     private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
 
     private boolean preparedSource;
     private boolean releasedSource;
 
-    public FakeMediaSource(Timeline timeline, Object manifest, Format format) {
+    public FakeMediaSource(Timeline timeline, Object manifest, Format... formats) {
       this.timeline = timeline;
       this.manifest = manifest;
-      this.format = format;
+      TrackGroup[] trackGroups = new TrackGroup[formats.length];
+      for (int i = 0; i < formats.length; i++) {
+        trackGroups[i] = new TrackGroup(formats[i]);
+      }
+      trackGroupArray = new TrackGroupArray(trackGroups);
       activeMediaPeriods = new ArrayList<>();
     }
 
@@ -228,9 +375,8 @@ public final class ExoPlayerTest extends TestCase {
       Assertions.checkIndex(index, 0, timeline.getPeriodCount());
       assertTrue(preparedSource);
       assertFalse(releasedSource);
-      assertEquals(0, index);
       assertEquals(0, positionUs);
-      FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(format);
+      FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
       activeMediaPeriods.add(mediaPeriod);
       return mediaPeriod;
     }
@@ -239,8 +385,9 @@ public final class ExoPlayerTest extends TestCase {
     public void releasePeriod(MediaPeriod mediaPeriod) {
       assertTrue(preparedSource);
       assertFalse(releasedSource);
-      assertTrue(activeMediaPeriods.remove(mediaPeriod));
-      ((FakeMediaPeriod) mediaPeriod).release();
+      FakeMediaPeriod fakeMediaPeriod = (FakeMediaPeriod) mediaPeriod;
+      assertTrue(activeMediaPeriods.remove(fakeMediaPeriod));
+      fakeMediaPeriod.release();
     }
 
     @Override
@@ -259,12 +406,12 @@ public final class ExoPlayerTest extends TestCase {
    */
   private static final class FakeMediaPeriod implements MediaPeriod {
 
-    private final TrackGroup trackGroup;
+    private final TrackGroupArray trackGroupArray;
 
     private boolean preparedPeriod;
 
-    public FakeMediaPeriod(Format format) {
-      trackGroup = new TrackGroup(format);
+    public FakeMediaPeriod(TrackGroupArray trackGroupArray) {
+      this.trackGroupArray = trackGroupArray;
     }
 
     public void release() {
@@ -286,26 +433,29 @@ public final class ExoPlayerTest extends TestCase {
     @Override
     public TrackGroupArray getTrackGroups() {
       assertTrue(preparedPeriod);
-      return new TrackGroupArray(trackGroup);
+      return trackGroupArray;
     }
 
     @Override
     public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
         SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
       assertTrue(preparedPeriod);
-      assertEquals(1, selections.length);
-      assertEquals(1, mayRetainStreamFlags.length);
-      assertEquals(1, streams.length);
-      assertEquals(1, streamResetFlags.length);
-      assertEquals(0, positionUs);
-      if (streams[0] != null && (selections[0] == null || !mayRetainStreamFlags[0])) {
-        streams[0] = null;
+      int rendererCount = selections.length;
+      for (int i = 0; i < rendererCount; i++) {
+        if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+          streams[i] = null;
+        }
       }
-      if (streams[0] == null && selections[0] != null) {
-        FakeSampleStream stream = new FakeSampleStream(trackGroup.getFormat(0));
-        assertEquals(trackGroup, selections[0].getTrackGroup());
-        streams[0] = stream;
-        streamResetFlags[0] = true;
+      for (int i = 0; i < rendererCount; i++) {
+        if (streams[i] == null && selections[i] != null) {
+          TrackSelection selection = selections[i];
+          assertEquals(1, selection.length());
+          assertEquals(0, selection.getIndexInTrackGroup(0));
+          TrackGroup trackGroup = selection.getTrackGroup();
+          assertTrue(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET);
+          streams[i] = new FakeSampleStream(trackGroup.getFormat(0));
+          streamResetFlags[i] = true;
+        }
       }
       return 0;
     }
@@ -332,7 +482,7 @@ public final class ExoPlayerTest extends TestCase {
     @Override
     public long getNextLoadPositionUs() {
       assertTrue(preparedPeriod);
-      return 0;
+      return C.TIME_END_OF_SOURCE;
     }
 
     @Override
@@ -352,7 +502,6 @@ public final class ExoPlayerTest extends TestCase {
     private final Format format;
 
     private boolean readFormat;
-    private boolean readEndOfStream;
 
     public FakeSampleStream(Format format) {
       this.format = format;
@@ -365,15 +514,14 @@ public final class ExoPlayerTest extends TestCase {
 
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      Assertions.checkState(!readEndOfStream);
-      if (readFormat) {
+      if (buffer == null || !readFormat) {
+        formatHolder.format = format;
+        readFormat = true;
+        return C.RESULT_FORMAT_READ;
+      } else {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-        readEndOfStream = true;
         return C.RESULT_BUFFER_READ;
       }
-      formatHolder.format = format;
-      readFormat = true;
-      return C.RESULT_FORMAT_READ;
     }
 
     @Override
@@ -389,18 +537,28 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   /**
-   * Fake {@link Renderer} that supports any video format. The renderer verifies that it reads a
-   * given {@link Format} then a buffer with the end of stream flag set.
+   * Fake {@link Renderer} that supports any format with the matching MIME type. The renderer
+   * verifies that it reads a given {@link Format}.
    */
-  private static final class FakeVideoRenderer extends BaseRenderer {
+  private static class FakeRenderer extends BaseRenderer {
 
     private final Format expectedFormat;
 
-    private boolean isEnded;
+    public int positionResetCount;
+    public int formatReadCount;
+    public int bufferReadCount;
+    public boolean isEnded;
 
-    public FakeVideoRenderer(Format expectedFormat) {
-      super(C.TRACK_TYPE_VIDEO);
+    public FakeRenderer(Format expectedFormat) {
+      super(expectedFormat == null ? C.TRACK_TYPE_UNKNOWN
+          : MimeTypes.getTrackType(expectedFormat.sampleMimeType));
       this.expectedFormat = expectedFormat;
+    }
+
+    @Override
+    protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+      positionResetCount++;
+      isEnded = false;
     }
 
     @Override
@@ -411,20 +569,23 @@ public final class ExoPlayerTest extends TestCase {
 
       // Verify the format matches the expected format.
       FormatHolder formatHolder = new FormatHolder();
-      readSource(formatHolder, null);
-      assertEquals(expectedFormat, formatHolder.format);
-
-      // Verify that we get an end-of-stream buffer.
       DecoderInputBuffer buffer =
           new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-      readSource(null, buffer);
-      assertTrue(buffer.isEndOfStream());
-      isEnded = true;
+      int result = readSource(formatHolder, buffer);
+      if (result == C.RESULT_FORMAT_READ) {
+        formatReadCount++;
+        assertEquals(expectedFormat, formatHolder.format);
+      } else if (result == C.RESULT_BUFFER_READ) {
+        bufferReadCount++;
+        if (buffer.isEndOfStream()) {
+          isEnded = true;
+        }
+      }
     }
 
     @Override
     public boolean isReady() {
-      return isEnded;
+      return isSourceReady();
     }
 
     @Override
@@ -434,7 +595,21 @@ public final class ExoPlayerTest extends TestCase {
 
     @Override
     public int supportsFormat(Format format) throws ExoPlaybackException {
-      return MimeTypes.isVideo(format.sampleMimeType) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+      return getTrackType() == MimeTypes.getTrackType(format.sampleMimeType) ? FORMAT_HANDLED
+          : FORMAT_UNSUPPORTED_TYPE;
+    }
+
+  }
+
+  private abstract static class FakeMediaClockRenderer extends FakeRenderer implements MediaClock {
+
+    public FakeMediaClockRenderer(Format expectedFormat) {
+      super(expectedFormat);
+    }
+
+    @Override
+    public MediaClock getMediaClock() {
+      return this;
     }
 
   }

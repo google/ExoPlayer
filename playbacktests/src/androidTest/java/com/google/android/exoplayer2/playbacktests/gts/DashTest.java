@@ -26,13 +26,14 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -275,7 +276,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h264_adaptive";
     testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-            MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
+        MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
   public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
@@ -633,7 +634,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false, false);
+    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
       return false;
@@ -700,14 +701,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     @Override
     @TargetApi(18)
     @SuppressWarnings("ResourceType")
-    protected final StreamingDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+    protected final DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
         final String userAgent) {
-      StreamingDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+      DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (isWidevineEncrypted) {
         try {
           // Force L3 if secure decoder is not available.
-          boolean forceL3Widevine =
-              MediaCodecUtil.getDecoderInfo(videoMimeType, true, false) == null;
+          boolean forceL3Widevine = MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null;
           MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
           String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
           String widevineContentId = forceL3Widevine ? WIDEVINE_SW_CRYPTO_CONTENT_ID
@@ -716,7 +716,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(
               WIDEVINE_LICENSE_URL + widevineContentId,
               new DefaultHttpDataSourceFactory(userAgent));
-          drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(drmCallback, null,
+          drmSessionManager = DefaultDrmSessionManager.newWidevineInstance(drmCallback, null,
               null, null);
           if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {
             drmSessionManager.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
@@ -837,7 +837,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
       selections[VIDEO_RENDERER_INDEX] = new RandomTrackSelection(
           rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
-          getTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
+          getVideoTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
               rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
               canIncludeAdditionalVideoFormats),
           0 /* seed */);
@@ -849,20 +849,24 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return selections;
     }
 
-    private static int[] getTrackIndices(TrackGroup trackGroup, int[] formatSupport,
+    private static int[] getVideoTrackIndices(TrackGroup trackGroup, int[] formatSupport,
         String[] formatIds, boolean canIncludeAdditionalFormats) {
       List<Integer> trackIndices = new ArrayList<>();
 
       // Always select explicitly listed representations.
       for (String formatId : formatIds) {
-        trackIndices.add(getTrackIndex(trackGroup, formatId));
+        int trackIndex = getTrackIndex(trackGroup, formatId);
+        Log.d(TAG, "Adding base video format: "
+            + Format.toLogString(trackGroup.getFormat(trackIndex)));
+        trackIndices.add(trackIndex);
       }
 
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
           if (!trackIndices.contains(i) && isFormatHandled(formatSupport[i])) {
-            Log.d(TAG, "Adding video format: " + trackGroup.getFormat(i).id);
+            Log.d(TAG, "Adding extra video format: "
+                + Format.toLogString(trackGroup.getFormat(i)));
             trackIndices.add(i);
           }
         }

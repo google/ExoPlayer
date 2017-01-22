@@ -67,6 +67,7 @@ public interface SubtitleDecoderFactory {
    * <li>AAS/SSA ({@link SSADecoder})</li>
    * <li>TX3G ({@link Tx3gDecoder})</li>
    * <li>Cea608 ({@link Cea608Decoder})</li>
+   * <li>Cea708 ({@link Cea708Decoder})</li>
    * </ul>
    */
   SubtitleDecoderFactory DEFAULT = new SubtitleDecoderFactory() {
@@ -83,6 +84,7 @@ public interface SubtitleDecoderFactory {
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
+<<<<<<< HEAD
         if(clazz == SSADecoder.class) {
           byte[] header = format.initializationData.get(1);
           String dlgfmt = new String(format.initializationData.get(0), "UTF-8");
@@ -94,6 +96,16 @@ public interface SubtitleDecoderFactory {
               .newInstance(format.sampleMimeType, format.accessibilityChannel);
         }
         else {
+=======
+        if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
+            || format.sampleMimeType.equals(MimeTypes.APPLICATION_MP4CEA608)) {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
+              .newInstance(format.sampleMimeType, format.accessibilityChannel);
+        } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA708)) {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(Integer.TYPE)
+              .newInstance(format.accessibilityChannel);
+        } else {
+>>>>>>> upstream/dev-v2
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
         }
       } catch (Exception e) {
@@ -122,6 +134,8 @@ public interface SubtitleDecoderFactory {
           case MimeTypes.APPLICATION_CEA608:
           case MimeTypes.APPLICATION_MP4CEA608:
             return Class.forName("com.google.android.exoplayer2.text.cea.Cea608Decoder");
+          case MimeTypes.APPLICATION_CEA708:
+            return Class.forName("com.google.android.exoplayer2.text.cea.Cea708Decoder");
           default:
             return null;
         }

@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -449,15 +448,6 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * @deprecated Use {@link #setMetadataOutput(MetadataRenderer.Output)} instead.
-   * @param output The output.
-   */
-  @Deprecated
-  public void setId3Output(MetadataRenderer.Output output) {
-    setMetadataOutput(output);
-  }
-
-  /**
    * Sets a listener to receive metadata events.
    *
    * @param output The output.
@@ -556,6 +546,36 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public int getRendererCount() {
+    return player.getRendererCount();
+  }
+
+  @Override
+  public int getRendererType(int index) {
+    return player.getRendererType(index);
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    return player.getCurrentTrackGroups();
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
+    return player.getCurrentTrackSelections();
+  }
+
+  @Override
+  public Timeline getCurrentTimeline() {
+    return player.getCurrentTimeline();
+  }
+
+  @Override
+  public Object getCurrentManifest() {
+    return player.getCurrentManifest();
+  }
+
+  @Override
   public int getCurrentPeriodIndex() {
     return player.getCurrentPeriodIndex();
   }
@@ -586,33 +606,13 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public int getRendererCount() {
-    return player.getRendererCount();
+  public boolean isCurrentWindowDynamic() {
+    return player.isCurrentWindowDynamic();
   }
 
   @Override
-  public int getRendererType(int index) {
-    return player.getRendererType(index);
-  }
-
-  @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return player.getCurrentTrackGroups();
-  }
-
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return player.getCurrentTrackSelections();
-  }
-
-  @Override
-  public Timeline getCurrentTimeline() {
-    return player.getCurrentTimeline();
-  }
-
-  @Override
-  public Object getCurrentManifest() {
-    return player.getCurrentManifest();
+  public boolean isCurrentWindowSeekable() {
+    return player.isCurrentWindowSeekable();
   }
 
   // Renderer building.
@@ -771,7 +771,7 @@ public class SimpleExoPlayer implements ExoPlayer {
   protected void buildMetadataRenderers(Context context, Handler mainHandler,
       @ExtensionRendererMode int extensionRendererMode, MetadataRenderer.Output output,
       ArrayList<Renderer> out) {
-    out.add(new MetadataRenderer(output, mainHandler.getLooper(), new Id3Decoder()));
+    out.add(new MetadataRenderer(output, mainHandler.getLooper()));
   }
 
   /**

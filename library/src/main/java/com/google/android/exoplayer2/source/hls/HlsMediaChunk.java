@@ -79,8 +79,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean isEncrypted;
   private final boolean isMasterTimestampSource;
   private final TimestampAdjuster timestampAdjuster;
-  private final HlsMediaChunk previousChunk;
   private final String lastPathSegment;
+  private final Extractor previousExtractor;
+  private final boolean shouldSpliceIn;
+  private final boolean needNewExtractor;
 
   private final boolean isPackedAudio;
   private final Id3Decoder id3Decoder;
@@ -123,7 +125,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
-    this.previousChunk = previousChunk;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
     lastPathSegment = dataSpec.uri.getLastPathSegment();
@@ -131,13 +132,19 @@ import java.util.concurrent.atomic.AtomicInteger;
         || lastPathSegment.endsWith(AC3_FILE_EXTENSION)
         || lastPathSegment.endsWith(EC3_FILE_EXTENSION)
         || lastPathSegment.endsWith(MP3_FILE_EXTENSION);
-    if (isPackedAudio) {
-      id3Decoder = previousChunk != null ? previousChunk.id3Decoder : new Id3Decoder();
-      id3Data = previousChunk != null ? previousChunk.id3Data
-          : new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+    if (previousChunk != null) {
+      id3Decoder = previousChunk.id3Decoder;
+      id3Data = previousChunk.id3Data;
+      previousExtractor = previousChunk.extractor;
+      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
+      needNewExtractor = previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
+          || shouldSpliceIn;
     } else {
-      id3Decoder = null;
-      id3Data = null;
+      id3Decoder = isPackedAudio ? new Id3Decoder() : null;
+      id3Data = isPackedAudio ? new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH) : null;
+      previousExtractor = null;
+      shouldSpliceIn = false;
+      needNewExtractor = true;
     }
     initDataSource = dataSource;
     uid = UID_SOURCE.getAndIncrement();
@@ -151,7 +158,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void init(HlsSampleStreamWrapper output) {
     extractorOutput = output;
-    output.init(uid, previousChunk != null && previousChunk.hlsUrl != hlsUrl);
+    output.init(uid, shouldSpliceIn);
   }
 
   @Override
@@ -191,8 +198,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Internal loading methods.
 
   private void maybeLoadInitData() throws IOException, InterruptedException {
-    if ((previousChunk != null && previousChunk.extractor == extractor) || initLoadCompleted
-        || initDataSpec == null) {
+    if (previousExtractor == extractor || initLoadCompleted || initDataSpec == null) {
+      // According to spec, for packed audio, initDataSpec is expected to be null.
       return;
     }
     DataSpec initSegmentDataSpec = Util.getRemainderDataSpec(initDataSpec, initSegmentBytesLoaded);
@@ -325,9 +332,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private Extractor buildExtractorByExtension() {
     // Set the extractor that will read the chunk.
     Extractor extractor;
-    boolean needNewExtractor = previousChunk == null
-        || previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
-        || trackFormat != previousChunk.trackFormat;
     boolean usingNewExtractor = true;
     if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
@@ -335,7 +339,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     } else if (!needNewExtractor) {
       // Only reuse TS and fMP4 extractors.
       usingNewExtractor = false;
-      extractor = previousChunk.extractor;
+      extractor = previousExtractor;
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)) {
       extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
     } else {

@@ -27,7 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-/** Unit tests for {@link CacheDataSource}. */
+/**
+ * Unit tests for {@link CacheDataSource}.
+ */
 public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

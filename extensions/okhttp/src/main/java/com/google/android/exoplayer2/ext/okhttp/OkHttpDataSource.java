@@ -261,7 +261,7 @@ public class OkHttpDataSource implements HttpDataSource {
   private Request makeRequest(DataSpec dataSpec) {
     long position = dataSpec.position;
     long length = dataSpec.length;
-    boolean allowGzip = (dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) != 0;
+    boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
 
     HttpUrl url = HttpUrl.parse(dataSpec.uri.toString());
     Request.Builder builder = new Request.Builder().url(url);

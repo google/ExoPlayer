@@ -247,7 +247,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public void onAudioInputFormatChanged(Format format) {
-    Log.d(tag, "audioFormatChanged [" + format.id + "]");
+    Log.d(tag, "audioFormatChanged [" + Format.toLogString(format) + "]");
   }
 
   @Override
@@ -277,7 +277,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public void onVideoInputFormatChanged(Format format) {
-    Log.d(tag, "videoFormatChanged [" + format.id + "]");
+    Log.d(tag, "videoFormatChanged [" + Format.toLogString(format) + "]");
   }
 
   @Override

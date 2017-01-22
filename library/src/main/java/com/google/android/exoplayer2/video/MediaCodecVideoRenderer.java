@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
@@ -28,6 +29,7 @@ import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -82,6 +84,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int lastReportedHeight;
   private int lastReportedUnappliedRotationDegrees;
   private float lastReportedPixelWidthHeightRatio;
+
+  private boolean tunneling;
+  private int tunnelingAudioSessionId;
+  /* package */ OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
 
   /**
    * @param context A context.
@@ -172,7 +178,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        requiresSecureDecryption, false);
+        requiresSecureDecryption);
     if (decoderInfo == null) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
@@ -196,13 +202,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     int adaptiveSupport = decoderInfo.adaptive ? ADAPTIVE_SEAMLESS : ADAPTIVE_NOT_SEAMLESS;
+    int tunnelingSupport = decoderInfo.tunneling ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
-    return adaptiveSupport | formatSupport;
+    return adaptiveSupport | tunnelingSupport | formatSupport;
   }
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     super.onEnabled(joining);
+    tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
+    tunneling = tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET;
     eventDispatcher.enabled(decoderCounters);
     frameReleaseTimeHelper.enable();
   }
@@ -216,7 +225,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
-    renderedFirstFrame = false;
+    clearRenderedFirstFrame();
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
         ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
@@ -263,6 +272,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
     clearLastReportedVideoSize();
     frameReleaseTimeHelper.disable();
+    tunnelingOnFrameRenderedListener = null;
     try {
       super.onDisabled();
     } finally {
@@ -287,11 +297,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setSurface(Surface surface) throws ExoPlaybackException {
-    // Clear state so that we always call the event listener with the video size and when a frame
-    // is rendered, even if the surface hasn't changed.
-    renderedFirstFrame = false;
-    clearLastReportedVideoSize();
-    // We only need to actually release and reinitialize the codec if the surface has changed.
+    // We only need to release and reinitialize the codec if the surface has changed.
     if (this.surface != surface) {
       this.surface = surface;
       int state = getState();
@@ -300,6 +306,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maybeInitCodec();
       }
     }
+    // Clear state so that we always call the event listener with the video size and when a frame
+    // is rendered, even if the surface hasn't changed.
+    clearRenderedFirstFrame();
+    clearLastReportedVideoSize();
   }
 
   @Override
@@ -310,8 +320,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
     codecMaxValues = getCodecMaxValues(format, streamFormats);
-    MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround);
+    MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
+        tunnelingAudioSessionId);
     codec.configure(mediaFormat, surface, crypto, 0);
+    if (Util.SDK_INT >= 23 && tunneling) {
+      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
+    }
   }
 
   @Override
@@ -326,6 +340,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     eventDispatcher.inputFormatChanged(newFormat);
     pendingPixelWidthHeightRatio = getPixelWidthHeightRatio(newFormat);
     pendingRotationDegrees = getRotationDegrees(newFormat);
+  }
+
+  @Override
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    if (Util.SDK_INT < 23 && tunneling) {
+      maybeNotifyRenderedFirstFrame();
+    }
   }
 
   @Override
@@ -438,10 +459,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns true if the current frame should be dropped.
+   * Returns whether the buffer being processed should be dropped.
    *
-   * @param earlyUs Time indicating how early the frame is. Negative values indicate late frame.
-   * @param elapsedRealtimeUs Wall clock time.
+   * @param earlyUs The time until the buffer should be presented in microseconds. A negative value
+   *     indicates that the buffer is late.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    */
   protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
     // Drop the frame if we're more than 30ms late rendering the frame.
@@ -476,10 +499,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    if (!renderedFirstFrame) {
-      renderedFirstFrame = true;
-      eventDispatcher.renderedFirstFrame(surface);
-    }
+    maybeNotifyRenderedFirstFrame();
   }
 
   @TargetApi(21)
@@ -490,6 +510,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
+    maybeNotifyRenderedFirstFrame();
+  }
+
+  private void clearRenderedFirstFrame() {
+    renderedFirstFrame = false;
+    // The first frame notification is triggered by renderOutputBuffer or renderOutputBufferV21 for
+    // non-tunneled playback, onQueueInputBuffer for tunneled playback prior to API level 23, and
+    // OnFrameRenderedListenerV23.onFrameRenderedListener for tunneled playback on API level 23 and
+    // above.
+    if (Util.SDK_INT >= 23 && tunneling) {
+      MediaCodec codec = getCodec();
+      // If codec is null then the listener will be instantiated in configureCodec.
+      if (codec != null) {
+        tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
+      }
+    }
+  }
+
+  /* package */ void maybeNotifyRenderedFirstFrame() {
     if (!renderedFirstFrame) {
       renderedFirstFrame = true;
       eventDispatcher.renderedFirstFrame(surface);
@@ -528,7 +567,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @SuppressLint("InlinedApi")
   private static MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
-      boolean deviceNeedsAutoFrcWorkaround) {
+      boolean deviceNeedsAutoFrcWorkaround, int tunnelingAudioSessionId) {
     MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
     // Set the maximum adaptive video dimensions.
     frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
@@ -541,7 +580,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (deviceNeedsAutoFrcWorkaround) {
       frameworkMediaFormat.setInteger("auto-frc", 0);
     }
+    // Configure tunneling if enabled.
+    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
+      configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
+    }
     return frameworkMediaFormat;
+  }
+
+  @TargetApi(21)
+  private static void configureTunnelingV21(MediaFormat mediaFormat, int tunnelingAudioSessionId) {
+    mediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_TunneledPlayback, true);
+    mediaFormat.setInteger(MediaFormat.KEY_AUDIO_SESSION_ID, tunnelingAudioSessionId);
   }
 
   /**
@@ -675,6 +724,24 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       this.width = width;
       this.height = height;
       this.inputSize = inputSize;
+    }
+
+  }
+
+  @TargetApi(23)
+  private final class OnFrameRenderedListenerV23 implements MediaCodec.OnFrameRenderedListener {
+
+    private OnFrameRenderedListenerV23(MediaCodec codec) {
+      codec.setOnFrameRenderedListener(this, new Handler());
+    }
+
+    @Override
+    public void onFrameRendered(MediaCodec codec, long presentationTimeUs, long nanoTime) {
+      if (this != tunnelingOnFrameRenderedListener) {
+        // Stale event.
+        return;
+      }
+      maybeNotifyRenderedFirstFrame();
     }
 
   }
