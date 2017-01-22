@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
+import com.google.android.exoplayer2.text.cea.Cea708Decoder;
 import com.google.android.exoplayer2.text.ssa.SSADecoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
