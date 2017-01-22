@@ -89,6 +89,8 @@ import java.util.List;
     if (!hasOutputFormat) {
       channelCount = ffmpegGetChannelCount(nativeContext);
       if ("alac".equals(codecName)) {
+        // ALAC decoder did not set the sample rate in earlier versions of FFMPEG.
+        // See https://trac.ffmpeg.org/ticket/6096
         ParsableByteArray parsableExtraData = new ParsableByteArray(extraData);
         parsableExtraData.setPosition(extraData.length - 4);
         sampleRate = parsableExtraData.readUnsignedIntToInt();
