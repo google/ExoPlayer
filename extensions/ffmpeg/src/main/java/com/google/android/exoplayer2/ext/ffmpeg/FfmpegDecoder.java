@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -88,7 +89,9 @@ import java.util.List;
     if (!hasOutputFormat) {
       channelCount = ffmpegGetChannelCount(nativeContext);
       if ("alac".equals(codecName)) {
-        sampleRate = ByteBuffer.wrap(extraData, extraData.length - 4, 4).getInt();
+        ParsableByteArray parsableExtraData = new ParsableByteArray(extraData);
+        parsableExtraData.setPosition(extraData.length - 4);
+        sampleRate = parsableExtraData.readUnsignedIntToInt();
       } else {
         sampleRate = ffmpegGetSampleRate(nativeContext);
       }
