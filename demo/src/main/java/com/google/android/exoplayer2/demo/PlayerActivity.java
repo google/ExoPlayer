@@ -461,11 +461,12 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     playerNeedsSource = true;
     if (isBehindLiveWindow(e)) {
       clearResumePosition();
+      initializePlayer();
     } else {
       updateResumePosition();
+      updateButtonVisibilities();
+      showControls();
     }
-    updateButtonVisibilities();
-    showControls();
   }
 
   @Override
