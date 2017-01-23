@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.metadata.scte35;
 
 import android.os.Parcel;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 
 /**
  * Represents a time signal command as defined in SCTE35, Section 9.3.4.
