@@ -76,7 +76,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   @Override
   public void setUp() {
     extractor = new WebmExtractor();
-    extractorOutput = new FakeExtractorOutput();
+    extractorOutput = new FakeExtractorOutput(true);
     extractor.init(extractorOutput);
   }
 
