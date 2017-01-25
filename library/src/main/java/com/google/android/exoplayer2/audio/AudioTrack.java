@@ -54,7 +54,9 @@ import java.nio.ByteOrder;
  * safe to call {@link #handleBuffer(ByteBuffer, long)} after {@link #reset()} without calling
  * {@link #configure(String, int, int, int, int)}.
  * <p>
- * Call {@link #release()} when the instance is no longer required.
+ * Call {@link #handleEndOfStream()} to play out all data when no more input buffers will be
+ * provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #reset}. Call
+ * {@link #release()} when the instance is no longer required.
  */
 public final class AudioTrack {
 
@@ -120,13 +122,15 @@ public final class AudioTrack {
   public static final class WriteException extends Exception {
 
     /**
-     * An error value returned from {@link android.media.AudioTrack#write(byte[], int, int)}.
+     * The error value returned from {@link android.media.AudioTrack#write(byte[], int, int)} or
+     *     {@link android.media.AudioTrack#write(ByteBuffer, int, int)}.
      */
     public final int errorCode;
 
     /**
-     * @param errorCode An error value returned from
-     *     {@link android.media.AudioTrack#write(byte[], int, int)}.
+     * @param errorCode The error value returned from
+     *     {@link android.media.AudioTrack#write(byte[], int, int)} or
+     *     {@link android.media.AudioTrack#write(ByteBuffer, int, int)}.
      */
     public WriteException(int errorCode) {
       super("AudioTrack write failed: " + errorCode);
@@ -212,15 +216,15 @@ public final class AudioTrack {
   /**
    * AudioTrack timestamps are deemed spurious if they are offset from the system clock by more
    * than this amount.
-   *
-   * <p>This is a fail safe that should not be required on correctly functioning devices.
+   * <p>
+   * This is a fail safe that should not be required on correctly functioning devices.
    */
   private static final long MAX_AUDIO_TIMESTAMP_OFFSET_US = 5 * C.MICROS_PER_SECOND;
 
   /**
    * AudioTrack latencies are deemed impossibly large if they are greater than this amount.
-   *
-   * <p>This is a fail safe that should not be required on correctly functioning devices.
+   * <p>
+   * This is a fail safe that should not be required on correctly functioning devices.
    */
   private static final long MAX_LATENCY_US = 5 * C.MICROS_PER_SECOND;
 
@@ -386,7 +390,7 @@ public final class AudioTrack {
         // The AudioTrack has started, but we don't have any samples to compute a smoothed position.
         currentPositionUs = audioTrackUtil.getPlaybackHeadPositionUs() + startMediaTimeUs;
       } else {
-        // getPlayheadPositionUs() only has a granularity of ~20ms, so we base the position off the
+        // getPlayheadPositionUs() only has a granularity of ~20 ms, so we base the position off the
         // system clock (and a smoothed offset between it and the playhead position) so as to
         // prevent jitter in the reported positions.
         currentPositionUs = systemClockUs + smoothedPlayheadOffsetUs + startMediaTimeUs;
@@ -627,6 +631,7 @@ public final class AudioTrack {
     return result;
   }
 
+  @SuppressWarnings("ReferenceEquality")
   private boolean writeBuffer(ByteBuffer buffer, long presentationTimeUs) throws WriteException {
     boolean isNewSourceBuffer = currentSourceBuffer == null;
     Assertions.checkState(isNewSourceBuffer || currentSourceBuffer == buffer);
