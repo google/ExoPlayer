@@ -420,19 +420,19 @@ public final class FragmentedMp4Extractor implements Extractor {
       // We need to create the track bundles.
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
-        trackBundles.put(track.id, new TrackBundle(extractorOutput.track(i)));
+        TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i));
+        trackBundle.init(track, defaultSampleValuesArray.get(track.id));
+        trackBundles.put(track.id, trackBundle);
         durationUs = Math.max(durationUs, track.durationUs);
       }
       maybeInitExtraTracks();
       extractorOutput.endTracks();
     } else {
       Assertions.checkState(trackBundles.size() == trackCount);
-    }
-
-    // Initialization of tracks and default sample values.
-    for (int i = 0; i < trackCount; i++) {
-      Track track = tracks.valueAt(i);
-      trackBundles.get(track.id).init(track, defaultSampleValuesArray.get(track.id));
+      for (int i = 0; i < trackCount; i++) {
+        Track track = tracks.valueAt(i);
+        trackBundles.get(track.id).init(track, defaultSampleValuesArray.get(track.id));
+      }
     }
   }
 
@@ -454,7 +454,7 @@ public final class FragmentedMp4Extractor implements Extractor {
           Format.OFFSET_SAMPLE_RELATIVE));
     }
     if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutput == null) {
-      cea608TrackOutput = extractorOutput.track(trackBundles.size());
+      cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1);
       cea608TrackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
           null, Format.NO_VALUE, 0, null, null));
     }
