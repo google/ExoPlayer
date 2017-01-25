@@ -19,6 +19,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -38,20 +39,6 @@ import java.util.regex.Pattern;
  * HLS playlists parsing logic.
  */
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
-
-  /**
-   * Thrown if the input does not start with an HLS playlist header.
-   */
-  public static final class UnrecognizedInputFormatException extends ParserException {
-
-    public final Uri inputUri;
-
-    public UnrecognizedInputFormatException(Uri inputUri) {
-      super("Input does not start with the #EXTM3U header. Uri: " + inputUri);
-      this.inputUri = inputUri;
-    }
-
-  }
 
   private static final String PLAYLIST_HEADER = "#EXTM3U";
 
@@ -116,7 +103,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     try {
       if (!checkPlaylistHeader(reader)) {
-        throw new UnrecognizedInputFormatException(uri);
+        throw new UnrecognizedInputFormatException("Input does not start with the #EXTM3U header.",
+            uri);
       }
       while ((line = reader.readLine()) != null) {
         line = line.trim();

@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -27,7 +26,6 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -54,18 +52,6 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
      * @param error The load error.
      */
     void onLoadError(IOException error);
-
-  }
-
-  /**
-   * Thrown if the input format could not recognized.
-   */
-  public static final class UnrecognizedInputFormatException extends ParserException {
-
-    public UnrecognizedInputFormatException(Extractor[] extractors) {
-      super("None of the available extractors ("
-          + Util.getCommaDelimitedSimpleClassNames(extractors) + ") could read the stream.");
-    }
 
   }
 
