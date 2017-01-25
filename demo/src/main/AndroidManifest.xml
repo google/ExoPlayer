@@ -27,7 +27,7 @@
 
   <application
       android:label="@string/application_name"
-      android:icon="@drawable/ic_launcher"
+      android:icon="@mipmap/ic_launcher"
       android:banner="@drawable/ic_banner"
       android:largeHeap="true"
       android:allowBackup="false"
