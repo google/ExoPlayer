@@ -530,9 +530,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   private void postKeyRequest(byte[] scope, int keyType) {
-    KeyRequest keyRequest;
     try {
-      keyRequest = mediaDrm.getKeyRequest(scope, schemeInitData, schemeMimeType, keyType,
+      KeyRequest keyRequest = mediaDrm.getKeyRequest(scope, schemeInitData, schemeMimeType, keyType,
           optionalKeyRequestParameters);
       postRequestHandler.obtainMessage(MSG_KEYS, keyRequest).sendToTarget();
     } catch (Exception e) {
@@ -564,7 +563,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         }
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, (byte[]) response);
-        if (keySetId != null && keySetId.length != 0) {
+        if ((mode == MODE_DOWNLOAD || (mode == MODE_PLAYBACK && offlineLicenseKeySetId != null))
+            && keySetId != null && keySetId.length != 0) {
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
