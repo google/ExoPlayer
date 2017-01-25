@@ -201,6 +201,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
+  private boolean waitingForFirstSyncFrame;
 
   protected DecoderCounters decoderCounters;
 
@@ -366,6 +367,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : C.TIME_UNSET;
     inputIndex = C.INDEX_UNSET;
     outputIndex = C.INDEX_UNSET;
+    waitingForFirstSyncFrame = true;
     decoderCounters.decoderInitCount++;
   }
 
@@ -504,6 +506,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecHotswapDeadlineMs = C.TIME_UNSET;
     inputIndex = C.INDEX_UNSET;
     outputIndex = C.INDEX_UNSET;
+    waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     shouldSkipOutputBuffer = false;
     decodeOnlyPresentationTimestamps.clear();
@@ -633,6 +636,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       return false;
     }
+    if (waitingForFirstSyncFrame && !buffer.isKeyFrame()) {
+      buffer.clear();
+      if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
+        // The buffer we just cleared contained reconfiguration data. We need to re-write this
+        // data into a subsequent buffer (if there is one).
+        codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+      }
+      return true;
+    }
+    waitingForFirstSyncFrame = false;
     boolean bufferEncrypted = buffer.isEncrypted();
     waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {
