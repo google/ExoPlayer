@@ -183,7 +183,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
+  protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
+      MediaCrypto crypto) {
     if (passthroughEnabled) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
       passthroughMediaFormat = format.getFrameworkMediaFormatV16();

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.video;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
@@ -55,6 +56,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static final String KEY_CROP_RIGHT = "crop-right";
   private static final String KEY_CROP_BOTTOM = "crop-bottom";
   private static final String KEY_CROP_TOP = "crop-top";
+
+  // Long edge length in pixels for standard video formats, in decreasing in order.
+  private static final int[] STANDARD_LONG_EDGE_VIDEO_PX = new int[] {
+      1920, 1600, 1440, 1280, 960, 854, 640, 540, 480};
 
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventDispatcher eventDispatcher;
@@ -186,12 +191,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     boolean decoderCapable = decoderInfo.isCodecSupported(format.codecs);
     if (decoderCapable && format.width > 0 && format.height > 0) {
       if (Util.SDK_INT >= 21) {
-        if (format.frameRate > 0) {
-          decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
-              format.frameRate);
-        } else {
-          decoderCapable = decoderInfo.isVideoSizeSupportedV21(format.width, format.height);
-        }
+        decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
+            format.frameRate);
       } else {
         decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
         if (!decoderCapable) {
@@ -318,8 +319,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
-    codecMaxValues = getCodecMaxValues(format, streamFormats);
+  protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
+      MediaCrypto crypto) throws DecoderQueryException {
+    codecMaxValues = getCodecMaxValues(codecInfo, format, streamFormats);
     MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
         tunnelingAudioSessionId);
     codec.configure(mediaFormat, surface, crypto, 0);
@@ -597,29 +599,92 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Returns {@link CodecMaxValues} suitable for configuring a codec for {@code format} in a way
    * that will allow possible adaptation to other compatible formats in {@code streamFormats}.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The format for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return Suitable {@link CodecMaxValues}.
+   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  private static CodecMaxValues getCodecMaxValues(Format format, Format[] streamFormats) {
+  private static CodecMaxValues getCodecMaxValues(MediaCodecInfo codecInfo, Format format,
+      Format[] streamFormats) throws DecoderQueryException {
     int maxWidth = format.width;
     int maxHeight = format.height;
     int maxInputSize = getMaxInputSize(format);
+    if (streamFormats.length == 1) {
+      // The single entry in streamFormats must correspond to the format for which the codec is
+      // being configured.
+      return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
+    }
+    boolean haveUnknownDimensions = false;
     for (Format streamFormat : streamFormats) {
       if (areAdaptationCompatible(format, streamFormat)) {
+        haveUnknownDimensions |= (streamFormat.width == Format.NO_VALUE
+            || streamFormat.height == Format.NO_VALUE);
         maxWidth = Math.max(maxWidth, streamFormat.width);
         maxHeight = Math.max(maxHeight, streamFormat.height);
         maxInputSize = Math.max(maxInputSize, getMaxInputSize(streamFormat));
+      }
+    }
+    if (haveUnknownDimensions) {
+      Log.w(TAG, "Resolutions unknown. Codec max resolution: " + maxWidth + "x" + maxHeight);
+      Point codecMaxSize = getCodecMaxSize(codecInfo, format);
+      if (codecMaxSize != null) {
+        maxWidth = Math.max(maxWidth, codecMaxSize.x);
+        maxHeight = Math.max(maxHeight, codecMaxSize.y);
+        maxInputSize = Math.max(maxInputSize,
+            getMaxInputSize(format.sampleMimeType, maxWidth, maxHeight));
+        Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
       }
     }
     return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
   }
 
   /**
+   * Returns a maximum video size to use when configuring a codec for {@code format} in a way
+   * that will allow possible adaptation to other compatible formats that are expected to have the
+   * same aspect ratio, but whose sizes are unknown.
+   *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
+   * @param format The format for which the codec is being configured.
+   * @return The maximum video size to use, or null if the size of {@code format} should be used.
+   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
+   */
+  private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format)
+      throws DecoderQueryException {
+    boolean isVerticalVideo = format.height > format.width;
+    int formatLongEdgePx = isVerticalVideo ? format.height : format.width;
+    int formatShortEdgePx = isVerticalVideo ? format.width : format.height;
+    float aspectRatio = (float) formatShortEdgePx / formatLongEdgePx;
+    for (int longEdgePx : STANDARD_LONG_EDGE_VIDEO_PX) {
+      int shortEdgePx = (int) (longEdgePx * aspectRatio);
+      if (longEdgePx <= formatLongEdgePx || shortEdgePx <= formatShortEdgePx) {
+        // Don't return a size not larger than the format for which the codec is being configured.
+        return null;
+      } else if (Util.SDK_INT >= 21) {
+        Point alignedSize = codecInfo.alignVideoSizeV21(isVerticalVideo ? shortEdgePx : longEdgePx,
+            isVerticalVideo ? longEdgePx : shortEdgePx);
+        float frameRate = format.frameRate;
+        if (codecInfo.isVideoSizeAndRateSupportedV21(alignedSize.x, alignedSize.y, frameRate)) {
+          return alignedSize;
+        }
+      } else {
+        // Conservatively assume the codec requires 16px width and height alignment.
+        longEdgePx = Util.ceilDivide(longEdgePx, 16) * 16;
+        shortEdgePx = Util.ceilDivide(shortEdgePx, 16) * 16;
+        if (longEdgePx * shortEdgePx <= MediaCodecUtil.maxH264DecodableFrameSize()) {
+          return new Point(isVerticalVideo ? shortEdgePx : longEdgePx,
+              isVerticalVideo ? longEdgePx : shortEdgePx);
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
    * Returns a maximum input size for a given format.
    *
    * @param format The format.
-   * @return An maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
+   * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
    *     determined.
    */
   private static int getMaxInputSize(Format format) {
@@ -627,8 +692,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // The format defines an explicit maximum input size.
       return format.maxInputSize;
     }
+    return getMaxInputSize(format.sampleMimeType, format.width, format.height);
+  }
 
-    if (format.width == Format.NO_VALUE || format.height == Format.NO_VALUE) {
+  /**
+   * Returns a maximum input size for a given mime type, width and height.
+   *
+   * @param sampleMimeType The format mime type.
+   * @param width The width in pixels.
+   * @param height The height in pixels.
+   * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
+   *     determined.
+   */
+  private static int getMaxInputSize(String sampleMimeType, int width, int height) {
+    if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
       // We can't infer a maximum input size without video dimensions.
       return Format.NO_VALUE;
     }
@@ -636,10 +713,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Attempt to infer a maximum input size from the format.
     int maxPixels;
     int minCompressionRatio;
-    switch (format.sampleMimeType) {
+    switch (sampleMimeType) {
       case MimeTypes.VIDEO_H263:
       case MimeTypes.VIDEO_MP4V:
-        maxPixels = format.width * format.height;
+        maxPixels = width * height;
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_H264:
@@ -649,17 +726,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           return Format.NO_VALUE;
         }
         // Round up width/height to an integer number of macroblocks.
-        maxPixels = ((format.width + 15) / 16) * ((format.height + 15) / 16) * 16 * 16;
+        maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_VP8:
         // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
-        maxPixels = format.width * format.height;
+        maxPixels = width * height;
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_H265:
       case MimeTypes.VIDEO_VP9:
-        maxPixels = format.width * format.height;
+        maxPixels = width * height;
         minCompressionRatio = 4;
         break;
       default:

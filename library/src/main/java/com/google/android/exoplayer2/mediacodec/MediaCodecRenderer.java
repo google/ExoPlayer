@@ -276,11 +276,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Configures a newly created {@link MediaCodec}.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
+   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  protected abstract void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto);
+  protected abstract void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
+      MediaCrypto crypto) throws DecoderQueryException;
 
   @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
@@ -345,7 +348,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codec, format, mediaCrypto);
+      configureCodec(decoderInfo, codec, format, mediaCrypto);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
