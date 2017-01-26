@@ -194,15 +194,16 @@ import java.util.Locale;
 
     // Select the variant.
     trackSelection.updateSelectedTrack(bufferedDurationUs);
-    int newVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
+    int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
-    boolean switchingVariant = oldVariantIndex != newVariantIndex;
-    HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(variants[newVariantIndex]);
-    if (mediaPlaylist == null) {
-      out.playlist = variants[newVariantIndex];
+    boolean switchingVariant = oldVariantIndex != selectedVariantIndex;
+    HlsUrl selectedUrl = variants[selectedVariantIndex];
+    if (!playlistTracker.isSnapshotValid(selectedUrl)) {
+      out.playlist = selectedUrl;
       // Retry when playlist is refreshed.
       return;
     }
+    HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
 
     // Select the chunk.
     int chunkMediaSequence;
@@ -218,8 +219,9 @@ import java.util.Locale;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence && previous != null) {
           // We try getting the next chunk without adapting in case that's the reason for falling
           // behind the live window.
-          newVariantIndex = oldVariantIndex;
-          mediaPlaylist = playlistTracker.getPlaylistSnapshot(variants[newVariantIndex]);
+          selectedVariantIndex = oldVariantIndex;
+          selectedUrl = variants[selectedVariantIndex];
+          mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
           chunkMediaSequence = previous.getNextChunkIndex();
         }
       }
@@ -236,7 +238,7 @@ import java.util.Locale;
       if (mediaPlaylist.hasEndTag) {
         out.endOfStream = true;
       } else /* Live */ {
-        out.playlist = variants[newVariantIndex];
+        out.playlist = selectedUrl;
       }
       return;
     }
@@ -249,7 +251,7 @@ import java.util.Locale;
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, newVariantIndex,
+        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
             trackSelection.getSelectionReason(), trackSelection.getSelectionData());
         return;
       }
@@ -279,7 +281,7 @@ import java.util.Locale;
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
+    out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, selectedUrl,
         trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
         isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
