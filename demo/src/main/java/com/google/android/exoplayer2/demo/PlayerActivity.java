@@ -317,8 +317,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
-      player.seekTo(resumeWindow, resumePosition);
-      player.prepare(mediaSource, false, false);
+      boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
+      if (haveResumePosition) {
+        player.seekTo(resumeWindow, resumePosition);
+      }
+      player.prepare(mediaSource, !haveResumePosition, !haveResumePosition);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -377,7 +380,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   private void clearResumePosition() {
-    resumeWindow = 0;
+    resumeWindow = C.INDEX_UNSET;
     resumePosition = C.TIME_UNSET;
   }
 
