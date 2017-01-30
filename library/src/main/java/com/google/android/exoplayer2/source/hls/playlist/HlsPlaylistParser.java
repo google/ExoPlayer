@@ -43,6 +43,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String PLAYLIST_HEADER = "#EXTM3U";
 
   private static final String TAG_VERSION = "#EXT-X-VERSION";
+  private static final String TAG_PLAYLIST_TYPE = "#EXT-X-PLAYLIST-TYPE";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
   private static final String TAG_TARGET_DURATION = "#EXT-X-TARGETDURATION";
@@ -74,6 +75,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
       + ":(\\d+)\\b");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
+  private static final Pattern REGEX_PLAYLIST_TYPE = Pattern.compile(TAG_PLAYLIST_TYPE
+      + ":(.+)\\b");
   private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
       + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
@@ -245,6 +248,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
+    @HlsMediaPlaylist.PlaylistType int playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_UNKNOWN;
     long startOffsetUs = C.TIME_UNSET;
     int mediaSequence = 0;
     int version = 1; // Default version == 1.
@@ -270,7 +274,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
-      if (line.startsWith(TAG_START)) {
+      if (line.startsWith(TAG_PLAYLIST_TYPE)) {
+        String playlistTypeString = parseStringAttr(line, REGEX_PLAYLIST_TYPE);
+        if ("VOD".equals(playlistTypeString)) {
+          playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_VOD;
+        } else if ("EVENT".equals(playlistTypeString)) {
+          playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_EVENT;
+        } else {
+          throw new ParserException("Illegal playlist type: " + playlistTypeString);
+        }
+      } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_INIT_SEGMENT)) {
         String uri = parseStringAttr(line, REGEX_URI);
@@ -349,7 +362,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasEndTag = true;
       }
     }
-    return new HlsMediaPlaylist(baseUri, startOffsetUs, playlistStartTimeUs,
+    return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
         targetDurationUs, hasEndTag, playlistStartTimeUs != 0, initializationSegment, segments);
   }

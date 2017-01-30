@@ -450,10 +450,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       if (playlistSnapshot == null) {
         return false;
       }
-      // TODO: Return true for event playlists once playlist types are supported.
       long currentTimeMs = SystemClock.elapsedRealtime();
       long snapshotValidityDurationMs = Math.max(30000, C.usToMs(playlistSnapshot.durationUs));
       return playlistSnapshot.hasEndTag
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
           || lastSnapshotLoadMs + snapshotValidityDurationMs > currentTimeMs;
     }
 
