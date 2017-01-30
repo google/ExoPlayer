@@ -425,7 +425,12 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onPositionDiscontinuity() {
-    // Do nothing.
+    if (playerNeedsSource) {
+      // This will only occur if the user has performed a seek whilst in the error state. Update the
+      // resume position so that if the user then retries, playback will resume from the position to
+      // which they seeked.
+      updateResumePosition();
+    }
   }
 
   @Override
