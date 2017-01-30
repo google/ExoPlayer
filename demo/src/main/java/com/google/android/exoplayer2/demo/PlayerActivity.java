@@ -321,7 +321,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       if (haveResumePosition) {
         player.seekTo(resumeWindow, resumePosition);
       }
-      player.prepare(mediaSource, !haveResumePosition, !haveResumePosition);
+      player.prepare(mediaSource, !haveResumePosition, false);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
