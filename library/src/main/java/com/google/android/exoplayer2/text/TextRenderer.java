@@ -191,8 +191,6 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         // Try and read the next subtitle from the source.
         int result = readSource(formatHolder, nextInputBuffer);
         if (result == C.RESULT_BUFFER_READ) {
-          // Clear BUFFER_FLAG_DECODE_ONLY (see [Internal: b/27893809]) and queue the buffer.
-          nextInputBuffer.clearFlag(C.BUFFER_FLAG_DECODE_ONLY);
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;
           } else {
