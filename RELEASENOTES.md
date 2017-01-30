@@ -1,5 +1,13 @@
 # Release notes #
 
+### r1.5.14 ###
+
+* Fixed cache failures when using an encrypted cache content index.
+* SmoothStreaming: Work around "Offset to sample data was negative" failures
+  ([#2292](https://github.com/google/ExoPlayer/issues/2292),
+  [#2101](https://github.com/google/ExoPlayer/issues/2101) and
+  [#1152](https://github.com/google/ExoPlayer/issues/1152)).
+
 ### r1.5.13 ###
 
 * Improvements to the upstream cache package.
