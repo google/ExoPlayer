@@ -1215,7 +1215,7 @@ import java.io.IOException;
 
     long newLoadingPeriodStartPositionUs;
     if (loadingPeriodHolder == null) {
-      newLoadingPeriodStartPositionUs = playbackInfo.startPositionUs;
+      newLoadingPeriodStartPositionUs = playbackInfo.positionUs;
     } else {
       int newLoadingWindowIndex = timeline.getPeriod(newLoadingPeriodIndex, period).windowIndex;
       if (newLoadingPeriodIndex
