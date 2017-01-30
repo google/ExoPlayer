@@ -63,6 +63,7 @@ git clone git://source.ffmpeg.org/ffmpeg ffmpeg && cd ffmpeg && \
     --enable-decoder=vorbis \
     --enable-decoder=opus \
     --enable-decoder=flac \
+    --enable-decoder=alac \
     && \
 make -j4 && \
 make install-libs
