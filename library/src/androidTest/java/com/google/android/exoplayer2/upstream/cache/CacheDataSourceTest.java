@@ -27,7 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-/** Unit tests for {@link CacheDataSource}. */
+/**
+ * Unit tests for {@link CacheDataSource}.
+ */
 public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -117,6 +119,13 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
         C.LENGTH_UNSET, KEY_2)));
   }
 
+  public void testIgnoreCacheForUnsetLengthRequests() throws Exception {
+    CacheDataSource cacheDataSource = createCacheDataSource(false, true,
+        CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS);
+    assertReadData(cacheDataSource, true, 0, C.LENGTH_UNSET);
+    MoreAsserts.assertEmpty(simpleCache.getKeys());
+  }
+
   private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength)
       throws IOException {
     // Read all data from upstream and cache
@@ -169,6 +178,12 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength) {
+    return createCacheDataSource(setReadException, simulateUnknownLength,
+        CacheDataSource.FLAG_BLOCK_ON_CACHE);
+  }
+
+  private CacheDataSource createCacheDataSource(boolean setReadException,
+      boolean simulateUnknownLength, @CacheDataSource.Flags int flags) {
     Builder builder = new Builder();
     if (setReadException) {
       builder.appendReadError(new IOException("Shouldn't read from upstream"));
@@ -176,8 +191,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     builder.setSimulateUnknownLength(simulateUnknownLength);
     builder.appendReadData(TEST_DATA);
     FakeDataSource upstream = builder.build();
-    return new CacheDataSource(simpleCache, upstream, CacheDataSource.FLAG_BLOCK_ON_CACHE,
-        MAX_CACHE_FILE_SIZE);
+    return new CacheDataSource(simpleCache, upstream, flags, MAX_CACHE_FILE_SIZE);
   }
 
 }

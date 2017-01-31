@@ -72,7 +72,7 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  public int supportsFormat(Format format) {
+  protected int supportsFormatInternal(Format format) {
     return OpusLibrary.isAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
         ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
   }

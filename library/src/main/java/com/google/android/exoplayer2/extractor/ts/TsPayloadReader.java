@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.SparseArray;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 
 /**
  * Parses TS packet payload data.

@@ -529,11 +529,9 @@ public final class MatroskaExtractor implements Extractor {
         }
         break;
       case ID_TRACK_ENTRY:
-        if (tracks.get(currentTrack.number) == null && isCodecSupported(currentTrack.codecId)) {
+        if (isCodecSupported(currentTrack.codecId)) {
           currentTrack.initializeOutput(extractorOutput, currentTrack.number);
           tracks.put(currentTrack.number, currentTrack);
-        } else {
-          // We've seen this track entry before, or the codec is unsupported. Do nothing.
         }
         currentTrack = null;
         break;

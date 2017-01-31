@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.text.cea.Cea608Decoder;
+import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
@@ -36,40 +35,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   }
 
   public void consume(long pesTimeUs, ParsableByteArray seiBuffer) {
-    int b;
-    while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
-      // Parse payload type.
-      int payloadType = 0;
-      do {
-        b = seiBuffer.readUnsignedByte();
-        payloadType += b;
-      } while (b == 0xFF);
-      // Parse payload size.
-      int payloadSize = 0;
-      do {
-        b = seiBuffer.readUnsignedByte();
-        payloadSize += b;
-      } while (b == 0xFF);
-      // Process the payload.
-      if (Cea608Decoder.isSeiMessageCea608(payloadType, payloadSize, seiBuffer)) {
-        // Ignore country_code (1) + provider_code (2) + user_identifier (4)
-        // + user_data_type_code (1).
-        seiBuffer.skipBytes(8);
-        // Ignore first three bits: reserved (1) + process_cc_data_flag (1) + zero_bit (1).
-        int ccCount = seiBuffer.readUnsignedByte() & 0x1F;
-        // Ignore em_data (1)
-        seiBuffer.skipBytes(1);
-        // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
-        // + cc_data_1 (8) + cc_data_2 (8).
-        int sampleLength = ccCount * 3;
-        output.sampleData(seiBuffer, sampleLength);
-        output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
-        // Ignore trailing information in SEI, if any.
-        seiBuffer.skipBytes(payloadSize - (10 + ccCount * 3));
-      } else {
-        seiBuffer.skipBytes(payloadSize);
-      }
-    }
+    CeaUtil.consume(pesTimeUs, seiBuffer, output);
   }
 
 }

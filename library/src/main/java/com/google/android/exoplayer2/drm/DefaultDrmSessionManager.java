@@ -24,7 +24,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
+import android.util.Log;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
@@ -33,18 +36,21 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * A {@link DrmSessionManager} that supports streaming playbacks using {@link MediaDrm}.
+ * A {@link DrmSessionManager} that supports playbacks using {@link MediaDrm}.
  */
 @TargetApi(18)
-public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T>,
+public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T>,
     DrmSession<T> {
 
   /**
-   * Listener of {@link StreamingDrmSessionManager} events.
+   * Listener of {@link DefaultDrmSessionManager} events.
    */
   public interface EventListener {
 
@@ -60,6 +66,16 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
      */
     void onDrmSessionManagerError(Exception e);
 
+    /**
+     * Called each time offline keys are restored.
+     */
+    void onDrmKeysRestored();
+
+    /**
+     * Called each time offline keys are removed.
+     */
+    void onDrmKeysRemoved();
+
   }
 
   /**
@@ -67,8 +83,31 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
    */
   public static final String PLAYREADY_CUSTOM_DATA_KEY = "PRCustomData";
 
+  /** Determines the action to be done after a session acquired. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({MODE_PLAYBACK, MODE_QUERY, MODE_DOWNLOAD, MODE_RELEASE})
+  public @interface Mode {}
+  /**
+   * Loads and refreshes (if necessary) a license for playback. Supports streaming and offline
+   * licenses.
+   */
+  public static final int MODE_PLAYBACK = 0;
+  /**
+   * Restores an offline license to allow its status to be queried. If the offline license is
+   * expired sets state to {@link #STATE_ERROR}.
+   */
+  public static final int MODE_QUERY = 1;
+  /** Downloads an offline license or renews an existing one. */
+  public static final int MODE_DOWNLOAD = 2;
+  /** Releases an existing offline license. */
+  public static final int MODE_RELEASE = 3;
+
+  private static final String TAG = "OfflineDrmSessionMngr";
+
   private static final int MSG_PROVISION = 0;
   private static final int MSG_KEYS = 1;
+
+  private static final int MAX_LICENSE_DURATION_TO_RENEW = 60;
 
   private final Handler eventHandler;
   private final EventListener eventListener;
@@ -85,14 +124,17 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
   private HandlerThread requestHandlerThread;
   private Handler postRequestHandler;
 
+  private int mode;
   private int openCount;
   private boolean provisioningInProgress;
   @DrmSession.State
   private int state;
   private T mediaCrypto;
-  private Exception lastException;
-  private SchemeData schemeData;
+  private DrmSessionException lastException;
+  private byte[] schemeInitData;
+  private String schemeMimeType;
   private byte[] sessionId;
+  private byte[] offlineLicenseKeySetId;
 
   /**
    * Instantiates a new instance using the Widevine scheme.
@@ -105,7 +147,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
-  public static StreamingDrmSessionManager<FrameworkMediaCrypto> newWidevineInstance(
+  public static DefaultDrmSessionManager<FrameworkMediaCrypto> newWidevineInstance(
       MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
       Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
     return newFrameworkInstance(C.WIDEVINE_UUID, callback, optionalKeyRequestParameters,
@@ -125,7 +167,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
-  public static StreamingDrmSessionManager<FrameworkMediaCrypto> newPlayReadyInstance(
+  public static DefaultDrmSessionManager<FrameworkMediaCrypto> newPlayReadyInstance(
       MediaDrmCallback callback, String customData, Handler eventHandler,
       EventListener eventListener) throws UnsupportedDrmException {
     HashMap<String, String> optionalKeyRequestParameters;
@@ -151,10 +193,10 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
-  public static StreamingDrmSessionManager<FrameworkMediaCrypto> newFrameworkInstance(
+  public static DefaultDrmSessionManager<FrameworkMediaCrypto> newFrameworkInstance(
       UUID uuid, MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
       Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
-    return new StreamingDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), callback,
+    return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), callback,
         optionalKeyRequestParameters, eventHandler, eventListener);
   }
 
@@ -168,7 +210,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public StreamingDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
+  public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
       EventListener eventListener) {
     this.uuid = uuid;
@@ -179,6 +221,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
     this.eventListener = eventListener;
     mediaDrm.setOnEventListener(new MediaDrmEventListener());
     state = STATE_CLOSED;
+    mode = MODE_PLAYBACK;
   }
 
   /**
@@ -229,6 +272,35 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
     mediaDrm.setPropertyByteArray(key, value);
   }
 
+  /**
+   * Sets the mode, which determines the role of sessions acquired from the instance. This must be
+   * called before {@link #acquireSession(Looper, DrmInitData)} is called.
+   *
+   * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
+   * required.
+   *
+   * <p>{@code mode} must be one of these:
+   * <li>{@link #MODE_PLAYBACK}: If {@code offlineLicenseKeySetId} is null, a streaming license is
+   *     requested otherwise the offline license is restored.
+   * <li>{@link #MODE_QUERY}: {@code offlineLicenseKeySetId} can not be null. The offline license
+   *     is restored.
+   * <li>{@link #MODE_DOWNLOAD}: If {@code offlineLicenseKeySetId} is null, an offline license is
+   *     requested otherwise the offline license is renewed.
+   * <li>{@link #MODE_RELEASE}: {@code offlineLicenseKeySetId} can not be null. The offline license
+   *     is released.
+   *
+   * @param mode The mode to be set.
+   * @param offlineLicenseKeySetId The key set id of the license to be used with the given mode.
+   */
+  public void setMode(@Mode int mode, byte[] offlineLicenseKeySetId) {
+    Assertions.checkState(openCount == 0);
+    if (mode == MODE_QUERY || mode == MODE_RELEASE) {
+      Assertions.checkNotNull(offlineLicenseKeySetId);
+    }
+    this.mode = mode;
+    this.offlineLicenseKeySetId = offlineLicenseKeySetId;
+  }
+
   // DrmSessionManager implementation.
 
   @Override
@@ -248,18 +320,22 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
     requestHandlerThread.start();
     postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
 
-    schemeData = drmInitData.get(uuid);
-    if (schemeData == null) {
-      onError(new IllegalStateException("Media does not support uuid: " + uuid));
-      return this;
-    }
-    if (Util.SDK_INT < 21) {
-      // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
-      byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeData.data, C.WIDEVINE_UUID);
-      if (psshData == null) {
-        // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
-      } else {
-        schemeData = new SchemeData(C.WIDEVINE_UUID, schemeData.mimeType, psshData);
+    if (offlineLicenseKeySetId == null) {
+      SchemeData schemeData = drmInitData.get(uuid);
+      if (schemeData == null) {
+        onError(new IllegalStateException("Media does not support uuid: " + uuid));
+        return this;
+      }
+      schemeInitData = schemeData.data;
+      schemeMimeType = schemeData.mimeType;
+      if (Util.SDK_INT < 21) {
+        // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
+        byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeInitData, C.WIDEVINE_UUID);
+        if (psshData == null) {
+          // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
+        } else {
+          schemeInitData = psshData;
+        }
       }
     }
     state = STATE_OPENING;
@@ -280,7 +356,8 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
     postRequestHandler = null;
     requestHandlerThread.quit();
     requestHandlerThread = null;
-    schemeData = null;
+    schemeInitData = null;
+    schemeMimeType = null;
     mediaCrypto = null;
     lastException = null;
     if (sessionId != null) {
@@ -314,8 +391,23 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
-  public final Exception getError() {
+  public final DrmSessionException getError() {
     return state == STATE_ERROR ? lastException : null;
+  }
+
+  @Override
+  public Map<String, String> queryKeyStatus() {
+    // User may call this method rightfully even if state == STATE_ERROR. So only check if there is
+    // a sessionId
+    if (sessionId == null) {
+      throw new IllegalStateException();
+    }
+    return mediaDrm.queryKeyStatus(sessionId);
+  }
+
+  @Override
+  public byte[] getOfflineLicenseKeySetId() {
+    return offlineLicenseKeySetId;
   }
 
   // Internal methods.
@@ -325,7 +417,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
       sessionId = mediaDrm.openSession();
       mediaCrypto = mediaDrm.createMediaCrypto(uuid, sessionId);
       state = STATE_OPENED;
-      postKeyRequest();
+      doLicense();
     } catch (NotProvisionedException e) {
       if (allowProvisioning) {
         postProvisionRequest();
@@ -363,20 +455,86 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
       if (state == STATE_OPENING) {
         openInternal(false);
       } else {
-        postKeyRequest();
+        doLicense();
       }
     } catch (DeniedByServerException e) {
       onError(e);
     }
   }
 
-  private void postKeyRequest() {
-    KeyRequest keyRequest;
+  private void doLicense() {
+    switch (mode) {
+      case MODE_PLAYBACK:
+      case MODE_QUERY:
+        if (offlineLicenseKeySetId == null) {
+          postKeyRequest(sessionId, MediaDrm.KEY_TYPE_STREAMING);
+        } else {
+          if (restoreKeys()) {
+            long licenseDurationRemainingSec = getLicenseDurationRemainingSec();
+            if (mode == MODE_PLAYBACK
+                && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW) {
+              Log.d(TAG, "Offline license has expired or will expire soon. "
+                  + "Remaining seconds: " + licenseDurationRemainingSec);
+              postKeyRequest(sessionId, MediaDrm.KEY_TYPE_OFFLINE);
+            } else if (licenseDurationRemainingSec <= 0) {
+              onError(new KeysExpiredException());
+            } else {
+              state = STATE_OPENED_WITH_KEYS;
+              if (eventHandler != null && eventListener != null) {
+                eventHandler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    eventListener.onDrmKeysRestored();
+                  }
+                });
+              }
+            }
+          }
+        }
+        break;
+      case MODE_DOWNLOAD:
+        if (offlineLicenseKeySetId == null) {
+          postKeyRequest(sessionId, MediaDrm.KEY_TYPE_OFFLINE);
+        } else {
+          // Renew
+          if (restoreKeys()) {
+            postKeyRequest(sessionId, MediaDrm.KEY_TYPE_OFFLINE);
+          }
+        }
+        break;
+      case MODE_RELEASE:
+        if (restoreKeys()) {
+          postKeyRequest(offlineLicenseKeySetId, MediaDrm.KEY_TYPE_RELEASE);
+        }
+        break;
+    }
+  }
+
+  private boolean restoreKeys() {
     try {
-      keyRequest = mediaDrm.getKeyRequest(sessionId, schemeData.data, schemeData.mimeType,
-          MediaDrm.KEY_TYPE_STREAMING, optionalKeyRequestParameters);
+      mediaDrm.restoreKeys(sessionId, offlineLicenseKeySetId);
+      return true;
+    } catch (Exception e) {
+      Log.e(TAG, "Error trying to restore Widevine keys.", e);
+      onError(e);
+    }
+    return false;
+  }
+
+  private long getLicenseDurationRemainingSec() {
+    if (!C.WIDEVINE_UUID.equals(uuid)) {
+      return Long.MAX_VALUE;
+    }
+    Pair<Long, Long> pair = WidevineUtil.getLicenseDurationRemainingSec(this);
+    return Math.min(pair.first, pair.second);
+  }
+
+  private void postKeyRequest(byte[] scope, int keyType) {
+    try {
+      KeyRequest keyRequest = mediaDrm.getKeyRequest(scope, schemeInitData, schemeMimeType, keyType,
+          optionalKeyRequestParameters);
       postRequestHandler.obtainMessage(MSG_KEYS, keyRequest).sendToTarget();
-    } catch (NotProvisionedException e) {
+    } catch (Exception e) {
       onKeysError(e);
     }
   }
@@ -393,15 +551,31 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
     }
 
     try {
-      mediaDrm.provideKeyResponse(sessionId, (byte[]) response);
-      state = STATE_OPENED_WITH_KEYS;
-      if (eventHandler != null && eventListener != null) {
-        eventHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            eventListener.onDrmKeysLoaded();
-          }
-        });
+      if (mode == MODE_RELEASE) {
+        mediaDrm.provideKeyResponse(offlineLicenseKeySetId, (byte[]) response);
+        if (eventHandler != null && eventListener != null) {
+          eventHandler.post(new Runnable() {
+            @Override
+            public void run() {
+              eventListener.onDrmKeysRemoved();
+            }
+          });
+        }
+      } else {
+        byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, (byte[]) response);
+        if ((mode == MODE_DOWNLOAD || (mode == MODE_PLAYBACK && offlineLicenseKeySetId != null))
+            && keySetId != null && keySetId.length != 0) {
+          offlineLicenseKeySetId = keySetId;
+        }
+        state = STATE_OPENED_WITH_KEYS;
+        if (eventHandler != null && eventListener != null) {
+          eventHandler.post(new Runnable() {
+            @Override
+            public void run() {
+              eventListener.onDrmKeysLoaded();
+            }
+          });
+        }
       }
     } catch (Exception e) {
       onKeysError(e);
@@ -417,7 +591,7 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
   }
 
   private void onError(final Exception e) {
-    lastException = e;
+    lastException = new DrmSessionException(e);
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
         @Override
@@ -446,11 +620,16 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
       }
       switch (msg.what) {
         case MediaDrm.EVENT_KEY_REQUIRED:
-          postKeyRequest();
+          doLicense();
           break;
         case MediaDrm.EVENT_KEY_EXPIRED:
-          state = STATE_OPENED;
-          onError(new KeysExpiredException());
+          // When an already expired key is loaded MediaDrm sends this event immediately. Ignore
+          // this event if the state isn't STATE_OPENED_WITH_KEYS yet which means we're still
+          // waiting for key response.
+          if (state == STATE_OPENED_WITH_KEYS) {
+            state = STATE_OPENED;
+            onError(new KeysExpiredException());
+          }
           break;
         case MediaDrm.EVENT_PROVISION_REQUIRED:
           state = STATE_OPENED;
@@ -466,7 +645,9 @@ public class StreamingDrmSessionManager<T extends ExoMediaCrypto> implements Drm
     @Override
     public void onEvent(ExoMediaDrm<? extends T> md, byte[] sessionId, int event, int extra,
         byte[] data) {
-      mediaDrmHandler.sendEmptyMessage(event);
+      if (mode == MODE_PLAYBACK) {
+        mediaDrmHandler.sendEmptyMessage(event);
+      }
     }
 
   }

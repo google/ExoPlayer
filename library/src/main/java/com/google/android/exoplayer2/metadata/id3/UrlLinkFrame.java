@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,23 @@ import android.os.Parcelable;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * TXXX (User defined text information) ID3 frame.
+ * Url link ID3 frame.
  */
-public final class TxxxFrame extends Id3Frame {
-
-  public static final String ID = "TXXX";
+public final class UrlLinkFrame extends Id3Frame {
 
   public final String description;
-  public final String value;
+  public final String url;
 
-  public TxxxFrame(String description, String value) {
-    super(ID);
+  public UrlLinkFrame(String id, String description, String url) {
+    super(id);
     this.description = description;
-    this.value = value;
+    this.url = url;
   }
 
-  /* package */ TxxxFrame(Parcel in) {
-    super(ID);
+  /* package */ UrlLinkFrame(Parcel in) {
+    super(in.readString());
     description = in.readString();
-    value = in.readString();
+    url = in.readString();
   }
 
   @Override
@@ -49,36 +47,40 @@ public final class TxxxFrame extends Id3Frame {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    TxxxFrame other = (TxxxFrame) obj;
-    return Util.areEqual(description, other.description) && Util.areEqual(value, other.value);
+    UrlLinkFrame other = (UrlLinkFrame) obj;
+    return id.equals(other.id) && Util.areEqual(description, other.description)
+        && Util.areEqual(url, other.url);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
+    result = 31 * result + id.hashCode();
     result = 31 * result + (description != null ? description.hashCode() : 0);
-    result = 31 * result + (value != null ? value.hashCode() : 0);
+    result = 31 * result + (url != null ? url.hashCode() : 0);
     return result;
   }
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(id);
     dest.writeString(description);
-    dest.writeString(value);
+    dest.writeString(url);
   }
 
-  public static final Parcelable.Creator<TxxxFrame> CREATOR = new Parcelable.Creator<TxxxFrame>() {
+  public static final Parcelable.Creator<UrlLinkFrame> CREATOR =
+      new Parcelable.Creator<UrlLinkFrame>() {
 
-    @Override
-    public TxxxFrame createFromParcel(Parcel in) {
-      return new TxxxFrame(in);
-    }
+        @Override
+        public UrlLinkFrame createFromParcel(Parcel in) {
+          return new UrlLinkFrame(in);
+        }
 
-    @Override
-    public TxxxFrame[] newArray(int size) {
-      return new TxxxFrame[size];
-    }
+        @Override
+        public UrlLinkFrame[] newArray(int size) {
+          return new UrlLinkFrame[size];
+        }
 
-  };
+      };
 
 }
