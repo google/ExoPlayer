@@ -672,9 +672,6 @@ public final class Format implements Parcelable {
     dest.writeParcelable(metadata, 0);
   }
 
-  /**
-   * {@link Creator} implementation.
-   */
   public static final Creator<Format> CREATOR = new Creator<Format>() {
 
     @Override
