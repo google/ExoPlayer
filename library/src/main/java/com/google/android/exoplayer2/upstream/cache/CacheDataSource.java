@@ -142,7 +142,8 @@ public final class CacheDataSource implements DataSource {
    * @param cache The cache.
    * @param upstream A {@link DataSource} for reading data not in the cache.
    * @param cacheReadDataSource A {@link DataSource} for reading data from the cache.
-   * @param cacheWriteDataSink A {@link DataSink} for writing data to the cache.
+   * @param cacheWriteDataSink A {@link DataSink} for writing data to the cache. If null, cache is
+   *     accessed read-only.
    * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE} and {@link
    *     #FLAG_IGNORE_CACHE_ON_ERROR} or 0.
    * @param eventListener An optional {@link EventListener} to receive events.
@@ -283,7 +284,6 @@ public final class CacheDataSource implements DataSource {
       currentDataSource = cacheReadDataSource;
     } else {
       // Data is not cached, and data is not locked, read from upstream with cache backing.
-      lockedSpan = span;
       long length;
       if (span.isOpenEnded()) {
         length = bytesRemaining;
@@ -294,8 +294,13 @@ public final class CacheDataSource implements DataSource {
         }
       }
       dataSpec = new DataSpec(uri, readPosition, length, key, flags);
-      currentDataSource = cacheWriteDataSource != null ? cacheWriteDataSource
-          : upstreamDataSource;
+      if (cacheWriteDataSource != null) {
+        currentDataSource = cacheWriteDataSource;
+        lockedSpan = span;
+      } else {
+        currentDataSource = upstreamDataSource;
+        cache.releaseHoleSpan(span);
+      }
     }
 
     currentRequestUnbounded = dataSpec.length == C.LENGTH_UNSET;

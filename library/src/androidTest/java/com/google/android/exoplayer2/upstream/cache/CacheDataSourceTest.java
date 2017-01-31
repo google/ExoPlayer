@@ -20,9 +20,9 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.testutil.FakeDataSource.Builder;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -126,9 +126,15 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     MoreAsserts.assertEmpty(simpleCache.getKeys());
   }
 
+  public void testReadOnlyCache() throws Exception {
+    CacheDataSource cacheDataSource = createCacheDataSource(false, false, 0, null);
+    assertReadDataContentLength(cacheDataSource, false, false);
+    assertEquals(0, cacheDir.list().length);
+  }
+
   private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength)
       throws IOException {
-    // Read all data from upstream and cache
+    // Read all data from upstream and write to cache
     CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength);
     assertReadDataContentLength(cacheDataSource, unboundedRequest, simulateUnknownLength);
 
@@ -184,14 +190,21 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength, @CacheDataSource.Flags int flags) {
-    Builder builder = new Builder();
+    return createCacheDataSource(setReadException, simulateUnknownLength, flags,
+        new CacheDataSink(simpleCache, MAX_CACHE_FILE_SIZE));
+  }
+
+  private CacheDataSource createCacheDataSource(boolean setReadException,
+      boolean simulateUnknownLength, @CacheDataSource.Flags int flags,
+      CacheDataSink cacheWriteDataSink) {
+    FakeDataSource.Builder builder = new FakeDataSource.Builder();
     if (setReadException) {
       builder.appendReadError(new IOException("Shouldn't read from upstream"));
     }
-    builder.setSimulateUnknownLength(simulateUnknownLength);
-    builder.appendReadData(TEST_DATA);
-    FakeDataSource upstream = builder.build();
-    return new CacheDataSource(simpleCache, upstream, flags, MAX_CACHE_FILE_SIZE);
+    FakeDataSource upstream =
+        builder.setSimulateUnknownLength(simulateUnknownLength).appendReadData(TEST_DATA).build();
+    return new CacheDataSource(simpleCache, upstream, new FileDataSource(), cacheWriteDataSink,
+        flags, null);
   }
 
 }
