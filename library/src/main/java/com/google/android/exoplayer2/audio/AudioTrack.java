@@ -25,7 +25,6 @@ import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -271,9 +270,9 @@ public final class AudioTrack {
   @C.StreamType
   private int streamType;
   @C.Encoding
-  private int sourceEncoding;
+  private int inputEncoding;
   @C.Encoding
-  private int targetEncoding;
+  private int outputEncoding;
   private boolean passthrough;
   private int pcmFrameSize;
   private int bufferSize;
@@ -299,12 +298,12 @@ public final class AudioTrack {
   private long latencyUs;
   private float volume;
 
-  private byte[] temporaryBuffer;
-  private int temporaryBufferOffset;
-  private ByteBuffer currentSourceBuffer;
+  private ByteBuffer inputBuffer;
+  private ByteBuffer outputBuffer;
+  private byte[] preV21OutputBuffer;
+  private int preV21OutputBufferOffset;
 
-  private ByteBuffer resampledBuffer;
-  private boolean useResampledBuffer;
+  private BufferProcessor resampler;
 
   private boolean playing;
   private int audioSessionId;
@@ -470,17 +469,17 @@ public final class AudioTrack {
       channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
     }
 
-    @C.Encoding int sourceEncoding;
+    @C.Encoding int inputEncoding;
     if (passthrough) {
-      sourceEncoding = getEncodingForMimeType(mimeType);
+      inputEncoding = getEncodingForMimeType(mimeType);
     } else if (pcmEncoding == C.ENCODING_PCM_8BIT || pcmEncoding == C.ENCODING_PCM_16BIT
         || pcmEncoding == C.ENCODING_PCM_24BIT || pcmEncoding == C.ENCODING_PCM_32BIT) {
-      sourceEncoding = pcmEncoding;
+      inputEncoding = pcmEncoding;
     } else {
       throw new IllegalArgumentException("Unsupported PCM encoding: " + pcmEncoding);
     }
 
-    if (isInitialized() && this.sourceEncoding == sourceEncoding && this.sampleRate == sampleRate
+    if (isInitialized() && this.inputEncoding == inputEncoding && this.sampleRate == sampleRate
         && this.channelConfig == channelConfig) {
       // We already have an audio track with the correct sample rate, channel config and encoding.
       return;
@@ -488,28 +487,31 @@ public final class AudioTrack {
 
     reset();
 
-    this.sourceEncoding = sourceEncoding;
+    this.inputEncoding = inputEncoding;
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-    targetEncoding = passthrough ? sourceEncoding : C.ENCODING_PCM_16BIT;
     pcmFrameSize = 2 * channelCount; // 2 bytes per 16-bit sample * number of channels.
+    outputEncoding = passthrough ? inputEncoding : C.ENCODING_PCM_16BIT;
+
+    resampler = outputEncoding != inputEncoding ? new ResamplingBufferProcessor(inputEncoding)
+        : null;
 
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
     } else if (passthrough) {
       // TODO: Set the minimum buffer size using getMinBufferSize when it takes the encoding into
       // account. [Internal: b/25181305]
-      if (targetEncoding == C.ENCODING_AC3 || targetEncoding == C.ENCODING_E_AC3) {
+      if (outputEncoding == C.ENCODING_AC3 || outputEncoding == C.ENCODING_E_AC3) {
         // AC-3 allows bitrates up to 640 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 80 * 1024 / C.MICROS_PER_SECOND);
-      } else /* (targetEncoding == C.ENCODING_DTS || targetEncoding == C.ENCODING_DTS_HD */ {
+      } else /* (outputEncoding == C.ENCODING_DTS || outputEncoding == C.ENCODING_DTS_HD */ {
         // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 1024 / C.MICROS_PER_SECOND);
       }
     } else {
       int minBufferSize =
-          android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, targetEncoding);
+          android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, outputEncoding);
       Assertions.checkState(minBufferSize != ERROR_BAD_VALUE);
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * pcmFrameSize;
@@ -531,15 +533,15 @@ public final class AudioTrack {
     releasingConditionVariable.block();
 
     if (tunneling) {
-      audioTrack = createHwAvSyncAudioTrackV21(sampleRate, channelConfig, targetEncoding,
+      audioTrack = createHwAvSyncAudioTrackV21(sampleRate, channelConfig, outputEncoding,
           bufferSize, audioSessionId);
     } else if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
       audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig,
-          targetEncoding, bufferSize, MODE_STREAM);
+          outputEncoding, bufferSize, MODE_STREAM);
     } else {
       // Re-attach to the same audio session.
       audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig,
-          targetEncoding, bufferSize, MODE_STREAM, audioSessionId);
+          outputEncoding, bufferSize, MODE_STREAM, audioSessionId);
     }
     checkAudioTrackInitialized();
 
@@ -611,8 +613,10 @@ public final class AudioTrack {
    * @throws InitializationException If an error occurs initializing the track.
    * @throws WriteException If an error occurs writing the audio data.
    */
+  @SuppressWarnings("ReferenceEquality")
   public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
       throws InitializationException, WriteException {
+    Assertions.checkArgument(inputBuffer == null || buffer == inputBuffer);
     if (!isInitialized()) {
       initialize();
       if (playing) {
@@ -620,27 +624,12 @@ public final class AudioTrack {
       }
     }
 
-    boolean hadData = hasData;
-    hasData = hasPendingData();
-    if (hadData && !hasData && audioTrack.getPlayState() != PLAYSTATE_STOPPED) {
-      long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
-      listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs), elapsedSinceLastFeedMs);
-    }
-    boolean result = writeBuffer(buffer, presentationTimeUs);
-    lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
-    return result;
-  }
-
-  @SuppressWarnings("ReferenceEquality")
-  private boolean writeBuffer(ByteBuffer buffer, long presentationTimeUs) throws WriteException {
-    boolean isNewSourceBuffer = currentSourceBuffer == null;
-    Assertions.checkState(isNewSourceBuffer || currentSourceBuffer == buffer);
-    currentSourceBuffer = buffer;
-
     if (needsPassthroughWorkarounds()) {
       // An AC-3 audio track continues to play data written while it is paused. Stop writing so its
       // buffer empties. See [Internal: b/18899620].
       if (audioTrack.getPlayState() == PLAYSTATE_PAUSED) {
+        // We force an underrun to pause the track, so don't notify the listener in this case.
+        hasData = false;
         return false;
       }
 
@@ -653,27 +642,25 @@ public final class AudioTrack {
       }
     }
 
-    if (isNewSourceBuffer) {
-      // We're seeing this buffer for the first time.
+    boolean hadData = hasData;
+    hasData = hasPendingData();
+    if (hadData && !hasData && audioTrack.getPlayState() != PLAYSTATE_STOPPED) {
+      long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
+      listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs), elapsedSinceLastFeedMs);
+    }
 
-      if (!currentSourceBuffer.hasRemaining()) {
+    if (inputBuffer == null) {
+      // We are seeing this buffer for the first time.
+      if (!buffer.hasRemaining()) {
         // The buffer is empty.
-        currentSourceBuffer = null;
         return true;
-      }
-
-      useResampledBuffer = targetEncoding != sourceEncoding;
-      if (useResampledBuffer) {
-        Assertions.checkState(targetEncoding == C.ENCODING_PCM_16BIT);
-        // Resample the buffer to get the data in the target encoding.
-        resampledBuffer = resampleTo16BitPcm(currentSourceBuffer, sourceEncoding, resampledBuffer);
-        buffer = resampledBuffer;
       }
 
       if (passthrough && framesPerEncodedSample == 0) {
         // If this is the first encoded sample, calculate the sample size in frames.
-        framesPerEncodedSample = getFramesPerEncodedSample(targetEncoding, buffer);
+        framesPerEncodedSample = getFramesPerEncodedSample(outputEncoding, buffer);
       }
+
       if (startMediaTimeState == START_NOT_SET) {
         startMediaTimeUs = Math.max(0, presentationTimeUs);
         startMediaTimeState = START_IN_SYNC;
@@ -695,21 +682,31 @@ public final class AudioTrack {
           listener.onPositionDiscontinuity();
         }
       }
+
+      inputBuffer = buffer;
+      outputBuffer = resampler != null ? resampler.handleBuffer(inputBuffer, outputBuffer)
+          : inputBuffer;
       if (Util.SDK_INT < 21) {
-        // Copy {@code buffer} into {@code temporaryBuffer}.
-        int bytesRemaining = buffer.remaining();
-        if (temporaryBuffer == null || temporaryBuffer.length < bytesRemaining) {
-          temporaryBuffer = new byte[bytesRemaining];
+        int bytesRemaining = outputBuffer.remaining();
+        if (preV21OutputBuffer == null || preV21OutputBuffer.length < bytesRemaining) {
+          preV21OutputBuffer = new byte[bytesRemaining];
         }
-        int originalPosition = buffer.position();
-        buffer.get(temporaryBuffer, 0, bytesRemaining);
-        buffer.position(originalPosition);
-        temporaryBufferOffset = 0;
+        int originalPosition = outputBuffer.position();
+        outputBuffer.get(preV21OutputBuffer, 0, bytesRemaining);
+        outputBuffer.position(originalPosition);
+        preV21OutputBufferOffset = 0;
       }
     }
 
-    buffer = useResampledBuffer ? resampledBuffer : buffer;
-    int bytesRemaining = buffer.remaining();
+    if (writeOutputBuffer(presentationTimeUs)) {
+      inputBuffer = null;
+      return true;
+    }
+    return false;
+  }
+
+  private boolean writeOutputBuffer(long presentationTimeUs) throws WriteException {
+    int bytesRemaining = outputBuffer.remaining();
     int bytesWritten = 0;
     if (Util.SDK_INT < 21) { // passthrough == false
       // Work out how many bytes we can write without the risk of blocking.
@@ -718,17 +715,20 @@ public final class AudioTrack {
       int bytesToWrite = bufferSize - bytesPending;
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(bytesRemaining, bytesToWrite);
-        bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
-        if (bytesWritten >= 0) {
-          temporaryBufferOffset += bytesWritten;
+        bytesWritten = audioTrack.write(preV21OutputBuffer, preV21OutputBufferOffset, bytesToWrite);
+        if (bytesWritten > 0) {
+          preV21OutputBufferOffset += bytesWritten;
+          outputBuffer.position(outputBuffer.position() + bytesWritten);
         }
-        buffer.position(buffer.position() + bytesWritten);
       }
+    } else if (tunneling) {
+      bytesWritten = writeNonBlockingWithAvSyncV21(audioTrack, outputBuffer, bytesRemaining,
+          presentationTimeUs);
     } else {
-      bytesWritten = tunneling
-          ? writeNonBlockingWithAvSyncV21(audioTrack, buffer, bytesRemaining, presentationTimeUs)
-          : writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
+      bytesWritten = writeNonBlockingV21(audioTrack, outputBuffer, bytesRemaining);
     }
+
+    lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
     if (bytesWritten < 0) {
       throw new WriteException(bytesWritten);
@@ -741,7 +741,6 @@ public final class AudioTrack {
       if (passthrough) {
         submittedEncodedFrames += framesPerEncodedSample;
       }
-      currentSourceBuffer = null;
       return true;
     }
     return false;
@@ -885,7 +884,7 @@ public final class AudioTrack {
       submittedPcmBytes = 0;
       submittedEncodedFrames = 0;
       framesPerEncodedSample = 0;
-      currentSourceBuffer = null;
+      inputBuffer = null;
       avSyncHeader = null;
       bytesUntilNextAvSync = 0;
       startMediaTimeState = START_NOT_SET;
@@ -1094,7 +1093,7 @@ public final class AudioTrack {
    */
   private boolean needsPassthroughWorkarounds() {
     return Util.SDK_INT < 23
-        && (targetEncoding == C.ENCODING_AC3 || targetEncoding == C.ENCODING_E_AC3);
+        && (outputEncoding == C.ENCODING_AC3 || outputEncoding == C.ENCODING_E_AC3);
   }
 
   /**
@@ -1127,82 +1126,6 @@ public final class AudioTrack {
         .build();
     return new android.media.AudioTrack(attributesBuilder, format, bufferSize, MODE_STREAM,
         sessionId);
-  }
-
-  /**
-   * Converts the provided buffer into 16-bit PCM.
-   *
-   * @param buffer The buffer containing the data to convert.
-   * @param sourceEncoding The data encoding.
-   * @param out A buffer into which the output should be written, if its capacity is sufficient.
-   * @return The 16-bit PCM output. Different to the out parameter if null was passed, or if the
-   *     capacity was insufficient for the output.
-   */
-  private static ByteBuffer resampleTo16BitPcm(ByteBuffer buffer, @C.PcmEncoding int sourceEncoding,
-      ByteBuffer out) {
-    int offset = buffer.position();
-    int limit = buffer.limit();
-    int size = limit - offset;
-
-    int resampledSize;
-    switch (sourceEncoding) {
-      case C.ENCODING_PCM_8BIT:
-        resampledSize = size * 2;
-        break;
-      case C.ENCODING_PCM_24BIT:
-        resampledSize = (size / 3) * 2;
-        break;
-      case C.ENCODING_PCM_32BIT:
-        resampledSize = size / 2;
-        break;
-      case C.ENCODING_PCM_16BIT:
-      case C.ENCODING_INVALID:
-      case Format.NO_VALUE:
-      default:
-        // Never happens.
-        throw new IllegalStateException();
-    }
-
-    ByteBuffer resampledBuffer = out;
-    if (resampledBuffer == null || resampledBuffer.capacity() < resampledSize) {
-      resampledBuffer = ByteBuffer.allocateDirect(resampledSize);
-    }
-    resampledBuffer.position(0);
-    resampledBuffer.limit(resampledSize);
-
-    // Samples are little endian.
-    switch (sourceEncoding) {
-      case C.ENCODING_PCM_8BIT:
-        // 8->16 bit resampling. Shift each byte from [0, 256) to [-128, 128) and scale up.
-        for (int i = offset; i < limit; i++) {
-          resampledBuffer.put((byte) 0);
-          resampledBuffer.put((byte) ((buffer.get(i) & 0xFF) - 128));
-        }
-        break;
-      case C.ENCODING_PCM_24BIT:
-        // 24->16 bit resampling. Drop the least significant byte.
-        for (int i = offset; i < limit; i += 3) {
-          resampledBuffer.put(buffer.get(i + 1));
-          resampledBuffer.put(buffer.get(i + 2));
-        }
-        break;
-      case C.ENCODING_PCM_32BIT:
-        // 32->16 bit resampling. Drop the two least significant bytes.
-        for (int i = offset; i < limit; i += 4) {
-          resampledBuffer.put(buffer.get(i + 2));
-          resampledBuffer.put(buffer.get(i + 3));
-        }
-        break;
-      case C.ENCODING_PCM_16BIT:
-      case C.ENCODING_INVALID:
-      case Format.NO_VALUE:
-      default:
-        // Never happens.
-        throw new IllegalStateException();
-    }
-
-    resampledBuffer.position(0);
-    return resampledBuffer;
   }
 
   @C.Encoding
