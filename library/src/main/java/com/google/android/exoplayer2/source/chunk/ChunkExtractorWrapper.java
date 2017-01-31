@@ -30,15 +30,15 @@ import java.io.IOException;
 /**
  * An {@link Extractor} wrapper for loading chunks containing a single track.
  * <p>
- * The wrapper allows switching of the {@link SingleTrackMetadataOutput} and {@link TrackOutput}
- * which receive parsed data.
+ * The wrapper allows switching of the {@link SeekMapOutput} and {@link TrackOutput} that receive
+ * parsed data.
  */
 public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput {
 
   /**
-   * Receives metadata associated with the track as extracted by the wrapped {@link Extractor}.
+   * Receives {@link SeekMap}s extracted by the wrapped {@link Extractor}.
    */
-  public interface SingleTrackMetadataOutput {
+  public interface SeekMapOutput {
 
     /**
      * @see ExtractorOutput#seekMap(SeekMap)
@@ -47,13 +47,14 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   }
 
-  private final Extractor extractor;
+  public final Extractor extractor;
+
   private final Format manifestFormat;
   private final boolean preferManifestDrmInitData;
   private final boolean resendFormatOnInit;
 
   private boolean extractorInitialized;
-  private SingleTrackMetadataOutput metadataOutput;
+  private SeekMapOutput seekMapOutput;
   private TrackOutput trackOutput;
   private Format sentFormat;
 
@@ -68,7 +69,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
    * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
    *     should be preferred when the sample and manifest {@link Format}s are merged.
    * @param resendFormatOnInit Whether the extractor should resend the previous {@link Format} when
-   *     it is initialized via {@link #init(SingleTrackMetadataOutput, TrackOutput)}.
+   *     it is initialized via {@link #init(SeekMapOutput, TrackOutput)}.
    */
   public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
       boolean preferManifestDrmInitData, boolean resendFormatOnInit) {
@@ -79,14 +80,14 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   }
 
   /**
-   * Initializes the extractor to output to the provided {@link SingleTrackMetadataOutput} and
+   * Initializes the extractor to output to the provided {@link SeekMapOutput} and
    * {@link TrackOutput} instances, and configures it to receive data from a new chunk.
    *
-   * @param metadataOutput The {@link SingleTrackMetadataOutput} that will receive metadata.
+   * @param seekMapOutput The {@link SeekMapOutput} that will receive extracted {@link SeekMap}s.
    * @param trackOutput The {@link TrackOutput} that will receive sample data.
    */
-  public void init(SingleTrackMetadataOutput metadataOutput, TrackOutput trackOutput) {
-    this.metadataOutput = metadataOutput;
+  public void init(SeekMapOutput seekMapOutput, TrackOutput trackOutput) {
+    this.seekMapOutput = seekMapOutput;
     this.trackOutput = trackOutput;
     if (!extractorInitialized) {
       extractor.init(this);
@@ -97,20 +98,6 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
         trackOutput.format(sentFormat);
       }
     }
-  }
-
-  /**
-   * Reads from the provided {@link ExtractorInput}.
-   *
-   * @param input The {@link ExtractorInput} from which to read.
-   * @return One of {@link Extractor#RESULT_CONTINUE} and {@link Extractor#RESULT_END_OF_INPUT}.
-   * @throws IOException If an error occurred reading from the source.
-   * @throws InterruptedException If the thread was interrupted.
-   */
-  public int read(ExtractorInput input) throws IOException, InterruptedException {
-    int result = extractor.read(input, null);
-    Assertions.checkState(result != Extractor.RESULT_SEEK);
-    return result;
   }
 
   // ExtractorOutput implementation.
@@ -130,7 +117,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    metadataOutput.seekMap(seekMap);
+    seekMapOutput.seekMap(seekMap);
   }
 
   // TrackOutput implementation.

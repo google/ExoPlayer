@@ -56,7 +56,7 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  public int supportsFormat(Format format) {
+  protected int supportsFormatInternal(Format format) {
     return FlacLibrary.isAvailable() && MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)
         ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
   }

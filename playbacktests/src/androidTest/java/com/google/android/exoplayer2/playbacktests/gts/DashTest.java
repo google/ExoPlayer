@@ -17,22 +17,28 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import android.annotation.TargetApi;
 import android.media.MediaDrm;
+import android.media.MediaDrm.MediaDrmStateException;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.drm.MediaDrmCallback;
+import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -60,6 +66,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -275,7 +282,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String streamName = "test_h264_adaptive";
     testDashPlayback(getActivity(), streamName, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
-            MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
+        MimeTypes.VIDEO_H264, ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
   public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
@@ -600,6 +607,121 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         WIDEVINE_H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
   }
 
+  // Offline license tests
+
+  public void testWidevineOfflineLicense() throws Exception {
+    if (Util.SDK_INT < 22) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_fixed_offline";
+    DashHostedTestEncParameters parameters = newDashHostedTestEncParameters(
+        WIDEVINE_H264_MANIFEST_PREFIX, true, MimeTypes.VIDEO_H264);
+    TestOfflineLicenseHelper helper = new TestOfflineLicenseHelper(parameters);
+    try {
+      byte[] keySetId = helper.downloadLicense();
+      testDashPlayback(getActivity(), streamName, null, true, parameters,
+          WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, false, keySetId, WIDEVINE_H264_CDD_FIXED);
+      helper.renewLicense();
+    } finally {
+      helper.releaseResources();
+    }
+  }
+
+  public void testWidevineOfflineReleasedLicense() throws Throwable {
+    if (Util.SDK_INT < 22) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_fixed_offline";
+    DashHostedTestEncParameters parameters = newDashHostedTestEncParameters(
+        WIDEVINE_H264_MANIFEST_PREFIX, true, MimeTypes.VIDEO_H264);
+    TestOfflineLicenseHelper helper = new TestOfflineLicenseHelper(parameters);
+    try {
+      byte[] keySetId = helper.downloadLicense();
+      helper.releaseLicense(); // keySetId no longer valid.
+      try {
+        testDashPlayback(getActivity(), streamName, null, true, parameters,
+            WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, false, keySetId, WIDEVINE_H264_CDD_FIXED);
+        fail("Playback should fail because the license has been released.");
+      } catch (Throwable e) {
+        // Get the root cause
+        while (true) {
+          Throwable cause = e.getCause();
+          if (cause == null || cause == e) {
+            break;
+          }
+          e = cause;
+        }
+        // It should be a MediaDrmStateException instance
+        if (!(e instanceof MediaDrmStateException)) {
+          throw e;
+        }
+      }
+    } finally {
+      helper.releaseResources();
+    }
+  }
+
+  public void testWidevineOfflineExpiredLicense() throws Exception {
+    if (Util.SDK_INT < 22) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_fixed_offline";
+    DashHostedTestEncParameters parameters = newDashHostedTestEncParameters(
+        WIDEVINE_H264_MANIFEST_PREFIX, true, MimeTypes.VIDEO_H264);
+    TestOfflineLicenseHelper helper = new TestOfflineLicenseHelper(parameters);
+    try {
+      byte[] keySetId = helper.downloadLicense();
+
+      // Wait until the license expires
+      long licenseDuration = helper.getLicenseDurationRemainingSec().first;
+      assertTrue("License duration should be less than 30 sec. "
+          + "Server settings might have changed.", licenseDuration < 30);
+      while (licenseDuration > 0) {
+        synchronized (this) {
+          wait(licenseDuration * 1000 + 2000);
+        }
+        long previousDuration = licenseDuration;
+        licenseDuration = helper.getLicenseDurationRemainingSec().first;
+        assertTrue("License duration should be decreasing.", previousDuration > licenseDuration);
+      }
+
+      // DefaultDrmSessionManager should renew the license and stream play fine
+      testDashPlayback(getActivity(), streamName, null, true, parameters,
+          WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, false, keySetId, WIDEVINE_H264_CDD_FIXED);
+    } finally {
+      helper.releaseResources();
+    }
+  }
+
+  public void testWidevineOfflineLicenseExpiresOnPause() throws Exception {
+    if (Util.SDK_INT < 22) {
+      // Pass.
+      return;
+    }
+    String streamName = "test_widevine_h264_fixed_offline";
+    DashHostedTestEncParameters parameters = newDashHostedTestEncParameters(
+        WIDEVINE_H264_MANIFEST_PREFIX, true, MimeTypes.VIDEO_H264);
+    TestOfflineLicenseHelper helper = new TestOfflineLicenseHelper(parameters);
+    try {
+      byte[] keySetId = helper.downloadLicense();
+      // During playback pause until the license expires then continue playback
+      Pair<Long, Long> licenseDurationRemainingSec = helper.getLicenseDurationRemainingSec();
+      long licenseDuration = licenseDurationRemainingSec.first;
+      assertTrue("License duration should be less than 30 sec. "
+          + "Server settings might have changed.", licenseDuration < 30);
+      ActionSchedule schedule = new ActionSchedule.Builder(TAG)
+          .delay(3000).pause().delay(licenseDuration * 1000 + 2000).play().build();
+      // DefaultDrmSessionManager should renew the license and stream play fine
+      testDashPlayback(getActivity(), streamName, schedule, true, parameters,
+          WIDEVINE_AAC_AUDIO_REPRESENTATION_ID, false, keySetId, WIDEVINE_H264_CDD_FIXED);
+    } finally {
+      helper.releaseResources();
+    }
+  }
+
   // Internal.
 
   private void testDashPlayback(HostActivity activity, String streamName, String manifestFileName,
@@ -613,27 +735,41 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       ActionSchedule actionSchedule, boolean fullPlaybackNoSeeking, String manifestFileName,
       String audioFormat, boolean isWidevineEncrypted, String videoMimeType,
       boolean canIncludeAdditionalVideoFormats, String... videoFormats) {
+    testDashPlayback(activity, streamName, actionSchedule, fullPlaybackNoSeeking,
+        newDashHostedTestEncParameters(manifestFileName, isWidevineEncrypted, videoMimeType),
+        audioFormat, canIncludeAdditionalVideoFormats, null, videoFormats);
+  }
+
+  private void testDashPlayback(HostActivity activity, String streamName,
+      ActionSchedule actionSchedule, boolean fullPlaybackNoSeeking,
+      DashHostedTestEncParameters parameters, String audioFormat,
+      boolean canIncludeAdditionalVideoFormats, byte[] offlineLicenseKeySetId,
+      String... videoFormats) {
     MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG,
         REPORT_NAME, REPORT_OBJECT_NAME);
-    String manifestPath = MANIFEST_URL_PREFIX + manifestFileName;
-    DashHostedTest test = new DashHostedTest(streamName, manifestPath, metricsLogger,
-        fullPlaybackNoSeeking, audioFormat, isWidevineEncrypted, videoMimeType,
-        canIncludeAdditionalVideoFormats, false, actionSchedule, videoFormats);
+    DashHostedTest test = new DashHostedTest(streamName, metricsLogger, fullPlaybackNoSeeking,
+        audioFormat, canIncludeAdditionalVideoFormats, false, actionSchedule, parameters,
+        offlineLicenseKeySetId, videoFormats);
     activity.runTest(test, TEST_TIMEOUT_MS);
     // Retry test exactly once if adaptive test fails due to excessive dropped buffers when playing
     // non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
       metricsLogger = MetricsLogger.Factory.createDefault(getInstrumentation(), TAG, REPORT_NAME,
           REPORT_OBJECT_NAME);
-      test = new DashHostedTest(streamName, manifestPath, metricsLogger, fullPlaybackNoSeeking,
-          audioFormat, isWidevineEncrypted, videoMimeType, false, true, actionSchedule,
-          videoFormats);
+      test = new DashHostedTest(streamName, metricsLogger, fullPlaybackNoSeeking, audioFormat,
+          false, true, actionSchedule, parameters, offlineLicenseKeySetId, videoFormats);
       activity.runTest(test, TEST_TIMEOUT_MS);
     }
   }
 
+  private static DashHostedTestEncParameters newDashHostedTestEncParameters(String manifestFileName,
+      boolean isWidevineEncrypted, String videoMimeType) {
+    String manifestPath = MANIFEST_URL_PREFIX + manifestFileName;
+    return new DashHostedTestEncParameters(manifestPath, isWidevineEncrypted, videoMimeType);
+  }
+
   private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false, false);
+    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
     assertNotNull(decoderInfo);
     if (decoderInfo.adaptive) {
       return false;
@@ -642,48 +778,139 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     return true;
   }
 
+  private static class DashHostedTestEncParameters {
+
+    public final String manifestUrl;
+    public final boolean useL1Widevine;
+    public final String widevineLicenseUrl;
+    public final boolean isWidevineEncrypted;
+
+    public DashHostedTestEncParameters(String manifestUrl, boolean isWidevineEncrypted,
+        String videoMimeType) {
+      this.isWidevineEncrypted = isWidevineEncrypted;
+      if (!isWidevineEncrypted) {
+        this.manifestUrl = manifestUrl;
+        this.useL1Widevine = true;
+        this.widevineLicenseUrl = null;
+      } else {
+        this.useL1Widevine = isL1WidevineAvailable(videoMimeType);
+        this.widevineLicenseUrl = WIDEVINE_LICENSE_URL + (useL1Widevine
+            ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID);
+        this.manifestUrl =
+            manifestUrl + (useL1Widevine ? WIDEVINE_L1_SUFFIX : WIDEVINE_L3_SUFFIX);
+      }
+    }
+
+    @TargetApi(18)
+    @SuppressWarnings("ResourceType")
+    private static boolean isL1WidevineAvailable(String videoMimeType) {
+      try {
+        // Force L3 if secure decoder is not available.
+        if (MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null) {
+          return false;
+        }
+
+        MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
+        String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
+        mediaDrm.release();
+        return WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
+      } catch (DecoderQueryException | UnsupportedSchemeException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
+  }
+
+  private static class TestOfflineLicenseHelper {
+
+    private final DashHostedTestEncParameters parameters;
+    private final OfflineLicenseHelper<FrameworkMediaCrypto> offlineLicenseHelper;
+    private final DefaultHttpDataSourceFactory httpDataSourceFactory;
+    private byte[] offlineLicenseKeySetId;
+
+    public TestOfflineLicenseHelper(DashHostedTestEncParameters parameters)
+        throws UnsupportedDrmException {
+      this.parameters = parameters;
+      httpDataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayerPlaybackTests");
+      offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(
+          parameters.widevineLicenseUrl, httpDataSourceFactory);
+    }
+
+    public byte[] downloadLicense() throws InterruptedException, DrmSessionException, IOException {
+      assertNull(offlineLicenseKeySetId);
+      offlineLicenseKeySetId = offlineLicenseHelper
+          .download(httpDataSourceFactory.createDataSource(), parameters.manifestUrl);
+      assertNotNull(offlineLicenseKeySetId);
+      assertTrue(offlineLicenseKeySetId.length > 0);
+      return offlineLicenseKeySetId;
+    }
+
+    public void renewLicense() throws DrmSessionException {
+      assertNotNull(offlineLicenseKeySetId);
+      offlineLicenseKeySetId = offlineLicenseHelper.renew(offlineLicenseKeySetId);
+      assertNotNull(offlineLicenseKeySetId);
+    }
+
+    public void releaseLicense() throws DrmSessionException {
+      assertNotNull(offlineLicenseKeySetId);
+      offlineLicenseHelper.release(offlineLicenseKeySetId);
+      offlineLicenseKeySetId = null;
+    }
+
+    public Pair<Long, Long> getLicenseDurationRemainingSec() throws DrmSessionException {
+      return offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
+    }
+
+    public void releaseResources() throws DrmSessionException {
+      if (offlineLicenseKeySetId != null) {
+        releaseLicense();
+      }
+      if (offlineLicenseHelper != null) {
+        offlineLicenseHelper.releaseResources();
+      }
+    }
+
+  }
+
   @TargetApi(16)
   private static class DashHostedTest extends ExoHostedTest {
 
     private final String streamName;
-    private final String videoMimeType;
-    private final String manifestPath;
     private final MetricsLogger metricsLogger;
     private final boolean fullPlaybackNoSeeking;
     private final boolean isCddLimitedRetry;
-    private final boolean isWidevineEncrypted;
     private final DashTestTrackSelector trackSelector;
+    private final DashHostedTestEncParameters parameters;
+    private final byte[] offlineLicenseKeySetId;
 
     private boolean needsCddLimitedRetry;
-    private boolean needsSecureVideoDecoder;
 
     /**
      * @param streamName The name of the test stream for metric logging.
-     * @param manifestPath The manifest path.
      * @param metricsLogger Logger to log metrics from the test.
      * @param fullPlaybackNoSeeking Whether the test will play the entire source with no seeking.
      * @param audioFormat The audio format.
-     * @param isWidevineEncrypted Whether the video is Widevine encrypted.
-     * @param videoMimeType The video mime type.
      * @param canIncludeAdditionalVideoFormats Whether to use video formats in addition to those
      *     listed in the videoFormats argument, if the device is capable of playing them.
      * @param isCddLimitedRetry Whether this is a CDD limited retry following a previous failure.
      * @param actionSchedule The action schedule for the test.
+     * @param parameters Encryption parameters.
+     * @param offlineLicenseKeySetId The key set id of the license to be used.
      * @param videoFormats The video formats.
      */
-    public DashHostedTest(String streamName, String manifestPath, MetricsLogger metricsLogger,
-        boolean fullPlaybackNoSeeking, String audioFormat, boolean isWidevineEncrypted,
-        String videoMimeType, boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry,
-        ActionSchedule actionSchedule, String... videoFormats) {
+    public DashHostedTest(String streamName, MetricsLogger metricsLogger,
+        boolean fullPlaybackNoSeeking, String audioFormat,
+        boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry,
+        ActionSchedule actionSchedule, DashHostedTestEncParameters parameters,
+        byte[] offlineLicenseKeySetId, String... videoFormats) {
       super(TAG, fullPlaybackNoSeeking);
       Assertions.checkArgument(!(isCddLimitedRetry && canIncludeAdditionalVideoFormats));
       this.streamName = streamName;
-      this.manifestPath = manifestPath;
       this.metricsLogger = metricsLogger;
       this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
-      this.isWidevineEncrypted = isWidevineEncrypted;
-      this.videoMimeType = videoMimeType;
       this.isCddLimitedRetry = isCddLimitedRetry;
+      this.parameters = parameters;
+      this.offlineLicenseKeySetId = offlineLicenseKeySetId;
       trackSelector = new DashTestTrackSelector(audioFormat, videoFormats,
           canIncludeAdditionalVideoFormats);
       if (actionSchedule != null) {
@@ -698,34 +925,23 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
 
     @Override
-    @TargetApi(18)
-    @SuppressWarnings("ResourceType")
-    protected final StreamingDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+    protected final DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
         final String userAgent) {
-      StreamingDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
-      if (isWidevineEncrypted) {
+      DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+      if (parameters.isWidevineEncrypted) {
         try {
-          // Force L3 if secure decoder is not available.
-          boolean forceL3Widevine =
-              MediaCodecUtil.getDecoderInfo(videoMimeType, true, false) == null;
-          MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
-          String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
-          String widevineContentId = forceL3Widevine ? WIDEVINE_SW_CRYPTO_CONTENT_ID
-              : WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty)
-              ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID;
-          HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(
-              WIDEVINE_LICENSE_URL + widevineContentId,
+          MediaDrmCallback drmCallback = new HttpMediaDrmCallback(parameters.widevineLicenseUrl,
               new DefaultHttpDataSourceFactory(userAgent));
-          drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(drmCallback, null,
+          drmSessionManager = DefaultDrmSessionManager.newWidevineInstance(drmCallback, null,
               null, null);
-          if (forceL3Widevine && !WIDEVINE_SECURITY_LEVEL_3.equals(securityProperty)) {
+          if (!parameters.useL1Widevine) {
             drmSessionManager.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
           }
-          // Check if secure video decoder is required.
-          securityProperty = drmSessionManager.getPropertyString(SECURITY_LEVEL_PROPERTY);
-          needsSecureVideoDecoder = WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
-        } catch (MediaCodecUtil.DecoderQueryException | UnsupportedSchemeException
-            | UnsupportedDrmException e) {
+          if (offlineLicenseKeySetId != null) {
+            drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK,
+                offlineLicenseKeySetId);
+          }
+        } catch (UnsupportedDrmException e) {
           throw new IllegalStateException(e);
         }
       }
@@ -748,10 +964,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       DataSource.Factory manifestDataSourceFactory = new DefaultDataSourceFactory(host, userAgent);
       DataSource.Factory mediaDataSourceFactory = new DefaultDataSourceFactory(host, userAgent,
           mediaTransferListener);
-      String manifestUrl = manifestPath;
-      manifestUrl += isWidevineEncrypted ? (needsSecureVideoDecoder ? WIDEVINE_L1_SUFFIX
-          : WIDEVINE_L3_SUFFIX) : "";
-      Uri manifestUri = Uri.parse(manifestUrl);
+      Uri manifestUri = Uri.parse(parameters.manifestUrl);
       DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
           mediaDataSourceFactory);
       return new DashMediaSource(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
@@ -837,7 +1050,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
       selections[VIDEO_RENDERER_INDEX] = new RandomTrackSelection(
           rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
-          getTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
+          getVideoTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
               rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
               canIncludeAdditionalVideoFormats),
           0 /* seed */);
@@ -849,20 +1062,24 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return selections;
     }
 
-    private static int[] getTrackIndices(TrackGroup trackGroup, int[] formatSupport,
+    private static int[] getVideoTrackIndices(TrackGroup trackGroup, int[] formatSupport,
         String[] formatIds, boolean canIncludeAdditionalFormats) {
       List<Integer> trackIndices = new ArrayList<>();
 
       // Always select explicitly listed representations.
       for (String formatId : formatIds) {
-        trackIndices.add(getTrackIndex(trackGroup, formatId));
+        int trackIndex = getTrackIndex(trackGroup, formatId);
+        Log.d(TAG, "Adding base video format: "
+            + Format.toLogString(trackGroup.getFormat(trackIndex)));
+        trackIndices.add(trackIndex);
       }
 
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
           if (!trackIndices.contains(i) && isFormatHandled(formatSupport[i])) {
-            Log.d(TAG, "Adding video format: " + trackGroup.getFormat(i).id);
+            Log.d(TAG, "Adding extra video format: "
+                + Format.toLogString(trackGroup.getFormat(i)));
             trackIndices.add(i);
           }
         }

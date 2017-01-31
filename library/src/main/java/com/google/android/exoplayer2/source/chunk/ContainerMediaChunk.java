@@ -21,16 +21,17 @@ import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SeekMapOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data.
  */
-public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMetadataOutput {
+public class ContainerMediaChunk extends BaseMediaChunk implements SeekMapOutput {
 
   private final int chunkCount;
   private final long sampleOffsetUs;
@@ -85,7 +86,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
     return bytesLoaded;
   }
 
-  // SingleTrackMetadataOutput implementation.
+  // SeekMapOutput implementation.
 
   @Override
   public final void seekMap(SeekMap seekMap) {
@@ -120,15 +121,17 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
       }
       // Load and decode the sample data.
       try {
+        Extractor extractor = extractorWrapper.extractor;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractorWrapper.read(input);
+          result = extractor.read(input, null);
         }
+        Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
     loadCompleted = true;
   }

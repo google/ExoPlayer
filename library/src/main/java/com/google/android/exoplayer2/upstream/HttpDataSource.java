@@ -17,11 +17,13 @@ package com.google.android.exoplayer2.upstream;
 
 import android.support.annotation.IntDef;
 import android.text.TextUtils;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,86 @@ public interface HttpDataSource extends DataSource {
 
     @Override
     HttpDataSource createDataSource();
+
+    /**
+     * Sets a default request header field for {@link HttpDataSource} instances subsequently
+     * created by the factory. Previously created instances are not affected.
+     *
+     * @param name The name of the header field.
+     * @param value The value of the field.
+     */
+    void setDefaultRequestProperty(String name, String value);
+
+    /**
+     * Clears a default request header field for {@link HttpDataSource} instances subsequently
+     * created by the factory. Previously created instances are not affected.
+     *
+     * @param name The name of the header field.
+     */
+    void clearDefaultRequestProperty(String name);
+
+    /**
+     * Clears all default request header fields for all {@link HttpDataSource} instances
+     * subsequently created by the factory.  Previously created instances are not affected.
+     */
+    void clearAllDefaultRequestProperties();
+
+  }
+
+  /**
+   * Base implementation of {@link Factory} that sets default request properties.
+   */
+  abstract class BaseFactory implements Factory {
+
+    private final HashMap<String, String> requestProperties;
+
+    public BaseFactory() {
+      requestProperties = new HashMap<>();
+    }
+
+    @Override
+    public final HttpDataSource createDataSource() {
+      HttpDataSource dataSource = createDataSourceInternal();
+      synchronized (requestProperties) {
+        for (Map.Entry<String, String> property : requestProperties.entrySet()) {
+          dataSource.setRequestProperty(property.getKey(), property.getValue());
+        }
+      }
+      return dataSource;
+    }
+
+    @Override
+    public final void setDefaultRequestProperty(String name, String value) {
+      Assertions.checkNotNull(name);
+      Assertions.checkNotNull(value);
+      synchronized (requestProperties) {
+        requestProperties.put(name, value);
+      }
+    }
+
+    @Override
+    public final void clearDefaultRequestProperty(String name) {
+      Assertions.checkNotNull(name);
+      synchronized (requestProperties) {
+        requestProperties.remove(name);
+      }
+    }
+
+    @Override
+    public final void clearAllDefaultRequestProperties() {
+      synchronized (requestProperties) {
+        requestProperties.clear();
+      }
+    }
+
+    /**
+     * Called by {@link #createDataSource()} to create a {@link HttpDataSource} instance without
+     * default request properties set. Default request properties will be set by
+     * {@link #createDataSource()} before the instance is returned.
+     *
+     * @return A {@link HttpDataSource} instance without default request properties set.
+     */
+    protected abstract HttpDataSource createDataSourceInternal();
 
   }
 

@@ -24,24 +24,19 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
         debug {
             jniDebuggable = true
-            debuggable = true
         }
-    }
-
-    lintOptions {
-        abortOnError false
     }
 
     productFlavors {
         noExtensions
         withExtensions
     }
-
 }
 
 dependencies {

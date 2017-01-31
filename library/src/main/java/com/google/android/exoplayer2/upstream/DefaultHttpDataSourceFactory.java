@@ -15,10 +15,11 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 
 /** A {@link Factory} that produces {@link DefaultHttpDataSource} instances. */
-public final class DefaultHttpDataSourceFactory implements Factory {
+public final class DefaultHttpDataSourceFactory extends BaseFactory {
 
   private final String userAgent;
   private final TransferListener<? super DataSource> listener;
@@ -75,8 +76,9 @@ public final class DefaultHttpDataSourceFactory implements Factory {
   }
 
   @Override
-  public DefaultHttpDataSource createDataSource() {
+  protected DefaultHttpDataSource createDataSourceInternal() {
     return new DefaultHttpDataSource(userAgent, null, listener, connectTimeoutMillis,
         readTimeoutMillis, allowCrossProtocolRedirects);
   }
+
 }

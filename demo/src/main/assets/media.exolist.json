@@ -183,52 +183,52 @@
         "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_uhd.mpd"
       },
       {
-        "name": "WV: Secure SD & HD (WebM,VP9)",
+        "name": "WV: Secure Fullsample SD & HD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure SD (WebM,VP9)",
+        "name": "WV: Secure Fullsample SD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_sd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure HD (WebM,VP9)",
+        "name": "WV: Secure Fullsample HD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_hd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure UHD (WebM,VP9)",
+        "name": "WV: Secure Fullsample UHD (WebM,VP9)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure Subsample (WebM, VP9 with altref)",
-        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_altref_subsample/sintel_1080p_vp9_altref_subsample.mpd",
+        "name": "WV: Secure Subsample SD & HD (WebM,VP9)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://widevine-proxy.appspot.com/proxy"
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure Fullsample (WebM, VP9 with altref)",
-        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_altref_fullsample/sintel_1080p_vp9_altref_fullsample.mpd",
+        "name": "WV: Secure Subsample SD (WebM,VP9)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_sd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://widevine-proxy.appspot.com/proxy"
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure Subsample (WebM, VP9 without altref)",
-        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_noaltref_subsample/sintel_1080p_vp9_noaltref_subsample.mpd",
+        "name": "WV: Secure Subsample HD (WebM,VP9)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_hd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://widevine-proxy.appspot.com/proxy"
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure Fullsample (WebM, VP9 without altref)",
-        "uri": "https://storage.googleapis.com/widevine_test/vp9/sintel_1080p_vp9_noaltref_fullsample/sintel_1080p_vp9_noaltref_fullsample.mpd",
+        "name": "WV: Secure Subsample UHD (WebM,VP9)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://widevine-proxy.appspot.com/proxy"
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
     ]
   },

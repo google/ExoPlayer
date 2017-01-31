@@ -185,10 +185,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
     if (pendingInitializationUri != null || pendingIndexUri != null) {
       // We have initialization and/or index requests to make.
-      Chunk initializationChunk = newInitializationChunk(representationHolder, dataSource,
+      out.chunk = newInitializationChunk(representationHolder, dataSource,
           trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
           trackSelection.getSelectionData(), pendingInitializationUri, pendingIndexUri);
-      out.chunk = initializationChunk;
       return;
     }
 
@@ -233,10 +232,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     int maxSegmentCount = Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
-    Chunk nextMediaChunk = newMediaChunk(representationHolder, dataSource,
-        trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
-        trackSelection.getSelectionData(), sampleFormat, segmentNum, maxSegmentCount);
-    out.chunk = nextMediaChunk;
+    out.chunk = newMediaChunk(representationHolder, dataSource, trackSelection.getSelectedFormat(),
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), sampleFormat,
+        segmentNum, maxSegmentCount);
   }
 
   @Override
@@ -255,8 +253,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       if (representationHolder.segmentIndex == null) {
         SeekMap seekMap = initializationChunk.getSeekMap();
         if (seekMap != null) {
-          representationHolder.segmentIndex = new DashWrappingSegmentIndex((ChunkIndex) seekMap,
-              initializationChunk.dataSpec.uri.toString());
+          representationHolder.segmentIndex = new DashWrappingSegmentIndex((ChunkIndex) seekMap);
         }
       }
     }

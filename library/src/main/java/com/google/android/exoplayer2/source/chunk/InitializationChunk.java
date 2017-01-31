@@ -22,9 +22,10 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SeekMapOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -32,7 +33,7 @@ import java.io.IOException;
 /**
  * A {@link Chunk} that uses an {@link Extractor} to decode initialization data for single track.
  */
-public final class InitializationChunk extends Chunk implements SingleTrackMetadataOutput,
+public final class InitializationChunk extends Chunk implements SeekMapOutput,
     TrackOutput {
 
   private final ChunkExtractorWrapper extractorWrapper;
@@ -85,7 +86,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
     return seekMap;
   }
 
-  // SingleTrackMetadataOutput implementation.
+  // SeekMapOutput implementation.
 
   @Override
   public void seekMap(SeekMap seekMap) {
@@ -142,15 +143,17 @@ public final class InitializationChunk extends Chunk implements SingleTrackMetad
       }
       // Load and decode the initialization data.
       try {
+        Extractor extractor = extractorWrapper.extractor;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractorWrapper.read(input);
+          result = extractor.read(input, null);
         }
+        Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
   }
 
