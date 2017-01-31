@@ -93,7 +93,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
       String licenseUrl, Factory httpDataSourceFactory) throws UnsupportedDrmException {
     return newWidevineInstance(
-        new HttpMediaDrmCallback(licenseUrl, httpDataSourceFactory, null), null);
+        new HttpMediaDrmCallback(licenseUrl, httpDataSourceFactory), null);
   }
 
   /**
