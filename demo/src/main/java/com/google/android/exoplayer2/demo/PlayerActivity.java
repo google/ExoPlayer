@@ -70,8 +70,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -239,19 +237,9 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       if (drmSchemeUuid != null) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
-        Map<String, String> keyRequestProperties;
-        if (keyRequestPropertiesArray == null || keyRequestPropertiesArray.length < 2) {
-          keyRequestProperties = null;
-        } else {
-          keyRequestProperties = new HashMap<>();
-          for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
-            keyRequestProperties.put(keyRequestPropertiesArray[i],
-                keyRequestPropertiesArray[i + 1]);
-          }
-        }
         try {
           drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl,
-              keyRequestProperties);
+              keyRequestPropertiesArray);
         } catch (UnsupportedDrmException e) {
           int errorStringId = Util.SDK_INT < 18 ? R.string.error_drm_not_supported
               : (e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
@@ -349,12 +337,18 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(UUID uuid,
-      String licenseUrl, Map<String, String> keyRequestProperties) throws UnsupportedDrmException {
+      String licenseUrl, String[] keyRequestPropertiesArray) throws UnsupportedDrmException {
     if (Util.SDK_INT < 18) {
       return null;
     }
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
-        buildHttpDataSourceFactory(false), keyRequestProperties);
+        buildHttpDataSourceFactory(false));
+    if (keyRequestPropertiesArray != null) {
+      for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
+        drmCallback.setKeyRequestProperty(keyRequestPropertiesArray[i],
+            keyRequestPropertiesArray[i + 1]);
+      }
+    }
     return new DefaultDrmSessionManager<>(uuid,
         FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
   }
