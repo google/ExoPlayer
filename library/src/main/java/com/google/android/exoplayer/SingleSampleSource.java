@@ -24,6 +24,7 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -281,7 +282,7 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
         result = dataSource.read(sampleData, sampleSize, sampleData.length - sampleSize);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
   }
 

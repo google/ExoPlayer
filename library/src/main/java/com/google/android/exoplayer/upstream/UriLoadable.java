@@ -18,6 +18,7 @@ package com.google.android.exoplayer.upstream;
 import android.net.Uri;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
+import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -90,7 +91,7 @@ public final class UriLoadable<T> implements Loadable {
       inputStream.open();
       result = parser.parse(uriDataSource.getUri(), inputStream);
     } finally {
-      inputStream.close();
+      Util.closeQuietly(inputStream);
     }
   }
 

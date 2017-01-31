@@ -123,7 +123,7 @@ public final class TsChunk extends MediaChunk {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
   }
 

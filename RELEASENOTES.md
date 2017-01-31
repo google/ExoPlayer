@@ -1,14 +1,22 @@
 # Release notes #
 
+### r1.5.14 ###
+
+* Fixed cache failures when using an encrypted cache content index.
+* SmoothStreaming: Work around "Offset to sample data was negative" failures
+  ([#2292](https://github.com/google/ExoPlayer/issues/2292),
+  [#2101](https://github.com/google/ExoPlayer/issues/2101) and
+  [#1152](https://github.com/google/ExoPlayer/issues/1152)).
+
 ### r1.5.13 ###
 
 * Improvements to the upstream cache package.
 * MP4: Support `.mp3` tracks
-  ([2066](https://github.com/google/ExoPlayer/issues/2066)).
+  ([#2066](https://github.com/google/ExoPlayer/issues/2066)).
 * SubRip: Don't fail playbacks if SubRip file contains negative timestamps
-  ([2145](https://github.com/google/ExoPlayer/issues/2145)).
+  ([#2145](https://github.com/google/ExoPlayer/issues/2145)).
 * MPEG-TS: Avoid failure when expected ID3 header not found
-  ([1966](https://github.com/google/ExoPlayer/issues/1966)).
+  ([#1966](https://github.com/google/ExoPlayer/issues/1966)).
 * Misc bugfixes.
 
 ### r1.5.12 ###

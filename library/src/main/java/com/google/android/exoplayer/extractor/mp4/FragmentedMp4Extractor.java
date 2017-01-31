@@ -224,6 +224,10 @@ public class FragmentedMp4Extractor implements Extractor {
       atomSize = atomHeader.readUnsignedLongToLong();
     }
 
+    if (atomSize < atomHeaderBytesRead) {
+      throw new ParserException("Atom size less than header length (unsupported).");
+    }
+
     long atomPosition = input.getPosition() - atomHeaderBytesRead;
     if (atomType == Atom.TYPE_moof) {
       // The data positions may be updated when parsing the tfhd/trun.
@@ -876,7 +880,9 @@ public class FragmentedMp4Extractor implements Extractor {
         // We skip bytes preceding the next sample to read.
         int bytesToSkip = (int) (nextDataPosition - input.getPosition());
         if (bytesToSkip < 0) {
-          throw new ParserException("Offset to sample data was negative.");
+          // Assume the sample data must be contiguous in the mdat with no preceding data.
+          Log.w(TAG, "Ignoring negative offset to sample data.");
+          bytesToSkip = 0;
         }
         input.skipFully(bytesToSkip);
       }

@@ -841,7 +841,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
           } else if (input != null) {
             positionHolder.position = input.getPosition();
           }
-          dataSource.close();
+          Util.closeQuietly(dataSource);
         }
       }
     }

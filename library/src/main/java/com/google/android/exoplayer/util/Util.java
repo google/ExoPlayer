@@ -767,7 +767,7 @@ public final class Util {
       try {
         return toByteArray(inputStream);
       } finally {
-        inputStream.close();
+        Util.closeQuietly(inputStream);
       }
     } finally {
       if (urlConnection != null) {
