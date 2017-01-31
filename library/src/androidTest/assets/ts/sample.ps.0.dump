@@ -6,7 +6,7 @@ numberOfTracks = 2
 track 192:
   format:
     bitrate = -1
-    id = null
+    id = 192
     containerMimeType = null
     sampleMimeType = audio/mpeg-L2
     maxInputSize = 4096
@@ -45,7 +45,7 @@ track 192:
 track 224:
   format:
     bitrate = -1
-    id = null
+    id = 224
     containerMimeType = null
     sampleMimeType = video/mpeg2
     maxInputSize = -1

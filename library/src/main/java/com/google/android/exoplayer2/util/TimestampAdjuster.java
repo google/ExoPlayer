@@ -34,7 +34,7 @@ public final class TimestampAdjuster {
    */
   private static final long MAX_PTS_PLUS_ONE = 0x200000000L;
 
-  private final long firstSampleTimestampUs;
+  public final long firstSampleTimestampUs;
 
   private long timestampOffsetUs;
 

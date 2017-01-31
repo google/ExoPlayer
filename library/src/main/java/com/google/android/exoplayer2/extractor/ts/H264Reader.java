@@ -47,6 +47,7 @@ import java.util.List;
   private long totalBytesWritten;
   private final boolean[] prefixFlags;
 
+  private String formatId;
   private TrackOutput output;
   private SeiReader seiReader;
   private SampleReader sampleReader;
@@ -88,9 +89,13 @@ import java.util.List;
 
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
-    output = extractorOutput.track(idGenerator.getNextId());
+    idGenerator.generateNewId();
+    formatId = idGenerator.getFormatId();
+    output = extractorOutput.track(idGenerator.getTrackId());
     sampleReader = new SampleReader(output, allowNonIdrKeyframes, detectAccessUnits);
-    seiReader = new SeiReader(extractorOutput.track(idGenerator.getNextId()));
+    idGenerator.generateNewId();
+    seiReader = new SeiReader(extractorOutput.track(idGenerator.getTrackId()),
+        idGenerator.getFormatId());
   }
 
   @Override
@@ -175,7 +180,7 @@ import java.util.List;
           initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
           NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
           NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
-          output.format(Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
+          output.format(Format.createVideoSampleFormat(formatId, MimeTypes.VIDEO_H264, null,
               Format.NO_VALUE, Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE,
               initializationData, Format.NO_VALUE, spsData.pixelWidthAspectRatio, null));
           hasOutputFormat = true;
