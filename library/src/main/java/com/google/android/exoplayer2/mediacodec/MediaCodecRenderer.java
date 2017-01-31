@@ -201,6 +201,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
+  private boolean waitingForFirstSyncFrame;
 
   protected DecoderCounters decoderCounters;
 
@@ -270,17 +271,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected MediaCodecInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
       Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder, false);
+    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder);
   }
 
   /**
    * Configures a newly created {@link MediaCodec}.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
+   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  protected abstract void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto);
+  protected abstract void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
+      MediaCrypto crypto) throws DecoderQueryException;
 
   @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
@@ -345,7 +349,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codec, format, mediaCrypto);
+      configureCodec(decoderInfo, codec, format, mediaCrypto);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -363,6 +367,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : C.TIME_UNSET;
     inputIndex = C.INDEX_UNSET;
     outputIndex = C.INDEX_UNSET;
+    waitingForFirstSyncFrame = true;
     decoderCounters.decoderInitCount++;
   }
 
@@ -501,6 +506,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecHotswapDeadlineMs = C.TIME_UNSET;
     inputIndex = C.INDEX_UNSET;
     outputIndex = C.INDEX_UNSET;
+    waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     shouldSkipOutputBuffer = false;
     decodeOnlyPresentationTimestamps.clear();
@@ -630,6 +636,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       return false;
     }
+    if (waitingForFirstSyncFrame && !buffer.isKeyFrame()) {
+      buffer.clear();
+      if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
+        // The buffer we just cleared contained reconfiguration data. We need to re-write this
+        // data into a subsequent buffer (if there is one).
+        codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+      }
+      return true;
+    }
+    waitingForFirstSyncFrame = false;
     boolean bufferEncrypted = buffer.isEncrypted();
     waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {

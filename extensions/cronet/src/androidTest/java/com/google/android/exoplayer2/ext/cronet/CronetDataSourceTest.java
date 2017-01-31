@@ -57,8 +57,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.chromium.net.CronetEngine;
+import org.chromium.net.NetworkException;
 import org.chromium.net.UrlRequest;
-import org.chromium.net.UrlRequestException;
 import org.chromium.net.UrlResponseInfo;
 import org.chromium.net.impl.UrlResponseInfoImpl;
 import org.junit.Before;
@@ -99,7 +99,7 @@ public final class CronetDataSourceTest {
   @Mock
   private Executor mockExecutor;
   @Mock
-  private UrlRequestException mockUrlRequestException;
+  private NetworkException mockNetworkException;
   @Mock private CronetEngine mockCronetEngine;
 
   private CronetDataSource dataSourceUnderTest;
@@ -172,7 +172,7 @@ public final class CronetDataSourceTest {
         dataSourceUnderTest.onFailed(
             mockUrlRequest,
             testUrlResponseInfo,
-            mockUrlRequestException);
+            mockNetworkException);
         dataSourceUnderTest.onResponseStarted(
             mockUrlRequest2,
             testUrlResponseInfo);
@@ -245,8 +245,8 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestOpenFailDueToDnsFailure() {
     mockResponseStartFailure();
-    when(mockUrlRequestException.getErrorCode()).thenReturn(
-        UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED);
+    when(mockNetworkException.getErrorCode()).thenReturn(
+        NetworkException.ERROR_HOSTNAME_NOT_RESOLVED);
 
     try {
       dataSourceUnderTest.open(testDataSpec);
@@ -728,7 +728,7 @@ public final class CronetDataSourceTest {
         dataSourceUnderTest.onFailed(
             mockUrlRequest,
             createUrlResponseInfo(500), // statusCode
-            mockUrlRequestException);
+            mockNetworkException);
         return null;
       }
     }).when(mockUrlRequest).start();
@@ -764,7 +764,7 @@ public final class CronetDataSourceTest {
         dataSourceUnderTest.onFailed(
             mockUrlRequest,
             createUrlResponseInfo(500), // statusCode
-            mockUrlRequestException);
+            mockNetworkException);
         return null;
       }
     }).when(mockUrlRequest).read(any(ByteBuffer.class));

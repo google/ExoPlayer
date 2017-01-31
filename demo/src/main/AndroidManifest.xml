@@ -16,8 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer2.demo"
-    android:versionCode="2101"
-    android:versionName="2.1.1">
+    android:versionCode="2200"
+    android:versionName="2.2.0">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -27,7 +27,7 @@
 
   <application
       android:label="@string/application_name"
-      android:icon="@drawable/ic_launcher"
+      android:icon="@mipmap/ic_launcher"
       android:banner="@drawable/ic_banner"
       android:largeHeap="true"
       android:allowBackup="false"

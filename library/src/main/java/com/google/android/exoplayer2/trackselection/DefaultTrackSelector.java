@@ -560,6 +560,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     TrackGroup selectedGroup = null;
     int selectedTrackIndex = 0;
     int selectedTrackScore = 0;
+    int selectedBitrate = Format.NO_VALUE;
     int selectedPixelCount = Format.NO_VALUE;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
@@ -582,16 +583,24 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           }
           boolean selectTrack = trackScore > selectedTrackScore;
           if (trackScore == selectedTrackScore) {
-            // Use the pixel count as a tie breaker. If we're within constraints prefer a higher
-            // pixel count, else prefer a lower count. If still tied then prefer the first track
-            // (i.e. the one that's already selected).
-            int pixelComparison = comparePixelCounts(format.getPixelCount(), selectedPixelCount);
-            selectTrack = isWithinConstraints ? pixelComparison > 0 : pixelComparison < 0;
+            // Use the pixel count as a tie breaker (or bitrate if pixel counts are tied). If we're
+            // within constraints prefer a higher pixel count (or bitrate), else prefer a lower
+            // count (or bitrate). If still tied then prefer the first track (i.e. the one that's
+            // already selected).
+            int comparisonResult;
+            int formatPixelCount = format.getPixelCount();
+            if (formatPixelCount != selectedPixelCount) {
+              comparisonResult = compareFormatValues(format.getPixelCount(), selectedPixelCount);
+            } else {
+              comparisonResult = compareFormatValues(format.bitrate, selectedBitrate);
+            }
+            selectTrack = isWithinConstraints ? comparisonResult > 0 : comparisonResult < 0;
           }
           if (selectTrack) {
             selectedGroup = trackGroup;
             selectedTrackIndex = trackIndex;
             selectedTrackScore = trackScore;
+            selectedBitrate = format.bitrate;
             selectedPixelCount = format.getPixelCount();
           }
         }
@@ -602,19 +611,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * Compares two pixel counts for order. A known pixel count is considered greater than
+   * Compares two format values for order. A known value is considered greater than
    * {@link Format#NO_VALUE}.
    *
-   * @param first The first pixel count.
-   * @param second The second pixel count.
-   * @return A negative integer if the first pixel count is less than the second. Zero if they are
-   *     equal. A positive integer if the first pixel count is greater than the second.
+   * @param first The first value.
+   * @param second The second value.
+   * @return A negative integer if the first value is less than the second. Zero if they are equal.
+   *     A positive integer if the first value is greater than the second.
    */
-  private static int comparePixelCounts(int first, int second) {
+  private static int compareFormatValues(int first, int second) {
     return first == Format.NO_VALUE ? (second == Format.NO_VALUE ? 0 : -1)
         : (second == Format.NO_VALUE ? 1 : (first - second));
   }
-
 
   // Audio track selection implementation.
 

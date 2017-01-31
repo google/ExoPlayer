@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString = "#EXTM3U\n"
         + "#EXT-X-VERSION:3\n"
+        + "#EXT-X-PLAYLIST-TYPE:VOD\n"
         + "#EXT-X-TARGETDURATION:8\n"
         + "#EXT-X-MEDIA-SEQUENCE:2679\n"
         + "#EXT-X-DISCONTINUITY-SEQUENCE:4\n"
@@ -70,62 +72,68 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals(HlsPlaylist.TYPE_MEDIA, playlist.type);
 
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
+      assertEquals(HlsMediaPlaylist.PLAYLIST_TYPE_VOD, mediaPlaylist.playlistType);
 
       assertEquals(2679, mediaPlaylist.mediaSequence);
       assertEquals(3, mediaPlaylist.version);
-      assertEquals(true, mediaPlaylist.hasEndTag);
-      List<HlsMediaPlaylist.Segment> segments = mediaPlaylist.segments;
+      assertTrue(mediaPlaylist.hasEndTag);
+      List<Segment> segments = mediaPlaylist.segments;
       assertNotNull(segments);
       assertEquals(5, segments.size());
 
-      assertEquals(4, segments.get(0).discontinuitySequenceNumber);
-      assertEquals(7975000, segments.get(0).durationUs);
-      assertEquals(false, segments.get(0).isEncrypted);
-      assertEquals(null, segments.get(0).encryptionKeyUri);
-      assertEquals(null, segments.get(0).encryptionIV);
-      assertEquals(51370, segments.get(0).byterangeLength);
-      assertEquals(0, segments.get(0).byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2679.ts", segments.get(0).url);
+      Segment segment = segments.get(0);
+      assertEquals(4, mediaPlaylist.discontinuitySequence + segment.relativeDiscontinuitySequence);
+      assertEquals(7975000, segment.durationUs);
+      assertFalse(segment.isEncrypted);
+      assertEquals(null, segment.encryptionKeyUri);
+      assertEquals(null, segment.encryptionIV);
+      assertEquals(51370, segment.byterangeLength);
+      assertEquals(0, segment.byterangeOffset);
+      assertEquals("https://priv.example.com/fileSequence2679.ts", segment.url);
 
-      assertEquals(4, segments.get(1).discontinuitySequenceNumber);
-      assertEquals(7975000, segments.get(1).durationUs);
-      assertEquals(true, segments.get(1).isEncrypted);
-      assertEquals("https://priv.example.com/key.php?r=2680", segments.get(1).encryptionKeyUri);
-      assertEquals("0x1566B", segments.get(1).encryptionIV);
-      assertEquals(51501, segments.get(1).byterangeLength);
-      assertEquals(2147483648L, segments.get(1).byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2680.ts", segments.get(1).url);
+      segment = segments.get(1);
+      assertEquals(0, segment.relativeDiscontinuitySequence);
+      assertEquals(7975000, segment.durationUs);
+      assertTrue(segment.isEncrypted);
+      assertEquals("https://priv.example.com/key.php?r=2680", segment.encryptionKeyUri);
+      assertEquals("0x1566B", segment.encryptionIV);
+      assertEquals(51501, segment.byterangeLength);
+      assertEquals(2147483648L, segment.byterangeOffset);
+      assertEquals("https://priv.example.com/fileSequence2680.ts", segment.url);
 
-      assertEquals(4, segments.get(2).discontinuitySequenceNumber);
-      assertEquals(7941000, segments.get(2).durationUs);
-      assertEquals(false, segments.get(2).isEncrypted);
-      assertEquals(null, segments.get(2).encryptionKeyUri);
-      assertEquals(null, segments.get(2).encryptionIV);
-      assertEquals(51501, segments.get(2).byterangeLength);
-      assertEquals(2147535149L, segments.get(2).byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2681.ts", segments.get(2).url);
+      segment = segments.get(2);
+      assertEquals(0, segment.relativeDiscontinuitySequence);
+      assertEquals(7941000, segment.durationUs);
+      assertFalse(segment.isEncrypted);
+      assertEquals(null, segment.encryptionKeyUri);
+      assertEquals(null, segment.encryptionIV);
+      assertEquals(51501, segment.byterangeLength);
+      assertEquals(2147535149L, segment.byterangeOffset);
+      assertEquals("https://priv.example.com/fileSequence2681.ts", segment.url);
 
-      assertEquals(5, segments.get(3).discontinuitySequenceNumber);
-      assertEquals(7975000, segments.get(3).durationUs);
-      assertEquals(true, segments.get(3).isEncrypted);
-      assertEquals("https://priv.example.com/key.php?r=2682", segments.get(3).encryptionKeyUri);
+      segment = segments.get(3);
+      assertEquals(1, segment.relativeDiscontinuitySequence);
+      assertEquals(7975000, segment.durationUs);
+      assertTrue(segment.isEncrypted);
+      assertEquals("https://priv.example.com/key.php?r=2682", segment.encryptionKeyUri);
       // 0xA7A == 2682.
-      assertNotNull(segments.get(3).encryptionIV);
-      assertEquals("A7A", segments.get(3).encryptionIV.toUpperCase(Locale.getDefault()));
-      assertEquals(51740, segments.get(3).byterangeLength);
-      assertEquals(2147586650L, segments.get(3).byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2682.ts", segments.get(3).url);
+      assertNotNull(segment.encryptionIV);
+      assertEquals("A7A", segment.encryptionIV.toUpperCase(Locale.getDefault()));
+      assertEquals(51740, segment.byterangeLength);
+      assertEquals(2147586650L, segment.byterangeOffset);
+      assertEquals("https://priv.example.com/fileSequence2682.ts", segment.url);
 
-      assertEquals(5, segments.get(4).discontinuitySequenceNumber);
-      assertEquals(7975000, segments.get(4).durationUs);
-      assertEquals(true, segments.get(4).isEncrypted);
-      assertEquals("https://priv.example.com/key.php?r=2682", segments.get(4).encryptionKeyUri);
+      segment = segments.get(4);
+      assertEquals(1, segment.relativeDiscontinuitySequence);
+      assertEquals(7975000, segment.durationUs);
+      assertTrue(segment.isEncrypted);
+      assertEquals("https://priv.example.com/key.php?r=2682", segment.encryptionKeyUri);
       // 0xA7B == 2683.
-      assertNotNull(segments.get(4).encryptionIV);
-      assertEquals("A7B", segments.get(4).encryptionIV.toUpperCase(Locale.getDefault()));
-      assertEquals(C.LENGTH_UNSET, segments.get(4).byterangeLength);
-      assertEquals(0, segments.get(4).byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2683.ts", segments.get(4).url);
+      assertNotNull(segment.encryptionIV);
+      assertEquals("A7B", segment.encryptionIV.toUpperCase(Locale.getDefault()));
+      assertEquals(C.LENGTH_UNSET, segment.byterangeLength);
+      assertEquals(0, segment.byterangeOffset);
+      assertEquals("https://priv.example.com/fileSequence2683.ts", segment.url);
     } catch (IOException exception) {
       fail(exception.getMessage());
     }

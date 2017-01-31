@@ -230,7 +230,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+    if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesToRead = dataSpec.length;
       } else {
@@ -343,7 +343,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     byte[] postBody = dataSpec.postBody;
     long position = dataSpec.position;
     long length = dataSpec.length;
-    boolean allowGzip = (dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) != 0;
+    boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
 
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection

@@ -1,9 +1,69 @@
 # Release notes #
 
-### r2.1.1 ###
+### r2.2.0 ###
 
-Bugfix release only. Users of r2.1.0 and r2.0.x should proactively update to
-this version.
+* Demo app: Automatic recovery from BehindLiveWindowException, plus improved
+  handling of pausing and resuming live streams
+  ([#2344](https://github.com/google/ExoPlayer/issues/2344)).
+* AndroidTV: Added Support for tunneled video playback
+  ([#1688](https://github.com/google/ExoPlayer/issues/1688)).
+* DRM: Renamed StreamingDrmSessionManager to DefaultDrmSessionManager and
+  added support for using offline licenses
+  ([#876](https://github.com/google/ExoPlayer/issues/876)).
+* DRM: Introduce OfflineLicenseHelper to help with offline license acquisition,
+  renewal and release.
+* UI: Updated player control assets. Added vector drawables for use on API level
+  21 and above.
+* UI: Made player control seek bar work correctly with key events if focusable
+  ([#2278](https://github.com/google/ExoPlayer/issues/2278)).
+* HLS: Improved support for streams that use EXT-X-DISCONTINUITY without
+  EXT-X-DISCONTINUITY-SEQUENCE
+  ([#1789](https://github.com/google/ExoPlayer/issues/1789)).
+* HLS: Support for EXT-X-START tag
+  ([#1544](https://github.com/google/ExoPlayer/issues/1544)).
+* HLS: Check #EXTM3U header is present when parsing the playlist. Fail
+  gracefully if not ([#2301](https://github.com/google/ExoPlayer/issues/2301)).
+* HLS: Fix memory leak
+  ([#2319](https://github.com/google/ExoPlayer/issues/2319)).
+* HLS: Fix non-seamless first adaptation where master playlist omits resolution
+  tags ([#2096](https://github.com/google/ExoPlayer/issues/2096)).
+* HLS: Fix handling of WebVTT subtitle renditions with non-standard segment file
+  extensions ([#2025](https://github.com/google/ExoPlayer/issues/2025) and
+  [#2355](https://github.com/google/ExoPlayer/issues/2355)).
+* HLS: Better handle inconsistent HLS playlist update
+  ([#2249](https://github.com/google/ExoPlayer/issues/2249)).
+* DASH: Don't overflow when dealing with large segment numbers
+  ([#2311](https://github.com/google/ExoPlayer/issues/2311)).
+* DASH: Fix propagation of language from the manifest
+  ([#2335](https://github.com/google/ExoPlayer/issues/2335)).
+* SmoothStreaming: Work around "Offset to sample data was negative" failures
+  ([#2292](https://github.com/google/ExoPlayer/issues/2292),
+  [#2101](https://github.com/google/ExoPlayer/issues/2101) and
+  [#1152](https://github.com/google/ExoPlayer/issues/1152)).
+* MP3/ID3: Added support for parsing Chapter and URL link frames
+  ([#2316](https://github.com/google/ExoPlayer/issues/2316)).
+* MP3/ID3: Handle ID3 frames that end with empty text field
+  ([#2309](https://github.com/google/ExoPlayer/issues/2309)).
+* Added ClippingMediaSource for playing clipped portions of media
+  ([#1988](https://github.com/google/ExoPlayer/issues/1988)).
+* Added convenience methods to query whether the current window is dynamic and
+  seekable ([#2320](https://github.com/google/ExoPlayer/issues/2320)).
+* Support setting of default headers on HttpDataSource.Factory implementations
+  ([#2166](https://github.com/google/ExoPlayer/issues/2166)).
+* Fixed cache failures when using an encrypted cache content index.
+* Fix visual artifacts when switching output surface
+  ([#2093](https://github.com/google/ExoPlayer/issues/2093)).
+* Fix gradle + proguard configurations.
+* Fix player position when replacing the MediaSource
+  ([#2369](https://github.com/google/ExoPlayer/issues/2369)).
+* Misc bug fixes, including
+  [#2330](https://github.com/google/ExoPlayer/issues/2330),
+  [#2269](https://github.com/google/ExoPlayer/issues/2269),
+  [#2252](https://github.com/google/ExoPlayer/issues/2252),
+  [#2264](https://github.com/google/ExoPlayer/issues/2264) and
+  [#2290](https://github.com/google/ExoPlayer/issues/2290).
+
+### r2.1.1 ###
 
 * Fix some subtitle types (e.g. WebVTT) being displayed out of sync
   ([#2208](https://github.com/google/ExoPlayer/issues/2208)).
@@ -52,9 +112,9 @@ this version.
 * Improved flexibility of SimpleExoPlayer
   ([#2102](https://github.com/google/ExoPlayer/issues/2102)).
 * Fix issue where only the audio of a video would play due to capability
-  detection issues ([#2007](https://github.com/google/ExoPlayer/issues/2007))
-  ([#2034](https://github.com/google/ExoPlayer/issues/2034))
-  ([#2157](https://github.com/google/ExoPlayer/issues/2157)).
+  detection issues ([#2007](https://github.com/google/ExoPlayer/issues/2007),
+  [#2034](https://github.com/google/ExoPlayer/issues/2034) and
+  [#2157](https://github.com/google/ExoPlayer/issues/2157)).
 * Fix issues that could cause ExtractorMediaSource based playbacks to get stuck
   buffering ([#1962](https://github.com/google/ExoPlayer/issues/1962)).
 * Correctly set SimpleExoPlayerView surface aspect ratio when an active player
@@ -68,11 +128,6 @@ this version.
 * Misc bugfixes.
 
 ### r2.0.4 ###
-
-* Fix crash on Jellybean devices when using playback controls
-  ([#1965](https://github.com/google/ExoPlayer/issues/1965)).
-
-### r2.0.3 ###
 
 * Fix crash on Jellybean devices when using playback controls
   ([#1965](https://github.com/google/ExoPlayer/issues/1965)).
@@ -190,6 +245,14 @@ and hence it can be assumed that all changes in r1.5.11 and earlier are included
 in all V2 releases. This cannot be assumed for changes in r1.5.12 and later,
 however it can be assumed that all such changes are included in the most recent
 V2 release.
+
+### r1.5.14 ###
+
+* Fixed cache failures when using an encrypted cache content index.
+* SmoothStreaming: Work around "Offset to sample data was negative" failures
+  ([#2292](https://github.com/google/ExoPlayer/issues/2292),
+  [#2101](https://github.com/google/ExoPlayer/issues/2101) and
+  [#1152](https://github.com/google/ExoPlayer/issues/1152)).
 
 ### r1.5.13 ###
 

@@ -16,15 +16,26 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
+import android.media.MediaDrm;
 import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Map;
 
 /**
  * A DRM session.
  */
 @TargetApi(16)
 public interface DrmSession<T extends ExoMediaCrypto> {
+
+  /** Wraps the exception which is the cause of the error state. */
+  class DrmSessionException extends Exception {
+
+    DrmSessionException(Exception e) {
+      super(e);
+    }
+
+  }
 
   /**
    * The state of the DRM session.
@@ -96,6 +107,26 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    *
    * @return An exception if the state is {@link #STATE_ERROR}. Null otherwise.
    */
-  Exception getError();
+  DrmSessionException getError();
+
+  /**
+   * Returns an informative description of the key status for the session. The status is in the form
+   * of {name, value} pairs.
+   *
+   * <p>Since DRM license policies vary by vendor, the specific status field names are determined by
+   * each DRM vendor. Refer to your DRM provider documentation for definitions of the field names
+   * for a particular DRM engine plugin.
+   *
+   * @return A map of key status.
+   * @throws IllegalStateException If called when the session isn't opened.
+   * @see MediaDrm#queryKeyStatus(byte[])
+   */
+  Map<String, String> queryKeyStatus();
+
+  /**
+   * Returns the key set id of the offline license loaded into this session, if there is one. Null
+   * otherwise.
+   */
+  byte[] getOfflineLicenseKeySetId();
 
 }

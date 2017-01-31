@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
@@ -95,6 +97,13 @@ public final class C {
    */
   @SuppressWarnings("InlinedApi")
   public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
+
+  /**
+   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
+   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
   /**
    * Represents an audio encoding, or an invalid or unset value.
@@ -541,6 +550,15 @@ public final class C {
    */
   public static long msToUs(long timeMs) {
     return timeMs == TIME_UNSET ? TIME_UNSET : (timeMs * 1000);
+  }
+
+  /**
+   * Returns a newly generated {@link android.media.AudioTrack} session identifier.
+   */
+  @TargetApi(21)
+  public static int generateAudioSessionIdV21(Context context) {
+    return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
+        .generateAudioSessionId();
   }
 
 }

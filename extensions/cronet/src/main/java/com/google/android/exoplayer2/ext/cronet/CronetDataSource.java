@@ -40,9 +40,10 @@ import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.chromium.net.CronetEngine;
+import org.chromium.net.CronetException;
+import org.chromium.net.NetworkException;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlRequest.Status;
-import org.chromium.net.UrlRequestException;
 import org.chromium.net.UrlResponseInfo;
 
 /**
@@ -400,12 +401,17 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   @Override
   public synchronized void onFailed(UrlRequest request, UrlResponseInfo info,
-      UrlRequestException error) {
+      CronetException error) {
     if (request != currentUrlRequest) {
       return;
     }
-    exception = error.getErrorCode() == UrlRequestException.ERROR_HOSTNAME_NOT_RESOLVED
-        ? new UnknownHostException() : error;
+    if (error instanceof NetworkException
+        && ((NetworkException) error).getErrorCode()
+            == NetworkException.ERROR_HOSTNAME_NOT_RESOLVED) {
+      exception = new UnknownHostException();
+    } else {
+      exception = error;
+    }
     operation.open();
   }
 

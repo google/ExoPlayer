@@ -35,7 +35,7 @@ allprojects {
         releaseRepoName = 'exoplayer'
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.1.1'
+        releaseVersion = 'r2.2.0'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
 }

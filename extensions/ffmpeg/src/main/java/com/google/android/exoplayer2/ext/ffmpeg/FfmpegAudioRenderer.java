@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.ffmpeg;
 
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -60,13 +61,18 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  public int supportsFormat(Format format) {
+  protected int supportsFormatInternal(Format format) {
     if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
     String mimeType = format.sampleMimeType;
     return FfmpegLibrary.supportsFormat(mimeType) ? FORMAT_HANDLED
         : MimeTypes.isAudio(mimeType) ? FORMAT_UNSUPPORTED_SUBTYPE : FORMAT_UNSUPPORTED_TYPE;
+  }
+
+  @Override
+  public final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override

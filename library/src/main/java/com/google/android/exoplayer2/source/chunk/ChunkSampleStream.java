@@ -122,7 +122,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
-    boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
+    boolean seekInsideBuffer = !isPendingReset()
+        && sampleQueue.skipToKeyframeBefore(positionUs, positionUs < getNextLoadPositionUs());
     if (seekInsideBuffer) {
       // We succeeded. All we need to do is discard any chunks that we've moved past.
       while (mediaChunks.size() > 1

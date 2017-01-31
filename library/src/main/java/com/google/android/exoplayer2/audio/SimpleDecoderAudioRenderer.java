@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import android.media.PlaybackParams;
+import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -43,8 +44,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Decodes and renders audio using a {@link SimpleDecoder}.
  */
-public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock,
-    AudioTrack.Listener {
+public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock {
 
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REINITIALIZATION_STATE_NONE, REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
@@ -94,8 +94,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
 
-  private int audioSessionId;
-
   public SimpleDecoderAudioRenderer() {
     this(null, null);
   }
@@ -141,11 +139,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys) {
     super(C.TRACK_TYPE_AUDIO);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    audioTrack = new AudioTrack(audioCapabilities, this);
+    audioTrack = new AudioTrack(audioCapabilities, new AudioTrackListener());
     this.drmSessionManager = drmSessionManager;
     formatHolder = new FormatHolder();
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
   }
@@ -154,6 +151,25 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   public MediaClock getMediaClock() {
     return this;
   }
+
+  @Override
+  public final int supportsFormat(Format format) {
+    int formatSupport = supportsFormatInternal(format);
+    if (formatSupport == FORMAT_UNSUPPORTED_TYPE || formatSupport == FORMAT_UNSUPPORTED_SUBTYPE) {
+      return formatSupport;
+    }
+    int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
+    return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
+  }
+
+  /**
+   * Returns the {@link #FORMAT_SUPPORT_MASK} component of the return value for
+   * {@link #supportsFormat(Format)}.
+   *
+   * @param format The format.
+   * @return The extent to which the renderer supports the format itself.
+   */
+  protected abstract int supportsFormatInternal(Format format);
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
@@ -183,6 +199,33 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       }
       decoderCounters.ensureUpdated();
     }
+  }
+
+  /**
+   * Called when the audio session id becomes known. The default implementation is a no-op. One
+   * reason for overriding this method would be to instantiate and enable a {@link Virtualizer} in
+   * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
+   * should be released in {@link #onDisabled()} (if not before).
+   *
+   * @see AudioTrack.Listener#onAudioSessionId(int)
+   */
+  protected void onAudioSessionId(int audioSessionId) {
+    // Do nothing.
+  }
+
+  /**
+   * @see AudioTrack.Listener#onPositionDiscontinuity()
+   */
+  protected void onAudioTrackPositionDiscontinuity() {
+    // Do nothing.
+  }
+
+  /**
+   * @see AudioTrack.Listener#onUnderrun(int, long, long)
+   */
+  protected void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs,
+      long elapsedSinceLastFeedMs) {
+    // Do nothing.
   }
 
   /**
@@ -244,28 +287,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       audioTrackNeedsConfigure = false;
     }
 
-    if (!audioTrack.isInitialized()) {
-      if (audioSessionId == AudioTrack.SESSION_ID_NOT_SET) {
-        audioSessionId = audioTrack.initialize(AudioTrack.SESSION_ID_NOT_SET);
-        eventDispatcher.audioSessionId(audioSessionId);
-        onAudioSessionId(audioSessionId);
-      } else {
-        audioTrack.initialize(audioSessionId);
-      }
-      if (getState() == STATE_STARTED) {
-        audioTrack.play();
-      }
-    }
-
-    int handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timeUs);
-
-    // If we are out of sync, allow currentPositionUs to jump backwards.
-    if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
-      allowPositionDiscontinuity = true;
-    }
-
-    // Release the buffer if it was consumed.
-    if ((handleBufferResult & AudioTrack.RESULT_BUFFER_CONSUMED) != 0) {
+    if (audioTrack.handleBuffer(outputBuffer.data, outputBuffer.timeUs)) {
       decoderCounters.renderedOutputBufferCount++;
       outputBuffer.release();
       outputBuffer = null;
@@ -381,23 +403,16 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     return currentPositionUs;
   }
 
-  /**
-   * Called when the audio session id becomes known. Once the id is known it will not change (and
-   * hence this method will not be called again) unless the renderer is disabled and then
-   * subsequently re-enabled.
-   * <p>
-   * The default implementation is a no-op.
-   *
-   * @param audioSessionId The audio session id.
-   */
-  protected void onAudioSessionId(int audioSessionId) {
-    // Do nothing.
-  }
-
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
+    int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
+    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
+      audioTrack.enableTunnelingV21(tunnelingAudioSessionId);
+    } else {
+      audioTrack.disableTunneling();
+    }
   }
 
   @Override
@@ -425,7 +440,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioTrackNeedsConfigure = true;
     waitingForKeys = false;
     try {
@@ -537,6 +551,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       // There aren't any final output buffers, so release the decoder immediately.
       releaseDecoder();
       maybeInitDecoder();
+      audioTrackNeedsConfigure = true;
     }
 
     eventDispatcher.inputFormatChanged(newFormat);
@@ -553,9 +568,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         break;
       case C.MSG_SET_STREAM_TYPE:
         @C.StreamType int streamType = (Integer) message;
-        if (audioTrack.setStreamType(streamType)) {
-          audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-        }
+        audioTrack.setStreamType(streamType);
         break;
       default:
         super.handleMessage(messageType, message);
@@ -563,11 +576,27 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
   }
 
-  // AudioTrack.Listener implementation.
+  private final class AudioTrackListener implements AudioTrack.Listener {
 
-  @Override
-  public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+    @Override
+    public void onAudioSessionId(int audioSessionId) {
+      eventDispatcher.audioSessionId(audioSessionId);
+      SimpleDecoderAudioRenderer.this.onAudioSessionId(audioSessionId);
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+      onAudioTrackPositionDiscontinuity();
+      // We are out of sync so allow currentPositionUs to jump backwards.
+      SimpleDecoderAudioRenderer.this.allowPositionDiscontinuity = true;
+    }
+
+    @Override
+    public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+      eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+    }
+
   }
 
 }

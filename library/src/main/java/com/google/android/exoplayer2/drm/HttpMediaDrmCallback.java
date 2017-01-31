@@ -105,7 +105,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
     try {
       return Util.toByteArray(inputStream);
     } finally {
-      inputStream.close();
+      Util.closeQuietly(inputStream);
     }
   }
 
