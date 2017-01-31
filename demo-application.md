@@ -60,8 +60,9 @@ be built to include and use these extensions as follows:
 1. Build each of the extensions that you want to include. Note that this is a
    manual process. Refer to the `README.md` file in each extension for
    instructions.
-1. In Android Studio's Build Variants view, change the build variant for the
-   demo module from `demoDebug` to `demo_extDebug`, as shown in Figure 3.
+1. In Android Studio's Build Variants view, set the build variant for the demo
+   module to `withExtensionsDebug` or `withExtensionsRelease` as shown in Figure
+   3.
 1. Compile, install and run the `demo` configuration as normal.
 
 {% include figure.html url="/images/demo-app-build-variants.png" index="3" caption="Selecting the demo_extDebug build variant" %}

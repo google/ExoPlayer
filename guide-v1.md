@@ -399,7 +399,7 @@ library. Here are some use cases for building custom components:
 
 ## Digital Rights Management ##
 
-On Android 4.3 (API level 18) and higher, ExoPlayer supports Digital Rights Managment (DRM)
+On Android 4.4 (API level 19) and higher, ExoPlayer supports Digital Rights Managment (DRM)
 protected playback. In order to play DRM protected content with ExoPlayer, your app must inject a
 `DrmSessionManager` into the `MediaCodecVideoTrackRenderer` and `MediaCodecAudioTrackRenderer`
 constructors. A `DrmSessionManager` object is responsible for providing the `MediaCrypto` object

@@ -31,8 +31,8 @@ lowest.
 ExoPlayer supports DASH with the FMP4, WebM and Matroska container formats.
 Media streams must be demuxed, meaning that video, audio and text must be
 defined in distinct AdaptationSet elements in the DASH manifest. The contained
-sample formats must also be supported (see the [sample formats](#sample-formats)
-section for details).
+audio and video sample formats must also be supported (see the
+[sample formats](#sample-formats) section for details).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
@@ -44,8 +44,6 @@ section for details).
 | **Closed&nbsp;captions/subtitles** |||
 | TTML | YES | Raw, or embedded in FMP4 according to ISO/IEC 14496-30 |
 | WebVTT | YES | Raw, or embedded in FMP4 according to ISO/IEC 14496-30 |
-| Tx3g | YES | Embedded in FMP4 |
-| SubRip | YES | Embedded in WebM |
 | **Content protection** |||
 | Widevine CENC | YES | API 19 and higher; "cenc" scheme only |
 | PlayReady SL2000 | YES | Android TV only |
@@ -54,9 +52,9 @@ section for details).
 
 ExoPlayer supports SmoothStreaming with the FMP4 container format. Media streams
 must be demuxed, meaning that video, audio and text must be defined in distinct
-StreamIndex elements in the SmoothStreaming manifest. The contained sample
-formats must also be supported (see the [sample formats](#sample-formats)
-section for details).
+StreamIndex elements in the SmoothStreaming manifest. The contained audio and
+video sample formats must also be supported (see the
+[sample formats](#sample-formats) section for details).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
@@ -70,7 +68,7 @@ section for details).
 ### HLS ###
 
 ExoPlayer supports HLS with the MPEG-TS, ADTS and MP3 container formats. The
-contained sample formats must also be supported (see the
+contained audio and video sample formats must also be supported (see the
 [sample formats](#sample-formats) section for details). Note that we recommend
 using DASH (or SmoothStreaming) rather than HLS where possible. You can read
 about some of the benefits of DASH
@@ -80,6 +78,7 @@ about some of the benefits of DASH
 |---------|:------------:|:---------------------|
 | **Containers** |||
 | MPEG-TS | YES ||
+| FMP4 | YES ||
 | ADTS (AAC) | YES ||
 | MP3 | YES ||
 | **Closed&nbsp;captions/subtitles** |||
@@ -90,12 +89,13 @@ about some of the benefits of DASH
 | **Content protection** |||
 | AES-128 | YES ||
 | Sample AES-128 | NO ||
+| Widevine | NO | Future support planned for API 24 and higher |
 
 ## Standalone container formats ##
 
 Media files in the following container formats can be played directly by
-ExoPlayer. The contained sample formats must also be supported (see the
-[sample formats](#sample-formats) section for details).
+ExoPlayer. The contained audio and video sample formats must also be supported
+(see the [sample formats](#sample-formats) section for details).
 
 | Container format | Supported    | Comment              |
 |------------------|:------------:|:---------------------|
@@ -153,6 +153,7 @@ arguments to FFmpeg's `configure` script:
 | E-AC-3         | --enable-decoder=eac3 |
 | DTS, DTS-HD    | --enable-decoder=dca |
 | TrueHD         | --enable-decoder=mlp --enable-decoder=truehd |
+| ALAC           | --enable-decoder=alac |
 
 See the extension's
 [README.md](https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg/README.md)

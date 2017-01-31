@@ -54,7 +54,7 @@ ExoPlayer has a number of advantages over Android's built in MediaPlayer:
   version you use and you can easily update to a newer version as part of a
   regular application update.
 * Fewer device specific issues.
-* Support for Widevine common encryption on Android 4.3 (API level 18) and
+* Support for Widevine common encryption on Android 4.4 (API level 19) and
   higher.
 
 It's important to note that there are also some disadvantages:
@@ -62,7 +62,7 @@ It's important to note that there are also some disadvantages:
 * **ExoPlayer's standard audio and video components rely on Android's
   `MediaCodec` API, which was released in Android 4.1 (API level 16). Hence they
   do not work on earlier versions of Android. Widevine common encryption is
-  available on Android 4.3 (API level 18) and higher.**
+  available on Android 4.4 (API level 19) and higher.**
 
 ## Library overview ##
 
@@ -413,7 +413,7 @@ library. Here are some use cases for building custom components:
 
 ## Digital Rights Management ##
 
-On Android 4.3 (API level 18) and higher, ExoPlayer supports Digital Rights
+On Android 4.4 (API level 19) and higher, ExoPlayer supports Digital Rights
 Managment (DRM) protected playback. In order to play DRM protected content with
 ExoPlayer, your app must inject a `DrmSessionManager` when instantiating the
 player. `ExoPlayerFactory` provides factory methods allowing this. A
@@ -438,5 +438,5 @@ additional schemes such as PlayReady. All Android TV devices support PlayReady.
 [`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
 [`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
 [`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
-[Bintray]: https://bintray.com/google/exoplayer/exoplayer
 [Releases]: https://github.com/google/ExoPlayer/releases
+[Bintray]: https://bintray.com/google/exoplayer/exoplayer/view
