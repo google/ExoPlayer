@@ -13,6 +13,7 @@ com.google.android.exoplayer2.extractor.ts
 com.google.android.exoplayer2.extractor.wav
 com.google.android.exoplayer2.mediacodec
 com.google.android.exoplayer2.metadata
+com.google.android.exoplayer2.metadata.emsg
 com.google.android.exoplayer2.metadata.id3
 com.google.android.exoplayer2.metadata.scte35
 com.google.android.exoplayer2.source
@@ -33,5 +34,6 @@ com.google.android.exoplayer2.trackselection
 com.google.android.exoplayer2.ui
 com.google.android.exoplayer2.upstream
 com.google.android.exoplayer2.upstream.cache
+com.google.android.exoplayer2.upstream.crypto
 com.google.android.exoplayer2.util
 com.google.android.exoplayer2.video
