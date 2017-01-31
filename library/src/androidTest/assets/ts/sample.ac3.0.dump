@@ -6,7 +6,7 @@ numberOfTracks = 1
 track 0:
   format:
     bitrate = -1
-    id = null
+    id = 0
     containerMimeType = null
     sampleMimeType = audio/ac3
     maxInputSize = -1

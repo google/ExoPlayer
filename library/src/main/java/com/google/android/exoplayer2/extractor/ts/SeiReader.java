@@ -28,9 +28,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   private final TrackOutput output;
 
-  public SeiReader(TrackOutput output) {
+  public SeiReader(TrackOutput output, String formatId) {
     this.output = output;
-    output.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, null,
+    output.format(Format.createTextSampleFormat(formatId, MimeTypes.APPLICATION_CEA608, null,
         Format.NO_VALUE, 0, null, null));
   }
 

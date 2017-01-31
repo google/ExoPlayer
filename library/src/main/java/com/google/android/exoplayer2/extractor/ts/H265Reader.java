@@ -44,6 +44,7 @@ import java.util.Collections;
   private static final int PREFIX_SEI_NUT = 39;
   private static final int SUFFIX_SEI_NUT = 40;
 
+  private String formatId;
   private TrackOutput output;
   private SampleReader sampleReader;
   private SeiReader seiReader;
@@ -90,9 +91,13 @@ import java.util.Collections;
 
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
-    output = extractorOutput.track(idGenerator.getNextId());
+    idGenerator.generateNewId();
+    formatId = idGenerator.getFormatId();
+    output = extractorOutput.track(idGenerator.getTrackId());
     sampleReader = new SampleReader(output);
-    seiReader = new SeiReader(extractorOutput.track(idGenerator.getNextId()));
+    idGenerator.generateNewId();
+    seiReader = new SeiReader(extractorOutput.track(idGenerator.getTrackId()),
+        idGenerator.getFormatId());
   }
 
   @Override
@@ -183,7 +188,7 @@ import java.util.Collections;
       sps.endNalUnit(discardPadding);
       pps.endNalUnit(discardPadding);
       if (vps.isCompleted() && sps.isCompleted() && pps.isCompleted()) {
-        output.format(parseMediaFormat(vps, sps, pps));
+        output.format(parseMediaFormat(formatId, vps, sps, pps));
         hasOutputFormat = true;
       }
     }
@@ -205,8 +210,8 @@ import java.util.Collections;
     }
   }
 
-  private static Format parseMediaFormat(NalUnitTargetBuffer vps, NalUnitTargetBuffer sps,
-      NalUnitTargetBuffer pps) {
+  private static Format parseMediaFormat(String formatId, NalUnitTargetBuffer vps,
+      NalUnitTargetBuffer sps, NalUnitTargetBuffer pps) {
     // Build codec-specific data.
     byte[] csd = new byte[vps.nalLength + sps.nalLength + pps.nalLength];
     System.arraycopy(vps.nalData, 0, csd, 0, vps.nalLength);
@@ -311,7 +316,7 @@ import java.util.Collections;
       }
     }
 
-    return Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H265, null, Format.NO_VALUE,
+    return Format.createVideoSampleFormat(formatId, MimeTypes.VIDEO_H265, null, Format.NO_VALUE,
         Format.NO_VALUE, picWidthInLumaSamples, picHeightInLumaSamples, Format.NO_VALUE,
         Collections.singletonList(csd), Format.NO_VALUE, pixelWidthHeightRatio, null);
   }
