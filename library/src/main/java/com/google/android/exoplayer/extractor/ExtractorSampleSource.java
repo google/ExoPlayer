@@ -109,93 +109,111 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
+  // Lazily initialized default extractor classes in priority order.
+  private static List<Class<? extends Extractor>> defaultExtractorClasses;
+
   /**
-   * Default extractor classes in priority order. They are referred to indirectly so that it is
-   * possible to remove unused extractors.
+   * Builds default extractors that can be passed to an {@link ExtractorSampleSource} constructor.
+   *
+   * @return An array of default extractors.
    */
-  private static final List<Class<? extends Extractor>> DEFAULT_EXTRACTOR_CLASSES;
-  static {
-    DEFAULT_EXTRACTOR_CLASSES = new ArrayList<>();
-    // Load extractors using reflection so that they can be deleted cleanly.
-    // Class.forName(<class name>) appears for each extractor so that automated tools like proguard
-    // can detect the use of reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.webm.WebmExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
+  public static Extractor[] newDefaultExtractors() {
+    synchronized (ExtractorSampleSource.class) {
+      if (defaultExtractorClasses == null) {
+        List<Class<? extends Extractor>> extractorClasses = new ArrayList<>(8);
+        // We reference extractors using reflection so that they can be deleted cleanly.
+        // Class.forName is used so that automated tools like proguard can detect the use of
+        // reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.webm.WebmExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.mp4.Mp4Extractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.mp3.Mp3Extractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.ts.AdtsExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.ts.TsExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.ogg.OggExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.ts.PsExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.extractor.wav.WavExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer.ext.flac.FlacExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        defaultExtractorClasses = extractorClasses;
+      }
     }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
+    Extractor[] extractors = new Extractor[defaultExtractorClasses.size()];
+    for (int i = 0; i < extractors.length; i++) {
+      try {
+        extractors[i] = defaultExtractorClasses.get(i).newInstance();
+      } catch (Exception e) {
+        // Should never happen.
+        throw new IllegalStateException("Unexpected error creating default extractor", e);
+      }
     }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.mp4.Mp4Extractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.mp3.Mp3Extractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ts.AdtsExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ts.TsExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ogg.OggExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ts.PsExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.wav.WavExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
-    try {
-      DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.ext.flac.FlacExtractor")
-              .asSubclass(Extractor.class));
-    } catch (ClassNotFoundException e) {
-      // Extractor not found.
-    }
+    return extractors;
   }
 
   private final ExtractorHolder extractorHolder;
@@ -247,8 +265,10 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
    * @param allocator An {@link Allocator} from which to obtain memory allocations.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
-   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
-   *     priority. If omitted, the default extractors will be used.
+   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
+   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
+   *     Where this is not possible {@link #newDefaultExtractors()} can be used to construct an
+   *     array of default extractors.
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
       int requestedBufferSize, Extractor... extractors) {
@@ -266,8 +286,10 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
-   *     priority. If omitted, the default extractors will be used.
+   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
+   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
+   *     Where this is not possible {@link #newDefaultExtractors()} can be used to construct an
+   *     array of default extractors.
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
       int requestedBufferSize, Handler eventHandler, EventListener eventListener,
@@ -284,8 +306,10 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
-   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
-   *     priority. If omitted, the default extractors will be used.
+   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
+   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
+   *     Where this is not possible {@link #newDefaultExtractors()} can be used to construct an
+   *     array of default extractors.
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
       int requestedBufferSize, int minLoadableRetryCount, Extractor... extractors) {
@@ -305,12 +329,15 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
-   *     priority. If omitted, the default extractors will be used.
+   * @param extractors {@link Extractor}s to process the media stream. Where the possible formats
+   *     are known, instantiate and inject only instances of the corresponding {@link Extractor}s.
+   *     Where this is not possible {@link #newDefaultExtractors()} can be used to construct an
+   *     array of default extractors.
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
       int requestedBufferSize, int minLoadableRetryCount, Handler eventHandler,
       EventListener eventListener, int eventSourceId, Extractor... extractors) {
+    Assertions.checkState(extractors != null && extractors.length > 0);
     this.uri = uri;
     this.dataSource = dataSource;
     this.eventListener = eventListener;
@@ -319,18 +346,6 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     this.allocator = allocator;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    if (extractors == null || extractors.length == 0) {
-      extractors = new Extractor[DEFAULT_EXTRACTOR_CLASSES.size()];
-      for (int i = 0; i < extractors.length; i++) {
-        try {
-          extractors[i] = DEFAULT_EXTRACTOR_CLASSES.get(i).newInstance();
-        } catch (InstantiationException e) {
-          throw new IllegalStateException("Unexpected error creating default extractor", e);
-        } catch (IllegalAccessException e) {
-          throw new IllegalStateException("Unexpected error creating default extractor", e);
-        }
-      }
-    }
     extractorHolder = new ExtractorHolder(extractors, this);
     sampleQueues = new SparseArray<>();
     pendingResetPositionUs = NO_RESET_PENDING;
