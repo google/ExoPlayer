@@ -18,11 +18,14 @@ package com.google.android.exoplayer2.demo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.view.Surface;
+import android.view.TextureView;
+import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -62,7 +65,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -78,7 +80,7 @@ import java.util.UUID;
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
 public class PlayerActivity extends Activity implements OnClickListener, ExoPlayer.EventListener,
-    PlaybackControlView.VisibilityListener {
+    PlaybackControlView.VisibilityListener, SurfaceTextureListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -102,7 +104,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   private Handler mainHandler;
   private EventLogger eventLogger;
-  private SimpleExoPlayerView simpleExoPlayerView;
+  private TextureView simpleExoPlayerView;
   private LinearLayout debugRootView;
   private TextView debugTextView;
   private Button retryButton;
@@ -139,9 +141,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
 
-    simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
-    simpleExoPlayerView.setControllerVisibilityListener(this);
-    simpleExoPlayerView.requestFocus();
+    simpleExoPlayerView = (TextureView) findViewById(R.id.player_view);
   }
 
   @Override
@@ -193,16 +193,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       showToast(R.string.storage_permission_denied);
       finish();
     }
-  }
-
-  // Activity input
-
-  @Override
-  public boolean dispatchKeyEvent(KeyEvent event) {
-    // Show the controls on any key event.
-    simpleExoPlayerView.showController();
-    // If the event was not handled then see if the player view can handle it as a media key event.
-    return super.dispatchKeyEvent(event) || simpleExoPlayerView.dispatchMediaKeyEvent(event);
   }
 
   // OnClickListener methods
@@ -280,7 +270,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       player.setVideoDebugListener(eventLogger);
       player.setMetadataOutput(eventLogger);
 
-      simpleExoPlayerView.setPlayer(player);
+      simpleExoPlayerView.setSurfaceTextureListener(this);
       player.setPlayWhenReady(shouldAutoPlay);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
@@ -562,4 +552,23 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     return false;
   }
 
+  @Override
+  public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
+    player.setVideoSurface(new Surface(simpleExoPlayerView.getSurfaceTexture()));
+  }
+
+  @Override
+  public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
+
+  }
+
+  @Override
+  public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+    return false;
+  }
+
+  @Override
+  public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
+  }
 }
