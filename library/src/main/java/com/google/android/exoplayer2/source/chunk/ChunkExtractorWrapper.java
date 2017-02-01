@@ -30,33 +30,19 @@ import java.io.IOException;
 /**
  * An {@link Extractor} wrapper for loading chunks containing a single track.
  * <p>
- * The wrapper allows switching of the {@link SeekMapOutput} and {@link TrackOutput} that receive
- * parsed data.
+ * The wrapper allows switching of the {@link TrackOutput} that receives parsed data.
  */
 public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput {
-
-  /**
-   * Receives {@link SeekMap}s extracted by the wrapped {@link Extractor}.
-   */
-  public interface SeekMapOutput {
-
-    /**
-     * @see ExtractorOutput#seekMap(SeekMap)
-     */
-    void seekMap(SeekMap seekMap);
-
-  }
 
   public final Extractor extractor;
 
   private final Format manifestFormat;
   private final boolean preferManifestDrmInitData;
-  private final boolean resendFormatOnInit;
 
   private boolean extractorInitialized;
-  private SeekMapOutput seekMapOutput;
   private TrackOutput trackOutput;
-  private Format sentFormat;
+  private SeekMap seekMap;
+  private Format sampleFormat;
 
   // Accessed only on the loader thread.
   private boolean seenTrack;
@@ -68,34 +54,43 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
    *     sample {@link Format} output from the {@link Extractor}.
    * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
    *     should be preferred when the sample and manifest {@link Format}s are merged.
-   * @param resendFormatOnInit Whether the extractor should resend the previous {@link Format} when
-   *     it is initialized via {@link #init(SeekMapOutput, TrackOutput)}.
    */
   public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
-      boolean preferManifestDrmInitData, boolean resendFormatOnInit) {
+      boolean preferManifestDrmInitData) {
     this.extractor = extractor;
     this.manifestFormat = manifestFormat;
     this.preferManifestDrmInitData = preferManifestDrmInitData;
-    this.resendFormatOnInit = resendFormatOnInit;
   }
 
   /**
-   * Initializes the extractor to output to the provided {@link SeekMapOutput} and
-   * {@link TrackOutput} instances, and configures it to receive data from a new chunk.
+   * Returns the {@link SeekMap} most recently output by the extractor, or null.
+   */
+  public SeekMap getSeekMap() {
+    return seekMap;
+  }
+
+  /**
+   * Returns the sample {@link Format} most recently output by the extractor, or null.
+   */
+  public Format getSampleFormat() {
+    return sampleFormat;
+  }
+
+  /**
+   * Initializes the extractor to output to the provided {@link TrackOutput}, and configures it to
+   * receive data from a new chunk.
    *
-   * @param seekMapOutput The {@link SeekMapOutput} that will receive extracted {@link SeekMap}s.
    * @param trackOutput The {@link TrackOutput} that will receive sample data.
    */
-  public void init(SeekMapOutput seekMapOutput, TrackOutput trackOutput) {
-    this.seekMapOutput = seekMapOutput;
+  public void init(TrackOutput trackOutput) {
     this.trackOutput = trackOutput;
     if (!extractorInitialized) {
       extractor.init(this);
       extractorInitialized = true;
     } else {
       extractor.seek(0, 0);
-      if (resendFormatOnInit && sentFormat != null) {
-        trackOutput.format(sentFormat);
+      if (sampleFormat != null) {
+        trackOutput.format(sampleFormat);
       }
     }
   }
@@ -117,15 +112,17 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    seekMapOutput.seekMap(seekMap);
+    this.seekMap = seekMap;
   }
 
   // TrackOutput implementation.
 
   @Override
   public void format(Format format) {
-    sentFormat = format.copyWithManifestFormatInfo(manifestFormat, preferManifestDrmInitData);
-    trackOutput.format(sentFormat);
+    sampleFormat = format.copyWithManifestFormatInfo(manifestFormat, preferManifestDrmInitData);
+    if (trackOutput != null) {
+      trackOutput.format(sampleFormat);
+    }
   }
 
   @Override

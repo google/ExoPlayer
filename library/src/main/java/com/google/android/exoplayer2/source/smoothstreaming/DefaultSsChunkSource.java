@@ -102,7 +102,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
           | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, track, null);
-      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, false, false);
+      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, false);
     }
   }
 
@@ -219,7 +219,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     long sampleOffsetUs = chunkStartTimeUs;
     return new ContainerMediaChunk(dataSource, dataSpec, format, trackSelectionReason,
         trackSelectionData, chunkStartTimeUs, chunkEndTimeUs, chunkIndex, 1, sampleOffsetUs,
-        extractorWrapper, format);
+        extractorWrapper);
   }
 
 }

@@ -210,11 +210,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     Representation representation = adaptationSet.representations.get(0);
     DrmInitData drmInitData = representation.format.drmInitData;
     if (drmInitData == null) {
-      InitializationChunk initializationChunk = loadInitializationChunk(dataSource, representation);
+      ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format);
+      InitializationChunk initializationChunk = loadInitializationChunk(dataSource, representation,
+          extractorWrapper);
       if (initializationChunk == null) {
         return null;
       }
-      Format sampleFormat = initializationChunk.getSampleFormat();
+      Format sampleFormat = extractorWrapper.getSampleFormat();
       if (sampleFormat != null) {
         drmInitData = sampleFormat.drmInitData;
       }
@@ -288,8 +290,9 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     return session;
   }
 
-  private static InitializationChunk loadInitializationChunk(final DataSource dataSource,
-      final Representation representation) throws IOException, InterruptedException {
+  private static InitializationChunk loadInitializationChunk(DataSource dataSource,
+      Representation representation, ChunkExtractorWrapper extractorWrapper)
+      throws IOException, InterruptedException {
     RangedUri rangedUri = representation.getInitializationUri();
     if (rangedUri == null) {
       return null;
@@ -298,7 +301,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         rangedUri.length, representation.getCacheKey());
     InitializationChunk initializationChunk = new InitializationChunk(dataSource, dataSpec,
         representation.format, C.SELECTION_REASON_UNKNOWN, null /* trackSelectionData */,
-        newWrappedExtractor(representation.format));
+        extractorWrapper);
     initializationChunk.load();
     return initializationChunk;
   }
@@ -308,8 +311,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     final boolean isWebm = mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
     final Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, format, false /* preferManifestDrmInitData */,
-        false /* resendFormatOnInit */);
+    return new ChunkExtractorWrapper(extractor, format, false /* preferManifestDrmInitData */);
   }
 
 }
