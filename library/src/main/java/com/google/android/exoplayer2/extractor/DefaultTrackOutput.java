@@ -70,6 +70,8 @@ public final class DefaultTrackOutput implements TrackOutput {
   private Format downstreamFormat;
 
   // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
+  private boolean pendingFormatAdjustment;
+  private Format lastUnadjustedFormat;
   private long sampleOffsetUs;
   private long totalBytesWritten;
   private Allocation lastAllocation;
@@ -445,23 +447,24 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Like {@link #format(Format)}, but with an offset that will be added to the timestamps of
-   * samples subsequently queued to the buffer. The offset is also used to adjust
-   * {@link Format#subsampleOffsetUs} for both the {@link Format} passed and those subsequently
-   * passed to {@link #format(Format)}.
+   * Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
+   * subsequently queued to the buffer.
    *
-   * @param format The format.
    * @param sampleOffsetUs The timestamp offset in microseconds.
    */
-  public void formatWithOffset(Format format, long sampleOffsetUs) {
-    this.sampleOffsetUs = sampleOffsetUs;
-    format(format);
+  public void setSampleOffsetUs(long sampleOffsetUs) {
+    if (this.sampleOffsetUs != sampleOffsetUs) {
+      this.sampleOffsetUs = sampleOffsetUs;
+      pendingFormatAdjustment = true;
+    }
   }
 
   @Override
   public void format(Format format) {
     Format adjustedFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
     boolean formatChanged = infoQueue.format(adjustedFormat);
+    lastUnadjustedFormat = format;
+    pendingFormatAdjustment = false;
     if (upstreamFormatChangeListener != null && formatChanged) {
       upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedFormat);
     }
@@ -518,6 +521,9 @@ public final class DefaultTrackOutput implements TrackOutput {
   @Override
   public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
       byte[] encryptionKey) {
+    if (pendingFormatAdjustment) {
+      format(lastUnadjustedFormat);
+    }
     if (!startWriteOperation()) {
       infoQueue.commitSampleTimestamp(timeUs);
       return;

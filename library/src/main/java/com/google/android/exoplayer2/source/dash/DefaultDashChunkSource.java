@@ -176,8 +176,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     RangedUri pendingInitializationUri = null;
     RangedUri pendingIndexUri = null;
-    Format sampleFormat = representationHolder.sampleFormat;
-    if (sampleFormat == null) {
+    if (representationHolder.extractorWrapper.getSampleFormat() == null) {
       pendingInitializationUri = selectedRepresentation.getInitializationUri();
     }
     if (segmentIndex == null) {
@@ -233,8 +232,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     int maxSegmentCount = Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
     out.chunk = newMediaChunk(representationHolder, dataSource, trackSelection.getSelectedFormat(),
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), sampleFormat,
-        segmentNum, maxSegmentCount);
+        trackSelection.getSelectionReason(), trackSelection.getSelectionData(), segmentNum,
+        maxSegmentCount);
   }
 
   @Override
@@ -243,15 +242,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
       InitializationChunk initializationChunk = (InitializationChunk) chunk;
       RepresentationHolder representationHolder =
           representationHolders[trackSelection.indexOf(initializationChunk.trackFormat)];
-      Format sampleFormat = initializationChunk.getSampleFormat();
-      if (sampleFormat != null) {
-        representationHolder.setSampleFormat(sampleFormat);
-      }
       // The null check avoids overwriting an index obtained from the manifest with one obtained
       // from the stream. If the manifest defines an index then the stream shouldn't, but in cases
       // where it does we should ignore it.
       if (representationHolder.segmentIndex == null) {
-        SeekMap seekMap = initializationChunk.getSeekMap();
+        SeekMap seekMap = representationHolder.extractorWrapper.getSeekMap();
         if (seekMap != null) {
           representationHolder.segmentIndex = new DashWrappingSegmentIndex((ChunkIndex) seekMap);
         }
@@ -318,7 +313,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   private static Chunk newMediaChunk(RepresentationHolder representationHolder,
       DataSource dataSource, Format trackFormat, int trackSelectionReason,
-      Object trackSelectionData, Format sampleFormat, int firstSegmentNum, int maxSegmentCount) {
+      Object trackSelectionData, int firstSegmentNum, int maxSegmentCount) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
@@ -347,7 +342,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
           trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, segmentCount,
-          sampleOffsetUs, representationHolder.extractorWrapper, sampleFormat);
+          sampleOffsetUs, representationHolder.extractorWrapper);
     }
   }
 
@@ -359,7 +354,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     public Representation representation;
     public DashSegmentIndex segmentIndex;
-    public Format sampleFormat;
 
     private long periodDurationUs;
     private int segmentNumShift;
@@ -371,11 +365,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
       if (mimeTypeIsRawText(containerMimeType)) {
         extractorWrapper = null;
       } else {
-        boolean resendFormatOnInit = false;
         Extractor extractor;
         if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
           extractor = new RawCcExtractor(representation.format);
-          resendFormatOnInit = true;
         } else if (mimeTypeIsWebm(containerMimeType)) {
           extractor = new MatroskaExtractor();
         } else {
@@ -383,15 +375,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
         // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
         // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-        extractorWrapper = new ChunkExtractorWrapper(extractor,
-            representation.format, true /* preferManifestDrmInitData */,
-            resendFormatOnInit);
+        extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format,
+            true /* preferManifestDrmInitData */);
       }
       segmentIndex = representation.getIndex();
-    }
-
-    public void setSampleFormat(Format sampleFormat) {
-      this.sampleFormat = sampleFormat;
     }
 
     public void updateRepresentation(long newPeriodDurationUs, Representation newRepresentation)

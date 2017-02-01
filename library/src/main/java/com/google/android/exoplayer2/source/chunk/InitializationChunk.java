@@ -20,29 +20,18 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SeekMapOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
  * A {@link Chunk} that uses an {@link Extractor} to decode initialization data for single track.
  */
-public final class InitializationChunk extends Chunk implements SeekMapOutput,
-    TrackOutput {
+public final class InitializationChunk extends Chunk {
 
   private final ChunkExtractorWrapper extractorWrapper;
-
-  // Initialization results. Set by the loader thread and read by any thread that knows loading
-  // has completed. These variables do not need to be volatile, since a memory barrier must occur
-  // for the reading thread to know that loading has completed.
-  private Format sampleFormat;
-  private SeekMap seekMap;
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
@@ -68,55 +57,6 @@ public final class InitializationChunk extends Chunk implements SeekMapOutput,
     return bytesLoaded;
   }
 
-  /**
-   * Returns a {@link Format} parsed from the chunk, or null.
-   * <p>
-   * Should be called after loading has completed.
-   */
-  public Format getSampleFormat() {
-    return sampleFormat;
-  }
-
-  /**
-   * Returns a {@link SeekMap} parsed from the chunk, or null.
-   * <p>
-   * Should be called after loading has completed.
-   */
-  public SeekMap getSeekMap() {
-    return seekMap;
-  }
-
-  // SeekMapOutput implementation.
-
-  @Override
-  public void seekMap(SeekMap seekMap) {
-    this.seekMap = seekMap;
-  }
-
-  // TrackOutput implementation.
-
-  @Override
-  public void format(Format format) {
-    this.sampleFormat = format;
-  }
-
-  @Override
-  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException {
-    throw new IllegalStateException("Unexpected sample data in initialization chunk");
-  }
-
-  @Override
-  public void sampleData(ParsableByteArray data, int length) {
-    throw new IllegalStateException("Unexpected sample data in initialization chunk");
-  }
-
-  @Override
-  public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-      byte[] encryptionKey) {
-    throw new IllegalStateException("Unexpected sample data in initialization chunk");
-  }
-
   // Loadable implementation.
 
   @Override
@@ -138,8 +78,7 @@ public final class InitializationChunk extends Chunk implements SeekMapOutput,
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
-        // Set the target to ourselves.
-        extractorWrapper.init(this, this);
+        extractorWrapper.init(null);
       }
       // Load and decode the initialization data.
       try {
