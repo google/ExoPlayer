@@ -121,13 +121,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
+   *     before they are output.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
+      BufferProcessor... bufferProcessors) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    audioTrack = new AudioTrack(audioCapabilities, new AudioTrackListener());
+    audioTrack = new AudioTrack(audioCapabilities, bufferProcessors, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -219,14 +222,19 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat)
+      throws ExoPlaybackException {
     boolean passthrough = passthroughMediaFormat != null;
     String mimeType = passthrough ? passthroughMediaFormat.getString(MediaFormat.KEY_MIME)
         : MimeTypes.AUDIO_RAW;
     MediaFormat format = passthrough ? passthroughMediaFormat : outputFormat;
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-    audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0);
+    try {
+      audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0);
+    } catch (AudioTrack.ConfigurationException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
   }
 
   /**
