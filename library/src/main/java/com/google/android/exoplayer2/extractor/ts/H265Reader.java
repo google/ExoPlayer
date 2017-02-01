@@ -44,10 +44,11 @@ import java.util.Collections;
   private static final int PREFIX_SEI_NUT = 39;
   private static final int SUFFIX_SEI_NUT = 40;
 
+  private final SeiReader seiReader;
+
   private String formatId;
   private TrackOutput output;
   private SampleReader sampleReader;
-  private SeiReader seiReader;
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
@@ -67,7 +68,11 @@ import java.util.Collections;
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
-  public H265Reader() {
+  /**
+   * @param seiReader An SEI reader for consuming closed caption channels.
+   */
+  public H265Reader(SeiReader seiReader) {
+    this.seiReader = seiReader;
     prefixFlags = new boolean[3];
     vps = new NalUnitTargetBuffer(VPS_NUT, 128);
     sps = new NalUnitTargetBuffer(SPS_NUT, 128);
@@ -95,9 +100,7 @@ import java.util.Collections;
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId());
     sampleReader = new SampleReader(output);
-    idGenerator.generateNewId();
-    seiReader = new SeiReader(extractorOutput.track(idGenerator.getTrackId()),
-        idGenerator.getFormatId());
+    seiReader.createTracks(extractorOutput, idGenerator);
   }
 
   @Override
