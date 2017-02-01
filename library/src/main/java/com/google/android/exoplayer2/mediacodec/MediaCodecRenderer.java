@@ -779,8 +779,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * @param codec The {@link MediaCodec} instance.
    * @param outputFormat The new output format.
+   * @throws ExoPlaybackException Thrown if an error occurs handling the new output format.
    */
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -918,7 +920,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Processes a new output format.
    */
-  private void processOutputFormat() {
+  private void processOutputFormat() throws ExoPlaybackException {
     MediaFormat format = codec.getOutputFormat();
     if (codecNeedsAdaptationWorkaround
         && format.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT

@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.ext.opus;
 
 import android.os.Handler;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.BufferProcessor;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -40,35 +40,26 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
+   *     before they are output.
    */
-  public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener) {
-    super(eventHandler, eventListener);
+  public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+      BufferProcessor... bufferProcessors) {
+    super(eventHandler, eventListener, bufferProcessors);
   }
 
   /**
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio
+   *     buffers before they are output.
    */
   public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities) {
-    super(eventHandler, eventListener, audioCapabilities);
-  }
-
-  /**
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
-   */
-  public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
-    super(eventHandler, eventListener, audioCapabilities, drmSessionManager,
-        playClearSamplesWithoutKeys);
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys,
+      BufferProcessor... bufferProcessors) {
+    super(eventHandler, eventListener, null, drmSessionManager, playClearSamplesWithoutKeys,
+        bufferProcessors);
   }
 
   @Override

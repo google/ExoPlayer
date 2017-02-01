@@ -91,6 +91,21 @@ public final class AudioTrack {
   }
 
   /**
+   * Thrown when a failure occurs configuring the track.
+   */
+  public static final class ConfigurationException extends Exception {
+
+    public ConfigurationException(Throwable cause) {
+      super(cause);
+    }
+
+    public ConfigurationException(String message) {
+      super(message);
+    }
+
+  }
+
+  /**
    * Thrown when a failure occurs initializing an {@link android.media.AudioTrack}.
    */
   public static final class InitializationException extends Exception {
@@ -254,6 +269,7 @@ public final class AudioTrack {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final AudioCapabilities audioCapabilities;
+  private final BufferProcessor[] bufferProcessors;
   private final Listener listener;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
@@ -267,12 +283,12 @@ public final class AudioTrack {
   private android.media.AudioTrack audioTrack;
   private int sampleRate;
   private int channelConfig;
-  @C.StreamType
-  private int streamType;
   @C.Encoding
-  private int inputEncoding;
+  private int encoding;
   @C.Encoding
   private int outputEncoding;
+  @C.StreamType
+  private int streamType;
   private boolean passthrough;
   private int pcmFrameSize;
   private int bufferSize;
@@ -303,8 +319,6 @@ public final class AudioTrack {
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
 
-  private BufferProcessor resampler;
-
   private boolean playing;
   private int audioSessionId;
   private boolean tunneling;
@@ -312,11 +326,18 @@ public final class AudioTrack {
   private long lastFeedElapsedRealtimeMs;
 
   /**
-   * @param audioCapabilities The current audio capabilities.
+   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
+   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param bufferProcessors An array of {@link BufferProcessor}s which will process PCM audio
+   *     buffers before they are output. May be empty.
    * @param listener Listener for audio track events.
    */
-  public AudioTrack(AudioCapabilities audioCapabilities, Listener listener) {
+  public AudioTrack(AudioCapabilities audioCapabilities, BufferProcessor[] bufferProcessors,
+      Listener listener) {
     this.audioCapabilities = audioCapabilities;
+    this.bufferProcessors = new BufferProcessor[bufferProcessors.length + 1];
+    this.bufferProcessors[0] = new ResamplingBufferProcessor();
+    System.arraycopy(bufferProcessors, 0, this.bufferProcessors, 1, bufferProcessors.length);
     this.listener = listener;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
@@ -413,9 +434,23 @@ public final class AudioTrack {
    *     {@link C#ENCODING_PCM_32BIT}.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
    *     suitable buffer size automatically.
+   * @throws ConfigurationException If an error occurs configuring the track.
    */
   public void configure(String mimeType, int channelCount, int sampleRate,
-      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize) {
+      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize) throws ConfigurationException {
+    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
+    @C.Encoding int encoding = passthrough ? getEncodingForMimeType(mimeType) : pcmEncoding;
+    if (!passthrough) {
+      for (BufferProcessor bufferProcessor : bufferProcessors) {
+        try {
+          bufferProcessor.configure(sampleRate, channelCount, encoding);
+        } catch (BufferProcessor.UnhandledFormatException e) {
+          throw new ConfigurationException(e);
+        }
+        encoding = bufferProcessor.getOutputEncoding();
+      }
+    }
+
     int channelConfig;
     switch (channelCount) {
       case 1:
@@ -443,7 +478,7 @@ public final class AudioTrack {
         channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
         break;
       default:
-        throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
+        throw new ConfigurationException("Unsupported channel count: " + channelCount);
     }
 
     // Workaround for overly strict channel configuration checks on nVidia Shield.
@@ -461,25 +496,13 @@ public final class AudioTrack {
       }
     }
 
-    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
-
     // Workaround for Nexus Player not reporting support for mono passthrough.
     // (See [Internal: b/34268671].)
     if (Util.SDK_INT <= 25 && "fugu".equals(Util.DEVICE) && passthrough && channelCount == 1) {
       channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
     }
 
-    @C.Encoding int inputEncoding;
-    if (passthrough) {
-      inputEncoding = getEncodingForMimeType(mimeType);
-    } else if (pcmEncoding == C.ENCODING_PCM_8BIT || pcmEncoding == C.ENCODING_PCM_16BIT
-        || pcmEncoding == C.ENCODING_PCM_24BIT || pcmEncoding == C.ENCODING_PCM_32BIT) {
-      inputEncoding = pcmEncoding;
-    } else {
-      throw new IllegalArgumentException("Unsupported PCM encoding: " + pcmEncoding);
-    }
-
-    if (isInitialized() && this.inputEncoding == inputEncoding && this.sampleRate == sampleRate
+    if (isInitialized() && this.encoding == encoding && this.sampleRate == sampleRate
         && this.channelConfig == channelConfig) {
       // We already have an audio track with the correct sample rate, channel config and encoding.
       return;
@@ -487,15 +510,12 @@ public final class AudioTrack {
 
     reset();
 
-    this.inputEncoding = inputEncoding;
+    this.encoding = encoding;
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
     pcmFrameSize = 2 * channelCount; // 2 bytes per 16-bit sample * number of channels.
-    outputEncoding = passthrough ? inputEncoding : C.ENCODING_PCM_16BIT;
-
-    resampler = outputEncoding != inputEncoding ? new ResamplingBufferProcessor(inputEncoding)
-        : null;
+    outputEncoding = passthrough ? encoding : C.ENCODING_PCM_16BIT;
 
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
@@ -684,8 +704,12 @@ public final class AudioTrack {
       }
 
       inputBuffer = buffer;
-      outputBuffer = resampler != null ? resampler.handleBuffer(inputBuffer, outputBuffer)
-          : inputBuffer;
+      if (!passthrough) {
+        for (BufferProcessor bufferProcessor : bufferProcessors) {
+          buffer = bufferProcessor.handleBuffer(buffer);
+        }
+      }
+      outputBuffer = buffer;
       if (Util.SDK_INT < 21) {
         int bytesRemaining = outputBuffer.remaining();
         if (preV21OutputBuffer == null || preV21OutputBuffer.length < bytesRemaining) {
@@ -886,6 +910,9 @@ public final class AudioTrack {
       framesPerEncodedSample = 0;
       inputBuffer = null;
       avSyncHeader = null;
+      for (BufferProcessor bufferProcessor : bufferProcessors) {
+        bufferProcessor.flush();
+      }
       bytesUntilNextAvSync = 0;
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
@@ -919,6 +946,9 @@ public final class AudioTrack {
   public void release() {
     reset();
     releaseKeepSessionIdAudioTrack();
+    for (BufferProcessor bufferProcessor : bufferProcessors) {
+      bufferProcessor.release();
+    }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     playing = false;
   }

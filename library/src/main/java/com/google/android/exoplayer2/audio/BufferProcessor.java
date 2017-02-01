@@ -15,23 +15,60 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 
 /**
- * Interface for processors of buffers, for use with {@link AudioTrack}.
+ * Interface for processors of audio buffers.
  */
 public interface BufferProcessor {
 
   /**
-   * Processes the data in the specified input buffer in its entirety. Populates {@code output} with
-   * processed data if is not {@code null} and has sufficient capacity. Otherwise a different buffer
-   * will be populated and returned.
+   * Exception thrown when a processor can't be configured for a given input format.
+   */
+  final class UnhandledFormatException extends Exception {
+
+    public UnhandledFormatException(int sampleRateHz, int channelCount, @C.Encoding int encoding) {
+      super("Unhandled format: " + sampleRateHz + " Hz, " + channelCount + " channels in encoding "
+          + encoding);
+    }
+
+  }
+
+  /**
+   * Configures this processor to take input buffers with the specified format.
+   *
+   * @param sampleRateHz The sample rate of input audio in Hz.
+   * @param channelCount The number of interleaved channels in input audio.
+   * @param encoding The encoding of input audio.
+   * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
+   */
+  void configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
+      throws UnhandledFormatException;
+
+  /**
+   * Returns the encoding used in buffers output by this processor.
+   */
+  @C.Encoding
+  int getOutputEncoding();
+
+  /**
+   * Processes the data in the specified input buffer in its entirety.
    *
    * @param input A buffer containing the input data to process.
-   * @param output A buffer into which the output should be written, if its capacity is sufficient.
-   * @return The processed output. Different to {@code output} if null was passed, or if its
-   *     capacity was insufficient.
+   * @return A buffer containing the processed output. This may be the same as the input buffer if
+   *     no processing was required.
    */
-  ByteBuffer handleBuffer(ByteBuffer input, ByteBuffer output);
+  ByteBuffer handleBuffer(ByteBuffer input);
+
+  /**
+   * Clears any state in preparation for receiving a new stream of buffers.
+   */
+  void flush();
+
+  /**
+   * Releases any resources associated with this instance.
+   */
+  void release();
 
 }
