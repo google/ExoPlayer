@@ -39,6 +39,7 @@ import java.util.List;
   private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
   private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
 
+  private final SeiReader seiReader;
   private final boolean allowNonIdrKeyframes;
   private final boolean detectAccessUnits;
   private final NalUnitTargetBuffer sps;
@@ -49,7 +50,6 @@ import java.util.List;
 
   private String formatId;
   private TrackOutput output;
-  private SeiReader seiReader;
   private SampleReader sampleReader;
 
   // State that should not be reset on seek.
@@ -62,15 +62,17 @@ import java.util.List;
   private final ParsableByteArray seiWrapper;
 
   /**
+   * @param seiReader An SEI reader for consuming closed caption channels.
    * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
    *     synchronization samples (key-frames).
    * @param detectAccessUnits Whether to split the input stream into access units (samples) based on
    *     slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
    */
-  public H264Reader(boolean allowNonIdrKeyframes, boolean detectAccessUnits) {
-    prefixFlags = new boolean[3];
+  public H264Reader(SeiReader seiReader, boolean allowNonIdrKeyframes, boolean detectAccessUnits) {
+    this.seiReader = seiReader;
     this.allowNonIdrKeyframes = allowNonIdrKeyframes;
     this.detectAccessUnits = detectAccessUnits;
+    prefixFlags = new boolean[3];
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
@@ -93,9 +95,7 @@ import java.util.List;
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId());
     sampleReader = new SampleReader(output, allowNonIdrKeyframes, detectAccessUnits);
-    idGenerator.generateNewId();
-    seiReader = new SeiReader(extractorOutput.track(idGenerator.getTrackId()),
-        idGenerator.getFormatId());
+    seiReader.createTracks(extractorOutput, idGenerator);
   }
 
   @Override

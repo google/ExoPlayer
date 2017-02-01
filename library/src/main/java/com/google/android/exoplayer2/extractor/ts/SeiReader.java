@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -26,12 +28,13 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
  */
 /* package */ final class SeiReader {
 
-  private final TrackOutput output;
+  private TrackOutput output;
 
-  public SeiReader(TrackOutput output, String formatId) {
-    this.output = output;
-    output.format(Format.createTextSampleFormat(formatId, MimeTypes.APPLICATION_CEA608, null,
-        Format.NO_VALUE, 0, null, null));
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    idGenerator.generateNewId();
+    output = extractorOutput.track(idGenerator.getTrackId());
+    output.format(Format.createTextSampleFormat(idGenerator.getFormatId(),
+        MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null));
   }
 
   public void consume(long pesTimeUs, ParsableByteArray seiBuffer) {
