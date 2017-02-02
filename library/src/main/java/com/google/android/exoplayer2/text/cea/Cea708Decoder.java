@@ -211,7 +211,7 @@ public final class Cea708Decoder extends CeaDecoder {
       }
 
       if (!ccValid) {
-        finalizeCurrentPacket();
+        // This byte-pair isn't valid, ignore it and continue.
         continue;
       }
 
@@ -259,7 +259,8 @@ public final class Cea708Decoder extends CeaDecoder {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
       Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
           + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + ")");
+          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
+      return;
     }
 
     serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
