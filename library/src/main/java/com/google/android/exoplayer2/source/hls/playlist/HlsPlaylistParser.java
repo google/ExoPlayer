@@ -179,30 +179,28 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       if (line.startsWith(TAG_MEDIA)) {
         @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
         String uri = parseOptionalStringAttr(line, REGEX_URI);
-        String name = parseStringAttr(line, REGEX_NAME);
+        String id = parseStringAttr(line, REGEX_NAME);
         String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
         Format format;
         switch (parseStringAttr(line, REGEX_TYPE)) {
           case TYPE_AUDIO:
-             format = Format.createAudioContainerFormat(name, MimeTypes.APPLICATION_M3U8,
-                null, null, Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
-                language);
+            format = Format.createAudioContainerFormat(id, MimeTypes.APPLICATION_M3U8, null, null,
+                Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags, language);
             if (uri == null) {
               muxedAudioFormat = format;
             } else {
-              audios.add(new HlsMasterPlaylist.HlsUrl(name, uri, format, null, format, null));
+              audios.add(new HlsMasterPlaylist.HlsUrl(uri, format));
             }
             break;
           case TYPE_SUBTITLES:
-            format = Format.createTextContainerFormat(name, MimeTypes.APPLICATION_M3U8,
+            format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_M3U8,
                 MimeTypes.TEXT_VTT, null, Format.NO_VALUE, selectionFlags, language);
-            subtitles.add(new HlsMasterPlaylist.HlsUrl(name, uri, format, null, format, null));
+            subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
             break;
           case TYPE_CLOSED_CAPTIONS:
             if ("CC1".equals(parseOptionalStringAttr(line, REGEX_INSTREAM_ID))) {
-              muxedCaptionFormat = Format.createTextContainerFormat(name,
-                  MimeTypes.APPLICATION_M3U8, MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE,
-                  selectionFlags, language);
+              muxedCaptionFormat = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_M3U8,
+                  MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, selectionFlags, language);
             }
             break;
           default:
@@ -229,10 +227,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           height = Format.NO_VALUE;
         }
         line = iterator.next();
-        String name = Integer.toString(variants.size());
-        Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
-            codecs, bitrate, width, height, Format.NO_VALUE, null, 0);
-        variants.add(new HlsMasterPlaylist.HlsUrl(name, line, format, null, null, null));
+        Format format = Format.createVideoContainerFormat(Integer.toString(variants.size()),
+            MimeTypes.APPLICATION_M3U8, null, codecs, bitrate, width, height, Format.NO_VALUE, null,
+            0);
+        variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
       }
     }
     return new HlsMasterPlaylist(baseUri, variants, audios, subtitles, muxedAudioFormat,
