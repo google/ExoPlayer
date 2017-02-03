@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.chunk;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -37,6 +38,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   public final Extractor extractor;
 
   private final Format manifestFormat;
+  private final int primaryTrackType;
   private final boolean preferManifestDrmInitData;
 
   private boolean extractorInitialized;
@@ -52,13 +54,16 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
    * @param extractor The extractor to wrap.
    * @param manifestFormat A manifest defined {@link Format} whose data should be merged into any
    *     sample {@link Format} output from the {@link Extractor}.
+   * @param primaryTrackType The type of the primary track. Typically one of the {@link C}
+   *     {@code TRACK_TYPE_*} constants.
    * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
    *     should be preferred when the sample and manifest {@link Format}s are merged.
    */
-  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat,
+  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat, int primaryTrackType,
       boolean preferManifestDrmInitData) {
     this.extractor = extractor;
     this.manifestFormat = manifestFormat;
+    this.primaryTrackType = primaryTrackType;
     this.preferManifestDrmInitData = preferManifestDrmInitData;
   }
 
@@ -98,7 +103,10 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   // ExtractorOutput implementation.
 
   @Override
-  public TrackOutput track(int id) {
+  public TrackOutput track(int id, int type) {
+    if (primaryTrackType != C.TRACK_TYPE_UNKNOWN && primaryTrackType != type) {
+      return new DummyTrackOutput();
+    }
     Assertions.checkState(!seenTrack || seenTrackId == id);
     seenTrack = true;
     seenTrackId = id;

@@ -210,7 +210,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     Representation representation = adaptationSet.representations.get(0);
     DrmInitData drmInitData = representation.format.drmInitData;
     if (drmInitData == null) {
-      ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format);
+      ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format,
+          adaptationSet.type);
       InitializationChunk initializationChunk = loadInitializationChunk(dataSource, representation,
           extractorWrapper);
       if (initializationChunk == null) {
@@ -306,12 +307,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     return initializationChunk;
   }
 
-  private static ChunkExtractorWrapper newWrappedExtractor(final Format format) {
+  private static ChunkExtractorWrapper newWrappedExtractor(Format format, int trackType) {
     final String mimeType = format.containerMimeType;
     final boolean isWebm = mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
     final Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, format, false /* preferManifestDrmInitData */);
+    return new ChunkExtractorWrapper(extractor, format, trackType,
+        false /* preferManifestDrmInitData */);
   }
 
 }

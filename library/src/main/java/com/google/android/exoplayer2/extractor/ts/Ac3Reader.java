@@ -87,7 +87,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
     generator.generateNewId();
     trackFormatId = generator.getFormatId();
-    output = extractorOutput.track(generator.getTrackId());
+    output = extractorOutput.track(generator.getTrackId(), C.TRACK_TYPE_AUDIO);
   }
 
   @Override

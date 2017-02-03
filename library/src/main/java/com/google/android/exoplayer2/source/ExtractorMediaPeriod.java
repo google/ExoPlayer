@@ -381,7 +381,7 @@ import java.io.IOException;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public TrackOutput track(int id) {
+  public TrackOutput track(int id, int type) {
     DefaultTrackOutput trackOutput = sampleQueues.get(id);
     if (trackOutput == null) {
       trackOutput = new DefaultTrackOutput(allocator);

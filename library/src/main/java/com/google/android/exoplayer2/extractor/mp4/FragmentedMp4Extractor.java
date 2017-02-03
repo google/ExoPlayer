@@ -164,7 +164,14 @@ public final class FragmentedMp4Extractor implements Extractor {
   private boolean haveOutputSeekMap;
 
   public FragmentedMp4Extractor() {
-    this(0, null);
+    this(0);
+  }
+
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public FragmentedMp4Extractor(@Flags int flags) {
+    this(flags, null);
   }
 
   /**
@@ -172,20 +179,20 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
   public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster) {
-    this(flags, null, timestampAdjuster);
+    this(flags, timestampAdjuster, null);
   }
 
   /**
    * @param flags Flags that control the extractor's behavior.
+   * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor
    *     will not receive a moov box in the input data.
-   * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
-  public FragmentedMp4Extractor(@Flags int flags, Track sideloadedTrack,
-      TimestampAdjuster timestampAdjuster) {
-    this.sideloadedTrack = sideloadedTrack;
+  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster,
+      Track sideloadedTrack) {
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     this.timestampAdjuster = timestampAdjuster;
+    this.sideloadedTrack = sideloadedTrack;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
@@ -209,7 +216,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   public void init(ExtractorOutput output) {
     extractorOutput = output;
     if (sideloadedTrack != null) {
-      TrackBundle bundle = new TrackBundle(output.track(0));
+      TrackBundle bundle = new TrackBundle(output.track(0, sideloadedTrack.type));
       bundle.init(sideloadedTrack, new DefaultSampleValues(0, 0, 0, 0));
       trackBundles.put(0, bundle);
       maybeInitExtraTracks();
@@ -420,7 +427,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       // We need to create the track bundles.
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
-        TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i));
+        TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
         trackBundle.init(track, defaultSampleValuesArray.get(track.id));
         trackBundles.put(track.id, trackBundle);
         durationUs = Math.max(durationUs, track.durationUs);
@@ -449,12 +456,12 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private void maybeInitExtraTracks() {
     if ((flags & FLAG_ENABLE_EMSG_TRACK) != 0 && eventMessageTrackOutput == null) {
-      eventMessageTrackOutput = extractorOutput.track(trackBundles.size());
+      eventMessageTrackOutput = extractorOutput.track(trackBundles.size(), C.TRACK_TYPE_METADATA);
       eventMessageTrackOutput.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG,
           Format.OFFSET_SAMPLE_RELATIVE));
     }
     if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutput == null) {
-      cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1);
+      cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1, C.TRACK_TYPE_TEXT);
       cea608TrackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
           null, Format.NO_VALUE, 0, null, null));
     }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -32,7 +33,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     idGenerator.generateNewId();
-    output = extractorOutput.track(idGenerator.getTrackId());
+    output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
     output.format(Format.createTextSampleFormat(idGenerator.getFormatId(),
         MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null));
   }

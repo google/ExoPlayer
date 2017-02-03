@@ -156,7 +156,7 @@ import java.util.LinkedList;
    * prepare.
    */
   public void prepareSingleTrack(Format format) {
-    track(0).format(format);
+    track(0, C.TRACK_TYPE_UNKNOWN).format(format);
     sampleQueuesBuilt = true;
     maybeFinishPrepare();
   }
@@ -456,7 +456,7 @@ import java.util.LinkedList;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public DefaultTrackOutput track(int id) {
+  public DefaultTrackOutput track(int id, int type) {
     if (sampleQueues.indexOfKey(id) >= 0) {
       return sampleQueues.get(id);
     }
