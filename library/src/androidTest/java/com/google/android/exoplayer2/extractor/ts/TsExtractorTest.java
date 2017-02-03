@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.test.InstrumentationTestCase;
 import android.util.SparseArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -179,7 +180,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     @Override
     public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
       idGenerator.generateNewId();
-      output = extractorOutput.track(idGenerator.getTrackId());
+      output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_UNKNOWN);
       output.format(Format.createTextSampleFormat(idGenerator.getFormatId(), "mime", null, 0, 0,
           language, null, 0));
     }

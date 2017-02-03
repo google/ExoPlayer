@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
+import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
@@ -119,11 +120,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.maxSegmentsPerLoad = maxSegmentsPerLoad;
 
     long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
-    List<Representation> representations = getRepresentations();
+    AdaptationSet adaptationSet = getAdaptationSet();
+    List<Representation> representations = adaptationSet.representations;
     representationHolders = new RepresentationHolder[trackSelection.length()];
     for (int i = 0; i < representationHolders.length; i++) {
       Representation representation = representations.get(trackSelection.getIndexInTrackGroup(i));
-      representationHolders[i] = new RepresentationHolder(periodDurationUs, representation);
+      representationHolders[i] = new RepresentationHolder(periodDurationUs, representation,
+          adaptationSet.type);
     }
   }
 
@@ -133,7 +136,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       manifest = newManifest;
       periodIndex = newPeriodIndex;
       long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
-      List<Representation> representations = getRepresentations();
+      List<Representation> representations = getAdaptationSet().representations;
       for (int i = 0; i < representationHolders.length; i++) {
         Representation representation = representations.get(trackSelection.getIndexInTrackGroup(i));
         representationHolders[i].updateRepresentation(periodDurationUs, representation);
@@ -278,8 +281,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   // Private methods.
 
-  private List<Representation> getRepresentations() {
-    return manifest.getPeriod(periodIndex).adaptationSets.get(adaptationSetIndex).representations;
+  private AdaptationSet getAdaptationSet() {
+    return manifest.getPeriod(periodIndex).adaptationSets.get(adaptationSetIndex);
   }
 
   private long getNowUnixTimeUs() {
@@ -350,6 +353,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   protected static final class RepresentationHolder {
 
+    public final int trackType;
     public final ChunkExtractorWrapper extractorWrapper;
 
     public Representation representation;
@@ -358,9 +362,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
     private long periodDurationUs;
     private int segmentNumShift;
 
-    public RepresentationHolder(long periodDurationUs, Representation representation) {
+    public RepresentationHolder(long periodDurationUs, Representation representation,
+        int trackType) {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
+      this.trackType = trackType;
       String containerMimeType = representation.format.containerMimeType;
       if (mimeTypeIsRawText(containerMimeType)) {
         extractorWrapper = null;
@@ -371,12 +377,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
         } else if (mimeTypeIsWebm(containerMimeType)) {
           extractor = new MatroskaExtractor();
         } else {
-          extractor = new FragmentedMp4Extractor();
+          extractor = new FragmentedMp4Extractor(FragmentedMp4Extractor.FLAG_ENABLE_CEA608_TRACK
+              | FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK);
         }
         // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
         // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
         extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format,
-            true /* preferManifestDrmInitData */);
+            trackType, true /* preferManifestDrmInitData */);
       }
       segmentIndex = representation.getIndex();
     }
