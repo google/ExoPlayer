@@ -31,27 +31,18 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    */
   public static final class HlsUrl {
 
-    public final String name;
     public final String url;
     public final Format format;
-    public final Format videoFormat;
-    public final Format audioFormat;
-    public final Format[] textFormats;
 
     public static HlsUrl createMediaPlaylistHlsUrl(String baseUri) {
       Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
           Format.NO_VALUE, 0, null);
-      return new HlsUrl(null, baseUri, format, null, null, null);
+      return new HlsUrl(baseUri, format);
     }
 
-    public HlsUrl(String name, String url, Format format, Format videoFormat, Format audioFormat,
-        Format[] textFormats) {
-      this.name = name;
+    public HlsUrl(String url, Format format) {
       this.url = url;
       this.format = format;
-      this.videoFormat = videoFormat;
-      this.audioFormat = audioFormat;
-      this.textFormats = textFormats;
     }
 
   }
