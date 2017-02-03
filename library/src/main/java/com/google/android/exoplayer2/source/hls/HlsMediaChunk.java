@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private static final String EC3_FILE_EXTENSION = ".ec3";
   private static final String MP3_FILE_EXTENSION = ".mp3";
   private static final String MP4_FILE_EXTENSION = ".mp4";
+  private static final String M4_FILE_EXTENSION_PREFIX = ".m4";
   private static final String VTT_FILE_EXTENSION = ".vtt";
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
@@ -341,7 +342,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       // Only reuse TS and fMP4 extractors.
       usingNewExtractor = false;
       extractor = previousExtractor;
-    } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)) {
+    } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
+        || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)) {
       extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
     } else {
       // MPEG-2 TS segments, but we need a new extractor.
