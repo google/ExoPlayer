@@ -463,4 +463,16 @@ public interface ExoPlayer {
    */
   boolean isCurrentWindowSeekable();
 
+  /**
+   * Set the playback speed (speed of playback / speed of real clock)
+   * @param speed the speed factor
+   */
+  void setPlaybackSpeed(float speed);
+
+  /**
+   * Return the playback speed (speed of playback / speed of real clock)
+   * @return the speed factor:
+   */
+  float getPlaybackSpeed();
+
 }

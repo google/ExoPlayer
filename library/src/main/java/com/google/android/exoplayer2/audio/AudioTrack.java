@@ -61,6 +61,14 @@ import java.nio.ByteOrder;
 public final class AudioTrack {
 
   /**
+   * Set the playback speed (speed of playback / speed of real clock)
+   * @param speed the speed factor
+   */
+  public void setPlaybackSpeed(float speed) {
+    audioTrackUtil.setPlaybackSpeed(speed);
+  }
+
+  /**
    * Listener for audio track events.
    */
   public interface Listener {
@@ -1303,6 +1311,7 @@ public final class AudioTrack {
     private long stopTimestampUs;
     private long stopPlaybackHeadPosition;
     private long endPlaybackHeadPosition;
+    private float speed = 1.0f;
 
     /**
      * Reconfigures the audio track utility helper to use the specified {@code audioTrack}.
@@ -1457,7 +1466,11 @@ public final class AudioTrack {
      * @return The speed factor used by the underlying {@link android.media.AudioTrack}.
      */
     public float getPlaybackSpeed() {
-      return 1.0f;
+      return speed;
+    }
+
+    public void setPlaybackSpeed(float speed) {
+      this.speed = speed;
     }
 
   }
