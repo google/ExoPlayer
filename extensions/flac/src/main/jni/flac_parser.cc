@@ -453,7 +453,8 @@ int64_t FLACParser::getSeekPosition(int64_t timeUs) {
   }
 
   FLAC__StreamMetadata_SeekPoint* points = mSeekTable->points;
-  for (unsigned i = mSeekTable->num_points - 1; i >= 0; i--) {
+  for (unsigned i = mSeekTable->num_points; i > 0; ) {
+    i--;
     if (points[i].sample_number <= sample) {
       return firstFrameOffset + points[i].stream_offset;
     }
