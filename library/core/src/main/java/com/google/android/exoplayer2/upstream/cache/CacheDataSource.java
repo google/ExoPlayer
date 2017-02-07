@@ -181,6 +181,9 @@ public final class CacheDataSource implements DataSource {
         bytesRemaining = cache.getContentLength(key);
         if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= dataSpec.position;
+          if (bytesRemaining <= 0) {
+            throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+          }
         }
       }
       openNextSource(true);
