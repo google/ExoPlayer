@@ -364,7 +364,7 @@ public final class Cea608Decoder extends CeaDecoder {
     } else if (isPreambleAddressCode(cc1, cc2)) {
       handlePreambleAddressCode(cc1, cc2);
     } else if (isTabCtrlCode(cc1, cc2)) {
-      currentCueBuilder.tab(cc2 - 0x20);
+      currentCueBuilder.setTab(cc2 - 0x20);
     } else if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     }
@@ -646,8 +646,8 @@ public final class Cea608Decoder extends CeaDecoder {
       this.indent = indent;
     }
 
-    public void tab(int tabs) {
-      tabOffset += tabs;
+    public void setTab(int tabs) {
+      tabOffset = tabs;
     }
 
     public void setPreambleStyle(CharacterStyle style) {
