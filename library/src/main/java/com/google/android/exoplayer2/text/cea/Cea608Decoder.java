@@ -503,11 +503,14 @@ public final class Cea608Decoder extends CeaDecoder {
       return;
     }
 
+    int oldCaptionMode = this.captionMode;
     this.captionMode = captionMode;
+
     // Clear the working memory.
     resetCueBuilders();
-    if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
-      // When switching to roll-up or unknown, we also need to clear the caption.
+    if (oldCaptionMode == CC_MODE_PAINT_ON || captionMode == CC_MODE_ROLL_UP
+        || captionMode == CC_MODE_UNKNOWN) {
+      // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
       cues = null;
     }
   }
