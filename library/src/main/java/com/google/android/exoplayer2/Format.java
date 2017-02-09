@@ -120,7 +120,7 @@ public final class Format implements Parcelable {
   /**
    * The stereo layout for 360/3D/VR video, or {@link #NO_VALUE} if not applicable. Valid stereo
    * modes are {@link C#STEREO_MODE_MONO}, {@link C#STEREO_MODE_TOP_BOTTOM}, {@link
-   * C#STEREO_MODE_LEFT_RIGHT}.
+   * C#STEREO_MODE_LEFT_RIGHT}, {@link C#STEREO_MODE_STEREO_MESH}.
    */
   @C.StereoMode
   public final int stereoMode;
