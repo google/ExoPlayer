@@ -720,6 +720,9 @@ import java.util.List;
             case 2:
               stereoMode = C.STEREO_MODE_LEFT_RIGHT;
               break;
+            case 3:
+              stereoMode = C.STEREO_MODE_STEREO_MESH;
+              break;
             default:
               break;
           }
