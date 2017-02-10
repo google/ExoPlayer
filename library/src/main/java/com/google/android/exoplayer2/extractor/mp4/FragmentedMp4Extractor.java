@@ -1087,12 +1087,12 @@ public final class FragmentedMp4Extractor implements Extractor {
           sampleBytesWritten += 4;
           sampleSize += nalUnitLengthFieldLengthDiff;
           if (cea608TrackOutput != null) {
-            byte[] nalPayloadData = nalPayload.data;
             // Peek the NAL unit type byte.
-            input.peekFully(nalPayloadData, 0, 1);
-            if ((nalPayloadData[0] & 0x1F) == NAL_UNIT_TYPE_SEI) {
+            input.peekFully(nalPayload.data, 0, 1);
+            if ((nalPayload.data[0] & 0x1F) == NAL_UNIT_TYPE_SEI) {
               // Read the whole SEI NAL unit into nalWrapper, including the NAL unit type byte.
               nalPayload.reset(sampleCurrentNalBytesRemaining);
+              byte[] nalPayloadData = nalPayload.data;
               input.readFully(nalPayloadData, 0, sampleCurrentNalBytesRemaining);
               // Write the SEI unit straight to the output.
               output.sampleData(nalPayload, sampleCurrentNalBytesRemaining);
