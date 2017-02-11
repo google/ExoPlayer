@@ -99,5 +99,5 @@ publish {
 
 // default maven deploy/install setup
 group = releaseGroupId
-archivesBaseName = releaseRepoName
+archivesBaseName = publish.artifactId
 version = releaseVersion
