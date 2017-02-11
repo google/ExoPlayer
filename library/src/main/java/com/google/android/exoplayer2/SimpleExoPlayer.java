@@ -479,8 +479,8 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetTimeline) {
-    player.prepare(mediaSource, resetPosition, resetTimeline);
+  public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    player.prepare(mediaSource, resetPosition, resetState);
   }
 
   @Override

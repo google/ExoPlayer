@@ -317,8 +317,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
-      player.seekTo(resumeWindow, resumePosition);
-      player.prepare(mediaSource, false, false);
+      boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
+      if (haveResumePosition) {
+        player.seekTo(resumeWindow, resumePosition);
+      }
+      player.prepare(mediaSource, !haveResumePosition, false);
       playerNeedsSource = false;
       updateButtonVisibilities();
     }
@@ -377,7 +380,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   private void clearResumePosition() {
-    resumeWindow = 0;
+    resumeWindow = C.INDEX_UNSET;
     resumePosition = C.TIME_UNSET;
   }
 
@@ -422,7 +425,12 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onPositionDiscontinuity() {
-    // Do nothing.
+    if (playerNeedsSource) {
+      // This will only occur if the user has performed a seek whilst in the error state. Update the
+      // resume position so that if the user then retries, playback will resume from the position to
+      // which they seeked.
+      updateResumePosition();
+    }
   }
 
   @Override

@@ -23,7 +23,7 @@ public interface ExoPlayerLibraryInfo {
   /**
    * The version of the library, expressed as a string.
    */
-  String VERSION = "2.1.1";
+  String VERSION = "2.2.0";
 
   /**
    * The version of the library, expressed as an integer.
@@ -32,7 +32,7 @@ public interface ExoPlayerLibraryInfo {
    * corresponding integer version 1002003 (001-002-003), and "123.45.6" has the corresponding
    * integer version 123045006 (123-045-006).
    */
-  int VERSION_INT = 2001001;
+  int VERSION_INT = 2002000;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}

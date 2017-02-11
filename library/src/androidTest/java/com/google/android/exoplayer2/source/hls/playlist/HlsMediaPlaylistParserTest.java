@@ -35,6 +35,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString = "#EXTM3U\n"
         + "#EXT-X-VERSION:3\n"
+        + "#EXT-X-PLAYLIST-TYPE:VOD\n"
         + "#EXT-X-TARGETDURATION:8\n"
         + "#EXT-X-MEDIA-SEQUENCE:2679\n"
         + "#EXT-X-DISCONTINUITY-SEQUENCE:4\n"
@@ -71,6 +72,7 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertEquals(HlsPlaylist.TYPE_MEDIA, playlist.type);
 
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
+      assertEquals(HlsMediaPlaylist.PLAYLIST_TYPE_VOD, mediaPlaylist.playlistType);
 
       assertEquals(2679, mediaPlaylist.mediaSequence);
       assertEquals(3, mediaPlaylist.version);

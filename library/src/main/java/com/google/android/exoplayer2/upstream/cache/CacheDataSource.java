@@ -330,16 +330,16 @@ public final class CacheDataSource implements DataSource {
     // bytesRemaining == C.LENGTH_UNSET) and got a resolved length from open() request
     if (currentRequestUnbounded && currentBytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining = currentBytesRemaining;
-      // If writing into cache
-      if (lockedSpan != null) {
-        setContentLength(dataSpec.position + bytesRemaining);
-      }
+      setContentLength(dataSpec.position + bytesRemaining);
     }
     return successful;
   }
 
   private void setContentLength(long length) throws IOException {
-    cache.setContentLength(key, length);
+    // If writing into cache
+    if (currentDataSource == cacheWriteDataSource) {
+      cache.setContentLength(key, length);
+    }
   }
 
   private void closeCurrentSource() throws IOException {
