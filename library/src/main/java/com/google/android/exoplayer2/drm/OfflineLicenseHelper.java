@@ -312,8 +312,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     final boolean isWebm = mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
     final Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, format, trackType,
-        false /* preferManifestDrmInitData */);
+    return new ChunkExtractorWrapper(extractor, format, trackType);
   }
 
 }

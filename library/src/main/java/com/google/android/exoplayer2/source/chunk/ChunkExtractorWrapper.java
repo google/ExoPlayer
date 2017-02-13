@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.chunk;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -39,7 +38,6 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   private final Format manifestFormat;
   private final int primaryTrackType;
-  private final boolean preferManifestDrmInitData;
 
   private boolean extractorInitialized;
   private TrackOutput trackOutput;
@@ -56,15 +54,11 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
    *     sample {@link Format} output from the {@link Extractor}.
    * @param primaryTrackType The type of the primary track. Typically one of the {@link C}
    *     {@code TRACK_TYPE_*} constants.
-   * @param preferManifestDrmInitData Whether {@link DrmInitData} defined in {@code manifestFormat}
-   *     should be preferred when the sample and manifest {@link Format}s are merged.
    */
-  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat, int primaryTrackType,
-      boolean preferManifestDrmInitData) {
+  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat, int primaryTrackType) {
     this.extractor = extractor;
     this.manifestFormat = manifestFormat;
     this.primaryTrackType = primaryTrackType;
-    this.preferManifestDrmInitData = preferManifestDrmInitData;
   }
 
   /**
@@ -127,7 +121,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
 
   @Override
   public void format(Format format) {
-    sampleFormat = format.copyWithManifestFormatInfo(manifestFormat, preferManifestDrmInitData);
+    sampleFormat = format.copyWithManifestFormatInfo(manifestFormat);
     if (trackOutput != null) {
       trackOutput.format(sampleFormat);
     }

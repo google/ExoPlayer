@@ -438,16 +438,19 @@ public final class Format implements Parcelable {
         drmInitData, metadata);
   }
 
-  public Format copyWithManifestFormatInfo(Format manifestFormat,
-      boolean preferManifestDrmInitData) {
+  public Format copyWithManifestFormatInfo(Format manifestFormat) {
+    if (this == manifestFormat) {
+      // No need to copy from ourselves.
+      return this;
+    }
     String id = manifestFormat.id;
     String codecs = this.codecs == null ? manifestFormat.codecs : this.codecs;
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
     float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
     @C.SelectionFlags int selectionFlags = this.selectionFlags |  manifestFormat.selectionFlags;
     String language = this.language == null ? manifestFormat.language : this.language;
-    DrmInitData drmInitData = (preferManifestDrmInitData && manifestFormat.drmInitData != null)
-        || this.drmInitData == null ? manifestFormat.drmInitData : this.drmInitData;
+    DrmInitData drmInitData = manifestFormat.drmInitData != null ? manifestFormat.drmInitData
+        : this.drmInitData;
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode,
         channelCount, sampleRate, pcmEncoding, encoderDelay, encoderPadding, selectionFlags,
