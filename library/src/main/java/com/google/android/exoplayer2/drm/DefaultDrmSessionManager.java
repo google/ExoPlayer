@@ -280,6 +280,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * required.
    *
    * <p>{@code mode} must be one of these:
+   * <ul>
    * <li>{@link #MODE_PLAYBACK}: If {@code offlineLicenseKeySetId} is null, a streaming license is
    *     requested otherwise the offline license is restored.
    * <li>{@link #MODE_QUERY}: {@code offlineLicenseKeySetId} can not be null. The offline license
@@ -288,6 +289,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    *     requested otherwise the offline license is renewed.
    * <li>{@link #MODE_RELEASE}: {@code offlineLicenseKeySetId} can not be null. The offline license
    *     is released.
+   * </ul>
    *
    * @param mode The mode to be set.
    * @param offlineLicenseKeySetId The key set id of the license to be used with the given mode.
