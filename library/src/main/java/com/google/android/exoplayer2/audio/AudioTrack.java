@@ -840,7 +840,7 @@ public final class AudioTrack {
    * audio session id has changed. Enabling tunneling requires platform API version 21 onwards.
    *
    * @param tunnelingAudioSessionId The audio session id to use.
-   * @throws IllegalStateException Thrown if enabling tunneling on platform API version < 21.
+   * @throws IllegalStateException Thrown if enabling tunneling on platform API version &lt; 21.
    */
   public void enableTunnelingV21(int tunnelingAudioSessionId) {
     Assertions.checkState(Util.SDK_INT >= 21);
