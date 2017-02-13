@@ -102,8 +102,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
           | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, null, track);
-      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, streamElement.type,
-          false);
+      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format, streamElement.type);
     }
   }
 

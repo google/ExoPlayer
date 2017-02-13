@@ -382,8 +382,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
         // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
         // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-        extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format,
-            trackType, true /* preferManifestDrmInitData */);
+        extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format, trackType);
       }
       segmentIndex = representation.getIndex();
     }
