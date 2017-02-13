@@ -301,15 +301,18 @@ import java.util.Locale;
   private static String buildTrackName(Format format) {
     String trackName;
     if (MimeTypes.isVideo(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(
+          buildResolutionString(format), buildBitrateString(format)), buildTrackIdString(format)),
+          buildSampleMimeTypeString(format));
     } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildAudioPropertyString(format)), buildBitrateString(format)),
-          buildTrackIdString(format));
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(
+          buildLanguageString(format), buildAudioPropertyString(format)),
+          buildBitrateString(format)), buildTrackIdString(format)),
+          buildSampleMimeTypeString(format));
     } else {
-      trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
+          buildBitrateString(format)), buildTrackIdString(format)),
+          buildSampleMimeTypeString(format));
     }
     return trackName.length() == 0 ? "unknown" : trackName;
   }
@@ -340,6 +343,10 @@ import java.util.Locale;
 
   private static String buildTrackIdString(Format format) {
     return format.id == null ? "" : ("id:" + format.id);
+  }
+
+  private static String buildSampleMimeTypeString(Format format) {
+    return format.sampleMimeType == null ? "" : format.sampleMimeType;
   }
 
 }
