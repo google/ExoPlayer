@@ -435,15 +435,6 @@ import java.io.IOException;
     if (periodPositionUs != C.TIME_UNSET) {
       resetRendererPosition(periodPositionUs);
     } else {
-      /*
-      if (rendererMediaClockSource != null && !rendererMediaClockSource.isEnded()) {
-        rendererPositionUs = rendererMediaClock.getPositionUs();
-        standaloneMediaClock.setPositionUs(rendererPositionUs);
-      } else {
-        rendererPositionUs = standaloneMediaClock.getPositionUs();
-      }
-      periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
-      */
       rendererPositionUs = rendererMediaClock.getPositionUs();
       standaloneMediaClock.setPositionUs(rendererPositionUs);
       periodPositionUs = rendererPositionUs - playingPeriodHolder.rendererPositionOffsetUs;
