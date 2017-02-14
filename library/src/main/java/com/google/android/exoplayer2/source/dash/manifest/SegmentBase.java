@@ -161,7 +161,7 @@ public abstract class SegmentBase {
      * @see DashSegmentIndex#getDurationUs(int, long)
      */
     public final long getSegmentDurationUs(int sequenceNumber, long periodDurationUs) {
-      if (segmentTimeline != null) {
+      if (segmentTimeline != null && segmentTimeline.size() > sequenceNumber - startNumber) {
         long duration = segmentTimeline.get(sequenceNumber - startNumber).duration;
         return (duration * C.MICROS_PER_SECOND) / timescale;
       } else {
