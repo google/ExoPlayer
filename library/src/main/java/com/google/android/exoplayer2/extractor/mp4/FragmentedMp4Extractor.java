@@ -106,7 +106,6 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
-  private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
 
@@ -127,8 +126,8 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
-  private final ParsableByteArray nalLength;
-  private final ParsableByteArray nalPayload;
+  private final ParsableByteArray nalPrefix;
+  private final ParsableByteArray nalBuffer;
   private final ParsableByteArray encryptionSignalByte;
 
   // Adjusts sample timestamps.
@@ -154,6 +153,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private int sampleSize;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
+  private boolean processSeiNalUnitPayload;
 
   // Extractor output.
   private ExtractorOutput extractorOutput;
@@ -195,8 +195,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     this.sideloadedTrack = sideloadedTrack;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
-    nalLength = new ParsableByteArray(4);
-    nalPayload = new ParsableByteArray(1);
+    nalPrefix = new ParsableByteArray(5);
+    nalBuffer = new ParsableByteArray();
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
@@ -1066,49 +1066,47 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
-      byte[] nalLengthData = nalLength.data;
-      nalLengthData[0] = 0;
-      nalLengthData[1] = 0;
-      nalLengthData[2] = 0;
-      int nalUnitLengthFieldLength = track.nalUnitLengthFieldLength;
+      byte[] nalPrefixData = nalPrefix.data;
+      nalPrefixData[0] = 0;
+      nalPrefixData[1] = 0;
+      nalPrefixData[2] = 0;
+      int nalUnitPrefixLength = track.nalUnitLengthFieldLength + 1;
       int nalUnitLengthFieldLengthDiff = 4 - track.nalUnitLengthFieldLength;
       // NAL units are length delimited, but the decoder requires start code delimited units.
       // Loop until we've written the sample to the track output, replacing length delimiters with
       // start codes as we encounter them.
       while (sampleBytesWritten < sampleSize) {
         if (sampleCurrentNalBytesRemaining == 0) {
-          // Read the NAL length so that we know where we find the next one.
-          input.readFully(nalLength.data, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
-          nalLength.setPosition(0);
-          sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
+          // Read the NAL length so that we know where we find the next one, and its type.
+          input.readFully(nalPrefixData, nalUnitLengthFieldLengthDiff, nalUnitPrefixLength);
+          nalPrefix.setPosition(0);
+          sampleCurrentNalBytesRemaining = nalPrefix.readUnsignedIntToInt() - 1;
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
           output.sampleData(nalStartCode, 4);
-          sampleBytesWritten += 4;
+          // Write the NAL unit type byte.
+          output.sampleData(nalPrefix, 1);
+          processSeiNalUnitPayload = cea608TrackOutput != null
+              && NalUnitUtil.isNalUnitSei(nalPrefixData[4]);
+          sampleBytesWritten += 5;
           sampleSize += nalUnitLengthFieldLengthDiff;
-          if (cea608TrackOutput != null) {
-            // Peek the NAL unit type byte.
-            input.peekFully(nalPayload.data, 0, 1);
-            if ((nalPayload.data[0] & 0x1F) == NAL_UNIT_TYPE_SEI) {
-              // Read the whole SEI NAL unit into nalWrapper, including the NAL unit type byte.
-              nalPayload.reset(sampleCurrentNalBytesRemaining);
-              byte[] nalPayloadData = nalPayload.data;
-              input.readFully(nalPayloadData, 0, sampleCurrentNalBytesRemaining);
-              // Write the SEI unit straight to the output.
-              output.sampleData(nalPayload, sampleCurrentNalBytesRemaining);
-              sampleBytesWritten += sampleCurrentNalBytesRemaining;
-              sampleCurrentNalBytesRemaining = 0;
-              // Unescape and process the SEI unit.
-              int unescapedLength = NalUnitUtil.unescapeStream(nalPayloadData, nalPayload.limit());
-              nalPayload.setPosition(1); // Skip the NAL unit type byte.
-              nalPayload.setLimit(unescapedLength);
-              CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalPayload,
-                  cea608TrackOutput);
-            }
-          }
         } else {
-          // Write the payload of the NAL unit.
-          int writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);
+          int writtenBytes;
+          if (processSeiNalUnitPayload) {
+            // Read and write the payload of the SEI NAL unit.
+            nalBuffer.reset(sampleCurrentNalBytesRemaining);
+            input.readFully(nalBuffer.data, 0, sampleCurrentNalBytesRemaining);
+            output.sampleData(nalBuffer, sampleCurrentNalBytesRemaining);
+            writtenBytes = sampleCurrentNalBytesRemaining;
+            // Unescape and process the SEI NAL unit.
+            int unescapedLength = NalUnitUtil.unescapeStream(nalBuffer.data, nalBuffer.limit());
+            nalBuffer.reset(unescapedLength);
+            CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalBuffer,
+                cea608TrackOutput);
+          } else {
+            // Write the payload of the NAL unit.
+            writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);
+          }
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }
