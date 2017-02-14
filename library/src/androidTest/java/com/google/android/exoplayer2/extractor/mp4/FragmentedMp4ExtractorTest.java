@@ -25,21 +25,32 @@ import com.google.android.exoplayer2.testutil.TestUtil;
  */
 public final class FragmentedMp4ExtractorTest extends InstrumentationTestCase {
 
-  private static final TestUtil.ExtractorFactory EXTRACTOR_FACTORY =
-      new TestUtil.ExtractorFactory() {
-        @Override
-        public Extractor create() {
-          return new FragmentedMp4Extractor();
-        }
-      };
-
   public void testSample() throws Exception {
-    TestUtil.assertOutput(EXTRACTOR_FACTORY, "mp4/sample_fragmented.mp4", getInstrumentation());
+    TestUtil.assertOutput(getExtractorFactory(), "mp4/sample_fragmented.mp4", getInstrumentation());
+  }
+
+  public void testSampleWithSeiPayloadParsing() throws Exception {
+    // Enabling the CEA-608 track enables SEI payload parsing.
+    TestUtil.assertOutput(getExtractorFactory(FragmentedMp4Extractor.FLAG_ENABLE_CEA608_TRACK),
+        "mp4/sample_fragmented_sei.mp4", getInstrumentation());
   }
 
   public void testAtomWithZeroSize() throws Exception {
-    TestUtil.assertThrows(EXTRACTOR_FACTORY, "mp4/sample_fragmented_zero_size_atom.mp4",
+    TestUtil.assertThrows(getExtractorFactory(), "mp4/sample_fragmented_zero_size_atom.mp4",
         getInstrumentation(), ParserException.class);
+  }
+
+  private static TestUtil.ExtractorFactory getExtractorFactory() {
+    return getExtractorFactory(0);
+  }
+
+  private static TestUtil.ExtractorFactory getExtractorFactory(final int flags) {
+    return new TestUtil.ExtractorFactory() {
+      @Override
+      public Extractor create() {
+        return new FragmentedMp4Extractor(flags, null);
+      }
+    };
   }
 
 }

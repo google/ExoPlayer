@@ -103,7 +103,8 @@ public final class NalUnitUtil {
     2f
   };
 
-  private static final int NAL_UNIT_TYPE_SPS = 7;
+  private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
+  private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
 
   private static final Object scratchEscapePositionsLock = new Object();
 
@@ -195,6 +196,17 @@ public final class NalUnitUtil {
     }
     // Empty the buffer if the SPS NAL unit was not found.
     data.clear();
+  }
+
+  /**
+   * Returns whether the NAL unit with the specified header contains supplemental enhancement
+   * information.
+   *
+   * @param nalUnitHeader The header of the NAL unit (first byte of nal_unit()).
+   * @return Whether the NAL unit with the specified header is an SEI NAL unit.
+   */
+  public static boolean isNalUnitSei(byte nalUnitHeader) {
+    return (nalUnitHeader & 0x1F) == NAL_UNIT_TYPE_SEI;
   }
 
   /**
@@ -297,7 +309,8 @@ public final class NalUnitUtil {
       int frameCropRightOffset = data.readUnsignedExpGolombCodedInt();
       int frameCropTopOffset = data.readUnsignedExpGolombCodedInt();
       int frameCropBottomOffset = data.readUnsignedExpGolombCodedInt();
-      int cropUnitX, cropUnitY;
+      int cropUnitX;
+      int cropUnitY;
       if (chromaFormatIdc == 0) {
         cropUnitX = 1;
         cropUnitY = 2 - (frameMbsOnlyFlag ? 1 : 0);
