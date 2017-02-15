@@ -318,8 +318,8 @@ public abstract class Representation {
     }
 
     @Override
-    public int getLastSegmentNum(long periodDurationUs) {
-      return segmentBase.getLastSegmentNum(periodDurationUs);
+    public int getSegmentCount(long periodDurationUs) {
+      return segmentBase.getSegmentCount(periodDurationUs);
     }
 
     @Override
