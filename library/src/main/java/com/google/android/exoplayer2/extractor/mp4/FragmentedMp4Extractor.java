@@ -1087,7 +1087,7 @@ public final class FragmentedMp4Extractor implements Extractor {
           // Write the NAL unit type byte.
           output.sampleData(nalPrefix, 1);
           processSeiNalUnitPayload = cea608TrackOutput != null
-              && NalUnitUtil.isNalUnitSei(nalPrefixData[4]);
+              && NalUnitUtil.isNalUnitSei(track.format.sampleMimeType, nalPrefixData[4]);
           sampleBytesWritten += 5;
           sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
@@ -1100,7 +1100,9 @@ public final class FragmentedMp4Extractor implements Extractor {
             writtenBytes = sampleCurrentNalBytesRemaining;
             // Unescape and process the SEI NAL unit.
             int unescapedLength = NalUnitUtil.unescapeStream(nalBuffer.data, nalBuffer.limit());
-            nalBuffer.reset(unescapedLength);
+            // If the format is H.265/HEVC the NAL unit header has two bytes so skip one more byte.
+            nalBuffer.setPosition(MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
+            nalBuffer.setLimit(unescapedLength);
             CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalBuffer,
                 cea608TrackOutput);
           } else {
