@@ -194,10 +194,16 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     long nowUs = getNowUnixTimeUs();
+    int availableSegmentCount = representationHolder.getSegmentCount();
+    if (availableSegmentCount == 0) {
+      // The index doesn't define any segments.
+      out.endOfStream = !manifest.dynamic || (periodIndex < manifest.getPeriodCount() - 1);
+      return;
+    }
+
     int firstAvailableSegmentNum = representationHolder.getFirstSegmentNum();
-    int lastAvailableSegmentNum = representationHolder.getLastSegmentNum();
-    boolean indexUnbounded = lastAvailableSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
-    if (indexUnbounded) {
+    int lastAvailableSegmentNum;
+    if (availableSegmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
       long liveEdgeTimeUs = nowUs - manifest.availabilityStartTime * 1000;
@@ -211,6 +217,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
       // index of the last completed segment.
       lastAvailableSegmentNum = representationHolder.getSegmentNum(liveEdgeTimeInPeriodUs) - 1;
+    } else {
+      lastAvailableSegmentNum = firstAvailableSegmentNum + availableSegmentCount - 1;
     }
 
     int segmentNum;
@@ -268,10 +276,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
           representationHolders[trackSelection.indexOf(chunk.trackFormat)];
-      int lastAvailableSegmentNum = representationHolder.getLastSegmentNum();
-      if (((MediaChunk) chunk).getNextChunkIndex() > lastAvailableSegmentNum) {
-        missingLastSegment = true;
-        return true;
+      int segmentCount = representationHolder.getSegmentCount();
+      if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED && segmentCount != 0) {
+        int lastAvailableSegmentNum = representationHolder.getFirstSegmentNum() + segmentCount - 1;
+        if (((MediaChunk) chunk).getNextChunkIndex() > lastAvailableSegmentNum) {
+          missingLastSegment = true;
+          return true;
+        }
       }
     }
     // Blacklist if appropriate.
@@ -405,15 +416,20 @@ public class DefaultDashChunkSource implements DashChunkSource {
         return;
       }
 
-      int oldIndexLastSegmentNum = oldIndex.getLastSegmentNum(periodDurationUs);
+      int oldIndexSegmentCount = oldIndex.getSegmentCount(periodDurationUs);
+      if (oldIndexSegmentCount == 0) {
+        // Segment numbers cannot shift if the old index was empty.
+        return;
+      }
+
+      int oldIndexLastSegmentNum = oldIndex.getFirstSegmentNum() + oldIndexSegmentCount - 1;
       long oldIndexEndTimeUs = oldIndex.getTimeUs(oldIndexLastSegmentNum)
           + oldIndex.getDurationUs(oldIndexLastSegmentNum, periodDurationUs);
       int newIndexFirstSegmentNum = newIndex.getFirstSegmentNum();
       long newIndexStartTimeUs = newIndex.getTimeUs(newIndexFirstSegmentNum);
       if (oldIndexEndTimeUs == newIndexStartTimeUs) {
         // The new index continues where the old one ended, with no overlap.
-        segmentNumShift += oldIndex.getLastSegmentNum(periodDurationUs) + 1
-            - newIndexFirstSegmentNum;
+        segmentNumShift += oldIndexLastSegmentNum + 1 - newIndexFirstSegmentNum;
       } else if (oldIndexEndTimeUs < newIndexStartTimeUs) {
         // There's a gap between the old index and the new one which means we've slipped behind the
         // live window and can't proceed.
@@ -429,12 +445,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return segmentIndex.getFirstSegmentNum() + segmentNumShift;
     }
 
-    public int getLastSegmentNum() {
-      int lastSegmentNum = segmentIndex.getLastSegmentNum(periodDurationUs);
-      if (lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED) {
-        return DashSegmentIndex.INDEX_UNBOUNDED;
-      }
-      return lastSegmentNum + segmentNumShift;
+    public int getSegmentCount() {
+      return segmentIndex.getSegmentCount(periodDurationUs);
     }
 
     public long getSegmentStartTimeUs(int segmentNum) {
