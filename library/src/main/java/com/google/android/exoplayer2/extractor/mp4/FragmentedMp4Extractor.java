@@ -1086,6 +1086,7 @@ public final class FragmentedMp4Extractor implements Extractor {
           output.sampleData(nalStartCode, 4);
           // Write the NAL unit type byte.
           output.sampleData(nalPrefix, 1);
+          // TODO: Don't try and process the SEI NAL unit if the payload is encrypted.
           processSeiNalUnitPayload = cea608TrackOutput != null
               && NalUnitUtil.isNalUnitSei(track.format.sampleMimeType, nalPrefixData[4]);
           sampleBytesWritten += 5;
