@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 
 /**
@@ -81,7 +80,6 @@ import java.nio.ByteBuffer;
     if (outputBuffer == null || outputBuffer.capacity() < resampledSize) {
       outputBuffer = ByteBuffer.allocateDirect(resampledSize).order(buffer.order());
     } else {
-      Assertions.checkState(!outputBuffer.hasRemaining());
       outputBuffer.clear();
     }
 
