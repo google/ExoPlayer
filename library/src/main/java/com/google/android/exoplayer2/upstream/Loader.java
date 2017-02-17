@@ -199,7 +199,7 @@ public final class Loader implements LoaderErrorThrower {
       currentTask.cancel(true);
     }
     if (postLoadAction != null) {
-      downloadExecutorService.submit(postLoadAction);
+      downloadExecutorService.execute(postLoadAction);
     }
     downloadExecutorService.shutdown();
   }
@@ -260,7 +260,7 @@ public final class Loader implements LoaderErrorThrower {
       if (delayMillis > 0) {
         sendEmptyMessageDelayed(MSG_START, delayMillis);
       } else {
-        submitToExecutor();
+        execute();
       }
     }
 
@@ -367,9 +367,9 @@ public final class Loader implements LoaderErrorThrower {
       }
     }
 
-    private void submitToExecutor() {
+    private void execute() {
       currentError = null;
-      downloadExecutorService.submit(currentTask);
+      downloadExecutorService.execute(currentTask);
     }
 
     private void finish() {
