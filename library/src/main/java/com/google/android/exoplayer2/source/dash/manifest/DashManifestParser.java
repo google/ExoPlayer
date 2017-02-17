@@ -345,18 +345,18 @@ public class DashManifestParser extends DefaultHandler
       if (data == null && XmlPullParserUtil.isStartTag(xpp, "cenc:pssh")
           && xpp.next() == XmlPullParser.TEXT) {
         // The cenc:pssh element is defined in 23001-7:2015.
+        data = Base64.decode(xpp.getText(), Base64.DEFAULT);
         uuid = PsshAtomUtil.parseUuid(data);
         if (uuid == null) {
           Log.w(TAG, "Skipping malformed cenc:pssh data");
-        } else {
-          data = Base64.decode(xpp.getText(), Base64.DEFAULT);
+          data = null;
         }
       } else if (data == null && isPlayReady && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
           && xpp.next() == XmlPullParser.TEXT) {
         // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
-        uuid = C.PLAYREADY_UUID;
         data = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID,
             Base64.decode(xpp.getText(), Base64.DEFAULT));
+        uuid = C.PLAYREADY_UUID;
       } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
         String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
