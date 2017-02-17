@@ -334,7 +334,7 @@ public final class Loader implements LoaderErrorThrower {
         return;
       }
       if (msg.what == MSG_START) {
-        submitToExecutor();
+        execute();
         return;
       }
       if (msg.what == MSG_FATAL_ERROR) {
