@@ -233,6 +233,15 @@ public class PlaybackControlView extends FrameLayout {
     }
   };
 
+  private final Runnable seekEndedAction = new Runnable() {
+    @Override
+    public void run() {
+      if (progressBar != null) {
+        componentListener.onStopTrackingTouch(progressBar);
+      }
+    }
+  };
+
   public PlaybackControlView(Context context) {
     this(context, null);
   }
@@ -277,6 +286,31 @@ public class PlaybackControlView extends FrameLayout {
     if (progressBar != null) {
       progressBar.setOnSeekBarChangeListener(componentListener);
       progressBar.setMax(PROGRESS_BAR_MAX);
+
+      progressBar.setOnKeyListener(new OnKeyListener() {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+          switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+              removeCallbacks(seekEndedAction);
+              componentListener.onStartTrackingTouch(progressBar);
+              postDelayed(seekEndedAction, 2000);
+              return false;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+              removeCallbacks(seekEndedAction);
+              componentListener.onStartTrackingTouch(progressBar);
+              postDelayed(seekEndedAction, 2000);
+              return false;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+              removeCallbacks(seekEndedAction);
+              componentListener.onStopTrackingTouch(progressBar);
+              return false;
+          }
+
+          return false;
+        }
+      });
     }
     playButton = findViewById(R.id.exo_play);
     if (playButton != null) {

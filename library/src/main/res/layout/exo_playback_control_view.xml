@@ -69,7 +69,6 @@
       android:layout_width="0dp"
       android:layout_weight="1"
       android:layout_height="32dp"
-      android:focusable="false"
       style="?android:attr/progressBarStyleHorizontal"/>
 
     <TextView android:id="@id/exo_duration"
