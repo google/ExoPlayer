@@ -65,9 +65,9 @@ import com.google.android.exoplayer2.util.Util;
   private final Paint paint;
 
   // Previous input variables.
-  private Bitmap cueBitmap;
   private CharSequence cueText;
   private Alignment cueTextAlignment;
+  private Bitmap cueBitmap;
   private float cueLine;
   @Cue.LineType
   private int cueLineType;
@@ -148,12 +148,14 @@ import com.google.android.exoplayer2.util.Util;
     boolean isTextCue = cue.bitmap == null;
     CharSequence cueText = null;
     Bitmap cueBitmap = null;
+    int windowColor = Color.BLACK;
     if (isTextCue) {
       cueText = cue.text;
       if (TextUtils.isEmpty(cueText)) {
         // Nothing to draw.
         return;
       }
+      windowColor = cue.windowColorSet ? cue.windowColor : style.windowColor;
       if (!applyEmbeddedStyles) {
         // Strip out any embedded styling.
         cueText = cueText.toString();
@@ -174,7 +176,7 @@ import com.google.android.exoplayer2.util.Util;
         && this.applyEmbeddedStyles == applyEmbeddedStyles
         && this.foregroundColor == style.foregroundColor
         && this.backgroundColor == style.backgroundColor
-        && this.windowColor == style.windowColor
+        && this.windowColor == windowColor
         && this.edgeType == style.edgeType
         && this.edgeColor == style.edgeColor
         && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
@@ -275,7 +277,7 @@ import com.google.android.exoplayer2.util.Util;
         if (cueLine >= 0) {
           anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
         } else {
-          anchorPosition = Math.round(cueLine * firstLineHeight) + parentBottom;
+          anchorPosition = Math.round((cueLine + 1) * firstLineHeight) + parentBottom;
         }
       }
       textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
@@ -309,8 +311,8 @@ import com.google.android.exoplayer2.util.Util;
     int height = (int) (width * ((float) cueBitmap.getHeight() / cueBitmap.getWidth()));
     int x = (int) (cueLineAnchor == Cue.ANCHOR_TYPE_END ? (anchorX - width)
         : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorX - (width / 2)) : anchorX);
-    int y = (int) (cuePositionAnchor == Cue.ANCHOR_TYPE_END ? (anchorY - width)
-        : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorY - (width / 2)) : anchorY);
+    int y = (int) (cuePositionAnchor == Cue.ANCHOR_TYPE_END ? (anchorY - height)
+        : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorY - (height / 2)) : anchorY);
     bitmapRect = new Rect(x, y, x + width, y + height);
   }
 
