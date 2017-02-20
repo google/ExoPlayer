@@ -82,8 +82,7 @@ public final class DataSpec {
    * Request flags. Currently {@link #FLAG_ALLOW_GZIP} and
    * {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} are the only supported flags.
    */
-  @Flags
-  public final int flags;
+  @Flags public final int flags;
 
   /**
    * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.

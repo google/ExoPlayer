@@ -75,8 +75,7 @@ public final class Track {
    * One of {@code TRANSFORMATION_*}. Defines the transformation to apply before outputting each
    * sample.
    */
-  @Transformation
-  public final int sampleTransformation;
+  @Transformation public final int sampleTransformation;
 
   /**
    * Track encryption boxes for the different track sample descriptions. Entries may be null.

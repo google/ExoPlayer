@@ -78,8 +78,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final int PLAYLIST_TYPE_VOD = 1;
   public static final int PLAYLIST_TYPE_EVENT = 2;
 
-  @PlaylistType
-  public final int playlistType;
+  @PlaylistType public final int playlistType;
   public final long startOffsetUs;
   public final long startTimeUs;
   public final boolean hasDiscontinuitySequence;
