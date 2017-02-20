@@ -157,6 +157,7 @@ import com.google.android.exoplayer2.util.Util;
       if (!applyEmbeddedStyles) {
         // Strip out any embedded styling.
         cueText = cueText.toString();
+        windowColor = style.windowColor;
       }
     } else {
       cueBitmap = cue.bitmap;
@@ -190,7 +191,7 @@ import com.google.android.exoplayer2.util.Util;
 
     this.cueText = cueText;
     this.cueTextAlignment = cue.textAlignment;
-    this.cueBitmap = cue.bitmap;
+    this.cueBitmap = cueBitmap;
     this.cueLine = cue.line;
     this.cueLineType = cue.lineType;
     this.cueLineAnchor = cue.lineAnchor;
@@ -200,7 +201,7 @@ import com.google.android.exoplayer2.util.Util;
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.foregroundColor = style.foregroundColor;
     this.backgroundColor = style.backgroundColor;
-    this.windowColor = style.windowColor;
+    this.windowColor = windowColor;
     this.edgeType = style.edgeType;
     this.edgeColor = style.edgeColor;
     this.textPaint.setTypeface(style.typeface);
