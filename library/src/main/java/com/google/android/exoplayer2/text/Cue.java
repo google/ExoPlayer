@@ -178,16 +178,6 @@ public class Cue {
   public final int windowColor;
 
   /**
-   * Constructs an image cue whose type parameters are set to {@link #TYPE_UNSET} and whose
-   * dimension parameters are set to {@link #DIMEN_UNSET}.
-   *
-   * @param bitmap See {@link #bitmap}.
-   */
-  public Cue(Bitmap bitmap) {
-    this(bitmap, DIMEN_UNSET, TYPE_UNSET, DIMEN_UNSET, TYPE_UNSET, DIMEN_UNSET);
-  }
-
-  /**
    * Creates an image cue.
    *
    * @param horizontalPosition The position of the horizontal anchor within the viewport, expressed
