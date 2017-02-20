@@ -182,6 +182,7 @@ import java.util.LinkedList;
       }
     }
     // Enable new tracks.
+    TrackSelection primaryTrackSelection = null;
     boolean selectedNewTracks = false;
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] == null && selections[i] != null) {
@@ -189,6 +190,7 @@ import java.util.LinkedList;
         int group = trackGroups.indexOf(selection.getTrackGroup());
         setTrackGroupEnabledState(group, true);
         if (group == primaryTrackGroupIndex) {
+          primaryTrackSelection = selection;
           chunkSource.selectTracks(selection);
         }
         streams[i] = new HlsSampleStream(this, group);
@@ -203,6 +205,14 @@ import java.util.LinkedList;
       for (int i = 0; i < sampleQueueCount; i++) {
         if (!groupEnabledStates[i]) {
           sampleQueues.valueAt(i).disable();
+        }
+      }
+      if (primaryTrackSelection != null && !mediaChunks.isEmpty()) {
+        primaryTrackSelection.updateSelectedTrack(0);
+        int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
+        if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
+          // The loaded preparation chunk does match the selection. We discard it.
+          seekTo(lastSeekPositionUs);
         }
       }
     }
