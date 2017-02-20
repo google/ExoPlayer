@@ -203,7 +203,7 @@ import java.util.List;
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
         manifestLoaderErrorThrower, manifest, index, adaptationSetIndex, selection,
-        elapsedRealtimeOffset);
+        elapsedRealtimeOffset, false, false);
     return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }
