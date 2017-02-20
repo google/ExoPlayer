@@ -149,8 +149,7 @@ public interface HttpDataSource extends DataSource {
     public static final int TYPE_READ = 2;
     public static final int TYPE_CLOSE = 3;
 
-    @Type
-    public final int type;
+    @Type public final int type;
 
     /**
      * The {@link DataSpec} associated with the current connection.

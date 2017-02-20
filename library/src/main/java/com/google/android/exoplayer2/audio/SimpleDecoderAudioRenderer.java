@@ -83,8 +83,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private DrmSession<ExoMediaCrypto> drmSession;
   private DrmSession<ExoMediaCrypto> pendingDrmSession;
 
-  @ReinitializationState
-  private int decoderReinitializationState;
+  @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
   private boolean audioTrackNeedsConfigure;
 

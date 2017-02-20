@@ -117,8 +117,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
   // Workarounds.
-  @Flags
-  private final int flags;
+  @Flags private final int flags;
   private final Track sideloadedTrack;
 
   // Track-linked data bundle, accessible as a whole through trackID.

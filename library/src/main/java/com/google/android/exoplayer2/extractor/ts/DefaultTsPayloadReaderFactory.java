@@ -40,8 +40,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   public static final int FLAG_DETECT_ACCESS_UNITS = 8;
   public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 16;
 
-  @Flags
-  private final int flags;
+  @Flags private final int flags;
 
   public DefaultTsPayloadReaderFactory() {
     this(0);

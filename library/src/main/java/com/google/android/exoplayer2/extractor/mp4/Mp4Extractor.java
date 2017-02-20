@@ -83,8 +83,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final ParsableByteArray atomHeader;
   private final Stack<ContainerAtom> containerAtoms;
 
-  @State
-  private int parserState;
+  @State private int parserState;
   private int atomType;
   private long atomSize;
   private int atomHeaderBytesRead;
