@@ -157,7 +157,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   // Extractor output.
   private ExtractorOutput extractorOutput;
   private TrackOutput eventMessageTrackOutput;
-  private TrackOutput cea608TrackOutput;
+  private TrackOutput[] cea608TrackOutputs;
 
   // Whether extractorOutput.seekMap has been called.
   private boolean haveOutputSeekMap;
@@ -459,10 +459,12 @@ public final class FragmentedMp4Extractor implements Extractor {
       eventMessageTrackOutput.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG,
           Format.OFFSET_SAMPLE_RELATIVE));
     }
-    if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutput == null) {
-      cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1, C.TRACK_TYPE_TEXT);
+    if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutputs == null) {
+      TrackOutput cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1,
+          C.TRACK_TYPE_TEXT);
       cea608TrackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
           null, Format.NO_VALUE, 0, null, null));
+      cea608TrackOutputs = new TrackOutput[] {cea608TrackOutput};
     }
   }
 
@@ -1085,7 +1087,7 @@ public final class FragmentedMp4Extractor implements Extractor {
           output.sampleData(nalStartCode, 4);
           // Write the NAL unit type byte.
           output.sampleData(nalPrefix, 1);
-          processSeiNalUnitPayload = cea608TrackOutput != null
+          processSeiNalUnitPayload = cea608TrackOutputs != null
               && NalUnitUtil.isNalUnitSei(track.format.sampleMimeType, nalPrefixData[4]);
           sampleBytesWritten += 5;
           sampleSize += nalUnitLengthFieldLengthDiff;
@@ -1103,7 +1105,7 @@ public final class FragmentedMp4Extractor implements Extractor {
             nalBuffer.setPosition(MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
             nalBuffer.setLimit(unescapedLength);
             CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalBuffer,
-                cea608TrackOutput);
+                cea608TrackOutputs);
           } else {
             // Write the payload of the NAL unit.
             writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);

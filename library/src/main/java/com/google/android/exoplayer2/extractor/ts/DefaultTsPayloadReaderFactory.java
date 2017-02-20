@@ -17,9 +17,13 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.support.annotation.IntDef;
 import android.util.SparseArray;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Default implementation for {@link TsPayloadReader.Factory}.
@@ -35,19 +39,36 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   public @interface Flags {
   }
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
-  public static final int FLAG_IGNORE_AAC_STREAM = 2;
-  public static final int FLAG_IGNORE_H264_STREAM = 4;
-  public static final int FLAG_DETECT_ACCESS_UNITS = 8;
-  public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 16;
+  public static final int FLAG_IGNORE_AAC_STREAM = 1 << 1;
+  public static final int FLAG_IGNORE_H264_STREAM = 1 << 2;
+  public static final int FLAG_DETECT_ACCESS_UNITS = 1 << 3;
+  public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 1 << 4;
 
   @Flags private final int flags;
+  private final List<Format> closedCaptionFormats;
 
   public DefaultTsPayloadReaderFactory() {
     this(0);
   }
 
+  /**
+   * @param flags A combination of {@code FLAG_*} values, which control the behavior of the created
+   *     readers.
+   */
   public DefaultTsPayloadReaderFactory(@Flags int flags) {
+    this(flags, Collections.singletonList(Format.createTextSampleFormat(null,
+        MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null)));
+  }
+
+  /**
+   * @param flags A combination of {@code FLAG_*} values, which control the behavior of the created
+   *     readers.
+   * @param closedCaptionFormats {@link Format}s to be exposed by elementary stream readers for
+   *     streams with embedded closed captions.
+   */
+  public DefaultTsPayloadReaderFactory(@Flags int flags, List<Format> closedCaptionFormats) {
     this.flags = flags;
+    this.closedCaptionFormats = closedCaptionFormats;
   }
 
   @Override
@@ -74,10 +95,10 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         return new PesReader(new H262Reader());
       case TsExtractor.TS_STREAM_TYPE_H264:
         return isSet(FLAG_IGNORE_H264_STREAM) ? null
-            : new PesReader(new H264Reader(new SeiReader(), isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES),
+            : new PesReader(new H264Reader(buildSeiReader(), isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES),
                 isSet(FLAG_DETECT_ACCESS_UNITS)));
       case TsExtractor.TS_STREAM_TYPE_H265:
-        return new PesReader(new H265Reader(new SeiReader()));
+        return new PesReader(new H265Reader(buildSeiReader()));
       case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:
         return isSet(FLAG_IGNORE_SPLICE_INFO_STREAM)
             ? null : new SectionReader(new SpliceInfoSectionReader());
@@ -86,6 +107,11 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       default:
         return null;
     }
+  }
+
+  private SeiReader buildSeiReader() {
+    // TODO: Add descriptor parsing to detect channels automatically.
+    return new SeiReader(closedCaptionFormats);
   }
 
   private boolean isSet(@Flags int flag) {
