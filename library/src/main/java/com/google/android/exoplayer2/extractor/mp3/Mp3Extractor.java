@@ -62,7 +62,6 @@ public final class Mp3Extractor implements Extractor {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING})
   public @interface Flags {}
-
   /**
    * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
    * otherwise not be possible.
@@ -90,9 +89,7 @@ public final class Mp3Extractor implements Extractor {
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 
-  @Flags
-  private final int flags;
-
+  @Flags private final int flags;
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
