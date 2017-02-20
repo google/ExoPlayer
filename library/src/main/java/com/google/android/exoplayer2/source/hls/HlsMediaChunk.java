@@ -379,7 +379,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         || lastPathSegment.endsWith(EC3_FILE_EXTENSION)) {
       extractor = new Ac3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
-      extractor = new Mp3Extractor(startTimeUs);
+      extractor = new Mp3Extractor(0, startTimeUs);
     } else {
       throw new IllegalArgumentException("Unkown extension for audio file: " + lastPathSegment);
     }
