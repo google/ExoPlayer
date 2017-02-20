@@ -180,6 +180,7 @@ public class Cue {
   /**
    * Creates an image cue.
    *
+   * @param bitmap See {@link #bitmap}.
    * @param horizontalPosition The position of the horizontal anchor within the viewport, expressed
    *     as a fraction of the viewport width.
    * @param horizontalPositionAnchor The horizontal anchor. One of {@link #ANCHOR_TYPE_START},
@@ -197,7 +198,7 @@ public class Cue {
   }
 
   /**
-   * Constructs a text cue whose {@link #textAlignment} is null, whose type parameters are set to
+   * Creates a text cue whose {@link #textAlignment} is null, whose type parameters are set to
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
    * @param text See {@link #text}.

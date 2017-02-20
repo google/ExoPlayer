@@ -325,7 +325,7 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   private void drawTextLayout(Canvas canvas) {
-    final StaticLayout layout = textLayout;
+    StaticLayout layout = textLayout;
     if (layout == null) {
       // Nothing to draw.
       return;
