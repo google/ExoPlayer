@@ -15,16 +15,41 @@
  */
 package com.google.android.exoplayer2.text;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.IntDef;
 import android.text.Layout.Alignment;
+import android.text.TextUtils;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Contains information about a specific cue, including textual content and formatting data.
+ * Contains information about a specific cue, including textual or graphic content
+ * and formatting data.
  */
 public class Cue {
+
+  /**
+   * The type of cue content.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({CONTENT_TYPE_NULL, CONTENT_TYPE_TEXT, CONTENT_TYPE_GRAPHIC})
+  public @interface ContentType {}
+
+  /**
+   * Value for {@link #contentType} when cue content is null.
+   */
+  public static final int CONTENT_TYPE_NULL = 0;
+
+  /**
+   * Value for {@link #contentType} when cue content is a {@link #text}.
+   */
+  public static final int CONTENT_TYPE_TEXT = 1;
+
+  /**
+   * Value for {@link #contentType} when cue content is a {@link #bitmap}.
+   */
+  public static final int CONTENT_TYPE_GRAPHIC = 2;
 
   /**
    * An unset position or width.
@@ -76,6 +101,18 @@ public class Cue {
    * Value for {@link #lineType} when {@link #line} is a line number.
    */
   public static final int LINE_TYPE_NUMBER = 1;
+
+  /**
+   * The cue content type. One of {@link #CONTENT_TYPE_NULL}, {@link #CONTENT_TYPE_TEXT},
+   * {@link #CONTENT_TYPE_GRAPHIC}.
+   */
+  @ContentType
+  public final int contentType;
+
+  /**
+   * The cue bitmap image.
+   */
+  public final Bitmap bitmap;
 
   /**
    * The cue text. Note the {@link CharSequence} may be decorated with styling spans.
@@ -174,6 +211,52 @@ public class Cue {
   public final int windowColor;
 
   /**
+   * Constructs a cue whose type parameters are set to {@link #TYPE_UNSET}
+   * and whose dimension parameters are set to {@link #DIMEN_UNSET}.
+   *
+   * @param bitmap See {@link #bitmap}.
+   */
+  public Cue(Bitmap bitmap) {
+    this(bitmap, DIMEN_UNSET, TYPE_UNSET, TYPE_UNSET, DIMEN_UNSET, TYPE_UNSET, DIMEN_UNSET);
+  }
+
+  /**
+   * @param bitmap See {@link #bitmap}.
+   * @param left The initial position of the bitmap content to fit the screen width.
+   * @param top The initial position of the bitmap content on the screen height.
+   * @param planeWidth The width size of the cue box.
+   */
+  public Cue(Bitmap bitmap, float left, float top, int planeWidth) {
+    this(bitmap, top, LINE_TYPE_FRACTION, ANCHOR_TYPE_START, left, ANCHOR_TYPE_START,
+            (float) bitmap.getWidth() / planeWidth);
+  }
+
+  /**
+   * @param bitmap See {@link #bitmap}.
+   * @param line See {@link #line}.
+   * @param lineType See {@link #lineType}.
+   * @param lineAnchor See {@link #lineAnchor}.
+   * @param position See {@link #position}.
+   * @param positionAnchor See {@link #positionAnchor}.
+   * @param size See {@link #size}.
+   */
+  public Cue(Bitmap bitmap, float line, @LineType int lineType, @AnchorType int lineAnchor,
+             float position, @AnchorType int positionAnchor, float size) {
+    this.contentType = bitmap == null ? CONTENT_TYPE_NULL : CONTENT_TYPE_GRAPHIC;
+    this.bitmap = bitmap;
+    this.text = null;
+    this.textAlignment = null;
+    this.line = line;
+    this.lineType = lineType;
+    this.lineAnchor = lineAnchor;
+    this.position = position;
+    this.positionAnchor = positionAnchor;
+    this.size = size;
+    this.windowColorSet = false;
+    this.windowColor = Color.BLACK;
+  }
+
+  /**
    * Constructs a cue whose {@link #textAlignment} is null, whose type parameters are set to
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
@@ -214,6 +297,8 @@ public class Cue {
   public Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size,
       boolean windowColorSet, int windowColor) {
+    this.contentType = TextUtils.isEmpty(text) ? CONTENT_TYPE_NULL : CONTENT_TYPE_TEXT;
+    this.bitmap = null;
     this.text = text;
     this.textAlignment = textAlignment;
     this.line = line;
