@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private final ParsableByteArray headerScratchBytes;
   private final String language;
 
+  private String trackFormatId;
   private TrackOutput output;
 
   private int state;
@@ -84,7 +85,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
-    output = extractorOutput.track(generator.getNextId());
+    generator.generateNewId();
+    trackFormatId = generator.getFormatId();
+    output = extractorOutput.track(generator.getTrackId(), C.TRACK_TYPE_AUDIO);
   }
 
   @Override
@@ -180,8 +183,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       headerScratchBits.skipBits(40);
       isEac3 = headerScratchBits.readBits(5) == 16;
       headerScratchBits.setPosition(headerScratchBits.getPosition() - 45);
-      format = isEac3 ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, language , null)
-          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, language, null);
+      format = isEac3
+          ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, trackFormatId, language , null)
+          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, trackFormatId, language, null);
       output.format(format);
     }
     sampleSize = isEac3 ? Ac3Util.parseEAc3SyncframeSize(headerScratchBits.data)

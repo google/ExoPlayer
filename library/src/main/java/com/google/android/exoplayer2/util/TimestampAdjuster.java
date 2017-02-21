@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor;
+package com.google.android.exoplayer2.util;
 
 import com.google.android.exoplayer2.C;
 
@@ -34,7 +34,7 @@ public final class TimestampAdjuster {
    */
   private static final long MAX_PTS_PLUS_ONE = 0x200000000L;
 
-  private final long firstSampleTimestampUs;
+  public final long firstSampleTimestampUs;
 
   private long timestampOffsetUs;
 
@@ -93,6 +93,9 @@ public final class TimestampAdjuster {
    * @return The adjusted timestamp in microseconds.
    */
   public long adjustTsTimestamp(long pts) {
+    if (pts == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
     if (lastSampleTimestamp != C.TIME_UNSET) {
       // The wrap count for the current PTS may be closestWrapCount or (closestWrapCount - 1),
       // and we need to snap to the one closest to lastSampleTimestamp.
@@ -113,6 +116,9 @@ public final class TimestampAdjuster {
    * @return The adjusted timestamp in microseconds.
    */
   public long adjustSampleTimestamp(long timeUs) {
+    if (timeUs == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
     // Record the adjusted PTS to adjust for wraparound next time.
     if (lastSampleTimestamp != C.TIME_UNSET) {
       lastSampleTimestamp = timeUs;

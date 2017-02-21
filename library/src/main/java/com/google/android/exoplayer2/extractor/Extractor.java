@@ -102,4 +102,5 @@ public interface Extractor {
    * Releases all kept resources.
    */
   void release();
+
 }

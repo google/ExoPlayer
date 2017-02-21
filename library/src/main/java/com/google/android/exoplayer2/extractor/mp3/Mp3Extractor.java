@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -33,6 +34,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Extracts data from an MP3 file.
@@ -50,6 +53,18 @@ public final class Mp3Extractor implements Extractor {
     }
 
   };
+
+  /**
+   * Flags controlling the behavior of the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING})
+  public @interface Flags {}
+  /**
+   * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
+   * otherwise not be possible.
+   */
+  public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
 
   /**
    * The maximum number of bytes to search when synchronizing, before giving up.
@@ -72,6 +87,7 @@ public final class Mp3Extractor implements Extractor {
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 
+  @Flags private final int flags;
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
@@ -93,16 +109,27 @@ public final class Mp3Extractor implements Extractor {
    * Constructs a new {@link Mp3Extractor}.
    */
   public Mp3Extractor() {
-    this(C.TIME_UNSET);
+    this(0);
   }
 
   /**
    * Constructs a new {@link Mp3Extractor}.
    *
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public Mp3Extractor(@Flags int flags) {
+    this(flags, C.TIME_UNSET);
+  }
+
+  /**
+   * Constructs a new {@link Mp3Extractor}.
+   *
+   * @param flags Flags that control the extractor's behavior.
    * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or
    *     {@link C#TIME_UNSET} if forcing is not required.
    */
-  public Mp3Extractor(long forcedFirstSampleTimestampUs) {
+  public Mp3Extractor(@Flags int flags, long forcedFirstSampleTimestampUs) {
+    this.flags = flags;
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(SCRATCH_LENGTH);
     synchronizedHeader = new MpegAudioHeader();
@@ -118,7 +145,7 @@ public final class Mp3Extractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
-    trackOutput = extractorOutput.track(0);
+    trackOutput = extractorOutput.track(0, C.TRACK_TYPE_AUDIO);
     extractorOutput.endTracks();
   }
 
@@ -350,7 +377,8 @@ public final class Mp3Extractor implements Extractor {
       }
     }
 
-    if (seeker == null) {
+    if (seeker == null || (!seeker.isSeekable()
+        && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
       // Repopulate the synchronized header in case we had to skip an invalid seeking header, which
       // would give an invalid CBR bitrate.
       input.resetPeekPosition();

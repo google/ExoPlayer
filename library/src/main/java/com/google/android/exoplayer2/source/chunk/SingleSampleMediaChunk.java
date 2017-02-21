@@ -88,7 +88,8 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       }
       ExtractorInput extractorInput = new DefaultExtractorInput(dataSource, bytesLoaded, length);
       DefaultTrackOutput trackOutput = getTrackOutput();
-      trackOutput.formatWithOffset(sampleFormat, 0);
+      trackOutput.setSampleOffsetUs(0);
+      trackOutput.format(sampleFormat);
       // Load the sample data.
       int result = 0;
       while (result != C.RESULT_END_OF_INPUT) {

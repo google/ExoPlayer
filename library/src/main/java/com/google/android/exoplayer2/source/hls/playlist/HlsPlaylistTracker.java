@@ -166,8 +166,24 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    *     be null if no snapshot has been loaded yet.
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
-    maybeSetPrimaryUrl(url);
-    return playlistBundles.get(url).getPlaylistSnapshot();
+    HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
+    if (snapshot != null) {
+      maybeSetPrimaryUrl(url);
+    }
+    return snapshot;
+  }
+
+  /**
+   * Returns whether the snapshot of the playlist referenced by the provided {@link HlsUrl} is
+   * valid, meaning all the segments referenced by the playlist are expected to be available. If the
+   * playlist is not valid then some of the segments may no longer be available.
+
+   * @param url The {@link HlsUrl}.
+   * @return Whether the snapshot of the playlist referenced by the provided {@link HlsUrl} is
+   *     valid.
+   */
+  public boolean isSnapshotValid(HlsUrl url) {
+    return playlistBundles.get(url).isSnapshotValid();
   }
 
   /**
@@ -412,6 +428,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     private final ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable;
 
     private HlsMediaPlaylist playlistSnapshot;
+    private long lastSnapshotLoadMs;
     private long lastSnapshotAccessTimeMs;
     private long blacklistUntilMs;
 
@@ -427,6 +444,18 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     public HlsMediaPlaylist getPlaylistSnapshot() {
       lastSnapshotAccessTimeMs = SystemClock.elapsedRealtime();
       return playlistSnapshot;
+    }
+
+    public boolean isSnapshotValid() {
+      if (playlistSnapshot == null) {
+        return false;
+      }
+      long currentTimeMs = SystemClock.elapsedRealtime();
+      long snapshotValidityDurationMs = Math.max(30000, C.usToMs(playlistSnapshot.durationUs));
+      return playlistSnapshot.hasEndTag
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
+          || lastSnapshotLoadMs + snapshotValidityDurationMs > currentTimeMs;
     }
 
     public void release() {
@@ -488,6 +517,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
+      lastSnapshotLoadMs = SystemClock.elapsedRealtime();
       playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
       long refreshDelayUs = C.TIME_UNSET;
       if (playlistSnapshot != oldPlaylist) {

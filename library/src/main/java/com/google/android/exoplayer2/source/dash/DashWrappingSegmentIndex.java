@@ -39,8 +39,8 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
   }
 
   @Override
-  public int getLastSegmentNum(long periodDurationUs) {
-    return chunkIndex.length - 1;
+  public int getSegmentCount(long periodDurationUs) {
+    return chunkIndex.length;
   }
 
   @Override

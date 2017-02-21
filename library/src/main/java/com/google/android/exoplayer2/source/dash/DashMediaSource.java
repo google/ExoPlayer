@@ -572,22 +572,28 @@ public final class DashMediaSource implements MediaSource {
       long availableStartTimeUs = 0;
       long availableEndTimeUs = Long.MAX_VALUE;
       boolean isIndexExplicit = false;
+      boolean seenEmptyIndex = false;
       for (int i = 0; i < adaptationSetCount; i++) {
         DashSegmentIndex index = period.adaptationSets.get(i).representations.get(0).getIndex();
         if (index == null) {
           return new PeriodSeekInfo(true, 0, durationUs);
         }
-        int firstSegmentNum = index.getFirstSegmentNum();
-        int lastSegmentNum = index.getLastSegmentNum(durationUs);
         isIndexExplicit |= index.isExplicit();
-        long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
-        availableStartTimeUs = Math.max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
-        if (lastSegmentNum != DashSegmentIndex.INDEX_UNBOUNDED) {
-          long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
-              + index.getDurationUs(lastSegmentNum, durationUs);
-          availableEndTimeUs = Math.min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
-        } else {
-          // The available end time is unmodified, because this index is unbounded.
+        int segmentCount = index.getSegmentCount(durationUs);
+        if (segmentCount == 0) {
+          seenEmptyIndex = true;
+          availableStartTimeUs = 0;
+          availableEndTimeUs = 0;
+        } else if (!seenEmptyIndex) {
+          int firstSegmentNum = index.getFirstSegmentNum();
+          long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
+          availableStartTimeUs = Math.max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
+          if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED) {
+            int lastSegmentNum = firstSegmentNum + segmentCount - 1;
+            long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
+                + index.getDurationUs(lastSegmentNum, durationUs);
+            availableEndTimeUs = Math.min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
+          }
         }
       }
       return new PeriodSeekInfo(isIndexExplicit, availableStartTimeUs, availableEndTimeUs);
@@ -704,8 +710,8 @@ public final class DashMediaSource implements MediaSource {
       // not correspond to the start of a segment in both, but this is an edge case.
       DashSegmentIndex snapIndex = period.adaptationSets.get(videoAdaptationSetIndex)
           .representations.get(0).getIndex();
-      if (snapIndex == null) {
-        // Video adaptation set does not include an index for snapping.
+      if (snapIndex == null || snapIndex.getSegmentCount(periodDurationUs) == 0) {
+        // Video adaptation set does not include a non-empty index for snapping.
         return windowDefaultStartPositionUs;
       }
       int segmentNum = snapIndex.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);

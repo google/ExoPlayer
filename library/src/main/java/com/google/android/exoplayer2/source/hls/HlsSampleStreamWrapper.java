@@ -112,10 +112,9 @@ import java.util.LinkedList;
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
-   * @param muxedAudioFormat If HLS master playlist indicates that the stream contains muxed audio,
-   *     this is the audio {@link Format} as defined by the playlist.
-   * @param muxedCaptionFormat If HLS master playlist indicates that the stream contains muxed
-   *     captions, this is the audio {@link Format} as defined by the playlist.
+   * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
+   * @param muxedCaptionFormat Optional muxed closed caption {@link Format} as defined by the master
+   *     playlist.
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
@@ -157,7 +156,7 @@ import java.util.LinkedList;
    * prepare.
    */
   public void prepareSingleTrack(Format format) {
-    track(0).format(format);
+    track(0, C.TRACK_TYPE_UNKNOWN).format(format);
     sampleQueuesBuilt = true;
     maybeFinishPrepare();
   }
@@ -264,15 +263,6 @@ import java.util.LinkedList;
     loader.release();
     handler.removeCallbacksAndMessages(null);
     released = true;
-  }
-
-  public long getLargestQueuedTimestampUs() {
-    long largestQueuedTimestampUs = Long.MIN_VALUE;
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
-          sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
-    }
-    return largestQueuedTimestampUs;
   }
 
   public void setIsTimestampMaster(boolean isTimestampMaster) {
@@ -466,7 +456,7 @@ import java.util.LinkedList;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public DefaultTrackOutput track(int id) {
+  public DefaultTrackOutput track(int id, int type) {
     if (sampleQueues.indexOfKey(id) >= 0) {
       return sampleQueues.get(id);
     }

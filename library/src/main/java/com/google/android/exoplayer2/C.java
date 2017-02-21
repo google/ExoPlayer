@@ -515,7 +515,13 @@ public final class C {
    * The stereo mode for 360/3D/VR videos.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, STEREO_MODE_MONO, STEREO_MODE_TOP_BOTTOM, STEREO_MODE_LEFT_RIGHT})
+  @IntDef({
+      Format.NO_VALUE,
+      STEREO_MODE_MONO,
+      STEREO_MODE_TOP_BOTTOM,
+      STEREO_MODE_LEFT_RIGHT,
+      STEREO_MODE_STEREO_MESH
+  })
   public @interface StereoMode {}
   /**
    * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
@@ -529,6 +535,11 @@ public final class C {
    * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_LEFT_RIGHT = 2;
+  /**
+   * Indicates a stereo layout where the left and right eyes have separate meshes,
+   * used with 360/3D/VR videos.
+   */
+  public static final int STEREO_MODE_STEREO_MESH = 3;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving

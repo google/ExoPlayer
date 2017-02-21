@@ -41,8 +41,8 @@ public interface HttpDataSource extends DataSource {
     HttpDataSource createDataSource();
 
     /**
-     * Sets a default request header field for {@link HttpDataSource} instances subsequently
-     * created by the factory. Previously created instances are not affected.
+     * Sets a default request header for {@link HttpDataSource} instances subsequently created by
+     * the factory. Previously created instances are not affected.
      *
      * @param name The name of the header field.
      * @param value The value of the field.
@@ -50,16 +50,16 @@ public interface HttpDataSource extends DataSource {
     void setDefaultRequestProperty(String name, String value);
 
     /**
-     * Clears a default request header field for {@link HttpDataSource} instances subsequently
-     * created by the factory. Previously created instances are not affected.
+     * Clears a default request header for {@link HttpDataSource} instances subsequently created by
+     * the factory. Previously created instances are not affected.
      *
      * @param name The name of the header field.
      */
     void clearDefaultRequestProperty(String name);
 
     /**
-     * Clears all default request header fields for all {@link HttpDataSource} instances
-     * subsequently created by the factory.  Previously created instances are not affected.
+     * Clears all default request header for all {@link HttpDataSource} instances subsequently
+     * created by the factory.  Previously created instances are not affected.
      */
     void clearAllDefaultRequestProperties();
 
@@ -232,7 +232,7 @@ public interface HttpDataSource extends DataSource {
   int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException;
 
   /**
-   * Sets the value of a request header field. The value will be used for subsequent connections
+   * Sets the value of a request header. The value will be used for subsequent connections
    * established by the source.
    *
    * @param name The name of the header field.
@@ -241,7 +241,7 @@ public interface HttpDataSource extends DataSource {
   void setRequestProperty(String name, String value);
 
   /**
-   * Clears the value of a request header field. The change will apply to subsequent connections
+   * Clears the value of a request header. The change will apply to subsequent connections
    * established by the source.
    *
    * @param name The name of the header field.
@@ -249,7 +249,7 @@ public interface HttpDataSource extends DataSource {
   void clearRequestProperty(String name);
 
   /**
-   * Clears all request header fields that were set by {@link #setRequestProperty(String, String)}.
+   * Clears all request headers that were set by {@link #setRequestProperty(String, String)}.
    */
   void clearAllRequestProperties();
 

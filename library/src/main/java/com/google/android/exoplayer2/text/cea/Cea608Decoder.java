@@ -49,12 +49,6 @@ public final class Cea608Decoder extends CeaDecoder {
   private static final int NTSC_CC_FIELD_2 = 0x01;
   private static final int CC_VALID_608_ID = 0x04;
 
-  private static final int PAYLOAD_TYPE_CC = 4;
-  private static final int COUNTRY_CODE = 0xB5;
-  private static final int PROVIDER_CODE = 0x31;
-  private static final int USER_ID = 0x47413934; // "GA94"
-  private static final int USER_DATA_TYPE_CODE = 0x3;
-
   private static final int CC_MODE_UNKNOWN = 0;
   private static final int CC_MODE_ROLL_UP = 1;
   private static final int CC_MODE_POP_ON = 2;
@@ -370,7 +364,7 @@ public final class Cea608Decoder extends CeaDecoder {
     } else if (isPreambleAddressCode(cc1, cc2)) {
       handlePreambleAddressCode(cc1, cc2);
     } else if (isTabCtrlCode(cc1, cc2)) {
-      currentCueBuilder.tab(cc2 - 0x20);
+      currentCueBuilder.setTab(cc2 - 0x20);
     } else if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     }
@@ -509,11 +503,14 @@ public final class Cea608Decoder extends CeaDecoder {
       return;
     }
 
+    int oldCaptionMode = this.captionMode;
     this.captionMode = captionMode;
+
     // Clear the working memory.
     resetCueBuilders();
-    if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
-      // When switching to roll-up or unknown, we also need to clear the caption.
+    if (oldCaptionMode == CC_MODE_PAINT_ON || captionMode == CC_MODE_ROLL_UP
+        || captionMode == CC_MODE_UNKNOWN) {
+      // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
       cues = null;
     }
   }
@@ -571,31 +568,6 @@ public final class Cea608Decoder extends CeaDecoder {
   private static boolean isRepeatable(byte cc1) {
     // cc1 - 0|0|0|1|X|X|X|X
     return (cc1 & 0xF0) == 0x10;
-  }
-
-  /**
-   * Inspects an sei message to determine whether it contains CEA-608.
-   * <p>
-   * The position of {@code payload} is left unchanged.
-   *
-   * @param payloadType The payload type of the message.
-   * @param payloadLength The length of the payload.
-   * @param payload A {@link ParsableByteArray} containing the payload.
-   * @return Whether the sei message contains CEA-608.
-   */
-  public static boolean isSeiMessageCea608(int payloadType, int payloadLength,
-      ParsableByteArray payload) {
-    if (payloadType != PAYLOAD_TYPE_CC || payloadLength < 8) {
-      return false;
-    }
-    int startPosition = payload.getPosition();
-    int countryCode = payload.readUnsignedByte();
-    int providerCode = payload.readUnsignedShort();
-    int userIdentifier = payload.readInt();
-    int userDataTypeCode = payload.readUnsignedByte();
-    payload.setPosition(startPosition);
-    return countryCode == COUNTRY_CODE && providerCode == PROVIDER_CODE
-        && userIdentifier == USER_ID && userDataTypeCode == USER_DATA_TYPE_CODE;
   }
 
   private static class CueBuilder {
@@ -677,8 +649,8 @@ public final class Cea608Decoder extends CeaDecoder {
       this.indent = indent;
     }
 
-    public void tab(int tabs) {
-      tabOffset += tabs;
+    public void setTab(int tabs) {
+      tabOffset = tabs;
     }
 
     public void setPreambleStyle(CharacterStyle style) {

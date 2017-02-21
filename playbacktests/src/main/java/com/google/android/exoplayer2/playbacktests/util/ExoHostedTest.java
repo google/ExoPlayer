@@ -63,7 +63,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   public static final long EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS = -2;
   public static final long EXPECTED_PLAYING_TIME_UNSET = -1;
 
-  private final String tag;
+  protected final String tag;
+
   private final boolean failOnPlayerError;
   private final long expectedPlayingTimeMs;
   private final DecoderCounters videoDecoderCounters;

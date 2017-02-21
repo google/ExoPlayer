@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.ext.flac;
 
 import android.os.Handler;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.BufferProcessor;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -38,21 +38,12 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   */
-  public LibflacAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener) {
-    super(eventHandler, eventListener);
-  }
-
-  /**
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
+   *     before they are output.
    */
   public LibflacAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities) {
-    super(eventHandler, eventListener, audioCapabilities);
+      BufferProcessor... bufferProcessors) {
+    super(eventHandler, eventListener, bufferProcessors);
   }
 
   @Override

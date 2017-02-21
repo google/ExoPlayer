@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
 import java.util.HashMap;
 import org.mockito.Mock;
@@ -213,11 +214,15 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   }
 
   private static AdaptationSet newAdaptationSets(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations));
+    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null);
   }
 
   private static Representation newRepresentations(DrmInitData drmInitData) {
-    Format format = Format.createVideoSampleFormat("", "", "", 0, 0, 0, 0, 0, null, drmInitData);
+    Format format = Format.createVideoContainerFormat("id", MimeTypes.VIDEO_MP4,
+        MimeTypes.VIDEO_H264, "", Format.NO_VALUE, 1024, 768, Format.NO_VALUE, null, 0);
+    if (drmInitData != null) {
+      format = format.copyWithDrmInitData(drmInitData);
+    }
     return Representation.newInstance("", 0, format, "", new SingleSegmentBase());
   }
 
