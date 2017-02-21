@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.nio.ByteBuffer;
 
 /**
@@ -37,6 +38,8 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
   private final ParsableByteArray sectionData;
   private final ParsableBitArray sectionHeader;
 
+  private TimestampAdjuster timestampAdjuster;
+
   public SpliceInfoDecoder() {
     sectionData = new ParsableByteArray();
     sectionHeader = new ParsableBitArray();
@@ -44,6 +47,13 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
 
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) throws MetadataDecoderException {
+    // Internal timestamps adjustment.
+    if (timestampAdjuster == null
+        || inputBuffer.subsampleOffsetUs != timestampAdjuster.getTimestampOffsetUs()) {
+      timestampAdjuster = new TimestampAdjuster(inputBuffer.timeUs);
+      timestampAdjuster.adjustSampleTimestamp(inputBuffer.timeUs - inputBuffer.subsampleOffsetUs);
+    }
+
     ByteBuffer buffer = inputBuffer.data;
     byte[] data = buffer.array();
     int size = buffer.limit();
@@ -69,10 +79,11 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
         command = SpliceScheduleCommand.parseFromSection(sectionData);
         break;
       case TYPE_SPLICE_INSERT:
-        command = SpliceInsertCommand.parseFromSection(sectionData, ptsAdjustment);
+        command = SpliceInsertCommand.parseFromSection(sectionData, ptsAdjustment,
+            timestampAdjuster);
         break;
       case TYPE_TIME_SIGNAL:
-        command = TimeSignalCommand.parseFromSection(sectionData, ptsAdjustment);
+        command = TimeSignalCommand.parseFromSection(sectionData, ptsAdjustment, timestampAdjuster);
         break;
       case TYPE_PRIVATE_COMMAND:
         command = PrivateCommand.parseFromSection(sectionData, spliceCommandLength, ptsAdjustment);

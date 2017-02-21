@@ -32,6 +32,9 @@ import java.io.OutputStream;
  */
 public final class CacheDataSink implements DataSink {
 
+  /** Default buffer size. */
+  public static final int DEFAULT_BUFFER_SIZE = 20480;
+
   private final Cache cache;
   private final long maxCacheFileSize;
   private final int bufferSize;
@@ -56,13 +59,15 @@ public final class CacheDataSink implements DataSink {
   }
 
   /**
+   * Constructs a CacheDataSink using the {@link #DEFAULT_BUFFER_SIZE}.
+   *
    * @param cache The cache into which data should be written.
    * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
    *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
    *    multiple cache files.
    */
   public CacheDataSink(Cache cache, long maxCacheFileSize) {
-    this(cache, maxCacheFileSize, 0);
+    this(cache, maxCacheFileSize, DEFAULT_BUFFER_SIZE);
   }
 
   /**

@@ -29,13 +29,13 @@ allprojects {
         jcenter()
     }
     project.ext {
-        compileSdkVersion=24
-        targetSdkVersion=24
-        buildToolsVersion='23.0.3'
+        compileSdkVersion=25
+        targetSdkVersion=25
+        buildToolsVersion='25'
         releaseRepoName = 'exoplayer'
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.1.1'
+        releaseVersion = 'r2.2.0'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
 }

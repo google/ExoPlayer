@@ -102,10 +102,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
+   *     before they are output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
-      AudioRendererEventListener eventListener) {
-    this(eventHandler, eventListener, null);
+      AudioRendererEventListener eventListener, BufferProcessor... bufferProcessors) {
+    this(eventHandler, eventListener, null, null, false, bufferProcessors);
   }
 
   /**
@@ -133,13 +135,16 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio
+   *     buffers before they are output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys) {
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys,
+      BufferProcessor... bufferProcessors) {
     super(C.TRACK_TYPE_AUDIO);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    audioTrack = new AudioTrack(audioCapabilities, new AudioTrackListener());
+    audioTrack = new AudioTrack(audioCapabilities, bufferProcessors, new AudioTrackListener());
     this.drmSessionManager = drmSessionManager;
     formatHolder = new FormatHolder();
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
@@ -193,8 +198,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         while (drainOutputBuffer()) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
-      } catch (AudioTrack.InitializationException | AudioTrack.WriteException
-          | AudioDecoderException e) {
+      } catch (AudioDecoderException | AudioTrack.ConfigurationException
+          | AudioTrack.InitializationException | AudioTrack.WriteException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       decoderCounters.ensureUpdated();
@@ -255,7 +260,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   private boolean drainOutputBuffer() throws ExoPlaybackException, AudioDecoderException,
-      AudioTrack.InitializationException, AudioTrack.WriteException {
+      AudioTrack.ConfigurationException, AudioTrack.InitializationException,
+      AudioTrack.WriteException {
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {

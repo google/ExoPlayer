@@ -43,13 +43,6 @@ import java.util.List;
 
 /**
  * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
- *
- * <p>This implementation does not provide full compatibility with the CEA-708 specification. Note
- * that only the default pen/text and window/cue colors (i.e. text with
- * {@link CueBuilder#COLOR_SOLID_WHITE} foreground and {@link CueBuilder#COLOR_SOLID_BLACK}
- * background, and cues with {@link CueBuilder#COLOR_SOLID_BLACK} fill) will be overridden with
- * device accessibility settings; all others will use the colors and opacity specified by the
- * caption data.
  */
 public final class Cea708Decoder extends CeaDecoder {
 
@@ -218,7 +211,7 @@ public final class Cea708Decoder extends CeaDecoder {
       }
 
       if (!ccValid) {
-        finalizeCurrentPacket();
+        // This byte-pair isn't valid, ignore it and continue.
         continue;
       }
 
@@ -266,7 +259,8 @@ public final class Cea708Decoder extends CeaDecoder {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
       Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
           + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + ")");
+          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
+      return;
     }
 
     serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);

@@ -46,16 +46,26 @@ public class AdaptationSet {
   public final List<Representation> representations;
 
   /**
+   * The accessibility descriptors in the adaptation set.
+   */
+  public final List<SchemeValuePair> accessibilityDescriptors;
+
+  /**
    * @param id A non-negative identifier for the adaptation set that's unique in the scope of its
    *     containing period, or {@link #ID_UNSET} if not specified.
    * @param type The type of the adaptation set. One of the {@link com.google.android.exoplayer2.C}
    *     {@code TRACK_TYPE_*} constants.
    * @param representations The {@link Representation}s in the adaptation set.
+   * @param accessibilityDescriptors The accessibility descriptors in the adaptation set.
    */
-  public AdaptationSet(int id, int type, List<Representation> representations) {
+  public AdaptationSet(int id, int type, List<Representation> representations,
+      List<SchemeValuePair> accessibilityDescriptors) {
     this.id = id;
     this.type = type;
     this.representations = Collections.unmodifiableList(representations);
+    this.accessibilityDescriptors = accessibilityDescriptors == null
+        ? Collections.<SchemeValuePair>emptyList()
+        : Collections.unmodifiableList(accessibilityDescriptors);
   }
 
 }

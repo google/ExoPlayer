@@ -31,7 +31,7 @@ public interface DrmSession<T extends ExoMediaCrypto> {
   /** Wraps the exception which is the cause of the error state. */
   class DrmSessionException extends Exception {
 
-    DrmSessionException(Exception e) {
+    public DrmSessionException(Exception e) {
       super(e);
     }
 

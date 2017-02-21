@@ -18,14 +18,14 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Represents a DASH in-band event stream.
+ * A pair consisting of a scheme ID and value.
  */
-public class InbandEventStream {
+public class SchemeValuePair {
 
   public final String schemeIdUri;
   public final String value;
 
-  public InbandEventStream(String schemeIdUri, String value) {
+  public SchemeValuePair(String schemeIdUri, String value) {
     this.schemeIdUri = schemeIdUri;
     this.value = value;
   }
@@ -38,7 +38,7 @@ public class InbandEventStream {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    InbandEventStream other = (InbandEventStream) obj;
+    SchemeValuePair other = (SchemeValuePair) obj;
     return Util.areEqual(schemeIdUri, other.schemeIdUri) && Util.areEqual(value, other.value);
   }
 

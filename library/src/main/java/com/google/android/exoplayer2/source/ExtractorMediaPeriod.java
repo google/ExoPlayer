@@ -381,7 +381,7 @@ import java.io.IOException;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public TrackOutput track(int id) {
+  public TrackOutput track(int id, int type) {
     DefaultTrackOutput trackOutput = sampleQueues.get(id);
     if (trackOutput == null) {
       trackOutput = new DefaultTrackOutput(allocator);
@@ -519,7 +519,7 @@ import java.io.IOException;
   }
 
   private boolean isLoadableExceptionFatal(IOException e) {
-    return e instanceof ExtractorMediaSource.UnrecognizedInputFormatException;
+    return e instanceof UnrecognizedInputFormatException;
   }
 
   private void notifyLoadError(final IOException error) {
@@ -625,7 +625,7 @@ import java.io.IOException;
             length += position;
           }
           input = new DefaultExtractorInput(dataSource, position, length);
-          Extractor extractor = extractorHolder.selectExtractor(input);
+          Extractor extractor = extractorHolder.selectExtractor(input, dataSource.getUri());
           if (pendingExtractorSeek) {
             extractor.seek(position, seekTimeUs);
             pendingExtractorSeek = false;
@@ -677,13 +677,13 @@ import java.io.IOException;
      * later calls.
      *
      * @param input The {@link ExtractorInput} from which data should be read.
+     * @param uri The {@link Uri} of the data.
      * @return An initialized extractor for reading {@code input}.
-     * @throws ExtractorMediaSource.UnrecognizedInputFormatException Thrown if the input format
-     *     could not be detected.
+     * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
      * @throws IOException Thrown if the input could not be read.
      * @throws InterruptedException Thrown if the thread was interrupted.
      */
-    public Extractor selectExtractor(ExtractorInput input)
+    public Extractor selectExtractor(ExtractorInput input, Uri uri)
         throws IOException, InterruptedException {
       if (extractor != null) {
         return extractor;
@@ -701,7 +701,8 @@ import java.io.IOException;
         }
       }
       if (extractor == null) {
-        throw new ExtractorMediaSource.UnrecognizedInputFormatException(extractors);
+        throw new UnrecognizedInputFormatException("None of the available extractors ("
+            + Util.getCommaDelimitedSimpleClassNames(extractors) + ") could read the stream.", uri);
       }
       extractor.init(extractorOutput);
       return extractor;

@@ -18,10 +18,10 @@ package com.google.android.exoplayer2.extractor.ts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 
 /**
  * Parses splice info sections as defined by SCTE35.
@@ -36,9 +36,10 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
   public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
       TsPayloadReader.TrackIdGenerator idGenerator) {
     this.timestampAdjuster = timestampAdjuster;
-    output = extractorOutput.track(idGenerator.getNextId());
-    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35, null,
-        Format.NO_VALUE, null));
+    idGenerator.generateNewId();
+    output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
+    output.format(Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_SCTE35,
+        null, Format.NO_VALUE, null));
   }
 
   @Override

@@ -213,7 +213,7 @@ import java.util.List;
       SimpleOutputBuffer outputBuffer, int sampleRate);
   private native int opusSecureDecode(long decoder, long timeUs, ByteBuffer inputBuffer,
       int inputSize, SimpleOutputBuffer outputBuffer, int sampleRate,
-      ExoMediaCrypto wvCrypto, int inputMode, byte[] key, byte[] iv,
+      ExoMediaCrypto mediaCrypto, int inputMode, byte[] key, byte[] iv,
       int numSubSamples, int[] numBytesOfClearData, int[] numBytesOfEncryptedData);
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);

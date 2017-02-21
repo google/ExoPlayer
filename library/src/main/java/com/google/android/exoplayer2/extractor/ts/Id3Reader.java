@@ -56,9 +56,10 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
-    output = extractorOutput.track(idGenerator.getNextId());
-    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE,
-        null));
+    idGenerator.generateNewId();
+    output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
+    output.format(Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_ID3,
+        null, Format.NO_VALUE, null));
   }
 
   @Override
