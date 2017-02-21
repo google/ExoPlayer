@@ -26,12 +26,6 @@ import com.google.android.exoplayer2.text.webvtt.Mp4WebvttDecoder;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
-import static android.R.attr.initialKeyguardLayout;
-import static android.R.attr.mimeType;
-
 /**
  * A factory for {@link SubtitleDecoder} instances.
  */
