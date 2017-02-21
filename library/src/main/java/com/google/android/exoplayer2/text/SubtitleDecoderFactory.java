@@ -80,9 +80,8 @@ public interface SubtitleDecoderFactory {
         }
         if (format.sampleMimeType.equals(MimeTypes.TEXT_SSA)) {
           byte[] header = format.initializationData.get(1);
-          String dlgfmt = new String(format.initializationData.get(0), "UTF-8");
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(byte[].class, String.class)
-                  .newInstance(header, dlgfmt);
+                  .newInstance(header, new String(format.initializationData.get(0), "UTF-8"));
         }
         else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
             || format.sampleMimeType.equals(MimeTypes.APPLICATION_MP4CEA608)) {
