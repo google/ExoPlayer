@@ -317,7 +317,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[selectedVariants.size()];
     selectedVariants.toArray(variants);
     HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT,
-        variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormat);
+        variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormats);
     sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     sampleStreamWrapper.setIsTimestampMaster(true);
     sampleStreamWrapper.continuePreparing();
@@ -343,13 +343,12 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
-      Format muxedAudioFormat, Format muxedCaptionFormat) {
+      Format muxedAudioFormat, List<Format> muxedCaptionFormats) {
     DataSource dataSource = dataSourceFactory.createDataSource();
     HlsChunkSource defaultChunkSource = new HlsChunkSource(playlistTracker, variants, dataSource,
-        timestampAdjusterProvider);
+        timestampAdjusterProvider, muxedCaptionFormats);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator,
-        preparePositionUs, muxedAudioFormat, muxedCaptionFormat, minLoadableRetryCount,
-        eventDispatcher);
+        preparePositionUs, muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
   }
 
   private void continuePreparingOrLoading() {

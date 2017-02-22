@@ -52,22 +52,23 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public final List<HlsUrl> subtitles;
 
   public final Format muxedAudioFormat;
-  public final Format muxedCaptionFormat;
+  public final List<Format> muxedCaptionFormats;
 
   public HlsMasterPlaylist(String baseUri, List<HlsUrl> variants, List<HlsUrl> audios,
-      List<HlsUrl> subtitles, Format muxedAudioFormat, Format muxedCaptionFormat) {
+      List<HlsUrl> subtitles, Format muxedAudioFormat, List<Format> muxedCaptionFormats) {
     super(baseUri, HlsPlaylist.TYPE_MASTER);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
     this.muxedAudioFormat = muxedAudioFormat;
-    this.muxedCaptionFormat = muxedCaptionFormat;
+    this.muxedCaptionFormats = Collections.unmodifiableList(muxedCaptionFormats);
   }
 
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUri) {
     List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUri));
     List<HlsUrl> emptyList = Collections.emptyList();
-    return new HlsMasterPlaylist(null, variant, emptyList, emptyList, null, null);
+    return new HlsMasterPlaylist(null, variant, emptyList, emptyList, null,
+        Collections.<Format>emptyList());
   }
 
 }

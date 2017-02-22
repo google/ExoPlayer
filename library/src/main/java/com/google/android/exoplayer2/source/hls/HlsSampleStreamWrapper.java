@@ -77,7 +77,6 @@ import java.util.LinkedList;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
   private final Format muxedAudioFormat;
-  private final Format muxedCaptionFormat;
   private final int minLoadableRetryCount;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
@@ -113,21 +112,18 @@ import java.util.LinkedList;
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
-   * @param muxedCaptionFormat Optional muxed closed caption {@link Format} as defined by the master
-   *     playlist.
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
   public HlsSampleStreamWrapper(int trackType, Callback callback, HlsChunkSource chunkSource,
-      Allocator allocator, long positionUs, Format muxedAudioFormat, Format muxedCaptionFormat,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
+      Allocator allocator, long positionUs, Format muxedAudioFormat, int minLoadableRetryCount,
+      EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
     this.allocator = allocator;
     this.muxedAudioFormat = muxedAudioFormat;
-    this.muxedCaptionFormat = muxedCaptionFormat;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
@@ -589,14 +585,8 @@ import java.util.LinkedList;
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
       } else {
-        Format trackFormat = null;
-        if (primaryExtractorTrackType == PRIMARY_TYPE_VIDEO) {
-          if (MimeTypes.isAudio(sampleFormat.sampleMimeType)) {
-            trackFormat = muxedAudioFormat;
-          } else if (MimeTypes.APPLICATION_CEA608.equals(sampleFormat.sampleMimeType)) {
-            trackFormat = muxedCaptionFormat;
-          }
-        }
+        Format trackFormat = primaryExtractorTrackType == PRIMARY_TYPE_VIDEO
+            && MimeTypes.isAudio(sampleFormat.sampleMimeType) ? muxedAudioFormat : null;
         trackGroups[i] = new TrackGroup(deriveFormat(trackFormat, sampleFormat));
       }
     }
