@@ -168,7 +168,7 @@ import java.util.List;
  * of {@code exo_simple_player_view.xml} for only the instance on which the attribute is set.
  */
 @TargetApi(16)
-public final class SimpleExoPlayerView extends FrameLayout {
+public class SimpleExoPlayerView extends FrameLayout {
 
   private static final int SURFACE_TYPE_NONE = 0;
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
@@ -179,12 +179,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private final View surfaceView;
   private final ImageView artworkView;
   private final SubtitleView subtitleView;
-  private final PlaybackControlView controller;
+  protected final PlaybackControlView controller;
   private final ComponentListener componentListener;
   private final FrameLayout overlayFrameLayout;
 
   private SimpleExoPlayer player;
-  private boolean useController;
+  protected boolean useController;
   private boolean useArtwork;
   private Bitmap defaultArtwork;
   private int controllerShowTimeoutMs;
@@ -293,6 +293,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public SimpleExoPlayer getPlayer() {
     return player;
   }
+
+  /**
+   * Returns the player controller
+   */
+  public PlaybackControlView getController() { return controller; }
 
   /**
    * Set the {@link SimpleExoPlayer} to use. The {@link SimpleExoPlayer#setTextOutput} and
@@ -559,7 +564,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     return true;
   }
 
-  private void maybeShowController(boolean isForced) {
+  protected void maybeShowController(boolean isForced) {
     if (!useController || player == null) {
       return;
     }
