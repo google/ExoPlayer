@@ -444,6 +444,12 @@ public final class C {
   public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
+   * UUID for the PSSH box and MPEG-DASH Content Protection.
+   * <a href="https://w3c.github.io/encrypted-media/format-registry/initdata/cenc.html">W3C</a>.
+   */
+  public static final UUID CENC_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+
+  /**
    * UUID for the Widevine DRM scheme.
    * <p></p>
    * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
