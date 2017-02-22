@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
+import com.google.android.exoplayer2.source.dash.manifest.SchemeValuePair;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -201,11 +202,57 @@ import java.util.List;
       long positionUs) {
     int adaptationSetIndex = trackGroups.indexOf(selection.getTrackGroup());
     AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
+    boolean enableEventMessageTrack = hasEventMessageTrack(adaptationSet);
+    boolean enableCea608Track = hasCea608Track(adaptationSet);
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
         manifestLoaderErrorThrower, manifest, index, adaptationSetIndex, selection,
-        elapsedRealtimeOffset, false, false);
+        elapsedRealtimeOffset, enableEventMessageTrack, enableCea608Track);
     return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
+  }
+
+  private static int getEventMessageTrackCount(Period period) {
+    List<AdaptationSet> adaptationSets = period.adaptationSets;
+    int inbandEventStreamTrackCount = 0;
+    for (int i = 0; i < adaptationSets.size(); i++) {
+      if (hasEventMessageTrack(adaptationSets.get(i))) {
+        inbandEventStreamTrackCount++;
+      }
+    }
+    return inbandEventStreamTrackCount;
+  }
+
+  private static boolean hasEventMessageTrack(AdaptationSet adaptationSet) {
+    List<Representation> representations = adaptationSet.representations;
+    for (int i = 0; i < representations.size(); i++) {
+      Representation representation = representations.get(i);
+      if (!representation.inbandEventStreams.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static int getCea608TrackCount(Period period) {
+    List<AdaptationSet> adaptationSets = period.adaptationSets;
+    int cea608TrackCount = 0;
+    for (int i = 0; i < adaptationSets.size(); i++) {
+      if (hasCea608Track(adaptationSets.get(i))) {
+        cea608TrackCount++;
+      }
+    }
+    return cea608TrackCount;
+  }
+
+  private static boolean hasCea608Track(AdaptationSet adaptationSet) {
+    List<SchemeValuePair> descriptors = adaptationSet.accessibilityDescriptors;
+    for (int i = 0; i < descriptors.size(); i++) {
+      SchemeValuePair descriptor = descriptors.get(i);
+      if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @SuppressWarnings("unchecked")
