@@ -18,11 +18,13 @@ package com.google.android.exoplayer2.ui;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.text.Layout.Alignment;
 import android.text.StaticLayout;
@@ -65,6 +67,7 @@ import com.google.android.exoplayer2.util.Util;
   // Previous input variables.
   private CharSequence cueText;
   private Alignment cueTextAlignment;
+  private Bitmap cueBitmap;
   private float cueLine;
   @Cue.LineType
   private int cueLineType;
@@ -93,6 +96,7 @@ import com.google.android.exoplayer2.util.Util;
   private int textLeft;
   private int textTop;
   private int textPaddingX;
+  private Rect bitmapRect;
 
   @SuppressWarnings("ResourceType")
   public SubtitlePainter(Context context) {
@@ -141,21 +145,28 @@ import com.google.android.exoplayer2.util.Util;
   public void draw(Cue cue, boolean applyEmbeddedStyles, CaptionStyleCompat style, float textSizePx,
       float bottomPaddingFraction, Canvas canvas, int cueBoxLeft, int cueBoxTop, int cueBoxRight,
       int cueBoxBottom) {
-    CharSequence cueText = cue.text;
-    if (TextUtils.isEmpty(cueText)) {
-      // Nothing to draw.
-      return;
-    }
-
-    int windowColor = cue.windowColorSet ? cue.windowColor : style.windowColor;
-
-    if (!applyEmbeddedStyles) {
-      // Strip out any embedded styling.
-      cueText = cueText.toString();
-      windowColor = style.windowColor;
+    boolean isTextCue = cue.bitmap == null;
+    CharSequence cueText = null;
+    Bitmap cueBitmap = null;
+    int windowColor = Color.BLACK;
+    if (isTextCue) {
+      cueText = cue.text;
+      if (TextUtils.isEmpty(cueText)) {
+        // Nothing to draw.
+        return;
+      }
+      windowColor = cue.windowColorSet ? cue.windowColor : style.windowColor;
+      if (!applyEmbeddedStyles) {
+        // Strip out any embedded styling.
+        cueText = cueText.toString();
+        windowColor = style.windowColor;
+      }
+    } else {
+      cueBitmap = cue.bitmap;
     }
     if (areCharSequencesEqual(this.cueText, cueText)
         && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
+        && this.cueBitmap == cueBitmap
         && this.cueLine == cue.line
         && this.cueLineType == cue.lineType
         && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
@@ -176,12 +187,13 @@ import com.google.android.exoplayer2.util.Util;
         && this.parentRight == cueBoxRight
         && this.parentBottom == cueBoxBottom) {
       // We can use the cached layout.
-      drawLayout(canvas);
+      drawLayout(canvas, isTextCue);
       return;
     }
 
     this.cueText = cueText;
     this.cueTextAlignment = cue.textAlignment;
+    this.cueBitmap = cueBitmap;
     this.cueLine = cue.line;
     this.cueLineType = cue.lineType;
     this.cueLineAnchor = cue.lineAnchor;
@@ -202,6 +214,15 @@ import com.google.android.exoplayer2.util.Util;
     this.parentRight = cueBoxRight;
     this.parentBottom = cueBoxBottom;
 
+    if (isTextCue) {
+      setupTextLayout();
+    } else {
+      setupBitmapLayout();
+    }
+    drawLayout(canvas, isTextCue);
+  }
+
+  private void setupTextLayout() {
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
 
@@ -237,7 +258,7 @@ import com.google.android.exoplayer2.util.Util;
       int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
       textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
           : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
-          : anchorPosition;
+              : anchorPosition;
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
@@ -261,7 +282,7 @@ import com.google.android.exoplayer2.util.Util;
       }
       textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
           : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
-          : anchorPosition;
+              : anchorPosition;
       if (textTop + textHeight > parentBottom) {
         textTop = parentBottom - textHeight;
       } else if (textTop < parentTop) {
@@ -279,17 +300,32 @@ import com.google.android.exoplayer2.util.Util;
     this.textLeft = textLeft;
     this.textTop = textTop;
     this.textPaddingX = textPaddingX;
-
-    drawLayout(canvas);
   }
 
-  /**
-   * Draws {@link #textLayout} into the provided canvas.
-   *
-   * @param canvas The canvas into which to draw.
-   */
-  private void drawLayout(Canvas canvas) {
-    final StaticLayout layout = textLayout;
+  private void setupBitmapLayout() {
+    int parentWidth = parentRight - parentLeft;
+    int parentHeight = parentBottom - parentTop;
+    float anchorX = parentLeft + (parentWidth * cuePosition);
+    float anchorY = parentTop + (parentHeight * cueLine);
+    int width = Math.round(parentWidth * cueSize);
+    int height = Math.round(width * ((float) cueBitmap.getHeight() / cueBitmap.getWidth()));
+    int x = Math.round(cueLineAnchor == Cue.ANCHOR_TYPE_END ? (anchorX - width)
+        : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorX - (width / 2)) : anchorX);
+    int y = Math.round(cuePositionAnchor == Cue.ANCHOR_TYPE_END ? (anchorY - height)
+        : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorY - (height / 2)) : anchorY);
+    bitmapRect = new Rect(x, y, x + width, y + height);
+  }
+
+  private void drawLayout(Canvas canvas, boolean isTextCue) {
+    if (isTextCue) {
+      drawTextLayout(canvas);
+    } else {
+      drawBitmapLayout(canvas);
+    }
+  }
+
+  private void drawTextLayout(Canvas canvas) {
+    StaticLayout layout = textLayout;
     if (layout == null) {
       // Nothing to draw.
       return;
@@ -345,6 +381,10 @@ import com.google.android.exoplayer2.util.Util;
     textPaint.setShadowLayer(0, 0, 0, 0);
 
     canvas.restoreToCount(saveCount);
+  }
+
+  private void drawBitmapLayout(Canvas canvas) {
+    canvas.drawBitmap(cueBitmap, null, bitmapRect, null);
   }
 
   /**
