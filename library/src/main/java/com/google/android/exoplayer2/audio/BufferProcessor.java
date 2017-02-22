@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Interface for processors of audio buffers.
@@ -36,30 +37,61 @@ public interface BufferProcessor {
   }
 
   /**
-   * Configures this processor to take input buffers with the specified format.
+   * An empty, direct {@link ByteBuffer}.
+   */
+  ByteBuffer EMPTY_BUFFER = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+
+  /**
+   * Configures the processor to process input buffers with the specified format and returns whether
+   * the processor must be flushed. After calling this method, {@link #isActive()} returns whether
+   * the processor needs to handle buffers; if not, the processor will not accept any buffers until
+   * it is reconfigured. {@link #getOutputChannelCount()} and {@link #getOutputEncoding()} return
+   * the processor's output format.
    *
    * @param sampleRateHz The sample rate of input audio in Hz.
    * @param channelCount The number of interleaved channels in input audio.
    * @param encoding The encoding of input audio.
+   * @return Whether the processor must be flushed.
    * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
    */
-  void configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
+  boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
       throws UnhandledFormatException;
 
   /**
-   * Returns the encoding used in buffers output by this processor.
+   * Returns whether the processor is configured and active.
+   */
+  boolean isActive();
+
+  /**
+   * Returns the number of audio channels in the data output by the processor.
+   */
+  int getOutputChannelCount();
+
+  /**
+   * Returns the audio encoding used in the data output by the processor.
    */
   @C.Encoding
   int getOutputEncoding();
 
   /**
-   * Processes the data in the specified input buffer in its entirety.
+   * Queues audio data between the position and limit of the input {@code buffer} for processing.
+   * {@code buffer} must be a direct byte buffer with native byte order. Its contents are treated as
+   * read-only. Its position will be advanced by the number of bytes consumed (which may be zero).
+   * The caller retains ownership of the provided buffer. Calling this method invalidates any
+   * previous buffer returned by {@link #getOutput()}.
    *
-   * @param input A buffer containing the input data to process.
-   * @return A buffer containing the processed output. This may be the same as the input buffer if
-   *     no processing was required.
+   * @param buffer The input buffer to process.
    */
-  ByteBuffer handleBuffer(ByteBuffer input);
+  void queueInput(ByteBuffer buffer);
+
+  /**
+   * Returns a buffer containing processed output data between its position and limit. The buffer
+   * will always be a direct byte buffer with native byte order. Calling this method invalidates any
+   * previously returned buffer. The buffer will be empty if no output is available.
+   *
+   * @return A buffer containing processed output data between its position and limit.
+   */
+  ByteBuffer getOutput();
 
   /**
    * Clears any state in preparation for receiving a new stream of buffers.
