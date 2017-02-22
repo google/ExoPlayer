@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -85,6 +86,7 @@ import java.util.Locale;
   private final HlsUrl[] variants;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
+  private final List<Format> muxedCaptionFormats;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
@@ -107,14 +109,16 @@ import java.util.Locale;
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s.
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
-      DataSource dataSource, TimestampAdjusterProvider timestampAdjusterProvider) {
+      DataSource dataSource, TimestampAdjusterProvider timestampAdjusterProvider,
+      List<Format> muxedCaptionFormats) {
     this.playlistTracker = playlistTracker;
     this.variants = variants;
     this.dataSource = dataSource;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
-
+    this.muxedCaptionFormats = muxedCaptionFormats;
     Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
     for (int i = 0; i < variants.length; i++) {
@@ -282,7 +286,7 @@ import java.util.Locale;
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
     out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, selectedUrl,
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
+        muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
         isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
   }
