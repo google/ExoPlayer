@@ -404,6 +404,11 @@ public final class Id3Decoder implements MetadataDecoder {
 
   private static PrivFrame decodePrivFrame(ParsableByteArray id3Data, int frameSize)
       throws UnsupportedEncodingException {
+    if (frameSize == 0) {
+      // Frame is empty.
+      return new PrivFrame("", new byte[0]);
+    }
+
     byte[] data = new byte[frameSize];
     id3Data.readBytes(data, 0, frameSize);
 
