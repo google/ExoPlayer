@@ -189,7 +189,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
           }
         }
         // Try and read the next subtitle from the source.
-        int result = readSource(formatHolder, nextInputBuffer);
+        int result = readSource(formatHolder, nextInputBuffer, false);
         if (result == C.RESULT_BUFFER_READ) {
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;

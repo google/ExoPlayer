@@ -231,18 +231,16 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+        boolean requireFormat) {
       if (pendingDiscontinuity) {
         return C.RESULT_NOTHING_READ;
-      }
-      if (buffer == null) {
-        return stream.readData(formatHolder, null);
       }
       if (sentEos) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
       }
-      int result = stream.readData(formatHolder, buffer);
+      int result = stream.readData(formatHolder, buffer, requireFormat);
       // TODO: Clear gapless playback metadata if a format was read (if applicable).
       if (endUs != C.TIME_END_OF_SOURCE && ((result == C.RESULT_BUFFER_READ
           && buffer.timeUs >= endUs) || (result == C.RESULT_NOTHING_READ
