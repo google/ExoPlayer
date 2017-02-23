@@ -85,6 +85,15 @@ public interface BufferProcessor {
   void queueInput(ByteBuffer buffer);
 
   /**
+   * Queues an end of stream signal and begins draining any pending output from this processor.
+   * After this method has been called, {@link #queueInput(ByteBuffer)} may not be called until
+   * after the next call to {@link #flush()}. Calling {@link #getOutput()} will return any remaining
+   * output data. Multiple calls may be required to read all of the remaining output data.
+   * {@link #isEnded()} will return {@code true} once all remaining output data has been read.
+   */
+  void queueEndOfStream();
+
+  /**
    * Returns a buffer containing processed output data between its position and limit. The buffer
    * will always be a direct byte buffer with native byte order. Calling this method invalidates any
    * previously returned buffer. The buffer will be empty if no output is available.
@@ -92,6 +101,12 @@ public interface BufferProcessor {
    * @return A buffer containing processed output data between its position and limit.
    */
   ByteBuffer getOutput();
+
+  /**
+   * Returns whether this processor will return no more output from {@link #getOutput()} until it
+   * has been {@link #flush()}ed and more input has been queued.
+   */
+  boolean isEnded();
 
   /**
    * Clears any state in preparation for receiving a new stream of buffers.

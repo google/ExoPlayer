@@ -178,6 +178,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
+      try {
+        audioTrack.playToEndOfStream();
+      } catch (AudioTrack.WriteException e) {
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
+      }
       return;
     }
 
@@ -280,7 +285,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         outputBuffer.release();
         outputBuffer = null;
         outputStreamEnded = true;
-        audioTrack.handleEndOfStream();
+        audioTrack.playToEndOfStream();
       }
       return false;
     }
@@ -388,7 +393,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   public boolean isEnded() {
-    return outputStreamEnded && !audioTrack.hasPendingData();
+    return outputStreamEnded && audioTrack.isEnded();
   }
 
   @Override

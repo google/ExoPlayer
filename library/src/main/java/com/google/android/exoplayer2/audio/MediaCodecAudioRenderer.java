@@ -312,7 +312,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   public boolean isEnded() {
-    return super.isEnded() && !audioTrack.hasPendingData();
+    return super.isEnded() && audioTrack.isEnded();
   }
 
   @Override
@@ -361,8 +361,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputStreamEnded() {
-    audioTrack.handleEndOfStream();
+  protected void renderToEndOfStream() throws ExoPlaybackException {
+    try {
+      audioTrack.playToEndOfStream();
+    } catch (AudioTrack.WriteException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
   }
 
   @Override

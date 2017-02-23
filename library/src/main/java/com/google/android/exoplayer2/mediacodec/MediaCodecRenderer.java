@@ -480,6 +480,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
+      renderToEndOfStream();
       return;
     }
     if (format == null) {
@@ -788,16 +789,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Called when the output stream ends, meaning that the last output buffer has been processed and
-   * the {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag has been propagated through the decoder.
-   * <p>
-   * The default implementation is a no-op.
-   */
-  protected void onOutputStreamEnded() {
-    // Do nothing.
-  }
-
-  /**
    * Called immediately before an input buffer is queued into the codec.
    * <p>
    * The default implementation is a no-op.
@@ -1011,6 +1002,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       long bufferPresentationTimeUs, boolean shouldSkip) throws ExoPlaybackException;
 
   /**
+   * Incrementally renders any remaining output.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @throws ExoPlaybackException Thrown if an error occurs rendering remaining output.
+   */
+  protected void renderToEndOfStream() throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
    * Processes an end of stream signal.
    *
    * @throws ExoPlaybackException If an error occurs processing the signal.
@@ -1022,7 +1024,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       maybeInitCodec();
     } else {
       outputStreamEnded = true;
-      onOutputStreamEnded();
+      renderToEndOfStream();
     }
   }
 
