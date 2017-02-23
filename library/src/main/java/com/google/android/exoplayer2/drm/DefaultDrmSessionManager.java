@@ -103,12 +103,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   /** Releases an existing offline license. */
   public static final int MODE_RELEASE = 3;
 
-  /**
-   * The format to use when ClearKey encryption.
-   */
-  private static final String CENC_INIT_DATA_FORMAT = "cenc";
-
   private static final String TAG = "OfflineDrmSessionMngr";
+  private static final String CENC_SCHEME_MIME_TYPE = "cenc";
 
   private static final int MSG_PROVISION = 0;
   private static final int MSG_KEYS = 1;
@@ -345,20 +341,11 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
           schemeInitData = psshData;
         }
       }
-      if (C.CENC_UUID.equals(uuid)) {
-        // If "video/mp4" and "audio/mp4" are not supported as CENC schema, change it to "cenc".
-        // Before 7.1.x in API 25, "video/mp4" and "audio/mp4" are not supported.
-        if (MimeTypes.VIDEO_MP4.equals(schemeMimeType) || MimeTypes.AUDIO_MP4.equals(
-            schemeMimeType)) {
-          if (Util.SDK_INT >= 26) {
-            // Nothing to do.
-          } else if (Util.SDK_INT == 25 && !MediaDrm.isCryptoSchemeSupported(uuid,
-              schemeMimeType)) {
-            schemeMimeType = CENC_INIT_DATA_FORMAT;
-          } else if (Util.SDK_INT <= 24) {
-            schemeMimeType = CENC_INIT_DATA_FORMAT;
-          }
-        }
+      if (Util.SDK_INT < 26 && C.CENC_UUID.equals(uuid)
+          && (MimeTypes.VIDEO_MP4.equals(schemeMimeType)
+          || MimeTypes.AUDIO_MP4.equals(schemeMimeType))) {
+        // Prior to API level 26 the CDM only accepted "cenc" as the scheme mime type.
+        schemeMimeType = CENC_SCHEME_MIME_TYPE;
       }
     }
     state = STATE_OPENING;
