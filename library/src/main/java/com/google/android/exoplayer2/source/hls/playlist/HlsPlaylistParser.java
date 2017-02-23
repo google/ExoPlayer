@@ -81,7 +81,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
       + ":([\\d\\.]+)\\b");
-  private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=([\\d\\.]+)\\b");
+  private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=(-?[\\d\\.]+)\\b");
   private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
       + ":(\\d+(?:@\\d+)?)\\b");
   private static final Pattern REGEX_ATTR_BYTERANGE =
