@@ -169,7 +169,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+      boolean formatRequired) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
@@ -187,7 +188,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
           currentChunk.startTimeUs);
     }
     downstreamTrackFormat = trackFormat;
-    return sampleQueue.readData(formatHolder, buffer, loadingFinished, lastSeekPositionUs);
+    return sampleQueue.readData(formatHolder, buffer, formatRequired, loadingFinished,
+        lastSeekPositionUs);
   }
 
   @Override

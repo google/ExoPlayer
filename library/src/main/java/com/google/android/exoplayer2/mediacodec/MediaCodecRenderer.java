@@ -484,7 +484,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
     if (format == null) {
-      readFormat();
+      // We don't have a format yet, so try and read one.
+      buffer.clear();
+      int result = readSource(formatHolder, buffer, true);
+      if (result == C.RESULT_FORMAT_READ) {
+        onInputFormatChanged(formatHolder.format);
+      } else if (result == C.RESULT_BUFFER_READ) {
+        // End of stream read having not read a format.
+        Assertions.checkState(buffer.isEndOfStream());
+        inputStreamEnded = true;
+        processEndOfStream();
+        return;
+      } else {
+        // We still don't have a format and can't make progress without one.
+        return;
+      }
     }
     maybeInitCodec();
     if (codec != null) {
@@ -496,13 +510,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       skipToKeyframeBefore(positionUs);
     }
     decoderCounters.ensureUpdated();
-  }
-
-  private void readFormat() throws ExoPlaybackException {
-    int result = readSource(formatHolder, null);
-    if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
-    }
   }
 
   protected void flushCodec() throws ExoPlaybackException {
@@ -594,7 +601,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
       adaptiveReconfigurationBytes = buffer.data.position();
-      result = readSource(formatHolder, buffer);
+      result = readSource(formatHolder, buffer, false);
     }
 
     if (result == C.RESULT_NOTHING_READ) {

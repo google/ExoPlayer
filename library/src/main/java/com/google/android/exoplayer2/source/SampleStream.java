@@ -45,20 +45,24 @@ public interface SampleStream {
   /**
    * Attempts to read from the stream.
    * <p>
-   * If no data is available then {@link C#RESULT_NOTHING_READ} is returned. If the format of the
-   * media is changing or if {@code buffer == null} then {@code formatHolder} is populated and
+   * If the stream has ended then {@link C#BUFFER_FLAG_END_OF_STREAM} flag is set on {@code buffer}
+   * and {@link C#RESULT_BUFFER_READ} is returned. Else if no data is available then
+   * {@link C#RESULT_NOTHING_READ} is returned. Else if the format of the media is changing or if
+   * {@code formatRequired} is set then {@code formatHolder} is populated and
    * {@link C#RESULT_FORMAT_READ} is returned. Else {@code buffer} is populated and
    * {@link C#RESULT_BUFFER_READ} is returned.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. May be null if the
-   *     caller requires that the format of the stream be read even if it's not changing.
+   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @param formatRequired Whether the caller requires that the format of the stream be read even if
+   *     it's not changing. A sample will never be read if set to true, however it is still possible
+   *     for the end of stream or nothing to be read.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  int readData(FormatHolder formatHolder, DecoderInputBuffer buffer);
+  int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired);
 
   /**
    * Attempts to skip to the keyframe before the specified time.

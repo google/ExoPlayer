@@ -109,7 +109,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
       buffer.clear();
-      int result = readSource(formatHolder, buffer);
+      int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           inputStreamEnded = true;

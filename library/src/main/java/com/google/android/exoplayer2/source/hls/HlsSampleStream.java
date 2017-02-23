@@ -45,8 +45,8 @@ import java.io.IOException;
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    return sampleStreamWrapper.readData(group, formatHolder, buffer);
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
+    return sampleStreamWrapper.readData(group, formatHolder, buffer, requireFormat);
   }
 
   @Override

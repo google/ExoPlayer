@@ -205,14 +205,15 @@ import java.util.Arrays;
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      if (buffer == null || streamState == STREAM_STATE_SEND_FORMAT) {
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+        boolean requireFormat) {
+      if (streamState == STREAM_STATE_END_OF_STREAM) {
+        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        return C.RESULT_BUFFER_READ;
+      } else if (requireFormat || streamState == STREAM_STATE_SEND_FORMAT) {
         formatHolder.format = format;
         streamState = STREAM_STATE_SEND_SAMPLE;
         return C.RESULT_FORMAT_READ;
-      } else if (streamState == STREAM_STATE_END_OF_STREAM) {
-        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-        return C.RESULT_BUFFER_READ;
       }
 
       Assertions.checkState(streamState == STREAM_STATE_SEND_SAMPLE);

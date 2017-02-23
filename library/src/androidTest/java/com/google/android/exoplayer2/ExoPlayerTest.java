@@ -513,8 +513,9 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      if (buffer == null || !readFormat) {
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+        boolean formatRequired) {
+      if (formatRequired || !readFormat) {
         formatHolder.format = format;
         readFormat = true;
         return C.RESULT_FORMAT_READ;
@@ -571,7 +572,7 @@ public final class ExoPlayerTest extends TestCase {
       FormatHolder formatHolder = new FormatHolder();
       DecoderInputBuffer buffer =
           new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-      int result = readSource(formatHolder, buffer);
+      int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         assertEquals(expectedFormat, formatHolder.format);

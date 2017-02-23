@@ -290,7 +290,8 @@ import java.util.LinkedList;
     chunkSource.maybeThrowError();
   }
 
-  /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
+  /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer,
+      boolean requireFormat) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
@@ -307,8 +308,8 @@ import java.util.LinkedList;
     }
     downstreamTrackFormat = trackFormat;
 
-    return sampleQueues.valueAt(group).readData(formatHolder, buffer, loadingFinished,
-        lastSeekPositionUs);
+    return sampleQueues.valueAt(group).readData(formatHolder, buffer, requireFormat,
+        loadingFinished, lastSeekPositionUs);
   }
 
   /* package */ void skipToKeyframeBefore(int group, long timeUs) {
