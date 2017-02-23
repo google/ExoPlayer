@@ -20,8 +20,10 @@ import android.util.SparseArray;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +37,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_ALLOW_NON_IDR_KEYFRAMES, FLAG_IGNORE_AAC_STREAM,
-      FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS, FLAG_IGNORE_SPLICE_INFO_STREAM})
+      FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS, FLAG_IGNORE_SPLICE_INFO_STREAM,
+      FLAG_OVERRIDE_CAPTION_DESCRIPTORS})
   public @interface Flags {
   }
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
@@ -43,31 +46,33 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   public static final int FLAG_IGNORE_H264_STREAM = 1 << 2;
   public static final int FLAG_DETECT_ACCESS_UNITS = 1 << 3;
   public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 1 << 4;
+  public static final int FLAG_OVERRIDE_CAPTION_DESCRIPTORS = 1 << 5;
+
+  private static final int DESCRIPTOR_TAG_CAPTION_SERVICE = 0x86;
 
   @Flags private final int flags;
   private final List<Format> closedCaptionFormats;
 
   public DefaultTsPayloadReaderFactory() {
-    this(0);
+    this(0, Collections.<Format>emptyList());
   }
 
   /**
    * @param flags A combination of {@code FLAG_*} values, which control the behavior of the created
    *     readers.
-   */
-  public DefaultTsPayloadReaderFactory(@Flags int flags) {
-    this(flags, Collections.singletonList(Format.createTextSampleFormat(null,
-        MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null)));
-  }
-
-  /**
-   * @param flags A combination of {@code FLAG_*} values, which control the behavior of the created
-   *     readers.
-   * @param closedCaptionFormats {@link Format}s to be exposed by elementary stream readers for
-   *     streams with embedded closed captions.
+   * @param closedCaptionFormats {@link Format}s to be exposed by payload readers for streams with
+   *     embedded closed captions when no caption service descriptors are provided. If
+   *     {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, {@code closedCaptionFormats} overrides
+   *     any descriptor information. If not set, and {@code closedCaptionFormats} is empty, a
+   *     closed caption track with {@link Format#accessibilityChannel} {@link Format#NO_VALUE} will
+   *     be exposed.
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags, List<Format> closedCaptionFormats) {
     this.flags = flags;
+    if (!isSet(FLAG_OVERRIDE_CAPTION_DESCRIPTORS) && closedCaptionFormats.isEmpty()) {
+      closedCaptionFormats = Collections.singletonList(Format.createTextSampleFormat(null,
+          MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null));
+    }
     this.closedCaptionFormats = closedCaptionFormats;
   }
 
@@ -95,10 +100,10 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         return new PesReader(new H262Reader());
       case TsExtractor.TS_STREAM_TYPE_H264:
         return isSet(FLAG_IGNORE_H264_STREAM) ? null
-            : new PesReader(new H264Reader(buildSeiReader(), isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES),
-                isSet(FLAG_DETECT_ACCESS_UNITS)));
+            : new PesReader(new H264Reader(buildSeiReader(esInfo),
+                isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES), isSet(FLAG_DETECT_ACCESS_UNITS)));
       case TsExtractor.TS_STREAM_TYPE_H265:
-        return new PesReader(new H265Reader(buildSeiReader()));
+        return new PesReader(new H265Reader(buildSeiReader(esInfo)));
       case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:
         return isSet(FLAG_IGNORE_SPLICE_INFO_STREAM)
             ? null : new SectionReader(new SpliceInfoSectionReader());
@@ -109,8 +114,52 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     }
   }
 
-  private SeiReader buildSeiReader() {
-    // TODO: Add descriptor parsing to detect channels automatically.
+  /**
+   * If {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, returns a {@link SeiReader} for
+   * {@link #closedCaptionFormats}. If unset, parses the PMT descriptor information and returns a
+   * {@link SeiReader} for the declared formats, or {@link #closedCaptionFormats} if the descriptor
+   * is not present.
+   *
+   * @param esInfo The {@link EsInfo} passed to {@link #createPayloadReader(int, EsInfo)}.
+   * @return A {@link SeiReader} for closed caption tracks.
+   */
+  private SeiReader buildSeiReader(EsInfo esInfo) {
+    if (isSet(FLAG_OVERRIDE_CAPTION_DESCRIPTORS)) {
+      return new SeiReader(closedCaptionFormats);
+    }
+    ParsableByteArray scratchDescriptorData = new ParsableByteArray(esInfo.descriptorBytes);
+    List<Format> closedCaptionFormats = this.closedCaptionFormats;
+    while (scratchDescriptorData.bytesLeft() > 0) {
+      int descriptorTag = scratchDescriptorData.readUnsignedByte();
+      int descriptorLength = scratchDescriptorData.readUnsignedByte();
+      int nextDescriptorPosition = scratchDescriptorData.getPosition() + descriptorLength;
+      if (descriptorTag == DESCRIPTOR_TAG_CAPTION_SERVICE) {
+        // Note: see ATSC A/65 for detailed information about the caption service descriptor.
+        closedCaptionFormats = new ArrayList<>();
+        int numberOfServices = scratchDescriptorData.readUnsignedByte() & 0x1F;
+        for (int i = 0; i < numberOfServices; i++) {
+          String language = scratchDescriptorData.readString(3);
+          int captionTypeByte = scratchDescriptorData.readUnsignedByte();
+          boolean isDigital = (captionTypeByte & 0x80) != 0;
+          String mimeType;
+          int accessibilityChannel;
+          if (isDigital) {
+            mimeType = MimeTypes.APPLICATION_CEA708;
+            accessibilityChannel = captionTypeByte & 0x3F;
+          } else {
+            mimeType = MimeTypes.APPLICATION_CEA608;
+            accessibilityChannel = 1;
+          }
+          closedCaptionFormats.add(Format.createTextSampleFormat(null, mimeType, null,
+              Format.NO_VALUE, 0, language, accessibilityChannel, null));
+          // Skip easy_reader(1), wide_aspect_ratio(1), reserved(14).
+          scratchDescriptorData.skipBytes(2);
+        }
+      } else {
+        // Unknown descriptor. Ignore.
+      }
+      scratchDescriptorData.setPosition(nextDescriptorPosition);
+    }
     return new SeiReader(closedCaptionFormats);
   }
 

@@ -356,6 +356,10 @@ import java.util.concurrent.atomic.AtomicInteger;
       // This flag ensures the change of pid between streams does not affect the sample queues.
       @DefaultTsPayloadReaderFactory.Flags
       int esReaderFactoryFlags = DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM;
+      if (!muxedCaptionFormats.isEmpty()) {
+        // The playlist declares closed caption renditions, we should ignore descriptors.
+        esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS;
+      }
       String codecs = trackFormat.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
