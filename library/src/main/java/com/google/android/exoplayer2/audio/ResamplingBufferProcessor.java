@@ -30,6 +30,7 @@ import java.nio.ByteOrder;
   private int encoding;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
+  private boolean inputEnded;
 
   /**
    * Creates a new buffer processor that converts audio data to {@link C#ENCODING_PCM_16BIT}.
@@ -146,14 +147,26 @@ import java.nio.ByteOrder;
   }
 
   @Override
+  public void queueEndOfStream() {
+    inputEnded = true;
+  }
+
+  @SuppressWarnings("ReferenceEquality")
+  @Override
+  public boolean isEnded() {
+    return inputEnded && outputBuffer == EMPTY_BUFFER;
+  }
+
+  @Override
   public void flush() {
     outputBuffer = EMPTY_BUFFER;
+    inputEnded = false;
   }
 
   @Override
   public void release() {
+    flush();
     buffer = EMPTY_BUFFER;
-    outputBuffer = EMPTY_BUFFER;
   }
 
 }

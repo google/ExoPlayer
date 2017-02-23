@@ -54,8 +54,8 @@ import java.util.ArrayList;
  * safe to call {@link #handleBuffer(ByteBuffer, long)} after {@link #reset()} without calling
  * {@link #configure(String, int, int, int, int)}.
  * <p>
- * Call {@link #handleEndOfStream()} to play out all data when no more input buffers will be
- * provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #reset}. Call
+ * Call {@link #playToEndOfStream()} repeatedly to play out all data when no more input buffers will
+ * be provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #reset}. Call
  * {@link #release()} when the instance is no longer required.
  */
 public final class AudioTrack {
@@ -324,6 +324,8 @@ public final class AudioTrack {
   private ByteBuffer outputBuffer;
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
+  private int drainingBufferProcessorIndex;
+  private boolean handledEndOfStream;
 
   private boolean playing;
   private int audioSessionId;
@@ -366,6 +368,7 @@ public final class AudioTrack {
     startMediaTimeState = START_NOT_SET;
     streamType = C.STREAM_TYPE_DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    drainingBufferProcessorIndex = C.INDEX_UNSET;
     this.bufferProcessors = new BufferProcessor[0];
     outputBuffers = new ByteBuffer[0];
   }
@@ -762,7 +765,8 @@ public final class AudioTrack {
     int count = bufferProcessors.length;
     int index = count;
     while (index >= 0) {
-      ByteBuffer input = index > 0 ? outputBuffers[index - 1] : inputBuffer;
+      ByteBuffer input = index > 0 ? outputBuffers[index - 1]
+          : (inputBuffer != null ? inputBuffer : BufferProcessor.EMPTY_BUFFER);
       if (index == count) {
         writeBuffer(input, avSyncPresentationTimeUs);
       } else {
@@ -851,14 +855,54 @@ public final class AudioTrack {
   }
 
   /**
-   * Ensures that the last data passed to {@link #handleBuffer(ByteBuffer, long)} is played in full.
+   * Plays out remaining audio. {@link #isEnded()} will return {@code true} when playback has ended.
+   *
+   * @throws WriteException If an error occurs draining data to the track.
    */
-  public void handleEndOfStream() {
-    if (isInitialized()) {
-      // TODO: Drain buffer processors before stopping the AudioTrack.
-      audioTrackUtil.handleEndOfStream(getWrittenFrames());
-      bytesUntilNextAvSync = 0;
+  public void playToEndOfStream() throws WriteException {
+    if (handledEndOfStream || !isInitialized()) {
+      return;
     }
+
+    // Drain the buffer processors.
+    boolean bufferProcessorNeedsEndOfStream = false;
+    if (drainingBufferProcessorIndex == C.INDEX_UNSET) {
+      drainingBufferProcessorIndex = passthrough ? bufferProcessors.length : 0;
+      bufferProcessorNeedsEndOfStream = true;
+    }
+    while (drainingBufferProcessorIndex < bufferProcessors.length) {
+      BufferProcessor bufferProcessor = bufferProcessors[drainingBufferProcessorIndex];
+      if (bufferProcessorNeedsEndOfStream) {
+        bufferProcessor.queueEndOfStream();
+      }
+      processBuffers(C.TIME_UNSET);
+      if (!bufferProcessor.isEnded()) {
+        return;
+      }
+      bufferProcessorNeedsEndOfStream = true;
+      drainingBufferProcessorIndex++;
+    }
+
+    // Finish writing any remaining output to the track.
+    if (outputBuffer != null) {
+      writeBuffer(outputBuffer, C.TIME_UNSET);
+      if (outputBuffer != null) {
+        return;
+      }
+    }
+
+    // Drain the track.
+    audioTrackUtil.handleEndOfStream(getWrittenFrames());
+    bytesUntilNextAvSync = 0;
+    handledEndOfStream = true;
+  }
+
+  /**
+   * Returns whether all buffers passed to {@link #handleBuffer(ByteBuffer, long)} have been
+   * completely processed and played.
+   */
+  public boolean isEnded() {
+    return !isInitialized() || (handledEndOfStream && !hasPendingData());
   }
 
   /**
@@ -1003,6 +1047,8 @@ public final class AudioTrack {
         bufferProcessor.flush();
         outputBuffers[i] = bufferProcessor.getOutput();
       }
+      handledEndOfStream = false;
+      drainingBufferProcessorIndex = C.INDEX_UNSET;
       avSyncHeader = null;
       bytesUntilNextAvSync = 0;
       startMediaTimeState = START_NOT_SET;
