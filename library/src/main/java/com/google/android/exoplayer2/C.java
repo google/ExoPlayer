@@ -444,11 +444,11 @@ public final class C {
   public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
-   * UUID for the
-   * <a href="https://w3c.github.io/encrypted-media/format-registry/initdata/cenc.html">CENC DRM
-   * scheme</a>.
+   * UUID for the ClearKey DRM scheme.
+   * <p>
+   * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
    */
-  public static final UUID CENC_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+  public static final UUID CLEARKEY_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
 
   /**
    * UUID for the Widevine DRM scheme.

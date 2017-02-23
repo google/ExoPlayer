@@ -341,10 +341,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
           schemeInitData = psshData;
         }
       }
-      if (Util.SDK_INT < 26 && C.CENC_UUID.equals(uuid)
+      if (Util.SDK_INT < 26 && C.CLEARKEY_UUID.equals(uuid)
           && (MimeTypes.VIDEO_MP4.equals(schemeMimeType)
           || MimeTypes.AUDIO_MP4.equals(schemeMimeType))) {
-        // Prior to API level 26 the CDM only accepted "cenc" as the scheme mime type.
+        // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
         schemeMimeType = CENC_SCHEME_MIME_TYPE;
       }
     }
