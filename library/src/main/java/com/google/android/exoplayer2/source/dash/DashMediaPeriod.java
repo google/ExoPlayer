@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
+import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
@@ -27,12 +28,12 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
-import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.SchemeValuePair;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,16 +57,16 @@ import java.util.List;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private CompositeSequenceableLoader sequenceableLoader;
   private DashManifest manifest;
-  private int index;
-  private Period period;
+  private int periodIndex;
+  private List<AdaptationSet> adaptationSets;
 
-  public DashMediaPeriod(int id, DashManifest manifest, int index,
+  public DashMediaPeriod(int id, DashManifest manifest, int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
       EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
       LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator) {
     this.id = id;
     this.manifest = manifest;
-    this.index = index;
+    this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
@@ -74,17 +75,17 @@ import java.util.List;
     this.allocator = allocator;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
-    period = manifest.getPeriod(index);
-    trackGroups = buildTrackGroups(period);
+    adaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
+    trackGroups = buildTrackGroups(adaptationSets);
   }
 
-  public void updateManifest(DashManifest manifest, int index) {
+  public void updateManifest(DashManifest manifest, int periodIndex) {
     this.manifest = manifest;
-    this.index = index;
-    period = manifest.getPeriod(index);
+    this.periodIndex = periodIndex;
+    adaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
     if (sampleStreams != null) {
       for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-        sampleStream.getChunkSource().updateManifest(manifest, index);
+        sampleStream.getChunkSource().updateManifest(manifest, periodIndex);
       }
       callback.onContinueLoadingRequested(this);
     }
@@ -117,7 +118,7 @@ import java.util.List;
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     ArrayList<ChunkSampleStream<DashChunkSource>> sampleStreamsList = new ArrayList<>();
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] != null) {
+      if (streams[i] instanceof ChunkSampleStream) {
         @SuppressWarnings("unchecked")
         ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
         if (selections[i] == null || !mayRetainStreamFlags[i]) {
@@ -126,11 +127,21 @@ import java.util.List;
         } else {
           sampleStreamsList.add(stream);
         }
+      } else if (streams[i] instanceof EmptySampleStream && selections[i] == null) {
+        // TODO: Release streams for cea-608 and emsg tracks.
+        streams[i] = null;
       }
       if (streams[i] == null && selections[i] != null) {
-        ChunkSampleStream<DashChunkSource> stream = buildSampleStream(selections[i], positionUs);
-        sampleStreamsList.add(stream);
-        streams[i] = stream;
+        int adaptationSetIndex = trackGroups.indexOf(selections[i].getTrackGroup());
+        if (adaptationSetIndex < adaptationSets.size()) {
+          ChunkSampleStream<DashChunkSource> stream = buildSampleStream(adaptationSetIndex,
+              selections[i], positionUs);
+          sampleStreamsList.add(stream);
+          streams[i] = stream;
+        } else {
+          // TODO: Output streams for cea-608 and emsg tracks.
+          streams[i] = new EmptySampleStream();
+        }
         streamResetFlags[i] = true;
       }
     }
@@ -184,35 +195,50 @@ import java.util.List;
 
   // Internal methods.
 
-  private static TrackGroupArray buildTrackGroups(Period period) {
-    TrackGroup[] trackGroupArray = new TrackGroup[period.adaptationSets.size()];
-    for (int i = 0; i < period.adaptationSets.size(); i++) {
-      AdaptationSet adaptationSet = period.adaptationSets.get(i);
+  private static TrackGroupArray buildTrackGroups(List<AdaptationSet> adaptationSets) {
+    int adaptationSetCount = adaptationSets.size();
+    int eventMessageTrackCount = getEventMessageTrackCount(adaptationSets);
+    int cea608TrackCount = getCea608TrackCount(adaptationSets);
+    TrackGroup[] trackGroupArray = new TrackGroup[adaptationSetCount + eventMessageTrackCount
+        + cea608TrackCount];
+    int eventMessageTrackIndex = 0;
+    int cea608TrackIndex = 0;
+    for (int i = 0; i < adaptationSetCount; i++) {
+      AdaptationSet adaptationSet = adaptationSets.get(i);
       List<Representation> representations = adaptationSet.representations;
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
         formats[j] = representations.get(j).format;
       }
       trackGroupArray[i] = new TrackGroup(formats);
+      if (hasEventMessageTrack(adaptationSet)) {
+        Format format = Format.createSampleFormat(adaptationSet.id + ":emsg",
+            MimeTypes.APPLICATION_EMSG, null, Format.NO_VALUE, null);
+        trackGroupArray[adaptationSetCount + eventMessageTrackIndex++] = new TrackGroup(format);
+      }
+      if (hasCea608Track(adaptationSet)) {
+        Format format = Format.createTextSampleFormat(adaptationSet.id + ":cea608",
+            MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null);
+        trackGroupArray[adaptationSetCount + eventMessageTrackCount + cea608TrackIndex++] =
+            new TrackGroup(format);
+      }
     }
     return new TrackGroupArray(trackGroupArray);
   }
 
-  private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackSelection selection,
-      long positionUs) {
-    int adaptationSetIndex = trackGroups.indexOf(selection.getTrackGroup());
-    AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
+  private ChunkSampleStream<DashChunkSource> buildSampleStream(int adaptationSetIndex,
+      TrackSelection selection, long positionUs) {
+    AdaptationSet adaptationSet = adaptationSets.get(adaptationSetIndex);
     boolean enableEventMessageTrack = hasEventMessageTrack(adaptationSet);
     boolean enableCea608Track = hasCea608Track(adaptationSet);
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
-        manifestLoaderErrorThrower, manifest, index, adaptationSetIndex, selection,
+        manifestLoaderErrorThrower, manifest, periodIndex, adaptationSetIndex, selection,
         elapsedRealtimeOffset, enableEventMessageTrack, enableCea608Track);
     return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
         minLoadableRetryCount, eventDispatcher);
   }
 
-  private static int getEventMessageTrackCount(Period period) {
-    List<AdaptationSet> adaptationSets = period.adaptationSets;
+  private static int getEventMessageTrackCount(List<AdaptationSet> adaptationSets) {
     int inbandEventStreamTrackCount = 0;
     for (int i = 0; i < adaptationSets.size(); i++) {
       if (hasEventMessageTrack(adaptationSets.get(i))) {
@@ -233,8 +259,7 @@ import java.util.List;
     return false;
   }
 
-  private static int getCea608TrackCount(Period period) {
-    List<AdaptationSet> adaptationSets = period.adaptationSets;
+  private static int getCea608TrackCount(List<AdaptationSet> adaptationSets) {
     int cea608TrackCount = 0;
     for (int i = 0; i < adaptationSets.size(); i++) {
       if (hasCea608Track(adaptationSets.get(i))) {
