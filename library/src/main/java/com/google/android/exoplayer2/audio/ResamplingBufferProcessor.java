@@ -140,15 +140,15 @@ import java.nio.ByteOrder;
   }
 
   @Override
+  public void queueEndOfStream() {
+    inputEnded = true;
+  }
+
+  @Override
   public ByteBuffer getOutput() {
     ByteBuffer outputBuffer = this.outputBuffer;
     this.outputBuffer = EMPTY_BUFFER;
     return outputBuffer;
-  }
-
-  @Override
-  public void queueEndOfStream() {
-    inputEnded = true;
   }
 
   @SuppressWarnings("ReferenceEquality")
