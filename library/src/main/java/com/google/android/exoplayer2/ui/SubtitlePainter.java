@@ -266,6 +266,12 @@ import com.google.android.exoplayer2.util.Util;
       textRight = textLeft + textWidth;
     }
 
+    textWidth = textRight - textLeft;
+    if (textWidth <= 0) {
+      Log.w(TAG, "Skipped drawing subtitle cue (invalid horizontal positioning)");
+      return;
+    }
+
     int textTop;
     if (cueLine != Cue.DIMEN_UNSET) {
       int anchorPosition;
@@ -291,8 +297,6 @@ import com.google.android.exoplayer2.util.Util;
     } else {
       textTop = parentBottom - textHeight - (int) (parentHeight * bottomPaddingFraction);
     }
-
-    textWidth = textRight - textLeft;
 
     // Update the derived drawing variables.
     this.textLayout = new StaticLayout(cueText, textPaint, textWidth, textAlignment, spacingMult,
