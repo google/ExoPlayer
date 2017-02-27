@@ -42,16 +42,18 @@ public interface BufferProcessor {
   ByteBuffer EMPTY_BUFFER = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
 
   /**
-   * Configures the processor to process input buffers with the specified format and returns whether
-   * the processor must be flushed. After calling this method, {@link #isActive()} returns whether
-   * the processor needs to handle buffers; if not, the processor will not accept any buffers until
-   * it is reconfigured. {@link #getOutputChannelCount()} and {@link #getOutputEncoding()} return
-   * the processor's output format.
+   * Configures the processor to process input buffers with the specified format. After calling this
+   * method, {@link #isActive()} returns whether the processor needs to handle buffers; if not, the
+   * processor will not accept any buffers until it is reconfigured. Returns {@code true} if the
+   * processor must be flushed, or if the value returned by {@link #isActive()} has changed as a
+   * result of the call. If it's active, {@link #getOutputChannelCount()} and
+   * {@link #getOutputEncoding()} return the processor's output format.
    *
    * @param sampleRateHz The sample rate of input audio in Hz.
    * @param channelCount The number of interleaved channels in input audio.
    * @param encoding The encoding of input audio.
-   * @return Whether the processor must be flushed.
+   * @return {@code true} if the processor must be flushed or the value returned by
+   *     {@link #isActive()} has changed as a result of the call.
    * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
    */
   boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
