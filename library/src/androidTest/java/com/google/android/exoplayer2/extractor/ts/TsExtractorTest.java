@@ -75,7 +75,8 @@ public final class TsExtractorTest extends InstrumentationTestCase {
 
   public void testCustomPesReader() throws Exception {
     CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(true, false);
-    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory, false);
+    TsExtractor tsExtractor = new TsExtractor(TsExtractor.MODE_NORMAL, new TimestampAdjuster(0),
+        factory);
     FakeExtractorInput input = new FakeExtractorInput.Builder()
         .setData(TestUtil.getByteArray(getInstrumentation(), "ts/sample.ts"))
         .setSimulateIOErrors(false)
@@ -99,7 +100,8 @@ public final class TsExtractorTest extends InstrumentationTestCase {
 
   public void testCustomInitialSectionReader() throws Exception {
     CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(false, true);
-    TsExtractor tsExtractor = new TsExtractor(new TimestampAdjuster(0), factory, false);
+    TsExtractor tsExtractor = new TsExtractor(TsExtractor.MODE_NORMAL, new TimestampAdjuster(0),
+        factory);
     FakeExtractorInput input = new FakeExtractorInput.Builder()
         .setData(TestUtil.getByteArray(getInstrumentation(), "ts/sample_with_sdt.ts"))
         .setSimulateIOErrors(false)
