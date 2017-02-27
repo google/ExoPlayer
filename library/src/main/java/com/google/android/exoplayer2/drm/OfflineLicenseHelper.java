@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.drm;
 
 import android.media.MediaDrm;
-import android.net.Uri;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -27,24 +26,14 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
-import com.google.android.exoplayer2.source.chunk.InitializationChunk;
+import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
-import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
-import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceInputStream;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -57,28 +46,6 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   private final ConditionVariable conditionVariable;
   private final DefaultDrmSessionManager<T> drmSessionManager;
   private final HandlerThread handlerThread;
-
-  /**
-   * Helper method to download a DASH manifest.
-   *
-   * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
-   * @param manifestUriString The URI of the manifest to be read.
-   * @return An instance of {@link DashManifest}.
-   * @throws IOException If an error occurs reading data from the stream.
-   * @see DashManifestParser
-   */
-  public static DashManifest downloadManifest(HttpDataSource dataSource, String manifestUriString)
-      throws IOException {
-    DataSourceInputStream inputStream = new DataSourceInputStream(
-        dataSource, new DataSpec(Uri.parse(manifestUriString)));
-    try {
-      inputStream.open();
-      DashManifestParser parser = new DashManifestParser();
-      return parser.parse(dataSource.getUri(), inputStream);
-    } finally {
-      inputStream.close();
-    }
-  }
 
   /**
    * Instantiates a new instance which uses Widevine CDM. Call {@link #releaseResources()} when
@@ -174,7 +141,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    */
   public byte[] download(HttpDataSource dataSource, String manifestUriString)
       throws IOException, InterruptedException, DrmSessionException {
-    return download(dataSource, downloadManifest(dataSource, manifestUriString));
+    return download(dataSource, DashUtil.loadManifest(dataSource, manifestUriString));
   }
 
   /**
@@ -210,14 +177,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     Representation representation = adaptationSet.representations.get(0);
     DrmInitData drmInitData = representation.format.drmInitData;
     if (drmInitData == null) {
-      ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format,
+      Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation,
           adaptationSet.type);
-      InitializationChunk initializationChunk = loadInitializationChunk(dataSource, representation,
-          extractorWrapper);
-      if (initializationChunk == null) {
-        return null;
-      }
-      Format sampleFormat = extractorWrapper.getSampleFormat();
       if (sampleFormat != null) {
         drmInitData = sampleFormat.drmInitData;
       }
@@ -289,30 +250,6 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     // Block current thread until key loading is finished
     conditionVariable.block();
     return session;
-  }
-
-  private static InitializationChunk loadInitializationChunk(DataSource dataSource,
-      Representation representation, ChunkExtractorWrapper extractorWrapper)
-      throws IOException, InterruptedException {
-    RangedUri rangedUri = representation.getInitializationUri();
-    if (rangedUri == null) {
-      return null;
-    }
-    DataSpec dataSpec = new DataSpec(rangedUri.resolveUri(representation.baseUrl), rangedUri.start,
-        rangedUri.length, representation.getCacheKey());
-    InitializationChunk initializationChunk = new InitializationChunk(dataSource, dataSpec,
-        representation.format, C.SELECTION_REASON_UNKNOWN, null /* trackSelectionData */,
-        extractorWrapper);
-    initializationChunk.load();
-    return initializationChunk;
-  }
-
-  private static ChunkExtractorWrapper newWrappedExtractor(Format format, int trackType) {
-    final String mimeType = format.containerMimeType;
-    final boolean isWebm = mimeType.startsWith(MimeTypes.VIDEO_WEBM)
-        || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
-    final Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, format, trackType);
   }
 
 }
