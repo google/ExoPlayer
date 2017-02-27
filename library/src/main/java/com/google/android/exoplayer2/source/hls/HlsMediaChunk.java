@@ -372,8 +372,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
         }
       }
-      extractor = new TsExtractor(timestampAdjuster,
-          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, muxedCaptionFormats), true);
+      extractor = new TsExtractor(TsExtractor.MODE_HLS, timestampAdjuster,
+          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, muxedCaptionFormats));
     }
     if (usingNewExtractor) {
       extractor.init(extractorOutput);
