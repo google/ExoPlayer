@@ -270,6 +270,7 @@ public final class AudioTrack {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final AudioCapabilities audioCapabilities;
+  private final ChannelMappingBufferProcessor channelMappingBufferProcessor;
   private final BufferProcessor[] availableBufferProcessors;
   private final Listener listener;
   private final ConditionVariable releasingConditionVariable;
@@ -343,9 +344,11 @@ public final class AudioTrack {
   public AudioTrack(AudioCapabilities audioCapabilities, BufferProcessor[] bufferProcessors,
       Listener listener) {
     this.audioCapabilities = audioCapabilities;
-    availableBufferProcessors = new BufferProcessor[bufferProcessors.length + 1];
+    channelMappingBufferProcessor = new ChannelMappingBufferProcessor();
+    availableBufferProcessors = new BufferProcessor[bufferProcessors.length + 2];
     availableBufferProcessors[0] = new ResamplingBufferProcessor();
-    System.arraycopy(bufferProcessors, 0, availableBufferProcessors, 1, bufferProcessors.length);
+    availableBufferProcessors[1] = channelMappingBufferProcessor;
+    System.arraycopy(bufferProcessors, 0, availableBufferProcessors, 2, bufferProcessors.length);
     this.listener = listener;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
@@ -449,6 +452,30 @@ public final class AudioTrack {
    */
   public void configure(String mimeType, int channelCount, int sampleRate,
       @C.PcmEncoding int pcmEncoding, int specifiedBufferSize) throws ConfigurationException {
+    configure(mimeType, channelCount, sampleRate, pcmEncoding, specifiedBufferSize, null);
+  }
+
+  /**
+   * Configures (or reconfigures) the audio track.
+   *
+   * @param mimeType The mime type.
+   * @param channelCount The number of channels.
+   * @param sampleRate The sample rate in Hz.
+   * @param pcmEncoding For PCM formats, the encoding used. One of {@link C#ENCODING_PCM_16BIT},
+   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
+   *     {@link C#ENCODING_PCM_32BIT}.
+   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
+   *     suitable buffer size automatically.
+   * @param outputChannels A mapping from input to output channels that is applied to this track's
+   *     input as a preprocessing step, if handling PCM input. Specify {@code null} to leave the
+   *     input unchanged. Otherwise, the element at index {@code i} specifies index of the input
+   *     channel to map to output channel {@code i} when preprocessing input buffers. After the
+   *     map is applied the audio data will have {@code outputChannels.length} channels.
+   * @throws ConfigurationException If an error occurs configuring the track.
+   */
+  public void configure(String mimeType, int channelCount, int sampleRate,
+      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize, int[] outputChannels)
+      throws ConfigurationException {
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     @C.Encoding int encoding = passthrough ? getEncodingForMimeType(mimeType) : pcmEncoding;
     boolean flush = false;
@@ -456,17 +483,15 @@ public final class AudioTrack {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
 
       // Reconfigure the buffer processors.
+      channelMappingBufferProcessor.setChannelMap(outputChannels);
       ArrayList<BufferProcessor> newBufferProcessors = new ArrayList<>();
       for (BufferProcessor bufferProcessor : availableBufferProcessors) {
-        boolean wasActive = bufferProcessor.isActive();
         try {
           flush |= bufferProcessor.configure(sampleRate, channelCount, encoding);
         } catch (BufferProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
-        boolean isActive = bufferProcessor.isActive();
-        flush |= isActive != wasActive;
-        if (isActive) {
+        if (bufferProcessor.isActive()) {
           newBufferProcessors.add(bufferProcessor);
           channelCount = bufferProcessor.getOutputChannelCount();
           encoding = bufferProcessor.getOutputEncoding();
