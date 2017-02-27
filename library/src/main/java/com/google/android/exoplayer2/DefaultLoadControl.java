@@ -51,11 +51,6 @@ public final class DefaultLoadControl implements LoadControl {
    */
   public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS  = 5000;
 
-  /**
-   * Priority for media loading.
-   */
-  public static final int LOADING_PRIORITY = 0;
-
   private static final int ABOVE_HIGH_WATERMARK = 0;
   private static final int BETWEEN_WATERMARKS = 1;
   private static final int BELOW_LOW_WATERMARK = 2;
@@ -122,7 +117,7 @@ public final class DefaultLoadControl implements LoadControl {
    *     playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by
    *     buffer depletion rather than a user action.
    * @param priorityTaskManager If not null, registers itself as a task with priority
-   *     {@link #LOADING_PRIORITY} during loading periods, and unregisters itself during draining
+   *     {@link C#PRIORITY_PLAYBACK} during loading periods, and unregisters itself during draining
    *     periods.
    */
   public DefaultLoadControl(DefaultAllocator allocator, int minBufferMs, int maxBufferMs,
@@ -183,9 +178,9 @@ public final class DefaultLoadControl implements LoadControl {
         || (bufferTimeState == BETWEEN_WATERMARKS && isBuffering && !targetBufferSizeReached);
     if (priorityTaskManager != null && isBuffering != wasBuffering) {
       if (isBuffering) {
-        priorityTaskManager.add(LOADING_PRIORITY);
+        priorityTaskManager.add(C.PRIORITY_PLAYBACK);
       } else {
-        priorityTaskManager.remove(LOADING_PRIORITY);
+        priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
       }
     }
     return isBuffering;
@@ -199,7 +194,7 @@ public final class DefaultLoadControl implements LoadControl {
   private void reset(boolean resetAllocator) {
     targetBufferSize = 0;
     if (priorityTaskManager != null && isBuffering) {
-      priorityTaskManager.remove(LOADING_PRIORITY);
+      priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
     }
     isBuffering = false;
     if (resetAllocator) {

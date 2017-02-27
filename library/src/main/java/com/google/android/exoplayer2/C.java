@@ -549,6 +549,11 @@ public final class C {
   public static final int STEREO_MODE_STEREO_MESH = 3;
 
   /**
+   * Priority for media playback.
+   */
+  public static final int PRIORITY_PLAYBACK = 0;
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
    * {@link #TIME_UNSET} values.
    *
