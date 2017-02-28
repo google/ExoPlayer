@@ -182,7 +182,7 @@ public final class C {
    *
    */
   @SuppressWarnings("InlinedApi")
-  public static final int ENCODING_TRUE_HD = 14;
+  public static final int ENCODING_TRUE_HD = AudioFormat.ENCODING_DOLBY_TRUEHD;
   /**
    * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
    */
