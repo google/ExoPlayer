@@ -43,6 +43,9 @@ public final class GvrAudioProcessor implements AudioProcessor {
   private float y;
   private float z;
 
+  /**
+   * Creates a new GVR audio processor.
+   */
   public GvrAudioProcessor() {
     // Use the identity for the initial orientation.
     w = 1f;

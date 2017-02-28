@@ -33,7 +33,7 @@ import java.util.List;
 public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Factory {
 
   /**
-   * Flags controlling elementary stream readers behaviour.
+   * Flags controlling elementary stream readers' behavior.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_ALLOW_NON_IDR_KEYFRAMES, FLAG_IGNORE_AAC_STREAM,

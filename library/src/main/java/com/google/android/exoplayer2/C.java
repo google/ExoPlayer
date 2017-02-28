@@ -484,7 +484,7 @@ public final class C {
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link android.media.PlaybackParams}, or null, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
-   * caller after it has been passed
+   * caller after it has been passed.
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 3;
 
