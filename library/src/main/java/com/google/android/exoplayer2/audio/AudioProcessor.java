@@ -20,12 +20,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Interface for processors of audio buffers.
+ * Interface for audio processors.
  */
-public interface BufferProcessor {
+public interface AudioProcessor {
 
   /**
-   * Exception thrown when a processor can't be configured for a given input format.
+   * Exception thrown when a processor can't be configured for a given input audio format.
    */
   final class UnhandledFormatException extends Exception {
 
@@ -42,7 +42,7 @@ public interface BufferProcessor {
   ByteBuffer EMPTY_BUFFER = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
 
   /**
-   * Configures the processor to process input buffers with the specified format. After calling this
+   * Configures the processor to process input audio with the specified format. After calling this
    * method, {@link #isActive()} returns whether the processor needs to handle buffers; if not, the
    * processor will not accept any buffers until it is reconfigured. Returns {@code true} if the
    * processor must be flushed, or if the value returned by {@link #isActive()} has changed as a
@@ -111,7 +111,7 @@ public interface BufferProcessor {
   boolean isEnded();
 
   /**
-   * Clears any state in preparation for receiving a new stream of buffers.
+   * Clears any state in preparation for receiving a new stream of input buffers.
    */
   void flush();
 

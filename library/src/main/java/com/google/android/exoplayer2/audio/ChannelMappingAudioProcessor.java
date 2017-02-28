@@ -22,10 +22,10 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
- * Buffer processor that applies a mapping from input channels onto specified output channels. This
- * can be used to reorder, duplicate or discard channels.
+ * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
+ * channels. This can be used to reorder, duplicate or discard channels.
  */
-/* package */ final class ChannelMappingBufferProcessor implements BufferProcessor {
+/* package */ final class ChannelMappingAudioProcessor implements AudioProcessor {
 
   private int channelCount;
   private int sampleRateHz;
@@ -40,7 +40,7 @@ import java.util.Arrays;
   /**
    * Creates a new processor that applies a channel mapping.
    */
-  public ChannelMappingBufferProcessor() {
+  public ChannelMappingAudioProcessor() {
     buffer = EMPTY_BUFFER;
     outputBuffer = EMPTY_BUFFER;
   }

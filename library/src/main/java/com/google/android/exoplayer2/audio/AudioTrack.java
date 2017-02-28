@@ -270,8 +270,8 @@ public final class AudioTrack {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final AudioCapabilities audioCapabilities;
-  private final ChannelMappingBufferProcessor channelMappingBufferProcessor;
-  private final BufferProcessor[] availableBufferProcessors;
+  private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
+  private final AudioProcessor[] availableAudioProcessors;
   private final Listener listener;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
@@ -319,13 +319,13 @@ public final class AudioTrack {
   private long latencyUs;
   private float volume;
 
-  private BufferProcessor[] bufferProcessors;
+  private AudioProcessor[] audioProcessors;
   private ByteBuffer[] outputBuffers;
   private ByteBuffer inputBuffer;
   private ByteBuffer outputBuffer;
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
-  private int drainingBufferProcessorIndex;
+  private int drainingAudioProcessorIndex;
   private boolean handledEndOfStream;
 
   private boolean playing;
@@ -337,18 +337,18 @@ public final class AudioTrack {
   /**
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param bufferProcessors An array of {@link BufferProcessor}s which will process PCM audio
-   *     buffers before they are output. May be empty.
+   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio before
+   *     output. May be empty.
    * @param listener Listener for audio track events.
    */
-  public AudioTrack(AudioCapabilities audioCapabilities, BufferProcessor[] bufferProcessors,
+  public AudioTrack(AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors,
       Listener listener) {
     this.audioCapabilities = audioCapabilities;
-    channelMappingBufferProcessor = new ChannelMappingBufferProcessor();
-    availableBufferProcessors = new BufferProcessor[bufferProcessors.length + 2];
-    availableBufferProcessors[0] = new ResamplingBufferProcessor();
-    availableBufferProcessors[1] = channelMappingBufferProcessor;
-    System.arraycopy(bufferProcessors, 0, availableBufferProcessors, 2, bufferProcessors.length);
+    channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
+    availableAudioProcessors = new AudioProcessor[audioProcessors.length + 2];
+    availableAudioProcessors[0] = new ResamplingAudioProcessor();
+    availableAudioProcessors[1] = channelMappingAudioProcessor;
+    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 2, audioProcessors.length);
     this.listener = listener;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
@@ -371,8 +371,8 @@ public final class AudioTrack {
     startMediaTimeState = START_NOT_SET;
     streamType = C.STREAM_TYPE_DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-    drainingBufferProcessorIndex = C.INDEX_UNSET;
-    this.bufferProcessors = new BufferProcessor[0];
+    drainingAudioProcessorIndex = C.INDEX_UNSET;
+    this.audioProcessors = new AudioProcessor[0];
     outputBuffers = new ByteBuffer[0];
   }
 
@@ -482,32 +482,32 @@ public final class AudioTrack {
     if (!passthrough) {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
 
-      // Reconfigure the buffer processors.
-      channelMappingBufferProcessor.setChannelMap(outputChannels);
-      ArrayList<BufferProcessor> newBufferProcessors = new ArrayList<>();
-      for (BufferProcessor bufferProcessor : availableBufferProcessors) {
+      // Reconfigure the audio processors.
+      channelMappingAudioProcessor.setChannelMap(outputChannels);
+      ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
+      for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          flush |= bufferProcessor.configure(sampleRate, channelCount, encoding);
-        } catch (BufferProcessor.UnhandledFormatException e) {
+          flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
+        } catch (AudioProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
-        if (bufferProcessor.isActive()) {
-          newBufferProcessors.add(bufferProcessor);
-          channelCount = bufferProcessor.getOutputChannelCount();
-          encoding = bufferProcessor.getOutputEncoding();
+        if (audioProcessor.isActive()) {
+          newAudioProcessors.add(audioProcessor);
+          channelCount = audioProcessor.getOutputChannelCount();
+          encoding = audioProcessor.getOutputEncoding();
         } else {
-          bufferProcessor.flush();
+          audioProcessor.flush();
         }
       }
 
       if (flush) {
-        int count = newBufferProcessors.size();
-        bufferProcessors = newBufferProcessors.toArray(new BufferProcessor[count]);
+        int count = newAudioProcessors.size();
+        audioProcessors = newAudioProcessors.toArray(new AudioProcessor[count]);
         outputBuffers = new ByteBuffer[count];
         for (int i = 0; i < count; i++) {
-          BufferProcessor bufferProcessor = bufferProcessors[i];
-          bufferProcessor.flush();
-          outputBuffers[i] = bufferProcessor.getOutput();
+          AudioProcessor audioProcessor = audioProcessors[i];
+          audioProcessor.flush();
+          outputBuffers[i] = audioProcessor.getOutput();
         }
       }
     }
@@ -787,20 +787,20 @@ public final class AudioTrack {
   }
 
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
-    int count = bufferProcessors.length;
+    int count = audioProcessors.length;
     int index = count;
     while (index >= 0) {
       ByteBuffer input = index > 0 ? outputBuffers[index - 1]
-          : (inputBuffer != null ? inputBuffer : BufferProcessor.EMPTY_BUFFER);
+          : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
       if (index == count) {
         writeBuffer(input, avSyncPresentationTimeUs);
       } else {
-        BufferProcessor bufferProcessor = bufferProcessors[index];
-        bufferProcessor.queueInput(input);
-        ByteBuffer output = bufferProcessor.getOutput();
+        AudioProcessor audioProcessor = audioProcessors[index];
+        audioProcessor.queueInput(input);
+        ByteBuffer output = audioProcessor.getOutput();
         outputBuffers[index] = output;
         if (output.hasRemaining()) {
-          // Handle the output as input to the next buffer processor or the AudioTrack.
+          // Handle the output as input to the next audio processor or the AudioTrack.
           index++;
           continue;
         }
@@ -889,23 +889,23 @@ public final class AudioTrack {
       return;
     }
 
-    // Drain the buffer processors.
-    boolean bufferProcessorNeedsEndOfStream = false;
-    if (drainingBufferProcessorIndex == C.INDEX_UNSET) {
-      drainingBufferProcessorIndex = passthrough ? bufferProcessors.length : 0;
-      bufferProcessorNeedsEndOfStream = true;
+    // Drain the audio processors.
+    boolean audioProcessorNeedsEndOfStream = false;
+    if (drainingAudioProcessorIndex == C.INDEX_UNSET) {
+      drainingAudioProcessorIndex = passthrough ? audioProcessors.length : 0;
+      audioProcessorNeedsEndOfStream = true;
     }
-    while (drainingBufferProcessorIndex < bufferProcessors.length) {
-      BufferProcessor bufferProcessor = bufferProcessors[drainingBufferProcessorIndex];
-      if (bufferProcessorNeedsEndOfStream) {
-        bufferProcessor.queueEndOfStream();
+    while (drainingAudioProcessorIndex < audioProcessors.length) {
+      AudioProcessor audioProcessor = audioProcessors[drainingAudioProcessorIndex];
+      if (audioProcessorNeedsEndOfStream) {
+        audioProcessor.queueEndOfStream();
       }
       processBuffers(C.TIME_UNSET);
-      if (!bufferProcessor.isEnded()) {
+      if (!audioProcessor.isEnded()) {
         return;
       }
-      bufferProcessorNeedsEndOfStream = true;
-      drainingBufferProcessorIndex++;
+      audioProcessorNeedsEndOfStream = true;
+      drainingAudioProcessorIndex++;
     }
 
     // Finish writing any remaining output to the track.
@@ -989,8 +989,8 @@ public final class AudioTrack {
    * Enables tunneling. The audio track is reset if tunneling was previously disabled or if the
    * audio session id has changed. Enabling tunneling requires platform API version 21 onwards.
    * <p>
-   * If this instance has {@link BufferProcessor}s and tunneling is enabled, care must be taken that
-   * buffer processors do not output buffers with a different duration than their input, and buffer
+   * If this instance has {@link AudioProcessor}s and tunneling is enabled, care must be taken that
+   * audio processors do not output buffers with a different duration than their input, and buffer
    * processors must produce output corresponding to their last input immediately after that input
    * is queued.
    *
@@ -1067,13 +1067,13 @@ public final class AudioTrack {
       framesPerEncodedSample = 0;
       inputBuffer = null;
       outputBuffer = null;
-      for (int i = 0; i < bufferProcessors.length; i++) {
-        BufferProcessor bufferProcessor = bufferProcessors[i];
-        bufferProcessor.flush();
-        outputBuffers[i] = bufferProcessor.getOutput();
+      for (int i = 0; i < audioProcessors.length; i++) {
+        AudioProcessor audioProcessor = audioProcessors[i];
+        audioProcessor.flush();
+        outputBuffers[i] = audioProcessor.getOutput();
       }
       handledEndOfStream = false;
-      drainingBufferProcessorIndex = C.INDEX_UNSET;
+      drainingAudioProcessorIndex = C.INDEX_UNSET;
       avSyncHeader = null;
       bytesUntilNextAvSync = 0;
       startMediaTimeState = START_NOT_SET;
@@ -1108,8 +1108,8 @@ public final class AudioTrack {
   public void release() {
     reset();
     releaseKeepSessionIdAudioTrack();
-    for (BufferProcessor bufferProcessor : availableBufferProcessors) {
-      bufferProcessor.release();
+    for (AudioProcessor audioProcessor : availableAudioProcessors) {
+      audioProcessor.release();
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     playing = false;
