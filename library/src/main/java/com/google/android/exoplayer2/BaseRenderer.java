@@ -255,6 +255,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   /**
+   * Use {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)} instead.
+   */
+  @Deprecated
+  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+    return readSource(formatHolder, buffer, false);
+  }
+
+  /**
    * Reads from the enabled upstream source. If the upstream source has been read to the end then
    * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
