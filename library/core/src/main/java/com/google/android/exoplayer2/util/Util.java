@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
@@ -851,6 +852,17 @@ public final class Util {
     } else {
       return C.TYPE_OTHER;
     }
+  }
+
+  /**
+   * Returns the whether the device can output 32bit float audio
+   *
+   * @param capabilities The audio capabilities of the device.
+   * @param channelCount The channel count.
+   */
+  public static boolean canHandle32BitFloatAudio(AudioCapabilities capabilities, int channelCount) {
+    return (capabilities != null && capabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
+     && ((Util.SDK_INT > 20 && channelCount <= 2) || (Util.SDK_INT >= 24)));
   }
 
   /**
