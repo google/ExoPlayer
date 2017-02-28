@@ -118,10 +118,13 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param audioProcessors Optional {@link AudioProcessor}s which will process PCM audio buffers
+   *     before they are output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities) {
-    this(eventHandler, eventListener, audioCapabilities, null, false);
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
+      AudioProcessor... audioProcessors) {
+    this(eventHandler, eventListener, audioCapabilities, null, false, audioProcessors);
   }
 
   /**

@@ -53,7 +53,8 @@ import java.nio.ByteOrder;
                            @C.PcmEncoding int outputEncoding)
       throws UnhandledFormatException {
     if (encoding != C.ENCODING_PCM_8BIT && encoding != C.ENCODING_PCM_16BIT
-        && encoding != C.ENCODING_PCM_24BIT && encoding != C.ENCODING_PCM_32BIT) {
+        && encoding != C.ENCODING_PCM_24BIT && encoding != C.ENCODING_PCM_32BIT
+        && encoding != C.ENCODING_PCM_FLOAT) {
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
     if (this.sampleRateHz == sampleRateHz && this.channelCount == channelCount
@@ -70,13 +71,17 @@ import java.nio.ByteOrder;
     if (encoding == C.ENCODING_PCM_16BIT) {
       buffer = EMPTY_BUFFER;
     }
+    else if (encoding == C.ENCODING_PCM_FLOAT && outputEncoding == C.ENCODING_PCM_FLOAT) {
+      buffer = EMPTY_BUFFER;
+    }
 
     return true;
   }
 
   @Override
   public boolean isActive() {
-    return sourceEncoding != C.ENCODING_INVALID && sourceEncoding != C.ENCODING_PCM_16BIT;
+    return sourceEncoding != C.ENCODING_INVALID && sourceEncoding != C.ENCODING_PCM_16BIT
+     && sourceEncoding != C.ENCODING_PCM_FLOAT;
   }
 
   @Override

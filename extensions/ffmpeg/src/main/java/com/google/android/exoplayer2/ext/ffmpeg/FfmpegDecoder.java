@@ -29,26 +29,33 @@ import java.util.List;
 /* package */ final class FfmpegDecoder extends
     SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FfmpegDecoderException> {
 
-  // Space for 64 ms of 6 channel 48 kHz 16-bit PCM audio.
-  private static final int OUTPUT_BUFFER_SIZE = 1536 * 6 * 2 * 2;
+  // Space for 64 ms of 8 channel 48 kHz 16-bit PCM audio.
+  private static final int OUTPUT_BUFFER_SIZE = 1536 * 8 * 2 * 2;
+  // Space for 64 ms of 8 channel 48 kHz 32-bit PCM audio.
+  private static final int OUTPUT_BUFFER_SIZE_32BIT = OUTPUT_BUFFER_SIZE * 2;
 
   private final String codecName;
   private final byte[] extraData;
 
   private long nativeContext; // May be reassigned on resetting the codec.
   private boolean hasOutputFormat;
+  private final boolean use32BitFloatOutput;
+  private final int outputBufferSize;
   private volatile int channelCount;
   private volatile int sampleRate;
 
   public FfmpegDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
-      String mimeType, List<byte[]> initializationData) throws FfmpegDecoderException {
+      String mimeType, List<byte[]> initializationData,
+      boolean use32BitFloatOutput) throws FfmpegDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!FfmpegLibrary.isAvailable()) {
       throw new FfmpegDecoderException("Failed to load decoder native libraries.");
     }
     codecName = FfmpegLibrary.getCodecName(mimeType);
     extraData = getExtraData(mimeType, initializationData);
-    nativeContext = ffmpegInitialize(codecName, extraData);
+    this.use32BitFloatOutput = use32BitFloatOutput;
+    outputBufferSize = use32BitFloatOutput ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE;
+    nativeContext = ffmpegInitialize(codecName, extraData, use32BitFloatOutput);
     if (nativeContext == 0) {
       throw new FfmpegDecoderException("Initialization failed.");
     }
@@ -74,15 +81,16 @@ import java.util.List;
   public FfmpegDecoderException decode(DecoderInputBuffer inputBuffer,
       SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
-      nativeContext = ffmpegReset(nativeContext, extraData);
+      nativeContext = ffmpegReset(nativeContext, extraData, use32BitFloatOutput);
       if (nativeContext == 0) {
         return new FfmpegDecoderException("Error resetting (see logcat).");
       }
     }
     ByteBuffer inputData = inputBuffer.data;
     int inputSize = inputData.limit();
-    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, OUTPUT_BUFFER_SIZE);
-    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, OUTPUT_BUFFER_SIZE);
+    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
+    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize,
+     use32BitFloatOutput);
     if (result < 0) {
       return new FfmpegDecoderException("Error decoding (see logcat). Code: " + result);
     }
@@ -153,12 +161,12 @@ import java.util.List;
     }
   }
 
-  private native long ffmpegInitialize(String codecName, byte[] extraData);
+  private native long ffmpegInitialize(String codecName, byte[] extraData, boolean use32BitFloatOutput);
   private native int ffmpegDecode(long context, ByteBuffer inputData, int inputSize,
-      ByteBuffer outputData, int outputSize);
+      ByteBuffer outputData, int outputSize, boolean use32BitFloatOutput);
   private native int ffmpegGetChannelCount(long context);
   private native int ffmpegGetSampleRate(long context);
-  private native long ffmpegReset(long context, byte[] extraData);
+  private native long ffmpegReset(long context, byte[] extraData, boolean use32BitFloatOutput);
   private native void ffmpegRelease(long context);
 
 }

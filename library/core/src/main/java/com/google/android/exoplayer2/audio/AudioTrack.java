@@ -1455,13 +1455,12 @@ public final class AudioTrack {
     switch (encoding) {
       case C.ENCODING_PCM_24BIT:
       case C.ENCODING_PCM_32BIT:
-        if (audioCapabilities != null && audioCapabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
-         && ((Util.SDK_INT > 20 && channelCount <=2) || (Util.SDK_INT >= 24)))
+      case C.ENCODING_PCM_FLOAT:
+        if (Util.canHandle32BitFloatAudio(audioCapabilities, channelCount))
           return C.ENCODING_PCM_FLOAT;
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_16BIT:
         return C.ENCODING_PCM_16BIT;
-      case C.ENCODING_PCM_FLOAT:
       case C.ENCODING_AC3:
       case C.ENCODING_E_AC3:
       case C.ENCODING_DTS:
