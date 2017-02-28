@@ -17,16 +17,16 @@ package com.google.android.exoplayer2.ext.gvr;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.audio.BufferProcessor;
+import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.vr.sdk.audio.GvrAudioSurround;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Buffer processor that uses {@code GvrAudioSurround} to provide binaural rendering of surround
- * sound and ambisonic soundfields.
+ * An {@link AudioProcessor} that uses {@code GvrAudioSurround} to provide binaural rendering of
+ * surround sound and ambisonic soundfields.
  */
-public final class GvrBufferProcessor implements BufferProcessor {
+public final class GvrAudioProcessor implements AudioProcessor {
 
   private static final int FRAMES_PER_OUTPUT_BUFFER = 1024;
   private static final int OUTPUT_CHANNEL_COUNT = 2;
@@ -43,7 +43,7 @@ public final class GvrBufferProcessor implements BufferProcessor {
   private float y;
   private float z;
 
-  public GvrBufferProcessor() {
+  public GvrAudioProcessor() {
     // Use the identity for the initial orientation.
     w = 1f;
     sampleRateHz = Format.NO_VALUE;

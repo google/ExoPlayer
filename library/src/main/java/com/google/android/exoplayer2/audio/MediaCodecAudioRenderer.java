@@ -123,16 +123,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
-   *     before they are output.
+   * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
+   *     output.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      BufferProcessor... bufferProcessors) {
+      AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    audioTrack = new AudioTrack(audioCapabilities, bufferProcessors, new AudioTrackListener());
+    audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 

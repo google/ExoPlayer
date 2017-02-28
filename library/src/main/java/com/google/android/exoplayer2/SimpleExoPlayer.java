@@ -28,8 +28,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.BufferProcessor;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -625,7 +625,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     buildVideoRenderers(context, mainHandler, drmSessionManager, extensionRendererMode,
         componentListener, allowedVideoJoiningTimeMs, out);
     buildAudioRenderers(context, mainHandler, drmSessionManager, extensionRendererMode,
-        componentListener, buildBufferProcessors(), out);
+        componentListener, buildAudioProcessors(), out);
     buildTextRenderers(context, mainHandler, extensionRendererMode, componentListener, out);
     buildMetadataRenderers(context, mainHandler, extensionRendererMode, componentListener, out);
     buildMiscellaneousRenderers(context, mainHandler, extensionRendererMode, out);
@@ -685,16 +685,16 @@ public class SimpleExoPlayer implements ExoPlayer {
    *     not be used for DRM protected playbacks.
    * @param extensionRendererMode The extension renderer mode.
    * @param eventListener An event listener.
-   * @param bufferProcessors An array of {@link BufferProcessor}s which will process PCM audio
-   *     buffers before they are output. May be empty.
+   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio buffers
+   *     before output. May be empty.
    * @param out An array to which the built renderers should be appended.
    */
   protected void buildAudioRenderers(Context context, Handler mainHandler,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @ExtensionRendererMode int extensionRendererMode, AudioRendererEventListener eventListener,
-      BufferProcessor[] bufferProcessors, ArrayList<Renderer> out) {
+      AudioProcessor[] audioProcessors, ArrayList<Renderer> out) {
     out.add(new MediaCodecAudioRenderer(MediaCodecSelector.DEFAULT, drmSessionManager, true,
-        mainHandler, eventListener, AudioCapabilities.getCapabilities(context), bufferProcessors));
+        mainHandler, eventListener, AudioCapabilities.getCapabilities(context), audioProcessors));
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
@@ -708,9 +708,9 @@ public class SimpleExoPlayer implements ExoPlayer {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, BufferProcessor[].class);
+          AudioRendererEventListener.class, AudioProcessor[].class);
       Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener,
-          bufferProcessors);
+          audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibopusAudioRenderer.");
     } catch (ClassNotFoundException e) {
@@ -723,9 +723,9 @@ public class SimpleExoPlayer implements ExoPlayer {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, BufferProcessor[].class);
+          AudioRendererEventListener.class, AudioProcessor[].class);
       Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener,
-          bufferProcessors);
+          audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibflacAudioRenderer.");
     } catch (ClassNotFoundException e) {
@@ -738,9 +738,9 @@ public class SimpleExoPlayer implements ExoPlayer {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, BufferProcessor[].class);
+          AudioRendererEventListener.class, AudioProcessor[].class);
       Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener,
-          bufferProcessors);
+          audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded FfmpegAudioRenderer.");
     } catch (ClassNotFoundException e) {
@@ -794,11 +794,10 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Builds an array of {@link BufferProcessor}s which will process PCM audio buffers before they
-   * are output.
+   * Builds an array of {@link AudioProcessor}s that will process PCM audio before output.
    */
-  protected BufferProcessor[] buildBufferProcessors() {
-    return new BufferProcessor[0];
+  protected AudioProcessor[] buildAudioProcessors() {
+    return new AudioProcessor[0];
   }
 
   // Internal methods.

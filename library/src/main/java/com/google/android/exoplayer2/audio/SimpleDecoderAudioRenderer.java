@@ -102,12 +102,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
-   *     before they are output.
+   * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
-      AudioRendererEventListener eventListener, BufferProcessor... bufferProcessors) {
-    this(eventHandler, eventListener, null, null, false, bufferProcessors);
+      AudioRendererEventListener eventListener, AudioProcessor... audioProcessors) {
+    this(eventHandler, eventListener, null, null, false, audioProcessors);
   }
 
   /**
@@ -135,18 +134,17 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio
-   *     buffers before they are output.
+   * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
       DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys,
-      BufferProcessor... bufferProcessors) {
+      AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    audioTrack = new AudioTrack(audioCapabilities, bufferProcessors, new AudioTrackListener());
+    audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     formatHolder = new FormatHolder();
     flagsOnlyBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;

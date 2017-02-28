@@ -21,9 +21,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * A {@link BufferProcessor} that converts audio data to {@link C#ENCODING_PCM_16BIT}.
+ * An {@link AudioProcessor} that converts audio data to {@link C#ENCODING_PCM_16BIT}.
  */
-/* package */ final class ResamplingBufferProcessor implements BufferProcessor {
+/* package */ final class ResamplingAudioProcessor implements AudioProcessor {
 
   private int sampleRateHz;
   private int channelCount;
@@ -34,9 +34,9 @@ import java.nio.ByteOrder;
   private boolean inputEnded;
 
   /**
-   * Creates a new buffer processor that converts audio data to {@link C#ENCODING_PCM_16BIT}.
+   * Creates a new audio processor that converts audio data to {@link C#ENCODING_PCM_16BIT}.
    */
-  public ResamplingBufferProcessor() {
+  public ResamplingAudioProcessor() {
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
     encoding = C.ENCODING_INVALID;
