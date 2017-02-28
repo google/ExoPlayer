@@ -68,17 +68,15 @@ public final class DashUtil {
    *
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
-   * @param type The type of the primary track. Typically one of the {@link C} {@code TRACK_TYPE_*}
-   *     constants.
    * @return the sample {@link Format} of the given representation.
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
-  public static Format loadSampleFormat(DataSource dataSource, Representation representation,
-      int type) throws IOException, InterruptedException {
+  public static Format loadSampleFormat(DataSource dataSource, Representation representation)
+      throws IOException, InterruptedException {
     ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, representation,
-        type, false);
-    return extractorWrapper == null ? null : extractorWrapper.getSampleFormat();
+        false);
+    return extractorWrapper == null ? null : extractorWrapper.getSampleFormats()[0];
   }
 
   /**
@@ -87,16 +85,14 @@ public final class DashUtil {
    *
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
-   * @param type The type of the primary track. Typically one of the {@link C} {@code TRACK_TYPE_*}
-   *     constants.
    * @return {@link ChunkIndex} of the given representation.
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
-  public static ChunkIndex loadChunkIndex(DataSource dataSource, Representation representation,
-      int type) throws IOException, InterruptedException {
+  public static ChunkIndex loadChunkIndex(DataSource dataSource, Representation representation)
+      throws IOException, InterruptedException {
     ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, representation,
-        type, true);
+        true);
     return extractorWrapper == null ? null : (ChunkIndex) extractorWrapper.getSeekMap();
   }
 
@@ -106,8 +102,6 @@ public final class DashUtil {
    *
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
-   * @param type The type of the primary track. Typically one of the {@link C} {@code TRACK_TYPE_*}
-   *     constants.
    * @param loadIndex Whether to load index data too.
    * @return A {@link ChunkExtractorWrapper} for the {@code representation}, or null if no
    *     initialization or (if requested) index data exists.
@@ -115,13 +109,13 @@ public final class DashUtil {
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
   private static ChunkExtractorWrapper loadInitializationData(DataSource dataSource,
-      Representation representation, int type, boolean loadIndex)
+      Representation representation, boolean loadIndex)
       throws IOException, InterruptedException {
     RangedUri initializationUri = representation.getInitializationUri();
     if (initializationUri == null) {
       return null;
     }
-    ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format, type);
+    ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format);
     RangedUri requestUri;
     if (loadIndex) {
       RangedUri indexUri = representation.getIndexUri();
@@ -153,12 +147,12 @@ public final class DashUtil {
     initializationChunk.load();
   }
 
-  private static ChunkExtractorWrapper newWrappedExtractor(Format format, int trackType) {
+  private static ChunkExtractorWrapper newWrappedExtractor(Format format) {
     String mimeType = format.containerMimeType;
     boolean isWebm = mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
     Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, format, trackType);
+    return new ChunkExtractorWrapper(extractor, format);
   }
 
   private DashUtil() {}

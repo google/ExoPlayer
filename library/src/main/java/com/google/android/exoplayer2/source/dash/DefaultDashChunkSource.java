@@ -185,7 +185,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     RangedUri pendingInitializationUri = null;
     RangedUri pendingIndexUri = null;
-    if (representationHolder.extractorWrapper.getSampleFormat() == null) {
+    if (representationHolder.extractorWrapper.getSampleFormats() == null) {
       pendingInitializationUri = selectedRepresentation.getInitializationUri();
     }
     if (segmentIndex == null) {
@@ -343,7 +343,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
           segmentUri.start, segmentUri.length, representation.getCacheKey());
       return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
-          trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, trackFormat);
+          trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum,
+          representationHolder.trackType, trackFormat);
     } else {
       int segmentCount = 1;
       for (int i = 1; i < maxSegmentCount; i++) {
@@ -370,6 +371,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   protected static final class RepresentationHolder {
 
+    public final int trackType;
     public final ChunkExtractorWrapper extractorWrapper;
 
     public Representation representation;
@@ -382,6 +384,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         boolean enableEventMessageTrack, boolean enableCea608Track, int trackType) {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
+      this.trackType = trackType;
       String containerMimeType = representation.format.containerMimeType;
       if (mimeTypeIsRawText(containerMimeType)) {
         extractorWrapper = null;
@@ -403,7 +406,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
         // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
         // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-        extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format, trackType);
+        extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format);
       }
       segmentIndex = representation.getIndex();
     }

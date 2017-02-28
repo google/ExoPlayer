@@ -177,8 +177,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     Representation representation = adaptationSet.representations.get(0);
     DrmInitData drmInitData = representation.format.drmInitData;
     if (drmInitData == null) {
-      Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation,
-          adaptationSet.type);
+      Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation);
       if (sampleFormat != null) {
         drmInitData = sampleFormat.drmInitData;
       }

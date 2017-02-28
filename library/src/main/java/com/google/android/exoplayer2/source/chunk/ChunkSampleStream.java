@@ -44,6 +44,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final int minLoadableRetryCount;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
+  private final BaseMediaChunkOutput mediaChunkOutput;
   private final DefaultTrackOutput sampleQueue;
   private final ChunkHolder nextChunkHolder;
   private final Loader loader;
@@ -78,6 +79,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(allocator);
+    mediaChunkOutput = new BaseMediaChunkOutput(new int[] {trackType}, sampleQueue);
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
   }
@@ -127,7 +129,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (seekInsideBuffer) {
       // We succeeded. All we need to do is discard any chunks that we've moved past.
       while (mediaChunks.size() > 1
-          && mediaChunks.get(1).getFirstSampleIndex() <= sampleQueue.getReadIndex()) {
+          && mediaChunks.get(1).getFirstSampleIndex(0) <= sampleQueue.getReadIndex()) {
         mediaChunks.removeFirst();
       }
     } else {
@@ -176,7 +178,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     while (mediaChunks.size() > 1
-        && mediaChunks.get(1).getFirstSampleIndex() <= sampleQueue.getReadIndex()) {
+        && mediaChunks.get(1).getFirstSampleIndex(0) <= sampleQueue.getReadIndex()) {
       mediaChunks.removeFirst();
     }
     BaseMediaChunk currentChunk = mediaChunks.getFirst();
@@ -232,7 +234,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (isMediaChunk) {
         BaseMediaChunk removed = mediaChunks.removeLast();
         Assertions.checkState(removed == loadable);
-        sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
+        sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex(0));
         if (mediaChunks.isEmpty()) {
           pendingResetPositionUs = lastSeekPositionUs;
         }
@@ -277,7 +279,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (isMediaChunk(loadable)) {
       pendingResetPositionUs = C.TIME_UNSET;
       BaseMediaChunk mediaChunk = (BaseMediaChunk) loadable;
-      mediaChunk.init(sampleQueue);
+      mediaChunk.init(mediaChunkOutput);
       mediaChunks.add(mediaChunk);
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
@@ -337,7 +339,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       startTimeUs = removed.startTimeUs;
       loadingFinished = false;
     }
-    sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex());
+    sampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex(0));
     eventDispatcher.upstreamDiscarded(trackType, startTimeUs, endTimeUs);
     return true;
   }
