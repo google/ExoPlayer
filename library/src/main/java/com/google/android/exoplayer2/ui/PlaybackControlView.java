@@ -450,6 +450,11 @@ public class PlaybackControlView extends FrameLayout {
     updateProgress();
   }
 
+  @Override
+  public boolean isAttachedToWindow() {
+    return getWindowToken() != null;
+  }
+
   private void updatePlayPauseButton() {
     if (!isVisible() || !isAttachedToWindow) {
       return;
