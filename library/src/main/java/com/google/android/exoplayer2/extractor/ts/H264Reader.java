@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Parses a continuous H264 byte stream and extracts individual frames.
  */
-/* package */ final class H264Reader implements ElementaryStreamReader {
+public final class H264Reader implements ElementaryStreamReader {
 
   private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
   private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
