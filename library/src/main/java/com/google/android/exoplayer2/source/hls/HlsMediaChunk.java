@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.hls;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -250,10 +249,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (extractor == null) {
         // Media segment format is packed audio.
         long id3Timestamp = peekId3PrivTimestamp(input);
-        if (id3Timestamp == C.TIME_UNSET) {
-          throw new ParserException("ID3 PRIV timestamp missing.");
-        }
-        extractor = buildPackedAudioExtractor(timestampAdjuster.adjustTsTimestamp(id3Timestamp));
+        extractor = buildPackedAudioExtractor(id3Timestamp != C.TIME_UNSET
+            ? timestampAdjuster.adjustTsTimestamp(id3Timestamp) : startTimeUs);
       }
       if (skipLoadedBytes) {
         input.skipFully(bytesLoaded);
