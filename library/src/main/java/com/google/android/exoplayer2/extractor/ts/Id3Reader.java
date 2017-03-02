@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 /**
  * Parses ID3 data and extracts individual text information frames.
  */
-/* package */ final class Id3Reader implements ElementaryStreamReader {
+public final class Id3Reader implements ElementaryStreamReader {
 
   private static final String TAG = "Id3Reader";
 

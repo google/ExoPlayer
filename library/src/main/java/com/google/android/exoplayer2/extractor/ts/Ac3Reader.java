@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 /**
  * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
  */
-/* package */ final class Ac3Reader implements ElementaryStreamReader {
+public final class Ac3Reader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;
