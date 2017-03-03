@@ -783,10 +783,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     MediaFormat oldFormat = format;
     format = formatHolder.format;
     drmInitData = formatHolder.drmInitData;
-    if (Util.areEqual(format, oldFormat)) {
+    boolean needsDrmInit = drmInitData != null && !openedDrmSession;
+    if (Util.areEqual(format, oldFormat) && !needsDrmInit) {
       return;
     }
-    if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
+    if (codec != null
+        && !needsDrmInit
+        && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       codecNeedsAdaptationWorkaroundBuffer = codecNeedsAdaptationWorkaround
