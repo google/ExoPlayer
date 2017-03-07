@@ -315,7 +315,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     for (int i = 0; i < listSize; i++) {
       HlsUrl url = urls.get(i);
       MediaPlaylistBundle bundle = new MediaPlaylistBundle(url, currentTimeMs);
-      playlistBundles.put(urls.get(i), bundle);
+      playlistBundles.put(url, bundle);
     }
   }
 
