@@ -1,19 +1,44 @@
-*** PLEASE DO NOT IGNORE THIS ISSUE TEMPLATE ***
+*** ISSUES THAT IGNORE THIS TEMPLATE WILL BE CLOSED WITHOUT INVESTIGATION ***
 
-Please search the existing issues before filing a new one, including issues that
-are closed. When filing a new issue please include ALL of the following, unless
-you're certain that they're not useful for the particular issue being reported.
+Before filing an issue:
+-----------------------
+- Search existing issues, including issues that are closed.
+- Consult our FAQs, supported devices and supported formats pages. These can be
+  found at https://google.github.io/ExoPlayer/.
+- Rule out issues in your own code. A good way to do this is to try and
+  reproduce the issue in the ExoPlayer demo app.
+- This issue tracker is intended for bugs, feature requests and ExoPlayer
+  specific questions. If you're asking a general Android development question,
+  please do so on Stack Overflow.
 
-- A description of the issue.
-- Steps describing how the issue can be reproduced, ideally in the ExoPlayer
-  demo app.
-- A link to content that reproduces the issue. If you don't wish to post it
-  publicly, please submit the issue, then email the link to
-  dev.exoplayer@gmail.com including the issue number in the subject line.
-- The version of ExoPlayer being used.
-- The device(s) and version(s) of Android on which the issue can be reproduced,
-  and how easily it reproduces. If possible, please test on multiple devices and
-  Android versions.
-- A bug report taken from the device just after the issue occurs, attached as a
-  file. A bug report can be captured using "adb bugreport". Output from "adb
-  logcat" or a log snippet is not sufficient.
+When reporting a bug:
+-----------------------
+Fill out the sections below, leaving the headers but replacing the content. If
+you're unable to provide certain information, please explain why in the relevant
+section. We may close issues if they do not include sufficient information.
+
+### Issue description
+Describe the issue in detail, including observed and expected behavior.
+
+### Reproduction steps
+Describe how the issue can be reproduced, ideally using the ExoPlayer demo app.
+
+### Link to test content
+Provide a link to media that reproduces the issue. If you don't wish to post it
+publicly, please submit the issue, then email the link to
+dev.exoplayer@gmail.com including the issue number in the subject line.
+
+### Version of ExoPlayer being used
+Specify the absolute version number. Avoid using terms such as "latest".
+
+### Device(s) and version(s) of Android being used
+Specify the devices and versions of Android on which the issue can be
+reproduced, and how easily it reproduces. If possible, please test on multiple
+devices and Android versions.
+
+### A full bug report captured from the device
+Capture a full bug report using "adb bugreport". Output from "adb logcat" or a
+log snippet is NOT sufficient. Please attach the captured bug report as a file.
+If you don't wish to post it publicly, please submit the issue, then email the
+bug report to dev.exoplayer@gmail.com including the issue number in the subject
+line.
