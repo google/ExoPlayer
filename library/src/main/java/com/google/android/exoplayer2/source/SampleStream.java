@@ -29,7 +29,8 @@ public interface SampleStream {
    * Returns whether data is available to be read.
    * <p>
    * Note: If the stream has ended then a buffer with the end of stream flag can always be read from
-   * {@link #readData(FormatHolder, DecoderInputBuffer)}. Hence an ended stream is always ready.
+   * {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. Hence an ended stream is always
+   * ready.
    *
    * @return Whether data is available to be read.
    */
