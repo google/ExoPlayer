@@ -209,14 +209,24 @@ import java.util.List;
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
     expectedPlaylistUrl = null;
-    // Unless segments are known to be independent, switching variant will require downloading
-    // overlapping segments. Hence we use the start time of the previous chunk rather than its end
-    // time for this case.
-    long bufferedDurationUs = previous == null ? 0 : Math.max(0,
-        (independentSegments ? previous.endTimeUs : previous.startTimeUs) - playbackPositionUs);
+    long bufferedDurationUs = previous == null ? 0 : previous.endTimeUs - playbackPositionUs;
+
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
+    if (previous != null && !independentSegments) {
+      // Unless segments are known to be independent, switching variant will require downloading
+      // overlapping segments. Hence we will subtract previous chunk's duration from buffered
+      // duration.
+      // This may affect the live-streaming adaptive track selection logic, when we are comparing
+      // buffered duration to time to live edge to decide whether to switch. Therefore,
+      // we will subtract this same amount from timeToLiveEdgeUs as well.
+      long subtractedDurationUs = previous.getDurationUs();
+      bufferedDurationUs = Math.max(0, bufferedDurationUs - subtractedDurationUs);
+      if (timeToLiveEdgeUs != C.TIME_UNSET) {
+        timeToLiveEdgeUs = Math.max(0, timeToLiveEdgeUs - subtractedDurationUs);
+      }
+    }
 
     // Select the variant.
-    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs, previous == null);
     trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
     int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
@@ -365,9 +375,8 @@ import java.util.List;
 
   // Private methods.
 
-  private long resolveTimeToLiveEdgeUs(long playbackPositionUs, boolean isAfterPositionReset) {
-    final boolean resolveTimeToLiveEdgePossible = !isAfterPositionReset
-        && liveEdgeTimeUs != C.TIME_UNSET;
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
+    final boolean resolveTimeToLiveEdgePossible = liveEdgeTimeUs != C.TIME_UNSET;
     return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
   }
 

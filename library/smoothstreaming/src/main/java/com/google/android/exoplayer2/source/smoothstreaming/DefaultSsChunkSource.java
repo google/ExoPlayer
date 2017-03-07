@@ -154,10 +154,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return;
     }
 
-    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
-    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
-
     StreamElement streamElement = manifest.streamElements[elementIndex];
     if (streamElement.chunkCount == 0) {
       // There aren't any chunks for us to load.
@@ -182,6 +178,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
       out.endOfStream = !manifest.isLive;
       return;
     }
+
+    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
+    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
 
     long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
     long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
@@ -229,10 +229,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
     }
 
     StreamElement currentElement = manifest.streamElements[elementIndex];
-    if (currentElement.chunkCount == 0) {
-      return C.TIME_UNSET;
-    }
-
     int lastChunkIndex = currentElement.chunkCount - 1;
     long lastChunkEndTimeUs = currentElement.getStartTimeUs(lastChunkIndex)
         + currentElement.getChunkDurationUs(lastChunkIndex);

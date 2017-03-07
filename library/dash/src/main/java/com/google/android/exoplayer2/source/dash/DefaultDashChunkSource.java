@@ -181,7 +181,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs, previous == null);
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
 
     RepresentationHolder representationHolder =
@@ -385,9 +385,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
   }
 
-  private long resolveTimeToLiveEdgeUs(long playbackPositionUs, boolean isAfterPositionReset) {
-    boolean resolveTimeToLiveEdgePossible = manifest.dynamic
-        && !isAfterPositionReset && liveEdgeTimeUs != C.TIME_UNSET;
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
+    boolean resolveTimeToLiveEdgePossible = manifest.dynamic && liveEdgeTimeUs != C.TIME_UNSET;
     return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
   }
 
