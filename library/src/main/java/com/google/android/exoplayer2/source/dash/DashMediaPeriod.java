@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
+import com.google.android.exoplayer2.source.chunk.ChunkSampleStream.EmbeddedSampleStream;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
@@ -125,7 +126,7 @@ import java.util.List;
     HashMap<Integer, ChunkSampleStream<DashChunkSource>> primarySampleStreams = new HashMap<>();
     // First pass for primary tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (ChunkSampleStream.isPrimarySampleStream(streams[i])) {
+      if (streams[i] instanceof ChunkSampleStream) {
         @SuppressWarnings("unchecked")
         ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
         if (selections[i] == null || !mayRetainStreamFlags[i]) {
@@ -149,26 +150,31 @@ import java.util.List;
     }
     // Second pass for embedded tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (ChunkSampleStream.isEmbeddedSampleStream(streams[i])) {
-        // Always clear even if the selection is unchanged, since the parent primary sample stream
-        // may have been replaced.
+      if ((streams[i] instanceof EmbeddedSampleStream || streams[i] instanceof EmptySampleStream)
+          && (selections[i] == null || !mayRetainStreamFlags[i])) {
+        // The stream is for an embedded track and is either no longer selected or needs replacing.
+        releaseIfEmbeddedSampleStream(streams[i]);
         streams[i] = null;
       }
-      if (streams[i] == null && selections[i] != null) {
+      // We need to consider replacing the stream even if it's non-null because the primary stream
+      // may have been replaced, selected or deselected.
+      if (selections[i] != null) {
         int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
         if (trackGroupIndex >= adaptationSetCount) {
-          EmbeddedTrackInfo embeddedTrackInfo =
-              embeddedTrackInfos[trackGroupIndex - adaptationSetCount];
+          int embeddedTrackIndex = trackGroupIndex - adaptationSetCount;
+          EmbeddedTrackInfo embeddedTrackInfo = embeddedTrackInfos[embeddedTrackIndex];
           int adaptationSetIndex = embeddedTrackInfo.adaptationSetIndex;
-          ChunkSampleStream<DashChunkSource> primarySampleStream =
-              primarySampleStreams.get(adaptationSetIndex);
-          if (primarySampleStream != null) {
-            streams[i] = primarySampleStream.getEmbeddedSampleStream(embeddedTrackInfo.trackType);
-          } else {
-            // The primary track in which this one is embedded is not selected.
-            streams[i] = new EmptySampleStream();
+          ChunkSampleStream<?> primaryStream = primarySampleStreams.get(adaptationSetIndex);
+          SampleStream stream = streams[i];
+          boolean mayRetainStream = primaryStream == null ? stream instanceof EmptySampleStream
+              : (stream instanceof EmbeddedSampleStream
+                  && ((EmbeddedSampleStream) stream).parent == primaryStream);
+          if (!mayRetainStream) {
+            releaseIfEmbeddedSampleStream(stream);
+            streams[i] = primaryStream == null ? new EmptySampleStream()
+                : primaryStream.selectEmbeddedTrack(positionUs, embeddedTrackInfo.trackType);
+            streamResetFlags[i] = true;
           }
-          streamResetFlags[i] = true;
         }
       }
     }
@@ -176,6 +182,13 @@ import java.util.List;
     primarySampleStreams.values().toArray(sampleStreams);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     return positionUs;
+  }
+
+  @Override
+  public void discardBuffer(long positionUs) {
+    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+      sampleStream.discardUnselectedEmbeddedTracksTo(positionUs);
+    }
   }
 
   @Override
@@ -319,6 +332,12 @@ import java.util.List;
   @SuppressWarnings("unchecked")
   private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
+  }
+
+  private static void releaseIfEmbeddedSampleStream(SampleStream sampleStream) {
+    if (sampleStream instanceof EmbeddedSampleStream) {
+      ((EmbeddedSampleStream) sampleStream).release();
+    }
   }
 
   private static final class EmbeddedTrackInfo {

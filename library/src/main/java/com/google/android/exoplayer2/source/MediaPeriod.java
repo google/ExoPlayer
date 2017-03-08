@@ -105,6 +105,13 @@ public interface MediaPeriod extends SequenceableLoader {
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs);
 
   /**
+   * Discards buffered media up to the specified position.
+   *
+   * @param positionUs The position in microseconds.
+   */
+  void discardBuffer(long positionUs);
+
+  /**
    * Attempts to read a discontinuity.
    * <p>
    * After this method has returned a value other than {@link C#TIME_UNSET}, all

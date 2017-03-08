@@ -455,6 +455,8 @@ import java.io.IOException;
     TraceUtil.beginSection("doSomeWork");
 
     updatePlaybackPositions();
+    playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs);
+
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
     for (Renderer renderer : enabledRenderers) {

@@ -461,6 +461,11 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
+    public void discardBuffer(long positionUs) {
+      // Do nothing.
+    }
+
+    @Override
     public long readDiscontinuity() {
       assertTrue(preparedPeriod);
       return C.TIME_UNSET;

@@ -235,6 +235,11 @@ import java.io.IOException;
   }
 
   @Override
+  public void discardBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public boolean continueLoading(long playbackPositionUs) {
     if (loadingFinished || (prepared && enabledTrackCount == 0)) {
       return false;
