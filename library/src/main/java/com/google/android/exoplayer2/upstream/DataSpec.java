@@ -47,7 +47,9 @@ public final class DataSpec {
    */
   public static final int FLAG_ALLOW_GZIP = 1 << 0;
 
-  /** Permits content to be cached even if its length can not be resolved. */
+  /**
+   * Permits content to be cached even if its length can not be resolved.
+   */
   public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1;
 
   /**

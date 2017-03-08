@@ -81,7 +81,8 @@ import java.util.Locale;
 
   }
 
-  private final DataSource dataSource;
+  private final DataSource mediaDataSource;
+  private final DataSource encryptionDataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final HlsUrl[] variants;
   private final HlsPlaylistTracker playlistTracker;
@@ -105,18 +106,18 @@ import java.util.Locale;
   /**
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
    * @param variants The available variants.
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
+   * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
+   *     chunks.
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s.
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
-      DataSource dataSource, TimestampAdjusterProvider timestampAdjusterProvider,
+      HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
       List<Format> muxedCaptionFormats) {
     this.playlistTracker = playlistTracker;
     this.variants = variants;
-    this.dataSource = dataSource;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
     Format[] variantFormats = new Format[variants.length];
@@ -125,6 +126,8 @@ import java.util.Locale;
       variantFormats[i] = variants[i].format;
       initialTrackSelection[i] = i;
     }
+    mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
+    encryptionDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_DRM);
     trackGroup = new TrackGroup(variantFormats);
     trackSelection = new InitializationTrackSelection(trackGroup, initialTrackSelection);
   }
@@ -285,7 +288,7 @@ import java.util.Locale;
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, selectedUrl,
+    out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
         muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
         isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
@@ -341,7 +344,7 @@ import java.util.Locale;
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
       int trackSelectionReason, Object trackSelectionData) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(dataSource, dataSpec, variants[variantIndex].format,
+    return new EncryptionKeyChunk(encryptionDataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, iv);
   }
 
