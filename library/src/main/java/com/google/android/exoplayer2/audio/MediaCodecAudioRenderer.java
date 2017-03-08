@@ -151,6 +151,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         || ((format.sampleRate == Format.NO_VALUE
         || decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate))
         && (format.channelCount == Format.NO_VALUE
+        //The audio/mpeg-L2 hack to ignore the channel count capability.
+        // The hack works for some Amlogic TV box devices which has only 1 channel.
+        || MimeTypes.AUDIO_MPEG_L2.equals(mimeType)
         ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
     int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
     return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;

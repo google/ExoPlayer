@@ -48,7 +48,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   }
 
   public DefaultTsPayloadReaderFactory(@Flags int flags) {
-    this.flags = flags;
+    this.flags = flags | FLAG_ALLOW_NON_IDR_KEYFRAMES;
+    // TODO: See bug at https://github.com/google/ExoPlayer/issues/1894
   }
 
   @Override
