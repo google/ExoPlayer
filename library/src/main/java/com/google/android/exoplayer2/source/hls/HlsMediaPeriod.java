@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUr
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     HlsPlaylistTracker.PlaylistEventListener {
 
   private final HlsPlaylistTracker playlistTracker;
-  private final DataSource.Factory dataSourceFactory;
+  private final HlsDataSourceFactory dataSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
@@ -61,7 +60,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
 
-  public HlsMediaPeriod(HlsPlaylistTracker playlistTracker, DataSource.Factory dataSourceFactory,
+  public HlsMediaPeriod(HlsPlaylistTracker playlistTracker, HlsDataSourceFactory dataSourceFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher, Allocator allocator,
       long positionUs) {
     this.playlistTracker = playlistTracker;
@@ -349,9 +348,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
       Format muxedAudioFormat, List<Format> muxedCaptionFormats) {
-    DataSource dataSource = dataSourceFactory.createDataSource();
-    HlsChunkSource defaultChunkSource = new HlsChunkSource(playlistTracker, variants, dataSource,
-        timestampAdjusterProvider, muxedCaptionFormats);
+    HlsChunkSource defaultChunkSource = new HlsChunkSource(playlistTracker, variants,
+        dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator,
         preparePositionUs, muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
   }

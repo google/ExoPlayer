@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
+import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -81,7 +82,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   private static final long PRIMARY_URL_KEEPALIVE_MS = 15000;
 
   private final Uri initialPlaylistUri;
-  private final DataSource.Factory dataSourceFactory;
+  private final HlsDataSourceFactory dataSourceFactory;
   private final HlsPlaylistParser playlistParser;
   private final int minRetryCount;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
@@ -105,7 +106,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    *     playlist.
    * @param primaryPlaylistListener A callback for the primary playlist change events.
    */
-  public HlsPlaylistTracker(Uri initialPlaylistUri, DataSource.Factory dataSourceFactory,
+  public HlsPlaylistTracker(Uri initialPlaylistUri, HlsDataSourceFactory dataSourceFactory,
       EventDispatcher eventDispatcher, int minRetryCount,
       PrimaryPlaylistListener primaryPlaylistListener) {
     this.initialPlaylistUri = initialPlaylistUri;
@@ -143,8 +144,8 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public void start() {
     ParsingLoadable<HlsPlaylist> masterPlaylistLoadable = new ParsingLoadable<>(
-        dataSourceFactory.createDataSource(), initialPlaylistUri, C.DATA_TYPE_MANIFEST,
-        playlistParser);
+        dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST), initialPlaylistUri,
+        C.DATA_TYPE_MANIFEST, playlistParser);
     initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
   }
 
@@ -436,7 +437,8 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       this.playlistUrl = playlistUrl;
       lastSnapshotAccessTimeMs = initialLastSnapshotAccessTimeMs;
       mediaPlaylistLoader = new Loader("HlsPlaylistTracker:MediaPlaylist");
-      mediaPlaylistLoadable = new ParsingLoadable<>(dataSourceFactory.createDataSource(),
+      mediaPlaylistLoadable = new ParsingLoadable<>(
+          dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
           UriUtil.resolveToUri(masterPlaylist.baseUri, playlistUrl.url), C.DATA_TYPE_MANIFEST,
           playlistParser);
     }
