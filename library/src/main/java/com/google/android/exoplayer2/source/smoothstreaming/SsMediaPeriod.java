@@ -137,6 +137,11 @@ import java.util.ArrayList;
   }
 
   @Override
+  public void discardBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     return sequenceableLoader.continueLoading(positionUs);
   }

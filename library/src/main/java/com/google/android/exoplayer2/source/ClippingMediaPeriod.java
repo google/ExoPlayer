@@ -110,6 +110,11 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
+  public void discardBuffer(long positionUs) {
+    mediaPeriod.discardBuffer(positionUs + startUs);
+  }
+
+  @Override
   public long readDiscontinuity() {
     if (pendingInitialDiscontinuity) {
       for (ClippingSampleStream sampleStream : sampleStreams) {

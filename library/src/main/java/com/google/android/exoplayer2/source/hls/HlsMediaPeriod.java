@@ -190,6 +190,11 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   @Override
+  public void discardBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     return sequenceableLoader.continueLoading(positionUs);
   }
