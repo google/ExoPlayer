@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
@@ -35,7 +36,8 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -52,6 +54,7 @@ import java.util.List;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
+  private final EmbeddedTrackInfo[] embeddedTrackInfos;
 
   private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -76,7 +79,9 @@ import java.util.List;
     sampleStreams = newSampleStreamArray(0);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     adaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
-    trackGroups = buildTrackGroups(adaptationSets);
+    Pair<TrackGroupArray, EmbeddedTrackInfo[]> result = buildTrackGroups(adaptationSets);
+    trackGroups = result.first;
+    embeddedTrackInfos = result.second;
   }
 
   public void updateManifest(DashManifest manifest, int periodIndex) {
@@ -116,37 +121,59 @@ import java.util.List;
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    ArrayList<ChunkSampleStream<DashChunkSource>> sampleStreamsList = new ArrayList<>();
+    int adaptationSetCount = adaptationSets.size();
+    HashMap<Integer, ChunkSampleStream<DashChunkSource>> primarySampleStreams = new HashMap<>();
+    // First pass for primary tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] instanceof ChunkSampleStream) {
+      if (ChunkSampleStream.isPrimarySampleStream(streams[i])) {
         @SuppressWarnings("unchecked")
         ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
         if (selections[i] == null || !mayRetainStreamFlags[i]) {
           stream.release();
           streams[i] = null;
         } else {
-          sampleStreamsList.add(stream);
+          int adaptationSetIndex = trackGroups.indexOf(selections[i].getTrackGroup());
+          primarySampleStreams.put(adaptationSetIndex, stream);
         }
-      } else if (streams[i] instanceof EmptySampleStream && selections[i] == null) {
-        // TODO: Release streams for cea-608 and emsg tracks.
+      }
+      if (streams[i] == null && selections[i] != null) {
+        int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
+        if (trackGroupIndex < adaptationSetCount) {
+          ChunkSampleStream<DashChunkSource> stream = buildSampleStream(trackGroupIndex,
+              selections[i], positionUs);
+          primarySampleStreams.put(trackGroupIndex, stream);
+          streams[i] = stream;
+          streamResetFlags[i] = true;
+        }
+      }
+    }
+    // Second pass for embedded tracks.
+    for (int i = 0; i < selections.length; i++) {
+      if (ChunkSampleStream.isEmbeddedSampleStream(streams[i])) {
+        // Always clear even if the selection is unchanged, since the parent primary sample stream
+        // may have been replaced.
         streams[i] = null;
       }
       if (streams[i] == null && selections[i] != null) {
-        int adaptationSetIndex = trackGroups.indexOf(selections[i].getTrackGroup());
-        if (adaptationSetIndex < adaptationSets.size()) {
-          ChunkSampleStream<DashChunkSource> stream = buildSampleStream(adaptationSetIndex,
-              selections[i], positionUs);
-          sampleStreamsList.add(stream);
-          streams[i] = stream;
-        } else {
-          // TODO: Output streams for cea-608 and emsg tracks.
-          streams[i] = new EmptySampleStream();
+        int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
+        if (trackGroupIndex >= adaptationSetCount) {
+          EmbeddedTrackInfo embeddedTrackInfo =
+              embeddedTrackInfos[trackGroupIndex - adaptationSetCount];
+          int adaptationSetIndex = embeddedTrackInfo.adaptationSetIndex;
+          ChunkSampleStream<DashChunkSource> primarySampleStream =
+              primarySampleStreams.get(adaptationSetIndex);
+          if (primarySampleStream != null) {
+            streams[i] = primarySampleStream.getEmbeddedSampleStream(embeddedTrackInfo.trackType);
+          } else {
+            // The primary track in which this one is embedded is not selected.
+            streams[i] = new EmptySampleStream();
+          }
+          streamResetFlags[i] = true;
         }
-        streamResetFlags[i] = true;
       }
     }
-    sampleStreams = newSampleStreamArray(sampleStreamsList.size());
-    sampleStreamsList.toArray(sampleStreams);
+    sampleStreams = newSampleStreamArray(primarySampleStreams.size());
+    primarySampleStreams.values().toArray(sampleStreams);
     sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     return positionUs;
   }
@@ -195,14 +222,14 @@ import java.util.List;
 
   // Internal methods.
 
-  private static TrackGroupArray buildTrackGroups(List<AdaptationSet> adaptationSets) {
+  private static Pair<TrackGroupArray, EmbeddedTrackInfo[]> buildTrackGroups(
+      List<AdaptationSet> adaptationSets) {
     int adaptationSetCount = adaptationSets.size();
-    int eventMessageTrackCount = getEventMessageTrackCount(adaptationSets);
-    int cea608TrackCount = getCea608TrackCount(adaptationSets);
-    TrackGroup[] trackGroupArray = new TrackGroup[adaptationSetCount + eventMessageTrackCount
-        + cea608TrackCount];
-    int eventMessageTrackIndex = 0;
-    int cea608TrackIndex = 0;
+    int embeddedTrackCount = getEmbeddedTrackCount(adaptationSets);
+    TrackGroup[] trackGroupArray = new TrackGroup[adaptationSetCount + embeddedTrackCount];
+    EmbeddedTrackInfo[] embeddedTrackInfos = new EmbeddedTrackInfo[embeddedTrackCount];
+
+    int embeddedTrackIndex = 0;
     for (int i = 0; i < adaptationSetCount; i++) {
       AdaptationSet adaptationSet = adaptationSets.get(i);
       List<Representation> representations = adaptationSet.representations;
@@ -214,38 +241,57 @@ import java.util.List;
       if (hasEventMessageTrack(adaptationSet)) {
         Format format = Format.createSampleFormat(adaptationSet.id + ":emsg",
             MimeTypes.APPLICATION_EMSG, null, Format.NO_VALUE, null);
-        trackGroupArray[adaptationSetCount + eventMessageTrackIndex++] = new TrackGroup(format);
+        trackGroupArray[adaptationSetCount + embeddedTrackIndex] = new TrackGroup(format);
+        embeddedTrackInfos[embeddedTrackIndex++] = new EmbeddedTrackInfo(i, C.TRACK_TYPE_METADATA);
       }
       if (hasCea608Track(adaptationSet)) {
         Format format = Format.createTextSampleFormat(adaptationSet.id + ":cea608",
             MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null);
-        trackGroupArray[adaptationSetCount + eventMessageTrackCount + cea608TrackIndex++] =
-            new TrackGroup(format);
+        trackGroupArray[adaptationSetCount + embeddedTrackIndex] = new TrackGroup(format);
+        embeddedTrackInfos[embeddedTrackIndex++] = new EmbeddedTrackInfo(i, C.TRACK_TYPE_TEXT);
       }
     }
-    return new TrackGroupArray(trackGroupArray);
+
+    return Pair.create(new TrackGroupArray(trackGroupArray), embeddedTrackInfos);
   }
 
   private ChunkSampleStream<DashChunkSource> buildSampleStream(int adaptationSetIndex,
       TrackSelection selection, long positionUs) {
     AdaptationSet adaptationSet = adaptationSets.get(adaptationSetIndex);
+    int embeddedTrackCount = 0;
+    int[] embeddedTrackTypes = new int[2];
     boolean enableEventMessageTrack = hasEventMessageTrack(adaptationSet);
+    if (enableEventMessageTrack) {
+      embeddedTrackTypes[embeddedTrackCount++] = C.TRACK_TYPE_METADATA;
+    }
     boolean enableCea608Track = hasCea608Track(adaptationSet);
+    if (enableCea608Track) {
+      embeddedTrackTypes[embeddedTrackCount++] = C.TRACK_TYPE_TEXT;
+    }
+    if (embeddedTrackCount < embeddedTrackTypes.length) {
+      embeddedTrackTypes = Arrays.copyOf(embeddedTrackTypes, embeddedTrackCount);
+    }
     DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
         manifestLoaderErrorThrower, manifest, periodIndex, adaptationSetIndex, selection,
         elapsedRealtimeOffset, enableEventMessageTrack, enableCea608Track);
-    return new ChunkSampleStream<>(adaptationSet.type, chunkSource, this, allocator, positionUs,
-        minLoadableRetryCount, eventDispatcher);
+    ChunkSampleStream<DashChunkSource> stream = new ChunkSampleStream<>(adaptationSet.type,
+        embeddedTrackTypes, chunkSource, this, allocator, positionUs, minLoadableRetryCount,
+        eventDispatcher);
+    return stream;
   }
 
-  private static int getEventMessageTrackCount(List<AdaptationSet> adaptationSets) {
-    int inbandEventStreamTrackCount = 0;
+  private static int getEmbeddedTrackCount(List<AdaptationSet> adaptationSets) {
+    int embeddedTrackCount = 0;
     for (int i = 0; i < adaptationSets.size(); i++) {
-      if (hasEventMessageTrack(adaptationSets.get(i))) {
-        inbandEventStreamTrackCount++;
+      AdaptationSet adaptationSet = adaptationSets.get(i);
+      if (hasEventMessageTrack(adaptationSet)) {
+        embeddedTrackCount++;
+      }
+      if (hasCea608Track(adaptationSet)) {
+        embeddedTrackCount++;
       }
     }
-    return inbandEventStreamTrackCount;
+    return embeddedTrackCount;
   }
 
   private static boolean hasEventMessageTrack(AdaptationSet adaptationSet) {
@@ -257,16 +303,6 @@ import java.util.List;
       }
     }
     return false;
-  }
-
-  private static int getCea608TrackCount(List<AdaptationSet> adaptationSets) {
-    int cea608TrackCount = 0;
-    for (int i = 0; i < adaptationSets.size(); i++) {
-      if (hasCea608Track(adaptationSets.get(i))) {
-        cea608TrackCount++;
-      }
-    }
-    return cea608TrackCount;
   }
 
   private static boolean hasCea608Track(AdaptationSet adaptationSet) {
@@ -283,6 +319,18 @@ import java.util.List;
   @SuppressWarnings("unchecked")
   private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
+  }
+
+  private static final class EmbeddedTrackInfo {
+
+    public final int adaptationSetIndex;
+    public final int trackType;
+
+    public EmbeddedTrackInfo(int adaptationSetIndex, int trackType) {
+      this.adaptationSetIndex = adaptationSetIndex;
+      this.trackType = trackType;
+    }
+
   }
 
 }
