@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOut
    * @param trackTypes The track types of the individual track outputs.
    * @param trackOutputs The individual track outputs.
    */
-  public BaseMediaChunkOutput(int[] trackTypes, DefaultTrackOutput... trackOutputs) {
+  public BaseMediaChunkOutput(int[] trackTypes, DefaultTrackOutput[] trackOutputs) {
     this.trackTypes = trackTypes;
     this.trackOutputs = trackOutputs;
   }
