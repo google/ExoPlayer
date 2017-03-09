@@ -24,44 +24,39 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
-import java.nio.ByteBuffer;
 
 /**
  * A renderer for metadata.
- *
- * @param <T> The type of the metadata.
  */
-public final class MetadataRenderer<T> extends BaseRenderer implements Callback {
+public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   /**
    * Receives output from a {@link MetadataRenderer}.
-   *
-   * @param <T> The type of the metadata.
    */
-  public interface Output<T> {
+  public interface Output {
 
     /**
      * Called each time there is a metadata associated with current playback time.
      *
      * @param metadata The metadata.
      */
-    void onMetadata(T metadata);
+    void onMetadata(Metadata metadata);
 
   }
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
-  private final MetadataDecoder<T> metadataDecoder;
-  private final Output<T> output;
+  private final MetadataDecoderFactory decoderFactory;
+  private final Output output;
   private final Handler outputHandler;
   private final FormatHolder formatHolder;
-  private final DecoderInputBuffer buffer;
+  private final MetadataInputBuffer buffer;
 
+  private MetadataDecoder decoder;
   private boolean inputStreamEnded;
   private long pendingMetadataTimestamp;
-  private T pendingMetadata;
+  private Metadata pendingMetadata;
 
   /**
    * @param output The output.
@@ -70,22 +65,38 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
    *     looper associated with the application's main thread, which can be obtained using
    *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
    *     called directly on the player's internal rendering thread.
-   * @param metadataDecoder A decoder for the metadata.
    */
-  public MetadataRenderer(Output<T> output, Looper outputLooper,
-      MetadataDecoder<T> metadataDecoder) {
+  public MetadataRenderer(Output output, Looper outputLooper) {
+    this(output, outputLooper, MetadataDecoderFactory.DEFAULT);
+  }
+
+  /**
+   * @param output The output.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using
+   *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
+   *     called directly on the player's internal rendering thread.
+   * @param decoderFactory A factory from which to obtain {@link MetadataDecoder} instances.
+   */
+  public MetadataRenderer(Output output, Looper outputLooper,
+      MetadataDecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
-    this.metadataDecoder = Assertions.checkNotNull(metadataDecoder);
+    this.decoderFactory = Assertions.checkNotNull(decoderFactory);
     formatHolder = new FormatHolder();
-    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    buffer = new MetadataInputBuffer();
   }
 
   @Override
   public int supportsFormat(Format format) {
-    return metadataDecoder.canDecode(format.sampleMimeType) ? FORMAT_HANDLED
-        : FORMAT_UNSUPPORTED_TYPE;
+    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+  }
+
+  @Override
+  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
+    decoder = decoderFactory.createDecoder(formats[0]);
   }
 
   @Override
@@ -102,12 +113,16 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
       if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           inputStreamEnded = true;
+        } else if (buffer.isDecodeOnly()) {
+          // Do nothing. Note this assumes that all metadata buffers can be decoded independently.
+          // If we ever need to support a metadata format where this is not the case, we'll need to
+          // pass the buffer to the decoder and discard the output.
         } else {
           pendingMetadataTimestamp = buffer.timeUs;
+          buffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+          buffer.flip();
           try {
-            buffer.flip();
-            ByteBuffer bufferData = buffer.data;
-            pendingMetadata = metadataDecoder.decode(bufferData.array(), bufferData.limit());
+            pendingMetadata = decoder.decode(buffer);
           } catch (MetadataDecoderException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
           }
@@ -124,6 +139,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
   @Override
   protected void onDisabled() {
     pendingMetadata = null;
+    decoder = null;
     super.onDisabled();
   }
 
@@ -137,7 +153,7 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
     return true;
   }
 
-  private void invokeRenderer(T metadata) {
+  private void invokeRenderer(Metadata metadata) {
     if (outputHandler != null) {
       outputHandler.obtainMessage(MSG_INVOKE_RENDERER, metadata).sendToTarget();
     } else {
@@ -150,13 +166,13 @@ public final class MetadataRenderer<T> extends BaseRenderer implements Callback 
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_INVOKE_RENDERER:
-        invokeRendererInternal((T) msg.obj);
+        invokeRendererInternal((Metadata) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeRendererInternal(T metadata) {
+  private void invokeRendererInternal(Metadata metadata) {
     output.onMetadata(metadata);
   }
 

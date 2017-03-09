@@ -66,7 +66,7 @@ public final class WavExtractor implements Extractor, SeekMap {
   }
 
   @Override
-  public void seek(long position) {
+  public void seek(long position, long timeUs) {
     pendingBytes = 0;
   }
 

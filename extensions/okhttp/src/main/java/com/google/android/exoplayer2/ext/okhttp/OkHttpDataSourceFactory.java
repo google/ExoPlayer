@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import okhttp3.CacheControl;
@@ -24,29 +25,42 @@ import okhttp3.Call;
 /**
  * A {@link Factory} that produces {@link OkHttpDataSource}.
  */
-public final class OkHttpDataSourceFactory implements Factory {
+public final class OkHttpDataSourceFactory extends BaseFactory {
 
   private final Call.Factory callFactory;
   private final String userAgent;
-  private final TransferListener<? super DataSource> transferListener;
+  private final TransferListener<? super DataSource> listener;
   private final CacheControl cacheControl;
 
+  /**
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the sources created by the factory.
+   * @param userAgent The User-Agent string that should be used.
+   * @param listener An optional listener.
+   */
   public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
-      TransferListener<? super DataSource> transferListener) {
-    this(callFactory, userAgent, transferListener, null);
+      TransferListener<? super DataSource> listener) {
+    this(callFactory, userAgent, listener, null);
   }
 
+  /**
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the sources created by the factory.
+   * @param userAgent The User-Agent string that should be used.
+   * @param listener An optional listener.
+   * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
+   */
   public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
-      TransferListener<? super DataSource> transferListener, CacheControl cacheControl) {
+      TransferListener<? super DataSource> listener, CacheControl cacheControl) {
     this.callFactory = callFactory;
     this.userAgent = userAgent;
-    this.transferListener = transferListener;
+    this.listener = listener;
     this.cacheControl = cacheControl;
   }
 
   @Override
-  public OkHttpDataSource createDataSource() {
-    return new OkHttpDataSource(callFactory, userAgent, null, transferListener, cacheControl);
+  protected OkHttpDataSource createDataSourceInternal() {
+    return new OkHttpDataSource(callFactory, userAgent, null, listener, cacheControl);
   }
 
 }

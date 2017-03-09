@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
@@ -42,9 +43,14 @@ public interface MediaSource {
   /**
    * Starts preparation of the source.
    *
+   * @param player The player for which this source is being prepared.
+   * @param isTopLevelSource Whether this source has been passed directly to
+   *     {@link ExoPlayer#prepare(MediaSource)} or
+   *     {@link ExoPlayer#prepare(MediaSource, boolean, boolean)}. If {@code false}, this source is
+   *     being prepared by another source (e.g. {@link ConcatenatingMediaSource}) for composition.
    * @param listener The listener for source events.
    */
-  void prepareSource(Listener listener);
+  void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
@@ -52,7 +58,9 @@ public interface MediaSource {
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
   /**
-   * Returns a {@link MediaPeriod} corresponding to the period at the specified index.
+   * Returns a new {@link MediaPeriod} corresponding to the period at the specified {@code index}.
+   * This method may be called multiple times with the same index without an intervening call to
+   * {@link #releasePeriod(MediaPeriod)}.
    *
    * @param index The index of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.

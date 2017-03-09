@@ -31,7 +31,7 @@ FFMPEG_EXT_PATH="${EXOPLAYER_ROOT}/extensions/ffmpeg/src/main"
 NDK_PATH="<path to Android NDK>"
 ```
 
-* Fetch and build ffmpeg.
+* Fetch and build FFmpeg.
 
 For example, to fetch and build for armv7a:
 
@@ -63,6 +63,7 @@ git clone git://source.ffmpeg.org/ffmpeg ffmpeg && cd ffmpeg && \
     --enable-decoder=vorbis \
     --enable-decoder=opus \
     --enable-decoder=flac \
+    --enable-decoder=alac \
     && \
 make -j4 && \
 make install-libs
@@ -75,7 +76,7 @@ cd "${FFMPEG_EXT_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI=armeabi-v7a -j4
 ```
 
-TODO: Add instructions for other ABIs.
+Repeat these steps for any other architectures you need to support.
 
 * In your project, you can add a dependency on the extension by using a rule
   like this:

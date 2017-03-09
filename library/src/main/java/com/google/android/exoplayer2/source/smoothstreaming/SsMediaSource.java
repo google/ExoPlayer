@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestP
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -64,7 +66,7 @@ public final class SsMediaSource implements MediaSource,
   private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
 
   private final Uri manifestUri;
-  private final DataSource.Factory dataSourceFactory;
+  private final DataSource.Factory manifestDataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
@@ -72,15 +74,57 @@ public final class SsMediaSource implements MediaSource,
   private final SsManifestParser manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
 
-  private MediaSource.Listener sourceListener;
+  private Listener sourceListener;
   private DataSource manifestDataSource;
   private Loader manifestLoader;
+  private LoaderErrorThrower manifestLoaderErrorThrower;
 
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
 
   private Handler manifestRefreshHandler;
 
+  /**
+   * Constructs an instance to play a given {@link SsManifest}, which must not be live.
+   *
+   * @param manifest The manifest. {@link SsManifest#isLive} must be false.
+   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public SsMediaSource(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
+      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+    this(manifest, chunkSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        eventHandler, eventListener);
+  }
+
+  /**
+   * Constructs an instance to play a given {@link SsManifest}, which must not be live.
+   *
+   * @param manifest The manifest. {@link SsManifest#isLive} must be false.
+   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public SsMediaSource(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
+    this(manifest, null, null, null, chunkSourceFactory, minLoadableRetryCount,
+        DEFAULT_LIVE_PRESENTATION_DELAY_MS, eventHandler, eventListener);
+  }
+
+  /**
+   * Constructs an instance to play the manifest at a given {@link Uri}, which may be live or
+   * on-demand.
+   *
+   * @param manifestUri The manifest {@link Uri}.
+   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
+   *     to load (and refresh) the manifest.
+   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
@@ -89,42 +133,97 @@ public final class SsMediaSource implements MediaSource,
         eventListener);
   }
 
-  public SsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+  /**
+   * Constructs an instance to play the manifest at a given {@link Uri}, which may be live or
+   * on-demand.
+   *
+   * @param manifestUri The manifest {@link Uri}.
+   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
+   *     to load (and refresh) the manifest.
+   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
+   *     default start position should precede the end of the live window.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this.manifestUri = Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest")
-        ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
-    this.dataSourceFactory = dataSourceFactory;
+    this(manifestUri, manifestDataSourceFactory, new SsManifestParser(), chunkSourceFactory,
+        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+  }
+
+  /**
+   * Constructs an instance to play the manifest at a given {@link Uri}, which may be live or
+   * on-demand.
+   *
+   * @param manifestUri The manifest {@link Uri}.
+   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
+   *     to load (and refresh) the manifest.
+   * @param manifestParser A parser for loaded manifest data.
+   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
+   *     default start position should precede the end of the live window.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+      SsManifestParser manifestParser, SsChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
+    this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
+        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+  }
+
+  private SsMediaSource(SsManifest manifest, Uri manifestUri,
+      DataSource.Factory manifestDataSourceFactory, SsManifestParser manifestParser,
+      SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+      long livePresentationDelayMs, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
+    Assertions.checkState(manifest == null || !manifest.isLive);
+    this.manifest = manifest;
+    this.manifestUri = manifestUri == null ? null
+        : Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest") ? manifestUri
+            : Uri.withAppendedPath(manifestUri, "Manifest");
+    this.manifestDataSourceFactory = manifestDataSourceFactory;
+    this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    manifestParser = new SsManifestParser();
     mediaPeriods = new ArrayList<>();
   }
 
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(MediaSource.Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     sourceListener = listener;
-    manifestDataSource = dataSourceFactory.createDataSource();
-    manifestLoader = new Loader("Loader:Manifest");
-    manifestRefreshHandler = new Handler();
-    startLoadingManifest();
+    if (manifest != null) {
+      manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
+      processManifest();
+    } else {
+      manifestDataSource = manifestDataSourceFactory.createDataSource();
+      manifestLoader = new Loader("Loader:Manifest");
+      manifestLoaderErrorThrower = manifestLoader;
+      manifestRefreshHandler = new Handler();
+      startLoadingManifest();
+    }
   }
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    manifestLoader.maybeThrowError();
+    manifestLoaderErrorThrower.maybeThrowError();
   }
 
   @Override
   public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
     Assertions.checkArgument(index == 0);
     SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
-        eventDispatcher, manifestLoader, allocator);
+        eventDispatcher, manifestLoaderErrorThrower, allocator);
     mediaPeriods.add(period);
     return period;
   }
@@ -160,6 +259,29 @@ public final class SsMediaSource implements MediaSource,
         loadDurationMs, loadable.bytesLoaded());
     manifest = loadable.getResult();
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
+    processManifest();
+    scheduleManifestRefresh();
+  }
+
+  @Override
+  public void onLoadCanceled(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, boolean released) {
+    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
+        loadDurationMs, loadable.bytesLoaded());
+  }
+
+  @Override
+  public int onLoadError(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
+      long loadDurationMs, IOException error) {
+    boolean isFatal = error instanceof ParserException;
+    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
+        loadable.bytesLoaded(), error, isFatal);
+    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+  }
+
+  // Internal methods
+
+  private void processManifest() {
     for (int i = 0; i < mediaPeriods.size(); i++) {
       mediaPeriods.get(i).updateManifest(manifest);
     }
@@ -198,26 +320,7 @@ public final class SsMediaSource implements MediaSource,
       timeline = new SinglePeriodTimeline(manifest.durationUs, isSeekable);
     }
     sourceListener.onSourceInfoRefreshed(timeline, manifest);
-    scheduleManifestRefresh();
   }
-
-  @Override
-  public void onLoadCanceled(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
-        loadDurationMs, loadable.bytesLoaded());
-  }
-
-  @Override
-  public int onLoadError(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
-      long loadDurationMs, IOException error) {
-    boolean isFatal = error instanceof ParserException;
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
-        loadable.bytesLoaded(), error, isFatal);
-    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
-  }
-
-  // Internal methods
 
   private void scheduleManifestRefresh() {
     if (!manifest.isLive) {

@@ -23,6 +23,7 @@ import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseIntArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -63,8 +64,8 @@ public final class MediaCodecUtil {
 
   // Codecs to constant mappings.
   // AVC.
-  private static final Map<Integer, Integer> AVC_PROFILE_NUMBER_TO_CONST;
-  private static final Map<Integer, Integer> AVC_LEVEL_NUMBER_TO_CONST;
+  private static final SparseIntArray AVC_PROFILE_NUMBER_TO_CONST;
+  private static final SparseIntArray AVC_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AVC1 = "avc1";
   private static final String CODEC_ID_AVC2 = "avc2";
   // HEVC.
@@ -80,7 +81,8 @@ public final class MediaCodecUtil {
   /**
    * Optional call to warm the codec cache for a given mime type.
    * <p>
-   * Calling this method may speed up subsequent calls to {@link #getDecoderInfo(String, boolean)}.
+   * Calling this method may speed up subsequent calls to {@link #getDecoderInfo(String, boolean)}
+   * and {@link #getDecoderInfos(String, boolean)}.
    *
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
@@ -177,11 +179,10 @@ public final class MediaCodecUtil {
                 boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
                 if ((secureDecodersExplicit && key.secure == secure)
                     || (!secureDecodersExplicit && !key.secure)) {
-                  decoderInfos.add(
-                      MediaCodecInfo.newInstance(codecName, mimeType, capabilities));
+                  decoderInfos.add(MediaCodecInfo.newInstance(codecName, mimeType, capabilities));
                 } else if (!secureDecodersExplicit && secure) {
-                  decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure",
-                      mimeType, capabilities));
+                  decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure", mimeType,
+                      capabilities));
                   // It only makes sense to have one synthesized secure decoder, return immediately.
                   return decoderInfos;
                 }
@@ -222,6 +223,7 @@ public final class MediaCodecUtil {
         && ("CIPAACDecoder".equals(name)
             || "CIPMP3Decoder".equals(name)
             || "CIPVorbisDecoder".equals(name)
+            || "CIPAMRNBDecoder".equals(name)
             || "AACDecoder".equals(name)
             || "MP3Decoder".equals(name))) {
       return false;
@@ -295,8 +297,9 @@ public final class MediaCodecUtil {
         for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
           result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
         }
-        // We assume support for at least 360p.
-        result = Math.max(result, 480 * 360);
+        // We assume support for at least 480p (SDK_INT >= 21) or 360p (SDK_INT < 21), which are
+        // the levels mandated by the Android CDD.
+        result = Math.max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
       }
       maxH264DecodableFrameSize = result;
     }
@@ -364,8 +367,8 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Ignoring malformed AVC codec string: " + codec);
       return null;
     }
-    Integer profileInteger = null;
-    Integer levelInteger = null;
+    Integer profileInteger;
+    Integer levelInteger;
     try {
       if (codecsParts[1].length() == 6) {
         // Format: avc1.xxccyy, where xx is profile and yy level, both hexadecimal.
@@ -555,13 +558,13 @@ public final class MediaCodecUtil {
   }
 
   static {
-    AVC_PROFILE_NUMBER_TO_CONST = new HashMap<>();
+    AVC_PROFILE_NUMBER_TO_CONST = new SparseIntArray();
     AVC_PROFILE_NUMBER_TO_CONST.put(66, CodecProfileLevel.AVCProfileBaseline);
     AVC_PROFILE_NUMBER_TO_CONST.put(77, CodecProfileLevel.AVCProfileMain);
     AVC_PROFILE_NUMBER_TO_CONST.put(88, CodecProfileLevel.AVCProfileExtended);
     AVC_PROFILE_NUMBER_TO_CONST.put(100, CodecProfileLevel.AVCProfileHigh);
 
-    AVC_LEVEL_NUMBER_TO_CONST = new HashMap<>();
+    AVC_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
     AVC_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.AVCLevel1);
     // TODO: Find int for CodecProfileLevel.AVCLevel1b.
     AVC_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.AVCLevel11);

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -59,8 +60,8 @@ public final class LoopingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(final Listener listener) {
-    childSource.prepareSource(new Listener() {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
+    childSource.prepareSource(player, false, new Listener() {
       @Override
       public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
         childPeriodCount = timeline.getPeriodCount();
@@ -118,8 +119,10 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds) {
-      childTimeline.getWindow(windowIndex % childWindowCount, window, setIds);
+    public Window getWindow(int windowIndex, Window window, boolean setIds,
+        long defaultPositionProjectionUs) {
+      childTimeline.getWindow(windowIndex % childWindowCount, window, setIds,
+          defaultPositionProjectionUs);
       int periodIndexOffset = (windowIndex / childWindowCount) * childPeriodCount;
       window.firstPeriodIndex += periodIndexOffset;
       window.lastPeriodIndex += periodIndexOffset;

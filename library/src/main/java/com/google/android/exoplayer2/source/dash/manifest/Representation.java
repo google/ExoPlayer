@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A DASH representation.
@@ -53,11 +55,18 @@ public abstract class Representation {
    */
   public final Format format;
   /**
+   * The base URL of the representation.
+   */
+  public final String baseUrl;
+  /**
    * The offset of the presentation timestamps in the media stream relative to media time.
    */
   public final long presentationTimeOffsetUs;
+  /**
+   * The in-band event streams in the representation. Never null, but may be empty.
+   */
+  public final List<SchemeValuePair> inbandEventStreams;
 
-  private final String cacheKey;
   private final RangedUri initializationUri;
 
   /**
@@ -66,12 +75,13 @@ public abstract class Representation {
    * @param contentId Identifies the piece of content to which this representation belongs.
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
+   * @param baseUrl The base URL.
    * @param segmentBase A segment base element for the representation.
    * @return The constructed instance.
    */
   public static Representation newInstance(String contentId, long revisionId, Format format,
-      SegmentBase segmentBase) {
-    return newInstance(contentId, revisionId, format, segmentBase, null);
+      String baseUrl, SegmentBase segmentBase) {
+    return newInstance(contentId, revisionId, format, baseUrl, segmentBase, null);
   }
 
   /**
@@ -80,31 +90,54 @@ public abstract class Representation {
    * @param contentId Identifies the piece of content to which this representation belongs.
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
+   * @param baseUrl The base URL.
    * @param segmentBase A segment base element for the representation.
-   * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
+   * @param inbandEventStreams The in-band event streams in the representation. May be null.
    * @return The constructed instance.
    */
   public static Representation newInstance(String contentId, long revisionId, Format format,
-      SegmentBase segmentBase, String customCacheKey) {
+      String baseUrl, SegmentBase segmentBase, List<SchemeValuePair> inbandEventStreams) {
+    return newInstance(contentId, revisionId, format, baseUrl, segmentBase, inbandEventStreams,
+        null);
+  }
+
+  /**
+   * Constructs a new instance.
+   *
+   * @param contentId Identifies the piece of content to which this representation belongs.
+   * @param revisionId Identifies the revision of the content.
+   * @param format The format of the representation.
+   * @param baseUrl The base URL of the representation.
+   * @param segmentBase A segment base element for the representation.
+   * @param inbandEventStreams The in-band event streams in the representation. May be null.
+   * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null. This
+   *     parameter is ignored if {@code segmentBase} consists of multiple segments.
+   * @return The constructed instance.
+   */
+  public static Representation newInstance(String contentId, long revisionId, Format format,
+      String baseUrl, SegmentBase segmentBase, List<SchemeValuePair> inbandEventStreams,
+      String customCacheKey) {
     if (segmentBase instanceof SingleSegmentBase) {
-      return new SingleSegmentRepresentation(contentId, revisionId, format,
-          (SingleSegmentBase) segmentBase, customCacheKey, C.LENGTH_UNSET);
+      return new SingleSegmentRepresentation(contentId, revisionId, format, baseUrl,
+          (SingleSegmentBase) segmentBase, inbandEventStreams, customCacheKey, C.LENGTH_UNSET);
     } else if (segmentBase instanceof MultiSegmentBase) {
-      return new MultiSegmentRepresentation(contentId, revisionId, format,
-          (MultiSegmentBase) segmentBase, customCacheKey);
+      return new MultiSegmentRepresentation(contentId, revisionId, format, baseUrl,
+          (MultiSegmentBase) segmentBase, inbandEventStreams);
     } else {
       throw new IllegalArgumentException("segmentBase must be of type SingleSegmentBase or "
           + "MultiSegmentBase");
     }
   }
 
-  private Representation(String contentId, long revisionId, Format format,
-      SegmentBase segmentBase, String customCacheKey) {
+  private Representation(String contentId, long revisionId, Format format, String baseUrl,
+      SegmentBase segmentBase, List<SchemeValuePair> inbandEventStreams) {
     this.contentId = contentId;
     this.revisionId = revisionId;
     this.format = format;
-    this.cacheKey = customCacheKey != null ? customCacheKey
-        : contentId + "." + format.id + "." + revisionId;
+    this.baseUrl = baseUrl;
+    this.inbandEventStreams = inbandEventStreams == null
+        ? Collections.<SchemeValuePair>emptyList()
+        : Collections.unmodifiableList(inbandEventStreams);
     initializationUri = segmentBase.getInitialization(this);
     presentationTimeOffsetUs = segmentBase.getPresentationTimeOffsetUs();
   }
@@ -129,12 +162,10 @@ public abstract class Representation {
   public abstract DashSegmentIndex getIndex();
 
   /**
-   * Returns a cache key for the representation, in the format
-   * {@code contentId + "." + format.id + "." + revisionId}.
+   * Returns a cache key for the representation if a custom cache key or content id has been
+   * provided and there is only single segment.
    */
-  public String getCacheKey() {
-    return cacheKey;
-  }
+  public abstract String getCacheKey();
 
   /**
    * A DASH representation consisting of a single segment.
@@ -151,6 +182,7 @@ public abstract class Representation {
      */
     public final long contentLength;
 
+    private final String cacheKey;
     private final RangedUri indexUri;
     private final SingleSegmentIndex segmentIndex;
 
@@ -163,38 +195,45 @@ public abstract class Representation {
      * @param initializationEnd The offset of the last byte of initialization data.
      * @param indexStart The offset of the first byte of index data.
      * @param indexEnd The offset of the last byte of index data.
+     * @param inbandEventStreams The in-band event streams in the representation. May be null.
      * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
      * @param contentLength The content length, or {@link C#LENGTH_UNSET} if unknown.
      */
     public static SingleSegmentRepresentation newInstance(String contentId, long revisionId,
         Format format, String uri, long initializationStart, long initializationEnd,
-        long indexStart, long indexEnd, String customCacheKey, long contentLength) {
-      RangedUri rangedUri = new RangedUri(uri, null, initializationStart,
+        long indexStart, long indexEnd, List<SchemeValuePair> inbandEventStreams,
+        String customCacheKey, long contentLength) {
+      RangedUri rangedUri = new RangedUri(null, initializationStart,
           initializationEnd - initializationStart + 1);
-      SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0, uri, indexStart,
+      SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0, indexStart,
           indexEnd - indexStart + 1);
       return new SingleSegmentRepresentation(contentId, revisionId,
-          format, segmentBase, customCacheKey, contentLength);
+          format, uri, segmentBase, inbandEventStreams, customCacheKey, contentLength);
     }
 
     /**
      * @param contentId Identifies the piece of content to which this representation belongs.
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
+     * @param baseUrl The base URL of the representation.
      * @param segmentBase The segment base underlying the representation.
+     * @param inbandEventStreams The in-band event streams in the representation. May be null.
      * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
      * @param contentLength The content length, or {@link C#LENGTH_UNSET} if unknown.
      */
     public SingleSegmentRepresentation(String contentId, long revisionId, Format format,
-        SingleSegmentBase segmentBase, String customCacheKey, long contentLength) {
-      super(contentId, revisionId, format, segmentBase, customCacheKey);
-      this.uri = Uri.parse(segmentBase.uri);
+        String baseUrl, SingleSegmentBase segmentBase, List<SchemeValuePair> inbandEventStreams,
+        String customCacheKey, long contentLength) {
+      super(contentId, revisionId, format, baseUrl, segmentBase, inbandEventStreams);
+      this.uri = Uri.parse(baseUrl);
       this.indexUri = segmentBase.getIndex();
+      this.cacheKey = customCacheKey != null ? customCacheKey
+          : contentId != null ? contentId + "." + format.id + "." + revisionId : null;
       this.contentLength = contentLength;
       // If we have an index uri then the index is defined externally, and we shouldn't return one
       // directly. If we don't, then we can't do better than an index defining a single segment.
       segmentIndex = indexUri != null ? null
-          : new SingleSegmentIndex(new RangedUri(segmentBase.uri, null, 0, contentLength));
+          : new SingleSegmentIndex(new RangedUri(null, 0, contentLength));
     }
 
     @Override
@@ -205,6 +244,11 @@ public abstract class Representation {
     @Override
     public DashSegmentIndex getIndex() {
       return segmentIndex;
+    }
+
+    @Override
+    public String getCacheKey() {
+      return cacheKey;
     }
 
   }
@@ -221,12 +265,13 @@ public abstract class Representation {
      * @param contentId Identifies the piece of content to which this representation belongs.
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
+     * @param baseUrl The base URL of the representation.
      * @param segmentBase The segment base underlying the representation.
-     * @param customCacheKey A custom value to be returned from {@link #getCacheKey()}, or null.
+     * @param inbandEventStreams The in-band event streams in the representation. May be null.
      */
     public MultiSegmentRepresentation(String contentId, long revisionId, Format format,
-        MultiSegmentBase segmentBase, String customCacheKey) {
-      super(contentId, revisionId, format, segmentBase, customCacheKey);
+        String baseUrl, MultiSegmentBase segmentBase, List<SchemeValuePair> inbandEventStreams) {
+      super(contentId, revisionId, format, baseUrl, segmentBase, inbandEventStreams);
       this.segmentBase = segmentBase;
     }
 
@@ -238,6 +283,11 @@ public abstract class Representation {
     @Override
     public DashSegmentIndex getIndex() {
       return this;
+    }
+
+    @Override
+    public String getCacheKey() {
+      return null;
     }
 
     // DashSegmentIndex implementation.

@@ -52,6 +52,7 @@ import java.util.List;
   public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
   public static final int TYPE_mdat = Util.getIntegerCodeForString("mdat");
   public static final int TYPE_mp4a = Util.getIntegerCodeForString("mp4a");
+  public static final int TYPE__mp3 = Util.getIntegerCodeForString(".mp3");
   public static final int TYPE_wave = Util.getIntegerCodeForString("wave");
   public static final int TYPE_lpcm = Util.getIntegerCodeForString("lpcm");
   public static final int TYPE_sowt = Util.getIntegerCodeForString("sowt");
@@ -126,13 +127,15 @@ import java.util.List;
   public static final int TYPE_mean = Util.getIntegerCodeForString("mean");
   public static final int TYPE_name = Util.getIntegerCodeForString("name");
   public static final int TYPE_data = Util.getIntegerCodeForString("data");
+  public static final int TYPE_emsg = Util.getIntegerCodeForString("emsg");
   public static final int TYPE_st3d = Util.getIntegerCodeForString("st3d");
   public static final int TYPE_sv3d = Util.getIntegerCodeForString("sv3d");
   public static final int TYPE_proj = Util.getIntegerCodeForString("proj");
   public static final int TYPE_vp08 = Util.getIntegerCodeForString("vp08");
   public static final int TYPE_vp09 = Util.getIntegerCodeForString("vp09");
   public static final int TYPE_vpcC = Util.getIntegerCodeForString("vpcC");
-  public static final int TYPE_DASHES = Util.getIntegerCodeForString("----");
+  public static final int TYPE_camm = Util.getIntegerCodeForString("camm");
+  public static final int TYPE_alac = Util.getIntegerCodeForString("alac");
 
   public final int type;
 
@@ -299,7 +302,7 @@ import java.util.List;
    * @return The corresponding four character string.
    */
   public static String getAtomTypeString(int type) {
-    return "" + (char) (type >> 24)
+    return "" + (char) ((type >> 24) & 0xFF)
         + (char) ((type >> 16) & 0xFF)
         + (char) ((type >> 8) & 0xFF)
         + (char) (type & 0xFF);

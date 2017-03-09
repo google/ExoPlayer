@@ -20,13 +20,14 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /**
  * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
  */
-/* package */ final class Ac3Reader extends ElementaryStreamReader {
+/* package */ final class Ac3Reader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;
@@ -82,7 +83,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
     output = extractorOutput.track(generator.getNextId());
   }
 

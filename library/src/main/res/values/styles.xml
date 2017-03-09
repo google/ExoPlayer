@@ -17,8 +17,8 @@
 
   <style name="ExoMediaButton">
     <item name="android:background">@null</item>
-    <item name="android:layout_width">71dip</item>
-    <item name="android:layout_height">52dip</item>
+    <item name="android:layout_width">@dimen/exo_media_button_width</item>
+    <item name="android:layout_height">@dimen/exo_media_button_height</item>
   </style>
 
   <style name="ExoMediaButton.Previous">
@@ -39,6 +39,16 @@
   <style name="ExoMediaButton.Rewind">
     <item name="android:src">@drawable/exo_controls_rewind</item>
     <item name="android:contentDescription">@string/exo_controls_rewind_description</item>
+  </style>
+
+  <style name="ExoMediaButton.Play">
+    <item name="android:src">@drawable/exo_controls_play</item>
+    <item name="android:contentDescription">@string/exo_controls_play_description</item>
+  </style>
+
+  <style name="ExoMediaButton.Pause">
+    <item name="android:src">@drawable/exo_controls_pause</item>
+    <item name="android:contentDescription">@string/exo_controls_pause_description</item>
   </style>
 
 </resources>

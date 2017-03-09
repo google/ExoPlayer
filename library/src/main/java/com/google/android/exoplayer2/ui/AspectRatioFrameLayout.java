@@ -17,15 +17,25 @@ package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
 import com.google.android.exoplayer2.R;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A {@link FrameLayout} that resizes itself to match a specified aspect ratio.
  */
 public final class AspectRatioFrameLayout extends FrameLayout {
+
+  /**
+   * Resize modes for {@link AspectRatioFrameLayout}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL})
+  public @interface ResizeMode {}
 
   /**
    * Either the width or height is decreased to obtain the desired aspect ratio.
@@ -39,6 +49,10 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * The height is fixed and the width is increased or decreased to obtain the desired aspect ratio.
    */
   public static final int RESIZE_MODE_FIXED_HEIGHT = 2;
+  /**
+   * The specified aspect ratio is ignored.
+   */
+  public static final int RESIZE_MODE_FILL = 3;
 
   /**
    * The {@link FrameLayout} will not resize itself if the fractional difference between its natural
@@ -85,12 +99,11 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   }
 
   /**
-   * Sets the resize mode which can be of value {@link #RESIZE_MODE_FIT},
-   * {@link #RESIZE_MODE_FIXED_HEIGHT} or {@link #RESIZE_MODE_FIXED_WIDTH}.
+   * Sets the resize mode.
    *
    * @param resizeMode The resize mode.
    */
-  public void setResizeMode(int resizeMode) {
+  public void setResizeMode(@ResizeMode int resizeMode) {
     if (this.resizeMode != resizeMode) {
       this.resizeMode = resizeMode;
       requestLayout();
@@ -100,7 +113,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    if (videoAspectRatio == 0) {
+    if (resizeMode == RESIZE_MODE_FILL || videoAspectRatio <= 0) {
       // Aspect ratio not set.
       return;
     }

@@ -13,28 +13,37 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <com.google.android.exoplayer2.ui.AspectRatioFrameLayout android:id="@+id/video_frame"
+  <com.google.android.exoplayer2.ui.AspectRatioFrameLayout android:id="@id/exo_content_frame"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center">
 
-    <View android:id="@+id/shutter"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:background="@android:color/black"/>
+    <!-- Video surface will be inserted as the first child of the content frame. -->
 
-    <com.google.android.exoplayer2.ui.SubtitleView android:id="@+id/subtitles"
+    <View android:id="@id/exo_shutter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"/>
+
+    <ImageView android:id="@id/exo_artwork"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"/>
+
+    <com.google.android.exoplayer2.ui.SubtitleView android:id="@id/exo_subtitles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
   </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 
-  <com.google.android.exoplayer2.ui.PlaybackControlView android:id="@+id/control"
+  <View android:id="@id/exo_controller_placeholder"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
 
-</FrameLayout>
+  <FrameLayout android:id="@id/exo_overlay"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"/>
+
+</merge>

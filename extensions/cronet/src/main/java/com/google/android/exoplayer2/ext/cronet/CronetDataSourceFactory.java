@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Predicate;
@@ -25,7 +26,7 @@ import org.chromium.net.CronetEngine;
 /**
  * A {@link Factory} that produces {@link CronetDataSource}.
  */
-public final class CronetDataSourceFactory implements Factory {
+public final class CronetDataSourceFactory extends BaseFactory {
 
   /**
    * The default connection timeout, in milliseconds.
@@ -67,7 +68,7 @@ public final class CronetDataSourceFactory implements Factory {
   }
 
   @Override
-  public CronetDataSource createDataSource() {
+  protected CronetDataSource createDataSourceInternal() {
     return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
         connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects);
   }

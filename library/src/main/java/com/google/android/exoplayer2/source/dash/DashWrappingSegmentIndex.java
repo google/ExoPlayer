@@ -25,15 +25,12 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 /* package */ final class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   private final ChunkIndex chunkIndex;
-  private final String uri;
 
   /**
    * @param chunkIndex The {@link ChunkIndex} to wrap.
-   * @param uri The URI where the data is located.
    */
-  public DashWrappingSegmentIndex(ChunkIndex chunkIndex, String uri) {
+  public DashWrappingSegmentIndex(ChunkIndex chunkIndex) {
     this.chunkIndex = chunkIndex;
-    this.uri = uri;
   }
 
   @Override
@@ -58,7 +55,7 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
   @Override
   public RangedUri getSegmentUrl(int segmentNum) {
-    return new RangedUri(uri, null, chunkIndex.offsets[segmentNum], chunkIndex.sizes[segmentNum]);
+    return new RangedUri(null, chunkIndex.offsets[segmentNum], chunkIndex.sizes[segmentNum]);
   }
 
   @Override

@@ -21,19 +21,21 @@ import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SingleTrackMetadataOutput;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SeekMapOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data.
  */
-public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMetadataOutput {
+public class ContainerMediaChunk extends BaseMediaChunk implements SeekMapOutput {
 
-  private final ChunkExtractorWrapper extractorWrapper;
+  private final int chunkCount;
   private final long sampleOffsetUs;
+  private final ChunkExtractorWrapper extractorWrapper;
   private final Format sampleFormat;
 
   private volatile int bytesLoaded;
@@ -49,6 +51,9 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
+   * @param chunkCount The number of chunks in the underlying media that are spanned by this
+   *     instance. Normally equal to one, but may be larger if multiple chunks as defined by the
+   *     underlying media are being merged into a single load.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param sampleFormat The {@link Format} of the samples in the chunk, if known. May be null if
@@ -56,13 +61,19 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
       int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
+      int chunkIndex, int chunkCount, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
       Format sampleFormat) {
     super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
         endTimeUs, chunkIndex);
-    this.extractorWrapper = extractorWrapper;
+    this.chunkCount = chunkCount;
     this.sampleOffsetUs = sampleOffsetUs;
+    this.extractorWrapper = extractorWrapper;
     this.sampleFormat = sampleFormat;
+  }
+
+  @Override
+  public int getNextChunkIndex() {
+    return chunkIndex + chunkCount;
   }
 
   @Override
@@ -75,7 +86,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
     return bytesLoaded;
   }
 
-  // SingleTrackMetadataOutput implementation.
+  // SeekMapOutput implementation.
 
   @Override
   public final void seekMap(SeekMap seekMap) {
@@ -110,15 +121,17 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackMe
       }
       // Load and decode the sample data.
       try {
+        Extractor extractor = extractorWrapper.extractor;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractorWrapper.read(input);
+          result = extractor.read(input, null);
         }
+        Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
         bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
-      dataSource.close();
+      Util.closeQuietly(dataSource);
     }
     loadCompleted = true;
   }

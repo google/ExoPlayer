@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
+import com.google.android.exoplayer2.text.cea.Cea708Decoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
 import com.google.android.exoplayer2.text.tx3g.Tx3gDecoder;
@@ -58,6 +59,7 @@ public interface SubtitleDecoderFactory {
    * <li>SubRip ({@link SubripDecoder})</li>
    * <li>TX3G ({@link Tx3gDecoder})</li>
    * <li>Cea608 ({@link Cea608Decoder})</li>
+   * <li>Cea708 ({@link Cea708Decoder})</li>
    * </ul>
    */
   SubtitleDecoderFactory DEFAULT = new SubtitleDecoderFactory() {
@@ -74,13 +76,25 @@ public interface SubtitleDecoderFactory {
         if (clazz == null) {
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
         }
-        return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
+        if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
+            || format.sampleMimeType.equals(MimeTypes.APPLICATION_MP4CEA608)) {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
+              .newInstance(format.sampleMimeType, format.accessibilityChannel);
+        } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA708)) {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(Integer.TYPE)
+              .newInstance(format.accessibilityChannel);
+        } else {
+          return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
+        }
       } catch (Exception e) {
         throw new IllegalStateException("Unexpected error instantiating decoder", e);
       }
     }
 
     private Class<?> getDecoderClass(String mimeType) {
+      if (mimeType == null) {
+        return null;
+      }
       try {
         switch (mimeType) {
           case MimeTypes.TEXT_VTT:
@@ -94,7 +108,10 @@ public interface SubtitleDecoderFactory {
           case MimeTypes.APPLICATION_TX3G:
             return Class.forName("com.google.android.exoplayer2.text.tx3g.Tx3gDecoder");
           case MimeTypes.APPLICATION_CEA608:
+          case MimeTypes.APPLICATION_MP4CEA608:
             return Class.forName("com.google.android.exoplayer2.text.cea.Cea608Decoder");
+          case MimeTypes.APPLICATION_CEA708:
+            return Class.forName("com.google.android.exoplayer2.text.cea.Cea708Decoder");
           default:
             return null;
         }

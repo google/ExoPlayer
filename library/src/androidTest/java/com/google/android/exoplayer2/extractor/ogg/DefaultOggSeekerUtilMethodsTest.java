@@ -28,8 +28,8 @@ import junit.framework.TestCase;
  */
 public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
-  private Random random = new Random(0);
-  
+  private final Random random = new Random(0);
+
   public void testSkipToNextPage() throws Exception {
     FakeExtractorInput extractorInput = TestData.createInput(
         TestUtil.joinByteArrays(
@@ -75,7 +75,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
   private static void skipToNextPage(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
     DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, extractorInput.getLength(),
-        new FlacReader());
+        new FlacReader(), 1, 2);
     while (true) {
       try {
         oggSeeker.skipToNextPage(extractorInput);
@@ -143,7 +143,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   private void skipToPageOfGranule(ExtractorInput input, long granule,
       long elapsedSamplesExpected) throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader());
+    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader(), 1, 2);
     while (true) {
       try {
         assertEquals(elapsedSamplesExpected, oggSeeker.skipToPageOfGranule(input, granule, -1));
@@ -193,7 +193,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   private void assertReadGranuleOfLastPage(FakeExtractorInput input, int expected)
       throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader());
+    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader(), 1, 2);
     while (true) {
       try {
         assertEquals(expected, oggSeeker.readGranuleOfLastPage(input));

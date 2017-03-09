@@ -16,12 +16,15 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.annotation.TargetApi;
+import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
+import android.util.Log;
 import android.util.Pair;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -31,6 +34,8 @@ import com.google.android.exoplayer2.util.Util;
  */
 @TargetApi(16)
 public final class MediaCodecInfo {
+
+  public static final String TAG = "MediaCodecInfo";
 
   /**
    * The name of the decoder.
@@ -47,6 +52,14 @@ public final class MediaCodecInfo {
    * @see CodecCapabilities#FEATURE_AdaptivePlayback
    */
   public final boolean adaptive;
+
+  /**
+   * Whether the decoder supports tunneling.
+   *
+   * @see CodecCapabilities#isFeatureSupported(String)
+   * @see CodecCapabilities#FEATURE_TunneledPlayback
+   */
+  public final boolean tunneling;
 
   private final String mimeType;
   private final CodecCapabilities capabilities;
@@ -83,6 +96,7 @@ public final class MediaCodecInfo {
     this.mimeType = mimeType;
     this.capabilities = capabilities;
     adaptive = capabilities != null && isAdaptive(capabilities);
+    tunneling = capabilities != null && isTunneling(capabilities);
   }
 
   /**
@@ -111,6 +125,7 @@ public final class MediaCodecInfo {
       return true;
     }
     if (!mimeType.equals(codecMimeType)) {
+      logNoSupport("codec.mime " + codec + ", " + codecMimeType);
       return false;
     }
     Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(codec);
@@ -124,25 +139,8 @@ public final class MediaCodecInfo {
         return true;
       }
     }
+    logNoSupport("codec.profileLevel, " + codec + ", " + codecMimeType);
     return false;
-  }
-
-  /**
-   * Whether the decoder supports video with a specified width and height.
-   * <p>
-   * Must not be called if the device SDK version is less than 21.
-   *
-   * @param width Width in pixels.
-   * @param height Height in pixels.
-   * @return Whether the decoder supports video with the given width and height.
-   */
-  @TargetApi(21)
-  public boolean isVideoSizeSupportedV21(int width, int height) {
-    if (capabilities == null) {
-      return false;
-    }
-    VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
-    return videoCapabilities != null && videoCapabilities.isSizeSupported(width, height);
   }
 
   /**
@@ -152,17 +150,62 @@ public final class MediaCodecInfo {
    *
    * @param width Width in pixels.
    * @param height Height in pixels.
-   * @param frameRate Frame rate in frames per second.
+   * @param frameRate Optional frame rate in frames per second. Ignored if set to
+   *     {@link Format#NO_VALUE} or any value less than or equal to 0.
    * @return Whether the decoder supports video with the given width, height and frame rate.
    */
   @TargetApi(21)
   public boolean isVideoSizeAndRateSupportedV21(int width, int height, double frameRate) {
     if (capabilities == null) {
+      logNoSupport("sizeAndRate.caps");
       return false;
     }
     VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
-    return videoCapabilities != null && videoCapabilities.areSizeAndRateSupported(width, height,
-        frameRate);
+    if (videoCapabilities == null) {
+      logNoSupport("sizeAndRate.vCaps");
+      return false;
+    }
+    if (!areSizeAndRateSupported(videoCapabilities, width, height, frameRate)) {
+      // Capabilities are known to be inaccurately reported for vertical resolutions on some devices
+      // (b/31387661). If the video is vertical and the capabilities indicate support if the width
+      // and height are swapped, we assume that the vertical resolution is also supported.
+      if (width >= height
+          || !areSizeAndRateSupported(videoCapabilities, height, width, frameRate)) {
+        logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
+        return false;
+      }
+      logAssumedSupport("sizeAndRate.rotated, " + width + "x" + height + "x" + frameRate);
+    }
+    return true;
+  }
+
+  /**
+   * Returns the smallest video size greater than or equal to a specified size that also satisfies
+   * the {@link MediaCodec}'s width and height alignment requirements.
+   * <p>
+   * Must not be called if the device SDK version is less than 21.
+   *
+   * @param width Width in pixels.
+   * @param height Height in pixels.
+   * @return The smallest video size greater than or equal to the specified size that also satisfies
+   *     the {@link MediaCodec}'s width and height alignment requirements, or null if not a video
+   *     codec.
+   */
+  @TargetApi(21)
+  public Point alignVideoSizeV21(int width, int height) {
+    if (capabilities == null) {
+      logNoSupport("align.caps");
+      return null;
+    }
+    VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
+    if (videoCapabilities == null) {
+      logNoSupport("align.vCaps");
+      return null;
+    }
+    int widthAlignment = videoCapabilities.getWidthAlignment();
+    int heightAlignment = videoCapabilities.getHeightAlignment();
+    return new Point(Util.ceilDivide(width, widthAlignment) * widthAlignment,
+        Util.ceilDivide(height, heightAlignment) * heightAlignment);
   }
 
   /**
@@ -176,10 +219,19 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public boolean isAudioSampleRateSupportedV21(int sampleRate) {
     if (capabilities == null) {
+      logNoSupport("sampleRate.caps");
       return false;
     }
     AudioCapabilities audioCapabilities = capabilities.getAudioCapabilities();
-    return audioCapabilities != null && audioCapabilities.isSampleRateSupported(sampleRate);
+    if (audioCapabilities == null) {
+      logNoSupport("sampleRate.aCaps");
+      return false;
+    }
+    if (!audioCapabilities.isSampleRateSupported(sampleRate)) {
+      logNoSupport("sampleRate.support, " + sampleRate);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -193,10 +245,29 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public boolean isAudioChannelCountSupportedV21(int channelCount) {
     if (capabilities == null) {
+      logNoSupport("channelCount.caps");
       return false;
     }
     AudioCapabilities audioCapabilities = capabilities.getAudioCapabilities();
-    return audioCapabilities != null && audioCapabilities.getMaxInputChannelCount() >= channelCount;
+    if (audioCapabilities == null) {
+      logNoSupport("channelCount.aCaps");
+      return false;
+    }
+    if (audioCapabilities.getMaxInputChannelCount() < channelCount) {
+      logNoSupport("channelCount.support, " + channelCount);
+      return false;
+    }
+    return true;
+  }
+
+  private void logNoSupport(String message) {
+    Log.d(TAG, "NoSupport [" + message + "] [" + name + ", " + mimeType + "] ["
+        + Util.DEVICE_DEBUG_INFO + "]");
+  }
+
+  private void logAssumedSupport(String message) {
+    Log.d(TAG, "AssumedSupport [" + message + "] [" + name + ", " + mimeType + "] ["
+        + Util.DEVICE_DEBUG_INFO + "]");
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {
@@ -206,6 +277,23 @@ public final class MediaCodecInfo {
   @TargetApi(19)
   private static boolean isAdaptiveV19(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
+  }
+
+  @TargetApi(21)
+  private static boolean areSizeAndRateSupported(VideoCapabilities capabilities, int width,
+      int height, double frameRate) {
+    return frameRate == Format.NO_VALUE || frameRate <= 0
+        ? capabilities.isSizeSupported(width, height)
+        : capabilities.areSizeAndRateSupported(width, height, frameRate);
+  }
+
+  private static boolean isTunneling(CodecCapabilities capabilities) {
+    return Util.SDK_INT >= 21 && isTunnelingV21(capabilities);
+  }
+
+  @TargetApi(21)
+  private static boolean isTunnelingV21(CodecCapabilities capabilities) {
+    return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_TunneledPlayback);
   }
 
 }

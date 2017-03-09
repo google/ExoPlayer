@@ -201,6 +201,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
+  private boolean waitingForFirstSyncFrame;
 
   protected DecoderCounters decoderCounters;
 
@@ -276,11 +277,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Configures a newly created {@link MediaCodec}.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
+   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  protected abstract void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto);
+  protected abstract void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
+      MediaCrypto crypto) throws DecoderQueryException;
 
   @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
@@ -345,7 +349,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codec, format, mediaCrypto);
+      configureCodec(decoderInfo, codec, format, mediaCrypto);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -363,6 +367,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : C.TIME_UNSET;
     inputIndex = C.INDEX_UNSET;
     outputIndex = C.INDEX_UNSET;
+    waitingForFirstSyncFrame = true;
     decoderCounters.decoderInitCount++;
   }
 
@@ -373,6 +378,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected boolean shouldInitCodec() {
     return codec == null && format != null;
+  }
+
+  protected final MediaCodec getCodec() {
+    return codec;
   }
 
   @Override
@@ -468,6 +477,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    if (outputStreamEnded) {
+      return;
+    }
     if (format == null) {
       readFormat();
     }
@@ -494,6 +506,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecHotswapDeadlineMs = C.TIME_UNSET;
     inputIndex = C.INDEX_UNSET;
     outputIndex = C.INDEX_UNSET;
+    waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     shouldSkipOutputBuffer = false;
     decodeOnlyPresentationTimestamps.clear();
@@ -525,10 +538,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer() throws ExoPlaybackException {
-    if (inputStreamEnded
-        || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-      // The input stream has ended, or we need to re-initialize the codec but are still waiting
-      // for the existing codec to output any final output buffers.
+    if (codec == null || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+        || inputStreamEnded) {
+      // We need to reinitialize the codec or the input stream has ended.
       return false;
     }
 
@@ -624,6 +636,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       return false;
     }
+    if (waitingForFirstSyncFrame && !buffer.isKeyFrame()) {
+      buffer.clear();
+      if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
+        // The buffer we just cleared contained reconfiguration data. We need to re-write this
+        // data into a subsequent buffer (if there is one).
+        codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+      }
+      return true;
+    }
+    waitingForFirstSyncFrame = false;
     boolean bufferEncrypted = buffer.isEncrypted();
     waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {
@@ -842,10 +864,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @SuppressWarnings("deprecation")
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    if (outputStreamEnded) {
-      return false;
-    }
-
     if (outputIndex < 0) {
       outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
       if (outputIndex >= 0) {
@@ -860,7 +878,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           // The dequeued buffer indicates the end of the stream. Process it immediately.
           processEndOfStream();
           outputIndex = C.INDEX_UNSET;
-          return true;
+          return false;
         } else {
           // The dequeued buffer is a media buffer. Do some initial setup. The buffer will be
           // processed by calling processOutputBuffer (possibly multiple times) below.
@@ -881,7 +899,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
             || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();
-          return true;
         }
         return false;
       }
@@ -1019,7 +1036,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT < 24
         && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name))
         && ("flounder".equals(Util.DEVICE) || "flounder_lte".equals(Util.DEVICE)
-            || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE));
+        || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE));
   }
 
   /**
@@ -1066,7 +1083,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     buffer with {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} set. False otherwise.
    */
   private static boolean codecNeedsEosFlushWorkaround(String name) {
-    return Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name);
+    return (Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name))
+        || (Util.SDK_INT <= 19 && "hb2000".equals(Util.DEVICE)
+            && ("OMX.amlogic.avc.decoder.awesome".equals(name)
+                || "OMX.amlogic.avc.decoder.awesome.secure".equals(name)));
   }
 
   /**

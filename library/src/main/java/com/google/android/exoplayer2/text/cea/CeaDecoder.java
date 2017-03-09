@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.cea;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
@@ -109,7 +110,7 @@ import java.util.TreeSet;
         Subtitle subtitle = createSubtitle();
         if (!inputBuffer.isDecodeOnly()) {
           SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
-          outputBuffer.setContent(inputBuffer.timeUs, subtitle, 0);
+          outputBuffer.setContent(inputBuffer.timeUs, subtitle, Format.OFFSET_SAMPLE_RELATIVE);
           releaseInputBuffer(inputBuffer);
           return outputBuffer;
         }

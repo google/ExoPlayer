@@ -17,11 +17,12 @@ package com.google.android.exoplayer2.ext.ffmpeg;
 
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -53,15 +54,14 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
   public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities, int streamType) {
-    super(eventHandler, eventListener, audioCapabilities, streamType);
+      AudioCapabilities audioCapabilities) {
+    super(eventHandler, eventListener, audioCapabilities);
   }
 
   @Override
-  public int supportsFormat(Format format) {
+  protected int supportsFormatInternal(Format format) {
     if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
@@ -71,7 +71,13 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected FfmpegDecoder createDecoder(Format format) throws FfmpegDecoderException {
+  public final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    return ADAPTIVE_NOT_SEAMLESS;
+  }
+
+  @Override
+  protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+      throws FfmpegDecoderException {
     decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
         format.sampleMimeType, format.initializationData);
     return decoder;

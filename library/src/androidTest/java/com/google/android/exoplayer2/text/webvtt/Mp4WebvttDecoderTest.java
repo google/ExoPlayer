@@ -97,7 +97,7 @@ public final class Mp4WebvttDecoderTest extends TestCase {
   public void testNoCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length);
-    assertMp4WebvttSubtitleEquals(result, new Cue[0]);
+    assertMp4WebvttSubtitleEquals(result);
   }
 
   // Negative tests.

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.demo;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,9 +65,21 @@ public class SampleChooserActivity extends Activity {
     if (dataUri != null) {
       uris = new String[] {dataUri};
     } else {
-      uris = new String[] {
-          "asset:///media.exolist.json",
-      };
+      ArrayList<String> uriList = new ArrayList<>();
+      AssetManager assetManager = getAssets();
+      try {
+        for (String asset : assetManager.list("")) {
+          if (asset.endsWith(".exolist.json")) {
+            uriList.add("asset:///" + asset);
+          }
+        }
+      } catch (IOException e) {
+        Toast.makeText(getApplicationContext(), R.string.sample_list_load_error, Toast.LENGTH_LONG)
+            .show();
+      }
+      uris = new String[uriList.size()];
+      uriList.toArray(uris);
+      Arrays.sort(uris);
     }
     SampleListLoader loaderTask = new SampleListLoader();
     loaderTask.execute(uris);

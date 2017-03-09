@@ -15,7 +15,11 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,9 +33,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final class Segment implements Comparable<Long> {
 
     public final String url;
-    public final double durationSecs;
-    public final int discontinuitySequenceNumber;
-    public final long startTimeUs;
+    public final long durationUs;
+    public final int relativeDiscontinuitySequence;
+    public final long relativeStartTimeUs;
     public final boolean isEncrypted;
     public final String encryptionKeyUri;
     public final String encryptionIV;
@@ -42,13 +46,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this(uri, 0, -1, C.TIME_UNSET, false, null, null, byterangeOffset, byterangeLength);
     }
 
-    public Segment(String uri, double durationSecs, int discontinuitySequenceNumber,
-        long startTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
+    public Segment(String uri, long durationUs, int relativeDiscontinuitySequence,
+        long relativeStartTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
         long byterangeOffset, long byterangeLength) {
       this.url = uri;
-      this.durationSecs = durationSecs;
-      this.discontinuitySequenceNumber = discontinuitySequenceNumber;
-      this.startTimeUs = startTimeUs;
+      this.durationUs = durationUs;
+      this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
+      this.relativeStartTimeUs = relativeStartTimeUs;
       this.isEncrypted = isEncrypted;
       this.encryptionKeyUri = encryptionKeyUri;
       this.encryptionIV = encryptionIV;
@@ -57,38 +61,116 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
 
     @Override
-    public int compareTo(Long startTimeUs) {
-      return this.startTimeUs > startTimeUs ? 1 : (this.startTimeUs < startTimeUs ? -1 : 0);
+    public int compareTo(Long relativeStartTimeUs) {
+      return this.relativeStartTimeUs > relativeStartTimeUs
+          ? 1 : (this.relativeStartTimeUs < relativeStartTimeUs ? -1 : 0);
     }
+
   }
 
-  public static final String ENCRYPTION_METHOD_NONE = "NONE";
-  public static final String ENCRYPTION_METHOD_AES_128 = "AES-128";
+  /**
+   * Type of the playlist as specified by #EXT-X-PLAYLIST-TYPE.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
+  public @interface PlaylistType {}
+  public static final int PLAYLIST_TYPE_UNKNOWN = 0;
+  public static final int PLAYLIST_TYPE_VOD = 1;
+  public static final int PLAYLIST_TYPE_EVENT = 2;
 
+  @PlaylistType
+  public final int playlistType;
+  public final long startOffsetUs;
+  public final long startTimeUs;
+  public final boolean hasDiscontinuitySequence;
+  public final int discontinuitySequence;
   public final int mediaSequence;
-  public final int targetDurationSecs;
   public final int version;
+  public final long targetDurationUs;
+  public final boolean hasEndTag;
+  public final boolean hasProgramDateTime;
   public final Segment initializationSegment;
   public final List<Segment> segments;
-  public final boolean live;
   public final long durationUs;
 
-  public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
-      boolean live, Segment initializationSegment, List<Segment> segments) {
+  public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
+      long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
+      int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
+      boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
+    this.playlistType = playlistType;
+    this.startTimeUs = startTimeUs;
+    this.hasDiscontinuitySequence = hasDiscontinuitySequence;
+    this.discontinuitySequence = discontinuitySequence;
     this.mediaSequence = mediaSequence;
-    this.targetDurationSecs = targetDurationSecs;
     this.version = version;
-    this.live = live;
+    this.targetDurationUs = targetDurationUs;
+    this.hasEndTag = hasEndTag;
+    this.hasProgramDateTime = hasProgramDateTime;
     this.initializationSegment = initializationSegment;
-    this.segments = segments;
-
+    this.segments = Collections.unmodifiableList(segments);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
-      durationUs = last.startTimeUs + (long) (last.durationSecs * C.MICROS_PER_SECOND);
+      durationUs = last.relativeStartTimeUs + last.durationUs;
     } else {
       durationUs = 0;
     }
+    this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
+        : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+  }
+
+  /**
+   * Returns whether this playlist is newer than {@code other}.
+   *
+   * @param other The playlist to compare.
+   * @return Whether this playlist is newer than {@code other}.
+   */
+  public boolean isNewerThan(HlsMediaPlaylist other) {
+    if (other == null || mediaSequence > other.mediaSequence) {
+      return true;
+    }
+    if (mediaSequence < other.mediaSequence) {
+      return false;
+    }
+    // The media sequences are equal.
+    int segmentCount = segments.size();
+    int otherSegmentCount = other.segments.size();
+    return segmentCount > otherSegmentCount
+        || (segmentCount == otherSegmentCount && hasEndTag && !other.hasEndTag);
+  }
+
+  public long getEndTimeUs() {
+    return startTimeUs + durationUs;
+  }
+
+  /**
+   * Returns a playlist identical to this one except for the start time, the discontinuity sequence
+   * and {@code hasDiscontinuitySequence} values. The first two are set to the specified values,
+   * {@code hasDiscontinuitySequence} is set to true.
+   *
+   * @param startTimeUs The start time for the returned playlist.
+   * @param discontinuitySequence The discontinuity sequence for the returned playlist.
+   * @return The playlist.
+   */
+  public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
+    return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs, true,
+        discontinuitySequence, mediaSequence, version, targetDurationUs, hasEndTag,
+        hasProgramDateTime, initializationSegment, segments);
+  }
+
+  /**
+   * Returns a playlist identical to this one except that an end tag is added. If an end tag is
+   * already present then the playlist will return itself.
+   *
+   * @return The playlist.
+   */
+  public HlsMediaPlaylist copyWithEndTag() {
+    if (this.hasEndTag) {
+      return this;
+    }
+    return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs,
+        hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
+        true, hasProgramDateTime, initializationSegment, segments);
   }
 
 }

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -65,28 +66,23 @@ public class TestUtil {
     }
   }
 
-  public static FakeExtractorOutput consumeTestData(Extractor extractor, byte[] data)
-      throws IOException, InterruptedException {
-    return consumeTestData(extractor, newExtractorInput(data));
-  }
-
-  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input)
-      throws IOException, InterruptedException {
-    return consumeTestData(extractor, input, false);
+  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
+      long timeUs) throws IOException, InterruptedException {
+    return consumeTestData(extractor, input, timeUs, false);
   }
 
   public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
-      boolean retryFromStartIfLive) throws IOException, InterruptedException {
+      long timeUs, boolean retryFromStartIfLive) throws IOException, InterruptedException {
     FakeExtractorOutput output = new FakeExtractorOutput();
     extractor.init(output);
-    consumeTestData(extractor, input, output, retryFromStartIfLive);
+    consumeTestData(extractor, input, timeUs, output, retryFromStartIfLive);
     return output;
   }
 
-  private static void consumeTestData(Extractor extractor, FakeExtractorInput input,
+  private static void consumeTestData(Extractor extractor, FakeExtractorInput input, long timeUs,
       FakeExtractorOutput output, boolean retryFromStartIfLive)
       throws IOException, InterruptedException {
-    extractor.seek(input.getPosition());
+    extractor.seek(input.getPosition(), timeUs);
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
@@ -113,7 +109,7 @@ public class TestUtil {
         for (int i = 0; i < output.numberOfTracks; i++) {
           output.trackOutputs.valueAt(i).clear();
         }
-        extractor.seek(0);
+        extractor.seek(0, 0);
       }
     }
   }
@@ -276,7 +272,7 @@ public class TestUtil {
 
     Assert.assertTrue(sniffTestData(extractor, input));
     input.resetPeekPosition();
-    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, true);
+    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
 
     if (simulateUnknownLength
         && assetExists(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION)) {
@@ -296,12 +292,87 @@ public class TestUtil {
           extractorOutput.trackOutputs.valueAt(i).clear();
         }
 
-        consumeTestData(extractor, input, extractorOutput, false);
+        consumeTestData(extractor, input, timeUs, extractorOutput, false);
         extractorOutput.assertOutput(instrumentation, sampleFile + '.' + j + DUMP_EXTENSION);
       }
     }
 
     return extractorOutput;
+  }
+
+  /**
+   * Calls {@link #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)} with all
+   * possible combinations of "simulate" parameters.
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param sampleFile The path to the input sample.
+   * @param instrumentation To be used to load the sample file.
+   * @param expectedThrowable Expected {@link Throwable} class.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
+   */
+  public static void assertThrows(ExtractorFactory factory, String sampleFile,
+      Instrumentation instrumentation, Class<? extends Throwable> expectedThrowable)
+      throws IOException, InterruptedException {
+    byte[] fileData = getByteArray(instrumentation, sampleFile);
+    assertThrows(factory, fileData, expectedThrowable);
+  }
+
+  /**
+   * Calls {@link #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)} with all
+   * possible combinations of "simulate" parameters.
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param fileData Content of the input file.
+   * @param expectedThrowable Expected {@link Throwable} class.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
+   */
+  public static void assertThrows(ExtractorFactory factory, byte[] fileData,
+      Class<? extends Throwable> expectedThrowable) throws IOException, InterruptedException {
+    assertThrows(factory.create(), fileData, expectedThrowable, false, false, false);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true, false, false);
+    assertThrows(factory.create(), fileData, expectedThrowable, false,  true, false);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true,  true, false);
+    assertThrows(factory.create(), fileData, expectedThrowable, false, false,  true);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true, false,  true);
+    assertThrows(factory.create(), fileData, expectedThrowable, false,  true,  true);
+    assertThrows(factory.create(), fileData, expectedThrowable,  true,  true,  true);
+  }
+
+  /**
+   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code sampleFile}.
+   *
+   * @param extractor The {@link Extractor} to be tested.
+   * @param fileData Content of the input file.
+   * @param expectedThrowable Expected {@link Throwable} class.
+   * @param simulateIOErrors If true simulates IOErrors.
+   * @param simulateUnknownLength If true simulates unknown input length.
+   * @param simulatePartialReads If true simulates partial reads.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertThrows(Extractor extractor, byte[] fileData,
+      Class<? extends Throwable> expectedThrowable, boolean simulateIOErrors,
+      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
+      InterruptedException {
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
+        .setSimulateIOErrors(simulateIOErrors)
+        .setSimulateUnknownLength(simulateUnknownLength)
+        .setSimulatePartialReads(simulatePartialReads).build();
+    try {
+      consumeTestData(extractor, input, 0, true);
+      throw new AssertionError(expectedThrowable.getSimpleName() + " expected but not thrown");
+    } catch (Throwable throwable) {
+      if (expectedThrowable.equals(throwable.getClass())) {
+        return; // Pass!
+      }
+      throw throwable;
+    }
   }
 
   public static void recursiveDelete(File fileOrDirectory) {
@@ -311,6 +382,14 @@ public class TestUtil {
       }
     }
     fileOrDirectory.delete();
+  }
+
+  /** Creates an empty folder in the application specific cache directory. */
+  public static File createTempFolder(Context context) throws IOException {
+    File tempFolder = File.createTempFile("ExoPlayerTest", null, context.getCacheDir());
+    Assert.assertTrue(tempFolder.delete());
+    Assert.assertTrue(tempFolder.mkdir());
+    return tempFolder;
   }
 
 }

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Util;
@@ -53,12 +54,12 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(Listener listener) {
+  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     this.listener = listener;
     for (int i = 0; i < mediaSources.length; i++) {
       if (!duplicateFlags[i]) {
         final int index = i;
-        mediaSources[i].prepareSource(new Listener() {
+        mediaSources[i].prepareSource(player, false, new Listener() {
           @Override
           public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
             handleSourceInfoRefreshed(index, timeline, manifest);
@@ -171,11 +172,13 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds) {
+    public Window getWindow(int windowIndex, Window window, boolean setIds,
+        long defaultPositionProjectionUs) {
       int sourceIndex = getSourceIndexForWindow(windowIndex);
       int firstWindowIndexInSource = getFirstWindowIndexInSource(sourceIndex);
       int firstPeriodIndexInSource = getFirstPeriodIndexInSource(sourceIndex);
-      timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource, window, setIds);
+      timelines[sourceIndex].getWindow(windowIndex - firstWindowIndexInSource, window, setIds,
+          defaultPositionProjectionUs);
       window.firstPeriodIndex += firstPeriodIndexInSource;
       window.lastPeriodIndex += firstPeriodIndexInSource;
       return window;
