@@ -281,6 +281,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       player.setMetadataOutput(eventLogger);
 
       simpleExoPlayerView.setPlayer(player);
+      player.setPlaybackSpeed(3.0f);
       player.setPlayWhenReady(shouldAutoPlay);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();

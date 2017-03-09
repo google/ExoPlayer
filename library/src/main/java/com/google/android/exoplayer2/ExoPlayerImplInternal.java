@@ -435,8 +435,12 @@ import java.io.IOException;
     if (periodPositionUs != C.TIME_UNSET) {
       resetRendererPosition(periodPositionUs);
     } else {
-      rendererPositionUs = rendererMediaClock.getPositionUs();
-      standaloneMediaClock.setPositionUs(rendererPositionUs);
+      if (rendererMediaClockSource != null && !rendererMediaClockSource.isEnded()) {
+        rendererPositionUs = rendererMediaClock.getPositionUs();
+        standaloneMediaClock.setPositionUs(rendererPositionUs);
+      } else {
+        rendererPositionUs = standaloneMediaClock.getPositionUs();
+      }
       periodPositionUs = rendererPositionUs - playingPeriodHolder.rendererPositionOffsetUs;
     }
     playbackInfo.positionUs = periodPositionUs;
