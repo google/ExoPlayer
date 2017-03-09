@@ -470,6 +470,11 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_DF7:
         window = (command - COMMAND_DF0);
         handleDefineWindow(window);
+        // We also set the current window to the newly defined window.
+        if (currentWindow != window) {
+          currentWindow = window;
+          currentCueBuilder = cueBuilders[window];
+        }
         break;
       default:
         Log.w(TAG, "Invalid C1 command: " + command);
@@ -871,6 +876,7 @@ public final class Cea708Decoder extends CeaDecoder {
     private int foregroundColor;
     private int backgroundColorStartPosition;
     private int backgroundColor;
+    private int row;
 
     public CueBuilder() {
       rolledUpCaptions = new LinkedList<>();
@@ -910,6 +916,7 @@ public final class Cea708Decoder extends CeaDecoder {
       underlineStartPosition = C.POSITION_UNSET;
       foregroundColorStartPosition = C.POSITION_UNSET;
       backgroundColorStartPosition = C.POSITION_UNSET;
+      row = 0;
     }
 
     public boolean isDefined() {
@@ -1044,7 +1051,16 @@ public final class Cea708Decoder extends CeaDecoder {
     }
 
     public void setPenLocation(int row, int column) {
-      // TODO: Support moving the pen location with a window.
+      // TODO: Support moving the pen location with a window properly.
+
+      // Until we support proper pen locations, if we encounter a row that's different from the
+      // previous one, we should append a new line. Otherwise, we'll see strings that should be
+      // on new lines concatenated with the previous, resulting in 2 words being combined, as
+      // well as potentially drawing beyond the width of the window/screen.
+      if (this.row != row) {
+        append('\n');
+      }
+      this.row = row;
     }
 
     public void backspace() {
