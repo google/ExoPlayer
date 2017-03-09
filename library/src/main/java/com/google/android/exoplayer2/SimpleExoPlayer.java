@@ -615,6 +615,16 @@ public class SimpleExoPlayer implements ExoPlayer {
     return player.isCurrentWindowSeekable();
   }
 
+  @Override
+  public float getPlaybackSpeed() {
+    return player.getPlaybackSpeed();
+  }
+
+  @Override
+  public void setPlaybackSpeed(float speed) {
+    player.setPlaybackSpeed(speed);
+  }
+
   // Renderer building.
 
   private void buildRenderers(Context context, Handler mainHandler,

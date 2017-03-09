@@ -317,6 +317,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return manifest;
   }
 
+  @Override
+  public float getPlaybackSpeed() { return internalPlayer.getPlaybackSpeed(); }
+
+  @Override
+  public void setPlaybackSpeed(float speed) { internalPlayer.setPlaybackSpeed(speed); }
+
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {

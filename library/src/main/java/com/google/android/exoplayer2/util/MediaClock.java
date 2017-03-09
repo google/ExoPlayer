@@ -25,4 +25,9 @@ public interface MediaClock {
    */
   long getPositionUs();
 
+  /**
+   * Set the playback speed
+   */
+  void setPlaybackSpeed(float speed);
+
 }

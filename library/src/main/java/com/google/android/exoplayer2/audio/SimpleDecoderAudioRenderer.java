@@ -404,6 +404,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
+  public void setPlaybackSpeed(float speed) {
+    audioTrack.setPlaybackSpeed(speed);
+  }
+
+  @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
