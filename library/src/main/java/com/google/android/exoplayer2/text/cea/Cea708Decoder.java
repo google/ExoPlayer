@@ -285,19 +285,26 @@ public final class Cea708Decoder extends CeaDecoder {
       return;
     }
 
+    // The cues should be updated if we receive a C0 ETX command, any C1 command, or if after
+    // processing the service block any text has been added to the buffer. See CEA-708-B Section
+    // 8.10.4 for more details.
+    boolean cuesNeedUpdate = false;
+
     while (serviceBlockPacket.bitsLeft() > 0) {
       int command = serviceBlockPacket.readBits(8);
       if (command != COMMAND_EXT1) {
         if (command <= GROUP_C0_END) {
           handleC0Command(command);
+          // If the C0 command was an ETX command, the cues are updated in handleC0Command.
         } else if (command <= GROUP_G0_END) {
           handleG0Character(command);
+          cuesNeedUpdate = true;
         } else if (command <= GROUP_C1_END) {
           handleC1Command(command);
-          // Cues are always updated after a C1 command
-          cues = getDisplayCues();
+          cuesNeedUpdate = true;
         } else if (command <= GROUP_G1_END) {
           handleG1Character(command);
+          cuesNeedUpdate = true;
         } else {
           Log.w(TAG, "Invalid base command: " + command);
         }
@@ -308,14 +315,20 @@ public final class Cea708Decoder extends CeaDecoder {
           handleC2Command(command);
         } else if (command <= GROUP_G2_END) {
           handleG2Character(command);
+          cuesNeedUpdate = true;
         } else if (command <= GROUP_C3_END) {
           handleC3Command(command);
         } else if (command <= GROUP_G3_END) {
           handleG3Character(command);
+          cuesNeedUpdate = true;
         } else {
           Log.w(TAG, "Invalid extended command: " + command);
         }
       }
+    }
+
+    if (cuesNeedUpdate) {
+      cues = getDisplayCues();
     }
   }
 
