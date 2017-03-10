@@ -178,10 +178,11 @@ public final class DashHostedTest extends ExoHostedTest {
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
 
   private static final String MANIFEST_URL_PREFIX = "https://storage.googleapis.com/exoplayer-test-"
-      + "media-1/gen-3/screens/dash-vod-single-segment/";
+      + "media-1/gen-4/screens/dash-vod-single-segment/";
 
-  private static final String WIDEVINE_L1_SUFFIX = "-hw.mpd";
-  private static final String WIDEVINE_L3_SUFFIX = "-sw.mpd";
+  // TODO: Don't need separate suffixes. Clean up.
+  private static final String WIDEVINE_L1_SUFFIX = ".mpd";
+  private static final String WIDEVINE_L3_SUFFIX = ".mpd";
 
   private static final String WIDEVINE_LICENSE_URL =
       "https://proxy.uat.widevine.com/proxy?provider=widevine_test&video_id=";
