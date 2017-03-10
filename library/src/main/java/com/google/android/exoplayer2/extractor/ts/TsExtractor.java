@@ -383,7 +383,8 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_SINGLE_PMT || mode == MODE_HLS || remainingPmts == 1) {
         timestampAdjuster = timestampAdjusters.get(0);
       } else {
-        timestampAdjuster = new TimestampAdjuster(timestampAdjusters.get(0).firstSampleTimestampUs);
+        timestampAdjuster = new TimestampAdjuster(
+            timestampAdjusters.get(0).getFirstSampleTimestampUs());
         timestampAdjusters.add(timestampAdjuster);
       }
 

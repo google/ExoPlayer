@@ -242,6 +242,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
     if (!isMasterTimestampSource) {
       timestampAdjuster.waitUntilInitialized();
+    } else if (timestampAdjuster.getFirstSampleTimestampUs() == TimestampAdjuster.DO_NOT_OFFSET) {
+      // We're the master and we haven't set the desired first sample timestamp yet.
+      timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
     }
     try {
       ExtractorInput input = new DefaultExtractorInput(dataSource,

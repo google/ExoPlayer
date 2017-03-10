@@ -88,6 +88,9 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
       case TYPE_PRIVATE_COMMAND:
         command = PrivateCommand.parseFromSection(sectionData, spliceCommandLength, ptsAdjustment);
         break;
+      default:
+        // Do nothing.
+        break;
     }
     return command == null ? new Metadata() : new Metadata(command);
   }
