@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -98,7 +97,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
-  private final Map<String, String> requestProperties;
+  private final RequestProperties defaultRequestProperties;
+  private final RequestProperties requestProperties;
   private final ConditionVariable operation;
   private final Clock clock;
 
@@ -136,7 +136,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   public CronetDataSource(CronetEngine cronetEngine, Executor executor,
       Predicate<String> contentTypePredicate, TransferListener<? super CronetDataSource> listener) {
     this(cronetEngine, executor, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS, false);
+        DEFAULT_READ_TIMEOUT_MILLIS, false, null);
   }
 
   /**
@@ -149,17 +149,20 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param defaultRequestProperties The default request properties to be used.
    */
   public CronetDataSource(CronetEngine cronetEngine, Executor executor,
       Predicate<String> contentTypePredicate, TransferListener<? super CronetDataSource> listener,
-      int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects) {
+      int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects,
+      RequestProperties defaultRequestProperties) {
     this(cronetEngine, executor, contentTypePredicate, listener, connectTimeoutMs,
-        readTimeoutMs, resetTimeoutOnRedirects, new SystemClock());
+        readTimeoutMs, resetTimeoutOnRedirects, new SystemClock(), defaultRequestProperties);
   }
 
   /* package */ CronetDataSource(CronetEngine cronetEngine, Executor executor,
       Predicate<String> contentTypePredicate, TransferListener<? super CronetDataSource> listener,
-      int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects, Clock clock) {
+      int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects, Clock clock,
+      RequestProperties defaultRequestProperties) {
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
     this.contentTypePredicate = contentTypePredicate;
@@ -168,7 +171,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
     this.clock = Assertions.checkNotNull(clock);
-    requestProperties = new HashMap<>();
+    this.defaultRequestProperties = defaultRequestProperties;
+    requestProperties = new RequestProperties();
     operation = new ConditionVariable();
   }
 
@@ -176,23 +180,17 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   @Override
   public void setRequestProperty(String name, String value) {
-    synchronized (requestProperties) {
-      requestProperties.put(name, value);
-    }
+    requestProperties.set(name, value);
   }
 
   @Override
   public void clearRequestProperty(String name) {
-    synchronized (requestProperties) {
-      requestProperties.remove(name);
-    }
+    requestProperties.remove(name);
   }
 
   @Override
   public void clearAllRequestProperties() {
-    synchronized (requestProperties) {
-      requestProperties.clear();
-    }
+    requestProperties.clear();
   }
 
   @Override
@@ -421,15 +419,23 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(dataSpec.uri.toString(),
         this, executor);
     // Set the headers.
-    synchronized (requestProperties) {
-      if (dataSpec.postBody != null && dataSpec.postBody.length != 0
-          && !requestProperties.containsKey(CONTENT_TYPE)) {
-        throw new OpenException("POST request with non-empty body must set Content-Type", dataSpec,
-            Status.IDLE);
+    boolean isContentTypeHeaderSet = false;
+    if (defaultRequestProperties != null) {
+      for (Entry<String, String> headerEntry : defaultRequestProperties.getSnapshot().entrySet()) {
+        String key = headerEntry.getKey();
+        isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
+        requestBuilder.addHeader(key, headerEntry.getValue());
       }
-      for (Entry<String, String> headerEntry : requestProperties.entrySet()) {
-        requestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
-      }
+    }
+    Map<String, String> requestPropertiesSnapshot = requestProperties.getSnapshot();
+    for (Entry<String, String> headerEntry : requestPropertiesSnapshot.entrySet()) {
+      String key = headerEntry.getKey();
+      isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
+      requestBuilder.addHeader(key, headerEntry.getValue());
+    }
+    if (dataSpec.postBody != null && dataSpec.postBody.length != 0 && !isContentTypeHeaderSet) {
+      throw new OpenException("POST request with non-empty body must set Content-Type", dataSpec,
+          Status.IDLE);
     }
     // Set the Range header.
     if (currentDataSpec.position != 0 || currentDataSpec.length != C.LENGTH_UNSET) {
