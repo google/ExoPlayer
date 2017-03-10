@@ -34,21 +34,39 @@ public final class TimestampAdjuster {
    */
   private static final long MAX_PTS_PLUS_ONE = 0x200000000L;
 
-  public final long firstSampleTimestampUs;
-
+  private long firstSampleTimestampUs;
   private long timestampOffsetUs;
 
   // Volatile to allow isInitialized to be called on a different thread to adjustSampleTimestamp.
   private volatile long lastSampleTimestamp;
 
   /**
-   * @param firstSampleTimestampUs The desired result of the first call to
-   *     {@link #adjustSampleTimestamp(long)}, or {@link #DO_NOT_OFFSET} if presentation timestamps
-   *     should not be offset.
+   * @param firstSampleTimestampUs See {@link #setFirstSampleTimestampUs(long)}.
    */
   public TimestampAdjuster(long firstSampleTimestampUs) {
-    this.firstSampleTimestampUs = firstSampleTimestampUs;
     lastSampleTimestamp = C.TIME_UNSET;
+    setFirstSampleTimestampUs(firstSampleTimestampUs);
+  }
+
+  /**
+   * Sets the desired result of the first call to {@link #adjustSampleTimestamp(long)}. Can only be
+   * called before any timestamps have been adjusted.
+   *
+   * @param firstSampleTimestampUs The first adjusted sample timestamp in microseconds, or
+   *     {@link #DO_NOT_OFFSET} if presentation timestamps should not be offset.
+   */
+  public synchronized void setFirstSampleTimestampUs(long firstSampleTimestampUs) {
+    Assertions.checkState(lastSampleTimestamp == C.TIME_UNSET);
+    this.firstSampleTimestampUs = firstSampleTimestampUs;
+  }
+
+  /**
+   * Returns the first adjusted sample timestamp in microseconds.
+   *
+   * @return The first adjusted sample timestamp in microseconds.
+   */
+  public long getFirstSampleTimestampUs() {
+    return firstSampleTimestampUs;
   }
 
   /**

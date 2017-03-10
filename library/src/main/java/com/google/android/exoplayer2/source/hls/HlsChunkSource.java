@@ -282,7 +282,7 @@ import java.util.Locale;
     int discontinuitySequence = mediaPlaylist.discontinuitySequence
         + segment.relativeDiscontinuitySequence;
     TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-        discontinuitySequence, startTimeUs);
+        discontinuitySequence);
 
     // Configure the data source and spec for the chunk.
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
