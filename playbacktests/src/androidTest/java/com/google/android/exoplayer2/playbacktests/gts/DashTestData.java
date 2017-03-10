@@ -88,10 +88,10 @@ public final class DashTestData {
 
   // Widevine encrypted content representation ids.
   public static final String WIDEVINE_AAC_AUDIO_REPRESENTATION_ID = "0";
-  public static final String WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "1";
-  public static final String WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID = "2";
-  public static final String WIDEVINE_H264_MAIN_240P_VIDEO_REPRESENTATION_ID = "3";
-  public static final String WIDEVINE_H264_MAIN_480P_VIDEO_REPRESENTATION_ID = "4";
+  public static final String WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "2";
+  public static final String WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID = "3";
+  public static final String WIDEVINE_H264_MAIN_240P_VIDEO_REPRESENTATION_ID = "4";
+  public static final String WIDEVINE_H264_MAIN_480P_VIDEO_REPRESENTATION_ID = "5";
   // The highest quality H264 format mandated by the Android CDD.
   public static final String WIDEVINE_H264_CDD_FIXED = Util.SDK_INT < 23
       ? WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID
@@ -113,8 +113,8 @@ public final class DashTestData {
   public static final String WIDEVINE_H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID = "2";
   public static final String WIDEVINE_H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID = "2";
 
-  public static final String WIDEVINE_H265_BASELINE_288P_VIDEO_REPRESENTATION_ID = "1";
-  public static final String WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID = "2";
+  public static final String WIDEVINE_H265_BASELINE_288P_VIDEO_REPRESENTATION_ID = "2";
+  public static final String WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID = "3";
   // The highest quality H265 format mandated by the Android CDD.
   public static final String WIDEVINE_H265_CDD_FIXED =
       WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID;
