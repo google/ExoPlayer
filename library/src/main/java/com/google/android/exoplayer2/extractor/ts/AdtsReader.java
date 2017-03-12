@@ -33,7 +33,7 @@ import java.util.Collections;
 /**
  * Parses a continuous ADTS byte stream and extracts individual frames.
  */
-/* package */ final class AdtsReader implements ElementaryStreamReader {
+public final class AdtsReader implements ElementaryStreamReader {
 
   private static final String TAG = "AdtsReader";
 

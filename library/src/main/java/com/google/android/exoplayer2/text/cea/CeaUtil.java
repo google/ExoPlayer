@@ -35,14 +35,14 @@ public final class CeaUtil {
 
   /**
    * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
-   * as samples to the provided output.
+   * as samples to all of the provided outputs.
    *
    * @param presentationTimeUs The presentation time in microseconds for any samples.
    * @param seiBuffer The unescaped SEI NAL unit data, excluding the NAL unit start code and type.
-   * @param output The output to which any samples should be written.
+   * @param outputs The outputs to which any samples should be written.
    */
   public static void consume(long presentationTimeUs, ParsableByteArray seiBuffer,
-      TrackOutput output) {
+      TrackOutput[] outputs) {
     while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
       int payloadType = readNon255TerminatedValue(seiBuffer);
       int payloadSize = readNon255TerminatedValue(seiBuffer);
@@ -62,8 +62,12 @@ public final class CeaUtil {
         // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
         // + cc_data_1 (8) + cc_data_2 (8).
         int sampleLength = ccCount * 3;
-        output.sampleData(seiBuffer, sampleLength);
-        output.sampleMetadata(presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
+        int sampleStartPosition = seiBuffer.getPosition();
+        for (TrackOutput output : outputs) {
+          seiBuffer.setPosition(sampleStartPosition);
+          output.sampleData(seiBuffer, sampleLength);
+          output.sampleMetadata(presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
+        }
         // Ignore trailing information in SEI, if any.
         seiBuffer.skipBytes(payloadSize - (10 + ccCount * 3));
       } else {

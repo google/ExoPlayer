@@ -47,8 +47,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private final AudioTrack audioTrack;
 
   private boolean passthroughEnabled;
+  private boolean codecNeedsDiscardChannelsWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
   private int pcmEncoding;
+  private int channelCount;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
 
@@ -121,16 +123,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param bufferProcessors Optional {@link BufferProcessor}s which will process PCM audio buffers
-   *     before they are output.
+   * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
+   *     output.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      BufferProcessor... bufferProcessors) {
+      AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    audioTrack = new AudioTrack(audioCapabilities, bufferProcessors, new AudioTrackListener());
+    audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -188,6 +190,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
       MediaCrypto crypto) {
+    codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     if (passthroughEnabled) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
       passthroughMediaFormat = format.getFrameworkMediaFormatV16();
@@ -219,6 +222,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // output 16-bit PCM.
     pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
         : C.ENCODING_PCM_16BIT;
+    channelCount = newFormat.channelCount;
   }
 
   @Override
@@ -230,8 +234,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     MediaFormat format = passthrough ? passthroughMediaFormat : outputFormat;
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+    int[] channelMap;
+    if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && this.channelCount < 6) {
+      channelMap = new int[this.channelCount];
+      for (int i = 0; i < this.channelCount; i++) {
+        channelMap[i] = i;
+      }
+    } else {
+      channelMap = null;
+    }
+
     try {
-      audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0);
+      audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0, channelMap);
     } catch (AudioTrack.ConfigurationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
@@ -312,7 +326,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   public boolean isEnded() {
-    return super.isEnded() && !audioTrack.hasPendingData();
+    return super.isEnded() && audioTrack.isEnded();
   }
 
   @Override
@@ -361,8 +375,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputStreamEnded() {
-    audioTrack.handleEndOfStream();
+  protected void renderToEndOfStream() throws ExoPlaybackException {
+    try {
+      audioTrack.playToEndOfStream();
+    } catch (AudioTrack.WriteException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
   }
 
   @Override
@@ -382,6 +400,20 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         super.handleMessage(messageType, message);
         break;
     }
+  }
+
+  /**
+   * Returns whether the decoder is known to output six audio channels when provided with input with
+   * fewer than six channels.
+   * <p>
+   * See [Internal: b/35655036].
+   */
+  private static boolean codecNeedsDiscardChannelsWorkaround(String codecName) {
+    // The workaround applies to Samsung Galaxy S6 and Samsung Galaxy S7.
+    return Util.SDK_INT < 24 && "OMX.SEC.aac.dec".equals(codecName)
+        && "samsung".equals(Util.MANUFACTURER)
+        && (Util.DEVICE.startsWith("zeroflte") || Util.DEVICE.startsWith("herolte")
+        || Util.DEVICE.startsWith("heroqlte"));
   }
 
   private final class AudioTrackListener implements AudioTrack.Listener {

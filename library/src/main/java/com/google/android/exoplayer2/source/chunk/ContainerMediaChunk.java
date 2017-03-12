@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.chunk;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -100,10 +99,10 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
-        // Set the target to ourselves.
-        DefaultTrackOutput trackOutput = getTrackOutput();
-        trackOutput.setSampleOffsetUs(sampleOffsetUs);
-        extractorWrapper.init(trackOutput);
+        // Configure the output and set it as the target for the extractor wrapper.
+        BaseMediaChunkOutput output = getOutput();
+        output.setSampleOffsetUs(sampleOffsetUs);
+        extractorWrapper.init(output);
       }
       // Load and decode the sample data.
       try {

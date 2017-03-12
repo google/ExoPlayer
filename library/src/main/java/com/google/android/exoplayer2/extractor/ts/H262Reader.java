@@ -30,7 +30,7 @@ import java.util.Collections;
 /**
  * Parses a continuous H262 byte stream and extracts individual frames.
  */
-/* package */ final class H262Reader implements ElementaryStreamReader {
+public final class H262Reader implements ElementaryStreamReader {
 
   private static final int START_PICTURE = 0x00;
   private static final int START_SEQUENCE_HEADER = 0xB3;

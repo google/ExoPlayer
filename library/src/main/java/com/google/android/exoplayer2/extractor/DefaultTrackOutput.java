@@ -267,40 +267,42 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.  May be null if the
-   *     caller requires that the format of the stream be read even if it's not changing.
+   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @param formatRequired Whether the caller requires that the format of the stream be read even if
+   *     it's not changing. A sample will never be read if set to true, however it is still possible
+   *     for the end of stream or nothing to be read.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean loadingFinished,
-      long decodeOnlyUntilUs) {
-    switch (infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder)) {
-      case C.RESULT_NOTHING_READ:
-        if (loadingFinished) {
-          buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-          return C.RESULT_BUFFER_READ;
-        }
-        return C.RESULT_NOTHING_READ;
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
+      boolean loadingFinished, long decodeOnlyUntilUs) {
+    int result = infoQueue.readData(formatHolder, buffer, formatRequired, loadingFinished,
+        downstreamFormat, extrasHolder);
+    switch (result) {
       case C.RESULT_FORMAT_READ:
         downstreamFormat = formatHolder.format;
         return C.RESULT_FORMAT_READ;
       case C.RESULT_BUFFER_READ:
-        if (buffer.timeUs < decodeOnlyUntilUs) {
-          buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+        if (!buffer.isEndOfStream()) {
+          if (buffer.timeUs < decodeOnlyUntilUs) {
+            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+          }
+          // Read encryption data if the sample is encrypted.
+          if (buffer.isEncrypted()) {
+            readEncryptionData(buffer, extrasHolder);
+          }
+          // Write the sample data into the holder.
+          buffer.ensureSpaceForWrite(extrasHolder.size);
+          readData(extrasHolder.offset, buffer.data, extrasHolder.size);
+          // Advance the read head.
+          dropDownstreamTo(extrasHolder.nextOffset);
         }
-        // Read encryption data if the sample is encrypted.
-        if (buffer.isEncrypted()) {
-          readEncryptionData(buffer, extrasHolder);
-        }
-        // Write the sample data into the holder.
-        buffer.ensureSpaceForWrite(extrasHolder.size);
-        readData(extrasHolder.offset, buffer.data, extrasHolder.size);
-        // Advance the read head.
-        dropDownstreamTo(extrasHolder.nextOffset);
         return C.RESULT_BUFFER_READ;
+      case C.RESULT_NOTHING_READ:
+        return C.RESULT_NOTHING_READ;
       default:
         throw new IllegalStateException();
     }
@@ -760,23 +762,34 @@ public final class DefaultTrackOutput implements TrackOutput {
      *     and the absolute position of the first byte that may still be required after the current
      *     sample has been read. May be null if the caller requires that the format of the stream be
      *     read even if it's not changing.
+     * @param formatRequired Whether the caller requires that the format of the stream be read even
+     *     if it's not changing. A sample will never be read if set to true, however it is still
+     *     possible for the end of stream or nothing to be read.
+     * @param loadingFinished True if an empty queue should be considered the end of the stream.
      * @param downstreamFormat The current downstream {@link Format}. If the format of the next
      *     sample is different to the current downstream format then a format will be read.
      * @param extrasHolder The holder into which extra sample information should be written.
      * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ}
      *     or {@link C#RESULT_BUFFER_READ}.
      */
+    @SuppressWarnings("ReferenceEquality")
     public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        Format downstreamFormat, BufferExtrasHolder extrasHolder) {
+        boolean formatRequired, boolean loadingFinished, Format downstreamFormat,
+        BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
-        if (upstreamFormat != null && (buffer == null || upstreamFormat != downstreamFormat)) {
+        if (loadingFinished) {
+          buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+          return C.RESULT_BUFFER_READ;
+        } else if (upstreamFormat != null
+            && (formatRequired || upstreamFormat != downstreamFormat)) {
           formatHolder.format = upstreamFormat;
           return C.RESULT_FORMAT_READ;
+        } else {
+          return C.RESULT_NOTHING_READ;
         }
-        return C.RESULT_NOTHING_READ;
       }
 
-      if (buffer == null || formats[relativeReadIndex] != downstreamFormat) {
+      if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
         formatHolder.format = formats[relativeReadIndex];
         return C.RESULT_FORMAT_READ;
       }

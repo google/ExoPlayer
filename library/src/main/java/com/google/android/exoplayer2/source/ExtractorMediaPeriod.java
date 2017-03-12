@@ -235,6 +235,11 @@ import java.io.IOException;
   }
 
   @Override
+  public void discardBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public boolean continueLoading(long playbackPositionUs) {
     if (loadingFinished || (prepared && enabledTrackCount == 0)) {
       return false;
@@ -325,13 +330,14 @@ import java.io.IOException;
     loader.maybeThrowError();
   }
 
-  /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
+  /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer,
+      boolean formatRequired) {
     if (notifyReset || isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
 
-    return sampleQueues.valueAt(track).readData(formatHolder, buffer, loadingFinished,
-        lastSeekPositionUs);
+    return sampleQueues.valueAt(track).readData(formatHolder, buffer, formatRequired,
+        loadingFinished, lastSeekPositionUs);
   }
 
   // Loader.Callback implementation.
@@ -552,8 +558,9 @@ import java.io.IOException;
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-      return ExtractorMediaPeriod.this.readData(track, formatHolder, buffer);
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+        boolean formatRequired) {
+      return ExtractorMediaPeriod.this.readData(track, formatHolder, buffer, formatRequired);
     }
 
     @Override

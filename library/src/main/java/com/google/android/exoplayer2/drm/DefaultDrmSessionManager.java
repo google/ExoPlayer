@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -103,6 +104,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   public static final int MODE_RELEASE = 3;
 
   private static final String TAG = "OfflineDrmSessionMngr";
+  private static final String CENC_SCHEME_MIME_TYPE = "cenc";
 
   private static final int MSG_PROVISION = 0;
   private static final int MSG_KEYS = 1;
@@ -338,6 +340,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         } else {
           schemeInitData = psshData;
         }
+      }
+      if (Util.SDK_INT < 26 && C.CLEARKEY_UUID.equals(uuid)
+          && (MimeTypes.VIDEO_MP4.equals(schemeMimeType)
+          || MimeTypes.AUDIO_MP4.equals(schemeMimeType))) {
+        // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
+        schemeMimeType = CENC_SCHEME_MIME_TYPE;
       }
     }
     state = STATE_OPENING;

@@ -444,8 +444,15 @@ public final class C {
   public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
+   * UUID for the ClearKey DRM scheme.
+   * <p>
+   * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
+   */
+  public static final UUID CLEARKEY_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+
+  /**
    * UUID for the Widevine DRM scheme.
-   * <p></p>
+   * <p>
    * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
    */
   public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
@@ -477,7 +484,7 @@ public final class C {
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link android.media.PlaybackParams}, or null, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
-   * caller after it has been passed
+   * caller after it has been passed.
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 3;
 
@@ -540,6 +547,11 @@ public final class C {
    * used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_STEREO_MESH = 3;
+
+  /**
+   * Priority for media playback.
+   */
+  public static final int PRIORITY_PLAYBACK = 0;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving

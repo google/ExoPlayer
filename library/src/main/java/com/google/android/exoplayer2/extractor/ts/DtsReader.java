@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 /**
  * Parses a continuous DTS byte stream and extracts individual samples.
  */
-/* package */ final class DtsReader implements ElementaryStreamReader {
+public final class DtsReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;

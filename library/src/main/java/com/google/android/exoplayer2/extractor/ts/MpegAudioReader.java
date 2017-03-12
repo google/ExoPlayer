@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 /**
  * Parses a continuous MPEG Audio byte stream and extracts individual frames.
  */
-/* package */ final class MpegAudioReader implements ElementaryStreamReader {
+public final class MpegAudioReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_HEADER = 0;
   private static final int STATE_READING_HEADER = 1;

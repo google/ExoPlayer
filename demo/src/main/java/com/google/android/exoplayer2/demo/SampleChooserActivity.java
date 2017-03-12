@@ -267,6 +267,8 @@ public class SampleChooserActivity extends Activity {
           return C.WIDEVINE_UUID;
         case "playready":
           return C.PLAYREADY_UUID;
+        case "cenc":
+          return C.CLEARKEY_UUID;
         default:
           try {
             return UUID.fromString(typeString);

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.support.annotation.IntDef;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -34,6 +35,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +58,27 @@ public final class TsExtractor implements Extractor {
     }
 
   };
+
+  /**
+   * Modes for the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({MODE_NORMAL, MODE_SINGLE_PMT, MODE_HLS})
+  public @interface Mode {}
+
+  /**
+   * Behave as defined in ISO/IEC 13818-1.
+   */
+  public static final int MODE_NORMAL = 0;
+  /**
+   * Assume only one PMT will be contained in the stream, even if more are declared by the PAT.
+   */
+  public static final int MODE_SINGLE_PMT = 1;
+  /**
+   * Enable single PMT mode, map {@link TrackOutput}s by their type (instead of PID) and ignore
+   * continuity counters.
+   */
+  public static final int MODE_HLS = 2;
 
   public static final int TS_STREAM_TYPE_MPA = 0x03;
   public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
@@ -81,7 +105,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
-  private final boolean hlsMode;
+  @Mode private final int mode;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
@@ -97,25 +121,25 @@ public final class TsExtractor implements Extractor {
   private TsPayloadReader id3Reader;
 
   public TsExtractor() {
-    this(new TimestampAdjuster(0), new DefaultTsPayloadReaderFactory(), false);
+    this(MODE_NORMAL, new TimestampAdjuster(0), new DefaultTsPayloadReaderFactory());
   }
 
   /**
+   * @param mode Mode for the extractor. One of {@link #MODE_NORMAL}, {@link #MODE_SINGLE_PMT}
+   *     and {@link #MODE_HLS}.
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
-   * @param hlsMode Whether the extractor should be used in HLS mode. If true, {@link TrackOutput}s
-   *     are mapped by their type (instead of PID) and continuity counters are ignored.
    */
-  public TsExtractor(TimestampAdjuster timestampAdjuster,
-      TsPayloadReader.Factory payloadReaderFactory, boolean hlsMode) {
-    if (hlsMode) {
+  public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
+      TsPayloadReader.Factory payloadReaderFactory) {
+    this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
+    this.mode = mode;
+    if (mode == MODE_SINGLE_PMT || mode == MODE_HLS) {
       timestampAdjusters = Collections.singletonList(timestampAdjuster);
     } else {
       timestampAdjusters = new ArrayList<>();
       timestampAdjusters.add(timestampAdjuster);
     }
-    this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
-    this.hlsMode = hlsMode;
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     trackIds = new SparseBooleanArray();
@@ -220,7 +244,7 @@ public final class TsExtractor implements Extractor {
     // Discontinuity check.
     boolean discontinuityFound = false;
     int continuityCounter = tsScratch.readBits(4);
-    if (!hlsMode) {
+    if (mode != MODE_HLS) {
       int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
       continuityCounters.put(pid, continuityCounter);
       if (previousCounter == continuityCounter) {
@@ -315,7 +339,7 @@ public final class TsExtractor implements Extractor {
           remainingPmts++;
         }
       }
-      if (!hlsMode) {
+      if (mode != MODE_HLS) {
         tsPayloadReaders.remove(TS_PAT_PID);
       }
     }
@@ -356,7 +380,7 @@ public final class TsExtractor implements Extractor {
       }
       // TimestampAdjuster assignment.
       TimestampAdjuster timestampAdjuster;
-      if (hlsMode || remainingPmts == 1) {
+      if (mode == MODE_SINGLE_PMT || mode == MODE_HLS || remainingPmts == 1) {
         timestampAdjuster = timestampAdjusters.get(0);
       } else {
         timestampAdjuster = new TimestampAdjuster(timestampAdjusters.get(0).firstSampleTimestampUs);
@@ -378,7 +402,7 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if (hlsMode && id3Reader == null) {
+      if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
         EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, new byte[0]);
@@ -401,14 +425,14 @@ public final class TsExtractor implements Extractor {
         }
         remainingEntriesLength -= esInfoLength + 5;
 
-        int trackId = hlsMode ? streamType : elementaryPid;
+        int trackId = mode == MODE_HLS ? streamType : elementaryPid;
         if (trackIds.get(trackId)) {
           continue;
         }
         trackIds.put(trackId, true);
 
         TsPayloadReader reader;
-        if (hlsMode && streamType == TS_STREAM_TYPE_ID3) {
+        if (mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3) {
           reader = id3Reader;
         } else {
           reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
@@ -422,7 +446,7 @@ public final class TsExtractor implements Extractor {
           tsPayloadReaders.put(elementaryPid, reader);
         }
       }
-      if (hlsMode) {
+      if (mode == MODE_HLS) {
         if (!tracksEnded) {
           output.endTracks();
           remainingPmts = 0;
@@ -430,7 +454,7 @@ public final class TsExtractor implements Extractor {
         }
       } else {
         tsPayloadReaders.remove(pid);
-        remainingPmts--;
+        remainingPmts = mode == MODE_SINGLE_PMT ? 0 : remainingPmts - 1;
         if (remainingPmts == 0) {
           output.endTracks();
           tracksEnded = true;

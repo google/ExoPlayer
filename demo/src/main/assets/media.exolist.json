@@ -278,6 +278,18 @@
     ]
   },
   {
+    "name": "ClearKey DASH",
+    "samples": [
+      {
+        "name": "Big Buck Bunny (CENC ClearKey)",
+        "uri": "http://html5.cablelabs.com:8100/cenc/ck/dash.mpd",
+        "extension": "mpd",
+        "drm_scheme": "cenc",
+        "drm_license_url": "https://wasabeef.jp/demos/cenc-ck-dash.json"
+      }
+    ]
+  },
+  {
     "name": "SmoothStreaming",
     "samples": [
       {

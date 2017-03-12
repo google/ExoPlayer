@@ -110,7 +110,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
-  private boolean playerNeedsSource;
+  private boolean needRetrySource;
 
   private boolean shouldAutoPlay;
   private int resumeWindow;
@@ -229,7 +229,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   private void initializePlayer() {
     Intent intent = getIntent();
-    if (player == null) {
+    boolean needNewPlayer = player == null;
+    if (needNewPlayer) {
       boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
@@ -272,9 +273,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       player.setPlayWhenReady(shouldAutoPlay);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
-      playerNeedsSource = true;
     }
-    if (playerNeedsSource) {
+    if (needNewPlayer || needRetrySource) {
       String action = intent.getAction();
       Uri[] uris;
       String[] extensions;
@@ -310,7 +310,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         player.seekTo(resumeWindow, resumePosition);
       }
       player.prepare(mediaSource, !haveResumePosition, false);
-      playerNeedsSource = false;
+      needRetrySource = false;
       updateButtonVisibilities();
     }
   }
@@ -419,7 +419,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public void onPositionDiscontinuity() {
-    if (playerNeedsSource) {
+    if (needRetrySource) {
       // This will only occur if the user has performed a seek whilst in the error state. Update the
       // resume position so that if the user then retries, playback will resume from the position to
       // which they seeked.
@@ -460,7 +460,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     if (errorString != null) {
       showToast(errorString);
     }
-    playerNeedsSource = true;
+    needRetrySource = true;
     if (isBehindLiveWindow(e)) {
       clearResumePosition();
       initializePlayer();
@@ -492,7 +492,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private void updateButtonVisibilities() {
     debugRootView.removeAllViews();
 
-    retryButton.setVisibility(playerNeedsSource ? View.VISIBLE : View.GONE);
+    retryButton.setVisibility(needRetrySource ? View.VISIBLE : View.GONE);
     debugRootView.addView(retryButton);
 
     if (player == null) {

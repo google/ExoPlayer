@@ -81,7 +81,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
       + ":([\\d\\.]+)\\b");
-  private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=([\\d\\.]+)\\b");
+  private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=(-?[\\d\\.]+)\\b");
   private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
       + ":(\\d+(?:@\\d+)?)\\b");
   private static final Pattern REGEX_ATTR_BYTERANGE =
@@ -94,7 +94,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       + "|" + TYPE_SUBTITLES + "|" + TYPE_CLOSED_CAPTIONS + ")");
   private static final Pattern REGEX_LANGUAGE = Pattern.compile("LANGUAGE=\"(.+?)\"");
   private static final Pattern REGEX_NAME = Pattern.compile("NAME=\"(.+?)\"");
-  private static final Pattern REGEX_INSTREAM_ID = Pattern.compile("INSTREAM-ID=\"(.+?)\"");
+  private static final Pattern REGEX_INSTREAM_ID =
+      Pattern.compile("INSTREAM-ID=\"((?:CC|SERVICE)\\d+)\"");
   private static final Pattern REGEX_AUTOSELECT = compileBooleanAttrPattern("AUTOSELECT");
   private static final Pattern REGEX_DEFAULT = compileBooleanAttrPattern("DEFAULT");
   private static final Pattern REGEX_FORCED = compileBooleanAttrPattern("FORCED");
@@ -171,7 +172,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
     Format muxedAudioFormat = null;
-    Format muxedCaptionFormat = null;
+    ArrayList<Format> muxedCaptionFormats = new ArrayList<>();
 
     String line;
     while (iterator.hasNext()) {
@@ -198,10 +199,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
             break;
           case TYPE_CLOSED_CAPTIONS:
-            if ("CC1".equals(parseOptionalStringAttr(line, REGEX_INSTREAM_ID))) {
-              muxedCaptionFormat = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_M3U8,
-                  MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, selectionFlags, language);
+            String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID);
+            String mimeType;
+            int accessibilityChannel;
+            if (instreamId.startsWith("CC")) {
+              mimeType = MimeTypes.APPLICATION_CEA608;
+              accessibilityChannel = Integer.parseInt(instreamId.substring(2));
+            } else /* starts with SERVICE */ {
+              mimeType = MimeTypes.APPLICATION_CEA708;
+              accessibilityChannel = Integer.parseInt(instreamId.substring(7));
             }
+            muxedCaptionFormats.add(Format.createTextContainerFormat(id, null, mimeType, null,
+                Format.NO_VALUE, selectionFlags, language, accessibilityChannel));
             break;
           default:
             // Do nothing.
@@ -234,7 +243,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       }
     }
     return new HlsMasterPlaylist(baseUri, variants, audios, subtitles, muxedAudioFormat,
-        muxedCaptionFormat);
+        muxedCaptionFormats);
   }
 
   @C.SelectionFlags
