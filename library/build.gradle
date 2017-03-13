@@ -15,6 +15,7 @@ import com.android.builder.core.BuilderConstants
 
 apply plugin: 'com.android.library'
 apply plugin: 'bintray-release'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -95,3 +96,8 @@ publish {
     version = releaseVersion
     website = releaseWebsite
 }
+
+// default maven deploy/install setup
+group = releaseGroupId
+archivesBaseName = publish.artifactId
+version = releaseVersion
