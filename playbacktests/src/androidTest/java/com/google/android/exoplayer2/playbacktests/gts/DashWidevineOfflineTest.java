@@ -38,7 +38,6 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
   private static final String USER_AGENT = "ExoPlayerPlaybackTests";
 
   private DashHostedTest.Builder builder;
-  private String widevineManifestUrl;
   private DefaultHttpDataSourceFactory httpDataSourceFactory;
   private OfflineLicenseHelper<FrameworkMediaCrypto> offlineLicenseHelper;
   private byte[] offlineLicenseKeySetId;
@@ -52,18 +51,17 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     super.setUp();
     builder = new DashHostedTest.Builder(TAG)
         .setStreamName("test_widevine_h264_fixed_offline")
-        .setManifestUrlForWidevine(DashTestData.WIDEVINE_H264_MANIFEST_PREFIX, MimeTypes.VIDEO_H264)
+        .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
+        .setWidevineMimeType(MimeTypes.VIDEO_H264)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_FIXED);
 
     boolean useL1Widevine = DashHostedTest.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
-    widevineManifestUrl = DashHostedTest
-        .getWidevineManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST_PREFIX, useL1Widevine);
     String widevineLicenseUrl = DashHostedTest.getWidevineLicenseUrl(useL1Widevine);
     httpDataSourceFactory = new DefaultHttpDataSourceFactory(USER_AGENT);
-    offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl, 
+    offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
         httpDataSourceFactory);
   }
 
@@ -125,7 +123,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     downloadLicense();
 
     // Wait until the license expires
-    long licenseDuration = 
+    long licenseDuration =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId).first;
     assertTrue("License duration should be less than 30 sec. "
         + "Server settings might have changed.", licenseDuration < 30);
@@ -134,7 +132,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
         wait(licenseDuration * 1000 + 2000);
       }
       long previousDuration = licenseDuration;
-      licenseDuration = 
+      licenseDuration =
           offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId).first;
       assertTrue("License duration should be decreasing.", previousDuration > licenseDuration);
     }
@@ -150,7 +148,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     downloadLicense();
 
     // During playback pause until the license expires then continue playback
-    Pair<Long, Long> licenseDurationRemainingSec = 
+    Pair<Long, Long> licenseDurationRemainingSec =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
     long licenseDuration = licenseDurationRemainingSec.first;
     assertTrue("License duration should be less than 30 sec. "
@@ -163,10 +161,10 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
         .setActionSchedule(schedule)
         .runTest(getActivity(), getInstrumentation());
   }
-  
+
   private void downloadLicense() throws InterruptedException, DrmSessionException, IOException {
     offlineLicenseKeySetId = offlineLicenseHelper.download(
-        httpDataSourceFactory.createDataSource(), widevineManifestUrl);
+        httpDataSourceFactory.createDataSource(), DashTestData.WIDEVINE_H264_MANIFEST);
     Assert.assertNotNull(offlineLicenseKeySetId);
     Assert.assertTrue(offlineLicenseKeySetId.length > 0);
     builder.setOfflineLicenseKeySetId(offlineLicenseKeySetId);

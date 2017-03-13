@@ -135,13 +135,12 @@ public final class DashHostedTest extends ExoHostedTest {
     }
 
     public Builder setManifestUrl(String manifestUrl) {
-      this.manifestUrl = MANIFEST_URL_PREFIX + manifestUrl;
+      this.manifestUrl = manifestUrl;
       return this;
     }
 
-    public Builder setManifestUrlForWidevine(String manifestUrl, String videoMimeType) {
-      this.useL1Widevine = isL1WidevineAvailable(videoMimeType);
-      this.manifestUrl = getWidevineManifestUrl(manifestUrl, useL1Widevine);
+    public Builder setWidevineMimeType(String mimeType) {
+      this.useL1Widevine = isL1WidevineAvailable(mimeType);
       this.widevineLicenseUrl = getWidevineLicenseUrl(useL1Widevine);
       return this;
     }
@@ -177,13 +176,6 @@ public final class DashHostedTest extends ExoHostedTest {
   private static final int MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES = 10;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
 
-  private static final String MANIFEST_URL_PREFIX = "https://storage.googleapis.com/exoplayer-test-"
-      + "media-1/gen-4/screens/dash-vod-single-segment/";
-
-  // TODO: Don't need separate suffixes. Clean up.
-  private static final String WIDEVINE_L1_SUFFIX = ".mpd";
-  private static final String WIDEVINE_L3_SUFFIX = ".mpd";
-
   private static final String WIDEVINE_LICENSE_URL =
       "https://proxy.uat.widevine.com/proxy?provider=widevine_test&video_id=";
   private static final String WIDEVINE_SW_CRYPTO_CONTENT_ID = "exoplayer_test_1";
@@ -204,11 +196,6 @@ public final class DashHostedTest extends ExoHostedTest {
 
   boolean needsCddLimitedRetry;
 
-  public static String getWidevineManifestUrl(String manifestUrl, boolean useL1Widevine) {
-    return MANIFEST_URL_PREFIX + manifestUrl
-        + (useL1Widevine ? WIDEVINE_L1_SUFFIX : WIDEVINE_L3_SUFFIX);
-  }
-
   public static String getWidevineLicenseUrl(boolean useL1Widevine) {
     return WIDEVINE_LICENSE_URL
         + (useL1Widevine ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID);
@@ -216,13 +203,12 @@ public final class DashHostedTest extends ExoHostedTest {
 
   @TargetApi(18)
   @SuppressWarnings("ResourceType")
-  public static boolean isL1WidevineAvailable(String videoMimeType) {
+  public static boolean isL1WidevineAvailable(String mimeType) {
     try {
       // Force L3 if secure decoder is not available.
-      if (MediaCodecUtil.getDecoderInfo(videoMimeType, true) == null) {
+      if (MediaCodecUtil.getDecoderInfo(mimeType, true) == null) {
         return false;
       }
-
       MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
       String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
       mediaDrm.release();
