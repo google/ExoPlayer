@@ -22,20 +22,22 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class DashTestData {
 
+  private static final String BASE_URL = "https://storage.googleapis.com/exoplayer-test-media-1/"
+      + "gen-4/screens/dash-vod-single-segment/";
   // Clear content manifests.
-  public static final String H264_MANIFEST = "manifest-h264.mpd";
-  public static final String H265_MANIFEST = "manifest-h265.mpd";
-  public static final String VP9_MANIFEST = "manifest-vp9.mpd";
-  public static final String H264_23_MANIFEST = "manifest-h264-23.mpd";
-  public static final String H264_24_MANIFEST = "manifest-h264-24.mpd";
-  public static final String H264_29_MANIFEST = "manifest-h264-29.mpd";
+  public static final String H264_MANIFEST = BASE_URL + "manifest-h264.mpd";
+  public static final String H265_MANIFEST = BASE_URL + "manifest-h265.mpd";
+  public static final String VP9_MANIFEST = BASE_URL + "manifest-vp9.mpd";
+  public static final String H264_23_MANIFEST = BASE_URL + "manifest-h264-23.mpd";
+  public static final String H264_24_MANIFEST = BASE_URL + "manifest-h264-24.mpd";
+  public static final String H264_29_MANIFEST = BASE_URL + "manifest-h264-29.mpd";
   // Widevine encrypted content manifests.
-  public static final String WIDEVINE_H264_MANIFEST_PREFIX = "manifest-h264-enc";
-  public static final String WIDEVINE_H265_MANIFEST_PREFIX = "manifest-h265-enc";
-  public static final String WIDEVINE_VP9_MANIFEST_PREFIX = "manifest-vp9-enc";
-  public static final String WIDEVINE_H264_23_MANIFEST_PREFIX = "manifest-h264-23-enc";
-  public static final String WIDEVINE_H264_24_MANIFEST_PREFIX = "manifest-h264-24-enc";
-  public static final String WIDEVINE_H264_29_MANIFEST_PREFIX = "manifest-h264-29-enc";
+  public static final String WIDEVINE_H264_MANIFEST = BASE_URL + "manifest-h264-enc.mpd";
+  public static final String WIDEVINE_H265_MANIFEST = BASE_URL + "manifest-h265-enc.mpd";
+  public static final String WIDEVINE_VP9_MANIFEST = BASE_URL + "manifest-vp9-enc.mpd";
+  public static final String WIDEVINE_H264_23_MANIFEST = BASE_URL + "manifest-h264-23-enc.mpd";
+  public static final String WIDEVINE_H264_24_MANIFEST = BASE_URL + "manifest-h264-24-enc.mpd";
+  public static final String WIDEVINE_H264_29_MANIFEST = BASE_URL + "manifest-h264-29-enc.mpd";
 
   public static final String AAC_AUDIO_REPRESENTATION_ID = "141";
   public static final String H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "avc-baseline-240";
@@ -50,8 +52,8 @@ public final class DashTestData {
   // when switching between baseline and main profiles on certain devices.
   public static final String[] H264_CDD_ADAPTIVE = Util.SDK_INT < 24
       ? new String[] {
-      H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
-      H264_BASELINE_480P_VIDEO_REPRESENTATION_ID}
+          H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
+          H264_BASELINE_480P_VIDEO_REPRESENTATION_ID}
       : new String[] {
           H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
           H264_BASELINE_480P_VIDEO_REPRESENTATION_ID,
@@ -75,7 +77,7 @@ public final class DashTestData {
           H265_BASELINE_288P_VIDEO_REPRESENTATION_ID,
           H265_BASELINE_360P_VIDEO_REPRESENTATION_ID};
 
-  public static final String VORBIS_AUDIO_REPRESENTATION_ID = "4";
+  public static final String VP9_VORBIS_AUDIO_REPRESENTATION_ID = "4";
   public static final String VP9_180P_VIDEO_REPRESENTATION_ID = "0";
   public static final String VP9_360P_VIDEO_REPRESENTATION_ID = "1";
   // The highest quality VP9 format mandated by the Android CDD.
@@ -101,8 +103,8 @@ public final class DashTestData {
   // when switching between baseline and main profiles on certain devices.
   public static final String[] WIDEVINE_H264_CDD_ADAPTIVE = Util.SDK_INT < 24
       ? new String[] {
-      WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
-      WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID}
+          WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
+          WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID}
       : new String[] {
           WIDEVINE_H264_BASELINE_240P_VIDEO_REPRESENTATION_ID,
           WIDEVINE_H264_BASELINE_480P_VIDEO_REPRESENTATION_ID,
@@ -124,11 +126,11 @@ public final class DashTestData {
           WIDEVINE_H265_BASELINE_288P_VIDEO_REPRESENTATION_ID,
           WIDEVINE_H265_BASELINE_360P_VIDEO_REPRESENTATION_ID};
 
-  public static final String WIDEVINE_VORBIS_AUDIO_REPRESENTATION_ID = "0";
-  public static final String WIDEVINE_VP9_180P_VIDEO_REPRESENTATION_ID = "1";
-  public static final String WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID = "2";
+  public static final String WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID = "0";
+  public static final String WIDEVINE_VP9_180P_VIDEO_REPRESENTATION_ID = "2";
+  public static final String WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID = "3";
   // The highest quality VP9 format mandated by the Android CDD.
-  public static final String WIDEVINE_VP9_CDD_FIXED = VP9_360P_VIDEO_REPRESENTATION_ID;
+  public static final String WIDEVINE_VP9_CDD_FIXED = WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID;
   // Multiple VP9 formats mandated by the Android CDD.
   public static final String[] WIDEVINE_VP9_CDD_ADAPTIVE =
       new String[] {
