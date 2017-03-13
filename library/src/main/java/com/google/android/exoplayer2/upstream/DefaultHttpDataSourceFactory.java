@@ -79,7 +79,7 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
   protected DefaultHttpDataSource createDataSourceInternal(
       HttpDataSource.RequestProperties defaultRequestProperties) {
     return new DefaultHttpDataSource(userAgent, null, listener, connectTimeoutMillis,
-        readTimeoutMillis, allowCrossProtocolRedirects, getDefaultRequestProperties());
+        readTimeoutMillis, allowCrossProtocolRedirects, defaultRequestProperties);
   }
 
 }

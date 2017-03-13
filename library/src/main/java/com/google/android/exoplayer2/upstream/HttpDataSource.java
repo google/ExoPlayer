@@ -177,7 +177,7 @@ public interface HttpDataSource extends DataSource {
     }
 
     @Override
-    public RequestProperties getDefaultRequestProperties() {
+    public final RequestProperties getDefaultRequestProperties() {
       return defaultRequestProperties;
     }
 
