@@ -18,7 +18,6 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        // Required by com.google.vr:sdk-audio.
         minSdkVersion 19
         targetSdkVersion project.ext.targetSdkVersion
     }
