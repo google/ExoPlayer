@@ -432,6 +432,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     private long lastSnapshotLoadMs;
     private long lastSnapshotAccessTimeMs;
     private long blacklistUntilMs;
+    private boolean pendingRefresh;
 
     public MediaPlaylistBundle(HlsUrl playlistUrl, long initialLastSnapshotAccessTimeMs) {
       this.playlistUrl = playlistUrl;
@@ -466,7 +467,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     public void loadPlaylist() {
       blacklistUntilMs = 0;
-      if (!mediaPlaylistLoader.isLoading()) {
+      if (!pendingRefresh && !mediaPlaylistLoader.isLoading()) {
         mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
       }
     }
@@ -512,6 +513,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     @Override
     public void run() {
+      pendingRefresh = false;
       loadPlaylist();
     }
 
@@ -531,7 +533,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       }
       if (refreshDelayUs != C.TIME_UNSET) {
         // See HLS spec v20, section 6.3.4 for more information on media playlist refreshing.
-        playlistRefreshHandler.postDelayed(this, C.usToMs(refreshDelayUs));
+        pendingRefresh = playlistRefreshHandler.postDelayed(this, C.usToMs(refreshDelayUs));
       }
     }
 
