@@ -22,6 +22,11 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
+
+    lintOptions {
+        // See: https://github.com/square/okio/issues/58
+        warning 'InvalidPackage'
+    }
 }
 
 dependencies {
