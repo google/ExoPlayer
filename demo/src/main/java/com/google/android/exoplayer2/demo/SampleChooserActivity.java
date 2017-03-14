@@ -262,7 +262,7 @@ public class SampleChooserActivity extends Activity {
     }
 
     private UUID getDrmUuid(String typeString) throws ParserException {
-      switch (typeString.toLowerCase()) {
+      switch (Util.toLowerInvariant(typeString)) {
         case "widevine":
           return C.WIDEVINE_UUID;
         case "playready":
