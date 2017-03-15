@@ -17,7 +17,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.0'
-        classpath 'com.novoda:bintray-release:0.3.4'
+        classpath 'com.novoda:bintray-release:0.4.0'
     }
 }
 
@@ -34,10 +34,16 @@ allprojects {
         compileSdkVersion=25
         targetSdkVersion=25
         buildToolsVersion='25'
-        releaseRepoName = 'exoplayer'
+        releaseRepoName = getBintrayRepo()
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
         releaseVersion = 'r2.2.0'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
+}
+
+def getBintrayRepo() {
+    boolean publicRepo = hasProperty('publicRepo') &&
+        property('publicRepo').toBoolean()
+    return publicRepo ? 'exoplayer' : 'exoplayer-test'
 }

@@ -11,25 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
 
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion project.ext.targetSdkVersion
-    }
+publish {
+    artifactId = releaseArtifact
+    description = releaseDescription
+    repoName = releaseRepoName
+    userOrg = releaseUserOrg
+    groupId = releaseGroupId
+    version = releaseVersion
+    website = releaseWebsite
 }
-
-dependencies {
-    compile project(':library')
-    compile 'com.google.vr:sdk-audio:1.30.0'
-}
-
-ext {
-    releaseArtifact = 'extension-gvr'
-    releaseDescription = 'Google VR extension for ExoPlayer.'
-}
-apply from: '../../publish.gradle'
