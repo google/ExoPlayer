@@ -20,9 +20,9 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,13 +42,13 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
+    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(cacheDir);
+    Util.recursiveDelete(cacheDir);
   }
 
   public void testMaxCacheFileSize() throws Exception {

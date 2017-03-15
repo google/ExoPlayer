@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,12 +38,12 @@ public class SimpleCacheTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    this.cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
+    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(cacheDir);
+    Util.recursiveDelete(cacheDir);
   }
 
   public void testCommittingOneFile() throws Exception {
