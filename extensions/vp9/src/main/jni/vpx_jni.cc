@@ -196,6 +196,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     const int32_t uvHeight = (img->d_h + 1) / 2;
     const uint64_t yLength = img->stride[VPX_PLANE_Y] * img->d_h;
     const uint64_t uvLength = img->stride[VPX_PLANE_U] * uvHeight;
+    int sample = 0;
     if (img->fmt == VPX_IMG_FMT_I42016) {  // HBD planar 420.
       // Note: The stride for BT2020 is twice of what we use so this is wasting
       // memory. The long term goal however is to upload half-float/short so
@@ -206,7 +207,11 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
             img->planes[VPX_PLANE_Y] + img->stride[VPX_PLANE_Y] * y);
         int8_t* destBase = data + img->stride[VPX_PLANE_Y] * y;
         for (int x = 0; x < img->d_w; x++) {
-          *destBase++ = *srcBase++ / 4;
+          // Lightweight dither. Carryover the remainder of each 10->8 bit
+          // conversion to the next pixel.
+          sample += *srcBase++;
+          *destBase++ = sample >> 2;
+          sample = sample & 3;  // Remainder.
         }
       }
       // UV
@@ -220,8 +225,13 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
         int8_t* destVBase = data + yLength + uvLength
             + img->stride[VPX_PLANE_V] * y;
         for (int x = 0; x < uvWidth; x++) {
-          *destUBase++ = *srcUBase++ / 4;
-          *destVBase++ = *srcVBase++ / 4;
+          // Lightweight dither. Carryover the remainder of each 10->8 bit
+          // conversion to the next pixel.
+          sample += *srcUBase++;
+          *destUBase++ = sample >> 2;
+          sample = (*srcVBase++) + (sample & 3);  // srcV + previousRemainder.
+          *destVBase++ = sample >> 2;
+          sample = sample & 3;  // Remainder.
         }
       }
     } else {
