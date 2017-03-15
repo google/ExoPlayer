@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.app.Instrumentation;
-import android.content.Context;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -25,7 +24,6 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -373,23 +371,6 @@ public class TestUtil {
       }
       throw throwable;
     }
-  }
-
-  public static void recursiveDelete(File fileOrDirectory) {
-    if (fileOrDirectory.isDirectory()) {
-      for (File child : fileOrDirectory.listFiles()) {
-        recursiveDelete(child);
-      }
-    }
-    fileOrDirectory.delete();
-  }
-
-  /** Creates an empty folder in the application specific cache directory. */
-  public static File createTempFolder(Context context) throws IOException {
-    File tempFolder = File.createTempFile("ExoPlayerTest", null, context.getCacheDir());
-    Assert.assertTrue(tempFolder.delete());
-    Assert.assertTrue(tempFolder.mkdir());
-    return tempFolder;
   }
 
 }

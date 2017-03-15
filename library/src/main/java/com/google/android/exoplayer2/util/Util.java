@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -944,6 +945,24 @@ public final class Util {
   @SuppressWarnings("unchecked")
   private static <T extends Throwable> void sneakyThrowInternal(Throwable t) throws T {
     throw (T) t;
+  }
+
+  /** Recursively deletes a directory and its content. */
+  public static void recursiveDelete(File fileOrDirectory) {
+    if (fileOrDirectory.isDirectory()) {
+      for (File child : fileOrDirectory.listFiles()) {
+        recursiveDelete(child);
+      }
+    }
+    fileOrDirectory.delete();
+  }
+
+  /** Creates an empty directory in the directory returned by {@link Context#getCacheDir()}. */
+  public static File createTempDirectory(Context context, String prefix) throws IOException {
+    File tempFile = File.createTempFile(prefix, null, context.getCacheDir());
+    tempFile.delete(); // Delete the temp file.
+    tempFile.mkdir(); // Create a directory with the same name.
+    return tempFile;
   }
 
   /**
