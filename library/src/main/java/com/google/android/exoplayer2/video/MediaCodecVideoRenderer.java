@@ -298,13 +298,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setSurface(Surface surface) throws ExoPlaybackException {
-    // We only need to release and reinitialize the codec if the surface has changed.
+    // We only need to update the codec if the surface has changed.
     if (this.surface != surface) {
       this.surface = surface;
       int state = getState();
       if (state == STATE_ENABLED || state == STATE_STARTED) {
-        releaseCodec();
-        maybeInitCodec();
+        MediaCodec codec = getCodec();
+        if (Util.SDK_INT >= 23 && codec != null && surface != null) {
+          setOutputSurfaceV23(codec, surface);
+        } else {
+          releaseCodec();
+          maybeInitCodec();
+        }
       }
     }
     // Clear state so that we always call the event listener with the video size and when a frame
@@ -587,6 +592,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
     }
     return frameworkMediaFormat;
+  }
+
+  @TargetApi(23)
+  private static void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
+    codec.setOutputSurface(surface);
   }
 
   @TargetApi(21)
