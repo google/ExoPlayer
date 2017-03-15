@@ -421,18 +421,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
       throws ExoPlaybackException {
     // Make a track selection for each renderer.
-    TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCapabilities.length];
+    int rendererCount = rendererCapabilities.length;
+    TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCount];
     Parameters params = paramsReference.get();
-    for (int i = 0; i < rendererCapabilities.length; i++) {
+
+    for (int i = 0; i < rendererCount; i++) {
+      if (C.TRACK_TYPE_VIDEO == rendererCapabilities[i].getTrackType()) {
+        rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
+            rendererTrackGroupArrays[i], rendererFormatSupports[i], params.maxVideoWidth,
+            params.maxVideoHeight, params.maxVideoBitrate, params.allowNonSeamlessAdaptiveness,
+            params.allowMixedMimeAdaptiveness, params.viewportWidth, params.viewportHeight,
+            params.orientationMayChange, adaptiveVideoTrackSelectionFactory,
+            params.exceedVideoConstraintsIfNecessary,
+            params.exceedRendererCapabilitiesIfNecessary);
+      }
+    }
+
+    for (int i = 0; i < rendererCount; i++) {
       switch (rendererCapabilities[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
-          rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
-              rendererTrackGroupArrays[i], rendererFormatSupports[i], params.maxVideoWidth,
-              params.maxVideoHeight, params.maxVideoBitrate, params.allowNonSeamlessAdaptiveness,
-              params.allowMixedMimeAdaptiveness, params.viewportWidth, params.viewportHeight,
-              params.orientationMayChange, adaptiveVideoTrackSelectionFactory,
-              params.exceedVideoConstraintsIfNecessary,
-              params.exceedRendererCapabilitiesIfNecessary);
+          // Already done. Do nothing.
           break;
         case C.TRACK_TYPE_AUDIO:
           rendererTrackSelections[i] = selectAudioTrack(rendererTrackGroupArrays[i],
