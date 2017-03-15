@@ -14,7 +14,6 @@
 import com.android.builder.core.BuilderConstants
 
 apply plugin: 'com.android.library'
-apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -81,12 +80,8 @@ android.libraryVariants.all { variant ->
     }
 }
 
-publish {
-    artifactId = 'exoplayer'
-    description = 'The ExoPlayer library.'
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
+ext {
+    releaseArtifact = 'exoplayer'
+    releaseDescription = 'The ExoPlayer library.'
 }
+apply from: '../publish.gradle'
