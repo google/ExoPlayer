@@ -316,8 +316,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
-    int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
-        : uri.getLastPathSegment());
+    int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
+        : Util.inferContentType("." + overrideExtension);
     switch (type) {
       case C.TYPE_SS:
         return new SsMediaSource(uri, buildDataSourceFactory(false),
