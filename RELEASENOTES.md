@@ -1,5 +1,52 @@
 # Release notes #
 
+### r2.3.0 ###
+
+* GVR extension: Wraps the Google VR Audio SDK to provide spatial audio
+  rendering. You can read more about the GVR extension
+  [here](https://medium.com/google-exoplayer/spatial-audio-with-exoplayer-and-gvr-cecb00e9da5f#.xdjebjd7g).
+* DASH improvements:
+ * Support embedded CEA-608 closed captions
+   ([#2362](https://github.com/google/ExoPlayer/issues/2362)).
+ * Support embedded EMSG events
+   ([#2176](https://github.com/google/ExoPlayer/issues/2176)).
+ * Support mspr:pro manifest element
+   ([#2386](https://github.com/google/ExoPlayer/issues/2386)).
+ * Correct handling of empty segment indices at the start of live events
+   ([#1865](https://github.com/google/ExoPlayer/issues/1865)).
+* HLS improvements:
+ * Respect initial track selection
+   ([#2353](https://github.com/google/ExoPlayer/issues/2353)).
+ * Reduced frequency of media playlist requests when playback position is close
+   to the live edge ([#2548](https://github.com/google/ExoPlayer/issues/2548)).
+ * Exposed the master playlist through ExoPlayer.getCurrentManifest()
+   ([#2537](https://github.com/google/ExoPlayer/issues/2537)).
+ * Support CLOSED-CAPTIONS #EXT-X-MEDIA type
+   ([#341](https://github.com/google/ExoPlayer/issues/341)).
+ * Fixed handling of negative values in #EXT-X-SUPPORT
+   ([#2495](https://github.com/google/ExoPlayer/issues/2495)).
+ * Fixed potential endless buffering state for streams with WebVTT subtitles
+   ([#2424](https://github.com/google/ExoPlayer/issues/2424)).
+* MPEG-TS improvements:
+ * Support for multiple programs.
+ * Support for multiple closed captions and caption service descriptors
+   ([#2161](https://github.com/google/ExoPlayer/issues/2161)).
+* MP3: Add `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` extractor option to enable
+  constant bitrate seeking in MP3 files that would otherwise be unseekable
+  ([#2445](https://github.com/google/ExoPlayer/issues/2445)).
+* ID3: Better handle malformed ID3 data
+  ([#2486](https://github.com/google/ExoPlayer/issues/2486)).
+* Track selection: Added maxVideoBitrate parameter to DefaultTrackSelector.
+* DRM: Add support for CENC ClearKey on API level 21+
+  ([#2361](https://github.com/google/ExoPlayer/issues/2361)).
+* DRM: Support dynamic setting of key request headers
+  ([#1924](https://github.com/google/ExoPlayer/issues/1924)).
+* SmoothStreaming: Fixed handling of start_time placeholder
+  ([#2447](https://github.com/google/ExoPlayer/issues/2447)).
+* FLAC extension: Fix proguard configuration
+  ([#2427](https://github.com/google/ExoPlayer/issues/2427)).
+* Misc bugfixes.
+
 ### r2.2.0 ###
 
 * Demo app: Automatic recovery from BehindLiveWindowException, plus improved
@@ -245,6 +292,12 @@ and hence it can be assumed that all changes in r1.5.11 and earlier are included
 in all V2 releases. This cannot be assumed for changes in r1.5.12 and later,
 however it can be assumed that all such changes are included in the most recent
 V2 release.
+
+### r1.5.15 ###
+
+* SmoothStreaming: Fixed handling of start_time placeholder
+  ([#2447](https://github.com/google/ExoPlayer/issues/2447)).
+* Misc bugfixes.
 
 ### r1.5.14 ###
 
