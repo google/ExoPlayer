@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -89,7 +90,7 @@ public final class CacheDataSource implements DataSource {
   private final DataSource cacheReadDataSource;
   private final DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
-  private final EventListener eventListener;
+  @Nullable private final EventListener eventListener;
 
   private final boolean blockOnCache;
   private final boolean ignoreCacheOnError;
@@ -149,7 +150,7 @@ public final class CacheDataSource implements DataSource {
    * @param eventListener An optional {@link EventListener} to receive events.
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink, @Flags int flags, EventListener eventListener) {
+      DataSink cacheWriteDataSink, @Flags int flags, @Nullable EventListener eventListener) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
