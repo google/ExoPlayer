@@ -137,6 +137,16 @@ public final class DashTestData {
           WIDEVINE_VP9_180P_VIDEO_REPRESENTATION_ID,
           WIDEVINE_VP9_360P_VIDEO_REPRESENTATION_ID};
 
+  private static final String WIDEVINE_LICENSE_URL =
+      "https://proxy.uat.widevine.com/proxy?provider=widevine_test&video_id=";
+  private static final String WIDEVINE_SW_CRYPTO_CONTENT_ID = "exoplayer_test_1";
+  private static final String WIDEVINE_HW_SECURE_DECODE_CONTENT_ID = "exoplayer_test_2";
+
+  public static String getWidevineLicenseUrl(boolean useL1Widevine) {
+    return WIDEVINE_LICENSE_URL
+        + (useL1Widevine ? WIDEVINE_HW_SECURE_DECODE_CONTENT_ID : WIDEVINE_SW_CRYPTO_CONTENT_ID);
+  }
+
   private DashTestData() {
   }
 

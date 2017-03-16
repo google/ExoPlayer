@@ -37,7 +37,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
   private static final String TAG = "DashWidevineOfflineTest";
   private static final String USER_AGENT = "ExoPlayerPlaybackTests";
 
-  private DashHostedTest.Builder builder;
+  private DashTestRunner testRunner;
   private DefaultHttpDataSourceFactory httpDataSourceFactory;
   private OfflineLicenseHelper<FrameworkMediaCrypto> offlineLicenseHelper;
   private byte[] offlineLicenseKeySetId;
@@ -49,7 +49,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    builder = new DashHostedTest.Builder(TAG)
+    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation())
         .setStreamName("test_widevine_h264_fixed_offline")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -58,8 +58,8 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_FIXED);
 
-    boolean useL1Widevine = DashHostedTest.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
-    String widevineLicenseUrl = DashHostedTest.getWidevineLicenseUrl(useL1Widevine);
+    boolean useL1Widevine = DashTestRunner.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
+    String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(useL1Widevine);
     httpDataSourceFactory = new DefaultHttpDataSourceFactory(USER_AGENT);
     offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
         httpDataSourceFactory);
@@ -67,12 +67,15 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
 
   @Override
   protected void tearDown() throws Exception {
+    testRunner = null;
     if (offlineLicenseKeySetId != null) {
       releaseLicense();
     }
     if (offlineLicenseHelper != null) {
       offlineLicenseHelper.releaseResources();
     }
+    offlineLicenseHelper = null;
+    httpDataSourceFactory = null;
     super.tearDown();
   }
 
@@ -83,7 +86,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
       return; // Pass.
     }
     downloadLicense();
-    builder.runTest(getActivity(), getInstrumentation());
+    testRunner.run();
 
     // Renew license after playback should still work
     offlineLicenseKeySetId = offlineLicenseHelper.renew(offlineLicenseKeySetId);
@@ -98,7 +101,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     releaseLicense(); // keySetId no longer valid.
 
     try {
-      builder.runTest(getActivity(), getInstrumentation());
+      testRunner.run();
       fail("Playback should fail because the license has been released.");
     } catch (Throwable e) {
       // Get the root cause
@@ -138,7 +141,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     }
 
     // DefaultDrmSessionManager should renew the license and stream play fine
-    builder.runTest(getActivity(), getInstrumentation());
+    testRunner.run();
   }
 
   public void testWidevineOfflineLicenseExpiresOnPause() throws Exception {
@@ -157,9 +160,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
         .delay(3000).pause().delay(licenseDuration * 1000 + 2000).play().build();
 
     // DefaultDrmSessionManager should renew the license and stream play fine
-    builder
-        .setActionSchedule(schedule)
-        .runTest(getActivity(), getInstrumentation());
+    testRunner.setActionSchedule(schedule).run();
   }
 
   private void downloadLicense() throws InterruptedException, DrmSessionException, IOException {
@@ -167,7 +168,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
         httpDataSourceFactory.createDataSource(), DashTestData.WIDEVINE_H264_MANIFEST);
     Assert.assertNotNull(offlineLicenseKeySetId);
     Assert.assertTrue(offlineLicenseKeySetId.length > 0);
-    builder.setOfflineLicenseKeySetId(offlineLicenseKeySetId);
+    testRunner.setOfflineLicenseKeySetId(offlineLicenseKeySetId);
   }
 
   private void releaseLicense() throws DrmSessionException {

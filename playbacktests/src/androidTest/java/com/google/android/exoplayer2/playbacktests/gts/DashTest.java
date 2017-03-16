@@ -40,38 +40,52 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       .build();
   private static final ActionSchedule RENDERER_DISABLING_SCHEDULE = new ActionSchedule.Builder(TAG)
       // Wait 10 seconds, disable the video renderer, wait another 10 seconds and enable it again.
-      .delay(10000).disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .delay(10000).enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+      .delay(10000).disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .delay(10000).enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
       // Ditto for the audio renderer.
-      .delay(10000).disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .delay(10000).enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+      .delay(10000).disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .delay(10000).enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
       // Wait 10 seconds, then disable and enable the video renderer 5 times in quick succession.
-      .delay(10000).disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+      .delay(10000).disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
       // Ditto for the audio renderer.
-      .delay(10000).disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
-      .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+      .delay(10000).disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
       .delay(10000).seek(120000)
       .build();
+  
+  private DashTestRunner testRunner;
 
   public DashTest() {
     super(HostActivity.class);
+  }
+
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation());
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    testRunner = null;
+    super.tearDown();
   }
 
   // H264 CDD.
@@ -81,13 +95,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_h264_fixed")
         .setManifestUrl(DashTestData.H264_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID, DashTestData.H264_CDD_FIXED)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testH264Adaptive() throws DecoderQueryException {
@@ -95,14 +109,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_h264_adaptive")
         .setManifestUrl(DashTestData.H264_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H264_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
@@ -111,7 +125,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     final String streamName = "test_h264_adaptive_with_seeking";
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName(streamName)
         .setManifestUrl(DashTestData.H264_MANIFEST)
         .setFullPlaybackNoSeeking(false)
@@ -119,7 +133,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(SEEKING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H264_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -128,7 +142,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     final String streamName = "test_h264_adaptive_with_renderer_disabling";
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName(streamName)
         .setManifestUrl(DashTestData.H264_MANIFEST)
         .setFullPlaybackNoSeeking(false)
@@ -136,7 +150,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H264_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // H265 CDD.
@@ -146,13 +160,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_h265_fixed")
         .setManifestUrl(DashTestData.H265_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID, DashTestData.H265_CDD_FIXED)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testH265Adaptive() throws DecoderQueryException {
@@ -160,14 +174,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_h265_adaptive")
         .setManifestUrl(DashTestData.H265_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H265_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testH265AdaptiveWithSeeking() throws DecoderQueryException {
@@ -175,7 +189,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_h265_adaptive_with_seeking")
         .setManifestUrl(DashTestData.H265_MANIFEST)
         .setFullPlaybackNoSeeking(false)
@@ -183,7 +197,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(SEEKING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H265_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testH265AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -191,7 +205,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_h265_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.H265_MANIFEST)
         .setFullPlaybackNoSeeking(false)
@@ -199,7 +213,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H265_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // VP9 (CDD).
@@ -209,14 +223,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_vp9_fixed_360p")
         .setManifestUrl(DashTestData.VP9_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.VP9_VORBIS_AUDIO_REPRESENTATION_ID,
             DashTestData.VP9_CDD_FIXED)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testVp9Adaptive() throws DecoderQueryException {
@@ -224,14 +238,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_vp9_adaptive")
         .setManifestUrl(DashTestData.VP9_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.VP9_VORBIS_AUDIO_REPRESENTATION_ID,
             DashTestData.VP9_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testVp9AdaptiveWithSeeking() throws DecoderQueryException {
@@ -239,7 +253,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_vp9_adaptive_with_seeking")
         .setManifestUrl(DashTestData.VP9_MANIFEST)
         .setFullPlaybackNoSeeking(false)
@@ -247,7 +261,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(SEEKING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.VP9_VORBIS_AUDIO_REPRESENTATION_ID,
             DashTestData.VP9_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testVp9AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -255,7 +269,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_vp9_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.VP9_MANIFEST)
         .setFullPlaybackNoSeeking(false)
@@ -263,7 +277,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.VP9_VORBIS_AUDIO_REPRESENTATION_ID,
             DashTestData.VP9_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // H264: Other frame-rates for output buffer count assertions.
@@ -274,14 +288,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_23fps_h264_fixed")
         .setManifestUrl(DashTestData.H264_23_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // 24 fps.
@@ -290,14 +304,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_24fps_h264_fixed")
         .setManifestUrl(DashTestData.H264_24_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // 29.97 fps.
@@ -306,14 +320,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_29fps_h264_fixed")
         .setManifestUrl(DashTestData.H264_29_MANIFEST)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // Widevine encrypted media tests.
@@ -324,7 +338,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -332,7 +346,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_FIXED)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineH264Adaptive() throws DecoderQueryException {
@@ -340,7 +354,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h264_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -348,7 +362,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineH264AdaptiveWithSeeking() throws DecoderQueryException {
@@ -356,7 +370,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h264_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -365,7 +379,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(SEEKING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -373,7 +387,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h264_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -382,7 +396,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // H265 CDD.
@@ -392,7 +406,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h265_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H265)
@@ -400,7 +414,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H265_CDD_FIXED)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineH265Adaptive() throws DecoderQueryException {
@@ -408,7 +422,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h265_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H265)
@@ -416,7 +430,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H265_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineH265AdaptiveWithSeeking() throws DecoderQueryException {
@@ -424,7 +438,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h265_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H265)
@@ -433,7 +447,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(SEEKING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H265_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineH265AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -441,7 +455,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_h265_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H265)
@@ -450,7 +464,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H265_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // VP9 (CDD).
@@ -460,7 +474,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_vp9_fixed_360p")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_VP9)
@@ -468,7 +482,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_VP9_CDD_FIXED)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineVp9Adaptive() throws DecoderQueryException {
@@ -476,7 +490,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_vp9_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_VP9)
@@ -484,7 +498,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_VP9_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineVp9AdaptiveWithSeeking() throws DecoderQueryException {
@@ -492,7 +506,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_VP9)
@@ -501,7 +515,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(SEEKING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_VP9_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   public void testWidevineVp9AdaptiveWithRendererDisabling() throws DecoderQueryException {
@@ -509,7 +523,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_VP9)
@@ -518,7 +532,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_VP9_CDD_ADAPTIVE)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // H264: Other frame-rates for output buffer count assertions.
@@ -529,7 +543,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_23fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_23_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -537,7 +551,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // 24 fps.
@@ -546,7 +560,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_24fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_24_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -554,7 +568,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // 29.97 fps.
@@ -563,7 +577,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       // Pass.
       return;
     }
-    new DashHostedTest.Builder(TAG)
+    testRunner
         .setStreamName("test_widevine_29fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_29_MANIFEST)
         .setWidevineMimeType(MimeTypes.VIDEO_H264)
@@ -571,7 +585,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID)
-        .runTest(getActivity(), getInstrumentation());
+        .run();
   }
 
   // Internal.
