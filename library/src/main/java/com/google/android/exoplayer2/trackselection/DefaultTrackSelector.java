@@ -432,8 +432,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             params.maxVideoHeight, params.maxVideoBitrate, params.allowNonSeamlessAdaptiveness,
             params.allowMixedMimeAdaptiveness, params.viewportWidth, params.viewportHeight,
             params.orientationMayChange, adaptiveVideoTrackSelectionFactory,
-            params.exceedVideoConstraintsIfNecessary,
-            params.exceedRendererCapabilitiesIfNecessary);
+            params.exceedVideoConstraintsIfNecessary, params.exceedRendererCapabilitiesIfNecessary);
       }
     }
 

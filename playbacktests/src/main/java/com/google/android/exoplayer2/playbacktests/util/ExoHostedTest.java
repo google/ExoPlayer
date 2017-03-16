@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -313,7 +313,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @SuppressWarnings("unused")
   protected MappingTrackSelector buildTrackSelector(HostActivity host,
       BandwidthMeter bandwidthMeter) {
-    return new DefaultTrackSelector(new AdaptiveVideoTrackSelection.Factory(bandwidthMeter));
+    return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 
   @SuppressWarnings("unused")
