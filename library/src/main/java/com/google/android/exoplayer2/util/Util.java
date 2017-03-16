@@ -791,6 +791,18 @@ public final class Util {
   }
 
   /**
+   * Makes a best guess to infer the type from a {@link Uri}.
+   *
+   * @param uri The {@link Uri}.
+   * @return The content type.
+   */
+  @C.ContentType
+  public static int inferContentType(Uri uri) {
+    String path = uri.getPath();
+    return path == null ? C.TYPE_OTHER : inferContentType(path);
+  }
+
+  /**
    * Makes a best guess to infer the type from a file name.
    *
    * @param fileName Name of the file. It can include the path of the file.
@@ -798,14 +810,14 @@ public final class Util {
    */
   @C.ContentType
   public static int inferContentType(String fileName) {
-    if (fileName == null) {
-      return C.TYPE_OTHER;
-    } else if (fileName.endsWith(".mpd")) {
+    fileName = fileName.toLowerCase();
+    if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
-    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")) {
-      return C.TYPE_SS;
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
+    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")
+        || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")) {
+      return C.TYPE_SS;
     } else {
       return C.TYPE_OTHER;
     }
