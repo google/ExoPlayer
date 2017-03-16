@@ -354,6 +354,7 @@ import java.io.IOException;
       sourceListener.onSourceInfoRefreshed(
           new SinglePeriodTimeline(durationUs, seekMap.isSeekable()), null);
     }
+    callback.onContinueLoadingRequested(this);
   }
 
   @Override
