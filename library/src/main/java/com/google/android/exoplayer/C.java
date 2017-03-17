@@ -155,6 +155,12 @@ public final class C {
    */
   public static final int STEREO_MODE_LEFT_RIGHT = 2;
 
+  /**
+   * Indicates a stereo layout where the left and right eyes have separate meshes,
+   * used with 360/3D/VR videos.
+   */
+  public static final int STEREO_MODE_STEREO_MESH = 3;
+
   private C() {}
 
 }

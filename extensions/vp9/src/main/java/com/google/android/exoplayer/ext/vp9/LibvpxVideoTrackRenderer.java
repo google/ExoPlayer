@@ -195,6 +195,16 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     return isLibvpxAvailable() ? VpxDecoder.getLibvpxConfig() : null;
   }
 
+  /**
+   * Returns true if the underlying libvpx library supports high bit depth.
+   */
+  public static boolean isHighBitDepthSupported() {
+    String config = getLibvpxConfig();
+    int indexHbd = config != null
+        ? config.indexOf("--enable-vp9-highbitdepth") : -1;
+    return indexHbd >= 0;
+  }
+
   @Override
   protected boolean handlesTrack(MediaFormat mediaFormat) {
     return MimeTypes.VIDEO_VP9.equalsIgnoreCase(mediaFormat.mimeType);

@@ -1,5 +1,11 @@
 # Release notes #
 
+### r1.5.15 ###
+
+* SmoothStreaming: Fixed handling of start_time placeholder
+  ([#2447](https://github.com/google/ExoPlayer/issues/2447)).
+* Misc bugfixes.
+
 ### r1.5.14 ###
 
 * Fixed cache failures when using an encrypted cache content index.

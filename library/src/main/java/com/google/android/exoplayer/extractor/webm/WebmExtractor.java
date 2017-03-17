@@ -653,6 +653,9 @@ public final class WebmExtractor implements Extractor {
           case 3:
             currentTrack.stereoMode = C.STEREO_MODE_TOP_BOTTOM;
             break;
+          case 15:
+            currentTrack.stereoMode = C.STEREO_MODE_STEREO_MESH;
+            break;
           default:
             break;
         }
