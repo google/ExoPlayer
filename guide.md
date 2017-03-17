@@ -155,7 +155,7 @@ creating a `SimpleExoPlayer`.
 Handler mainHandler = new Handler();
 BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 TrackSelection.Factory videoTrackSelectionFactory =
-    new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
+    new AdaptiveTrackSelection.Factory(bandwidthMeter);
 TrackSelector trackSelector =
     new DefaultTrackSelector(videoTrackSelectionFactory);
 
@@ -273,9 +273,9 @@ LoopingMediaSource loopingSource = new LoopingMediaSource(source);
 `ConcatenatingMediaSource` enables sequential playback of two or more individual
 `MediaSource`s. The following example plays two videos in sequence. Transitions
 between sources are seamless. There is no requirement that the sources being
-concatenated are of the same format (e.g. it’s fine to concatenate a video file
+concatenated are of the same format (e.g., it’s fine to concatenate a video file
 containing 480p H264 with one that contains 720p VP9). The sources may even be
-of different types (e.g. it’s fine to concatenate a video with an audio only
+of different types (e.g., it’s fine to concatenate a video with an audio only
 stream).
 
 {% highlight java %}
@@ -348,7 +348,7 @@ also show an appropriate error to the user if playback fails.
 
 When using `SimpleExoPlayer`, additional listeners can be set on the player. In
 particular `setVideoListener` allows an application to receive events related to
-video rendering that may be useful for adjusting the UI (e.g. the aspect ratio
+video rendering that may be useful for adjusting the UI (e.g., the aspect ratio
 of the `Surface` onto which video is being rendered). Other listeners can be set
 to on a `SimpleExoPlayer` to receive debugging information, for example by
 calling `setVideoDebugListener` and `setAudioDebugListener`.
@@ -422,7 +422,7 @@ which provide `MediaCrypto` objects for decryption as well as ensuring that the
 required decryption keys are available to the underlying DRM module being used.
 
 The ExoPlayer library provides a default implementation of `DrmSessionManager`,
-called `StreamingDrmSessionManager`, which uses `MediaDrm`. The session manager
+called `DefaultDrmSessionManager`, which uses `MediaDrm`. The session manager
 supports any DRM scheme for which a modular DRM component exists on the device.
 All Android devices are required to support Widevine modular DRM (with L3
 security, although many devices also support L1). Some devices may support

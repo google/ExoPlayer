@@ -156,7 +156,7 @@ demo app using:
 adb shell am start -d https://yourdomain.com/samples.exolist.json
 {% endhighlight %}
 
-Clicking a `*.exolist.json` link (e.g. in the browser or an email client) on a
+Clicking a `*.exolist.json` link (e.g., in the browser or an email client) on a
 device with the demo app installed will also open it in the demo app. Hence
 hosting a `*.exolist.json` JSON file provides a simple way of distributing
 content for others to try in the demo app.
@@ -184,10 +184,10 @@ Supported optional extras for a single sample intent are:
   name1, value1, name2, value2 etc. if protected
 
 When using `adb shell am start` to fire an intent, an optional string extra can
-be set with `--es` (e.g. `--es extension mpd`). An optional boolean extra can be
-set with `--ez` (e.g. `--ez prefer_extension_decoders TRUE`). An optional string
-array extra can be set with `--esa` (e.g. `--esa drm_key_request_properties
-name1,value1`).
+be set with `--es` (e.g., `--es extension mpd`). An optional boolean extra can
+be set with `--ez` (e.g., `--ez prefer_extension_decoders TRUE`). An optional
+string array extra can be set with `--esa` (e.g.,
+`--esa drm_key_request_properties name1,value1`).
 
 To play a playlist of samples set the intent's action to
 `com.google.android.exoplayer.demo.action.VIEW_LIST` and use a `uri_list` string

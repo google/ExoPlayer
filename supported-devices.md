@@ -35,5 +35,5 @@ be found
   using a certain type of HDMI to DVI cable, which causes video being played too
   quickly. Use of an HDMI to DVI cable is not realistic for an end user setup
   because such cables cannot carry audio. Hence this issue can be safely
-  ignored. We suggest using a realistic end user setup (e.g. the device
+  ignored. We suggest using a realistic end user setup (e.g., the device
   connected to a TV using a standard HDMI cable) for development and testing.
