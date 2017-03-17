@@ -99,12 +99,14 @@ public class DebugSimpleExoPlayer extends SimpleExoPlayer {
 
     @Override
     protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+      super.onQueueInputBuffer(buffer);
       insertTimestamp(buffer.timeUs);
       maybeShiftTimestampsList();
     }
 
     @Override
     protected void onProcessedOutputBuffer(long presentationTimeUs) {
+      super.onProcessedOutputBuffer(presentationTimeUs);
       bufferCount++;
       long expectedTimestampUs = dequeueTimestamp();
       if (expectedTimestampUs != presentationTimeUs) {

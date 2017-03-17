@@ -364,7 +364,7 @@ public final class Cea608Decoder extends CeaDecoder {
     } else if (isPreambleAddressCode(cc1, cc2)) {
       handlePreambleAddressCode(cc1, cc2);
     } else if (isTabCtrlCode(cc1, cc2)) {
-      currentCueBuilder.tab(cc2 - 0x20);
+      currentCueBuilder.setTab(cc2 - 0x20);
     } else if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     }
@@ -503,11 +503,14 @@ public final class Cea608Decoder extends CeaDecoder {
       return;
     }
 
+    int oldCaptionMode = this.captionMode;
     this.captionMode = captionMode;
+
     // Clear the working memory.
     resetCueBuilders();
-    if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
-      // When switching to roll-up or unknown, we also need to clear the caption.
+    if (oldCaptionMode == CC_MODE_PAINT_ON || captionMode == CC_MODE_ROLL_UP
+        || captionMode == CC_MODE_UNKNOWN) {
+      // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
       cues = null;
     }
   }
@@ -646,8 +649,8 @@ public final class Cea608Decoder extends CeaDecoder {
       this.indent = indent;
     }
 
-    public void tab(int tabs) {
-      tabOffset += tabs;
+    public void setTab(int tabs) {
+      tabOffset = tabs;
     }
 
     public void setPreambleStyle(CharacterStyle style) {

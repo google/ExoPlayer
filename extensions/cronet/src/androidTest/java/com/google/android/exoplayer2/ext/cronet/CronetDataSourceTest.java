@@ -118,7 +118,8 @@ public final class CronetDataSourceTest {
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
             true, // resetTimeoutOnRedirects
-            mockClock));
+            mockClock,
+            null));
     when(mockContentTypePredicate.evaluate(anyString())).thenReturn(true);
     when(mockCronetEngine.newUrlRequestBuilder(
             anyString(), any(UrlRequest.Callback.class), any(Executor.class)))

@@ -47,13 +47,13 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   }
 
   @Override
-  public FakeTrackOutput track(int trackId) {
-    FakeTrackOutput output = trackOutputs.get(trackId);
+  public FakeTrackOutput track(int id, int type) {
+    FakeTrackOutput output = trackOutputs.get(id);
     if (output == null) {
       Assert.assertFalse(tracksEnded);
       numberOfTracks++;
       output = new FakeTrackOutput();
-      trackOutputs.put(trackId, output);
+      trackOutputs.put(id, output);
     }
     return output;
   }

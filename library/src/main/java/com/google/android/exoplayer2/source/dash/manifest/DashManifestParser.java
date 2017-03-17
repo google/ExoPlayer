@@ -335,30 +335,35 @@ public class DashManifestParser extends DefaultHandler
    */
   protected SchemeData parseContentProtection(XmlPullParser xpp) throws XmlPullParserException,
       IOException {
+    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
+    boolean isPlayReady = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95".equals(schemeIdUri);
     byte[] data = null;
     UUID uuid = null;
-    boolean seenPsshElement = false;
     boolean requiresSecureDecoder = false;
     do {
       xpp.next();
-      // The cenc:pssh element is defined in 23001-7:2015.
-      if (XmlPullParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
-        seenPsshElement = true;
+      if (data == null && XmlPullParserUtil.isStartTag(xpp, "cenc:pssh")
+          && xpp.next() == XmlPullParser.TEXT) {
+        // The cenc:pssh element is defined in 23001-7:2015.
         data = Base64.decode(xpp.getText(), Base64.DEFAULT);
         uuid = PsshAtomUtil.parseUuid(data);
+        if (uuid == null) {
+          Log.w(TAG, "Skipping malformed cenc:pssh data");
+          data = null;
+        }
+      } else if (data == null && isPlayReady && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
+          && xpp.next() == XmlPullParser.TEXT) {
+        // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
+        data = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID,
+            Base64.decode(xpp.getText(), Base64.DEFAULT));
+        uuid = C.PLAYREADY_UUID;
       } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
         String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
-    if (!seenPsshElement) {
-      return null;
-    } else if (uuid != null) {
-      return new SchemeData(uuid, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder);
-    } else {
-      Log.w(TAG, "Skipped unsupported ContentProtection element");
-      return null;
-    }
+    return data != null ? new SchemeData(uuid, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder)
+        : null;
   }
 
   /**

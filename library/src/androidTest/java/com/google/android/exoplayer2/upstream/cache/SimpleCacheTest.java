@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,12 +38,12 @@ public class SimpleCacheTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    this.cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
+    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(cacheDir);
+    Util.recursiveDelete(cacheDir);
   }
 
   public void testCommittingOneFile() throws Exception {
@@ -190,6 +189,41 @@ public class SimpleCacheTest extends InstrumentationTestCase {
     // Cache should be cleared
     assertEquals(0, simpleCache.getKeys().size());
     assertEquals(0, cacheDir.listFiles().length);
+  }
+
+
+  public void testGetCachedBytes() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, 0);
+
+    // No cached bytes, returns -'length'
+    assertEquals(-100, simpleCache.getCachedBytes(KEY_1, 0, 100));
+
+    // Position value doesn't affect the return value
+    assertEquals(-100, simpleCache.getCachedBytes(KEY_1, 20, 100));
+
+    addCache(simpleCache, KEY_1, 0, 15);
+
+    // Returns the length of a single span
+    assertEquals(15, simpleCache.getCachedBytes(KEY_1, 0, 100));
+
+    // Value is capped by the 'length'
+    assertEquals(10, simpleCache.getCachedBytes(KEY_1, 0, 10));
+
+    addCache(simpleCache, KEY_1, 15, 35);
+
+    // Returns the length of two adjacent spans
+    assertEquals(50, simpleCache.getCachedBytes(KEY_1, 0, 100));
+
+    addCache(simpleCache, KEY_1, 60, 10);
+
+    // Not adjacent span doesn't affect return value
+    assertEquals(50, simpleCache.getCachedBytes(KEY_1, 0, 100));
+
+    // Returns length of hole up to the next cached span
+    assertEquals(-5, simpleCache.getCachedBytes(KEY_1, 55, 100));
+
+    simpleCache.releaseHoleSpan(cacheSpan);
   }
 
   private SimpleCache getSimpleCache() {

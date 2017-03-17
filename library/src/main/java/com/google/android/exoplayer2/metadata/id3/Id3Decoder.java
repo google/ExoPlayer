@@ -34,6 +34,25 @@ import java.util.Locale;
  */
 public final class Id3Decoder implements MetadataDecoder {
 
+  /**
+   * A predicate for determining whether individual frames should be decoded.
+   */
+  public interface FramePredicate {
+
+    /**
+     * Returns whether a frame with the specified parameters should be decoded.
+     *
+     * @param majorVersion The major version of the ID3 tag.
+     * @param id0 The first byte of the frame ID.
+     * @param id1 The second byte of the frame ID.
+     * @param id2 The third byte of the frame ID.
+     * @param id3 The fourth byte of the frame ID.
+     * @return Whether the frame should be decoded.
+     */
+    boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3);
+
+  }
+
   private static final String TAG = "Id3Decoder";
 
   /**
@@ -49,6 +68,19 @@ public final class Id3Decoder implements MetadataDecoder {
   private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
+
+  private final FramePredicate framePredicate;
+
+  public Id3Decoder() {
+    this(null);
+  }
+
+  /**
+   * @param framePredicate Determines which frames are decoded. May be null to decode all frames.
+   */
+  public Id3Decoder(FramePredicate framePredicate) {
+    this.framePredicate = framePredicate;
+  }
 
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
@@ -94,7 +126,7 @@ public final class Id3Decoder implements MetadataDecoder {
     int frameHeaderSize = id3Header.majorVersion == 2 ? 6 : 10;
     while (id3Data.bytesLeft() >= frameHeaderSize) {
       Id3Frame frame = decodeFrame(id3Header.majorVersion, id3Data, unsignedIntFrameSizeHack,
-          frameHeaderSize);
+          frameHeaderSize, framePredicate);
       if (frame != null) {
         id3Frames.add(frame);
       }
@@ -200,7 +232,7 @@ public final class Id3Decoder implements MetadataDecoder {
   }
 
   private static Id3Frame decodeFrame(int majorVersion, ParsableByteArray id3Data,
-      boolean unsignedIntFrameSizeHack, int frameHeaderSize) {
+      boolean unsignedIntFrameSizeHack, int frameHeaderSize, FramePredicate framePredicate) {
     int frameId0 = id3Data.readUnsignedByte();
     int frameId1 = id3Data.readUnsignedByte();
     int frameId2 = id3Data.readUnsignedByte();
@@ -231,6 +263,13 @@ public final class Id3Decoder implements MetadataDecoder {
     if (nextFramePosition > id3Data.limit()) {
       Log.w(TAG, "Frame size exceeds remaining tag data");
       id3Data.setPosition(id3Data.limit());
+      return null;
+    }
+
+    if (framePredicate != null
+        && !framePredicate.evaluate(majorVersion, frameId0, frameId1, frameId2, frameId3)) {
+      // Filtered by the predicate.
+      id3Data.setPosition(nextFramePosition);
       return null;
     }
 
@@ -302,10 +341,10 @@ public final class Id3Decoder implements MetadataDecoder {
         frame = decodeCommentFrame(id3Data, frameSize);
       } else if (frameId0 == 'C' && frameId1 == 'H' && frameId2 == 'A' && frameId3 == 'P') {
         frame = decodeChapterFrame(id3Data, frameSize, majorVersion, unsignedIntFrameSizeHack,
-            frameHeaderSize);
+            frameHeaderSize, framePredicate);
       } else if (frameId0 == 'C' && frameId1 == 'T' && frameId2 == 'O' && frameId3 == 'C') {
         frame = decodeChapterTOCFrame(id3Data, frameSize, majorVersion, unsignedIntFrameSizeHack,
-            frameHeaderSize);
+            frameHeaderSize, framePredicate);
       } else {
         String id = majorVersion == 2
             ? String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2)
@@ -404,6 +443,11 @@ public final class Id3Decoder implements MetadataDecoder {
 
   private static PrivFrame decodePrivFrame(ParsableByteArray id3Data, int frameSize)
       throws UnsupportedEncodingException {
+    if (frameSize == 0) {
+      // Frame is empty.
+      return new PrivFrame("", new byte[0]);
+    }
+
     byte[] data = new byte[frameSize];
     id3Data.readBytes(data, 0, frameSize);
 
@@ -508,8 +552,8 @@ public final class Id3Decoder implements MetadataDecoder {
   }
 
   private static ChapterFrame decodeChapterFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize)
-      throws UnsupportedEncodingException {
+      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize,
+      FramePredicate framePredicate) throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
     int chapterIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
     String chapterId = new String(id3Data.data, framePosition, chapterIdEndIndex - framePosition,
@@ -531,7 +575,7 @@ public final class Id3Decoder implements MetadataDecoder {
     int limit = framePosition + frameSize;
     while (id3Data.getPosition() < limit) {
       Id3Frame frame = decodeFrame(majorVersion, id3Data, unsignedIntFrameSizeHack,
-          frameHeaderSize);
+          frameHeaderSize, framePredicate);
       if (frame != null) {
         subFrames.add(frame);
       }
@@ -543,8 +587,8 @@ public final class Id3Decoder implements MetadataDecoder {
   }
 
   private static ChapterTocFrame decodeChapterTOCFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize)
-      throws UnsupportedEncodingException {
+      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize,
+      FramePredicate framePredicate) throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
     int elementIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
     String elementId = new String(id3Data.data, framePosition, elementIdEndIndex - framePosition,
@@ -568,7 +612,7 @@ public final class Id3Decoder implements MetadataDecoder {
     int limit = framePosition + frameSize;
     while (id3Data.getPosition() < limit) {
       Id3Frame frame = decodeFrame(majorVersion, id3Data, unsignedIntFrameSizeHack,
-          frameHeaderSize);
+          frameHeaderSize, framePredicate);
       if (frame != null) {
         subFrames.add(frame);
       }

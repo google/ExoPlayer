@@ -17,11 +17,8 @@ package com.google.android.exoplayer2.source.chunk;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.SeekMapOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -31,12 +28,11 @@ import java.io.IOException;
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data.
  */
-public class ContainerMediaChunk extends BaseMediaChunk implements SeekMapOutput {
+public class ContainerMediaChunk extends BaseMediaChunk {
 
   private final int chunkCount;
   private final long sampleOffsetUs;
   private final ChunkExtractorWrapper extractorWrapper;
-  private final Format sampleFormat;
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
@@ -56,19 +52,15 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SeekMapOutput
    *     underlying media are being merged into a single load.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
-   * @param sampleFormat The {@link Format} of the samples in the chunk, if known. May be null if
-   *     the data is known to define its own sample format.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
       int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, int chunkCount, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper,
-      Format sampleFormat) {
+      int chunkIndex, int chunkCount, long sampleOffsetUs, ChunkExtractorWrapper extractorWrapper) {
     super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
         endTimeUs, chunkIndex);
     this.chunkCount = chunkCount;
     this.sampleOffsetUs = sampleOffsetUs;
     this.extractorWrapper = extractorWrapper;
-    this.sampleFormat = sampleFormat;
   }
 
   @Override
@@ -84,13 +76,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SeekMapOutput
   @Override
   public final long bytesLoaded() {
     return bytesLoaded;
-  }
-
-  // SeekMapOutput implementation.
-
-  @Override
-  public final void seekMap(SeekMap seekMap) {
-    // Do nothing.
   }
 
   // Loadable implementation.
@@ -114,10 +99,10 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SeekMapOutput
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
-        // Set the target to ourselves.
-        DefaultTrackOutput trackOutput = getTrackOutput();
-        trackOutput.formatWithOffset(sampleFormat, sampleOffsetUs);
-        extractorWrapper.init(this, trackOutput);
+        // Configure the output and set it as the target for the extractor wrapper.
+        BaseMediaChunkOutput output = getOutput();
+        output.setSampleOffsetUs(sampleOffsetUs);
+        extractorWrapper.init(output);
       }
       // Load and decode the sample data.
       try {

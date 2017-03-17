@@ -673,6 +673,9 @@ public final class MatroskaExtractor implements Extractor {
           case 3:
             currentTrack.stereoMode = C.STEREO_MODE_TOP_BOTTOM;
             break;
+          case 15:
+            currentTrack.stereoMode = C.STEREO_MODE_STEREO_MESH;
+            break;
           default:
             break;
         }
@@ -1462,6 +1465,7 @@ public final class MatroskaExtractor implements Extractor {
           throw new ParserException("Unrecognized codec identifier.");
       }
 
+      int type;
       Format format;
       @C.SelectionFlags int selectionFlags = 0;
       selectionFlags |= flagDefault ? C.SELECTION_FLAG_DEFAULT : 0;
@@ -1469,10 +1473,12 @@ public final class MatroskaExtractor implements Extractor {
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
+        type = C.TRACK_TYPE_AUDIO;
         format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, maxInputSize, channelCount, sampleRate, pcmEncoding,
             initializationData, drmInitData, selectionFlags, language);
       } else if (MimeTypes.isVideo(mimeType)) {
+        type = C.TRACK_TYPE_VIDEO;
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
           displayWidth = displayWidth == Format.NO_VALUE ? width : displayWidth;
           displayHeight = displayHeight == Format.NO_VALUE ? height : displayHeight;
@@ -1485,17 +1491,19 @@ public final class MatroskaExtractor implements Extractor {
             Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData,
             Format.NO_VALUE, pixelWidthHeightRatio, projectionData, stereoMode, drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
+        type = C.TRACK_TYPE_TEXT;
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, selectionFlags, language, drmInitData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
+        type = C.TRACK_TYPE_TEXT;
         format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, initializationData, language, drmInitData);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
 
-      this.output = output.track(number);
+      this.output = output.track(number, type);
       this.output.format(format);
     }
 

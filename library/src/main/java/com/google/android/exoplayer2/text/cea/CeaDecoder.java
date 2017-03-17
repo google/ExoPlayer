@@ -75,7 +75,13 @@ import java.util.TreeSet;
   public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws SubtitleDecoderException {
     Assertions.checkArgument(inputBuffer != null);
     Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
-    queuedInputBuffers.add(inputBuffer);
+    if (inputBuffer.isDecodeOnly()) {
+      // We can drop this buffer early (i.e. before it would be decoded) as the CEA formats allow
+      // for decoding to begin mid-stream.
+      releaseInputBuffer(inputBuffer);
+    } else {
+      queuedInputBuffers.add(inputBuffer);
+    }
     dequeuedInputBuffer = null;
   }
 

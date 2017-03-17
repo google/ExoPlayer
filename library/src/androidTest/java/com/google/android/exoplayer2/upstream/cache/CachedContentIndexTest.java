@@ -4,7 +4,7 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,13 +36,13 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
-    cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
+    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(cacheDir);
+    Util.recursiveDelete(cacheDir);
   }
 
   public void testAddGetRemove() throws Exception {

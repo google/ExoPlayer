@@ -51,7 +51,7 @@ import java.util.Locale;
   private static final TrackSelection.Factory RANDOM_FACTORY = new RandomTrackSelection.Factory();
 
   private final MappingTrackSelector selector;
-  private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
+  private final TrackSelection.Factory adaptiveTrackSelectionFactory;
 
   private MappedTrackInfo trackInfo;
   private int rendererIndex;
@@ -67,13 +67,13 @@ import java.util.Locale;
 
   /**
    * @param selector The track selector.
-   * @param adaptiveVideoTrackSelectionFactory A factory for adaptive video {@link TrackSelection}s,
-   *     or null if the selection helper should not support adaptive video.
+   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s, or null
+   *     if the selection helper should not support adaptive tracks.
    */
   public TrackSelectionHelper(MappingTrackSelector selector,
-      TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
+      TrackSelection.Factory adaptiveTrackSelectionFactory) {
     this.selector = selector;
-    this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
+    this.adaptiveTrackSelectionFactory = adaptiveTrackSelectionFactory;
   }
 
   /**
@@ -92,7 +92,7 @@ import java.util.Locale;
     trackGroups = trackInfo.getTrackGroups(rendererIndex);
     trackGroupsAdaptive = new boolean[trackGroups.length];
     for (int i = 0; i < trackGroups.length; i++) {
-      trackGroupsAdaptive[i] = adaptiveVideoTrackSelectionFactory != null
+      trackGroupsAdaptive[i] = adaptiveTrackSelectionFactory != null
           && trackInfo.getAdaptiveSupport(rendererIndex, i, false)
               != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
           && trackGroups.get(i).length > 1;
@@ -271,7 +271,7 @@ import java.util.Locale;
 
   private void setOverride(int group, int[] tracks, boolean enableRandomAdaptation) {
     TrackSelection.Factory factory = tracks.length == 1 ? FIXED_FACTORY
-        : (enableRandomAdaptation ? RANDOM_FACTORY : adaptiveVideoTrackSelectionFactory);
+        : (enableRandomAdaptation ? RANDOM_FACTORY : adaptiveTrackSelectionFactory);
     override = new SelectionOverride(factory, group, tracks);
   }
 
@@ -301,15 +301,18 @@ import java.util.Locale;
   private static String buildTrackName(Format format) {
     String trackName;
     if (MimeTypes.isVideo(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(
+          buildResolutionString(format), buildBitrateString(format)), buildTrackIdString(format)),
+          buildSampleMimeTypeString(format));
     } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildAudioPropertyString(format)), buildBitrateString(format)),
-          buildTrackIdString(format));
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(
+          buildLanguageString(format), buildAudioPropertyString(format)),
+          buildBitrateString(format)), buildTrackIdString(format)),
+          buildSampleMimeTypeString(format));
     } else {
-      trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
+          buildBitrateString(format)), buildTrackIdString(format)),
+          buildSampleMimeTypeString(format));
     }
     return trackName.length() == 0 ? "unknown" : trackName;
   }
@@ -340,6 +343,10 @@ import java.util.Locale;
 
   private static String buildTrackIdString(Format format) {
     return format.id == null ? "" : ("id:" + format.id);
+  }
+
+  private static String buildSampleMimeTypeString(Format format) {
+    return format.sampleMimeType == null ? "" : format.sampleMimeType;
   }
 
 }

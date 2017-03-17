@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.util;
 
 import android.test.InstrumentationTestCase;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,14 +33,14 @@ public class AtomicFileTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
-    tempFolder = TestUtil.createTempFolder(getInstrumentation().getContext());
+    tempFolder = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     file = new File(tempFolder, "atomicFile");
     atomicFile = new AtomicFile(file);
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(tempFolder);
+    Util.recursiveDelete(tempFolder);
   }
 
   public void testDelete() throws Exception {

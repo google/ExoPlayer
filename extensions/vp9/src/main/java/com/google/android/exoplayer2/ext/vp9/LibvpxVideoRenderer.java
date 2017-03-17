@@ -65,6 +65,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
+  private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
   private DecoderCounters decoderCounters;
@@ -149,6 +150,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     joiningDeadlineMs = -1;
     clearLastReportedVideoSize();
     formatHolder = new FormatHolder();
+    flagsOnlyBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
   }
@@ -165,10 +167,22 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return;
     }
 
-    // Try and read a format if we don't have one already.
-    if (format == null && !readFormat()) {
-      // We can't make progress without one.
-      return;
+    if (format == null) {
+      // We don't have a format yet, so try and read one.
+      flagsOnlyBuffer.clear();
+      int result = readSource(formatHolder, flagsOnlyBuffer, true);
+      if (result == C.RESULT_FORMAT_READ) {
+        onInputFormatChanged(formatHolder.format);
+      } else if (result == C.RESULT_BUFFER_READ) {
+        // End of stream read having not read a format.
+        Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
+        inputStreamEnded = true;
+        outputStreamEnded = true;
+        return;
+      } else {
+        // We still don't have a format and can't make progress without one.
+        return;
+      }
     }
 
     if (isRendererAvailable()) {
@@ -327,7 +341,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = C.RESULT_BUFFER_READ;
     } else {
-      result = readSource(formatHolder, inputBuffer);
+      result = readSource(formatHolder, inputBuffer, false);
     }
 
     if (result == C.RESULT_NOTHING_READ) {
@@ -483,15 +497,6 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
         }
       }
     }
-  }
-
-  private boolean readFormat() throws ExoPlaybackException {
-    int result = readSource(formatHolder, null);
-    if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
-      return true;
-    }
-    return false;
   }
 
   private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {

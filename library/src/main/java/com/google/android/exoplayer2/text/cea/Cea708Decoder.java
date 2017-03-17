@@ -43,13 +43,6 @@ import java.util.List;
 
 /**
  * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
- *
- * <p>This implementation does not provide full compatibility with the CEA-708 specification. Note
- * that only the default pen/text and window/cue colors (i.e. text with
- * {@link CueBuilder#COLOR_SOLID_WHITE} foreground and {@link CueBuilder#COLOR_SOLID_BLACK}
- * background, and cues with {@link CueBuilder#COLOR_SOLID_BLACK} fill) will be overridden with
- * device accessibility settings; all others will use the colors and opacity specified by the
- * caption data.
  */
 public final class Cea708Decoder extends CeaDecoder {
 
@@ -218,7 +211,7 @@ public final class Cea708Decoder extends CeaDecoder {
       }
 
       if (!ccValid) {
-        finalizeCurrentPacket();
+        // This byte-pair isn't valid, ignore it and continue.
         continue;
       }
 
@@ -266,7 +259,8 @@ public final class Cea708Decoder extends CeaDecoder {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
       Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
           + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + ")");
+          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
+      return;
     }
 
     serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
@@ -291,19 +285,26 @@ public final class Cea708Decoder extends CeaDecoder {
       return;
     }
 
+    // The cues should be updated if we receive a C0 ETX command, any C1 command, or if after
+    // processing the service block any text has been added to the buffer. See CEA-708-B Section
+    // 8.10.4 for more details.
+    boolean cuesNeedUpdate = false;
+
     while (serviceBlockPacket.bitsLeft() > 0) {
       int command = serviceBlockPacket.readBits(8);
       if (command != COMMAND_EXT1) {
         if (command <= GROUP_C0_END) {
           handleC0Command(command);
+          // If the C0 command was an ETX command, the cues are updated in handleC0Command.
         } else if (command <= GROUP_G0_END) {
           handleG0Character(command);
+          cuesNeedUpdate = true;
         } else if (command <= GROUP_C1_END) {
           handleC1Command(command);
-          // Cues are always updated after a C1 command
-          cues = getDisplayCues();
+          cuesNeedUpdate = true;
         } else if (command <= GROUP_G1_END) {
           handleG1Character(command);
+          cuesNeedUpdate = true;
         } else {
           Log.w(TAG, "Invalid base command: " + command);
         }
@@ -314,14 +315,20 @@ public final class Cea708Decoder extends CeaDecoder {
           handleC2Command(command);
         } else if (command <= GROUP_G2_END) {
           handleG2Character(command);
+          cuesNeedUpdate = true;
         } else if (command <= GROUP_C3_END) {
           handleC3Command(command);
         } else if (command <= GROUP_G3_END) {
           handleG3Character(command);
+          cuesNeedUpdate = true;
         } else {
           Log.w(TAG, "Invalid extended command: " + command);
         }
       }
+    }
+
+    if (cuesNeedUpdate) {
+      cues = getDisplayCues();
     }
   }
 
@@ -463,6 +470,11 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_DF7:
         window = (command - COMMAND_DF0);
         handleDefineWindow(window);
+        // We also set the current window to the newly defined window.
+        if (currentWindow != window) {
+          currentWindow = window;
+          currentCueBuilder = cueBuilders[window];
+        }
         break;
       default:
         Log.w(TAG, "Invalid C1 command: " + command);
@@ -864,6 +876,7 @@ public final class Cea708Decoder extends CeaDecoder {
     private int foregroundColor;
     private int backgroundColorStartPosition;
     private int backgroundColor;
+    private int row;
 
     public CueBuilder() {
       rolledUpCaptions = new LinkedList<>();
@@ -903,6 +916,7 @@ public final class Cea708Decoder extends CeaDecoder {
       underlineStartPosition = C.POSITION_UNSET;
       foregroundColorStartPosition = C.POSITION_UNSET;
       backgroundColorStartPosition = C.POSITION_UNSET;
+      row = 0;
     }
 
     public boolean isDefined() {
@@ -1037,7 +1051,16 @@ public final class Cea708Decoder extends CeaDecoder {
     }
 
     public void setPenLocation(int row, int column) {
-      // TODO: Support moving the pen location with a window.
+      // TODO: Support moving the pen location with a window properly.
+
+      // Until we support proper pen locations, if we encounter a row that's different from the
+      // previous one, we should append a new line. Otherwise, we'll see strings that should be
+      // on new lines concatenated with the previous, resulting in 2 words being combined, as
+      // well as potentially drawing beyond the width of the window/screen.
+      if (this.row != row) {
+        append('\n');
+      }
+      this.row = row;
     }
 
     public void backspace() {

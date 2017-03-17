@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.IntDef;
 import android.text.Layout.Alignment;
@@ -78,7 +79,8 @@ public class Cue {
   public static final int LINE_TYPE_NUMBER = 1;
 
   /**
-   * The cue text. Note the {@link CharSequence} may be decorated with styling spans.
+   * The cue text, or null if this is an image cue. Note the {@link CharSequence} may be decorated
+   * with styling spans.
    */
   public final CharSequence text;
 
@@ -88,6 +90,11 @@ public class Cue {
   public final Alignment textAlignment;
 
   /**
+   * The cue image, or null if this is a text cue.
+   */
+  public final Bitmap bitmap;
+
+  /**
    * The position of the {@link #lineAnchor} of the cue box within the viewport in the direction
    * orthogonal to the writing direction, or {@link #DIMEN_UNSET}. When set, the interpretation of
    * the value depends on the value of {@link #lineType}.
@@ -95,8 +102,8 @@ public class Cue {
    * For horizontal text and {@link #lineType} equal to {@link #LINE_TYPE_FRACTION}, this is the
    * fractional vertical position relative to the top of the viewport.
    */
-
   public final float line;
+
   /**
    * The type of the {@link #line} value.
    * <p>
@@ -122,9 +129,8 @@ public class Cue {
    * {@code (line == -2 && lineAnchor == ANCHOR_TYPE_START)} position a cue so that only its first
    * line is visible at the bottom of the viewport.
    */
+  @LineType public final int lineType;
 
-  @LineType
-  public final int lineType;
   /**
    * The cue box anchor positioned by {@link #line}. One of {@link #ANCHOR_TYPE_START},
    * {@link #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
@@ -133,9 +139,8 @@ public class Cue {
    * and {@link #ANCHOR_TYPE_END} correspond to the top, middle and bottom of the cue box
    * respectively.
    */
+  @AnchorType public final int lineAnchor;
 
-  @AnchorType
-  public final int lineAnchor;
   /**
    * The fractional position of the {@link #positionAnchor} of the cue box within the viewport in
    * the direction orthogonal to {@link #line}, or {@link #DIMEN_UNSET}.
@@ -154,8 +159,7 @@ public class Cue {
    * and {@link #ANCHOR_TYPE_END} correspond to the left, middle and right of the cue box
    * respectively.
    */
-  @AnchorType
-  public final int positionAnchor;
+  @AnchorType public final int positionAnchor;
 
   /**
    * The size of the cue box in the writing direction specified as a fraction of the viewport size
@@ -174,7 +178,27 @@ public class Cue {
   public final int windowColor;
 
   /**
-   * Constructs a cue whose {@link #textAlignment} is null, whose type parameters are set to
+   * Creates an image cue.
+   *
+   * @param bitmap See {@link #bitmap}.
+   * @param horizontalPosition The position of the horizontal anchor within the viewport, expressed
+   *     as a fraction of the viewport width.
+   * @param horizontalPositionAnchor The horizontal anchor. One of {@link #ANCHOR_TYPE_START},
+   *     {@link #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
+   * @param verticalPosition The position of the vertical anchor within the viewport, expressed as a
+   *     fraction of the viewport height.
+   * @param verticalPositionAnchor The vertical anchor. One of {@link #ANCHOR_TYPE_START},
+   *     {@link #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
+   * @param width The width of the cue, expressed as a fraction of the viewport width.
+   */
+  public Cue(Bitmap bitmap, float horizontalPosition, @AnchorType int horizontalPositionAnchor,
+      float verticalPosition, @AnchorType int verticalPositionAnchor, float width) {
+    this(null, null, bitmap, verticalPosition, LINE_TYPE_FRACTION, verticalPositionAnchor,
+        horizontalPosition, horizontalPositionAnchor, width, false, Color.BLACK);
+  }
+
+  /**
+   * Creates a text cue whose {@link #textAlignment} is null, whose type parameters are set to
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
    * @param text See {@link #text}.
@@ -184,6 +208,8 @@ public class Cue {
   }
 
   /**
+   * Creates a text cue.
+   *
    * @param text See {@link #text}.
    * @param textAlignment See {@link #textAlignment}.
    * @param line See {@link #line}.
@@ -200,6 +226,8 @@ public class Cue {
   }
 
   /**
+   * Creates a text cue.
+   *
    * @param text See {@link #text}.
    * @param textAlignment See {@link #textAlignment}.
    * @param line See {@link #line}.
@@ -214,8 +242,16 @@ public class Cue {
   public Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size,
       boolean windowColorSet, int windowColor) {
+    this(text, textAlignment, null, line, lineType, lineAnchor, position, positionAnchor, size,
+        windowColorSet, windowColor);
+  }
+
+  private Cue(CharSequence text, Alignment textAlignment, Bitmap bitmap, float line,
+      @LineType int lineType, @AnchorType int lineAnchor, float position,
+      @AnchorType int positionAnchor, float size, boolean windowColorSet, int windowColor) {
     this.text = text;
     this.textAlignment = textAlignment;
+    this.bitmap = bitmap;
     this.line = line;
     this.lineType = lineType;
     this.lineAnchor = lineAnchor;

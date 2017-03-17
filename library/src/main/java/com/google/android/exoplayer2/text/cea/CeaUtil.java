@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -24,6 +25,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
  */
 public final class CeaUtil {
 
+  private static final String TAG = "CeaUtil";
+
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;
   private static final int PROVIDER_CODE = 0x31;
@@ -32,30 +35,23 @@ public final class CeaUtil {
 
   /**
    * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
-   * as samples to the provided output.
+   * as samples to all of the provided outputs.
    *
    * @param presentationTimeUs The presentation time in microseconds for any samples.
    * @param seiBuffer The unescaped SEI NAL unit data, excluding the NAL unit start code and type.
-   * @param output The output to which any samples should be written.
+   * @param outputs The outputs to which any samples should be written.
    */
   public static void consume(long presentationTimeUs, ParsableByteArray seiBuffer,
-      TrackOutput output) {
-    int b;
+      TrackOutput[] outputs) {
     while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
-      // Parse payload type.
-      int payloadType = 0;
-      do {
-        b = seiBuffer.readUnsignedByte();
-        payloadType += b;
-      } while (b == 0xFF);
-      // Parse payload size.
-      int payloadSize = 0;
-      do {
-        b = seiBuffer.readUnsignedByte();
-        payloadSize += b;
-      } while (b == 0xFF);
+      int payloadType = readNon255TerminatedValue(seiBuffer);
+      int payloadSize = readNon255TerminatedValue(seiBuffer);
       // Process the payload.
-      if (isSeiMessageCea608(payloadType, payloadSize, seiBuffer)) {
+      if (payloadSize == -1 || payloadSize > seiBuffer.bytesLeft()) {
+        // This might occur if we're trying to read an encrypted SEI NAL unit.
+        Log.w(TAG, "Skipping remainder of malformed SEI NAL unit.");
+        seiBuffer.setPosition(seiBuffer.limit());
+      } else if (isSeiMessageCea608(payloadType, payloadSize, seiBuffer)) {
         // Ignore country_code (1) + provider_code (2) + user_identifier (4)
         // + user_data_type_code (1).
         seiBuffer.skipBytes(8);
@@ -66,14 +62,39 @@ public final class CeaUtil {
         // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
         // + cc_data_1 (8) + cc_data_2 (8).
         int sampleLength = ccCount * 3;
-        output.sampleData(seiBuffer, sampleLength);
-        output.sampleMetadata(presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
+        int sampleStartPosition = seiBuffer.getPosition();
+        for (TrackOutput output : outputs) {
+          seiBuffer.setPosition(sampleStartPosition);
+          output.sampleData(seiBuffer, sampleLength);
+          output.sampleMetadata(presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
+        }
         // Ignore trailing information in SEI, if any.
         seiBuffer.skipBytes(payloadSize - (10 + ccCount * 3));
       } else {
         seiBuffer.skipBytes(payloadSize);
       }
     }
+  }
+
+  /**
+   * Reads a value from the provided buffer consisting of zero or more 0xFF bytes followed by a
+   * terminating byte not equal to 0xFF. The returned value is ((0xFF * N) + T), where N is the
+   * number of 0xFF bytes and T is the value of the terminating byte.
+   *
+   * @param buffer The buffer from which to read the value.
+   * @returns The read value, or -1 if the end of the buffer is reached before a value is read.
+   */
+  private static int readNon255TerminatedValue(ParsableByteArray buffer) {
+    int b;
+    int value = 0;
+    do {
+      if (buffer.bytesLeft() == 0) {
+        return -1;
+      }
+      b = buffer.readUnsignedByte();
+      value += b;
+    } while (b == 0xFF);
+    return value;
   }
 
   /**

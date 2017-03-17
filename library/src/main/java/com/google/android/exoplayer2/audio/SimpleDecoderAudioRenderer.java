@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -67,12 +68,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
+  private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
-
   private final EventDispatcher eventDispatcher;
   private final AudioTrack audioTrack;
-  private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
   private final FormatHolder formatHolder;
+  private final DecoderInputBuffer flagsOnlyBuffer;
 
   private DecoderCounters decoderCounters;
   private Format inputFormat;
@@ -83,8 +84,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private DrmSession<ExoMediaCrypto> drmSession;
   private DrmSession<ExoMediaCrypto> pendingDrmSession;
 
-  @ReinitializationState
-  private int decoderReinitializationState;
+  @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
   private boolean audioTrackNeedsConfigure;
 
@@ -102,10 +102,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
-      AudioRendererEventListener eventListener) {
-    this(eventHandler, eventListener, null);
+      AudioRendererEventListener eventListener, AudioProcessor... audioProcessors) {
+    this(eventHandler, eventListener, null, null, false, audioProcessors);
   }
 
   /**
@@ -133,16 +134,19 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler,
       AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys) {
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys,
+      AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO);
-    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    audioTrack = new AudioTrack(audioCapabilities, new AudioTrackListener());
     this.drmSessionManager = drmSessionManager;
-    formatHolder = new FormatHolder();
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
+    formatHolder = new FormatHolder();
+    flagsOnlyBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
   }
@@ -174,13 +178,31 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
+      try {
+        audioTrack.playToEndOfStream();
+      } catch (AudioTrack.WriteException e) {
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
+      }
       return;
     }
 
     // Try and read a format if we don't have one already.
-    if (inputFormat == null && !readFormat()) {
-      // We can't make progress without one.
-      return;
+    if (inputFormat == null) {
+      // We don't have a format yet, so try and read one.
+      flagsOnlyBuffer.clear();
+      int result = readSource(formatHolder, flagsOnlyBuffer, true);
+      if (result == C.RESULT_FORMAT_READ) {
+        onInputFormatChanged(formatHolder.format);
+      } else if (result == C.RESULT_BUFFER_READ) {
+        // End of stream read having not read a format.
+        Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
+        inputStreamEnded = true;
+        processEndOfStream();
+        return;
+      } else {
+        // We still don't have a format and can't make progress without one.
+        return;
+      }
     }
 
     // If we don't have a decoder yet, we need to instantiate one.
@@ -193,8 +215,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         while (drainOutputBuffer()) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
-      } catch (AudioTrack.InitializationException | AudioTrack.WriteException
-          | AudioDecoderException e) {
+      } catch (AudioDecoderException | AudioTrack.ConfigurationException
+          | AudioTrack.InitializationException | AudioTrack.WriteException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       decoderCounters.ensureUpdated();
@@ -255,7 +277,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   private boolean drainOutputBuffer() throws ExoPlaybackException, AudioDecoderException,
-      AudioTrack.InitializationException, AudioTrack.WriteException {
+      AudioTrack.ConfigurationException, AudioTrack.InitializationException,
+      AudioTrack.WriteException {
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
@@ -274,8 +297,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       } else {
         outputBuffer.release();
         outputBuffer = null;
-        outputStreamEnded = true;
-        audioTrack.handleEndOfStream();
+        processEndOfStream();
       }
       return false;
     }
@@ -324,7 +346,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = C.RESULT_BUFFER_READ;
     } else {
-      result = readSource(formatHolder, inputBuffer);
+      result = readSource(formatHolder, inputBuffer, false);
     }
 
     if (result == C.RESULT_NOTHING_READ) {
@@ -365,6 +387,15 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         && (bufferEncrypted || !playClearSamplesWithoutKeys);
   }
 
+  private void processEndOfStream() throws ExoPlaybackException {
+    outputStreamEnded = true;
+    try {
+      audioTrack.playToEndOfStream();
+    } catch (AudioTrack.WriteException e) {
+      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+    }
+  }
+
   private void flushDecoder() throws ExoPlaybackException {
     waitingForKeys = false;
     if (decoderReinitializationState != REINITIALIZATION_STATE_NONE) {
@@ -383,7 +414,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   public boolean isEnded() {
-    return outputStreamEnded && !audioTrack.hasPendingData();
+    return outputStreamEnded && audioTrack.isEnded();
   }
 
   @Override
@@ -511,15 +542,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     decoderCounters.decoderReleaseCount++;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     decoderReceivedBuffers = false;
-  }
-
-  private boolean readFormat() throws ExoPlaybackException {
-    int result = readSource(formatHolder, null);
-    if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
-      return true;
-    }
-    return false;
   }
 
   private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {

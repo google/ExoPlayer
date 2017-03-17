@@ -19,6 +19,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -53,12 +54,14 @@ public class HlsMasterPlaylistParserTest extends TestCase {
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
       + "http://example.com/low.m3u8\n";
 
-  public void testParseMasterPlaylist() throws IOException{
-    HlsPlaylist playlist = parsePlaylist(PLAYLIST_URI, MASTER_PLAYLIST);
-    assertNotNull(playlist);
-    assertEquals(HlsPlaylist.TYPE_MASTER, playlist.type);
+  private static final String MASTER_PLAYLIST_WITH_CC = " #EXTM3U \n"
+      + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
+      + "\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
+      + "http://example.com/low.m3u8\n";
 
-    HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
+  public void testParseMasterPlaylist() throws IOException{
+    HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST);
 
     List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
     assertNotNull(variants);
@@ -98,18 +101,28 @@ public class HlsMasterPlaylistParserTest extends TestCase {
 
   public void testPlaylistWithInvalidHeader() throws IOException {
     try {
-      parsePlaylist(PLAYLIST_URI, PLAYLIST_WITH_INVALID_HEADER);
+      parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INVALID_HEADER);
       fail("Expected exception not thrown.");
     } catch (ParserException e) {
       // Expected due to invalid header.
     }
   }
 
-  private static HlsPlaylist parsePlaylist(String uri, String playlistString) throws IOException {
+  public void testPlaylistWithClosedCaption() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST_WITH_CC);
+    assertEquals(1, playlist.muxedCaptionFormats.size());
+    Format closedCaptionFormat = playlist.muxedCaptionFormats.get(0);
+    assertEquals(MimeTypes.APPLICATION_CEA708, closedCaptionFormat.sampleMimeType);
+    assertEquals(4, closedCaptionFormat.accessibilityChannel);
+    assertEquals("es", closedCaptionFormat.language);
+  }
+
+  private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)
+      throws IOException {
     Uri playlistUri = Uri.parse(uri);
     ByteArrayInputStream inputStream = new ByteArrayInputStream(
         playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
-    return new HlsPlaylistParser().parse(playlistUri, inputStream);
+    return (HlsMasterPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
   }
 
 }
