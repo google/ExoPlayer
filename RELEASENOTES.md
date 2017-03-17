@@ -6,8 +6,8 @@
   rendering. You can read more about the GVR extension
   [here](https://medium.com/google-exoplayer/spatial-audio-with-exoplayer-and-gvr-cecb00e9da5f#.xdjebjd7g).
 * DASH improvements:
- * Support embedded CEA-608 closed captions
-   ([#2362](https://github.com/google/ExoPlayer/issues/2362)).
+    * Support embedded CEA-608 closed captions
+      ([#2362](https://github.com/google/ExoPlayer/issues/2362)).
  * Support embedded EMSG events
    ([#2176](https://github.com/google/ExoPlayer/issues/2176)).
  * Support mspr:pro manifest element
