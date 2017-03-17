@@ -1,4 +1,4 @@
-// Copyright (C) 2017 The Android Open Source Project
+// Copyright (C) 2016 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,18 +18,35 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
+    }
+
+    buildTypes {
+        // Re-enable test coverage when the following issue is fixed:
+        // https://code.google.com/p/android/issues/detail?id=226070
+        // debug {
+        //     testCoverageEnabled = true
+        // }
+    }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += "../../testutils/src/main/java/"
+        }
     }
 }
 
 dependencies {
-    compile project(':library-core')
-    compile 'com.google.vr:sdk-audio:1.30.0'
+    compile 'com.android.support:support-annotations:25.2.0'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
 }
 
 ext {
-    releaseArtifact = 'extension-gvr'
-    releaseDescription = 'Google VR extension for ExoPlayer.'
+    releaseArtifact = 'exoplayer-core'
+    releaseDescription = 'The ExoPlayer library core module.'
 }
 apply from: '../../publish.gradle'

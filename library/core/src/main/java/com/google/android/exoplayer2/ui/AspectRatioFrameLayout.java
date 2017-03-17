@@ -21,7 +21,7 @@ import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
-import com.google.android.exoplayer2.R;
+import com.google.android.exoplayer2.core.R;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
