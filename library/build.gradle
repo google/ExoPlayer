@@ -14,19 +14,13 @@
 import com.android.builder.core.BuilderConstants
 
 apply plugin: 'com.android.library'
-apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        // Important: ExoPlayerLib specifies a minSdkVersion of 9 because
-        // various components provided by the library may be of use on older
-        // devices. However, please note that the core video playback
-        // functionality provided by the library requires API level 16 or
-        // greater.
-        minSdkVersion 9
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
     }
@@ -47,10 +41,10 @@ android {
 }
 
 dependencies {
+    compile 'com.android.support:support-annotations:25.2.0'
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
-    compile 'com.android.support:support-annotations:25.0.1'
 }
 
 android.libraryVariants.all { variant ->
@@ -86,12 +80,8 @@ android.libraryVariants.all { variant ->
     }
 }
 
-publish {
-    artifactId = 'exoplayer'
-    description = 'The ExoPlayer library.'
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
+ext {
+    releaseArtifact = 'exoplayer'
+    releaseDescription = 'The ExoPlayer library.'
 }
+apply from: '../publish.gradle'

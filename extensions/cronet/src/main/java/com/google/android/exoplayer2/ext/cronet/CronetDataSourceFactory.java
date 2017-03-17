@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -68,9 +69,10 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   @Override
-  protected CronetDataSource createDataSourceInternal() {
+  protected CronetDataSource createDataSourceInternal(HttpDataSource.RequestProperties
+      defaultRequestProperties) {
     return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
-        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects);
+        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects, null, defaultRequestProperties);
   }
 
 }

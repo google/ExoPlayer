@@ -24,13 +24,13 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import java.util.List;
 
 /**
- * A bandwidth based adaptive {@link TrackSelection} for video, whose selected track is updated to
- * be the one of highest quality given the current network conditions and the state of the buffer.
+ * A bandwidth based adaptive {@link TrackSelection}, whose selected track is updated to be the one
+ * of highest quality given the current network conditions and the state of the buffer.
  */
-public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
+public class AdaptiveTrackSelection extends BaseTrackSelection {
 
   /**
-   * Factory for {@link AdaptiveVideoTrackSelection} instances.
+   * Factory for {@link AdaptiveTrackSelection} instances.
    */
   public static final class Factory implements TrackSelection.Factory {
 
@@ -79,8 +79,8 @@ public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public AdaptiveVideoTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
-      return new AdaptiveVideoTrackSelection(group, tracks, bandwidthMeter, maxInitialBitrate,
+    public AdaptiveTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
+      return new AdaptiveTrackSelection(group, tracks, bandwidthMeter, maxInitialBitrate,
           minDurationForQualityIncreaseMs, maxDurationForQualityDecreaseMs,
           minDurationToRetainAfterDiscardMs, bandwidthFraction);
     }
@@ -104,12 +104,12 @@ public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
   private int reason;
 
   /**
-   * @param group The {@link TrackGroup}. Must not be null.
+   * @param group The {@link TrackGroup}.
    * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
-   *     null or empty. May be in any order.
+   *     empty. May be in any order.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    */
-  public AdaptiveVideoTrackSelection(TrackGroup group, int[] tracks,
+  public AdaptiveTrackSelection(TrackGroup group, int[] tracks,
       BandwidthMeter bandwidthMeter) {
     this (group, tracks, bandwidthMeter, DEFAULT_MAX_INITIAL_BITRATE,
         DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
@@ -118,9 +118,9 @@ public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
   }
 
   /**
-   * @param group The {@link TrackGroup}. Must not be null.
+   * @param group The {@link TrackGroup}.
    * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
-   *     null or empty. May be in any order.
+   *     empty. May be in any order.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param maxInitialBitrate The maximum bitrate in bits per second that should be assumed when a
    *     bandwidth estimate is unavailable.
@@ -136,7 +136,7 @@ public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
    *     consider available for use. Setting to a value less than 1 is recommended to account
    *     for inaccuracies in the bandwidth estimator.
    */
-  public AdaptiveVideoTrackSelection(TrackGroup group, int[] tracks, BandwidthMeter bandwidthMeter,
+  public AdaptiveTrackSelection(TrackGroup group, int[] tracks, BandwidthMeter bandwidthMeter,
       int maxInitialBitrate, long minDurationForQualityIncreaseMs,
       long maxDurationForQualityDecreaseMs, long minDurationToRetainAfterDiscardMs,
       float bandwidthFraction) {
@@ -208,15 +208,18 @@ public class AdaptiveVideoTrackSelection extends BaseTrackSelection {
     }
     int idealSelectedIndex = determineIdealSelectedIndex(SystemClock.elapsedRealtime());
     Format idealFormat = getFormat(idealSelectedIndex);
-    // Discard from the first SD chunk beyond minDurationToRetainAfterDiscardUs whose resolution and
-    // bitrate are both lower than the ideal track.
+    // If the chunks contain video, discard from the first SD chunk beyond
+    // minDurationToRetainAfterDiscardUs whose resolution and bitrate are both lower than the ideal
+    // track.
     for (int i = 0; i < queueSize; i++) {
       MediaChunk chunk = queue.get(i);
+      Format format = chunk.trackFormat;
       long durationBeforeThisChunkUs = chunk.startTimeUs - playbackPositionUs;
       if (durationBeforeThisChunkUs >= minDurationToRetainAfterDiscardUs
-          && chunk.trackFormat.bitrate < idealFormat.bitrate
-          && chunk.trackFormat.height < idealFormat.height
-          && chunk.trackFormat.height < 720 && chunk.trackFormat.width < 1280) {
+          && format.bitrate < idealFormat.bitrate
+          && format.height != Format.NO_VALUE && format.height < 720
+          && format.width != Format.NO_VALUE && format.width < 1280
+          && format.height < idealFormat.height) {
         return i;
       }
     }

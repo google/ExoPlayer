@@ -31,7 +31,7 @@ public interface DrmSession<T extends ExoMediaCrypto> {
   /** Wraps the exception which is the cause of the error state. */
   class DrmSessionException extends Exception {
 
-    DrmSessionException(Exception e) {
+    public DrmSessionException(Exception e) {
       super(e);
     }
 
@@ -70,8 +70,7 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    * @return One of {@link #STATE_ERROR}, {@link #STATE_CLOSED}, {@link #STATE_OPENING},
    *     {@link #STATE_OPENED} and {@link #STATE_OPENED_WITH_KEYS}.
    */
-  @State
-  int getState();
+  @State int getState();
 
   /**
    * Returns a {@link ExoMediaCrypto} for the open session.

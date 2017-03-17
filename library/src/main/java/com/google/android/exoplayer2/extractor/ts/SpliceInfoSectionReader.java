@@ -36,9 +36,10 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
   public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
       TsPayloadReader.TrackIdGenerator idGenerator) {
     this.timestampAdjuster = timestampAdjuster;
-    output = extractorOutput.track(idGenerator.getNextId());
-    output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35, null,
-        Format.NO_VALUE, null));
+    idGenerator.generateNewId();
+    output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
+    output.format(Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_SCTE35,
+        null, Format.NO_VALUE, null));
   }
 
   @Override

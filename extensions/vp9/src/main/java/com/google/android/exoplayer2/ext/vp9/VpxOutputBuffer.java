@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;
   public static final int COLORSPACE_BT709 = 2;
+  public static final int COLORSPACE_BT2020 = 3;
 
   private final VpxDecoder owner;
 

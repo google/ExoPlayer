@@ -11,16 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
-        classpath 'com.novoda:bintray-release:0.3.4'
+        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.novoda:bintray-release:0.4.0'
     }
 }
 
@@ -29,13 +26,24 @@ allprojects {
         jcenter()
     }
     project.ext {
-        compileSdkVersion=24
-        targetSdkVersion=24
-        buildToolsVersion='23.0.3'
-        releaseRepoName = 'exoplayer'
+        // Important: ExoPlayer specifies a minSdkVersion of 9 because various
+        // components provided by the library may be of use on older devices.
+        // However, please note that the core media playback functionality
+        // provided by the library requires API level 16 or greater.
+        minSdkVersion=9
+        compileSdkVersion=25
+        targetSdkVersion=25
+        buildToolsVersion='25'
+        releaseRepoName = getBintrayRepo()
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.2.0'
+        releaseVersion = 'r2.3.0'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
+}
+
+def getBintrayRepo() {
+    boolean publicRepo = hasProperty('publicRepo') &&
+        property('publicRepo').toBoolean()
+    return publicRepo ? 'exoplayer' : 'exoplayer-test'
 }

@@ -106,7 +106,6 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
-  private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
 
@@ -118,8 +117,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
   // Workarounds.
-  @Flags
-  private final int flags;
+  @Flags private final int flags;
   private final Track sideloadedTrack;
 
   // Track-linked data bundle, accessible as a whole through trackID.
@@ -127,8 +125,8 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
-  private final ParsableByteArray nalLength;
-  private final ParsableByteArray nalPayload;
+  private final ParsableByteArray nalPrefix;
+  private final ParsableByteArray nalBuffer;
   private final ParsableByteArray encryptionSignalByte;
 
   // Adjusts sample timestamps.
@@ -154,17 +152,25 @@ public final class FragmentedMp4Extractor implements Extractor {
   private int sampleSize;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
+  private boolean processSeiNalUnitPayload;
 
   // Extractor output.
   private ExtractorOutput extractorOutput;
   private TrackOutput eventMessageTrackOutput;
-  private TrackOutput cea608TrackOutput;
+  private TrackOutput[] cea608TrackOutputs;
 
   // Whether extractorOutput.seekMap has been called.
   private boolean haveOutputSeekMap;
 
   public FragmentedMp4Extractor() {
-    this(0, null);
+    this(0);
+  }
+
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public FragmentedMp4Extractor(@Flags int flags) {
+    this(flags, null);
   }
 
   /**
@@ -172,24 +178,24 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
   public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster) {
-    this(flags, null, timestampAdjuster);
+    this(flags, timestampAdjuster, null);
   }
 
   /**
    * @param flags Flags that control the extractor's behavior.
+   * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor
    *     will not receive a moov box in the input data.
-   * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
-  public FragmentedMp4Extractor(@Flags int flags, Track sideloadedTrack,
-      TimestampAdjuster timestampAdjuster) {
-    this.sideloadedTrack = sideloadedTrack;
+  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster,
+      Track sideloadedTrack) {
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     this.timestampAdjuster = timestampAdjuster;
+    this.sideloadedTrack = sideloadedTrack;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
-    nalLength = new ParsableByteArray(4);
-    nalPayload = new ParsableByteArray(1);
+    nalPrefix = new ParsableByteArray(5);
+    nalBuffer = new ParsableByteArray();
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
@@ -209,7 +215,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   public void init(ExtractorOutput output) {
     extractorOutput = output;
     if (sideloadedTrack != null) {
-      TrackBundle bundle = new TrackBundle(output.track(0));
+      TrackBundle bundle = new TrackBundle(output.track(0, sideloadedTrack.type));
       bundle.init(sideloadedTrack, new DefaultSampleValues(0, 0, 0, 0));
       trackBundles.put(0, bundle);
       maybeInitExtraTracks();
@@ -420,7 +426,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       // We need to create the track bundles.
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
-        TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i));
+        TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
         trackBundle.init(track, defaultSampleValuesArray.get(track.id));
         trackBundles.put(track.id, trackBundle);
         durationUs = Math.max(durationUs, track.durationUs);
@@ -449,14 +455,16 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private void maybeInitExtraTracks() {
     if ((flags & FLAG_ENABLE_EMSG_TRACK) != 0 && eventMessageTrackOutput == null) {
-      eventMessageTrackOutput = extractorOutput.track(trackBundles.size());
+      eventMessageTrackOutput = extractorOutput.track(trackBundles.size(), C.TRACK_TYPE_METADATA);
       eventMessageTrackOutput.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG,
           Format.OFFSET_SAMPLE_RELATIVE));
     }
-    if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutput == null) {
-      cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1);
+    if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutputs == null) {
+      TrackOutput cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1,
+          C.TRACK_TYPE_TEXT);
       cea608TrackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
           null, Format.NO_VALUE, 0, null, null));
+      cea608TrackOutputs = new TrackOutput[] {cea608TrackOutput};
     }
   }
 
@@ -1059,49 +1067,49 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
-      byte[] nalLengthData = nalLength.data;
-      nalLengthData[0] = 0;
-      nalLengthData[1] = 0;
-      nalLengthData[2] = 0;
-      int nalUnitLengthFieldLength = track.nalUnitLengthFieldLength;
+      byte[] nalPrefixData = nalPrefix.data;
+      nalPrefixData[0] = 0;
+      nalPrefixData[1] = 0;
+      nalPrefixData[2] = 0;
+      int nalUnitPrefixLength = track.nalUnitLengthFieldLength + 1;
       int nalUnitLengthFieldLengthDiff = 4 - track.nalUnitLengthFieldLength;
       // NAL units are length delimited, but the decoder requires start code delimited units.
       // Loop until we've written the sample to the track output, replacing length delimiters with
       // start codes as we encounter them.
       while (sampleBytesWritten < sampleSize) {
         if (sampleCurrentNalBytesRemaining == 0) {
-          // Read the NAL length so that we know where we find the next one.
-          input.readFully(nalLength.data, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
-          nalLength.setPosition(0);
-          sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
+          // Read the NAL length so that we know where we find the next one, and its type.
+          input.readFully(nalPrefixData, nalUnitLengthFieldLengthDiff, nalUnitPrefixLength);
+          nalPrefix.setPosition(0);
+          sampleCurrentNalBytesRemaining = nalPrefix.readUnsignedIntToInt() - 1;
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
           output.sampleData(nalStartCode, 4);
-          sampleBytesWritten += 4;
+          // Write the NAL unit type byte.
+          output.sampleData(nalPrefix, 1);
+          processSeiNalUnitPayload = cea608TrackOutputs != null
+              && NalUnitUtil.isNalUnitSei(track.format.sampleMimeType, nalPrefixData[4]);
+          sampleBytesWritten += 5;
           sampleSize += nalUnitLengthFieldLengthDiff;
-          if (cea608TrackOutput != null) {
-            byte[] nalPayloadData = nalPayload.data;
-            // Peek the NAL unit type byte.
-            input.peekFully(nalPayloadData, 0, 1);
-            if ((nalPayloadData[0] & 0x1F) == NAL_UNIT_TYPE_SEI) {
-              // Read the whole SEI NAL unit into nalWrapper, including the NAL unit type byte.
-              nalPayload.reset(sampleCurrentNalBytesRemaining);
-              input.readFully(nalPayloadData, 0, sampleCurrentNalBytesRemaining);
-              // Write the SEI unit straight to the output.
-              output.sampleData(nalPayload, sampleCurrentNalBytesRemaining);
-              sampleBytesWritten += sampleCurrentNalBytesRemaining;
-              sampleCurrentNalBytesRemaining = 0;
-              // Unescape and process the SEI unit.
-              int unescapedLength = NalUnitUtil.unescapeStream(nalPayloadData, nalPayload.limit());
-              nalPayload.setPosition(1); // Skip the NAL unit type byte.
-              nalPayload.setLimit(unescapedLength);
-              CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalPayload,
-                  cea608TrackOutput);
-            }
-          }
         } else {
-          // Write the payload of the NAL unit.
-          int writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);
+          int writtenBytes;
+          if (processSeiNalUnitPayload) {
+            // Read and write the payload of the SEI NAL unit.
+            nalBuffer.reset(sampleCurrentNalBytesRemaining);
+            input.readFully(nalBuffer.data, 0, sampleCurrentNalBytesRemaining);
+            output.sampleData(nalBuffer, sampleCurrentNalBytesRemaining);
+            writtenBytes = sampleCurrentNalBytesRemaining;
+            // Unescape and process the SEI NAL unit.
+            int unescapedLength = NalUnitUtil.unescapeStream(nalBuffer.data, nalBuffer.limit());
+            // If the format is H.265/HEVC the NAL unit header has two bytes so skip one more byte.
+            nalBuffer.setPosition(MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
+            nalBuffer.setLimit(unescapedLength);
+            CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalBuffer,
+                cea608TrackOutputs);
+          } else {
+            // Write the payload of the NAL unit.
+            writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);
+          }
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }

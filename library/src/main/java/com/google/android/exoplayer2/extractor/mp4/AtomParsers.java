@@ -332,6 +332,9 @@ import java.util.List;
       return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
     }
 
+    // Omit any sample at the end point of an edit for audio tracks.
+    boolean omitClippedSample = track.type == C.TRACK_TYPE_AUDIO;
+
     // Count the number of samples after applying edits.
     int editedSampleCount = 0;
     int nextSampleIndex = 0;
@@ -342,7 +345,8 @@ import java.util.List;
         long duration = Util.scaleLargeTimestamp(track.editListDurations[i], track.timescale,
             track.movieTimescale);
         int startIndex = Util.binarySearchCeil(timestamps, mediaTime, true, true);
-        int endIndex = Util.binarySearchCeil(timestamps, mediaTime + duration, true, false);
+        int endIndex = Util.binarySearchCeil(timestamps, mediaTime + duration, omitClippedSample,
+            false);
         editedSampleCount += endIndex - startIndex;
         copyMetadata |= nextSampleIndex != startIndex;
         nextSampleIndex = endIndex;
@@ -365,7 +369,7 @@ import java.util.List;
         long endMediaTime = mediaTime + Util.scaleLargeTimestamp(duration, track.timescale,
             track.movieTimescale);
         int startIndex = Util.binarySearchCeil(timestamps, mediaTime, true, true);
-        int endIndex = Util.binarySearchCeil(timestamps, endMediaTime, true, false);
+        int endIndex = Util.binarySearchCeil(timestamps, endMediaTime, omitClippedSample, false);
         if (copyMetadata) {
           int count = endIndex - startIndex;
           System.arraycopy(offsets, startIndex, editedOffsets, sampleIndex, count);
@@ -715,6 +719,9 @@ import java.util.List;
               break;
             case 2:
               stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+              break;
+            case 3:
+              stereoMode = C.STEREO_MODE_STEREO_MESH;
               break;
             default:
               break;

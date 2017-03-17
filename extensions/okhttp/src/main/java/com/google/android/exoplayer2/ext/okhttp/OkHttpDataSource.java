@@ -27,7 +27,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,7 +50,8 @@ public class OkHttpDataSource implements HttpDataSource {
   private final Predicate<String> contentTypePredicate;
   private final TransferListener<? super OkHttpDataSource> listener;
   private final CacheControl cacheControl;
-  private final HashMap<String, String> requestProperties;
+  private final RequestProperties defaultRequestProperties;
+  private final RequestProperties requestProperties;
 
   private DataSpec dataSpec;
   private Response response;
@@ -87,7 +87,7 @@ public class OkHttpDataSource implements HttpDataSource {
    */
   public OkHttpDataSource(Call.Factory callFactory, String userAgent,
       Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener) {
-    this(callFactory, userAgent, contentTypePredicate, listener, null);
+    this(callFactory, userAgent, contentTypePredicate, listener, null, null);
   }
 
   /**
@@ -99,16 +99,19 @@ public class OkHttpDataSource implements HttpDataSource {
    *     {@link #open(DataSpec)}.
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
+   * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
+   *    the server as HTTP headers on every request.
    */
   public OkHttpDataSource(Call.Factory callFactory, String userAgent,
       Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener,
-      CacheControl cacheControl) {
+      CacheControl cacheControl, RequestProperties defaultRequestProperties) {
     this.callFactory = Assertions.checkNotNull(callFactory);
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.listener = listener;
     this.cacheControl = cacheControl;
-    this.requestProperties = new HashMap<>();
+    this.defaultRequestProperties = defaultRequestProperties;
+    this.requestProperties = new RequestProperties();
   }
 
   @Override
@@ -125,24 +128,18 @@ public class OkHttpDataSource implements HttpDataSource {
   public void setRequestProperty(String name, String value) {
     Assertions.checkNotNull(name);
     Assertions.checkNotNull(value);
-    synchronized (requestProperties) {
-      requestProperties.put(name, value);
-    }
+    requestProperties.set(name, value);
   }
 
   @Override
   public void clearRequestProperty(String name) {
     Assertions.checkNotNull(name);
-    synchronized (requestProperties) {
-      requestProperties.remove(name);
-    }
+    requestProperties.remove(name);
   }
 
   @Override
   public void clearAllRequestProperties() {
-    synchronized (requestProperties) {
-      requestProperties.clear();
-    }
+    requestProperties.clear();
   }
 
   @Override
@@ -268,10 +265,13 @@ public class OkHttpDataSource implements HttpDataSource {
     if (cacheControl != null) {
       builder.cacheControl(cacheControl);
     }
-    synchronized (requestProperties) {
-      for (Map.Entry<String, String> property : requestProperties.entrySet()) {
-        builder.addHeader(property.getKey(), property.getValue());
+    if (defaultRequestProperties != null) {
+      for (Map.Entry<String, String> property : defaultRequestProperties.getSnapshot().entrySet()) {
+        builder.header(property.getKey(), property.getValue());
       }
+    }
+    for (Map.Entry<String, String> property : requestProperties.getSnapshot().entrySet()) {
+      builder.header(property.getKey(), property.getValue());
     }
     if (!(position == 0 && length == C.LENGTH_UNSET)) {
       String rangeRequest = "bytes=" + position + "-";

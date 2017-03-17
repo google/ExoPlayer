@@ -47,7 +47,9 @@ public final class DataSpec {
    */
   public static final int FLAG_ALLOW_GZIP = 1 << 0;
 
-  /** Permits content to be cached even if its length can not be resolved. */
+  /**
+   * Permits content to be cached even if its length can not be resolved.
+   */
   public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1;
 
   /**
@@ -82,8 +84,7 @@ public final class DataSpec {
    * Request flags. Currently {@link #FLAG_ALLOW_GZIP} and
    * {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} are the only supported flags.
    */
-  @Flags
-  public final int flags;
+  @Flags public final int flags;
 
   /**
    * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.

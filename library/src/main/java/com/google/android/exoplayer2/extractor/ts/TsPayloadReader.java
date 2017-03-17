@@ -81,17 +81,63 @@ public interface TsPayloadReader {
    */
   final class TrackIdGenerator {
 
-    private final int firstId;
-    private final int idIncrement;
-    private int generatedIdCount;
+    private static final int ID_UNSET = Integer.MIN_VALUE;
 
-    public TrackIdGenerator(int firstId, int idIncrement) {
-      this.firstId = firstId;
-      this.idIncrement = idIncrement;
+    private final String formatIdPrefix;
+    private final int firstTrackId;
+    private final int trackIdIncrement;
+    private int trackId;
+    private String formatId;
+
+    public TrackIdGenerator(int firstTrackId, int trackIdIncrement) {
+      this(ID_UNSET, firstTrackId, trackIdIncrement);
     }
 
-    public int getNextId() {
-      return firstId + idIncrement * generatedIdCount++;
+    public TrackIdGenerator(int programNumber, int firstTrackId, int trackIdIncrement) {
+      this.formatIdPrefix = programNumber != ID_UNSET ? programNumber + "/" : "";
+      this.firstTrackId = firstTrackId;
+      this.trackIdIncrement = trackIdIncrement;
+      trackId = ID_UNSET;
+    }
+
+    /**
+     * Generates a new set of track and track format ids. Must be called before {@code get*}
+     * methods.
+     */
+    public void generateNewId() {
+      trackId = trackId == ID_UNSET ? firstTrackId : trackId + trackIdIncrement;
+      formatId = formatIdPrefix + trackId;
+    }
+
+    /**
+     * Returns the last generated track id. Must be called after the first {@link #generateNewId()}
+     * call.
+     *
+     * @return The last generated track id.
+     */
+    public int getTrackId() {
+      maybeThrowUninitializedError();
+      return trackId;
+    }
+
+    /**
+     * Returns the last generated format id, with the format {@code "programNumber/trackId"}. If no
+     * {@code programNumber} was provided, the {@code trackId} alone is used as format id. Must be
+     * called after the first {@link #generateNewId()} call.
+     *
+     * @return The last generated format id, with the format {@code "programNumber/trackId"}. If no
+     *     {@code programNumber} was provided, the {@code trackId} alone is used as
+     *     format id.
+     */
+    public String getFormatId() {
+      maybeThrowUninitializedError();
+      return formatId;
+    }
+
+    private void maybeThrowUninitializedError() {
+      if (trackId == ID_UNSET) {
+        throw new IllegalStateException("generateNewId() must be called before retrieving ids.");
+      }
     }
 
   }
