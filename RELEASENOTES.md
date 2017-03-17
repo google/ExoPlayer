@@ -17,8 +17,9 @@
 * HLS improvements:
     * Respect initial track selection
       ([#2353](https://github.com/google/ExoPlayer/issues/2353)).
-    * Reduced frequency of media playlist requests when playback position is close
-     to the live edge ([#2548](https://github.com/google/ExoPlayer/issues/2548)).
+    * Reduced frequency of media playlist requests when playback position is
+      close to the live edge
+      ([#2548](https://github.com/google/ExoPlayer/issues/2548)).
     * Exposed the master playlist through ExoPlayer.getCurrentManifest()
       ([#2537](https://github.com/google/ExoPlayer/issues/2537)).
     * Support CLOSED-CAPTIONS #EXT-X-MEDIA type
@@ -30,7 +31,7 @@
 * MPEG-TS improvements:
     * Support for multiple programs.
     * Support for multiple closed captions and caption service descriptors
-      ([#2161](https://github.com/google/ExoPlayer/issues/2161)).
+     ([#2161](https://github.com/google/ExoPlayer/issues/2161)).
 * MP3: Add `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` extractor option to enable
   constant bitrate seeking in MP3 files that would otherwise be unseekable
   ([#2445](https://github.com/google/ExoPlayer/issues/2445)).
@@ -151,7 +152,7 @@
       ([#2149](https://github.com/google/ExoPlayer/issues/2149)).
     * Avoid failure when expected ID3 header not found
       ([#1966](https://github.com/google/ExoPlayer/issues/1966)).
-   * Improvements to the upstream cache package.
+* Improvements to the upstream cache package.
     * Support caching of media segments for DASH, HLS and SmoothStreaming. Note
       that caching of manifest and playlist files is still not supported in the
       (normal) case where the corresponding responses are compressed.
@@ -227,25 +228,25 @@ some of the motivations behind ExoPlayer 2.x
   structure and class names have also been sanitized. Read more
   [here](https://medium.com/google-exoplayer/exoplayer-2-x-new-package-and-class-names-ef8e1d9ba96f#.lv8sd4nez).
 * Key architectural changes:
-    * Late binding between rendering and media source components. Allows the same
-      rendering components to be re-used from one playback to another. Enables
-      features such as gapless playback through playlists and DASH multi-period
-      support.
+    * Late binding between rendering and media source components. Allows the
+      same rendering components to be re-used from one playback to another.
+      Enables features such as gapless playback through playlists and DASH
+      multi-period support.
     * Improved track selection design. More details can be found
       [here](https://medium.com/google-exoplayer/exoplayer-2-x-track-selection-2b62ff712cc9#.n00zo76b6).
     * LoadControl now used to control buffering and loading across all playback
       types.
-    * Media source components given additional structure. A new MediaSource class
-      has been introduced. MediaSources expose Timelines that describe the media
-      they expose, and can consist of multiple MediaPeriods. This enables features
-      such as seeking in live playbacks and DASH multi-period support.
-    * Responsibility for loading the initial DASH/SmoothStreaming/HLS manifest is
-      promoted to the corresponding MediaSource components and is no longer the
-      application's responsibility.
+    * Media source components given additional structure. A new MediaSource
+      class has been introduced. MediaSources expose Timelines that describe the
+      media they expose, and can consist of multiple MediaPeriods. This enables
+      features such as seeking in live playbacks and DASH multi-period support.
+    * Responsibility for loading the initial DASH/SmoothStreaming/HLS manifest
+      is promoted to the corresponding MediaSource components and is no longer
+      the application's responsibility.
     * Higher level abstractions such as SimpleExoPlayer have been added to the
-      library. These make the library easier to use for common use cases. The demo
-      app is halved in size as a result, whilst at the same time gaining more
-      functionality. Read more
+      library. These make the library easier to use for common use cases. The
+      demo app is halved in size as a result, whilst at the same time gaining
+      more functionality. Read more
       [here](https://medium.com/google-exoplayer/exoplayer-2-x-improved-demo-app-d97171aaaaa1).
     * Enhanced library support for implementing audio extensions. Read more
       [here](https://medium.com/google-exoplayer/exoplayer-2-x-new-audio-features-cfb26c2883a#.ua75vu4s3).
@@ -264,19 +265,20 @@ some of the motivations behind ExoPlayer 2.x
       [here](https://medium.com/google-exoplayer/exoplayer-2-x-mediasource-composition-6c285fcbca1f#.zfha8qupz).
     * Looping support (see above)
       ([#490](https://github.com/google/ExoPlayer/issues/490)).
-    * Ability to query information about all tracks in a piece of media (including
-      those not supported by the device)
+    * Ability to query information about all tracks in a piece of media
+      (including those not supported by the device)
       ([#1121](https://github.com/google/ExoPlayer/issues/1121)).
     * Improved player controls.
     * Support for PSSH in fMP4 moof atoms
       ([#1143](https://github.com/google/ExoPlayer/issues/1143)).
     * Support for Opus in Ogg
       ([#1447](https://github.com/google/ExoPlayer/issues/1447)).
-    * CacheDataSource support for standalone media file playbacks (mp3, mp4 etc).
+    * CacheDataSource support for standalone media file playbacks (mp3, mp4
+      etc).
     * FFMPEG extension (for audio only).
 * Key bug fixes:
-    * Removed unnecessary secondary requests when playing standalone media files
-      ([#1041](https://github.com/google/ExoPlayer/issues/1041)).
+    * Removed unnecessary secondary requests when playing standalone media 
+      files ([#1041](https://github.com/google/ExoPlayer/issues/1041)).
     * Fixed playback of video only (i.e. no audio) live streams
       ([#758](https://github.com/google/ExoPlayer/issues/758)).
     * Fixed silent failure when media buffer is too small
