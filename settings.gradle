@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 include ':library'
+include ':library-core'
 include ':testutils'
 include ':demo'
 include ':playbacktests'
@@ -24,6 +25,8 @@ include ':extension-vp9'
 // Uncomment the following line to use the Cronet Extension.
 // include ':extension-cronet'
 
+project(':library').projectDir = new File(settingsDir, 'library/all')
+project(':library-core').projectDir = new File(settingsDir, 'library/core')
 project(':extension-ffmpeg').projectDir = new File(settingsDir, 'extensions/ffmpeg')
 project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
 project(':extension-gvr').projectDir = new File(settingsDir, 'extensions/gvr')

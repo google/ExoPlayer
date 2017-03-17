@@ -14,21 +14,4 @@
      limitations under the License.
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer2.test">
-
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="24"/>
-
-  <application android:debuggable="true"
-      android:allowBackup="false"
-      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
-  </application>
-
-  <instrumentation
-      android:targetPackage="com.google.android.exoplayer2.test"
-      android:name="android.test.InstrumentationTestRunner"
-      tools:replace="android:targetPackage"/>
-
-</manifest>
+<manifest package="com.google.android.exoplayer2.core"/>

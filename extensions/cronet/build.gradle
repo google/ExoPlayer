@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
     compile files('libs/cronet_api.jar')
     compile files('libs/cronet_impl_common_java.jar')
     compile files('libs/cronet_impl_native_java.jar')

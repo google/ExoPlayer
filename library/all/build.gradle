@@ -22,29 +22,11 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
-    }
-
-    buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://code.google.com/p/android/issues/detail?id=226070
-        // debug {
-        //     testCoverageEnabled = true
-        // }
-    }
-
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../testutils/src/main/java/"
-        }
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:25.2.0'
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    compile project(':library-core')
 }
 
 android.libraryVariants.all { variant ->
@@ -82,6 +64,6 @@ android.libraryVariants.all { variant ->
 
 ext {
     releaseArtifact = 'exoplayer'
-    releaseDescription = 'The ExoPlayer library.'
+    releaseDescription = 'The ExoPlayer library (all modules).'
 }
-apply from: '../publish.gradle'
+apply from: '../../publish.gradle'
