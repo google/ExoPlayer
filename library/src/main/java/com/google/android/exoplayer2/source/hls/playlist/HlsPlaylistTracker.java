@@ -467,7 +467,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     public void loadPlaylist() {
       blacklistUntilMs = 0;
-      if (!pendingRefresh && !mediaPlaylistLoader.isLoading()) {
+      if (!mediaPlaylistLoader.isLoading()) {
         mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
       }
     }
@@ -520,6 +520,9 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     // Internal methods.
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
+      if (pendingRefresh) {
+        return;
+      }
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
       lastSnapshotLoadMs = SystemClock.elapsedRealtime();
       playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
