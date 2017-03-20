@@ -54,4 +54,5 @@ LOCAL_SRC_FILES := $(sort $(LOCAL_SRC_FILES))
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/libvpx \
                            $(LOCAL_PATH)/libvpx/vpx
 
+LOCAL_LDFLAGS := -Wl,--version-script=$(CONFIG_DIR)/libvpx.ver
 include $(BUILD_SHARED_LIBRARY)
