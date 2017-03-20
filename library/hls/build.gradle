@@ -1,4 +1,4 @@
-// Copyright (C) 2016 The Android Open Source Project
+// Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,5 +25,14 @@ android {
 
 dependencies {
     compile project(':library-core')
-    androidTestCompile project(':library-hls')
+    compile 'com.android.support:support-annotations:25.2.0'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
 }
+
+ext {
+    releaseArtifact = 'exoplayer-hls'
+    releaseDescription = 'The ExoPlayer library HLS module.'
+}
+apply from: '../../publish.gradle'

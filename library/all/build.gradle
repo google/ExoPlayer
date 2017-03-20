@@ -27,8 +27,9 @@ android {
 
 dependencies {
     compile project(':library-core')
-    compile project(':library-ui')
+    compile project(':library-hls')
     compile project(':library-smoothstreaming')
+    compile project(':library-ui')
 }
 
 android.libraryVariants.all { variant ->
