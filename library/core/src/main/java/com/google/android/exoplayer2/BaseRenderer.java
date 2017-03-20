@@ -311,7 +311,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param timeUs The specified time.
    */
   protected void skipToKeyframeBefore(long timeUs) {
-    stream.skipToKeyframeBefore(timeUs);
+    stream.skipToKeyframeBefore(timeUs - streamOffsetUs);
   }
 
 }
