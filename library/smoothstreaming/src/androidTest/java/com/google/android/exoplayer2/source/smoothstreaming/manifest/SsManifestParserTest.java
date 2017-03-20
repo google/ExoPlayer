@@ -25,8 +25,8 @@ import java.io.IOException;
  */
 public final class SsManifestParserTest extends InstrumentationTestCase {
 
-  private static final String SAMPLE_ISMC_1 = "smoothstreaming/sample_ismc_1";
-  private static final String SAMPLE_ISMC_2 = "smoothstreaming/sample_ismc_2";
+  private static final String SAMPLE_ISMC_1 = "sample_ismc_1";
+  private static final String SAMPLE_ISMC_2 = "sample_ismc_2";
 
   /**
    * Simple test to ensure the sample manifests parse without any exceptions being thrown.
