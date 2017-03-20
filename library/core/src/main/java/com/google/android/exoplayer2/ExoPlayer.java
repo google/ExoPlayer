@@ -23,9 +23,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -47,12 +44,11 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * <ul>
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
  *   which the loaded media can be read. A MediaSource is injected via {@link #prepare} at the start
- *   of playback. The library provides default implementations for regular media files
- *   ({@link ExtractorMediaSource}), DASH ({@link DashMediaSource}), SmoothStreaming
- *   ({@link SsMediaSource}) and HLS ({@link HlsMediaSource}), implementations for merging
- *   ({@link MergingMediaSource}) and concatenating ({@link ConcatenatingMediaSource}) other
- *   MediaSources, and an implementation for loading single samples
- *   ({@link SingleSampleMediaSource}) most often used for side-loaded subtitle and closed
+ *   of playback. The library modules provide default implementations for regular media files
+ *   ({@link ExtractorMediaSource}), DASH (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS
+ *   (HlsMediaSource), implementations for merging ({@link MergingMediaSource}) and concatenating
+ *   ({@link ConcatenatingMediaSource}) other MediaSources, and an implementation for loading single
+ *   samples ({@link SingleSampleMediaSource}) most often used for side-loaded subtitle and closed
  *   caption files.</li>
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *   provides default implementations for common media types ({@link MediaCodecVideoRenderer},
