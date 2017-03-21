@@ -28,11 +28,9 @@ import java.util.List;
  */
 public class DashManifestParserTest extends InstrumentationTestCase {
 
-  private static final String SAMPLE_MPD_1 = "dash/sample_mpd_1";
-  private static final String SAMPLE_MPD_2_UNKNOWN_MIME_TYPE =
-      "dash/sample_mpd_2_unknown_mime_type";
-  private static final String SAMPLE_MPD_3_SEGMENT_TEMPLATE =
-      "dash/sample_mpd_3_segment_template";
+  private static final String SAMPLE_MPD_1 = "sample_mpd_1";
+  private static final String SAMPLE_MPD_2_UNKNOWN_MIME_TYPE = "sample_mpd_2_unknown_mime_type";
+  private static final String SAMPLE_MPD_3_SEGMENT_TEMPLATE = "sample_mpd_3_segment_template";
 
   /**
    * Simple test to ensure the sample manifests parse without any exceptions being thrown.
