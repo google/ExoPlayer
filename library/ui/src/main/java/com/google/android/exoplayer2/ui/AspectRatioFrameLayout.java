@@ -20,7 +20,6 @@ import android.content.res.TypedArray;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
