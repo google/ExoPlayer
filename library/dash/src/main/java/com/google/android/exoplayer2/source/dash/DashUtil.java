@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
+import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
@@ -65,6 +66,48 @@ public final class DashUtil {
   }
 
   /**
+   * Loads {@link DrmInitData} for a given manifest.
+   *
+   * @param dataSource The {@link HttpDataSource} from which data should be loaded.
+   * @param dashManifest The {@link DashManifest} of the DASH content.
+   * @return The loaded {@link DrmInitData}.
+   */
+  public static DrmInitData loadDrmInitData(DataSource dataSource, DashManifest dashManifest)
+      throws IOException, InterruptedException {
+    // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
+    // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
+    if (dashManifest.getPeriodCount() < 1) {
+      return null;
+    }
+    Period period = dashManifest.getPeriod(0);
+    int adaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_VIDEO);
+    if (adaptationSetIndex == C.INDEX_UNSET) {
+      adaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_AUDIO);
+      if (adaptationSetIndex == C.INDEX_UNSET) {
+        return null;
+      }
+    }
+    AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
+    if (adaptationSet.representations.isEmpty()) {
+      return null;
+    }
+    Representation representation = adaptationSet.representations.get(0);
+    DrmInitData drmInitData = representation.format.drmInitData;
+    if (drmInitData == null) {
+      Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation);
+      if (sampleFormat != null) {
+        drmInitData = sampleFormat.drmInitData;
+      }
+      if (drmInitData == null) {
+        return null;
+      }
+    }
+    return drmInitData;
+  }
+
+  /**
+   * Loads initialization data for the {@code representation} and returns the sample {@link
+   * Format}.
    * Loads {@link DrmInitData} for a given period in a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which data should be loaded.
