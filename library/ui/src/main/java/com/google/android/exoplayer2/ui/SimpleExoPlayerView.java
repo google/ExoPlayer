@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -45,6 +46,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.PlaybackControlView.SeekDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 /**
@@ -198,6 +200,25 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
   public SimpleExoPlayerView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+
+    if (isInEditMode()) {
+      contentFrame = null;
+      shutterView = null;
+      surfaceView = null;
+      artworkView = null;
+      subtitleView = null;
+      controller = null;
+      componentListener = null;
+      overlayFrameLayout = null;
+      ImageView logo = new ImageView(context, attrs);
+      if (Util.SDK_INT >= 23) {
+        configureEditModeLogoV23(getResources(), logo);
+      } else {
+        configureEditModeLogo(getResources(), logo);
+      }
+      addView(logo);
+      return;
+    }
 
     int playerLayoutId = R.layout.exo_simple_player_view;
     boolean useArtwork = true;
@@ -644,6 +665,19 @@ public final class SimpleExoPlayerView extends FrameLayout {
       artworkView.setVisibility(INVISIBLE);
     }
   }
+
+  @TargetApi(23)
+  private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
+    logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
+    logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color, null));
+  }
+
+  @SuppressWarnings("deprecation")
+  private static void configureEditModeLogo(Resources resources, ImageView logo) {
+    logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo));
+    logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color));
+  }
+
 
   @SuppressWarnings("ResourceType")
   private static void setResizeModeRaw(AspectRatioFrameLayout aspectRatioFrame, int resizeMode) {
