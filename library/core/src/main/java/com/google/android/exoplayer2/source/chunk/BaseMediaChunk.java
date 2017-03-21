@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.chunk;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
