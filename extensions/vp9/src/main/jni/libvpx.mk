@@ -37,9 +37,7 @@ LOCAL_SRC_FILES += $(addprefix libvpx/, $(filter-out vpx_config.c, \
 # include assembly files if they exist
 # "%.asm.[sS]" covers neon assembly and "%.asm" covers x86 assembly
 LOCAL_SRC_FILES += $(addprefix libvpx/, \
-                     $(filter %.asm.s %.asm, $(libvpx_codec_srcs)))
-LOCAL_SRC_FILES += $(addprefix libvpx/, \
-                     $(filter %.asm.S %.asm, $(libvpx_codec_srcs)))
+                     $(filter %.asm.s %.asm.S %.asm, $(libvpx_codec_srcs)))
 
 ifneq ($(findstring armeabi-v7a, $(TARGET_ARCH_ABI)),)
 # append .neon to *_neon.c and *.[sS]
@@ -47,9 +45,6 @@ LOCAL_SRC_FILES := $(subst _neon.c,_neon.c.neon,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(subst .s,.s.neon,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(subst .S,.S.neon,$(LOCAL_SRC_FILES))
 endif
-
-# remove duplicates
-LOCAL_SRC_FILES := $(sort $(LOCAL_SRC_FILES))
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/libvpx \
                            $(LOCAL_PATH)/libvpx/vpx
