@@ -20,6 +20,7 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
+import com.google.android.exoplayer2.testutil.FakeDataSource.FakeData;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
@@ -197,12 +198,12 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength, @CacheDataSource.Flags int flags,
       CacheDataSink cacheWriteDataSink) {
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
+    FakeDataSource upstream = new FakeDataSource();
+    FakeData fakeData = upstream.getDataSet().newDefaultData()
+        .setSimulateUnknownLength(simulateUnknownLength).appendReadData(TEST_DATA);
     if (setReadException) {
-      builder.appendReadError(new IOException("Shouldn't read from upstream"));
+      fakeData.appendReadError(new IOException("Shouldn't read from upstream"));
     }
-    FakeDataSource upstream =
-        builder.setSimulateUnknownLength(simulateUnknownLength).appendReadData(TEST_DATA).build();
     return new CacheDataSource(simpleCache, upstream, new FileDataSource(), cacheWriteDataSink,
         flags, null);
   }

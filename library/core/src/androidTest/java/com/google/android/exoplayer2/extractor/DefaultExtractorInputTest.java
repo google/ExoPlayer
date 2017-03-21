@@ -269,9 +269,8 @@ public class DefaultExtractorInputTest extends TestCase {
   public void testSkipFullyLarge() throws Exception {
     // Tests skipping an amount of data that's larger than any internal scratch space.
     int largeSkipSize = 1024 * 1024;
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
-    builder.appendReadData(new byte[largeSkipSize]);
-    FakeDataSource testDataSource = builder.build();
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData().appendReadData(new byte[largeSkipSize]);
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
 
     DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
@@ -397,29 +396,29 @@ public class DefaultExtractorInputTest extends TestCase {
   }
 
   private static FakeDataSource buildDataSource() throws Exception {
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
-    builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 3));
-    builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6));
-    builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
-    FakeDataSource testDataSource = builder.build();
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData()
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 3))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
     return testDataSource;
   }
 
   private static FakeDataSource buildFailingDataSource() throws Exception {
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
-    builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 6));
-    builder.appendReadError(new IOException());
-    builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
-    FakeDataSource testDataSource = builder.build();
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData()
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 6))
+        .appendReadError(new IOException())
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
     return testDataSource;
   }
 
   private static FakeDataSource buildLargeDataSource() throws Exception {
-    FakeDataSource.Builder builder = new FakeDataSource.Builder();
-    builder.appendReadData(new byte[LARGE_TEST_DATA_LENGTH]);
-    FakeDataSource testDataSource = builder.build();
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData()
+        .appendReadData(new byte[LARGE_TEST_DATA_LENGTH]);
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
     return testDataSource;
   }
