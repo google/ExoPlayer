@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.dash;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -34,6 +36,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Utility methods for DASH streams.
@@ -46,8 +49,7 @@ public final class DashUtil {
    * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
    * @param manifestUriString The URI of the manifest to be read.
    * @return An instance of {@link DashManifest}.
-   * @throws IOException If an error occurs reading data from the stream.
-   * @see DashManifestParser
+   * @throws IOException Thrown when there is an error while loading.
    */
   public static DashManifest loadManifest(DataSource dataSource, String manifestUriString)
       throws IOException {
@@ -63,8 +65,35 @@ public final class DashUtil {
   }
 
   /**
-   * Loads initialization data for the {@code representation} and returns the sample {@link
-   * Format}.
+   * Loads {@link DrmInitData} for a given period in a DASH manifest.
+   *
+   * @param dataSource The {@link HttpDataSource} from which data should be loaded.
+   * @param period The {@link Period}.
+   * @return The loaded {@link DrmInitData}, or null if none is defined.
+   * @throws IOException Thrown when there is an error while loading.
+   * @throws InterruptedException Thrown if the thread was interrupted.
+   */
+  public static DrmInitData loadDrmInitData(DataSource dataSource, Period period)
+      throws IOException, InterruptedException {
+    Representation representation = getFirstRepresentation(period, C.TRACK_TYPE_VIDEO);
+    if (representation == null) {
+      representation = getFirstRepresentation(period, C.TRACK_TYPE_AUDIO);
+      if (representation == null) {
+        return null;
+      }
+    }
+    DrmInitData drmInitData = representation.format.drmInitData;
+    if (drmInitData != null) {
+      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
+      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
+      return drmInitData;
+    }
+    Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation);
+    return sampleFormat == null ? null : sampleFormat.drmInitData;
+  }
+
+  /**
+   * Loads initialization data for the {@code representation} and returns the sample {@link Format}.
    *
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
@@ -153,6 +182,15 @@ public final class DashUtil {
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
     Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
     return new ChunkExtractorWrapper(extractor, format);
+  }
+
+  private static Representation getFirstRepresentation(Period period, int type) {
+    int index = period.getAdaptationSetIndex(type);
+    if (index == C.INDEX_UNSET) {
+      return null;
+    }
+    List<Representation> representations = period.adaptationSets.get(index).representations;
+    return representations.isEmpty() ? null : representations.get(0);
   }
 
   private DashUtil() {}

@@ -23,17 +23,9 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
-import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
-import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
-import com.google.android.exoplayer2.source.dash.manifest.Period;
-import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.Arrays;
 import java.util.HashMap;
 import org.mockito.Mock;
 
@@ -50,89 +42,57 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   @Override
   protected void setUp() throws Exception {
     TestUtil.setUpMockito(this);
-
     when(mediaDrm.openSession()).thenReturn(new byte[] {1, 2, 3});
-
     offlineLicenseHelper = new OfflineLicenseHelper<>(mediaDrm, mediaDrmCallback, null);
   }
 
   @Override
   protected void tearDown() throws Exception {
-    offlineLicenseHelper.releaseResources();
+    offlineLicenseHelper.release();
+    offlineLicenseHelper = null;
   }
 
   public void testDownloadRenewReleaseKey() throws Exception {
-    DashManifest manifest = newDashManifestWithAllElements();
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
     byte[] keySetId = {2, 5, 8};
     setStubKeySetId(keySetId);
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
+    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
     assertOfflineLicenseKeySetIdEqual(keySetId, offlineLicenseKeySetId);
 
     byte[] keySetId2 = {6, 7, 0, 1, 4};
     setStubKeySetId(keySetId2);
 
-    byte[] offlineLicenseKeySetId2 = offlineLicenseHelper.renew(offlineLicenseKeySetId);
+    byte[] offlineLicenseKeySetId2 = offlineLicenseHelper.renewLicense(offlineLicenseKeySetId);
 
     assertOfflineLicenseKeySetIdEqual(keySetId2, offlineLicenseKeySetId2);
 
-    offlineLicenseHelper.release(offlineLicenseKeySetId2);
+    offlineLicenseHelper.releaseLicense(offlineLicenseKeySetId2);
   }
 
-  public void testDownloadFailsIfThereIsNoInitData() throws Exception {
-    setDefaultStubValues();
-    DashManifest manifest =
-        newDashManifest(newPeriods(newAdaptationSets(newRepresentations(null /*no init data*/))));
-
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
-
-    assertNull(offlineLicenseKeySetId);
+  public void testDownloadLicenseFailsIfNullInitData() throws Exception {
+    try {
+      offlineLicenseHelper.downloadLicense(null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // Expected.
+    }
   }
 
-  public void testDownloadFailsIfThereIsNoRepresentation() throws Exception {
-    setDefaultStubValues();
-    DashManifest manifest = newDashManifest(newPeriods(newAdaptationSets(/*no representation*/)));
-
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
-
-    assertNull(offlineLicenseKeySetId);
-  }
-
-  public void testDownloadFailsIfThereIsNoAdaptationSet() throws Exception {
-    setDefaultStubValues();
-    DashManifest manifest = newDashManifest(newPeriods(/*no adaptation set*/));
-
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
-
-    assertNull(offlineLicenseKeySetId);
-  }
-
-  public void testDownloadFailsIfThereIsNoPeriod() throws Exception {
-    setDefaultStubValues();
-    DashManifest manifest = newDashManifest(/*no periods*/);
-
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
-
-    assertNull(offlineLicenseKeySetId);
-  }
-
-  public void testDownloadFailsIfNoKeySetIdIsReturned() throws Exception {
+  public void testDownloadLicenseFailsIfNoKeySetIdIsReturned() throws Exception {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
-    DashManifest manifest = newDashManifestWithAllElements();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
+    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
     assertNull(offlineLicenseKeySetId);
   }
 
-  public void testDownloadDoesNotFailIfDurationNotAvailable() throws Exception {
+  public void testDownloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
     setDefaultStubKeySetId();
-    DashManifest manifest = newDashManifestWithAllElements();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
+    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
     assertNotNull(offlineLicenseKeySetId);
   }
@@ -142,9 +102,8 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
     int playbackDuration = 200;
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);
     setDefaultStubKeySetId();
-    DashManifest manifest = newDashManifestWithAllElements();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
+    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
     Pair<Long, Long> licenseDurationRemainingSec = offlineLicenseHelper
         .getLicenseDurationRemainingSec(offlineLicenseKeySetId);
@@ -158,21 +117,14 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
     int playbackDuration = 0;
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);
     setDefaultStubKeySetId();
-    DashManifest manifest = newDashManifestWithAllElements();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.download(httpDataSource, manifest);
+    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
     Pair<Long, Long> licenseDurationRemainingSec = offlineLicenseHelper
         .getLicenseDurationRemainingSec(offlineLicenseKeySetId);
 
     assertEquals(licenseDuration, (long) licenseDurationRemainingSec.first);
     assertEquals(playbackDuration, (long) licenseDurationRemainingSec.second);
-  }
-
-  private void setDefaultStubValues()
-      throws android.media.NotProvisionedException, android.media.DeniedByServerException {
-    setDefaultStubKeySetId();
-    setStubLicenseAndPlaybackDurationValues(1000, 200);
   }
 
   private void setDefaultStubKeySetId()
@@ -201,34 +153,9 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
     when(mediaDrm.queryKeyStatus(any(byte[].class))).thenReturn(keyStatus);
   }
 
-  private static DashManifest newDashManifestWithAllElements() {
-    return newDashManifest(newPeriods(newAdaptationSets(newRepresentations(newDrmInitData()))));
-  }
-
-  private static DashManifest newDashManifest(Period... periods) {
-    return new DashManifest(0, 0, 0, false, 0, 0, 0, null, null, Arrays.asList(periods));
-  }
-
-  private static Period newPeriods(AdaptationSet... adaptationSets) {
-    return new Period("", 0, Arrays.asList(adaptationSets));
-  }
-
-  private static AdaptationSet newAdaptationSets(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null);
-  }
-
-  private static Representation newRepresentations(DrmInitData drmInitData) {
-    Format format = Format.createVideoContainerFormat("id", MimeTypes.VIDEO_MP4,
-        MimeTypes.VIDEO_H264, "", Format.NO_VALUE, 1024, 768, Format.NO_VALUE, null, 0);
-    if (drmInitData != null) {
-      format = format.copyWithDrmInitData(drmInitData);
-    }
-    return Representation.newInstance("", 0, format, "", new SingleSegmentBase());
-  }
-
   private static DrmInitData newDrmInitData() {
     return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "mimeType",
-        new byte[]{1, 4, 7, 0, 3, 6}));
+        new byte[] {1, 4, 7, 0, 3, 6}));
   }
 
 }

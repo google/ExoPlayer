@@ -38,7 +38,7 @@ public final class WidevineUtil {
    * @throws IllegalStateException If called when a session isn't opened.
    * @param drmSession
    */
-  public static Pair<Long, Long> getLicenseDurationRemainingSec(DrmSession drmSession) {
+  public static Pair<Long, Long> getLicenseDurationRemainingSec(DrmSession<?> drmSession) {
     Map<String, String> keyStatus = drmSession.queryKeyStatus();
     return new Pair<>(
         getDurationRemainingSec(keyStatus, PROPERTY_LICENSE_DURATION_REMAINING),
