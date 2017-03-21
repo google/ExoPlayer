@@ -139,7 +139,9 @@ public class CacheDataSourceTest2 extends AndroidTestCase {
   }
 
   private static FakeDataSource buildFakeUpstreamSource() {
-    return new FakeDataSource.Builder().appendReadData(DATA).build();
+    FakeDataSource fakeDataSource = new FakeDataSource();
+    fakeDataSource.getDataSet().newDefaultData().appendReadData(DATA);
+    return fakeDataSource;
   }
 
   private static CacheDataSource buildCacheDataSource(Context context, DataSource upstreamSource,

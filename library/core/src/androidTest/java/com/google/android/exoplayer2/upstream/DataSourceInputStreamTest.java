@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.net.Uri;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -88,12 +89,13 @@ public class DataSourceInputStreamTest extends TestCase {
   }
 
   private static DataSourceInputStream buildTestInputStream() {
-    FakeDataSource.Builder fakeDataSourceBuilder = new FakeDataSource.Builder()
+    FakeDataSource fakeDataSource = new FakeDataSource();
+    fakeDataSource.getDataSet().newDefaultData()
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 5))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 5, 10))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 10, 15))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 15, TEST_DATA.length));
-    return new DataSourceInputStream(fakeDataSourceBuilder.build(), new DataSpec(null));
+    return new DataSourceInputStream(fakeDataSource, new DataSpec(Uri.EMPTY));
   }
 
 }
