@@ -66,6 +66,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.RtmpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -277,19 +278,13 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     if (needNewPlayer || needRetrySource) {
       String action = intent.getAction();
       Uri[] uris;
-      String[] extensions;
       if (ACTION_VIEW.equals(action)) {
         uris = new Uri[] {intent.getData()};
-        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
         for (int i = 0; i < uriStrings.length; i++) {
           uris[i] = Uri.parse(uriStrings[i]);
-        }
-        extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
-        if (extensions == null) {
-          extensions = new String[uriStrings.length];
         }
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
@@ -301,7 +296,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       }
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+        mediaSources[i] = buildMediaSource(uris[i]);
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
@@ -315,9 +310,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     }
   }
 
-  private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
-    int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
-        : Util.inferContentType("." + overrideExtension);
+  private MediaSource buildMediaSource(Uri uri) {
+    int type = Util.inferContentType(uri.toString());
     switch (type) {
       case C.TYPE_SS:
         return new SsMediaSource(uri, buildDataSourceFactory(false),
@@ -327,6 +321,9 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
       case C.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
+      case C.TYPE_RTMP:
+        return new ExtractorMediaSource(uri, buildRtmpDataSourceFactory(true),
+            new DefaultExtractorsFactory(), mainHandler, eventLogger);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
@@ -400,6 +397,18 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
     return ((DemoApplication) getApplication())
         .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+  }
+
+  /**
+   * Returns a new RtmpDataSource factory.
+   *
+   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
+   *     DataSource factory.
+   * @return A new RtmpDataSource factory.
+   */
+  private RtmpDataSource.Factory buildRtmpDataSourceFactory(boolean useBandwidthMeter) {
+    return ((DemoApplication) getApplication())
+            .buildRtmpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   // ExoPlayer.EventListener implementation
