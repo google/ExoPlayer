@@ -29,6 +29,11 @@ dependencies {
 }
 
 ext {
+    javadocTitle = 'UI'
+}
+apply from: '../../library_javadoc.gradle'
+
+ext {
     releaseArtifact = 'exoplayer-ui'
     releaseDescription = 'The ExoPlayer library UI module.'
 }

@@ -32,6 +32,11 @@ dependencies {
 }
 
 ext {
+    javadocTitle = 'HLS'
+}
+apply from: '../../library_javadoc.gradle'
+
+ext {
     releaseArtifact = 'exoplayer-hls'
     releaseDescription = 'The ExoPlayer library HLS module.'
 }

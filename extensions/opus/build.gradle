@@ -32,3 +32,8 @@ android {
 dependencies {
     compile project(':library-core')
 }
+
+ext {
+    javadocTitle = 'Opus extension'
+}
+apply from: '../../library_javadoc.gradle'

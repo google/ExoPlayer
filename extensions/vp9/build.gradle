@@ -33,3 +33,7 @@ dependencies {
     compile project(':library-core')
 }
 
+ext {
+    javadocTitle = 'VP9 extension'
+}
+apply from: '../../library_javadoc.gradle'
