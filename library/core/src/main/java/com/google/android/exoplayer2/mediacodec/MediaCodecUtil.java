@@ -228,10 +228,12 @@ public final class MediaCodecUtil {
             || "MP3Decoder".equals(name))) {
       return false;
     }
+
     // Work around https://github.com/google/ExoPlayer/issues/398
     if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
       return false;
     }
+
     // Work around https://github.com/google/ExoPlayer/issues/1528
     if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
         && "a70".equals(Util.DEVICE)) {
@@ -268,13 +270,15 @@ public final class MediaCodecUtil {
     }
 
     // Work around https://github.com/google/ExoPlayer/issues/548
-    // VP8 decoder on Samsung Galaxy S3/S4/S4 Mini/Tab 3 does not render video.
+    // VP8 decoder on Samsung Galaxy S3/S4/S4 Mini/Tab 3/Note 2 does not render video.
     if (Util.SDK_INT <= 19
+        && "OMX.SEC.vp8.dec".equals(name) && "samsung".equals(Util.MANUFACTURER)
         && (Util.DEVICE.startsWith("d2") || Util.DEVICE.startsWith("serrano")
-        || Util.DEVICE.startsWith("jflte") || Util.DEVICE.startsWith("santos"))
-        && "samsung".equals(Util.MANUFACTURER) && "OMX.SEC.vp8.dec".equals(name)) {
+            || Util.DEVICE.startsWith("jflte") || Util.DEVICE.startsWith("santos")
+            || Util.DEVICE.startsWith("t0"))) {
       return false;
     }
+
     // VP8 decoder on Samsung Galaxy S4 cannot be queried.
     if (Util.SDK_INT <= 19 && Util.DEVICE.startsWith("jflte")
         && "OMX.qcom.video.decoder.vp8".equals(name)) {
