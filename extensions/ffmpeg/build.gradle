@@ -36,4 +36,4 @@ dependencies {
 ext {
     javadocTitle = 'FFmpeg extension'
 }
-apply from: '../../library_javadoc.gradle'
+apply from: '../../javadoc_library.gradle'

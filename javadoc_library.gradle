@@ -12,18 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 android.libraryVariants.all { variant ->
-    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        description "Generates Javadoc for $variant.name."
-        title = javadocTitle
+    def name = variant.buildType.name
+    if (!name.equals("release")) {
+        return; // Skip non-release builds.
+    }
+    task("generateJavadoc", type: Javadoc) {
+        description = "Generates Javadoc for the ${javadocTitle}."
+        title = "ExoPlayer ${javadocTitle}"
         source = variant.javaCompile.source
-        classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+        classpath = files(variant.javaCompile.classpath.files,
+	                  project.android.getBootClasspath())
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"
-            linksOffline "https://developer.android.com/reference","${android.sdkDirectory}/docs/reference"
-            encoding = 'UTF-8'
+            linksOffline "https://developer.android.com/reference",
+                         "${android.sdkDirectory}/docs/reference"
+            encoding = "UTF-8"
         }
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
+        exclude "**/BuildConfig.java"
+        exclude "**/R.java"
         doLast {
             copy {
                 from "src/main/javadoc"

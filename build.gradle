@@ -47,3 +47,5 @@ def getBintrayRepo() {
         property('publicRepo').toBoolean()
     return publicRepo ? 'exoplayer' : 'exoplayer-test'
 }
+
+apply from: 'javadoc_combined.gradle'
