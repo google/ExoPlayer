@@ -340,6 +340,10 @@
     "name": "Misc",
     "samples": [
       {
+        "name": "HKS-TV RTMP live stream",
+        "uri": "rtmp://live.hkstv.hk.lxdns.com/live/hks"
+      },
+      {
         "name": "Dizzy",
         "uri": "http://html5demos.com/assets/dizzy.mp4"
       },

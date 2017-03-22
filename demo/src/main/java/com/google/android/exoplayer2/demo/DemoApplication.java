@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.RtmpDataSource;
+import com.google.android.exoplayer2.upstream.RtmpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -43,6 +45,10 @@ public class DemoApplication extends Application {
 
   public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
     return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
+  }
+
+  public RtmpDataSource.Factory buildRtmpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+    return new RtmpDataSourceFactory(bandwidthMeter);
   }
 
   public boolean useExtensionRenderers() {
