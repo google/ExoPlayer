@@ -29,6 +29,11 @@ dependencies {
 }
 
 ext {
+    javadocTitle = 'GVR extension'
+}
+apply from: '../../library_javadoc.gradle'
+
+ext {
     releaseArtifact = 'extension-gvr'
     releaseDescription = 'Google VR extension for ExoPlayer.'
 }

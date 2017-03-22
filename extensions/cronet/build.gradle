@@ -39,3 +39,8 @@ dependencies {
     androidTestCompile project(':library')
     androidTestCompile 'com.android.support.test:runner:0.5'
 }
+
+ext {
+    javadocTitle = 'Cronet extension'
+}
+apply from: '../../library_javadoc.gradle'

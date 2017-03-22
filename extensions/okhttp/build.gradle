@@ -36,6 +36,11 @@ dependencies {
 }
 
 ext {
+    javadocTitle = 'OkHttp extension'
+}
+apply from: '../../library_javadoc.gradle'
+
+ext {
     releaseArtifact = 'extension-okhttp'
     releaseDescription = 'OkHttp extension for ExoPlayer.'
 }
