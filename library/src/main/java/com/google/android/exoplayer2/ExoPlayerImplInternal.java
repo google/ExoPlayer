@@ -484,8 +484,8 @@ import java.io.IOException;
         && (playingPeriodDurationUs == C.TIME_UNSET
         || playingPeriodDurationUs <= playbackInfo.positionUs)
         && playingPeriodHolder.isLast) {
-      setState(ExoPlayer.STATE_ENDED);
-      stopRenderers();
+      // setState(ExoPlayer.STATE_ENDED);
+      // stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING) {
       boolean isNewlyReady = enabledRenderers.length > 0
           ? (allRenderersReadyOrEnded && haveSufficientBuffer(rebuffering))
