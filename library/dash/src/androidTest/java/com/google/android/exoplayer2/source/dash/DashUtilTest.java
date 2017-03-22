@@ -23,10 +23,8 @@ import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
-import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.io.IOException;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
@@ -37,25 +35,25 @@ public final class DashUtilTest extends TestCase {
 
   public void testLoadDrmInitDataFromManifest() throws Exception {
     Period period = newPeriod(newAdaptationSets(newRepresentations(newDrmInitData())));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(newDataSource(), period);
+    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertEquals(newDrmInitData(), drmInitData);
   }
 
   public void testLoadDrmInitDataMissing() throws Exception {
     Period period = newPeriod(newAdaptationSets(newRepresentations(null /* no init data */)));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(newDataSource(), period);
+    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertNull(drmInitData);
   }
 
   public void testLoadDrmInitDataNoRepresentations() throws Exception {
     Period period = newPeriod(newAdaptationSets(/* no representation */));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(newDataSource(), period);
+    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertNull(drmInitData);
   }
 
   public void testLoadDrmInitDataNoAdaptationSets() throws Exception {
     Period period = newPeriod(/* no adaptation set */);
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(newDataSource(), period);
+    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertNull(drmInitData);
   }
 
@@ -79,13 +77,6 @@ public final class DashUtilTest extends TestCase {
   private static DrmInitData newDrmInitData() {
     return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "mimeType",
         new byte[]{1, 4, 7, 0, 3, 6}));
-  }
-
-  private static DataSource newDataSource() {
-    // TODO: Use DummyDataSource when available.
-    FakeDataSource fakeDataSource = new FakeDataSource();
-    fakeDataSource.getDataSet().newDefaultData().appendReadError(new IOException("Unexpected"));
-    return fakeDataSource;
   }
 
 }
