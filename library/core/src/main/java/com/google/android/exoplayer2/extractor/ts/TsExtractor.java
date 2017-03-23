@@ -92,6 +92,7 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
+  public static final int TS_STREAM_TYPE_DVBSUBS   = 0x59;
 
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
@@ -356,6 +357,7 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_AC3 = 0x6A;
     private static final int TS_PMT_DESC_EAC3 = 0x7A;
     private static final int TS_PMT_DESC_DTS = 0x7B;
+    private static final int TS_PMT_DESC_DVBSUBS = 0x59;
 
     private final ParsableBitArray pmtScratch;
     private final int pid;
@@ -498,6 +500,10 @@ public final class TsExtractor implements Extractor {
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
           language = new String(data.data, data.getPosition(), 3).trim();
           // Audio type is ignored.
+        } else if (descriptorTag == TS_PMT_DESC_DVBSUBS) {
+          streamType = TS_STREAM_TYPE_DVBSUBS;
+          // we only support one subtitle service per PID
+          language = new String(data.data, data.getPosition(), 3).trim();
         }
         // Skip unused bytes of current descriptor.
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
