@@ -178,7 +178,11 @@ public class Cue {
   public final int windowColor;
 
   /**
-   * Creates an image cue.
+   * The Storage Aspect Ratio of the Cue
+   */
+  public final float sar;
+
+  /**   * Creates an image cue.
    *
    * @param bitmap See {@link #bitmap}.
    * @param horizontalPosition The position of the horizontal anchor within the viewport, expressed
@@ -194,7 +198,28 @@ public class Cue {
   public Cue(Bitmap bitmap, float horizontalPosition, @AnchorType int horizontalPositionAnchor,
       float verticalPosition, @AnchorType int verticalPositionAnchor, float width) {
     this(null, null, bitmap, verticalPosition, LINE_TYPE_FRACTION, verticalPositionAnchor,
-        horizontalPosition, horizontalPositionAnchor, width, false, Color.BLACK);
+        horizontalPosition, horizontalPositionAnchor, width, false, Color.BLACK, (float) 1.7777);
+  }
+
+  /**
+   * Creates an image cue.
+   *
+   * @param bitmap See {@link #bitmap}.
+   * @param horizontalPosition The position of the horizontal anchor within the viewport, expressed
+   *     as a fraction of the viewport width.
+   * @param horizontalPositionAnchor The horizontal anchor. One of {@link #ANCHOR_TYPE_START},
+   *     {@link #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
+   * @param verticalPosition The position of the vertical anchor within the viewport, expressed as a
+   *     fraction of the viewport height.
+   * @param verticalPositionAnchor The vertical anchor. One of {@link #ANCHOR_TYPE_START},
+   *     {@link #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
+   * @param width The width of the cue, expressed as a fraction of the viewport width.
+   * @param sar The Storage Aspect Ratio of the cue, defaults to FHD SAR unless otherwise specified.
+   */
+  public Cue(Bitmap bitmap, float horizontalPosition, @AnchorType int horizontalPositionAnchor,
+             float verticalPosition, @AnchorType int verticalPositionAnchor, float width, float sar) {
+    this(null, null, bitmap, verticalPosition, LINE_TYPE_FRACTION, verticalPositionAnchor,
+           horizontalPosition, horizontalPositionAnchor, width, false, Color.BLACK, sar);
   }
 
   /**
@@ -243,12 +268,12 @@ public class Cue {
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size,
       boolean windowColorSet, int windowColor) {
     this(text, textAlignment, null, line, lineType, lineAnchor, position, positionAnchor, size,
-        windowColorSet, windowColor);
+        windowColorSet, windowColor, 1);
   }
 
   private Cue(CharSequence text, Alignment textAlignment, Bitmap bitmap, float line,
       @LineType int lineType, @AnchorType int lineAnchor, float position,
-      @AnchorType int positionAnchor, float size, boolean windowColorSet, int windowColor) {
+      @AnchorType int positionAnchor, float size, boolean windowColorSet, int windowColor, float sar) {
     this.text = text;
     this.textAlignment = textAlignment;
     this.bitmap = bitmap;
@@ -260,6 +285,7 @@ public class Cue {
     this.size = size;
     this.windowColorSet = windowColorSet;
     this.windowColor = windowColor;
+    this.sar = sar;
   }
 
 }
