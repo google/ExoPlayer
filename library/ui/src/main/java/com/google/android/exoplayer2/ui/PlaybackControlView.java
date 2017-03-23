@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -764,6 +765,11 @@ public class PlaybackControlView extends FrameLayout {
     public void onPositionDiscontinuity() {
       updateNavigation();
       updateProgress();
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      // Do nothing.
     }
 
     @Override

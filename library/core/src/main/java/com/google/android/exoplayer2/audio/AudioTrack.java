@@ -20,11 +20,11 @@ import android.annotation.TargetApi;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTimestamp;
-import android.media.PlaybackParams;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -271,6 +271,7 @@ public final class AudioTrack {
 
   private final AudioCapabilities audioCapabilities;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
+  private final SonicAudioProcessor sonicAudioProcessor;
   private final AudioProcessor[] availableAudioProcessors;
   private final Listener listener;
   private final ConditionVariable releasingConditionVariable;
@@ -294,6 +295,7 @@ public final class AudioTrack {
   private boolean passthrough;
   private int bufferSize;
   private long bufferSizeUs;
+  private PlaybackParameters playbackParameters;
 
   private ByteBuffer avSyncHeader;
   private int bytesUntilNextAvSync;
@@ -344,11 +346,6 @@ public final class AudioTrack {
   public AudioTrack(AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors,
       Listener listener) {
     this.audioCapabilities = audioCapabilities;
-    channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
-    availableAudioProcessors = new AudioProcessor[audioProcessors.length + 2];
-    availableAudioProcessors[0] = new ResamplingAudioProcessor();
-    availableAudioProcessors[1] = channelMappingAudioProcessor;
-    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 2, audioProcessors.length);
     this.listener = listener;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
@@ -359,18 +356,24 @@ public final class AudioTrack {
         // There's no guarantee this method exists. Do nothing.
       }
     }
-    if (Util.SDK_INT >= 23) {
-      audioTrackUtil = new AudioTrackUtilV23();
-    } else if (Util.SDK_INT >= 19) {
+    if (Util.SDK_INT >= 19) {
       audioTrackUtil = new AudioTrackUtilV19();
     } else {
       audioTrackUtil = new AudioTrackUtil();
     }
+    channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
+    sonicAudioProcessor = new SonicAudioProcessor();
+    availableAudioProcessors = new AudioProcessor[3 + audioProcessors.length];
+    availableAudioProcessors[0] = new ResamplingAudioProcessor();
+    availableAudioProcessors[1] = channelMappingAudioProcessor;
+    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 2, audioProcessors.length);
+    availableAudioProcessors[2 + audioProcessors.length] = sonicAudioProcessor;
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
     streamType = C.STREAM_TYPE_DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    playbackParameters = PlaybackParameters.DEFAULT;
     drainingAudioProcessorIndex = C.INDEX_UNSET;
     this.audioProcessors = new AudioProcessor[0];
     outputBuffers = new ByteBuffer[0];
@@ -408,33 +411,28 @@ public final class AudioTrack {
     }
 
     long systemClockUs = System.nanoTime() / 1000;
-    long currentPositionUs;
+    long positionUs;
     if (audioTimestampSet) {
-      // How long ago in the past the audio timestamp is (negative if it's in the future).
-      long presentationDiff = systemClockUs - (audioTrackUtil.getTimestampNanoTime() / 1000);
-      // Fixes such difference if the playback speed is not real time speed.
-      long actualSpeedPresentationDiff = (long) (presentationDiff
-          * audioTrackUtil.getPlaybackSpeed());
-      long framesDiff = durationUsToFrames(actualSpeedPresentationDiff);
-      // The position of the frame that's currently being presented.
-      long currentFramePosition = audioTrackUtil.getTimestampFramePosition() + framesDiff;
-      currentPositionUs = framesToDurationUs(currentFramePosition) + startMediaTimeUs;
+      // Calculate the speed-adjusted position using the timestamp (which may be in the future).
+      long elapsedSinceTimestampUs = systemClockUs - (audioTrackUtil.getTimestampNanoTime() / 1000);
+      long elapsedSinceTimestampFrames = durationUsToFrames(elapsedSinceTimestampUs);
+      long elapsedFrames = audioTrackUtil.getTimestampFramePosition() + elapsedSinceTimestampFrames;
+      positionUs = framesToDurationUs(elapsedFrames);
     } else {
       if (playheadOffsetCount == 0) {
         // The AudioTrack has started, but we don't have any samples to compute a smoothed position.
-        currentPositionUs = audioTrackUtil.getPlaybackHeadPositionUs() + startMediaTimeUs;
+        positionUs = audioTrackUtil.getPositionUs();
       } else {
         // getPlayheadPositionUs() only has a granularity of ~20 ms, so we base the position off the
         // system clock (and a smoothed offset between it and the playhead position) so as to
         // prevent jitter in the reported positions.
-        currentPositionUs = systemClockUs + smoothedPlayheadOffsetUs + startMediaTimeUs;
+        positionUs = systemClockUs + smoothedPlayheadOffsetUs;
       }
       if (!sourceEnded) {
-        currentPositionUs -= latencyUs;
+        positionUs -= latencyUs;
       }
     }
-
-    return currentPositionUs;
+    return startMediaTimeUs + scaleFrames(positionUs);
   }
 
   /**
@@ -481,10 +479,7 @@ public final class AudioTrack {
     boolean flush = false;
     if (!passthrough) {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
-
-      // Reconfigure the audio processors.
       channelMappingAudioProcessor.setChannelMap(outputChannels);
-      ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
           flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
@@ -492,23 +487,12 @@ public final class AudioTrack {
           throw new ConfigurationException(e);
         }
         if (audioProcessor.isActive()) {
-          newAudioProcessors.add(audioProcessor);
           channelCount = audioProcessor.getOutputChannelCount();
           encoding = audioProcessor.getOutputEncoding();
-        } else {
-          audioProcessor.flush();
         }
       }
-
       if (flush) {
-        int count = newAudioProcessors.size();
-        audioProcessors = newAudioProcessors.toArray(new AudioProcessor[count]);
-        outputBuffers = new ByteBuffer[count];
-        for (int i = 0; i < count; i++) {
-          AudioProcessor audioProcessor = audioProcessors[i];
-          audioProcessor.flush();
-          outputBuffers[i] = audioProcessor.getOutput();
-        }
+        resetAudioProcessors();
       }
     }
 
@@ -603,6 +587,28 @@ public final class AudioTrack {
           : multipliedBufferSize;
     }
     bufferSizeUs = passthrough ? C.TIME_UNSET : framesToDurationUs(bufferSize / outputPcmFrameSize);
+
+    // The old playback parameters may no longer be applicable so try to reset them now.
+    setPlaybackParameters(playbackParameters);
+  }
+
+  private void resetAudioProcessors() {
+    ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
+    for (AudioProcessor audioProcessor : availableAudioProcessors) {
+      if (audioProcessor.isActive()) {
+        newAudioProcessors.add(audioProcessor);
+      } else {
+        audioProcessor.flush();
+      }
+    }
+    int count = newAudioProcessors.size();
+    audioProcessors = newAudioProcessors.toArray(new AudioProcessor[count]);
+    outputBuffers = new ByteBuffer[count];
+    for (int i = 0; i < count; i++) {
+      AudioProcessor audioProcessor = audioProcessors[i];
+      audioProcessor.flush();
+      outputBuffers[i] = audioProcessor.getOutput();
+    }
   }
 
   private void initialize() throws InitializationException {
@@ -940,15 +946,42 @@ public final class AudioTrack {
   }
 
   /**
-   * Sets the playback parameters. Only available for {@link Util#SDK_INT} &gt;= 23
+   * Attempts to set the playback parameters and returns the active playback parameters, which may
+   * differ from those passed in.
    *
-   * @param playbackParams The playback parameters to be used by the
-   *     {@link android.media.AudioTrack}.
-   * @throws UnsupportedOperationException if the Playback Parameters are not supported. That is,
-   *     {@link Util#SDK_INT} &lt; 23.
+   * @return The active playback parameters.
    */
-  public void setPlaybackParams(PlaybackParams playbackParams) {
-    audioTrackUtil.setPlaybackParams(playbackParams);
+  public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
+    if (passthrough) {
+      this.playbackParameters = PlaybackParameters.DEFAULT;
+    } else {
+      this.playbackParameters = new PlaybackParameters(
+          sonicAudioProcessor.setSpeed(playbackParameters.speed),
+          sonicAudioProcessor.setPitch(playbackParameters.pitch));
+      // TODO: Avoid resetting the track, so that speed/pitch changes are seamless.
+      // See [Internal: b/36542189].
+      reset();
+      // Setting the playback parameters never changes the output format, so it is not necessary to
+      // reconfigure the processors, though they may have become active/inactive.
+      resetAudioProcessors();
+    }
+    return this.playbackParameters;
+  }
+
+  /**
+   * Gets the {@link PlaybackParameters}.
+   */
+  public PlaybackParameters getPlaybackParameters() {
+    return playbackParameters;
+  }
+
+  /**
+   * Returns the number of input frames corresponding to the specified number of output frames,
+   * taking into account any internal playback speed adjustment.
+   */
+  private long scaleFrames(long outputFrameCount) {
+    return sonicAudioProcessor.isActive() ? sonicAudioProcessor.getInputFrames(outputFrameCount)
+        : outputFrameCount;
   }
 
   /**
@@ -1145,7 +1178,7 @@ public final class AudioTrack {
    * Updates the audio track latency and playback position parameters.
    */
   private void maybeSampleSyncParams() {
-    long playbackPositionUs = audioTrackUtil.getPlaybackHeadPositionUs();
+    long playbackPositionUs = audioTrackUtil.getPositionUs();
     if (playbackPositionUs == 0) {
       // The AudioTrack hasn't output anything yet.
       return;
@@ -1441,15 +1474,15 @@ public final class AudioTrack {
 
     /**
      * Stops the audio track in a way that ensures media written to it is played out in full, and
-     * that {@link #getPlaybackHeadPosition()} and {@link #getPlaybackHeadPositionUs()} continue to
-     * increment as the remaining media is played out.
+     * that {@link #getPlaybackHeadPosition()} and {@link #getPositionUs()} continue to increment as
+     * the remaining media is played out.
      *
-     * @param submittedFrames The total number of frames that have been submitted.
+     * @param writtenFrames The total number of frames that have been written.
      */
-    public void handleEndOfStream(long submittedFrames) {
+    public void handleEndOfStream(long writtenFrames) {
       stopPlaybackHeadPosition = getPlaybackHeadPosition();
       stopTimestampUs = SystemClock.elapsedRealtime() * 1000;
-      endPlaybackHeadPosition = submittedFrames;
+      endPlaybackHeadPosition = writtenFrames;
       audioTrack.stop();
     }
 
@@ -1471,8 +1504,7 @@ public final class AudioTrack {
      * returns the playback head position as a long that will only wrap around if the value exceeds
      * {@link Long#MAX_VALUE} (which in practice will never happen).
      *
-     * @return {@link android.media.AudioTrack#getPlaybackHeadPosition()} of {@link #audioTrack}
-     *     expressed as a long.
+     * @return The playback head position, in frames.
      */
     public long getPlaybackHeadPosition() {
       if (stopTimestampUs != C.TIME_UNSET) {
@@ -1507,9 +1539,9 @@ public final class AudioTrack {
     }
 
     /**
-     * Returns {@link #getPlaybackHeadPosition()} expressed as microseconds.
+     * Returns the duration of played media since reconfiguration, in microseconds.
      */
-    public long getPlaybackHeadPositionUs() {
+    public long getPositionUs() {
       return (getPlaybackHeadPosition() * C.MICROS_PER_SECOND) / sampleRate;
     }
 
@@ -1551,28 +1583,6 @@ public final class AudioTrack {
     public long getTimestampFramePosition() {
       // Should never be called if updateTimestamp() returned false.
       throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Sets the Playback Parameters to be used by the underlying {@link android.media.AudioTrack}.
-     *
-     * @param playbackParams The playback parameters to be used by the
-     *     {@link android.media.AudioTrack}.
-     * @throws UnsupportedOperationException If Playback Parameters are not supported
-     *     (i.e. {@link Util#SDK_INT} &lt; 23).
-     */
-    public void setPlaybackParams(PlaybackParams playbackParams) {
-      throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns the configured playback speed according to the used Playback Parameters. If these are
-     * not supported, 1.0f(normal speed) is returned.
-     *
-     * @return The speed factor used by the underlying {@link android.media.AudioTrack}.
-     */
-    public float getPlaybackSpeed() {
-      return 1.0f;
     }
 
   }
@@ -1622,45 +1632,6 @@ public final class AudioTrack {
     @Override
     public long getTimestampFramePosition() {
       return lastTimestampFramePosition;
-    }
-
-  }
-
-  @TargetApi(23)
-  private static class AudioTrackUtilV23 extends AudioTrackUtilV19 {
-
-    private PlaybackParams playbackParams;
-    private float playbackSpeed;
-
-    public AudioTrackUtilV23() {
-      playbackSpeed = 1.0f;
-    }
-
-    @Override
-    public void reconfigure(android.media.AudioTrack audioTrack,
-        boolean needsPassthroughWorkaround) {
-      super.reconfigure(audioTrack, needsPassthroughWorkaround);
-      maybeApplyPlaybackParams();
-    }
-
-    @Override
-    public void setPlaybackParams(PlaybackParams playbackParams) {
-      playbackParams = (playbackParams != null ? playbackParams : new PlaybackParams())
-          .allowDefaults();
-      this.playbackParams = playbackParams;
-      playbackSpeed = playbackParams.getSpeed();
-      maybeApplyPlaybackParams();
-    }
-
-    @Override
-    public float getPlaybackSpeed() {
-      return playbackSpeed;
-    }
-
-    private void maybeApplyPlaybackParams() {
-      if (audioTrack != null && playbackParams != null) {
-        audioTrack.setPlaybackParams(playbackParams);
-      }
     }
 
   }

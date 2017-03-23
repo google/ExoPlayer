@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
@@ -131,6 +132,11 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
 
     @Override
     public void onPositionDiscontinuity() {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       // Do nothing.
     }
 

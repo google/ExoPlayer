@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -738,6 +739,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onPositionDiscontinuity() {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       // Do nothing.
     }
 

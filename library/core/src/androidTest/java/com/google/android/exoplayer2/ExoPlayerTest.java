@@ -141,6 +141,16 @@ public final class ExoPlayerTest extends TestCase {
       }
 
       @Override
+      public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
+        return PlaybackParameters.DEFAULT;
+      }
+
+      @Override
+      public PlaybackParameters getPlaybackParameters() {
+        return PlaybackParameters.DEFAULT;
+      }
+
+      @Override
       public boolean isEnded() {
         // Allow playback to end once the final period is playing.
         return playerWrapper.positionDiscontinuityCount == 2;
@@ -270,6 +280,11 @@ public final class ExoPlayerTest extends TestCase {
     @Override
     public void onPositionDiscontinuity() {
       positionDiscontinuityCount++;
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      // Do nothing.
     }
 
   }

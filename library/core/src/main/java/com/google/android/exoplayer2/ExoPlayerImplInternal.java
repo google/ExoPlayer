@@ -96,20 +96,22 @@ import java.io.IOException;
   public static final int MSG_SEEK_ACK = 4;
   public static final int MSG_POSITION_DISCONTINUITY = 5;
   public static final int MSG_SOURCE_INFO_REFRESHED = 6;
-  public static final int MSG_ERROR = 7;
+  public static final int MSG_PLAYBACK_PARAMETERS_CHANGED = 7;
+  public static final int MSG_ERROR = 8;
 
   // Internal messages
   private static final int MSG_PREPARE = 0;
   private static final int MSG_SET_PLAY_WHEN_READY = 1;
   private static final int MSG_DO_SOME_WORK = 2;
   private static final int MSG_SEEK_TO = 3;
-  private static final int MSG_STOP = 4;
-  private static final int MSG_RELEASE = 5;
-  private static final int MSG_REFRESH_SOURCE_INFO = 6;
-  private static final int MSG_PERIOD_PREPARED = 7;
-  private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 8;
-  private static final int MSG_TRACK_SELECTION_INVALIDATED = 9;
-  private static final int MSG_CUSTOM = 10;
+  private static final int MSG_SET_PLAYBACK_PARAMETERS = 4;
+  private static final int MSG_STOP = 5;
+  private static final int MSG_RELEASE = 6;
+  private static final int MSG_REFRESH_SOURCE_INFO = 7;
+  private static final int MSG_PERIOD_PREPARED = 8;
+  private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 9;
+  private static final int MSG_TRACK_SELECTION_INVALIDATED = 10;
+  private static final int MSG_CUSTOM = 11;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -143,6 +145,7 @@ import java.io.IOException;
   private final Timeline.Period period;
 
   private PlaybackInfo playbackInfo;
+  private PlaybackParameters playbackParameters;
   private Renderer rendererMediaClockSource;
   private MediaClock rendererMediaClock;
   private MediaSource mediaSource;
@@ -188,6 +191,7 @@ import java.io.IOException;
     window = new Timeline.Window();
     period = new Timeline.Period();
     trackSelector.init(this);
+    playbackParameters = PlaybackParameters.DEFAULT;
 
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
@@ -209,6 +213,10 @@ import java.io.IOException;
   public void seekTo(Timeline timeline, int windowIndex, long positionUs) {
     handler.obtainMessage(MSG_SEEK_TO, new SeekPosition(timeline, windowIndex, positionUs))
         .sendToTarget();
+  }
+
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+    handler.obtainMessage(MSG_SET_PLAYBACK_PARAMETERS, playbackParameters).sendToTarget();
   }
 
   public void stop() {
@@ -302,6 +310,10 @@ import java.io.IOException;
         }
         case MSG_SEEK_TO: {
           seekToInternal((SeekPosition) msg.obj);
+          return true;
+        }
+        case MSG_SET_PLAYBACK_PARAMETERS: {
+          setPlaybackParametersInternal((PlaybackParameters) msg.obj);
           return true;
         }
         case MSG_STOP: {
@@ -478,6 +490,19 @@ import java.io.IOException;
       maybeThrowPeriodPrepareError();
     }
 
+    // The standalone media clock never changes playback parameters, so just check the renderer.
+    if (rendererMediaClock != null) {
+      PlaybackParameters playbackParameters = rendererMediaClock.getPlaybackParameters();
+      if (!playbackParameters.equals(this.playbackParameters)) {
+        // TODO: Make LoadControl, period transition position projection, adaptive track selection
+        // and potentially any time-related code in renderers take into account the playback speed.
+        this.playbackParameters = playbackParameters;
+        standaloneMediaClock.synchronize(rendererMediaClock);
+        eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters)
+            .sendToTarget();
+      }
+    }
+
     long playingPeriodDurationUs = timeline.getPeriod(playingPeriodHolder.index, period)
         .getDurationUs();
     if (allRenderersEnded
@@ -646,6 +671,14 @@ import java.io.IOException;
     }
   }
 
+  private void setPlaybackParametersInternal(PlaybackParameters playbackParameters) {
+    playbackParameters = rendererMediaClock != null
+        ? rendererMediaClock.setPlaybackParameters(playbackParameters)
+        : standaloneMediaClock.setPlaybackParameters(playbackParameters);
+    this.playbackParameters = playbackParameters;
+    eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
+  }
+
   private void stopInternal() {
     resetInternal(true);
     loadControl.onStopped();
@@ -774,7 +807,7 @@ import java.io.IOException;
               if (sampleStream == null) {
                 // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
                 // over timing responsibilities.
-                standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+                standaloneMediaClock.synchronize(rendererMediaClock);
               }
               rendererMediaClock = null;
               rendererMediaClockSource = null;
@@ -1334,7 +1367,7 @@ import java.io.IOException;
         // is final and it's not reading ahead.
         if (renderer == rendererMediaClockSource) {
           // Sync standaloneMediaClock so that it can take over timing responsibilities.
-          standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
+          standaloneMediaClock.synchronize(rendererMediaClock);
           rendererMediaClock = null;
           rendererMediaClockSource = null;
         }
@@ -1380,6 +1413,7 @@ import java.io.IOException;
             }
             rendererMediaClock = mediaClock;
             rendererMediaClockSource = renderer;
+            rendererMediaClock.setPlaybackParameters(playbackParameters);
           }
           // Start the renderer if playing.
           if (playing) {

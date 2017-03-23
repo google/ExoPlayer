@@ -19,12 +19,12 @@ import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
-import android.media.PlaybackParams;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -346,6 +346,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
+    return audioTrack.setPlaybackParameters(playbackParameters);
+  }
+
+  @Override
+  public PlaybackParameters getPlaybackParameters() {
+    return audioTrack.getPlaybackParameters();
+  }
+
+  @Override
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
       ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
       boolean shouldSkip) throws ExoPlaybackException {
@@ -388,9 +398,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     switch (messageType) {
       case C.MSG_SET_VOLUME:
         audioTrack.setVolume((Float) message);
-        break;
-      case C.MSG_SET_PLAYBACK_PARAMS:
-        audioTrack.setPlaybackParams((PlaybackParams) message);
         break;
       case C.MSG_SET_STREAM_TYPE:
         @C.StreamType int streamType = (Integer) message;
