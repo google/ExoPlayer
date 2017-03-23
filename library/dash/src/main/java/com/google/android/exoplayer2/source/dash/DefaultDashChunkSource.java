@@ -179,23 +179,24 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     RepresentationHolder representationHolder =
         representationHolders[trackSelection.getSelectedIndex()];
-    Representation selectedRepresentation = representationHolder.representation;
-    DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
 
-    RangedUri pendingInitializationUri = null;
-    RangedUri pendingIndexUri = null;
-    if (representationHolder.extractorWrapper.getSampleFormats() == null) {
-      pendingInitializationUri = selectedRepresentation.getInitializationUri();
-    }
-    if (segmentIndex == null) {
-      pendingIndexUri = selectedRepresentation.getIndexUri();
-    }
-    if (pendingInitializationUri != null || pendingIndexUri != null) {
-      // We have initialization and/or index requests to make.
-      out.chunk = newInitializationChunk(representationHolder, dataSource,
-          trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
-          trackSelection.getSelectionData(), pendingInitializationUri, pendingIndexUri);
-      return;
+    if (representationHolder.extractorWrapper != null) {
+      Representation selectedRepresentation = representationHolder.representation;
+      RangedUri pendingInitializationUri = null;
+      RangedUri pendingIndexUri = null;
+      if (representationHolder.extractorWrapper.getSampleFormats() == null) {
+        pendingInitializationUri = selectedRepresentation.getInitializationUri();
+      }
+      if (representationHolder.segmentIndex == null) {
+        pendingIndexUri = selectedRepresentation.getIndexUri();
+      }
+      if (pendingInitializationUri != null || pendingIndexUri != null) {
+        // We have initialization and/or index requests to make.
+        out.chunk = newInitializationChunk(representationHolder, dataSource,
+            trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
+            trackSelection.getSelectionData(), pendingInitializationUri, pendingIndexUri);
+        return;
+      }
     }
 
     long nowUs = getNowUnixTimeUs();
