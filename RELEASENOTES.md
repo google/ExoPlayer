@@ -1,5 +1,14 @@
 # Release notes #
 
+### r2.3.1 ###
+
+* Fix NPE enabling WebVTT subtitles in DASH streams
+  ([#2596](https://github.com/google/ExoPlayer/issues/2596)).
+* Fix skipping to keyframes when MediaCodecVideoRenderer is enabled but without
+  a Surface ([#2575](https://github.com/google/ExoPlayer/issues/2575)).
+* Minor fix for CEA-708 decoder
+  ([#2595](https://github.com/google/ExoPlayer/issues/2595)).
+
 ### r2.3.0 ###
 
 * GVR extension: Wraps the Google VR Audio SDK to provide spatial audio
