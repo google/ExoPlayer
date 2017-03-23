@@ -133,8 +133,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized byte[] downloadLicense(DrmInitData drmInitData) throws IOException,
       InterruptedException, DrmSessionException {
     Assertions.checkArgument(drmInitData != null);
-    blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, drmInitData);
-    return drmSessionManager.getOfflineLicenseKeySetId();
+    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, drmInitData);
   }
 
   /**
@@ -147,8 +146,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized byte[] renewLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, null);
-    return drmSessionManager.getOfflineLicenseKeySetId();
+    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, null);
   }
 
   /**
@@ -173,34 +171,43 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    DrmSession<T> session = openBlockingKeyRequest(DefaultDrmSessionManager.MODE_QUERY,
+    DrmSession<T> drmSession = openBlockingKeyRequest(DefaultDrmSessionManager.MODE_QUERY,
         offlineLicenseKeySetId, null);
+    DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
-        WidevineUtil.getLicenseDurationRemainingSec(drmSessionManager);
-    drmSessionManager.releaseSession(session);
+        WidevineUtil.getLicenseDurationRemainingSec(drmSession);
+    drmSessionManager.releaseSession(drmSession);
+    if (error != null) {
+      if (error.getCause() instanceof KeysExpiredException) {
+        return Pair.create(0L, 0L);
+      }
+      throw error;
+    }
     return licenseDurationRemainingSec;
   }
 
-  private void blockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
+  private byte[] blockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
       DrmInitData drmInitData) throws DrmSessionException {
-    DrmSession<T> session = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId,
+    DrmSession<T> drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId,
         drmInitData);
-    DrmSessionException error = session.getError();
+    DrmSessionException error = drmSession.getError();
+    byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
+    drmSessionManager.releaseSession(drmSession);
     if (error != null) {
       throw error;
     }
-    drmSessionManager.releaseSession(session);
+    return keySetId;
   }
 
   private DrmSession<T> openBlockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
       DrmInitData drmInitData) {
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
-    DrmSession<T> session = drmSessionManager.acquireSession(handlerThread.getLooper(),
+    DrmSession<T> drmSession = drmSessionManager.acquireSession(handlerThread.getLooper(),
         drmInitData);
     // Block current thread until key loading is finished
     conditionVariable.block();
-    return session;
+    return drmSession;
   }
 
 }
