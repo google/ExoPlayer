@@ -483,7 +483,7 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private void handleC2Command(int command) {
     // C2 Table doesn't contain any commands in CEA-708-B, but we do need to skip bytes
-    if (command <= 0x0F) {
+    if (command <= 0x07) {
       // Do nothing.
     } else if (command <= 0x0F) {
       serviceBlockPacket.skipBits(8);
