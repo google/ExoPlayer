@@ -28,7 +28,11 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.exoplayer2.core.BuildConfig;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.ParsableBitArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class DvbSubtitlesParser {
@@ -111,17 +115,15 @@ public class DvbSubtitlesParser {
 
     /* Constants */
     private static final int UNDEF_PAGE = -1;
-    private final int NUM_BITMAPS = 4;
 
     /* instance variables */
-    private Paint defaultPaintObject = new Paint();
-    private Paint fillRegionPaintObject = new Paint();
-    private Paint debugRegionPaintObject = new Paint();
-    private Paint debugObjectPaintObject = new Paint();
-    private Canvas[] canvasObjects = new Canvas[NUM_BITMAPS];
-    private Bitmap[] bitmaps = new Bitmap[NUM_BITMAPS];
-    private Bitmap lastValidBitmap;
-    private int currentBitmap = 0;
+    private Paint defaultPaint = new Paint();
+    private Paint fillRegionPaint = new Paint();
+    private Paint debugRegionPaint = new Paint();
+    private Paint debugObjectPaint = new Paint();
+    private Canvas canvas = new Canvas();
+    private Bitmap bitmap;
+
     private static ParsableBitArray tsStream;
     private SubtitleService subtitleService;
 
@@ -133,13 +135,13 @@ public class DvbSubtitlesParser {
         // subtitle page
         DisplayDefinition displayDefinition;
         PageComposition pageComposition;
-        SparseArray<RegionComposition> regions = new SparseArray<RegionComposition>();
-        SparseArray<ClutDefinition> cluts = new SparseArray<ClutDefinition>();
-        SparseArray<ObjectData> objects = new SparseArray<ObjectData>();
+        SparseArray<RegionComposition> regions = new SparseArray<>();
+        SparseArray<ClutDefinition> cluts = new SparseArray<>();
+        SparseArray<ObjectData> objects = new SparseArray<>();
 
         // ancillary page
-        SparseArray<ClutDefinition> ancillaryCluts = new SparseArray<ClutDefinition>();
-        SparseArray<ObjectData> ancillaryObjects = new SparseArray<ObjectData>();
+        SparseArray<ClutDefinition> ancillaryCluts = new SparseArray<>();
+        SparseArray<ObjectData> ancillaryObjects = new SparseArray<>();
     }
 
     /* The displays dimensions [7.2.1] */
@@ -157,11 +159,9 @@ public class DvbSubtitlesParser {
         int displayWindowVerticalPositionMaximum = 575;
 
         void updateBitmapResolution() {
-            for (int i = 0; i < NUM_BITMAPS; i++) {
-                bitmaps[i] = Bitmap.createBitmap(this.displayWidth + 1, this.displayHeight + 1,
-                        Bitmap.Config.ARGB_8888);
-                canvasObjects[i] = new Canvas(bitmaps[i]);
-            }
+            bitmap = Bitmap.createBitmap(this.displayWidth + 1, this.displayHeight + 1,
+                    Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(bitmap);
         }
     }
 
@@ -171,7 +171,7 @@ public class DvbSubtitlesParser {
         int pageTimeOut; /* in seconds */
         int pageVersionNumber;
         int pageState;
-        SparseArray<PageRegion> pageRegions = new SparseArray<PageRegion>();
+        SparseArray<PageRegion> pageRegions = new SparseArray<>();
     }
 
     private class PageRegion {
@@ -196,6 +196,7 @@ public class DvbSubtitlesParser {
         int region4bitPixelCode;
         int region2bitPixelCode;
         SparseArray<RegionObject> regionObjects = new SparseArray<>();
+        Cue cue;
     }
 
     /* The entry in the palette CLUT */
@@ -435,30 +436,27 @@ public class DvbSubtitlesParser {
         this.subtitleService = new SubtitleService();
         this.flags = flags;
 
-        this.defaultPaintObject.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.defaultPaintObject.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-        this.defaultPaintObject.setPathEffect(null);
+        this.defaultPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.defaultPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+        this.defaultPaint.setPathEffect(null);
 
-        this.fillRegionPaintObject.setStyle(Paint.Style.FILL);
-        this.fillRegionPaintObject.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-        this.fillRegionPaintObject.setPathEffect(null);
+        this.fillRegionPaint.setStyle(Paint.Style.FILL);
+        this.fillRegionPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+        this.fillRegionPaint.setPathEffect(null);
 
-        this.debugRegionPaintObject.setColor(0xff00ff00);
-        this.debugRegionPaintObject.setStyle(Paint.Style.STROKE);
-        this.debugRegionPaintObject.setPathEffect(new DashPathEffect(new float[] {2,2}, 0));
+        this.debugRegionPaint.setColor(0xff00ff00);
+        this.debugRegionPaint.setStyle(Paint.Style.STROKE);
+        this.debugRegionPaint.setPathEffect(new DashPathEffect(new float[] {2,2}, 0));
 
-        this.debugObjectPaintObject.setColor(0xffff0000);
-        this.debugObjectPaintObject.setStyle(Paint.Style.STROKE);
-        this.debugObjectPaintObject.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
+        this.debugObjectPaint.setColor(0xffff0000);
+        this.debugObjectPaint.setStyle(Paint.Style.STROKE);
+        this.debugObjectPaint.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
 
         this.subtitleService.subtitlePage = subtitlePage;
         this.subtitleService.ancillaryPage = ancillaryPage;
 
         this.subtitleService.displayDefinition = new DisplayDefinition();
         this.subtitleService.displayDefinition.updateBitmapResolution();
-
-        this.currentBitmap = 0;
-        this.lastValidBitmap = bitmaps[currentBitmap];
     }
 
     private void parseSubtitlingSegment() {
@@ -492,7 +490,6 @@ public class DvbSubtitlesParser {
                             tempDisplay.flags != subtitleService.displayDefinition.flags) {
                         subtitleService.displayDefinition = tempDisplay;
                         subtitleService.displayDefinition.updateBitmapResolution();
-                        lastValidBitmap = bitmaps[currentBitmap];
                     } else {
                         subtitleService.displayDefinition.versionNumber = tempDisplay.versionNumber;
                     }
@@ -938,7 +935,7 @@ public class DvbSubtitlesParser {
 
         ObjectData object = new ObjectData();
         object.pageId = tsStream.readBits(16);
-        int remainingSegmentLength = tsStream.readBits(16);
+        tsStream.skipBits(16); // remainingSegmentLength
         object.objectId = tsStream.readBits(16);
         object.objectVersionNumber = tsStream.readBits(4);
         object.objectCodingMethod = tsStream.readBits(2);
@@ -947,21 +944,17 @@ public class DvbSubtitlesParser {
         }
         tsStream.skipBits(1);
 
-        remainingSegmentLength -= 3;
         if (object.objectCodingMethod == DVBSUB_ODS_CHAR_CODED) {
             /* not implemented yet */
             object.numberOfCodes = tsStream.readBits(8);
             tsStream.skipBits(object.numberOfCodes * 16);
-            remainingSegmentLength -= object.numberOfCodes * 2;
         } else if (object.objectCodingMethod == DVBSUB_ODS_PIXEL_CODED) {
             object.topFieldDataLength = tsStream.readBits(16);
             object.bottomFieldDataLength = tsStream.readBits(16);
-            remainingSegmentLength -= 4;
 
             object.topFieldData = new byte[object.topFieldDataLength];
             System.arraycopy(tsStream.data, tsStream.getPosition() / 8, object.topFieldData, 0, object.topFieldDataLength);
             tsStream.skipBits(object.topFieldDataLength * 8);
-            remainingSegmentLength -= object.topFieldDataLength;
 
             object.bottomFieldData = new byte[object.bottomFieldDataLength];
             if (object.bottomFieldDataLength == 0) {
@@ -970,8 +963,6 @@ public class DvbSubtitlesParser {
                 System.arraycopy(tsStream.data, tsStream.getPosition() / 8, object.bottomFieldData, 0, object.bottomFieldDataLength);
                 tsStream.skipBits(object.bottomFieldDataLength * 8);
             }
-            remainingSegmentLength -= object.bottomFieldDataLength;
-
         }
 
         return object;
@@ -1190,9 +1181,9 @@ public class DvbSubtitlesParser {
             if (runLength != 0 && paint) {
                 colour = clutMapTable != null ? clutEntries[clutMapTable[clutIdx]].ARGB
                         : clutEntries[clutIdx].ARGB;
-                defaultPaintObject.setColor(colour);
-                canvasObjects[currentBitmap].drawRect(
-                        column, line, column + runLength, line + lineHeigth, defaultPaintObject);
+                defaultPaint.setColor(colour);
+                canvas.drawRect(
+                        column, line, column + runLength, line + lineHeigth, defaultPaint);
             }
 
             column += runLength;
@@ -1292,9 +1283,9 @@ public class DvbSubtitlesParser {
             if (runLength != 0 && paint) {
                 colour = clutMapTable != null ? clutEntries[clutMapTable[clutIdx]].ARGB
                         : clutEntries[clutIdx].ARGB;
-                defaultPaintObject.setColor(colour);
-                canvasObjects[currentBitmap].drawRect(
-                        column, line, column + runLength, line + lineHeigth, defaultPaintObject);
+                defaultPaint.setColor(colour);
+                canvas.drawRect(
+                        column, line, column + runLength, line + lineHeigth, defaultPaint);
             }
 
             column += runLength;
@@ -1359,9 +1350,9 @@ public class DvbSubtitlesParser {
             if (runLength != 0 && paint) {
                 colour = clutMapTable != null ? clutEntries[clutMapTable[clutIdx]].ARGB
                         : clutEntries[clutIdx].ARGB;
-                defaultPaintObject.setColor(colour);
-                canvasObjects[currentBitmap].drawRect(
-                        column, line, column + runLength, line + lineHeigth, defaultPaintObject);
+                defaultPaint.setColor(colour);
+                canvas.drawRect(
+                        column, line, column + runLength, line + lineHeigth, defaultPaint);
             }
 
             column += runLength;
@@ -1370,7 +1361,7 @@ public class DvbSubtitlesParser {
         return column - savedColumn;
     }
 
-    public Bitmap dvbSubsDecode(byte[] input, int inputSize) {
+    List<Cue> dvbSubsDecode(byte[] input, int inputSize) {
 
         /* process PES PACKET. ETSI EN 300 743 7.1
 
@@ -1416,6 +1407,7 @@ public class DvbSubtitlesParser {
         if (sync == 0xff || (isSet(FLAG_PES_STRIPPED_DVBSUB) && tsStream.bitsLeft() == 0)) { // end_of_PES_data_field_marker
             // paint the current Subtitle definition
             if (subtitleService.pageComposition != null) {
+                List<Cue> cueList = new ArrayList<>();
 
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Rendering subtitle. w: " + subtitleService.displayDefinition.displayWidth +
@@ -1456,7 +1448,7 @@ public class DvbSubtitlesParser {
                     }
 
                     // clip object drawing to the current region and display definition window
-                    canvasObjects[currentBitmap].clipRect(
+                    canvas.clipRect(
                             baseHorizontalAddress, baseVerticalAddress,
                             Math.min(baseHorizontalAddress + regionComposition.regionWidth,
                                     subtitleService.displayDefinition.displayWindowHorizontalPositionMaximum),
@@ -1470,26 +1462,6 @@ public class DvbSubtitlesParser {
                         }
                     }
 
-                    // fill the region if needed
-                    if ((regionComposition.flags & REGION_FILL_FLAG )!= 0) {
-                        int colour;
-                        if (regionComposition.regionDepth == DVBSUB_RCS_BITDEPTH_8) {
-                            colour = clut.clutEntries8bit[regionComposition.region8bitPixelCode].ARGB;
-                        } else if (regionComposition.regionDepth == DVBSUB_RCS_BITDEPTH_4) {
-                            colour = clut.clutEntries4bit[regionComposition.region4bitPixelCode].ARGB;
-                        } else {
-                            colour = clut.clutEntries2bit[regionComposition.region2bitPixelCode].ARGB;
-                        }
-
-                        fillRegionPaintObject.setColor(colour);
-                        canvasObjects[currentBitmap].drawRect(
-                                baseHorizontalAddress, baseVerticalAddress,
-                                baseHorizontalAddress + regionComposition.regionWidth ,
-                                baseVerticalAddress + regionComposition.regionHeight,
-                                fillRegionPaintObject);
-
-                    }
-
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "    Region: " + regionKey + " (x/y/w/h): (" +
                                 baseHorizontalAddress + "/" + baseVerticalAddress + "/" +
@@ -1497,11 +1469,11 @@ public class DvbSubtitlesParser {
                                 (baseVerticalAddress + regionComposition.regionHeight - 1) + ")"
                         );
 
-                        canvasObjects[currentBitmap].drawRect(
+                        canvas.drawRect(
                                 baseHorizontalAddress, baseVerticalAddress,
                                 baseHorizontalAddress + regionComposition.regionWidth - 1,
                                 baseVerticalAddress + regionComposition.regionHeight - 1,
-                                debugRegionPaintObject);
+                                debugRegionPaint);
                     }
 
                     RegionObject regionObject;
@@ -1517,12 +1489,12 @@ public class DvbSubtitlesParser {
                                     (baseVerticalAddress + regionObject.objectVerticalPosition) + ")"
                             );
 
-                            canvasObjects[currentBitmap].drawRect(
+                            canvas.drawRect(
                                     baseHorizontalAddress + regionObject.objectHorizontalPosition,
                                     baseVerticalAddress + regionObject.objectVerticalPosition,
                                     baseHorizontalAddress + regionObject.objectHorizontalPosition + regionComposition.regionWidth - 1,
                                     baseVerticalAddress + regionObject.objectVerticalPosition + regionComposition.regionHeight - 1,
-                                    debugObjectPaintObject);
+                                    debugObjectPaint);
                         }
 
                         if ((object = subtitleService.objects.get(regionObject.objectId)) == null) {
@@ -1536,18 +1508,41 @@ public class DvbSubtitlesParser {
                                 baseVerticalAddress + regionObject.objectVerticalPosition);
 
                     }
+
+                    // fill the region if needed
+                    if ((regionComposition.flags & REGION_FILL_FLAG )!= 0) {
+                        int colour;
+                        if (regionComposition.regionDepth == DVBSUB_RCS_BITDEPTH_8) {
+                            colour = clut.clutEntries8bit[regionComposition.region8bitPixelCode].ARGB;
+                        } else if (regionComposition.regionDepth == DVBSUB_RCS_BITDEPTH_4) {
+                            colour = clut.clutEntries4bit[regionComposition.region4bitPixelCode].ARGB;
+                        } else {
+                            colour = clut.clutEntries2bit[regionComposition.region2bitPixelCode].ARGB;
+                        }
+
+                        fillRegionPaint.setColor(colour);
+
+                        canvas.drawRect(
+                                baseHorizontalAddress, baseVerticalAddress,
+                                baseHorizontalAddress + regionComposition.regionWidth ,
+                                baseVerticalAddress + regionComposition.regionHeight,
+                                fillRegionPaint);
+
+                    }
+
+                    Bitmap cueBitmap = Bitmap.createBitmap(bitmap,
+                            baseHorizontalAddress, baseVerticalAddress,
+                            regionComposition.regionWidth, regionComposition.regionHeight);
+                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                    regionComposition.cue = new Cue(cueBitmap,
+                            (float) baseHorizontalAddress / subtitleService.displayDefinition.displayWidth, Cue.ANCHOR_TYPE_START,
+                            (float) baseVerticalAddress / subtitleService.displayDefinition.displayHeight, Cue.ANCHOR_TYPE_START,
+                            (float) regionComposition.regionWidth / subtitleService.displayDefinition.displayWidth,
+                            (float) subtitleService.displayDefinition.displayWidth / subtitleService.displayDefinition.displayHeight);
+                    cueList.add(regionComposition.cue);
                 }
 
-                lastValidBitmap = bitmaps[currentBitmap];
-                currentBitmap = (currentBitmap + 1) % NUM_BITMAPS;
-                canvasObjects[currentBitmap].clipRect(0,0,
-                        subtitleService.displayDefinition.displayWidth,
-                        subtitleService.displayDefinition.displayHeight,
-                        Region.Op.REPLACE);
-                canvasObjects[currentBitmap].drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
-                return lastValidBitmap;
-            }
+                return cueList;            }
         } else {
             Log.d(TAG,"Unexpected...");
         }
