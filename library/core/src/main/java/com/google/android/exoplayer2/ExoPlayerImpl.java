@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
@@ -57,6 +58,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private Object manifest;
   private TrackGroupArray trackGroups;
   private TrackSelectionArray trackSelections;
+  private PlaybackParameters playbackParameters;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -87,6 +89,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     period = new Timeline.Period();
     trackGroups = TrackGroupArray.EMPTY;
     trackSelections = emptyTrackSelections;
+    playbackParameters = PlaybackParameters.DEFAULT;
     eventHandler = new Handler() {
       @Override
       public void handleMessage(Message msg) {
@@ -194,6 +197,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
         listener.onPositionDiscontinuity();
       }
     }
+  }
+
+  @Override
+  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
+    if (playbackParameters == null) {
+      playbackParameters = PlaybackParameters.DEFAULT;
+    }
+    internalPlayer.setPlaybackParameters(playbackParameters);
+  }
+
+  @Override
+  public PlaybackParameters getPlaybackParameters() {
+    return playbackParameters;
   }
 
   @Override
@@ -376,6 +392,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
+      case ExoPlayerImplInternal.MSG_PLAYBACK_PARAMETERS_CHANGED: {
+        PlaybackParameters playbackParameters = (PlaybackParameters) msg.obj;
+        if (!this.playbackParameters.equals(playbackParameters)) {
+          this.playbackParameters = playbackParameters;
+          for (EventListener listener : listeners) {
+            listener.onPlaybackParametersChanged(playbackParameters);
+          }
+        }
+        break;
+      }
       case ExoPlayerImplInternal.MSG_ERROR: {
         ExoPlaybackException exception = (ExoPlaybackException) msg.obj;
         for (EventListener listener : listeners) {
@@ -383,6 +409,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
+      default:
+        throw new IllegalStateException();
     }
   }
 

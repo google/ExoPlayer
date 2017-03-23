@@ -310,6 +310,18 @@ public final class Util {
   }
 
   /**
+   * Constrains a value to the specified bounds.
+   *
+   * @param value The value to constrain.
+   * @param min The lower bound.
+   * @param max The upper bound.
+   * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
+   */
+  public static float constrainValue(float value, float min, float max) {
+    return Math.max(min, Math.min(value, max));
+  }
+
+  /**
    * Returns the index of the largest element in {@code array} that is less than (or optionally
    * equal to) a specified {@code value}.
    * <p>

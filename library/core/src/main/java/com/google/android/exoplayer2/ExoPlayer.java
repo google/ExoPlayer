@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -167,6 +168,16 @@ public interface ExoPlayer {
      * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
      */
     void onPositionDiscontinuity();
+
+    /**
+     * Called when the current playback parameters change. The playback parameters may change due to
+     * a call to {@link ExoPlayer#setPlaybackParameters(PlaybackParameters)}, or the player itself
+     * may change them (for example, if audio playback switches to passthrough mode, where speed
+     * adjustment is no longer possible).
+     *
+     * @param playbackParameters The playback parameters.
+     */
+    void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
 
   }
 
@@ -339,6 +350,28 @@ public interface ExoPlayer {
    *     the window's default position.
    */
   void seekTo(int windowIndex, long positionMs);
+
+  /**
+   * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
+   * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
+   * <p>
+   * Playback parameters changes may cause the player to buffer.
+   * {@link EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever
+   * the currently active playback parameters change. When that listener is called, the parameters
+   * passed to it may not match {@code playbackParameters}. For example, the chosen speed or pitch
+   * may be out of range, in which case they are constrained to a set of permitted values. If it is
+   * not possible to change the playback parameters, the listener will not be invoked.
+   *
+   * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
+   */
+  void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
+
+  /**
+   * Returns the currently active playback parameters.
+   *
+   * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)
+   */
+  PlaybackParameters getPlaybackParameters();
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention

@@ -482,15 +482,6 @@ public final class C {
   /**
    * A type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be a {@link android.media.PlaybackParams}, or null, which will be used to configure the
-   * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
-   * caller after it has been passed.
-   */
-  public static final int MSG_SET_PLAYBACK_PARAMS = 3;
-
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be one of the integer stream types in {@link C.StreamType}, and will specify the stream
    * type of the underlying {@link android.media.AudioTrack}. See also
    * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}. If the stream type
@@ -500,7 +491,7 @@ public final class C {
    * introduce a brief gap in audio output. Note also that tracks in the same audio session must
    * share the same routing, so a new audio session id will be generated.
    */
-  public static final int MSG_SET_STREAM_TYPE = 4;
+  public static final int MSG_SET_STREAM_TYPE = 3;
 
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
@@ -510,7 +501,7 @@ public final class C {
    * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
    * owned by a {@link android.view.SurfaceView}.
    */
-  public static final int MSG_SET_SCALING_MODE = 5;
+  public static final int MSG_SET_SCALING_MODE = 4;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
