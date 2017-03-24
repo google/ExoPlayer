@@ -528,6 +528,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Sets whether the time bar should show all windows, as opposed to just the current one.
+   *
+   * @param showMultiWindowTimeBar Whether to show all windows.
+   */
+  public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
+    Assertions.checkState(controller != null);
+    controller.setShowMultiWindowTimeBar(showMultiWindowTimeBar);
+  }
+
+  /**
    * Gets the view onto which video is rendered. This is either a {@link SurfaceView} (default)
    * or a {@link TextureView} if the {@code use_texture_view} view attribute has been set to true.
    *

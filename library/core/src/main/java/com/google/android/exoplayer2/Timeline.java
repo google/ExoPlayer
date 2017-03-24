@@ -383,18 +383,24 @@ public abstract class Timeline {
      */
     public long durationUs;
 
+    /**
+     * Whether this period contains an ad.
+     */
+    public boolean isAd;
+
     private long positionInWindowUs;
 
     /**
      * Sets the data held by this period.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs) {
+        long positionInWindowUs, boolean isAd) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
+      this.isAd = isAd;
       return this;
     }
 
