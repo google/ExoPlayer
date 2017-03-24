@@ -158,6 +158,7 @@ public final class LoopingMediaSource implements MediaSource {
       int periodIndexOffset = loopCount * childPeriodCount;
       return childTimeline.getIndexOfPeriod(loopCountAndChildUid.second) + periodIndexOffset;
     }
+
   }
 
 }

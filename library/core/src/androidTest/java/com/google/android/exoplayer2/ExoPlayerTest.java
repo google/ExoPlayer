@@ -334,7 +334,7 @@ public final class ExoPlayerTest extends TestCase {
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       TimelineWindowDefinition windowDefinition = windowDefinitions[periodIndex];
       Object id = setIds ? periodIndex : null;
-      return period.set(id, id, periodIndex, windowDefinition.durationUs, 0);
+      return period.set(id, id, periodIndex, windowDefinition.durationUs, 0, false);
     }
 
     @Override

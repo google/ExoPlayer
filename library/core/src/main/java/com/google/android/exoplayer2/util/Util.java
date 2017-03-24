@@ -45,6 +45,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -306,6 +307,18 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static int constrainValue(int value, int min, int max) {
+    return Math.max(min, Math.min(value, max));
+  }
+
+  /**
+   * Constrains a value to the specified bounds.
+   *
+   * @param value The value to constrain.
+   * @param min The lower bound.
+   * @param max The upper bound.
+   * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
+   */
+  public static long constrainValue(long value, long min, long max) {
     return Math.max(min, Math.min(value, max));
   }
 
@@ -833,6 +846,27 @@ public final class Util {
     } else {
       return C.TYPE_OTHER;
     }
+  }
+
+  /**
+   * Returns the specified millisecond time formatted as a string.
+   *
+   * @param builder The builder that {@code formatter} will write to.
+   * @param formatter The formatter.
+   * @param timeMs The time to format as a string, in milliseconds.
+   * @return The time formatted as a string.
+   */
+  public static String getStringForTime(StringBuilder builder, Formatter formatter, long timeMs) {
+    if (timeMs == C.TIME_UNSET) {
+      timeMs = 0;
+    }
+    long totalSeconds = (timeMs + 500) / 1000;
+    long seconds = totalSeconds % 60;
+    long minutes = (totalSeconds / 60) % 60;
+    long hours = totalSeconds / 3600;
+    builder.setLength(0);
+    return hours > 0 ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString()
+        : formatter.format("%02d:%02d", minutes, seconds).toString();
   }
 
   /**

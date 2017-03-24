@@ -648,7 +648,7 @@ public final class DashMediaSource implements MediaSource {
           + Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount()) : null;
       return period.set(id, uid, 0, manifest.getPeriodDurationUs(periodIndex),
           C.msToUs(manifest.getPeriod(periodIndex).startMs - manifest.getPeriod(0).startMs)
-              - offsetInFirstPeriodUs);
+              - offsetInFirstPeriodUs, false);
     }
 
     @Override

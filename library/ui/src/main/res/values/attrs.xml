@@ -59,4 +59,16 @@
     <attr name="controller_layout_id"/>
   </declare-styleable>
 
+  <declare-styleable name="DefaultTimeBar">
+    <attr name="bar_height" format="dimension"/>
+    <attr name="touch_target_height" format="dimension"/>
+    <attr name="ad_marker_width" format="dimension"/>
+    <attr name="scrubber_enabled_size" format="dimension"/>
+    <attr name="scrubber_disabled_size" format="dimension"/>
+    <attr name="scrubber_dragged_size" format="dimension"/>
+    <attr name="played_color" format="color"/>
+    <attr name="buffered_color" format="color"/>
+    <attr name="ad_marker_color" format="color"/>
+  </declare-styleable>
+
 </resources>
