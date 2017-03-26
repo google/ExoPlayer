@@ -879,8 +879,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           return false;
         }
       } else {
-        outputIndex = codec.dequeueOutputBuffer(outputBufferInfo,
-            getDequeueOutputBufferTimeoutUs());
+          try{
+            outputIndex = codec.dequeueOutputBuffer(outputBufferInfo,
+              getDequeueOutputBufferTimeoutUs());
+          }catch (Exception e) {
+              //e.printStackTrace();
+              releaseCodec();
+              // Release the codec, as it's in an error state.
+              return false;
+            }
       }
       if (outputIndex >= 0) {
         // We've dequeued a buffer.
