@@ -502,7 +502,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
-    codec.releaseOutputBuffer(bufferIndex, true);
+    try {
+      codec.releaseOutputBuffer(bufferIndex, true);
+    } catch (Exception e) {
+      // ignore release error
+      e.printStackTrace();
+    }
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
