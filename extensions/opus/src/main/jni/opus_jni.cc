@@ -110,7 +110,7 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
   int16_t* outputBufferData = reinterpret_cast<int16_t*>(
       env->GetDirectBufferAddress(jOutputBufferData));
   int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
-      outputBufferData, outputSize, 0);
+      outputBufferData, inputSampleCount, 0);
   // record error code
   errorCode = (sampleCount < 0) ? sampleCount : 0;
   return (sampleCount < 0) ? sampleCount
