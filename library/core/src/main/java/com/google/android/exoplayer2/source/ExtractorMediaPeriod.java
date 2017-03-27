@@ -301,7 +301,7 @@ import java.io.IOException;
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < trackCount; i++) {
       if (trackEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs);
+        seekInsideBuffer = sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs, false);
       }
     }
     // If we failed to seek within the sample queues, we need to restart.
@@ -338,6 +338,10 @@ import java.io.IOException;
 
     return sampleQueues.valueAt(track).readData(formatHolder, buffer, formatRequired,
         loadingFinished, lastSeekPositionUs);
+  }
+
+  /* package */ void skipToKeyframeBefore(int track, long timeUs) {
+    sampleQueues.valueAt(track).skipToKeyframeBefore(timeUs, true);
   }
 
   // Loader.Callback implementation.
@@ -566,7 +570,7 @@ import java.io.IOException;
 
     @Override
     public void skipToKeyframeBefore(long timeUs) {
-      sampleQueues.valueAt(track).skipToKeyframeBefore(timeUs);
+      ExtractorMediaPeriod.this.skipToKeyframeBefore(track, timeUs);
     }
 
   }
