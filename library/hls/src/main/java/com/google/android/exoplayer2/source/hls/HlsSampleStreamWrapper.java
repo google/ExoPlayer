@@ -313,7 +313,7 @@ import java.util.LinkedList;
   }
 
   /* package */ void skipToKeyframeBefore(int group, long timeUs) {
-    sampleQueues.valueAt(group).skipToKeyframeBefore(timeUs);
+    sampleQueues.valueAt(group).skipToKeyframeBefore(timeUs, true);
   }
 
   private boolean finishedReadingChunk(HlsMediaChunk chunk) {

@@ -229,20 +229,6 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   /**
    * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
-   * contains a keyframe with a timestamp of {@code timeUs} or earlier, and if {@code timeUs} falls
-   * within the currently buffered media.
-   * <p>
-   * This method is equivalent to {@code skipToKeyframeBefore(timeUs, false)}.
-   *
-   * @param timeUs The seek time.
-   * @return Whether the skip was successful.
-   */
-  public boolean skipToKeyframeBefore(long timeUs) {
-    return skipToKeyframeBefore(timeUs, false);
-  }
-
-  /**
-   * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
    * contains a keyframe with a timestamp of {@code timeUs} or earlier. If
    * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
    * falls within the buffer.
