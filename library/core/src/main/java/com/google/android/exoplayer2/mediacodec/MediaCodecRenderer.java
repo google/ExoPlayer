@@ -1171,14 +1171,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
   /**
-   * Returns whether the decoder is known to be non adaptive.
+   * Returns whether the decoder is known to be non Adaptive.
    * <p>
    * If false is returned then we explicitly override codecIsAdaptive,
    * setting it to false.
    *
    * @param name The decoder name.
    * @param format The input format.
-   * @return True if the device is known  to be non adaptiv .
+   * @return False if the device is known  to be non adaptive .
    */
   private static boolean codecSupportsAdaptive(String name, Format format) {
     return !(
