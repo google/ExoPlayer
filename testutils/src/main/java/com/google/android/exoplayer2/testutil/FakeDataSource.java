@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -236,11 +237,14 @@ public final class FakeDataSource implements DataSource {
   /** Container of fake data to be served by a {@link FakeDataSource}. */
   public static final class FakeData {
 
+    /** Uri of the data or null if this is the default FakeData. */
+    public final String uri;
     private final ArrayList<Segment> segments;
     private final FakeDataSet dataSet;
     private boolean simulateUnknownLength;
 
-    public FakeData(FakeDataSet dataSet) {
+    private FakeData(FakeDataSet dataSet, String uri) {
+      this.uri = uri;
       this.segments = new ArrayList<>();
       this.dataSet = dataSet;
     }
@@ -277,32 +281,46 @@ public final class FakeDataSource implements DataSource {
       segments.add(new Segment(null, exception));
       return this;
     }
+
+    /** Returns the whole data added by {@link #appendReadData(byte[])}. */
+    public byte[] getData() {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      for (Segment segment : segments) {
+        if (segment.data != null) {
+          try {
+            outputStream.write(segment.data);
+          } catch (IOException e) {
+            throw new IllegalStateException(e);
+          }
+        }
+      }
+      return outputStream.toByteArray();
+    }
   }
 
   /** A set of {@link FakeData} instances. */
   public static final class FakeDataSet {
 
-    private FakeData defaultData;
     private final HashMap<String, FakeData> dataMap;
+    private FakeData defaultData;
 
     public FakeDataSet() {
       dataMap = new HashMap<>();
     }
 
     public FakeData newDefaultData() {
-      defaultData = new FakeData(this);
+      defaultData = new FakeData(this, null);
       return defaultData;
     }
 
     public FakeData newData(String uri) {
-      FakeData data = new FakeData(this);
+      FakeData data = new FakeData(this, uri);
       dataMap.put(uri, data);
       return data;
     }
 
     public FakeDataSet setData(String uri, byte[] data) {
-      newData(uri).appendReadData(data);
-      return this;
+      return newData(uri).appendReadData(data).endData();
     }
 
     public FakeData getData(String uri) {
@@ -310,6 +328,13 @@ public final class FakeDataSource implements DataSource {
       return data != null ? data : defaultData;
     }
 
+    public ArrayList<FakeData> getAllData() {
+      ArrayList<FakeData> fakeDatas = new ArrayList<>(dataMap.values());
+      if (defaultData != null) {
+        fakeDatas.add(defaultData);
+      }
+      return fakeDatas;
+    }
   }
 
 }
