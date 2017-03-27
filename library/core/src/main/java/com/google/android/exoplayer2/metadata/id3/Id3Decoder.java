@@ -64,6 +64,15 @@ public final class Id3Decoder implements MetadataDecoder {
    */
   public static final int ID3_HEADER_LENGTH = 10;
 
+  private static final int FRAME_FLAG_V3_IS_COMPRESSED = 0x0080;
+  private static final int FRAME_FLAG_V3_IS_ENCRYPTED = 0x0040;
+  private static final int FRAME_FLAG_V3_HAS_GROUP_IDENTIFIER = 0x0020;
+  private static final int FRAME_FLAG_V4_IS_COMPRESSED = 0x0008;
+  private static final int FRAME_FLAG_V4_IS_ENCRYPTED = 0x0004;
+  private static final int FRAME_FLAG_V4_HAS_GROUP_IDENTIFIER = 0x0040;
+  private static final int FRAME_FLAG_V4_IS_UNSYNCHRONIZED = 0x0002;
+  private static final int FRAME_FLAG_V4_HAS_DATA_LENGTH = 0x0001;
+
   private static final int ID3_TEXT_ENCODING_ISO_8859_1 = 0;
   private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
@@ -105,6 +114,7 @@ public final class Id3Decoder implements MetadataDecoder {
     }
 
     int startPosition = id3Data.getPosition();
+    int frameHeaderSize = id3Header.majorVersion == 2 ? 6 : 10;
     int framesSize = id3Header.framesSize;
     if (id3Header.isUnsynchronized) {
       framesSize = removeUnsynchronization(id3Data, id3Header.framesSize);
@@ -112,18 +122,15 @@ public final class Id3Decoder implements MetadataDecoder {
     id3Data.setLimit(startPosition + framesSize);
 
     boolean unsignedIntFrameSizeHack = false;
-    if (id3Header.majorVersion == 4) {
-      if (!validateV4Frames(id3Data, false)) {
-        if (validateV4Frames(id3Data, true)) {
-          unsignedIntFrameSizeHack = true;
-        } else {
-          Log.w(TAG, "Failed to validate V4 ID3 tag");
-          return null;
-        }
+    if (!validateFrames(id3Data, id3Header.majorVersion, frameHeaderSize, false)) {
+      if (id3Header.majorVersion == 4 && validateFrames(id3Data, 4, frameHeaderSize, true)) {
+        unsignedIntFrameSizeHack = true;
+      } else {
+        Log.w(TAG, "Failed to validate ID3 tag with majorVersion=" + id3Header.majorVersion);
+        return null;
       }
     }
 
-    int frameHeaderSize = id3Header.majorVersion == 2 ? 6 : 10;
     while (id3Data.bytesLeft() >= frameHeaderSize) {
       Id3Frame frame = decodeFrame(id3Header.majorVersion, id3Data, unsignedIntFrameSizeHack,
           frameHeaderSize, framePredicate);
@@ -190,18 +197,30 @@ public final class Id3Decoder implements MetadataDecoder {
     return new Id3Header(majorVersion, isUnsynchronized, framesSize);
   }
 
-  private static boolean validateV4Frames(ParsableByteArray id3Data,
-      boolean unsignedIntFrameSizeHack) {
+  private static boolean validateFrames(ParsableByteArray id3Data, int majorVersion,
+      int frameHeaderSize, boolean unsignedIntFrameSizeHack) {
     int startPosition = id3Data.getPosition();
     try {
-      while (id3Data.bytesLeft() >= 10) {
-        int id = id3Data.readInt();
-        int frameSize = id3Data.readUnsignedIntToInt();
-        int flags = id3Data.readUnsignedShort();
+      while (id3Data.bytesLeft() >= frameHeaderSize) {
+        // Read the next frame header.
+        int id;
+        long frameSize;
+        int flags;
+        if (majorVersion >= 3) {
+          id = id3Data.readInt();
+          frameSize = id3Data.readUnsignedInt();
+          flags = id3Data.readUnsignedShort();
+        } else {
+          id = id3Data.readUnsignedInt24();
+          frameSize = id3Data.readUnsignedInt24();
+          flags = 0;
+        }
+        // Validate the frame header and skip to the next one.
         if (id == 0 && frameSize == 0 && flags == 0) {
+          // We've reached zero padding after the end of the final frame.
           return true;
         } else {
-          if (!unsignedIntFrameSizeHack) {
+          if (majorVersion == 4 && !unsignedIntFrameSizeHack) {
             // Parse the data size as a synchsafe integer, as per the spec.
             if ((frameSize & 0x808080L) != 0) {
               return false;
@@ -209,11 +228,21 @@ public final class Id3Decoder implements MetadataDecoder {
             frameSize = (frameSize & 0xFF) | (((frameSize >> 8) & 0xFF) << 7)
                 | (((frameSize >> 16) & 0xFF) << 14) | (((frameSize >> 24) & 0xFF) << 21);
           }
+          boolean hasGroupIdentifier = false;
+          boolean hasDataLength = false;
+          if (majorVersion == 4) {
+            hasGroupIdentifier = (flags & FRAME_FLAG_V4_HAS_GROUP_IDENTIFIER) != 0;
+            hasDataLength = (flags & FRAME_FLAG_V4_HAS_DATA_LENGTH) != 0;
+          } else if (majorVersion == 3) {
+            hasGroupIdentifier = (flags & FRAME_FLAG_V3_HAS_GROUP_IDENTIFIER) != 0;
+            // A V3 frame has data length if and only if it's compressed.
+            hasDataLength = (flags & FRAME_FLAG_V3_IS_COMPRESSED) != 0;
+          }
           int minimumFrameSize = 0;
-          if ((flags & 0x0040) != 0 /* hasGroupIdentifier */) {
+          if (hasGroupIdentifier) {
             minimumFrameSize++;
           }
-          if ((flags & 0x0001) != 0 /* hasDataLength */) {
+          if (hasDataLength) {
             minimumFrameSize += 4;
           }
           if (frameSize < minimumFrameSize) {
@@ -222,7 +251,7 @@ public final class Id3Decoder implements MetadataDecoder {
           if (id3Data.bytesLeft() < frameSize) {
             return false;
           }
-          id3Data.skipBytes(frameSize); // flags
+          id3Data.skipBytes((int) frameSize); // flags
         }
       }
       return true;
@@ -280,16 +309,17 @@ public final class Id3Decoder implements MetadataDecoder {
     boolean hasDataLength = false;
     boolean hasGroupIdentifier = false;
     if (majorVersion == 3) {
-      isCompressed = (flags & 0x0080) != 0;
-      isEncrypted = (flags & 0x0040) != 0;
-      hasGroupIdentifier = (flags & 0x0020) != 0;
+      isCompressed = (flags & FRAME_FLAG_V3_IS_COMPRESSED) != 0;
+      isEncrypted = (flags & FRAME_FLAG_V3_IS_ENCRYPTED) != 0;
+      hasGroupIdentifier = (flags & FRAME_FLAG_V3_HAS_GROUP_IDENTIFIER) != 0;
+      // A V3 frame has data length if and only if it's compressed.
       hasDataLength = isCompressed;
     } else if (majorVersion == 4) {
-      hasGroupIdentifier = (flags & 0x0040) != 0;
-      isCompressed = (flags & 0x0008) != 0;
-      isEncrypted = (flags & 0x0004) != 0;
-      isUnsynchronized = (flags & 0x0002) != 0;
-      hasDataLength = (flags & 0x0001) != 0;
+      hasGroupIdentifier = (flags & FRAME_FLAG_V4_HAS_GROUP_IDENTIFIER) != 0;
+      isCompressed = (flags & FRAME_FLAG_V4_IS_COMPRESSED) != 0;
+      isEncrypted = (flags & FRAME_FLAG_V4_IS_ENCRYPTED) != 0;
+      isUnsynchronized = (flags & FRAME_FLAG_V4_IS_UNSYNCHRONIZED) != 0;
+      hasDataLength = (flags & FRAME_FLAG_V4_HAS_DATA_LENGTH) != 0;
     }
 
     if (isCompressed || isEncrypted) {
