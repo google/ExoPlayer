@@ -34,7 +34,9 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Parse and generate a list of {@link Cue}s from DVB subtitling bitstream
+ */
 public class DvbSubtitlesParser {
 
     private static final String TAG = "DVBSubs";
@@ -104,8 +106,6 @@ public class DvbSubtitlesParser {
             (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
             (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff};
 
-    private ClutDefinition defaultClut = new ClutDefinition();
-
     /* FLAGS */
     private final static int DISPLAY_WINDOW_FLAG               = 0x01;
 
@@ -121,16 +121,19 @@ public class DvbSubtitlesParser {
     private Paint fillRegionPaint = new Paint();
     private Paint debugRegionPaint = new Paint();
     private Paint debugObjectPaint = new Paint();
-    private Canvas canvas = new Canvas();
     private Bitmap bitmap;
+    private Canvas canvas = new Canvas();
+    private ClutDefinition defaultClut = new ClutDefinition();
 
     private static ParsableBitArray tsStream;
     private SubtitleService subtitleService;
 
+    /*
+     * Contains the current subtitle service definition
+     */
     private class SubtitleService {
-        int subtitlePage;
-        int ancillaryPage;
-        boolean newSubtitle = false;
+        int subtitlePageId;
+        int ancillaryPageId;
 
         // subtitle page
         DisplayDefinition displayDefinition;
@@ -144,7 +147,7 @@ public class DvbSubtitlesParser {
         SparseArray<ObjectData> ancillaryObjects = new SparseArray<>();
     }
 
-    /* The displays dimensions [7.2.1] */
+    /* The display definition contains the geometry and active area of the subtitle service [7.2.1] */
     private class DisplayDefinition {
         int pageId;
         int versionNumber;
@@ -165,7 +168,7 @@ public class DvbSubtitlesParser {
         }
     }
 
-    /* The page final static ints the list of regions [7.2.2] */
+    /* The page is the definition and arrangement of regions in the screen [7.2.2] */
     private class PageComposition {
         int pageId;
         int pageTimeOut; /* in seconds */
@@ -174,14 +177,13 @@ public class DvbSubtitlesParser {
         SparseArray<PageRegion> pageRegions = new SparseArray<>();
     }
 
-    private class PageRegion {
-        int regionId;
-        int regionHorizontalAddress;
-        int regionVerticalAddress;
-    }
+        private class PageRegion {
+            int regionId;
+            int regionHorizontalAddress;
+            int regionVerticalAddress;
+        }
 
-    /* The Region is an area on the image [7.2.3]
-    * with a list of the object definitions associated and a CLUT */
+    /* The Region is an area of the page [7.2.3] composed of a list of objects and a CLUT */
     private class RegionComposition {
         int pageId;
         int regionId;
@@ -196,10 +198,27 @@ public class DvbSubtitlesParser {
         int region4bitPixelCode;
         int region2bitPixelCode;
         SparseArray<RegionObject> regionObjects = new SparseArray<>();
+
+        /*
+         * We maintain a reference to the Cue to implement future drawing optimizations, no re-render in case of:
+         *
+         *   - Page updates not affecting region composition (no clut change/redefinition, no object changes)
+         *   - Incremental subtitle display render (e.g. live captions updates)
+         */
         Cue cue;
     }
 
-    /* The entry in the palette CLUT */
+        private class RegionObject {
+            int objectId;
+            int objectType;
+            int objectProvider;
+            int objectHorizontalPosition;
+            int objectVerticalPosition;
+            int foregroundPixelCode;
+            int backgroundPixelCode;
+        }
+
+    /* An entry in the palette CLUT and associated color space translation methods */
     private class ClutEntry {
         int clutEntryId;
         byte flags;
@@ -279,7 +298,7 @@ public class DvbSubtitlesParser {
         }
     }
 
-    /* Colours to be applied in a CLUT family [7.2.4] */
+    /* CLUT family definition containing the color tables for the three bitdepths defined [7.2.4] */
     private class ClutDefinition {
         int pageId;
         int clutId;
@@ -395,8 +414,7 @@ public class DvbSubtitlesParser {
 
     }
 
-    /* The object data segment contains the data of an object [7.2.5]
-    */
+    /* The object data segment contains the textual/graphical representation of an object [7.2.5] */
     private class ObjectData {
         int pageId;
         int objectId;
@@ -410,29 +428,42 @@ public class DvbSubtitlesParser {
         int numberOfCodes;
     }
 
-    private class RegionObject {
-        int objectId;
-        int objectType;
-        int objectProvider;
-        int objectHorizontalPosition;
-        int objectVerticalPosition;
-        int foregroundPixelCode;
-        int backgroundPixelCode;
-    }
-
+    /**
+     * Construct a subtitle service with default subtitle pageId
+     */
     DvbSubtitlesParser() {
         this(1);
     }
 
-    DvbSubtitlesParser(int subtitlePge) {
-        this(subtitlePge, UNDEF_PAGE);
+    /**
+     * Construct a subtitle service for the given subtitle pageId
+     *
+     * @param subtitlePageId The subtitle page Id carrying the selected subtitle track
+     */
+    DvbSubtitlesParser(int subtitlePageId) {
+        this(subtitlePageId, UNDEF_PAGE);
     }
 
-    DvbSubtitlesParser(int subtitlePage, int ancillaryPage) {
-        this(subtitlePage, ancillaryPage, 0);
+    /**
+     * Construct a subtitle service for the given subtitle and ancillary pageIds
+     *
+     * @param subtitlePageId The Id of the subtitle page carrying the selected subtitle track
+     * @param ancillaryPageId Id of the common subtitle page containing additional data for the current
+     *   subtitle track
+     */
+    DvbSubtitlesParser(int subtitlePageId, int ancillaryPageId) {
+        this(subtitlePageId, ancillaryPageId, 0);
     }
 
-    DvbSubtitlesParser(int subtitlePage, int ancillaryPage, @Flags int flags) {
+    /**
+     * Construct a subtitle service for the given subtitle and ancillary pageIds
+     *
+     * @param subtitlePageId The Id of the subtitle page carrying the selected subtitle track
+     * @param ancillaryPageId Id of the common subtitle page containing additional data for the current
+     *   subtitle track
+     * @param flags additional initialisation info to properly configure the parser
+     */
+    DvbSubtitlesParser(int subtitlePageId, int ancillaryPageId, @Flags int flags) {
         this.subtitleService = new SubtitleService();
         this.flags = flags;
 
@@ -452,8 +483,8 @@ public class DvbSubtitlesParser {
         this.debugObjectPaint.setStyle(Paint.Style.STROKE);
         this.debugObjectPaint.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
 
-        this.subtitleService.subtitlePage = subtitlePage;
-        this.subtitleService.ancillaryPage = ancillaryPage;
+        this.subtitleService.subtitlePageId = subtitlePageId;
+        this.subtitleService.ancillaryPageId = ancillaryPageId;
 
         this.subtitleService.displayDefinition = new DisplayDefinition();
         this.subtitleService.displayDefinition.updateBitmapResolution();
@@ -480,7 +511,7 @@ public class DvbSubtitlesParser {
             case DVBSUB_ST_DISPLAY_DEFINITION:
                 if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Display Definition segment.");
                 DisplayDefinition tempDisplay = parseDisplayDefinitionSegment();
-                if (tempDisplay != null && tempDisplay.pageId == subtitleService.subtitlePage) {
+                if (tempDisplay != null && tempDisplay.pageId == subtitleService.subtitlePageId) {
                     if (tempDisplay.displayWidth != subtitleService.displayDefinition.displayWidth ||
                             tempDisplay.displayHeight != subtitleService.displayDefinition.displayHeight ||
                             tempDisplay.displayWindowHorizontalPositionMaximum != subtitleService.displayDefinition.displayWindowHorizontalPositionMaximum ||
@@ -506,7 +537,7 @@ public class DvbSubtitlesParser {
             case DVBSUB_ST_PAGE_COMPOSITION:
                 if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Page Composition segment.");
                 PageComposition tempPage = parsePageCompositionSegment();
-                if (tempPage != null && tempPage.pageId == subtitleService.subtitlePage) {
+                if (tempPage != null && tempPage.pageId == subtitleService.subtitlePageId) {
                     if (tempPage.pageState == DVBSUB_PCS_STATE_NORMAL && subtitleService.pageComposition == null)
                         break;
                     subtitleService.pageComposition = tempPage;
@@ -515,7 +546,7 @@ public class DvbSubtitlesParser {
             case DVBSUB_ST_REGION_COMPOSITION:
                 if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Region Composition segment.");
                 RegionComposition tempRegionComposition = parseRegionCompositionSegment();
-                if (tempRegionComposition != null && tempRegionComposition.pageId == subtitleService.subtitlePage) {
+                if (tempRegionComposition != null && tempRegionComposition.pageId == subtitleService.subtitlePageId) {
                     subtitleService.regions.put(tempRegionComposition.regionId, tempRegionComposition);
                 }
                 break;
@@ -523,9 +554,9 @@ public class DvbSubtitlesParser {
                 if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Clut Definition segment.");
                 ClutDefinition tempClutDefinition = parseClutDefinitionSegment();
                 if (tempClutDefinition != null ) {
-                    if (tempClutDefinition.pageId == subtitleService.subtitlePage) {
+                    if (tempClutDefinition.pageId == subtitleService.subtitlePageId) {
                         subtitleService.cluts.put(tempClutDefinition.clutId, tempClutDefinition);
-                    } else if (tempClutDefinition.pageId == subtitleService.ancillaryPage) {
+                    } else if (tempClutDefinition.pageId == subtitleService.ancillaryPageId) {
                         subtitleService.ancillaryCluts.put(tempClutDefinition.clutId, tempClutDefinition);
                     }
                 }
@@ -534,9 +565,9 @@ public class DvbSubtitlesParser {
                 if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Object Data segment.");
                 ObjectData tempObjectData = parseObjectDataSegment();
                 if (tempObjectData != null) {
-                    if (tempObjectData.pageId == subtitleService.subtitlePage) {
+                    if (tempObjectData.pageId == subtitleService.subtitlePageId) {
                         subtitleService.objects.put(tempObjectData.objectId, tempObjectData);
-                    } else if (tempObjectData.pageId == subtitleService.ancillaryPage) {
+                    } else if (tempObjectData.pageId == subtitleService.ancillaryPageId) {
                         subtitleService.ancillaryObjects.put(tempObjectData.objectId, tempObjectData);
                     }
                 }
@@ -659,7 +690,7 @@ public class DvbSubtitlesParser {
                 );
             }
 
-        } else if (subtitleService.subtitlePage == page.pageId) {
+        } else if (subtitleService.subtitlePageId == page.pageId) {
             if (BuildConfig.DEBUG) {
                 if (page.pageState == DVBSUB_PCS_STATE_NORMAL) {
                     Log.d(TAG, "        FAILED Page Composition update. pageId: " + page.pageId +
@@ -667,7 +698,6 @@ public class DvbSubtitlesParser {
                 }
             }
 
-            subtitleService.newSubtitle = false;
             subtitleService.pageComposition = null;
             subtitleService.regions = new SparseArray<>();
             subtitleService.cluts = new SparseArray<>();
@@ -1361,6 +1391,15 @@ public class DvbSubtitlesParser {
         return column - savedColumn;
     }
 
+    /**
+     * Takes a subtitling packet, parses the included segments and returns the list of {@link Cue}s
+     * defined in them
+     *
+     * @param input
+     * @param inputSize
+     * @return list of {@link Cue}s contained in the packet or null if there is an error or subtitle
+     *   is incomplete
+     */
     List<Cue> dvbSubsDecode(byte[] input, int inputSize) {
 
         /* process PES PACKET. ETSI EN 300 743 7.1
@@ -1542,7 +1581,8 @@ public class DvbSubtitlesParser {
                     cueList.add(regionComposition.cue);
                 }
 
-                return cueList;            }
+                return cueList;
+            }
         } else {
             Log.d(TAG,"Unexpected...");
         }
