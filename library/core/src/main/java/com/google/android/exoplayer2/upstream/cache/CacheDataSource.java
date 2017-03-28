@@ -109,6 +109,15 @@ public final class CacheDataSource implements DataSource {
   private long totalCachedBytesRead;
 
   /**
+   * Generates a cache key out of the given {@link Uri}.
+   *
+   * @param uri Uri of a content which the requested key is for.
+   */
+  public static String generateKey(Uri uri) {
+    return uri.toString();
+  }
+
+  /**
    * Constructs an instance with default {@link DataSource} and {@link DataSink} instances for
    * reading and writing the cache and with {@link #DEFAULT_MAX_CACHE_FILE_SIZE}.
    */
@@ -171,7 +180,7 @@ public final class CacheDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       flags = dataSpec.flags;
-      key = dataSpec.key != null ? dataSpec.key : uri.toString();
+      key = dataSpec.key != null ? dataSpec.key : generateKey(dataSpec.uri);
       readPosition = dataSpec.position;
       currentRequestIgnoresCache = (ignoreCacheOnError && seenCacheError)
           || (dataSpec.length == C.LENGTH_UNSET && ignoreCacheForUnsetLengthRequests);

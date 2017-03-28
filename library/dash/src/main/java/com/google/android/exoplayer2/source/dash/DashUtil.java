@@ -48,14 +48,14 @@ public final class DashUtil {
    * Loads a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
-   * @param manifestUriString The URI of the manifest to be read.
+   * @param manifestUri The URI of the manifest to be read.
    * @return An instance of {@link DashManifest}.
    * @throws IOException Thrown when there is an error while loading.
    */
-  public static DashManifest loadManifest(DataSource dataSource, String manifestUriString)
+  public static DashManifest loadManifest(DataSource dataSource, String manifestUri)
       throws IOException {
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource,
-        new DataSpec(Uri.parse(manifestUriString), DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH));
+        new DataSpec(Uri.parse(manifestUri), DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH));
     try {
       inputStream.open();
       DashManifestParser parser = new DashManifestParser();

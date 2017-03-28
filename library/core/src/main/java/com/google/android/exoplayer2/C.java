@@ -541,8 +541,17 @@ public final class C {
 
   /**
    * Priority for media playback.
+   *
+   * <p>Larger values indicate higher priorities.
    */
   public static final int PRIORITY_PLAYBACK = 0;
+
+  /**
+   * Priority for media downloading.
+   *
+   * <p>Larger values indicate higher priorities.
+   */
+  public static final int PRIORITY_DOWNLOAD = PRIORITY_PLAYBACK - 1000;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
