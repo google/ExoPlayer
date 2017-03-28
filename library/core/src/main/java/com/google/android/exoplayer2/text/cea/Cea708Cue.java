@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
+import android.support.annotation.NonNull;
 import android.text.Layout.Alignment;
 import com.google.android.exoplayer2.text.Cue;
 
@@ -55,7 +56,7 @@ import com.google.android.exoplayer2.text.Cue;
   }
 
   @Override
-  public int compareTo(Cea708Cue other) {
+  public int compareTo(@NonNull Cea708Cue other) {
     if (other.priority < priority) {
       return -1;
     } else if (other.priority > priority) {

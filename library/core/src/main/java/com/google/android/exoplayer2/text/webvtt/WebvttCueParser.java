@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -476,7 +477,7 @@ import java.util.regex.Pattern;
     }
 
     @Override
-    public int compareTo(StyleMatch another) {
+    public int compareTo(@NonNull StyleMatch another) {
       return this.score - another.score;
     }
 

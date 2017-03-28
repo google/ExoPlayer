@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Uniquely identifies a {@link Representation} in a {@link DashManifest}.
@@ -68,7 +69,7 @@ public final class RepresentationKey implements Parcelable, Comparable<Represent
   // Comparable implementation.
 
   @Override
-  public int compareTo(RepresentationKey o) {
+  public int compareTo(@NonNull RepresentationKey o) {
     int result = periodIndex - o.periodIndex;
     if (result == 0) {
       result = adaptationSetIndex - o.adaptationSetIndex;
