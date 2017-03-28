@@ -23,18 +23,18 @@ android {
         consumerProguardFiles 'proguard-rules.txt'
     }
 
+    sourceSets {
+        androidTest {
+            java.srcDirs += "../../testutils/src/main/java/"
+        }
+    }
+
     buildTypes {
         // Re-enable test coverage when the following issue is fixed:
         // https://code.google.com/p/android/issues/detail?id=226070
         // debug {
         //     testCoverageEnabled = true
         // }
-    }
-
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../../testutils/src/main/java/"
-        }
     }
 }
 

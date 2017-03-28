@@ -27,6 +27,12 @@ android {
             java.srcDirs += "../../testutils/src/main/java/"
         }
     }
+
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
 }
 
 dependencies {
