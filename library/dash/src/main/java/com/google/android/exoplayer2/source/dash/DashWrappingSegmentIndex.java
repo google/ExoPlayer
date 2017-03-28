@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
  * An implementation of {@link DashSegmentIndex} that wraps a {@link ChunkIndex} parsed from a
  * media stream.
  */
-/* package */ final class DashWrappingSegmentIndex implements DashSegmentIndex {
+public final class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   private final ChunkIndex chunkIndex;
 

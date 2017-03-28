@@ -28,9 +28,9 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Tests DASH playbacks using {@link ExoPlayer}.
  */
-public final class DashTest extends ActivityInstrumentationTestCase2<HostActivity> {
+public final class DashStreamingTest extends ActivityInstrumentationTestCase2<HostActivity> {
 
-  private static final String TAG = "DashTest";
+  private static final String TAG = "DashStreamingTest";
 
   private static final ActionSchedule SEEKING_SCHEDULE = new ActionSchedule.Builder(TAG)
       .delay(10000).seek(15000)
@@ -72,7 +72,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   
   private DashTestRunner testRunner;
 
-  public DashTest() {
+  public DashStreamingTest() {
     super(HostActivity.class);
   }
 
