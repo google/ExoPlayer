@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text;
 
+import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
@@ -35,7 +36,7 @@ public final class SubtitleInputBuffer extends DecoderInputBuffer
   }
 
   @Override
-  public int compareTo(SubtitleInputBuffer other) {
+  public int compareTo(@NonNull SubtitleInputBuffer other) {
     long delta = timeUs - other.timeUs;
     if (delta == 0) {
       return 0;

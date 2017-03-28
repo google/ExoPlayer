@@ -25,6 +25,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -823,7 +824,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     @Override
-    public void onFrameRendered(MediaCodec codec, long presentationTimeUs, long nanoTime) {
+    public void onFrameRendered(@NonNull MediaCodec codec, long presentationTimeUs, long nanoTime) {
       if (this != tunnelingOnFrameRenderedListener) {
         // Stale event.
         return;

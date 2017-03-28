@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.C;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -61,7 +62,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
 
     @Override
-    public int compareTo(Long relativeStartTimeUs) {
+    public int compareTo(@NonNull Long relativeStartTimeUs) {
       return this.relativeStartTimeUs > relativeStartTimeUs
           ? 1 : (this.relativeStartTimeUs < relativeStartTimeUs ? -1 : 0);
     }

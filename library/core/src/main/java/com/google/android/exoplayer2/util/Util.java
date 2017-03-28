@@ -25,6 +25,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -199,7 +200,7 @@ public final class Util {
   public static ExecutorService newSingleThreadExecutor(final String threadName) {
     return Executors.newSingleThreadExecutor(new ThreadFactory() {
       @Override
-      public Thread newThread(Runnable r) {
+      public Thread newThread(@NonNull Runnable r) {
         return new Thread(r, threadName);
       }
     });

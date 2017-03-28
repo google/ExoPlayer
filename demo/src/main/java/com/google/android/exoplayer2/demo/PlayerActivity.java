@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -184,8 +185,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, String[] permissions,
-      int[] grantResults) {
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+      @NonNull int[] grantResults) {
     if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
       initializePlayer();
     } else {
