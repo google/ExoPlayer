@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.util.Assertions;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 /**
@@ -112,60 +113,39 @@ import java.util.Arrays;
   }
 
   /**
-   * Writes {@code numBytes} from {@code buffer} as input.
+   * Queues remaining data from {@code buffer}, and advances its position by the number of bytes
+   * consumed.
    *
-   * @param buffer A buffer containing input data.
-   * @param numBytes The number of bytes of input data to read from {@code buffer}.
+   * @param buffer A {@link ShortBuffer} containing input data between its position and limit.
    */
-  public void writeBytesToStream(byte[] buffer, int numBytes) {
-    int numSamples = numBytes / (2 * numChannels);
-    short sample;
-
-    enlargeInputBufferIfNeeded(numSamples);
-    int xBuffer = numInputSamples * numChannels;
-    for (int xByte = 0; xByte + 1 < numBytes; xByte += 2) {
-      sample = (short) ((buffer[xByte] & 0xff) | (buffer[xByte + 1] << 8));
-      inputBuffer[xBuffer++] = sample;
-    }
-    numInputSamples += numSamples;
+  public void queueInput(ShortBuffer buffer) {
+    int samplesToWrite = buffer.remaining() / numChannels;
+    int bytesToWrite = samplesToWrite * numChannels * 2;
+    enlargeInputBufferIfNeeded(samplesToWrite);
+    buffer.get(inputBuffer, numInputSamples * numChannels, bytesToWrite / 2);
+    numInputSamples += samplesToWrite;
     processStreamInput();
   }
 
   /**
-   * Reads up to {@code maxBytes} of output into {@code buffer}.
+   * Gets available output, outputting to the start of {@code buffer}. The buffer's position will be
+   * advanced by the number of bytes written.
    *
-   * @param buffer The buffer into which output will be written.
-   * @param maxBytes The maximum number of bytes to write.
-   * @return The number of bytes read from the stream.
+   * @param buffer A {@link ShortBuffer} into which output will be written.
    */
-  public int readBytesFromStream(byte[] buffer, int maxBytes) {
-    int maxSamples = maxBytes / (2 * numChannels);
-    int numSamples = numOutputSamples;
-    int remainingSamples = 0;
-
-    if (numSamples == 0 || maxSamples == 0) {
-      return 0;
-    }
-    if (numSamples > maxSamples) {
-      remainingSamples = numSamples - maxSamples;
-      numSamples = maxSamples;
-    }
-    for (int xSample = 0; xSample < numSamples * numChannels; xSample++) {
-      short sample = outputBuffer[xSample];
-      buffer[xSample << 1] = (byte) (sample & 0xff);
-      buffer[(xSample << 1) + 1] = (byte) (sample >> 8);
-    }
-    System.arraycopy(outputBuffer, numSamples * numChannels, outputBuffer, 0,
-        remainingSamples * numChannels);
-    numOutputSamples = remainingSamples;
-    return 2 * numSamples * numChannels;
+  public void getOutput(ShortBuffer buffer) {
+    int samplesToRead = Math.min(buffer.remaining() / numChannels, numOutputSamples);
+    buffer.put(outputBuffer, 0, samplesToRead * numChannels);
+    numOutputSamples -= samplesToRead;
+    System.arraycopy(outputBuffer, samplesToRead * numChannels, outputBuffer, 0,
+        numOutputSamples * numChannels);
   }
 
   /**
    * Forces generating output using whatever data has been queued already. No extra delay will be
    * added to the output, but flushing in the middle of words could introduce distortion.
    */
-  public void flushStream() {
+  public void queueEndOfStream() {
     int remainingSamples = numInputSamples;
     float s = speed / pitch;
     int expectedOutputSamples =
@@ -189,10 +169,9 @@ import java.util.Arrays;
   }
 
   /**
-   * Returns the number of output samples that can be read with
-   * {@link #readBytesFromStream(byte[], int)}.
+   * Returns the number of output samples that can be read with {@link #getOutput(ShortBuffer)}.
    */
-  public int samplesAvailable() {
+  public int getSamplesAvailable() {
     return numOutputSamples;
   }
 
