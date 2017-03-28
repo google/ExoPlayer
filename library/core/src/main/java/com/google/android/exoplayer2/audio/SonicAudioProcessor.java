@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 
 /**
  * An {@link AudioProcessor} that uses the Sonic library to modify the speed/pitch of audio.
@@ -50,8 +51,6 @@ import java.nio.ByteOrder;
    */
   private static final float CLOSE_THRESHOLD = 0.01f;
 
-  private static final byte[] EMPTY_ARRAY = new byte[0];
-
   private int channelCount;
   private int sampleRateHz;
 
@@ -59,9 +58,9 @@ import java.nio.ByteOrder;
   private float speed;
   private float pitch;
 
-  private byte[] inputArray;
+  private ShortBuffer shortBuffer;
+
   private ByteBuffer buffer;
-  private byte[] bufferArray;
   private ByteBuffer outputBuffer;
   private long inputBytes;
   private long outputBytes;
@@ -76,9 +75,8 @@ import java.nio.ByteOrder;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
     buffer = EMPTY_BUFFER;
+    shortBuffer = buffer.asShortBuffer();
     outputBuffer = EMPTY_BUFFER;
-    inputArray = EMPTY_ARRAY;
-    bufferArray = EMPTY_ARRAY;
   }
 
   /**
@@ -142,31 +140,32 @@ import java.nio.ByteOrder;
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    // TODO: Remove this extra copy.
-    int inputBytesToRead = inputBuffer.remaining();
-    if (inputArray == null || inputArray.length < inputBytesToRead) {
-      inputArray = new byte[inputBytesToRead];
+    if (inputBuffer.hasRemaining()) {
+      ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
+      int inputSize = inputBuffer.remaining();
+      inputBytes += inputSize;
+      sonic.queueInput(shortBuffer);
+      inputBuffer.position(inputBuffer.position() + inputSize);
     }
-    inputBuffer.get(inputArray, 0, inputBytesToRead);
-    sonic.writeBytesToStream(inputArray, inputBytesToRead);
-    int outputSize = sonic.samplesAvailable() * channelCount * 2;
-    if (buffer.capacity() < outputSize) {
-      buffer = ByteBuffer.allocateDirect(outputSize).order(ByteOrder.nativeOrder());
-      bufferArray = new byte[outputSize];
-    } else {
-      buffer.clear();
+    int outputSize = sonic.getSamplesAvailable() * channelCount * 2;
+    if (outputSize > 0) {
+      if (buffer.capacity() < outputSize) {
+        buffer = ByteBuffer.allocateDirect(outputSize).order(ByteOrder.nativeOrder());
+        shortBuffer = buffer.asShortBuffer();
+      } else {
+        buffer.clear();
+        shortBuffer.clear();
+      }
+      sonic.getOutput(shortBuffer);
+      outputBytes += outputSize;
+      buffer.limit(outputSize);
+      outputBuffer = buffer;
     }
-    inputBytes += inputBytesToRead;
-    int outputBytesRead = sonic.readBytesFromStream(bufferArray, outputSize);
-    buffer.put(bufferArray, 0, outputBytesRead);
-    buffer.flip();
-    outputBytes += outputSize;
-    outputBuffer = buffer;
   }
 
   @Override
   public void queueEndOfStream() {
-    sonic.flushStream();
+    sonic.queueEndOfStream();
     inputEnded = true;
   }
 
@@ -179,7 +178,7 @@ import java.nio.ByteOrder;
 
   @Override
   public boolean isEnded() {
-    return inputEnded && (sonic == null || sonic.samplesAvailable() == 0);
+    return inputEnded && (sonic == null || sonic.getSamplesAvailable() == 0);
   }
 
   @Override
@@ -198,8 +197,7 @@ import java.nio.ByteOrder;
     sonic = null;
     buffer = EMPTY_BUFFER;
     outputBuffer = EMPTY_BUFFER;
-    inputArray = EMPTY_ARRAY;
-    bufferArray = EMPTY_ARRAY;
+    shortBuffer = null;
   }
 
 }
