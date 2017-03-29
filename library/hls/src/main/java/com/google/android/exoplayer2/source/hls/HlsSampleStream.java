@@ -50,8 +50,8 @@ import java.io.IOException;
   }
 
   @Override
-  public void skipToKeyframeBefore(long timeUs) {
-    sampleStreamWrapper.skipToKeyframeBefore(group, timeUs);
+  public void skipData(long positionUs) {
+    sampleStreamWrapper.skipData(group, positionUs);
   }
 
 }

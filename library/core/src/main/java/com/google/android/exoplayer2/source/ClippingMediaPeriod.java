@@ -262,8 +262,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     }
 
     @Override
-    public void skipToKeyframeBefore(long timeUs) {
-      stream.skipToKeyframeBefore(startUs + timeUs);
+    public void skipData(long positionUs) {
+      stream.skipData(startUs + positionUs);
     }
 
   }

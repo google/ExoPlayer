@@ -251,8 +251,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
-  public void skipToKeyframeBefore(long timeUs) {
-    primarySampleQueue.skipToKeyframeBefore(timeUs, true);
+  public void skipData(long positionUs) {
+    if (loadingFinished && positionUs > primarySampleQueue.getLargestQueuedTimestampUs()) {
+      primarySampleQueue.skipAll();
+    } else {
+      primarySampleQueue.skipToKeyframeBefore(positionUs, true);
+    }
   }
 
   // Loader.Callback implementation.
@@ -448,8 +452,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     @Override
-    public void skipToKeyframeBefore(long timeUs) {
-      sampleQueue.skipToKeyframeBefore(timeUs, true);
+    public void skipData(long positionUs) {
+      if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
+        sampleQueue.skipAll();
+      } else {
+        sampleQueue.skipToKeyframeBefore(positionUs, true);
+      }
     }
 
     @Override

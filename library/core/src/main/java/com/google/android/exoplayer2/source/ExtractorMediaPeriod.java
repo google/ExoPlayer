@@ -340,8 +340,13 @@ import java.io.IOException;
         loadingFinished, lastSeekPositionUs);
   }
 
-  /* package */ void skipToKeyframeBefore(int track, long timeUs) {
-    sampleQueues.valueAt(track).skipToKeyframeBefore(timeUs, true);
+  /* package */ void skipData(int track, long positionUs) {
+    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(track);
+    if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
+      sampleQueue.skipAll();
+    } else {
+      sampleQueue.skipToKeyframeBefore(positionUs, true);
+    }
   }
 
   // Loader.Callback implementation.
@@ -569,8 +574,8 @@ import java.io.IOException;
     }
 
     @Override
-    public void skipToKeyframeBefore(long timeUs) {
-      ExtractorMediaPeriod.this.skipToKeyframeBefore(track, timeUs);
+    public void skipData(long positionUs) {
+      ExtractorMediaPeriod.this.skipData(track, positionUs);
     }
 
   }

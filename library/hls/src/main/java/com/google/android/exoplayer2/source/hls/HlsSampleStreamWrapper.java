@@ -312,8 +312,13 @@ import java.util.LinkedList;
         loadingFinished, lastSeekPositionUs);
   }
 
-  /* package */ void skipToKeyframeBefore(int group, long timeUs) {
-    sampleQueues.valueAt(group).skipToKeyframeBefore(timeUs, true);
+  /* package */ void skipData(int group, long positionUs) {
+    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(group);
+    if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
+      sampleQueue.skipAll();
+    } else {
+      sampleQueue.skipToKeyframeBefore(positionUs, true);
+    }
   }
 
   private boolean finishedReadingChunk(HlsMediaChunk chunk) {

@@ -43,7 +43,7 @@ public final class EmptySampleStream implements SampleStream {
   }
 
   @Override
-  public void skipToKeyframeBefore(long timeUs) {
+  public void skipData(long positionUs) {
     // Do nothing.
   }
 

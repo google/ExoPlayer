@@ -146,7 +146,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     formatHolder = new FormatHolder();
-    flagsOnlyBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
   }

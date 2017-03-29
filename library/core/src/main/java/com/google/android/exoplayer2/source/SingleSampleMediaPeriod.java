@@ -235,8 +235,10 @@ import java.util.Arrays;
     }
 
     @Override
-    public void skipToKeyframeBefore(long timeUs) {
-      // Do nothing.
+    public void skipData(long positionUs) {
+      if (positionUs > 0) {
+        streamState = STREAM_STATE_END_OF_STREAM;
+      }
     }
 
   }
