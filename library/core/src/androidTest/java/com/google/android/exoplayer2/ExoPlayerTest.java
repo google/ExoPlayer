@@ -551,7 +551,7 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
-    public void skipToKeyframeBefore(long timeUs) {
+    public void skipData(long positionUs) {
       // Do nothing.
     }
 

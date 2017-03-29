@@ -76,7 +76,6 @@ public final class DefaultTrackOutput implements TrackOutput {
   private long totalBytesWritten;
   private Allocation lastAllocation;
   private int lastAllocationOffset;
-  private boolean needKeyframe;
   private boolean pendingSplice;
   private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
@@ -92,7 +91,6 @@ public final class DefaultTrackOutput implements TrackOutput {
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     state = new AtomicInteger();
     lastAllocationOffset = allocationLength;
-    needKeyframe = true;
   }
 
   // Called by the consuming thread, but only when there is no loading thread.
@@ -225,6 +223,16 @@ public final class DefaultTrackOutput implements TrackOutput {
    */
   public long getLargestQueuedTimestampUs() {
     return infoQueue.getLargestQueuedTimestampUs();
+  }
+
+  /**
+   * Skips all samples currently in the buffer.
+   */
+  public void skipAll() {
+    long nextOffset = infoQueue.skipAll();
+    if (nextOffset != C.POSITION_UNSET) {
+      dropDownstreamTo(nextOffset);
+    }
   }
 
   /**
@@ -523,12 +531,6 @@ public final class DefaultTrackOutput implements TrackOutput {
         }
         pendingSplice = false;
       }
-      if (needKeyframe) {
-        if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
-          return;
-        }
-        needKeyframe = false;
-      }
       timeUs += sampleOffsetUs;
       long absoluteOffset = totalBytesWritten - size - offset;
       infoQueue.commitSample(timeUs, flags, absoluteOffset, size, encryptionKey);
@@ -558,7 +560,6 @@ public final class DefaultTrackOutput implements TrackOutput {
     totalBytesWritten = 0;
     lastAllocation = null;
     lastAllocationOffset = allocationLength;
-    needKeyframe = true;
   }
 
   /**
@@ -615,6 +616,7 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     private long largestDequeuedTimestampUs;
     private long largestQueuedTimestampUs;
+    private boolean upstreamKeyframeRequired;
     private boolean upstreamFormatRequired;
     private Format upstreamFormat;
     private int upstreamSourceId;
@@ -631,6 +633,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       largestDequeuedTimestampUs = Long.MIN_VALUE;
       largestQueuedTimestampUs = Long.MIN_VALUE;
       upstreamFormatRequired = true;
+      upstreamKeyframeRequired = true;
     }
 
     public void clearSampleData() {
@@ -638,6 +641,7 @@ public final class DefaultTrackOutput implements TrackOutput {
       relativeReadIndex = 0;
       relativeWriteIndex = 0;
       queueSize = 0;
+      upstreamKeyframeRequired = true;
     }
 
     // Called by the consuming thread, but only when there is no loading thread.
@@ -780,6 +784,10 @@ public final class DefaultTrackOutput implements TrackOutput {
         return C.RESULT_FORMAT_READ;
       }
 
+      if (buffer.isFlagsOnly()) {
+        return C.RESULT_NOTHING_READ;
+      }
+
       buffer.timeUs = timesUs[relativeReadIndex];
       buffer.setFlags(flags[relativeReadIndex]);
       extrasHolder.size = sizes[relativeReadIndex];
@@ -798,6 +806,24 @@ public final class DefaultTrackOutput implements TrackOutput {
       extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
           : extrasHolder.offset + extrasHolder.size;
       return C.RESULT_BUFFER_READ;
+    }
+
+    /**
+     * Skips all samples in the buffer.
+     *
+     * @return The offset up to which data should be dropped, or {@link C#POSITION_UNSET} if no
+     *     dropping of data is required.
+     */
+    public synchronized long skipAll() {
+      if (queueSize == 0) {
+        return C.POSITION_UNSET;
+      }
+
+      int lastSampleIndex = (relativeReadIndex + queueSize - 1) % capacity;
+      relativeReadIndex = (relativeReadIndex + queueSize) % capacity;
+      absoluteReadIndex += queueSize;
+      queueSize = 0;
+      return offsets[lastSampleIndex] + sizes[lastSampleIndex];
     }
 
     /**
@@ -842,9 +868,9 @@ public final class DefaultTrackOutput implements TrackOutput {
         return C.POSITION_UNSET;
       }
 
-      queueSize -= sampleCountToKeyframe;
       relativeReadIndex = (relativeReadIndex + sampleCountToKeyframe) % capacity;
       absoluteReadIndex += sampleCountToKeyframe;
+      queueSize -= sampleCountToKeyframe;
       return offsets[relativeReadIndex];
     }
 
@@ -867,6 +893,12 @@ public final class DefaultTrackOutput implements TrackOutput {
 
     public synchronized void commitSample(long timeUs, @C.BufferFlags int sampleFlags, long offset,
         int size, byte[] encryptionKey) {
+      if (upstreamKeyframeRequired) {
+        if ((sampleFlags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
+          return;
+        }
+        upstreamKeyframeRequired = false;
+      }
       Assertions.checkState(!upstreamFormatRequired);
       commitSampleTimestamp(timeUs);
       timesUs[relativeWriteIndex] = timeUs;

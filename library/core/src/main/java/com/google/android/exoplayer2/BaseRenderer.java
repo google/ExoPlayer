@@ -297,21 +297,22 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   /**
+   * Attempts to skip to the keyframe before the specified position, or to the end of the stream if
+   * {@code positionUs} is beyond it.
+   *
+   * @param positionUs The position in microseconds.
+   */
+  protected void skipSource(long positionUs) {
+    stream.skipData(positionUs - streamOffsetUs);
+  }
+
+  /**
    * Returns whether the upstream source is ready.
    *
    * @return Whether the source is ready.
    */
   protected final boolean isSourceReady() {
     return readEndOfStream ? streamIsFinal : stream.isReady();
-  }
-
-  /**
-   * Attempts to skip to the keyframe before the specified time.
-   *
-   * @param timeUs The specified time.
-   */
-  protected void skipToKeyframeBefore(long timeUs) {
-    stream.skipToKeyframeBefore(timeUs - streamOffsetUs);
   }
 
 }

@@ -150,7 +150,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
-    flagsOnlyBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
   }
@@ -185,6 +185,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       }
     }
 
+    // We have a format.
     if (isRendererAvailable()) {
       drmSession = pendingDrmSession;
       ExoMediaCrypto mediaCrypto = null;
@@ -222,7 +223,20 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
     } else {
-      skipToKeyframeBefore(positionUs);
+      skipSource(positionUs);
+      // We need to read any format changes despite not having a codec so that drmSession can be
+      // updated, and so that we have the most recent format should the codec be initialized. We may
+      // also reach the end of the stream. Note that readSource will not read a sample into a
+      // flags-only buffer.
+      flagsOnlyBuffer.clear();
+      int result = readSource(formatHolder, flagsOnlyBuffer, false);
+      if (result == C.RESULT_FORMAT_READ) {
+        onInputFormatChanged(formatHolder.format);
+      } else if (result == C.RESULT_BUFFER_READ) {
+        Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
+        inputStreamEnded = true;
+        outputStreamEnded = true;
+      }
     }
     decoderCounters.ensureUpdated();
   }
