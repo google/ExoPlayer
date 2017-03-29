@@ -281,7 +281,7 @@ import java.util.Locale;
 
   @Override
   public void onRenderedFirstFrame(Surface surface) {
-    // Do nothing.
+    Log.d(TAG, "renderedFirstFrame [" + surface + "]");
   }
 
   // DefaultDrmSessionManager.EventListener

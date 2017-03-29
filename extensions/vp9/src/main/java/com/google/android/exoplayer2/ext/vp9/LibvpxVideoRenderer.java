@@ -87,8 +87,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private int lastReportedWidth;
-  private int lastReportedHeight;
+  private int reportedWidth;
+  private int reportedHeight;
 
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
@@ -147,8 +147,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    joiningDeadlineMs = -1;
-    clearLastReportedVideoSize();
+    joiningDeadlineMs = C.TIME_UNSET;
+    clearReportedVideoSize();
     formatHolder = new FormatHolder();
     flagsOnlyBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
@@ -259,7 +259,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
     // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
     // and that's also late. Else we'll render what we have.
-    if ((joiningDeadlineMs != -1 && outputBuffer.timeUs < positionUs - 30000)
+    if ((joiningDeadlineMs != C.TIME_UNSET && outputBuffer.timeUs < positionUs - 30000)
         || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
         && nextOutputBuffer.timeUs < positionUs)) {
       decoderCounters.droppedOutputBufferCount++;
@@ -408,9 +408,9 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     if (format != null && (isSourceReady() || outputBuffer != null)
         && (renderedFirstFrame || !isRendererAvailable())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
-      joiningDeadlineMs = -1;
+      joiningDeadlineMs = C.TIME_UNSET;
       return true;
-    } else if (joiningDeadlineMs == -1) {
+    } else if (joiningDeadlineMs == C.TIME_UNSET) {
       // Not joining.
       return false;
     } else if (SystemClock.elapsedRealtime() < joiningDeadlineMs) {
@@ -418,7 +418,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return true;
     } else {
       // The joining deadline has been exceeded. Give up and clear the deadline.
-      joiningDeadlineMs = -1;
+      joiningDeadlineMs = C.TIME_UNSET;
       return false;
     }
   }
@@ -439,18 +439,18 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       flushDecoder();
     }
     joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
-        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : -1;
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
   }
 
   @Override
   protected void onStarted() {
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
+    joiningDeadlineMs = C.TIME_UNSET;
   }
 
   @Override
   protected void onStopped() {
-    joiningDeadlineMs = -1;
     maybeNotifyDroppedFrames();
   }
 
@@ -460,7 +460,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     outputBuffer = null;
     format = null;
     waitingForKeys = false;
-    clearLastReportedVideoSize();
+    clearReportedVideoSize();
     try {
       releaseDecoder();
     } finally {
@@ -540,7 +540,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     // Clear state so that we always call the event listener with the video size and when a frame
     // is rendered, even if the output hasn't changed.
     renderedFirstFrame = false;
-    clearLastReportedVideoSize();
+    clearReportedVideoSize();
     // We only need to update the decoder if the output has changed.
     if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
       this.surface = surface;
@@ -565,15 +565,15 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return surface != null || outputBufferRenderer != null;
   }
 
-  private void clearLastReportedVideoSize() {
-    lastReportedWidth = Format.NO_VALUE;
-    lastReportedHeight = Format.NO_VALUE;
+  private void clearReportedVideoSize() {
+    reportedWidth = Format.NO_VALUE;
+    reportedHeight = Format.NO_VALUE;
   }
 
   private void maybeNotifyVideoSizeChanged(int width, int height) {
-    if (lastReportedWidth != width || lastReportedHeight != height) {
-      lastReportedWidth = width;
-      lastReportedHeight = height;
+    if (reportedWidth != width || reportedHeight != height) {
+      reportedWidth = width;
+      reportedHeight = height;
       eventDispatcher.videoSizeChanged(width, height, 0, 1);
     }
   }
