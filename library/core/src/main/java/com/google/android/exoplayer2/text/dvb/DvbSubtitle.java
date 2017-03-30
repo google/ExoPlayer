@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text.dvbsubs;
+package com.google.android.exoplayer2.text.dvb;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
@@ -22,10 +22,13 @@ import com.google.android.exoplayer2.text.Subtitle;
 import java.util.Collections;
 import java.util.List;
 
-final class DvbSubsSubtitle implements Subtitle {
+/**
+ * A representation of a DVB subtitle.
+ */
+/* package */ final class DvbSubtitle implements Subtitle {
     private final List<Cue> cues;
 
-    public DvbSubsSubtitle(List<Cue> cues) {
+    public DvbSubtitle(List<Cue> cues) {
         if (cues == null) {
             this.cues = Collections.emptyList();
         } else {

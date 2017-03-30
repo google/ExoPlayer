@@ -1235,7 +1235,8 @@ public final class MatroskaExtractor implements Extractor {
         || CODEC_ID_SUBRIP.equals(codecId)
         || CODEC_ID_VOBSUB.equals(codecId)
         || CODEC_ID_PGS.equals(codecId)
-        || CODEC_ID_DVBSUB.equals(codecId);  }
+        || CODEC_ID_DVBSUB.equals(codecId);
+  }
 
   /**
    * Returns an array that can store (at least) {@code length} elements, which will be either a new
@@ -1464,11 +1465,8 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_DVBSUB:
           mimeType = MimeTypes.APPLICATION_DVBSUBS;
-          initializationData = new ArrayList<>(4);
-          initializationData.add(null);
-          initializationData.add(new byte[] {codecPrivate[0], codecPrivate[1]});
-          initializationData.add(new byte[] {codecPrivate[2], codecPrivate[3]});
-          initializationData.add("mkv".getBytes());
+          initializationData = Collections.singletonList(new byte[] {
+              (byte) 0x01, codecPrivate[0], codecPrivate[1], codecPrivate[2], codecPrivate[3]});
           break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
