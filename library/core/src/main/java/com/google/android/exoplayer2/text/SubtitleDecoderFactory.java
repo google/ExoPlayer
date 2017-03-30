@@ -85,7 +85,7 @@ public interface SubtitleDecoderFactory {
         } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA708)) {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(Integer.TYPE)
               .newInstance(format.accessibilityChannel);
-        } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_DVBSUBS) && format.initializationData != null) {
+        } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_DVBSUBS)) {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor(List.class).newInstance(format.initializationData);
         } else {
           return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
@@ -117,7 +117,7 @@ public interface SubtitleDecoderFactory {
           case MimeTypes.APPLICATION_CEA708:
             return Class.forName("com.google.android.exoplayer2.text.cea.Cea708Decoder");
           case MimeTypes.APPLICATION_DVBSUBS:
-            return Class.forName("com.google.android.exoplayer2.text.dvbsubs.DvbSubsDecoder");
+            return Class.forName("com.google.android.exoplayer2.text.dvb.DvbDecoder");
           default:
             return null;
         }

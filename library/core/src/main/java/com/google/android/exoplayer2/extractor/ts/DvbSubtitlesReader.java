@@ -24,66 +24,68 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
-public class DvbSubtitlesReader implements ElementaryStreamReader {
+/**
+ * Output PES packets to a {@link TrackOutput}.
+ */
+public final class DvbSubtitlesReader implements ElementaryStreamReader {
 
-    private static final String TAG= "DVBSubsReader";
-    private final String language;
-    private List<byte[]> initializationData = new ArrayList<>();
+  private final String language;
+  private List<byte[]> initializationData;
 
-    private long sampleTimeUs;
-    private int totalBytesWritten;
-    private boolean writingSample;
+  private long sampleTimeUs;
+  private int sampleBytesWritten;
+  private boolean writingSample;
 
-    private TrackOutput output;
+  private TrackOutput output;
 
-    public DvbSubtitlesReader(TsPayloadReader.EsInfo esInfo) {
-        // we only support one subtitle service per PID
-        this.language = esInfo.language;
-        this.initializationData.add(new byte[] {esInfo.descriptorBytes[5]}); // subtitle subtype
-        this.initializationData.add(new byte[] {esInfo.descriptorBytes[6], esInfo.descriptorBytes[7]}); // subtitle compose page
-        this.initializationData.add(new byte[] {esInfo.descriptorBytes[8], esInfo.descriptorBytes[9]}); // subtitle ancillary page
-        this.initializationData.add("mp2t".getBytes());
+  public DvbSubtitlesReader(TsPayloadReader.EsInfo esInfo) {
+    this.language = esInfo.language;
+    initializationData = Collections.singletonList(new byte[] {(byte) 0x00,
+        esInfo.descriptorBytes[6], esInfo.descriptorBytes[7],
+        esInfo.descriptorBytes[8], esInfo.descriptorBytes[9]});
+  }
+
+
+  @Override
+  public void seek() {
+    writingSample = false;
+  }
+
+  @Override
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    idGenerator.generateNewId();
+    this.output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
+    output.format(Format.createImageSampleFormat(idGenerator.getFormatId(),
+        MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE, initializationData, language, null));
+  }
+
+
+  @Override
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    if (!dataAlignmentIndicator) {
+      return;
     }
+    writingSample = true;
+    sampleTimeUs = pesTimeUs;
+    sampleBytesWritten = 0;
+  }
 
+  @Override
+  public void packetFinished() {
+    output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytesWritten, 0, null);
+    writingSample = false;
+  }
 
-    @Override
-    public void seek() {
-        writingSample = false;
+  @Override
+  public void consume(ParsableByteArray data) {
+    if (writingSample) {
+      int bytesAvailable = data.bytesLeft();
+      output.sampleData(data, bytesAvailable);
+      sampleBytesWritten += bytesAvailable;
     }
-
-    @Override
-    public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
-        idGenerator.generateNewId();
-        this.output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
-        output.format(Format.createImageSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE, initializationData, language, null));
-    }
-
-
-    @Override
-    public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
-        if (!dataAlignmentIndicator) {
-            return;
-        }
-        writingSample = true;
-        sampleTimeUs = pesTimeUs;
-        totalBytesWritten = 0;
-    }
-
-    @Override
-    public void packetFinished() {
-        output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, totalBytesWritten, 0, null);
-        writingSample = false;
-    }
-
-    @Override
-    public void consume(ParsableByteArray data) {
-        if (writingSample) {
-            totalBytesWritten += data.bytesLeft();
-            output.sampleData(data, data.bytesLeft());
-        }
-    }
+  }
 }
