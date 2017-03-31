@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Plays audio data. The implementation delegates to an {@link android.media.AudioTrack} and handles
@@ -170,7 +171,7 @@ public final class AudioTrack {
   }
 
   /**
-   * Returned by {@link #getCurrentPositionUs} when the position is not set.
+   * Returned by {@link #getCurrentPositionUs(boolean)} when the position is not set.
    */
   public static final long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
 
@@ -252,6 +253,13 @@ public final class AudioTrack {
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
 
   /**
+   * The minimum number of output bytes from {@link #sonicAudioProcessor} at which the speedup is
+   * calculated using the input/output byte counts from the processor, rather than using the
+   * current playback parameters speed.
+   */
+  private static final int SONIC_MIN_BYTES_FOR_SPEEDUP = 1024;
+
+  /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
    * active across releasing/initializing a new audio track, on platform builds where
    * {@link Util#SDK_INT} &lt; 21.
@@ -277,6 +285,7 @@ public final class AudioTrack {
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
+  private final LinkedList<PlaybackParametersCheckpoint> playbackParametersCheckpoints;
 
   /**
    * Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}).
@@ -295,7 +304,11 @@ public final class AudioTrack {
   private boolean passthrough;
   private int bufferSize;
   private long bufferSizeUs;
+
+  private PlaybackParameters drainingPlaybackParameters;
   private PlaybackParameters playbackParameters;
+  private long playbackParametersOffsetUs;
+  private long playbackParametersPositionUs;
 
   private ByteBuffer avSyncHeader;
   private int bytesUntilNextAvSync;
@@ -377,6 +390,7 @@ public final class AudioTrack {
     drainingAudioProcessorIndex = C.INDEX_UNSET;
     this.audioProcessors = new AudioProcessor[0];
     outputBuffers = new ByteBuffer[0];
+    playbackParametersCheckpoints = new LinkedList<>();
   }
 
   /**
@@ -432,7 +446,8 @@ public final class AudioTrack {
         positionUs -= latencyUs;
       }
     }
-    return startMediaTimeUs + scaleFrames(positionUs);
+
+    return startMediaTimeUs + applySpeedup(positionUs);
   }
 
   /**
@@ -747,6 +762,21 @@ public final class AudioTrack {
         framesPerEncodedSample = getFramesPerEncodedSample(outputEncoding, buffer);
       }
 
+      if (drainingPlaybackParameters != null) {
+        if (!drainAudioProcessorsToEndOfStream()) {
+          // Don't process any more input until draining completes.
+          return false;
+        }
+        // Store the position and corresponding media time from which the parameters will apply.
+        playbackParametersCheckpoints.add(new PlaybackParametersCheckpoint(
+            drainingPlaybackParameters, Math.max(0, presentationTimeUs),
+            framesToDurationUs(getWrittenFrames())));
+        drainingPlaybackParameters = null;
+        // The audio processors have drained, so flush them. This will cause any active speed
+        // adjustment audio processor to start producing audio with the new parameters.
+        resetAudioProcessors();
+      }
+
       if (startMediaTimeState == START_NOT_SET) {
         startMediaTimeUs = Math.max(0, presentationTimeUs);
         startMediaTimeState = START_IN_SYNC;
@@ -895,7 +925,15 @@ public final class AudioTrack {
       return;
     }
 
-    // Drain the audio processors.
+    if (drainAudioProcessorsToEndOfStream()) {
+      // The audio processors have drained, so drain the underlying audio track.
+      audioTrackUtil.handleEndOfStream(getWrittenFrames());
+      bytesUntilNextAvSync = 0;
+      handledEndOfStream = true;
+    }
+  }
+
+  private boolean drainAudioProcessorsToEndOfStream() throws WriteException {
     boolean audioProcessorNeedsEndOfStream = false;
     if (drainingAudioProcessorIndex == C.INDEX_UNSET) {
       drainingAudioProcessorIndex = passthrough ? audioProcessors.length : 0;
@@ -908,7 +946,7 @@ public final class AudioTrack {
       }
       processBuffers(C.TIME_UNSET);
       if (!audioProcessor.isEnded()) {
-        return;
+        return false;
       }
       audioProcessorNeedsEndOfStream = true;
       drainingAudioProcessorIndex++;
@@ -918,14 +956,11 @@ public final class AudioTrack {
     if (outputBuffer != null) {
       writeBuffer(outputBuffer, C.TIME_UNSET);
       if (outputBuffer != null) {
-        return;
+        return false;
       }
     }
-
-    // Drain the track.
-    audioTrackUtil.handleEndOfStream(getWrittenFrames());
-    bytesUntilNextAvSync = 0;
-    handledEndOfStream = true;
+    drainingAudioProcessorIndex = C.INDEX_UNSET;
+    return true;
   }
 
   /**
@@ -949,21 +984,27 @@ public final class AudioTrack {
    * Attempts to set the playback parameters and returns the active playback parameters, which may
    * differ from those passed in.
    *
+   * @param playbackParameters The new playback parameters to attempt to set.
    * @return The active playback parameters.
    */
   public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (passthrough) {
+      // The playback parameters are always the default in passthrough mode.
       this.playbackParameters = PlaybackParameters.DEFAULT;
-    } else {
-      this.playbackParameters = new PlaybackParameters(
-          sonicAudioProcessor.setSpeed(playbackParameters.speed),
-          sonicAudioProcessor.setPitch(playbackParameters.pitch));
-      // TODO: Avoid resetting the track, so that speed/pitch changes are seamless.
-      // See [Internal: b/36542189].
-      reset();
-      // Setting the playback parameters never changes the output format, so it is not necessary to
-      // reconfigure the processors, though they may have become active/inactive.
-      resetAudioProcessors();
+      return this.playbackParameters;
+    }
+    playbackParameters = new PlaybackParameters(
+        sonicAudioProcessor.setSpeed(playbackParameters.speed),
+        sonicAudioProcessor.setPitch(playbackParameters.pitch));
+    PlaybackParameters lastSetPlaybackParameters =
+        drainingPlaybackParameters != null ? drainingPlaybackParameters
+            : !playbackParametersCheckpoints.isEmpty()
+                ? playbackParametersCheckpoints.getLast().playbackParameters
+                : this.playbackParameters;
+    if (!playbackParameters.equals(lastSetPlaybackParameters)) {
+      // We need to change the playback parameters. Drain the audio processors so we can determine
+      // the frame position at which the new parameters apply.
+      drainingPlaybackParameters = playbackParameters;
     }
     return this.playbackParameters;
   }
@@ -973,15 +1014,6 @@ public final class AudioTrack {
    */
   public PlaybackParameters getPlaybackParameters() {
     return playbackParameters;
-  }
-
-  /**
-   * Returns the number of input frames corresponding to the specified number of output frames,
-   * taking into account any internal playback speed adjustment.
-   */
-  private long scaleFrames(long outputFrameCount) {
-    return sonicAudioProcessor.isActive() ? sonicAudioProcessor.getInputFrames(outputFrameCount)
-        : outputFrameCount;
   }
 
   /**
@@ -1098,6 +1130,14 @@ public final class AudioTrack {
       writtenPcmBytes = 0;
       writtenEncodedFrames = 0;
       framesPerEncodedSample = 0;
+      if (drainingPlaybackParameters != null) {
+        playbackParameters = drainingPlaybackParameters;
+      } else if (!playbackParametersCheckpoints.isEmpty()) {
+        playbackParameters = playbackParametersCheckpoints.getLast().playbackParameters;
+      }
+      playbackParametersCheckpoints.clear();
+      playbackParametersOffsetUs = 0;
+      playbackParametersPositionUs = 0;
       inputBuffer = null;
       outputBuffer = null;
       for (int i = 0; i < audioProcessors.length; i++) {
@@ -1172,6 +1212,36 @@ public final class AudioTrack {
    */
   private boolean hasCurrentPositionUs() {
     return isInitialized() && startMediaTimeState != START_NOT_SET;
+  }
+
+  /**
+   * Returns the underlying audio track {@code positionUs} with any applicable speedup applied.
+   */
+  private long applySpeedup(long positionUs) {
+    while (!playbackParametersCheckpoints.isEmpty()
+        && positionUs >= playbackParametersCheckpoints.getFirst().positionUs) {
+      // We are playing (or about to play) media with the new playback parameters, so update them.
+      PlaybackParametersCheckpoint checkpoint = playbackParametersCheckpoints.remove();
+      playbackParameters = checkpoint.playbackParameters;
+      playbackParametersPositionUs = checkpoint.positionUs;
+      playbackParametersOffsetUs = checkpoint.mediaTimeUs - startMediaTimeUs;
+    }
+
+    if (playbackParameters.speed == 1f) {
+      return positionUs + playbackParametersOffsetUs - playbackParametersPositionUs;
+    }
+
+    if (playbackParametersCheckpoints.isEmpty()
+        && sonicAudioProcessor.getOutputByteCount() >= SONIC_MIN_BYTES_FOR_SPEEDUP) {
+      return playbackParametersOffsetUs
+          + Util.scaleLargeTimestamp(positionUs - playbackParametersPositionUs,
+          sonicAudioProcessor.getInputByteCount(), sonicAudioProcessor.getOutputByteCount());
+    }
+
+    // We are playing drained data at a previous playback speed, or don't have enough bytes to
+    // calculate an accurate speedup, so fall back to multiplying by the speed.
+    return playbackParametersOffsetUs
+        + (long) ((double) playbackParameters.speed * (positionUs - playbackParametersPositionUs));
   }
 
   /**
@@ -1632,6 +1702,24 @@ public final class AudioTrack {
     @Override
     public long getTimestampFramePosition() {
       return lastTimestampFramePosition;
+    }
+
+  }
+
+  /**
+   * Stores playback parameters with the position and media time at which they apply.
+   */
+  private static final class PlaybackParametersCheckpoint {
+
+    private final PlaybackParameters playbackParameters;
+    private final long mediaTimeUs;
+    private final long positionUs;
+
+    private PlaybackParametersCheckpoint(PlaybackParameters playbackParameters, long mediaTimeUs,
+        long positionUs) {
+      this.playbackParameters = playbackParameters;
+      this.mediaTimeUs = mediaTimeUs;
+      this.positionUs = positionUs;
     }
 
   }

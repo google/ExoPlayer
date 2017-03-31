@@ -102,11 +102,17 @@ import java.nio.ShortBuffer;
   }
 
   /**
-   * Returns the number of input frames corresponding to the specified number of output frames.
+   * Returns the number of bytes of input queued since the last call to {@link #flush()}.
    */
-  public long getInputFrames(long outputFrames) {
-    // Sonic produces output data as soon as input is queued.
-    return outputBytes == 0 ? 0 : Util.scaleLargeTimestamp(outputFrames, inputBytes, outputBytes);
+  public long getInputByteCount() {
+    return inputBytes;
+  }
+
+  /**
+   * Returns the number of bytes of output dequeued since the last call to {@link #flush()}.
+   */
+  public long getOutputByteCount() {
+    return outputBytes;
   }
 
   @Override
