@@ -59,7 +59,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 }
 
 static const int kBytesPerSample = 2;  // opus fixed point uses 16 bit samples.
-static const int kMaxOpusOutputPacketSizeSamples = 960 * 6;// Maximum packet size used in Xiph's opusdec.
+static const int kMaxOpusOutputPacketSizeSamples = 960 * 6;
 static int channelCount;
 static int errorCode;
 
