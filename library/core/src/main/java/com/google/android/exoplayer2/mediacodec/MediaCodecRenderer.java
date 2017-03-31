@@ -1173,7 +1173,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Returns whether the decoder is needs Apaptive workaround disabled
    * <p>
-   * If false is returned then we explicitly override codecIsAdaptive,
+   * If TRUE is returned then we explicitly override codecIsAdaptive,
    * setting it to false.
    * @param name The decoder name.
    * @return TRUE if the device needs Adaptive workaround disabled
