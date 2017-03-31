@@ -339,7 +339,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     String codecName = decoderInfo.name;
-    codecIsAdaptive = decoderInfo.adaptive && (codecNeedsDisableAdaptationWorkaround(codecName)==false);
+    codecIsAdaptive = decoderInfo.adaptive && !codecNeedsDisableAdaptationWorkaround(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsAdaptationWorkaround = codecNeedsAdaptationWorkaround(codecName);
@@ -1179,7 +1179,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * @param name The decoder name.
    * @param format The input format.
-   * @return True if the device is known to set the number of audio channels in the output format
+   * @return True if the decoder is known to set the number of audio channels in the output format
    *     to 2 for the given input format, whilst only actually outputting a single channel. False
    *     otherwise.
    */
@@ -1187,17 +1187,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18 && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
+
   /**
-   * Returns whether the decoder is needs Apaptive workaround disabled
+   * Returns whether the decoder is known to fail when adapting, despite advertising itself as an
+   * adaptive decoder.
    * <p>
-   * If TRUE is returned then we explicitly override codecIsAdaptive,
-   * setting it to false.
+   * If true is returned then we explicitly disable adaptation for the decoder.
+   *
    * @param name The decoder name.
-   * @return TRUE if the device needs Adaptive workaround disabled
+   * @return True if the decoder is known to fail when adapting.
    */
   private static boolean codecNeedsDisableAdaptationWorkaround(String name) {
-    return (
-        (Util.SDK_INT <= 19 && Util.MODEL.equals("ODROID-XU3")
-        && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name))));
+    return Util.SDK_INT <= 19 && Util.MODEL.equals("ODROID-XU3")
+        && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
+
 }
