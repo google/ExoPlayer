@@ -339,7 +339,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     String codecName = decoderInfo.name;
-    codecIsAdaptive = decoderInfo.adaptive;
+    codecIsAdaptive = decoderInfo.adaptive && (codecNeedsDisableAdaptationWorkaround(codecName)==false);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsAdaptationWorkaround = codecNeedsAdaptationWorkaround(codecName);
@@ -1187,5 +1187,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18 && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
-
+  /**
+   * Returns whether the decoder is needs Apaptive workaround disabled
+   * <p>
+   * If TRUE is returned then we explicitly override codecIsAdaptive,
+   * setting it to false.
+   * @param name The decoder name.
+   * @return TRUE if the device needs Adaptive workaround disabled
+   */
+  private static boolean codecNeedsDisableAdaptationWorkaround(String name) {
+    return (
+        (Util.SDK_INT <= 19 && Util.MODEL.equals("ODROID-XU3")
+        && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name))));
+  }
 }
