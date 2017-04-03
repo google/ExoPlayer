@@ -21,17 +21,25 @@ package com.google.android.exoplayer;
 public final class ExoPlayerLibraryInfo {
 
   /**
-   * The version of the library, expressed as a string.
+   * The version of the library expressed as a string, for example "1.2.3".
    */
+  // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
   public static final String VERSION = "1.5.15";
 
   /**
-   * The version of the library, expressed as an integer.
+   * The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}.
+   */
+  // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
+  public static final String VERSION_SLASHY = "ExoPlayerLib/1.5.15";
+
+  /**
+   * The version of the library expressed as an integer, for example 1002003.
    * <p>
    * Three digits are used for each component of {@link #VERSION}. For example "1.2.3" has the
    * corresponding integer version 1002003 (001-002-003), and "123.45.6" has the corresponding
    * integer version 123045006 (123-045-006).
    */
+  // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
   public static final int VERSION_INT = 1005015;
 
   /**
