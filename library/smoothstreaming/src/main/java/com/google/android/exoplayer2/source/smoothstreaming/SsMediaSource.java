@@ -71,7 +71,7 @@ public final class SsMediaSource implements MediaSource,
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
   private final EventDispatcher eventDispatcher;
-  private final SsManifestParser manifestParser;
+  private final ParsingLoadable.Parser<? extends SsManifest> manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
 
   private Listener sourceListener;
@@ -171,15 +171,17 @@ public final class SsMediaSource implements MediaSource,
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      SsManifestParser manifestParser, SsChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
+      ParsingLoadable.Parser<? extends SsManifest> manifestParser,
+      SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+      long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
         minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
   }
 
   private SsMediaSource(SsManifest manifest, Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory, SsManifestParser manifestParser,
+      DataSource.Factory manifestDataSourceFactory,
+      ParsingLoadable.Parser<? extends SsManifest> manifestParser,
       SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
