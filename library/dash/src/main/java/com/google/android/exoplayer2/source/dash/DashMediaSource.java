@@ -88,7 +88,7 @@ public final class DashMediaSource implements MediaSource {
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
   private final EventDispatcher eventDispatcher;
-  private final DashManifestParser manifestParser;
+  private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
   private final ManifestCallback manifestCallback;
   private final Object manifestUriLock;
   private final SparseArray<DashMediaPeriod> periodsById;
@@ -200,15 +200,17 @@ public final class DashMediaSource implements MediaSource {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      DashManifestParser manifestParser, DashChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
+      ParsingLoadable.Parser<? extends DashManifest> manifestParser,
+      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
+      long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
         minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
   }
 
   private DashMediaSource(DashManifest manifest, Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory, DashManifestParser manifestParser,
+      DataSource.Factory manifestDataSourceFactory,
+      ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {

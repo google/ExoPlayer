@@ -59,7 +59,7 @@ public final class ParsingLoadable<T> implements Loadable {
   public final int type;
 
   private final DataSource dataSource;
-  private final Parser<T> parser;
+  private final Parser<? extends T> parser;
 
   private volatile T result;
   private volatile boolean isCanceled;
@@ -71,7 +71,7 @@ public final class ParsingLoadable<T> implements Loadable {
    * @param type See {@link #type}.
    * @param parser Parses the object from the response.
    */
-  public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<T> parser) {
+  public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<? extends T> parser) {
     this.dataSource = dataSource;
     this.dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
     this.type = type;
