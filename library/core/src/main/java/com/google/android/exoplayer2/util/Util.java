@@ -766,7 +766,7 @@ public final class Util {
       versionName = "?";
     }
     return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
-        + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
+        + ") " + ExoPlayerLibraryInfo.VERSION_SLASHY;
   }
 
   /**
