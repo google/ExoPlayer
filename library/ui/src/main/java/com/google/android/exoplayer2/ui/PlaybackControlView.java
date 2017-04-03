@@ -817,7 +817,7 @@ public class PlaybackControlView extends FrameLayout {
     public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
       scrubbing = false;
       if (!canceled && player != null) {
-        if (showMultiWindowTimeBar) {
+        if (multiWindowTimeBar) {
           Timeline timeline = player.getCurrentTimeline();
           int windowCount = timeline.getWindowCount();
           long remainingMs = position;
