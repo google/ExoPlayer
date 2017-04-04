@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,20 +34,40 @@ import java.util.List;
  */
 public final class DvbSubtitlesReader implements ElementaryStreamReader {
 
-  private final String language;
-  private List<byte[]> initializationData;
+  private class SubtitleTrack {
+    private String language;
+    private List<byte[]> initializationData;
+  }
+
+  private List<SubtitleTrack> subtitles = new ArrayList<>();
 
   private long sampleTimeUs;
   private int sampleBytesWritten;
   private boolean writingSample;
 
-  private TrackOutput output;
+  private List<TrackOutput> outputTracks = new ArrayList<>();
 
   public DvbSubtitlesReader(TsPayloadReader.EsInfo esInfo) {
-    this.language = esInfo.language;
-    initializationData = Collections.singletonList(new byte[] {(byte) 0x00,
-        esInfo.descriptorBytes[6], esInfo.descriptorBytes[7],
-        esInfo.descriptorBytes[8], esInfo.descriptorBytes[9]});
+    int pos = 2;
+
+    while (pos < esInfo.descriptorBytes.length) {
+      SubtitleTrack subtitle = new SubtitleTrack();
+      subtitle.language = new String(new byte[] {
+              esInfo.descriptorBytes[pos],
+              esInfo.descriptorBytes[pos + 1],
+              esInfo.descriptorBytes[pos + 2]});
+
+      if (((esInfo.descriptorBytes[pos + 3] & 0xF0 ) >> 4 ) == 2 ) {
+        subtitle.language += " for hard of hearing";
+      }
+
+      subtitle.initializationData = Collections.singletonList(new byte[] {(byte) 0x00,
+          esInfo.descriptorBytes[pos + 4], esInfo.descriptorBytes[pos + 5],
+          esInfo.descriptorBytes[pos + 6], esInfo.descriptorBytes[pos + 7]});
+
+      subtitles.add(subtitle);
+      pos += 8;
+    }
   }
 
 
@@ -57,10 +78,18 @@ public final class DvbSubtitlesReader implements ElementaryStreamReader {
 
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
-    idGenerator.generateNewId();
-    this.output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
-    output.format(Format.createImageSampleFormat(idGenerator.getFormatId(),
-        MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE, initializationData, language, null));
+    TrackOutput output;
+    SubtitleTrack subtitle;
+
+    for (int i = 0; i < subtitles.size(); i++) {
+      subtitle = subtitles.get(i);
+      idGenerator.generateNewId();
+      output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
+      output.format(Format.createImageSampleFormat(idGenerator.getFormatId(),
+              MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE,
+              subtitle.initializationData, subtitle.language, null));
+      outputTracks.add(output);
+    }
   }
 
 
@@ -76,7 +105,12 @@ public final class DvbSubtitlesReader implements ElementaryStreamReader {
 
   @Override
   public void packetFinished() {
-    output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytesWritten, 0, null);
+    TrackOutput output;
+
+    for (int i = 0; i < outputTracks.size(); i++) {
+      output = outputTracks.get(i);
+      output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytesWritten, 0, null);
+    }
     writingSample = false;
   }
 
@@ -84,7 +118,15 @@ public final class DvbSubtitlesReader implements ElementaryStreamReader {
   public void consume(ParsableByteArray data) {
     if (writingSample) {
       int bytesAvailable = data.bytesLeft();
-      output.sampleData(data, bytesAvailable);
+      TrackOutput output;
+      int dataPosition = data.getPosition();
+
+      for (int i = 0; i < outputTracks.size(); i++) {
+        data.setPosition(dataPosition);
+        output = outputTracks.get(i);
+        output.sampleData(data, bytesAvailable);
+      }
+
       sampleBytesWritten += bytesAvailable;
     }
   }
