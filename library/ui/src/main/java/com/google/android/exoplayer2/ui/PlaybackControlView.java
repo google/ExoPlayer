@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +33,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.Formatter;
@@ -345,8 +345,9 @@ public class PlaybackControlView extends FrameLayout {
 
   /**
    * Sets whether the time bar should show all windows, as opposed to just the current one. If the
-   * timeline has more than {@link #MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR} windows the time bar will
-   * fall back to showing a single window.
+   * timeline has a period with unknown duration or more than
+   * {@link #MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR} windows the time bar will fall back to showing a
+   * single window.
    *
    * @param showMultiWindowTimeBar Whether the time bar should show all windows.
    */
@@ -523,14 +524,8 @@ public class PlaybackControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    if (showMultiWindowTimeBar) {
-      if (player.getCurrentTimeline().getWindowCount() <= MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR) {
-        multiWindowTimeBar = true;
-        return;
-      }
-      Log.w(TAG, "Too many windows for multi-window time bar. Falling back to showing one window.");
-    }
-    multiWindowTimeBar = false;
+    multiWindowTimeBar = showMultiWindowTimeBar
+        && canShowMultiWindowTimeBar(player.getCurrentTimeline(), period);
   }
 
   private void updateProgress() {
@@ -568,10 +563,7 @@ public class PlaybackControlView extends FrameLayout {
             } else {
               isInAdBreak = false;
               long periodDurationUs = period.getDurationUs();
-              if (periodDurationUs == C.TIME_UNSET) {
-                durationUs = C.TIME_UNSET;
-                break;
-              }
+              Assertions.checkState(periodDurationUs != C.TIME_UNSET);
               long periodDurationInWindowUs = periodDurationUs;
               if (j == window.firstPeriodIndex) {
                 periodDurationInWindowUs -= window.positionInFirstPeriodUs;
@@ -795,6 +787,26 @@ public class PlaybackControlView extends FrameLayout {
         || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
         || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
         || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+  }
+
+  /**
+   * Returns whether the specified {@code timeline} can be shown on a multi-window time bar.
+   *
+   * @param timeline The {@link Timeline} to check.
+   * @param period A scratch {@link Timeline.Period} instance.
+   * @return Whether the specified timeline can be shown on a multi-window time bar.
+   */
+  private static boolean canShowMultiWindowTimeBar(Timeline timeline, Timeline.Period period) {
+    if (timeline.getWindowCount() > MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR) {
+      return false;
+    }
+    int periodCount = timeline.getPeriodCount();
+    for (int i = 0; i < periodCount; i++) {
+      if (timeline.getPeriod(i, period).durationUs == C.TIME_UNSET) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private final class ComponentListener implements ExoPlayer.EventListener, TimeBar.OnScrubListener,

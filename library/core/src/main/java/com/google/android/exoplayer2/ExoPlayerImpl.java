@@ -65,6 +65,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   // Playback information when there is a pending seek/set source operation.
   private int maskingWindowIndex;
+  private int maskingPeriodIndex;
   private long maskingWindowPositionMs;
 
   /**
@@ -187,6 +188,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     pendingSeekAcks++;
     maskingWindowIndex = windowIndex;
+    if (timeline.isEmpty()) {
+      maskingPeriodIndex = 0;
+    } else {
+      timeline.getWindow(windowIndex, window);
+      long resolvedPositionMs =
+          positionMs == C.TIME_UNSET ? window.getDefaultPositionUs() : positionMs;
+      int periodIndex = window.firstPeriodIndex;
+      long periodPositionUs = window.getPositionInFirstPeriodUs() + C.msToUs(resolvedPositionMs);
+      long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
+      while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
+          && periodIndex < window.lastPeriodIndex) {
+        periodPositionUs -= periodDurationUs;
+        periodDurationUs = timeline.getPeriod(++periodIndex, period).getDurationUs();
+      }
+      maskingPeriodIndex = periodIndex;
+    }
     if (positionMs == C.TIME_UNSET) {
       maskingWindowPositionMs = 0;
       internalPlayer.seekTo(timeline, windowIndex, C.TIME_UNSET);
@@ -235,7 +252,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public int getCurrentPeriodIndex() {
-    return playbackInfo.periodIndex;
+    if (timeline.isEmpty() || pendingSeekAcks > 0) {
+      return maskingPeriodIndex;
+    } else {
+      return playbackInfo.periodIndex;
+    }
   }
 
   @Override
