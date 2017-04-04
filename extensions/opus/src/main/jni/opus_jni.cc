@@ -93,16 +93,14 @@ DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
 }
 
 DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
-     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
-     jint sampleRate) {
+     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
   const uint8_t* inputBuffer =
       reinterpret_cast<const uint8_t*>(
           env->GetDirectBufferAddress(jInputBuffer));
 
-  const int32_t inputSampleCount =
-      opus_packet_get_nb_samples(inputBuffer, inputSize, sampleRate);
-  const jint outputSize = kMaxOpusOutputPacketSizeSamples * kBytesPerSample * channelCount;
+  const jint outputSize =
+      kMaxOpusOutputPacketSizeSamples * kBytesPerSample * channelCount;
 
   env->CallObjectMethod(jOutputBuffer, outputBufferInit, jTimeUs, outputSize);
   const jobject jOutputBufferData = env->CallObjectMethod(jOutputBuffer,
