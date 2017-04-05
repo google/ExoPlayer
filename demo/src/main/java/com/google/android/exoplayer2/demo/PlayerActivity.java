@@ -113,6 +113,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private boolean needRetrySource;
+  private TrackGroupArray lastSeenTrackGroupArray;
 
   private boolean shouldAutoPlay;
   private int resumeWindow;
@@ -261,6 +262,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
           new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
       trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
+      lastSeenTrackGroupArray = null;
       player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
           drmSessionManager, extensionRendererMode);
       player.addListener(this);
@@ -479,18 +481,22 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   @Override
+  @SuppressWarnings("ReferenceEquality")
   public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
     updateButtonVisibilities();
-    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-    if (mappedTrackInfo != null) {
-      if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_VIDEO)
-          == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-        showToast(R.string.error_unsupported_video);
+    if (trackGroups != lastSeenTrackGroupArray) {
+      MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+      if (mappedTrackInfo != null) {
+        if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_VIDEO)
+            == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+          showToast(R.string.error_unsupported_video);
+        }
+        if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_AUDIO)
+            == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+          showToast(R.string.error_unsupported_audio);
+        }
       }
-      if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_AUDIO)
-          == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-        showToast(R.string.error_unsupported_audio);
-      }
+      lastSeenTrackGroupArray = trackGroups;
     }
   }
 
