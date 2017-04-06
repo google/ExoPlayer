@@ -5,3 +5,6 @@
 -keepclassmembers class com.google.android.exoplayer2.text.cea.Cea708Decoder {
     public <init>(int);
 }
+-keepclassmembers class com.google.android.exoplayer2.text.dvb.DvbDecoder {
+    public <init>(java.util.List);
+}
