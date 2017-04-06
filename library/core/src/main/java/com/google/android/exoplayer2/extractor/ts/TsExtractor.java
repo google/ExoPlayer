@@ -92,7 +92,7 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
-  public static final int TS_STREAM_TYPE_DVBSUBS   = 0x59;
+  public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
@@ -408,7 +408,7 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
-        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, new byte[0]);
+        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, new byte[0]);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
         id3Reader.init(timestampAdjuster, output,
             new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
@@ -478,6 +478,7 @@ public final class TsExtractor implements Extractor {
       int descriptorsEndPosition = descriptorsStartPosition + length;
       int streamType = -1;
       String language = null;
+      byte[] dvbSubtitleInitializationData = null;
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
@@ -503,12 +504,16 @@ public final class TsExtractor implements Extractor {
         } else if (descriptorTag == TS_PMT_DESC_DVBSUBS) {
           streamType = TS_STREAM_TYPE_DVBSUBS;
           language = new String(data.data, data.getPosition(), 3).trim();
+          data.skipBytes(4); // Skip language (3) + subtitling_type (1)
+          // Init data: composition_page (2), ancillary_page (2)
+          dvbSubtitleInitializationData = new byte[4];
+          data.readBytes(dvbSubtitleInitializationData, 0, 4);
         }
         // Skip unused bytes of current descriptor.
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
       }
       data.setPosition(descriptorsEndPosition);
-      return new EsInfo(streamType, language,
+      return new EsInfo(streamType, language, dvbSubtitleInitializationData,
           Arrays.copyOfRange(data.data, descriptorsStartPosition, descriptorsEndPosition));
     }
 

@@ -49,7 +49,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
     WebvttDecoder decoder = new WebvttDecoder();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), EMPTY_FILE);
     try {
-      decoder.decode(bytes, bytes.length);
+      decoder.decode(bytes, bytes.length, false);
       fail();
     } catch (SubtitleDecoderException expected) {
       // Do nothing.
@@ -194,7 +194,7 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
       SubtitleDecoderException {
     WebvttDecoder decoder = new WebvttDecoder();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), asset);
-    return decoder.decode(bytes, bytes.length);
+    return decoder.decode(bytes, bytes.length, false);
   }
 
   private Spanned getUniqueSpanTextAt(WebvttSubtitle sub, long timeUs) {

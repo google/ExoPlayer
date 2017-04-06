@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.text.dvb;
 
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.List;
 
 /**
@@ -26,27 +26,25 @@ public final class DvbDecoder extends SimpleSubtitleDecoder {
 
   private final DvbParser parser;
 
+  /**
+   * @param initializationData The initialization data for the decoder. The initialization data
+   *     must consist of a single byte array containing 5 bytes: flag_pes_stripped (1),
+   *     composition_page (2), ancillary_page (2).
+   */
   public DvbDecoder(List<byte[]> initializationData) {
     super("DvbDecoder");
-
-    int subtitleCompositionPage = 1;
-    int subtitleAncillaryPage = 1;
-    int flags = 0;
-    byte[] tempByteArray;
-
-    if ((tempByteArray = initializationData.get(0)) != null && tempByteArray.length == 5) {
-      if (tempByteArray[0] == 0x01) {
-        flags |= DvbParser.FLAG_PES_STRIPPED_DVBSUB;
-      }
-      subtitleCompositionPage = ((tempByteArray[1] & 0xFF) << 8) | (tempByteArray[2] & 0xFF);
-      subtitleAncillaryPage = ((tempByteArray[3] & 0xFF) << 8) | (tempByteArray[4] & 0xFF);
-    }
-
-    parser = new DvbParser(subtitleCompositionPage, subtitleAncillaryPage, flags);
+    ParsableByteArray data = new ParsableByteArray(initializationData.get(0));
+    int subtitleCompositionPage = data.readUnsignedShort();
+    int subtitleAncillaryPage = data.readUnsignedShort();
+    parser = new DvbParser(subtitleCompositionPage, subtitleAncillaryPage);
   }
 
   @Override
-  protected DvbSubtitle decode(byte[] data, int length) {
-    return new DvbSubtitle(parser.dvbSubsDecode(data, length));
+  protected DvbSubtitle decode(byte[] data, int length, boolean reset) {
+    if (reset) {
+      parser.reset();
+    }
+    return new DvbSubtitle(parser.decode(data, length));
   }
+
 }

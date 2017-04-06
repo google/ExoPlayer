@@ -35,7 +35,7 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length) {
+  protected Subtitle decode(byte[] bytes, int length, boolean reset) {
     parsableByteArray.reset(bytes, length);
     int textLength = parsableByteArray.readUnsignedShort();
     if (textLength == 0) {

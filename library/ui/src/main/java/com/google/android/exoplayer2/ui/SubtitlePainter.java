@@ -315,7 +315,7 @@ import com.google.android.exoplayer2.util.Util;
     float anchorX = parentLeft + (parentWidth * cuePosition);
     float anchorY = parentTop + (parentHeight * cueLine);
     int width = Math.round(parentWidth * cueSize);
-    int height = cueBitmapHeight != -1 ? Math.round(parentHeight * cueBitmapHeight)
+    int height = cueBitmapHeight != Cue.DIMEN_UNSET ? Math.round(parentHeight * cueBitmapHeight)
         : Math.round(width * ((float) cueBitmap.getHeight() / cueBitmap.getWidth()));
     int x = Math.round(cueLineAnchor == Cue.ANCHOR_TYPE_END ? (anchorX - width)
         : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorX - (width / 2)) : anchorX);

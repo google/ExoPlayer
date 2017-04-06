@@ -46,7 +46,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected SubripSubtitle decode(byte[] bytes, int length) {
+  protected SubripSubtitle decode(byte[] bytes, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
