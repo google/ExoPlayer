@@ -109,6 +109,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
             ? null : new SectionReader(new SpliceInfoSectionReader());
       case TsExtractor.TS_STREAM_TYPE_ID3:
         return new PesReader(new Id3Reader());
+      case TsExtractor.TS_STREAM_TYPE_DVBSUBS:
+        return new PesReader(new DvbSubtitlesReader(esInfo));
       default:
         return null;
     }

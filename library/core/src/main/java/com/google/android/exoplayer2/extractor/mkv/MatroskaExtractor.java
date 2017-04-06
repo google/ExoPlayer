@@ -99,6 +99,7 @@ public final class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
   private static final String CODEC_ID_PGS = "S_HDMV/PGS";
+  private static final String CODEC_ID_DVBSUB = "S_DVBSUB";
 
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
@@ -1233,7 +1234,8 @@ public final class MatroskaExtractor implements Extractor {
         || CODEC_ID_PCM_INT_LIT.equals(codecId)
         || CODEC_ID_SUBRIP.equals(codecId)
         || CODEC_ID_VOBSUB.equals(codecId)
-        || CODEC_ID_PGS.equals(codecId);
+        || CODEC_ID_PGS.equals(codecId)
+        || CODEC_ID_DVBSUB.equals(codecId);
   }
 
   /**
@@ -1461,6 +1463,11 @@ public final class MatroskaExtractor implements Extractor {
         case CODEC_ID_PGS:
           mimeType = MimeTypes.APPLICATION_PGS;
           break;
+        case CODEC_ID_DVBSUB:
+          mimeType = MimeTypes.APPLICATION_DVBSUBS;
+          initializationData = Collections.singletonList(new byte[] {
+              (byte) 0x01, codecPrivate[0], codecPrivate[1], codecPrivate[2], codecPrivate[3]});
+          break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
       }
@@ -1495,7 +1502,8 @@ public final class MatroskaExtractor implements Extractor {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, selectionFlags, language, drmInitData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
-          || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
+          || MimeTypes.APPLICATION_PGS.equals(mimeType)
+          || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
         format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, initializationData, language, drmInitData);
